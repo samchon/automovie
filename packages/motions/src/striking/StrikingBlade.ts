@@ -104,6 +104,9 @@ export namespace StrikingBlade {
 
     /** The trunk's twist while the tool is on its path, degrees, positive toward the performer's left: a shouldered long gun turns the support shoulder forward. 0 when absent. */
     turn?: number;
+
+    /** Whether the stroke starts from the pose the previous action holds, so the holding arm keeps that action's elbow hint and reference (the entry posture's goal) instead of solving its own; false when absent. */
+    kept?: boolean;
   }
 
   /**
@@ -325,6 +328,29 @@ export namespace StrikingBlade {
     };
     const reference = (): IHumanPosture.IReference => {
       if (anchored !== undefined) return anchored;
+
+      // A stroke that starts from the pose the previous action holds keeps
+      // that arm: its elbow's hint, carried on the chest as it stood, and
+      // its reference, so the same pose is the same arm at the boundary.
+      const entered: IHumanPosture.IGoal | undefined =
+        stroke.kept === true
+          ? context.entry.posture.limbs[`${tool.side}Arm`]
+          : undefined;
+      if (entered?.reference !== undefined) {
+        const at: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+          body,
+          context.entry.posture,
+        );
+        hint = Quaternion.rotateVector(
+          Quaternion.inverse(at.get("chest")!.worldRotation),
+          Vector3.subtract(
+            entered.bend,
+            at.get(`${tool.side}UpperArm`)!.worldPosition,
+          ),
+        );
+        anchored = entered.reference;
+        return anchored;
+      }
       const stood: IHumanPosture = turned(
         base.posture(clock.at("stroke")),
         stroke.turn ?? 0,

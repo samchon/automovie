@@ -21,9 +21,9 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanLadder } from "./HumanLadder";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanLadder } from "./HumanLadder";
 
 /**
  * Climbing a vertical fixed ladder from the floor before it, in the
@@ -152,8 +152,9 @@ export namespace climbLadder {
 
     // The climber stands before the ladder, facing it, the toes near the
     // rungs and the feet between the rails.
-    const turned: number =
-      Math.abs(((((standing.yaw - yaw) % 360) + 540) % 360) - 180);
+    const turned: number = Math.abs(
+      ((((standing.yaw - yaw) % 360) + 540) % 360) - 180,
+    );
     HumanBound.within("facing", turned, 0, FACING, "degrees");
     const toe: number = Math.max(
       ...(["left", "right"] as const).map(

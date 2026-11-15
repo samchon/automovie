@@ -55,9 +55,15 @@ export function createTorch(
   const barrel: number = d.length - head;
   const r: number = d.diameter / 2;
   builder.rod("barrel", r, v(0, 0, 0), v(0, barrel, 0), { color: "#2c2f33" });
-  builder.rod("head", createTorch.HEAD_DIAMETER / 2, v(0, barrel, 0), v(0, d.length, 0), {
-    color: "#3a3d42",
-  });
+  builder.rod(
+    "head",
+    createTorch.HEAD_DIAMETER / 2,
+    v(0, barrel, 0),
+    v(0, d.length, 0),
+    {
+      color: "#3a3d42",
+    },
+  );
   builder.affordance({
     id: "grip",
     kind: "handle",

@@ -46,7 +46,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * 4. `bow` refuses a peak that is not positive; for peaks of 15, 40 and 70
  *    degrees: at weight 0 it changes nothing; at weight 1 the trunk is
  *    pitched by the peak and the centre of mass is not ahead of the middle of
- *    the soles (within 2 mm), where the same pitch without the shift leaves
+ *    the feet where they bear (within 2 mm), where the same pitch without the shift leaves
  *    it more than 20 mm ahead at 40 and 70 degrees; a peak whose pitch alone
  *    stays behind the middle moves the hips nowhere, and a shifted one is not
  *    drawn behind the middle either; at half the weight the pitch is half and
@@ -293,7 +293,7 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
         full.pitch === peak &&
           held <= 0.002 &&
           held <= bare + 1e-9 &&
-          (bare <= 0.002 ? Math.abs(held - bare) <= 1e-9 : held >= -0.002) &&
+          (bare <= 0 ? Math.abs(held - bare) <= 1e-9 : held >= -0.002) &&
           (peak === 15 || bare > 0.02),
       );
       all.check(

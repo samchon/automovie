@@ -3,6 +3,7 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
+  clampJointToSkeleton,
   decomposeJointRotation,
   getConstraint,
   jointToQuaternion,
@@ -124,7 +125,10 @@ export namespace HumanArmGeometry {
     /** The segment of the arm each surface probe rides on. */
     owners: ("upper" | "lower" | "hand")[];
     /** A sphere about each segment's surface probes, in that segment's frame: the broad phase that spares the probes of a segment far from a shape. */
-    bounds: Record<"upper" | "lower" | "hand", { centre: IAutoMovieVector3; radius: number }>;
+    bounds: Record<
+      "upper" | "lower" | "hand",
+      { centre: IAutoMovieVector3; radius: number }
+    >;
     /** The tangle audit's part each surface probe belongs to, by the order the colliders are placed. */
     segments: number[];
     /** Each surface probe's index among its part's own probes, for the audit's reference depth of it. */
@@ -147,7 +151,12 @@ export namespace HumanArmGeometry {
     /** The shapes in the arm's way. */
     shapes: IShape[];
     /** The collider probes of the body in the arm's way (the tangle audit's corners), in the world, the arms of the problem left out: each one's point, audit part, index among that part's probes, and bone. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
-    body: { point: IAutoMovieVector3; part: number; corner: number; bone: AutoMovieHumanoidBone }[];
+    body: {
+      point: IAutoMovieVector3;
+      part: number;
+      corner: number;
+      bone: AutoMovieHumanoidBone;
+    }[];
   }
 
   /** The arm placed: its probes and its segments' world frames. */
@@ -183,10 +192,17 @@ export namespace HumanArmGeometry {
    * @param probe The probe.
    * @returns The segment: an axis sphere's by its place along the arm, a collider probe's by its owner.
    */
-  export function segment(at: IFrame, probe: number): "upperArm" | "lowerArm" | "hand" {
+  export function segment(
+    at: IFrame,
+    probe: number,
+  ): "upperArm" | "lowerArm" | "hand" {
     if (probe >= SURFACE) {
       const owner: "upper" | "lower" | "hand" = at.owners[probe - SURFACE]!;
-      return owner === "upper" ? "upperArm" : owner === "lower" ? "lowerArm" : "hand";
+      return owner === "upper"
+        ? "upperArm"
+        : owner === "lower"
+          ? "lowerArm"
+          : "hand";
     }
     return probe < 2 ? "upperArm" : probe < 6 ? "lowerArm" : "hand";
   }
@@ -199,17 +215,28 @@ export namespace HumanArmGeometry {
    * @returns The setup.
    */
   export function prepare(body: IHumanBody, side: "left" | "right"): ISetup {
-    const bones: ISetup["bones"] = { upper: `${side}UpperArm`, lower: `${side}LowerArm`, hand: `${side}Hand` };
-    const constraint = (bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null =>
+    const bones: ISetup["bones"] = {
+      upper: `${side}UpperArm`,
+      lower: `${side}LowerArm`,
+      hand: `${side}Hand`,
+    };
+    const constraint = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieJointConstraint | null =>
       getConstraint(bone, find(body, bone).constraint ?? null);
-    let axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined = AXES.get(body.skeleton);
+    let axes:
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+      | undefined = AXES.get(body.skeleton);
     if (axes === undefined) {
       axes = skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
       AXES.set(body.skeleton, axes);
     }
     const lower: IAutoMovieJointConstraint | null = constraint(bones.lower);
     const hand: IAutoMovieJointConstraint | null = constraint(bones.hand);
-    const has = (c: IAutoMovieJointConstraint | null, key: "flexion" | "abduction" | "twist"): boolean => c === null || c[key] !== null;
+    const has = (
+      c: IAutoMovieJointConstraint | null,
+      key: "flexion" | "abduction" | "twist",
+    ): boolean => c === null || c[key] !== null;
     return {
       body,
       bones,
@@ -242,20 +269,61 @@ export namespace HumanArmGeometry {
    * @param bone The bone.
    * @returns Its parent bone.
    */
-  export function parent(body: IHumanBody, bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone {
+  export function parent(
+    body: IHumanBody,
+    bone: AutoMovieHumanoidBone,
+  ): AutoMovieHumanoidBone {
     return find(body, bone).parent as AutoMovieHumanoidBone;
   }
 
   /**
-   * A joint's articulation from its clinical triple.
+   * A joint's articulation from its clinical triple, clamped to the
+   * skeleton's range as the engine's forward kinematics clamps it
+   * (`clampJointToSkeleton`), so the arm planned is the arm shown.
    *
    * @param setup The arm.
    * @param bone The joint's bone.
    * @param of Its flexion, abduction and twist, degrees.
    * @returns The rotation from the bone's rest.
    */
-  export function rotation(setup: ISetup, bone: AutoMovieHumanoidBone, of: readonly [number, number, number]): IAutoMovieQuaternion {
-    return Quaternion.normalize(jointToQuaternion({ flexion: of[0], abduction: of[1], twist: of[2] }, setup.axes[bone], HUMANOID_REST_FRAME[bone]));
+  export function rotation(
+    setup: ISetup,
+    bone: AutoMovieHumanoidBone,
+    of: readonly [number, number, number],
+  ): IAutoMovieQuaternion {
+    const [flexion, abduction, twist]: [number, number, number] = clamped(
+      setup,
+      bone,
+      of,
+    );
+    return Quaternion.normalize(
+      jointToQuaternion(
+        { flexion, abduction, twist },
+        setup.axes[bone],
+        HUMANOID_REST_FRAME[bone],
+      ),
+    );
+  }
+
+  /**
+   * A joint's clinical triple clamped to the skeleton's range, the angles
+   * forward kinematics reads (`rotation`).
+   *
+   * @param setup The arm.
+   * @param bone The joint's bone.
+   * @param of Its flexion, abduction and twist, degrees.
+   * @returns The clamped triple.
+   */
+  export function clamped(
+    setup: ISetup,
+    bone: AutoMovieHumanoidBone,
+    of: readonly [number, number, number],
+  ): [number, number, number] {
+    const joint: ReturnType<typeof clampJointToSkeleton> = clampJointToSkeleton(
+      { bone, flexion: of[0], abduction: of[1], twist: of[2] },
+      setup.body.skeleton,
+    );
+    return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
   }
 
   /**
@@ -266,12 +334,20 @@ export namespace HumanArmGeometry {
    * @returns The coordinates.
    */
   export function encode(setup: ISetup, arm: HumanArmClearance.IArm): number[] {
-    const place: { x: number; y: number; twist: number } = swingTwistRange.chart(
-      rotation(setup, setup.bones.upper, arm.upper),
-      setup.constraint.upper,
-      setup.joint,
-    );
-    return [place.x * SCALE, place.y * SCALE, place.twist, ...arm.lower, ...arm.hand];
+    const place: { x: number; y: number; twist: number } =
+      swingTwistRange.chart(
+        rotation(setup, setup.bones.upper, arm.upper),
+        setup.constraint.upper,
+        setup.joint,
+      );
+    // An arm already past a range enters as it is shown, clamped.
+    return [
+      place.x * SCALE,
+      place.y * SCALE,
+      place.twist,
+      ...clamped(setup, setup.bones.lower, arm.lower),
+      ...clamped(setup, setup.bones.hand, arm.hand),
+    ];
   }
 
   /**
@@ -282,7 +358,10 @@ export namespace HumanArmGeometry {
    * @param c The coordinates.
    * @returns The shoulder's rotation from its rest.
    */
-  export function shoulder(setup: ISetup, c: readonly number[]): IAutoMovieQuaternion {
+  export function shoulder(
+    setup: ISetup,
+    c: readonly number[],
+  ): IAutoMovieQuaternion {
     const k: number = Math.hypot(c[0]!, c[1]!) / SCALE;
     const scale: number = k > 1.3 ? 1.3 / k : 1;
     return swingTwistRange.placed(
@@ -299,13 +378,20 @@ export namespace HumanArmGeometry {
    * @param c The coordinates.
    * @returns The triples.
    */
-  export function arm(setup: ISetup, c: readonly number[]): HumanArmClearance.IArm {
-    const read: { flexion: number; abduction: number; twist: number } = decomposeJointRotation(
-      shoulder(setup, c),
-      setup.axes[setup.bones.upper],
-      HUMANOID_REST_FRAME[setup.bones.upper],
-      { bone: setup.bones.upper, constraint: { ...setup.constraint.upper, swingTwist: null } },
-    );
+  export function arm(
+    setup: ISetup,
+    c: readonly number[],
+  ): HumanArmClearance.IArm {
+    const read: { flexion: number; abduction: number; twist: number } =
+      decomposeJointRotation(
+        shoulder(setup, c),
+        setup.axes[setup.bones.upper],
+        HUMANOID_REST_FRAME[setup.bones.upper],
+        {
+          bone: setup.bones.upper,
+          constraint: { ...setup.constraint.upper, swingTwist: null },
+        },
+      );
     return {
       upper: [read.flexion, read.abduction, read.twist],
       lower: [c[3]!, c[4]!, c[5]!],
@@ -322,22 +408,48 @@ export namespace HumanArmGeometry {
    * @param surface Whether to place the collider probes too.
    * @returns The arm placed.
    */
-  export function placed(setup: ISetup, at: IFrame, c: readonly number[], surface: boolean = true): IPlaced {
+  export function placed(
+    setup: ISetup,
+    at: IFrame,
+    c: readonly number[],
+    surface: boolean = true,
+  ): IPlaced {
     const rest: ISetup["rest"] = setup.rest;
     const parent: IFrame["parent"] = at.parent;
-    const wu: IAutoMovieQuaternion = Quaternion.multiply(parent.rotation, Quaternion.multiply(rest.upper.rotation, shoulder(setup, c)));
-    const pu: IAutoMovieVector3 = Vector3.add(parent.position, Quaternion.rotateVector(parent.rotation, rest.upper.translation));
+    const wu: IAutoMovieQuaternion = Quaternion.multiply(
+      parent.rotation,
+      Quaternion.multiply(rest.upper.rotation, shoulder(setup, c)),
+    );
+    const pu: IAutoMovieVector3 = Vector3.add(
+      parent.position,
+      Quaternion.rotateVector(parent.rotation, rest.upper.translation),
+    );
     const wl: IAutoMovieQuaternion = Quaternion.multiply(
       wu,
-      Quaternion.multiply(rest.lower.rotation, rotation(setup, setup.bones.lower, [c[3]!, c[4]!, c[5]!])),
+      Quaternion.multiply(
+        rest.lower.rotation,
+        rotation(setup, setup.bones.lower, [c[3]!, c[4]!, c[5]!]),
+      ),
     );
-    const pl: IAutoMovieVector3 = Vector3.add(pu, Quaternion.rotateVector(wu, rest.lower.translation));
+    const pl: IAutoMovieVector3 = Vector3.add(
+      pu,
+      Quaternion.rotateVector(wu, rest.lower.translation),
+    );
     const wh: IAutoMovieQuaternion = Quaternion.multiply(
       wl,
-      Quaternion.multiply(rest.hand.rotation, rotation(setup, setup.bones.hand, [c[6]!, c[7]!, c[8]!])),
+      Quaternion.multiply(
+        rest.hand.rotation,
+        rotation(setup, setup.bones.hand, [c[6]!, c[7]!, c[8]!]),
+      ),
     );
-    const ph: IAutoMovieVector3 = Vector3.add(pl, Quaternion.rotateVector(wl, rest.hand.translation));
-    const tip: IAutoMovieVector3 = Vector3.add(ph, Quaternion.rotateVector(wh, at.tip));
+    const ph: IAutoMovieVector3 = Vector3.add(
+      pl,
+      Quaternion.rotateVector(wl, rest.hand.translation),
+    );
+    const tip: IAutoMovieVector3 = Vector3.add(
+      ph,
+      Quaternion.rotateVector(wh, at.tip),
+    );
     const m: IHumanBody["measure"] = setup.body.measure;
     return {
       probes: [
@@ -349,11 +461,21 @@ export namespace HumanArmGeometry {
         [ph, m.forearmRadius * 0.7],
         [Vector3.lerp(ph, tip, 0.5), m.forearmRadius * 0.6],
         [tip, m.forearmRadius * 0.4],
-        ...(surface ? at.surface : []).map((s: IAutoMovieVector3, i: number): readonly [IAutoMovieVector3, number] => {
-          const owner: "upper" | "lower" | "hand" = at.owners[i]!;
-          const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] = owner === "upper" ? [pu, wu] : owner === "lower" ? [pl, wl] : [ph, wh];
-          return [Vector3.add(o, Quaternion.rotateVector(w, s)), 0];
-        }),
+        ...(surface ? at.surface : []).map(
+          (
+            s: IAutoMovieVector3,
+            i: number,
+          ): readonly [IAutoMovieVector3, number] => {
+            const owner: "upper" | "lower" | "hand" = at.owners[i]!;
+            const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
+              owner === "upper"
+                ? [pu, wu]
+                : owner === "lower"
+                  ? [pl, wl]
+                  : [ph, wh];
+            return [Vector3.add(o, Quaternion.rotateVector(w, s)), 0];
+          },
+        ),
       ],
       shoulder: pu,
       elbow: pl,
@@ -376,12 +498,21 @@ export namespace HumanArmGeometry {
    * @param screened The placement's screen (`screen`), when it is read for many probes; taken here when absent.
    * @returns The shapes' indices.
    */
-  export function nearby(at: IFrame, placed: IPlaced, probe: number, reach: number, screened?: IScreen): number[] {
+  export function nearby(
+    at: IFrame,
+    placed: IPlaced,
+    probe: number,
+    reach: number,
+    screened?: IScreen,
+  ): number[] {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     if (probe < SURFACE) return near(at, p, r + reach);
     const owner: "upper" | "lower" | "hand" = at.owners[probe - SURFACE]!;
     return (screened ?? screen(at, placed, reach))[owner].filter(
-      (i: number): boolean => Vector3.length(Vector3.subtract(p, at.shapes[i]!.centre)) - at.shapes[i]!.radius < r + reach,
+      (i: number): boolean =>
+        Vector3.length(Vector3.subtract(p, at.shapes[i]!.centre)) -
+          at.shapes[i]!.radius <
+        r + reach,
     );
   }
 
@@ -399,8 +530,16 @@ export namespace HumanArmGeometry {
    * @returns The shapes' indices by segment.
    */
   export function screen(at: IFrame, placed: IPlaced, reach: number): IScreen {
-    const of = (owner: "upper" | "lower" | "hand", o: IAutoMovieVector3, w: IAutoMovieQuaternion): number[] =>
-      near(at, Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)), at.bounds[owner].radius + reach);
+    const of = (
+      owner: "upper" | "lower" | "hand",
+      o: IAutoMovieVector3,
+      w: IAutoMovieQuaternion,
+    ): number[] =>
+      near(
+        at,
+        Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)),
+        at.bounds[owner].radius + reach,
+      );
     return {
       upper: of("upper", placed.shoulder, placed.upper),
       lower: of("lower", placed.elbow, placed.lower),
@@ -420,13 +559,18 @@ export namespace HumanArmGeometry {
     const out: IShape[] = [];
     for (const c of at.colliders) {
       const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
-        c.owner === "upper" ? [placed.shoulder, placed.upper] : c.owner === "lower" ? [placed.elbow, placed.lower] : [placed.wrist, placed.hand];
+        c.owner === "upper"
+          ? [placed.shoulder, placed.upper]
+          : c.owner === "lower"
+            ? [placed.elbow, placed.lower]
+            : [placed.wrist, placed.hand];
       const pose: HumanColliders.IPlaced["pose"] = {
         ...c.pose,
         position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
         rotation: Quaternion.multiply(w, c.pose.rotation),
       };
-      for (const shape of c.shapes) out.push(bounded(c.bone, c.part, pose, shape));
+      for (const shape of c.shapes)
+        out.push(bounded(c.bone, c.part, pose, shape));
     }
     return out;
   }
@@ -452,7 +596,11 @@ export namespace HumanArmGeometry {
         : {
             centre: { x: 0, y: 0, z: 0 },
             radius:
-              shape.kind === "sphere" ? shape.radius : shape.kind === "capsule" ? shape.halfLength + shape.radius : Vector3.length(shape.halfExtents),
+              shape.kind === "sphere"
+                ? shape.radius
+                : shape.kind === "capsule"
+                  ? shape.halfLength + shape.radius
+                  : Vector3.length(shape.halfExtents),
           };
     return {
       bone,
@@ -461,7 +609,13 @@ export namespace HumanArmGeometry {
       shape,
       centre: Vector3.add(
         pose.position,
-        Quaternion.rotateVector(pose.rotation, Vector3.add(shape.transform.position, Quaternion.rotateVector(shape.transform.rotation, local.centre))),
+        Quaternion.rotateVector(
+          pose.rotation,
+          Vector3.add(
+            shape.transform.position,
+            Quaternion.rotateVector(shape.transform.rotation, local.centre),
+          ),
+        ),
       ),
       radius: local.radius,
     };
@@ -475,10 +629,18 @@ export namespace HumanArmGeometry {
    * @param reach The reach, metres.
    * @returns The shapes' indices.
    */
-  export function near(at: IFrame, p: IAutoMovieVector3, reach: number): number[] {
+  export function near(
+    at: IFrame,
+    p: IAutoMovieVector3,
+    reach: number,
+  ): number[] {
     const out: number[] = [];
     at.shapes.forEach((shape: IShape, i: number): void => {
-      if (Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius < reach) out.push(i);
+      if (
+        Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
+        reach
+      )
+        out.push(i);
     });
     return out;
   }
@@ -492,9 +654,18 @@ export namespace HumanArmGeometry {
    * @param p The point.
    * @returns The unit normal.
    */
-  export function normal(at: IFrame, shape: number, p: IAutoMovieVector3): IAutoMovieVector3 {
+  export function normal(
+    at: IFrame,
+    shape: number,
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     const s: IShape = at.shapes[shape]!;
-    return physicalShapeNormal(s.pose, s.shape, p, Vector3.normalize(Vector3.subtract(p, s.centre)));
+    return physicalShapeNormal(
+      s.pose,
+      s.shape,
+      p,
+      Vector3.normalize(Vector3.subtract(p, s.centre)),
+    );
   }
 
   /**
@@ -506,16 +677,26 @@ export namespace HumanArmGeometry {
    * @param b Its other end; `a` for a point.
    * @returns Metres, negative inside.
    */
-  export function gap(at: IFrame, shape: number, a: IAutoMovieVector3, b: IAutoMovieVector3): number {
+  export function gap(
+    at: IFrame,
+    shape: number,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number {
     const s: IShape = at.shapes[shape]!;
     return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
   }
 }
 
 /** The skeleton's joint axes, read once per skeleton. */
-const AXES: WeakMap<object, Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>> = new WeakMap();
+const AXES: WeakMap<
+  object,
+  Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+> = new WeakMap();
 
 /** A bone of the body's skeleton. */
 function find(body: IHumanBody, bone: AutoMovieHumanoidBone): IAutoMovieBone {
-  return body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)!;
+  return body.skeleton.bones.find(
+    (b: IAutoMovieBone): boolean => b.bone === bone,
+  )!;
 }

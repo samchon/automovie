@@ -59,11 +59,20 @@ export namespace HumanArmDifferential {
       up[d] = up[d]! + H;
       down[d] = down[d]! - H;
       free.push(d);
-      columns.push(Vector3.scale(Vector3.subtract(point(up), point(down)), 1 / (2 * H)));
+      columns.push(
+        Vector3.scale(Vector3.subtract(point(up), point(down)), 1 / (2 * H)),
+      );
     }
-    const axis = (v: IAutoMovieVector3, i: number): number => (i === 0 ? v.x : i === 1 ? v.y : v.z);
+    const axis = (v: IAutoMovieVector3, i: number): number =>
+      i === 0 ? v.x : i === 1 ? v.y : v.z;
     const m: number[][] = [0, 1, 2].map((i: number): number[] =>
-      [0, 1, 2].map((k: number): number => columns.reduce((s: number, c: IAutoMovieVector3): number => s + axis(c, i) * axis(c, k), 0)),
+      [0, 1, 2].map((k: number): number =>
+        columns.reduce(
+          (s: number, c: IAutoMovieVector3): number =>
+            s + axis(c, i) * axis(c, k),
+          0,
+        ),
+      ),
     );
     const damping: number = (1e-6 * (m[0]![0]! + m[1]![1]! + m[2]![2]!)) / 3;
     for (let i: number = 0; i < 3; ++i) m[i]![i]! += damping;
@@ -77,13 +86,23 @@ export namespace HumanArmDifferential {
 }
 
 /** A three-by-three symmetric definite system solved by Cramer's rule. */
-function solve3(m: readonly (readonly number[])[], b: readonly number[]): number[] {
+function solve3(
+  m: readonly (readonly number[])[],
+  b: readonly number[],
+): number[] {
   const det = (a: readonly (readonly number[])[]): number =>
     a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
     a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
     a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!);
   const whole: number = det(m);
-  return [0, 1, 2].map((k: number): number => det(m.map((row: readonly number[], i: number): number[] => row.map((v: number, c: number): number => (c === k ? b[i]! : v)))) / whole);
+  return [0, 1, 2].map(
+    (k: number): number =>
+      det(
+        m.map((row: readonly number[], i: number): number[] =>
+          row.map((v: number, c: number): number => (c === k ? b[i]! : v)),
+        ),
+      ) / whole,
+  );
 }
 
 /** The coordinate step of the Jacobian's central differences, coordinate units. */

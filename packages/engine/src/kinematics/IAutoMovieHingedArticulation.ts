@@ -1,5 +1,7 @@
 import { IAutoMovieQuaternion } from "@automovie/interface";
 
+import { IAutoMovieSwivelSeed } from "./IAutoMovieSwivelSeed";
+
 /**
  * The articulation `hingedArmArticulation` chose for an arm reach, with its
  * range-of-motion cost.
@@ -7,14 +9,16 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
  * Every candidate the solver scores lands the hand on the reachable shell
  * toward the target, so the choice among them is legality first and then the
  * least clinical deviation from the anatomical neutral. `reachPose` lowers
- * `upper` and `lower` into clinical angles for the shoulder and elbow.
+ * `upper` and `lower` into clinical angles for the shoulder and elbow. Its
+ * branch and swivel are the seed a fit of a nearby target continues from
+ * (`IAutoMovieSwivelNear`).
  *
  * @evidence contracts/development/design.md#principled-representation The two deltas are a hinge rotation in closed form and a chain-root rotation from the swivel sweep, and `overshoot` is the caller scorer's value, which `reachPose` takes from `jointRomOvershoot`, the measure the pose gate applies, so the reported cost is the gate's verdict rather than a solver-private score.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Mirrors the two-delta shape of `IAutoMovieTwoBoneArticulation` with the one extra fact a hinged solve has, its cost; the scorer's deviation term decides the choice but is dropped from the result because no caller reads it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Mirrors the two-delta shape of `IAutoMovieTwoBoneArticulation` with the facts a hinged solve adds, its cost and the seed that continues it; the scorer's deviation term decides the choice but is dropped from the result because no caller reads it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A rig that cannot hold any legal pose still returns its least-overshoot candidate with a positive `overshoot` rather than a clamped pose presented as clean, and a non-finite angle scores `Infinity` so it cannot win.
  * @evidence contracts/development/common.md#meaningful-documentation States the producer, the selection rule, the consumer, each delta's joint and frame, the hinge-only property of `lower`, and the unit and meaning of `overshoot` including `0` and `Infinity`.
  */
-export interface IAutoMovieHingedArticulation {
+export interface IAutoMovieHingedArticulation extends IAutoMovieSwivelSeed {
   /** Bone-local articulation delta for the chain-root joint (the shoulder). */
   upper: IAutoMovieQuaternion;
 

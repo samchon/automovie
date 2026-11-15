@@ -167,6 +167,13 @@ export namespace ballSport {
     const entry: IHumanPosture = context.entry.posture;
     const into = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
+    // The span the arms are planned over: the reach to the place, the hold and the return.
+    const span: AutoMovieMotionHumanArm.ISpan = {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.at("end"),
+    };
     const stroke = (s: number): number =>
       clock.progress("strokeStart", "stroke", s);
     const arm: number = m.upperArm + m.forearm;
@@ -211,6 +218,7 @@ export namespace ballSport {
             to: clock.duration,
             rest: rest(side),
             weight: into,
+            span,
             place: (posture: IHumanPosture, s: number) => {
               const u: number = clock.linear("strokeStart", "strokeEnd", s);
               const down: number =
@@ -248,6 +256,7 @@ export namespace ballSport {
               to: clock.duration,
               rest: rest(side),
               weight: into,
+              span,
               place: (posture: IHumanPosture, s: number) => {
                 // The platform: nearly straight arms from the displayed shoulders, lifted at the contact.
                 const below: number =
@@ -292,6 +301,7 @@ export namespace ballSport {
               to: clock.duration,
               rest: rest(side),
               weight: into,
+              span,
               place: (posture: IHumanPosture, s: number) => ({
                 point: Vector3.lerp(
                   AutoMovieMotionHumanPlaced.grid(body, posture, side, {
@@ -371,6 +381,7 @@ export namespace ballSport {
               to: clock.duration,
               rest: rest(side),
               weight: into,
+              span,
               place: (_posture: IHumanPosture, s: number) => ({
                 point: Vector3.add(
                   Vector3.lerp(drawn, released, stroke(s)),

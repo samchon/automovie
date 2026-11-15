@@ -317,7 +317,13 @@ export namespace createVessel {
     bowl: {
       diameter: ArchetypeBand.metres(0.16, 0.16, BOWL),
       height: ArchetypeBand.metres(0.07, 0.07, BOWL),
-      mass: ArchetypeBand.of("kg", 0.4, 0.44, `${BOWL}; the bowl alone is lighter than its packing by an unread amount`, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.4,
+        0.44,
+        `${BOWL}; the bowl alone is lighter than its packing by an unread amount`,
+        true,
+      ),
     },
     ashtray: {},
     saucepan: {

@@ -256,7 +256,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex hull is its least distance to the face planes; other shapes are read by the engine's shape distance.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative transform, then one loop over probes and shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine owns the hull faces and the shape distance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A face loop stops once a probe is no deeper than the deepest found.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A probe outside a shape's bounding sphere (`HumanColliders.bound`) skips the shape, which can add no depth there, and a face loop stops once a probe is no deeper than the deepest found; the readings are those of reading every shape.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Poses are read independently.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
    */
@@ -275,6 +275,20 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       Vector3.subtract(a.pose.position, b.pose.position),
     );
     const out: Float64Array = new Float64Array(probes.length);
+    // Each shape's bounding sphere in segment j's frame: a probe outside it
+    // is outside the shape, which then adds no depth.
+    const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
+      (shape: IAutoMoviePhysicalProfile.IShape) => {
+        const ball: HumanColliders.IBall = HumanColliders.bound(shape);
+        return {
+          centre: Vector3.add(
+            shape.transform.position,
+            Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+          ),
+          radius: ball.radius,
+        };
+      },
+    );
     for (let k: number = 0; k < probes.length; k++) {
       // The probe in segment j's frame.
       const local: IAutoMovieVector3 = Vector3.add(
@@ -282,7 +296,13 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         Quaternion.rotateVector(rotation, probes[k]!),
       );
       let deepest: number = 0;
-      for (const shape of b.shapes) {
+      for (let s: number = 0; s < b.shapes.length; s++) {
+        const shape: IAutoMoviePhysicalProfile.IShape = b.shapes[s]!;
+        if (
+          Vector3.length(Vector3.subtract(local, balls[s]!.centre)) >=
+          balls[s]!.radius
+        )
+          continue;
         if (shape.kind !== "hull") {
           deepest = Math.max(
             deepest,

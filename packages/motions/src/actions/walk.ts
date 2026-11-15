@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -24,7 +24,6 @@ import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";
-
 import { walkDescent } from "./walkDescent";
 import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
@@ -206,7 +205,7 @@ export namespace walk {
     const m = body.measure;
     const l: number = m.hipHeight;
     const froude: number = gait.froude;
-    const speed: number = Math.sqrt(froude * 9.81 * l);
+    const speed: number = Math.sqrt(froude * AutoMovieGravity.STANDARD * l);
     const p = context.params;
     const stride: number = p.stride ?? 1;
     const arms: number = p.armSwing ?? 1;

@@ -17,7 +17,7 @@ const UNREAD: string =
 /**
  * A push sled: a weighted base on the floor with two upright poles a pusher leans into.
  *
- * The base runs forward along `+Z` from its back edge at the origin, centred on `X`, and the pusher stands behind it at `-Z`, facing `+Z`. The two poles rise from the base's back corners; `left` and `right` are the upper reach of each, the pusher's left and right hand's handle, taken from behind (`-Z`) with the pole's axis along `+X` of the frame; `deck` is the base's top, where plates are loaded.
+ * The base runs forward along `+Z` from its back edge at the origin, centred on `X`, and the pusher stands behind it at `-Z`, facing `+Z`. The two poles rise from the base's back corners; `left` and `right` are the upper reach of each, the pusher's left and right hand's handle (`left` at `+X`, the pusher's left as it faces `+Z`), taken from behind (`-Z`) with the pole's axis along `+X` of the frame; `deck` is the base's top, where plates are loaded.
  *
  * @param params The sled model and any dimension the author fixes.
  * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
@@ -69,8 +69,8 @@ export function createSled(
     density: 3,
   });
   for (const [id, sign] of [
-    ["left", -1],
-    ["right", 1],
+    ["left", 1],
+    ["right", -1],
   ] as const) {
     const x: number = (sign * d.spacing!) / 2;
     builder.rod(`${id}Pole`, pole / 2, v(x, base, pole), v(x, height, pole), {

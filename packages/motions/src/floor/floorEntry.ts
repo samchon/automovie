@@ -29,7 +29,7 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the problem, the two answers and which bases get which.
  * @evidence contracts/development/design.md#principled-representation The base axis decides the start (`HumanBase`): the laws plan from the entry state (the motion skill's laws rule), and the bases they have no route from are refused, as the transitions rule asks of an impossible change of plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The accepted bases, the gate, the standing reference, the displayed entry and the blend, read by `crawl`, `crawlInchworm` and `lieDown`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The accepted bases, the gate, the standing reference, the displayed entry, the blend and its per-joint blend, read by `crawl`, `crawlDown`, `crawlFrame`, `crawlInchworm` and `lieDown`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is named here; each passes its own name to the gate.
  */
 export namespace floorEntry {
@@ -278,17 +278,11 @@ export namespace floorEntry {
     if (weight <= 0) return from;
     if (weight >= 1) return to;
     const lerp = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = {};
-    for (const bone of new Set([
-      ...Object.keys(from.joints),
-      ...Object.keys(to.joints),
-    ]) as Set<AutoMovieHumanoidBone>) {
-      const a: readonly [number, number, number] = from.joints[bone] ?? [
-        0, 0, 0,
-      ];
-      const b: readonly [number, number, number] = to.joints[bone] ?? [0, 0, 0];
-      joints[bone] = [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2])];
-    }
+    const joints: IHumanPosture["joints"] = blended(
+      from.joints,
+      to.joints,
+      weight,
+    );
     const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
     const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
       yaw: from.yaw + turn * weight,
@@ -320,6 +314,42 @@ export namespace floorEntry {
     return rise === 0
       ? carried
       : { ...carried, root: { ...carried.root, y: carried.root.y + rise } };
+  }
+
+  /**
+   * Two postures' joints blended angle by angle: each joint that either holds
+   * goes from its first triple to its second by the weight, a joint only
+   * one holds from or to clinical zero.
+   *
+   * @param from The joints at weight 0.
+   * @param to The joints at weight 1.
+   * @param weight The weight.
+   * @returns The blended joints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the blend, a missing joint and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation Joint-space interpolation of clinical angles, the way between two postures a free movement takes (Soechting and Lacquaniti 1981).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the joints either holds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing joint reads clinical zero, as the resolver reads it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one per-joint blend of the floor laws, read by `blend`, the crawl's way down and its arms.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function blended(
+    from: IHumanPosture["joints"],
+    to: IHumanPosture["joints"],
+    weight: number,
+  ): IHumanPosture["joints"] {
+    const lerp = (a: number, b: number): number => a + (b - a) * weight;
+    const joints: IHumanPosture["joints"] = {};
+    for (const bone of new Set([
+      ...Object.keys(from),
+      ...Object.keys(to),
+    ]) as Set<AutoMovieHumanoidBone>) {
+      const a: readonly [number, number, number] = from[bone] ?? [0, 0, 0];
+      const b: readonly [number, number, number] = to[bone] ?? [0, 0, 0];
+      joints[bone] = [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2])];
+    }
+    return joints;
   }
 
   /** Where a posture's hips joint is: its root plus the hips' rest place turned by its heading. */

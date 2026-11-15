@@ -46,6 +46,8 @@ export namespace HumanArmTrajectory {
     guess?: HumanArmClearance.IArm;
     /** Its segments' declared rests over the hold (M.IRest). */
     rests?: readonly M.IRest[];
+    /** Its segments that grasp one object with the other arm over the action (`M.IContext.grasped`). */
+    grasp?: readonly M.Segment[];
   }
 
   /** The problem. */
@@ -80,47 +82,94 @@ export namespace HumanArmTrajectory {
    * @returns Each arm's trajectory, in the problem's order.
    * @throws {HumanRefusal} When no trajectory meets the constraints.
    */
-  export function solve(read: (times: readonly number[]) => IProblem, times: readonly number[]): Trajectory[] {
+  export function solve(
+    read: (times: readonly number[]) => IProblem,
+    times: readonly number[],
+  ): Trajectory[] {
     const first: IProblem = read(times);
-    const reading: (times: readonly number[]) => IProblem = leftFirst(first) ? (t: readonly number[]): IProblem => mirrored(read(t)) : read;
+    const reading: (times: readonly number[]) => IProblem = leftFirst(first)
+      ? (t: readonly number[]): IProblem => mirrored(read(t))
+      : read;
     let problem: IProblem = leftFirst(first) ? mirrored(first) : first;
     let context: M.IContext = HumanArmTrajectoryContext.of(problem);
     // The frame grid over the span, the instants between waypoints are read at.
     const start: number = times[0]!;
     const end: number = times[times.length - 1]!;
     const grid: number[] = [start];
-    for (let j: number = 1; start + j * STEP < end - 1e-9; ++j) grid.push(start + j * STEP);
+    for (let j: number = 1; start + j * STEP < end - 1e-9; ++j)
+      grid.push(start + j * STEP);
     grid.push(end);
-    const fine: M.IContext = HumanArmTrajectoryContext.of(reading(grid));
+    const fine: M.IContext = HumanArmTrajectoryContext.of(
+      reading(grid),
+      context,
+    );
     // Split where the waypoints do not bound what lies between them, and
     // about a waypoint the solve could not meet its constraints at, the arms
     // carried onto the new waypoints by their own interpolant.
-    const refined = (x: number[][][], failed?: M.IEvaluation): number[][][] | undefined => {
+    const refined = (
+      x: number[][][],
+      failed?: M.IEvaluation,
+    ): number[][][] | undefined => {
       const split: number[] = HumanArmRefine.unbounded(context, fine, x);
       if (failed !== undefined && failed.worst.value > M.TOLERANCE)
         for (const k of [failed.worst.at - 1, failed.worst.at])
-          if (k >= 0 && k + 1 < context.n && context.times[k + 1]! - context.times[k]! >= 2 * STEP - 1e-9 && !split.includes(k)) split.push(k);
+          if (
+            k >= 0 &&
+            k + 1 < context.n &&
+            context.times[k + 1]! - context.times[k]! >= 2 * STEP - 1e-9 &&
+            !split.includes(k)
+          )
+            split.push(k);
       split.sort((p: number, q: number): number => p - q);
       if (split.length === 0) return undefined;
       const next: number[] = HumanArmRefine.split(context.times, split);
-      const carried: number[][][] = x.map((arm: number[][]): number[][] => next.map((t: number): number[] => HumanArmRefine.hermite(context.times, arm, t)));
+      const carried: number[][][] = x.map((arm: number[][]): number[][] =>
+        next.map((t: number): number[] =>
+          HumanArmRefine.hermite(context.times, arm, t),
+        ),
+      );
       problem = reading(next);
-      context = HumanArmTrajectoryContext.of(problem);
+
+      // The waypoints kept from the last reading keep what its context
+      // built on them; only the new ones are read.
+      context = HumanArmTrajectoryContext.of(problem, context);
       return carried;
     };
     let seed: number[][][] = HumanArmSeed.seed(problem, context);
-    for (let again: number[][][] | undefined = refined(seed); again !== undefined; again = refined(seed)) seed = again;
-    let solved: { x: number[][][]; evaluation: M.IEvaluation; penalty: number } = HumanArmOptimiser.optimise(context, seed);
-    for (let again: number[][][] | undefined = refined(solved.x, solved.evaluation); again !== undefined; again = refined(solved.x, solved.evaluation))
+    for (
+      let again: number[][][] | undefined = refined(seed);
+      again !== undefined;
+      again = refined(seed)
+    )
+      seed = again;
+    let solved: {
+      x: number[][][];
+      evaluation: M.IEvaluation;
+      penalty: number;
+    } = HumanArmOptimiser.optimise(context, seed);
+    for (
+      let again: number[][][] | undefined = refined(
+        solved.x,
+        solved.evaluation,
+      );
+      again !== undefined;
+      again = refined(solved.x, solved.evaluation)
+    )
       solved = HumanArmOptimiser.optimise(context, again, solved.penalty);
-    const { x, evaluation: current }: { x: number[][][]; evaluation: M.IEvaluation; penalty: number } = solved;
+    const {
+      x,
+      evaluation: current,
+    }: { x: number[][][]; evaluation: M.IEvaluation; penalty: number } = solved;
     const n: number = context.n;
     const at: readonly number[] = context.times;
     if (current.worst.value > M.TOLERANCE)
       throw new HumanRefusal({
         kind: "reach",
         axis: current.worst.axis,
-        value: current.worst.axis === "duration" ? at[n - 1]! - at[0]! : current.worst.value,
+        value:
+          current.worst.axis === "duration"
+            ? at[n - 1]! - at[0]!
+            : current.worst.value,
         feasible: null,
         reason: `no path of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the audit's ${M.SPEED_LIMIT} m/s: ${current.worst.what}`,
         fix:
@@ -157,10 +206,19 @@ export namespace HumanArmTrajectory {
         (arm: IArm): IArm => ({
           ...arm,
           side: arm.side === "left" ? "right" : "left",
-          sites: arm.sites.map((s: ISite | undefined): ISite | undefined => (s === undefined ? undefined : mirroredSite(s))),
+          sites: arm.sites.map((s: ISite | undefined): ISite | undefined =>
+            s === undefined ? undefined : mirroredSite(s),
+          ),
           ...(arm.rests === undefined
             ? {}
-            : { rests: arm.rests.map((r: M.IRest): M.IRest => ({ ...r, on: HumanArmMirror.opposite(r.on as AutoMovieHumanoidBone) })) }),
+            : {
+                rests: arm.rests.map(
+                  (r: M.IRest): M.IRest => ({
+                    ...r,
+                    on: HumanArmMirror.opposite(r.on as AutoMovieHumanoidBone),
+                  }),
+                ),
+              }),
         }),
       ),
     };
@@ -168,12 +226,20 @@ export namespace HumanArmTrajectory {
   /** A base's mirror image (`HumanArmMirror.mirrored`), one record per base, so the frames built on it are built once. */
   function mirroredBase(base: G.IBase): G.IBase {
     let found: G.IBase | undefined = MIRRORED.get(base);
-    if (found === undefined) MIRRORED.set(base, (found = HumanArmMirror.mirrored(base)));
+    if (found === undefined)
+      MIRRORED.set(base, (found = HumanArmMirror.mirrored(base)));
     return found;
   }
 
-  /** A site's mirror image across the world's x = 0 plane. */
+  /** A site's mirror image across the world's x = 0 plane, one record per site, as `mirroredBase`. */
   function mirroredSite(site: ISite): ISite {
+    let found: ISite | undefined = SITES.get(site);
+    if (found === undefined) SITES.set(site, (found = flipped(site)));
+    return found;
+  }
+
+  /** A site's mirror image, built. */
+  function flipped(site: ISite): ISite {
     return {
       ...site,
       point: HumanArmMirror.flip(site.point),
@@ -188,8 +254,12 @@ export namespace HumanArmTrajectory {
             on: {
               ...site.on,
               point: HumanArmMirror.flip(site.on.point),
-              normal: HumanArmMirror.flip(site.on.normal),
-              ...(site.on.rotation === undefined ? {} : { rotation: HumanArmMirror.turn(site.on.rotation) }),
+              ...(site.on.normal === undefined
+                ? {}
+                : { normal: HumanArmMirror.flip(site.on.normal) }),
+              ...(site.on.rotation === undefined
+                ? {}
+                : { rotation: HumanArmMirror.turn(site.on.rotation) }),
             },
           }),
     };
@@ -201,3 +271,7 @@ const STEP: number = 1 / 30;
 
 /** Each base's mirror image, kept while the base is held. */
 const MIRRORED: WeakMap<G.IBase, G.IBase> = new WeakMap();
+
+/** Each site's mirror image, kept while the site is held. */
+const SITES: WeakMap<HumanArmTrajectory.ISite, HumanArmTrajectory.ISite> =
+  new WeakMap();

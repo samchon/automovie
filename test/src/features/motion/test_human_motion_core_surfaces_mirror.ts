@@ -15,12 +15,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. Each left region's bone is its right twin's on the other side, and its
  *    point, normal and radius are the twin's mirrored, compared with `===`.
  * 2. The same for each left socket, its forward with them.
+ * 3. Each median region and socket is its own twin: its point's, normal's
+ *    and forward's lateral components are nought.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the surfaces every motion law aims with, as the body is built; a side placed by its own rays fails with the frame and the component that differ.
  * @evidence contracts/development/testing.md#independent-expectations The mirror is written here as a sign flip of the lateral component, the median-plane reflection of a bone-local vector; nothing is read from the builder's own mirror.
- * @evidence contracts/development/testing.md#distinguishing-cases Every paired region, the liver and spleen pair on a median bone, and every paired socket, on the fourteen bodies of the sweep.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every paired region, the liver and spleen pair on a median bone, every paired socket and every median region and socket, on the fourteen bodies of the sweep.
  * @evidence contracts/development/testing.md#execution-ownership Prepares the sweep's polygon men and compares records in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the claim, why it must hold to the bit and the 2 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the claim, why it must hold to the bit and the 3 scenarios.
  */
 export function test_human_motion_core_surfaces_mirror(): void {
   const complaints: string[] = [];
@@ -72,6 +74,9 @@ export function test_human_motion_core_surfaces_mirror(): void {
             : undefined;
       if (twin !== undefined)
         compare(`${name} ${region}`, regionMap[region]!, regionMap[twin]!);
+      // A median region is its own twin: nought across the median plane.
+      else if (!region.endsWith("Right") && region !== "liver")
+        compare(`${name} ${region}`, regionMap[region]!, regionMap[region]!);
     }
     const socketMap = sockets as unknown as Record<
       string,
@@ -83,6 +88,12 @@ export function test_human_motion_core_surfaces_mirror(): void {
           `${name} socket ${socket}`,
           socketMap[socket]!,
           socketMap[socket.replace(/Left$/, "Right")]!,
+        );
+      else if (!socket.endsWith("Right"))
+        compare(
+          `${name} socket ${socket}`,
+          socketMap[socket]!,
+          socketMap[socket]!,
         );
   }
   TestValidator.equals(

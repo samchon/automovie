@@ -15,6 +15,7 @@ import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
+import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { resolvePose } from "./resolvePose";
@@ -216,6 +217,24 @@ export function curlChainUntilContact(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the physical profile's shape union and the resolver's axes and rest frames.
  */
 export namespace curlChainUntilContact {
+  /**
+   * How far a curled digit's angle may move with the limb that carries it,
+   * degrees: a point the limb carries moves by no more than the limb's reach
+   * times the joints' tolerance (`ROM_TOLERANCE`, in radians) when the
+   * limb's chain is resolved to it, and a digit that closes on a contact
+   * follows the hand by about as far at its tip, which at its lever (the
+   * length from the joint to the digit's tip) turns it by this angle. A
+   * curl solves its own contact far finer (a step bisected 30 times); this
+   * is the change a curled digit shows when the limb's resolution moves the
+   * hand, not the curl's precision.
+   *
+   * @param reach The limb's reach, metres: its two segments' lengths.
+   * @param lever The joint's lever, metres: its length to the digit's tip.
+   * @returns Degrees.
+   */
+  export function resolution(reach: number, lever: number): number {
+    return (ROM_TOLERANCE * reach) / lever;
+  }
   /** The curl request. */
   export interface IInput {
     /** The rig, whose range of motion caps every flexion. */

@@ -169,9 +169,10 @@ export namespace motionComposeTrunk {
   /**
    * The trunk's crouch on one body: the hips sink and the trunk inclines
    * over them, the body stands again, and the feet and the balance hold all
-   * the way. The balance is the centre of mass against the soles: not ahead
-   * of their middle (`HumanBalance.offset`, within 2 mm) and inside the base
-   * of support (`HumanBalance.margin` positive).
+   * the way. The balance is the centre of mass against the feet where they
+   * bear, the forefoot alone once the ankle's range lifts the heel: not
+   * ahead of their middle (`HumanBalance.offset`, within 2 mm) and inside
+   * the base of support (`HumanBalance.margin` positive).
    *
    * Scenarios:
    * 1. `crouch` refuses a negative or non-numeric depth or pitch.
@@ -306,14 +307,16 @@ export namespace motionComposeTrunk {
   const DEG: number = 180 / Math.PI;
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
-  export const CLOCK: AutoMovieMotionClock.IClock =AutoMovieMotionClock.phrase({
-    prepare: 0.25,
-    wait: 0.125,
-    attack: 0.25,
-    follow: 0.25,
-    hold: 0.125,
-    retract: 0.25,
-  });
+  export const CLOCK: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase(
+    {
+      prepare: 0.25,
+      wait: 0.125,
+      attack: 0.25,
+      follow: 0.25,
+      hold: 0.125,
+      retract: 0.25,
+    },
+  );
 
   /** The phrases' rise. */
   export const RISE: readonly ["start", "ready"] = ["start", "ready"];

@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   projectileAt,
   solveBallisticLaunch,
   solveMovingLaunch,
@@ -8,7 +9,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
 
-const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
+// The solvers' default gravity, which the calls below leave to them.
+const GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
 
 /**
  * A settled moving-target lead meets the target at its returned flight time;
@@ -60,7 +62,7 @@ export function test_physics_moving_launch(): void {
           x: moving.velocity.x * moving.hitTime,
           y:
             moving.velocity.y * moving.hitTime -
-            (9.81 * moving.hitTime ** 2) / 2,
+            (AutoMovieGravity.STANDARD * moving.hitTime ** 2) / 2,
           z: moving.velocity.z * moving.hitTime,
         },
         { x: 7, y: -0.6, z: 2 },
@@ -92,7 +94,9 @@ export function test_physics_moving_launch(): void {
       {
         x: lead.velocity.x * lead.hitTime,
         y:
-          1.6 + lead.velocity.y * lead.hitTime - (9.81 * lead.hitTime ** 2) / 2,
+          1.6 +
+          lead.velocity.y * lead.hitTime -
+          (AutoMovieGravity.STANDARD * lead.hitTime ** 2) / 2,
         z: lead.velocity.z * lead.hitTime,
       },
       slide(lead.hitTime),

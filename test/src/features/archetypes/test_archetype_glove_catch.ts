@@ -69,7 +69,9 @@ export function test_archetype_glove_catch(): void {
     const at: IAutoMovieVector3 = {
       x: 0,
       y: body.measure.chestHeight,
-      z: distance - catchObject.REACH * (body.measure.upperArm + body.measure.forearm),
+      z:
+        distance -
+        catchObject.REACH * (body.measure.upperArm + body.measure.forearm),
     };
     const perform = (
       side: "left" | "right",
@@ -96,7 +98,10 @@ export function test_archetype_glove_catch(): void {
         seed: "catch",
         laws: [],
         props: [
-          HumanObject.prop("ball", ball, { at: { x: 0, y: 0, z: 0.3 }, yaw: 0 }),
+          HumanObject.prop("ball", ball, {
+            at: { x: 0, y: 0, z: 0.3 },
+            yaw: 0,
+          }),
           {
             ...HumanObject.prop("glove", glove, {
               at: { x: 0, y: 0, z: 0 },
@@ -138,9 +143,7 @@ export function test_archetype_glove_catch(): void {
       const hand: IAutoMovieVector3 = film
         .bones("b", seconds)
         .get("leftHand")!.worldPosition;
-      return Vector3.length(
-        Vector3.subtract(hand, contact(film).centre),
-      );
+      return Vector3.length(Vector3.subtract(hand, contact(film).centre));
     };
 
     // 1. The gloved catch meets the ball with the pocket.

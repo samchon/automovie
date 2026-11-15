@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
+import type { IAutoMovieSwivelNear } from "../kinematics/IAutoMovieSwivelNear";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 
@@ -103,4 +104,12 @@ export interface IFitChainToTargetProps {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
    */
   obstruction?: (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
+
+  /**
+   * A hinged chain's fit of a nearby target to continue, its seed and the
+   * tolerance its swivel is refined to (`IAutoMovieSwivelNear`), in place of
+   * the sweep over every swivel; omitted, the swivel is swept. A caller reads
+   * a seed from `fitSeededChainToTarget`.
+   */
+  near?: IAutoMovieSwivelNear;
 }

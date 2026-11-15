@@ -108,7 +108,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
         at: pick("at") ?? "personal",
         ...S.set(pick, "side"),
       }),
-      S.chain("b").act("stand", { seconds: 8 }),
+      S.chain("b").act("stand", { seconds: 8, sway: 0 }),
     ]),
   stepOver: (
     pick: motionHumanLawSweep.Pick,

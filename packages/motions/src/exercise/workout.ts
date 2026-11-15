@@ -125,7 +125,6 @@ export namespace workout {
     /** Seconds a held pose is stayed in; the kind's own when absent. */
     hold?: number & tags.Minimum<0> & HumanUnit<"s">;
 
-
     /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind, which hangs from nothing else. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */
     on?: { prop: string; affordance: string; other?: string };
 

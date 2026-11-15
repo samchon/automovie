@@ -33,6 +33,9 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
  * a solve of the same rows with other bounds.
  */
 export namespace HumanQuadraticProgram {
+  /** The relative accuracy a solve's iterates and multipliers are known to: the residual tests' relative tolerance (OSQP's eps_rel). */
+  export const TOLERANCE: number = 1e-3;
+
   /** One row: `l <= Σ coef·x[index] <= u`. */
   export interface IRow {
     /** The constraint the row linearises, so a later solve of the next convexification starts from its multiplier. */
@@ -85,7 +88,10 @@ export namespace HumanQuadraticProgram {
    * @param state Its solve's iterates.
    * @returns Each keyed row's multiplier.
    */
-  export function multipliers(problem: IProblem, state: IState): Map<string, number> {
+  export function multipliers(
+    problem: IProblem,
+    state: IState,
+  ): Map<string, number> {
     const out: Map<string, number> = new Map();
     problem.rows.forEach((row: IRow, r: number): void => {
       if (row.key !== undefined) out.set(row.key, state.y[r]!);
@@ -101,7 +107,11 @@ export namespace HumanQuadraticProgram {
    * @param duals Multipliers by row key from a solve of other rows that linearise the same constraints, read when `warm` is absent.
    * @returns The iterates, unscaled; `x` is the minimiser.
    */
-  export function solve(problem: IProblem, warm?: IState, duals?: ReadonlyMap<string, number>): IState {
+  export function solve(
+    problem: IProblem,
+    warm?: IState,
+    duals?: ReadonlyMap<string, number>,
+  ): IState {
     const s: B.IScaled = B.scaled(problem);
     const { n, m, start, cols, vals, lo, hi, weight, d, e } = s;
     const c: number = s.c;
@@ -111,7 +121,12 @@ export namespace HumanQuadraticProgram {
     const rho: Float64Array = new Float64Array(m);
     const steps = (): void => {
       for (let r: number = 0; r < m; ++r)
-        rho[r] = lo[r] === -Infinity && hi[r] === Infinity ? RHO_MIN : lo[r] === hi[r] ? EQUALITY * base : base;
+        rho[r] =
+          lo[r] === -Infinity && hi[r] === Infinity
+            ? RHO_MIN
+            : lo[r] === hi[r]
+              ? EQUALITY * base
+              : base;
     };
     steps();
     let factor: Float64Array[] = B.factor(s, rho, SIGMA);
@@ -130,7 +145,10 @@ export namespace HumanQuadraticProgram {
       problem.rows.forEach((row: IRow, r: number): void => {
         // A solve of new rows starts from the multipliers of the rows they
         // linearise again (`IRow.key`), the primal at the iterate itself.
-        const known: number | undefined = row.key === undefined || duals === undefined ? undefined : duals.get(row.key);
+        const known: number | undefined =
+          row.key === undefined || duals === undefined
+            ? undefined
+            : duals.get(row.key);
         if (known !== undefined) y[r] = (c * known) / e[r]!;
         z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
       });
@@ -140,21 +158,27 @@ export namespace HumanQuadraticProgram {
     const tilde: Float64Array = new Float64Array(m);
     const before: Float64Array = new Float64Array(m);
     let status: IState["status"] = "unfinished";
-    let residual: { primal: number; dual: number } = { primal: Infinity, dual: Infinity };
+    let residual: { primal: number; dual: number } = {
+      primal: Infinity,
+      dual: Infinity,
+    };
     for (let it: number = 0; it < ITERATIONS; ++it) {
       // The ADMM step (algorithm 1), in the reduced form.
       for (let i: number = 0; i < n; ++i) rhs[i] = SIGMA * x[i]! - s.q[i]!;
       for (let r: number = 0; r < m; ++r) {
         const w: number = rho[r]! * z[r]! - y[r]!;
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a) rhs[cols[a]!]! += vals[a]! * w;
+        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
+          rhs[cols[a]!]! += vals[a]! * w;
       }
       B.substitute(factor, n, s.band, rhs, xt);
       for (let r: number = 0; r < m; ++r) {
         let v: number = 0;
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a) v += vals[a]! * xt[cols[a]!]!;
+        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
+          v += vals[a]! * xt[cols[a]!]!;
         tilde[r] = v;
       }
-      for (let i: number = 0; i < n; ++i) x[i] = ALPHA * xt[i]! + (1 - ALPHA) * x[i]!;
+      for (let i: number = 0; i < n; ++i)
+        x[i] = ALPHA * xt[i]! + (1 - ALPHA) * x[i]!;
       for (let r: number = 0; r < m; ++r) {
         before[r] = y[r]!;
         const relaxed: number = ALPHA * tilde[r]! + (1 - ALPHA) * z[r]!;
@@ -165,7 +189,8 @@ export namespace HumanQuadraticProgram {
         if (weight[r]! < 0) next = Math.min(u, Math.max(l, v));
         else {
           const t: number = weight[r]! / rho[r]!;
-          next = v > u + t ? v - t : v > u ? u : v < l - t ? v + t : v < l ? l : v;
+          next =
+            v > u + t ? v - t : v > u ? u : v < l - t ? v + t : v < l ? l : v;
         }
         y[r] = y[r]! + rho[r]! * (relaxed - next);
         z[r] = next;
@@ -175,7 +200,10 @@ export namespace HumanQuadraticProgram {
       // Termination on the unscaled residuals (section 3.4).
       const at: B.IResiduals = B.residuals(s, x, z, y);
       residual = { primal: at.primal, dual: at.dual };
-      if (at.primal <= ABSOLUTE + RELATIVE * at.primalScale && at.dual <= ABSOLUTE + RELATIVE * at.dualScale) {
+      if (
+        at.primal <= ABSOLUTE + RELATIVE * at.primalScale &&
+        at.dual <= ABSOLUTE + RELATIVE * at.dualScale
+      ) {
         status = "solved";
         break;
       }
@@ -186,7 +214,9 @@ export namespace HumanQuadraticProgram {
       }
       // The step size balancing the scaled residuals (section 5.2).
       const ratio: number = Math.sqrt(
-        at.scaledPrimal / Math.max(1e-12, at.scaledPrimalScale) / Math.max(1e-12, at.scaledDual / Math.max(1e-12, at.scaledDualScale)),
+        at.scaledPrimal /
+          Math.max(1e-12, at.scaledPrimalScale) /
+          Math.max(1e-12, at.scaledDual / Math.max(1e-12, at.scaledDualScale)),
       );
       const next: number = Math.min(RHO_MAX, Math.max(RHO_MIN, base * ratio));
       if (next > ADAPT * base || next < base / ADAPT) {
@@ -198,11 +228,22 @@ export namespace HumanQuadraticProgram {
 
     // Polishing on the active set (section 4).
     if (status === "solved") {
-      const polished: { x: Float64Array; z: Float64Array; y: Float64Array } | undefined = B.polish(s, z, y, DELTA, REFINE);
+      const polished:
+        | { x: Float64Array; z: Float64Array; y: Float64Array }
+        | undefined = B.polish(s, z, y, DELTA, REFINE);
       if (polished !== undefined) {
-        const at: B.IResiduals = B.residuals(s, polished.x, polished.z, polished.y);
-        const primalOk: boolean = at.primal <= residual.primal || at.primal <= ABSOLUTE + RELATIVE * at.primalScale;
-        const dualOk: boolean = at.dual <= residual.dual || at.dual <= ABSOLUTE + RELATIVE * at.dualScale;
+        const at: B.IResiduals = B.residuals(
+          s,
+          polished.x,
+          polished.z,
+          polished.y,
+        );
+        const primalOk: boolean =
+          at.primal <= residual.primal ||
+          at.primal <= ABSOLUTE + RELATIVE * at.primalScale;
+        const dualOk: boolean =
+          at.dual <= residual.dual ||
+          at.dual <= ABSOLUTE + RELATIVE * at.dualScale;
         if (primalOk && dualOk) {
           x.set(polished.x);
           z.set(polished.z);
@@ -214,7 +255,13 @@ export namespace HumanQuadraticProgram {
     }
 
     // The unscaled iterates: x = D x̄, z = E⁻¹ z̄, y = E ȳ / c.
-    const out: IState = { x: new Float64Array(n), z: new Float64Array(m), y: new Float64Array(m), status, residual };
+    const out: IState = {
+      x: new Float64Array(n),
+      z: new Float64Array(m),
+      y: new Float64Array(m),
+      status,
+      residual,
+    };
     for (let i: number = 0; i < n; ++i) out.x[i] = d[i]! * x[i]!;
     for (let r: number = 0; r < m; ++r) {
       out.z[r] = z[r]! / e[r]!;
@@ -236,12 +283,14 @@ export namespace HumanQuadraticProgram {
     for (let i: number = 0; i < problem.n; ++i) {
       v += problem.q[i]! * x[i]!;
       v += 0.5 * problem.p[i]![0]! * x[i]! * x[i]!;
-      for (let j: number = 1; j <= problem.band && i + j < problem.n; ++j) v += problem.p[i]![j]! * x[i]! * x[i + j]!;
+      for (let j: number = 1; j <= problem.band && i + j < problem.n; ++j)
+        v += problem.p[i]![j]! * x[i]! * x[i + j]!;
     }
     for (const row of problem.rows) {
       if (row.weight === undefined) continue;
       let s: number = 0;
-      for (let a: number = 0; a < row.index.length; ++a) s += row.coef[a]! * x[row.index[a]!]!;
+      for (let a: number = 0; a < row.index.length; ++a)
+        s += row.coef[a]! * x[row.index[a]!]!;
       v += row.weight * Math.max(0, row.l - s, s - row.u);
     }
     return v;
@@ -275,7 +324,7 @@ const CHECK: number = 25;
 
 /** The residual tests' absolute and relative tolerances (OSQP's defaults). */
 const ABSOLUTE: number = 1e-3;
-const RELATIVE: number = 1e-3;
+const RELATIVE: number = HumanQuadraticProgram.TOLERANCE;
 
 /** The primal infeasibility certificate's tolerance (OSQP's default). */
 const INFEASIBLE: number = 1e-4;

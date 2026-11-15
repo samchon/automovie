@@ -1,4 +1,4 @@
-import { detectFreeFall } from "@automovie/engine";
+import { AutoMovieGravity, detectFreeFall } from "@automovie/engine";
 import {
   IAutoMovieBody,
   IAutoMovieTrack,
@@ -38,7 +38,7 @@ const FOOTPRINT: IAutoMovieVector3[] = [
  * 4. The proposed translation's final height matches origin.y + 0.5 * g * t squared at the default one-second duration.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual free-fall detector for empty, outside and supported contact populations, reads warnings/events/trajectory and checks its final height, catching a lost fall or a false supported-body warning.
- * @evidence contracts/development/testing.md#independent-expectations The supplied square's XZ extent independently separates inside from outside; constant acceleration from rest gives 5-9.81/2 at one second. Only the selected final translation value is checked, not every sample or a simulated collision response.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied square's XZ extent independently separates inside from outside; constant acceleration from rest gives 5 - g/2 at one second, `g` standard gravity (`AutoMovieGravity.STANDARD`), the default the call is made under. Only the selected final translation value is checked, not every sample or a simulated collision response.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts empty/nonempty unsupported and supported hulls, explicit/omitted node labels and trajectory/no-trajectory outcomes; suppression and invalid scalar settings are separate free-fall entries.
  * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns local body/contact records and returned reports, invoking portable hull and trajectory code without a physics host, renderer or native artifact.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty support produces a warning, one fall event and a proposed trajectory.).
@@ -116,6 +116,6 @@ export function test_validation_free_fall(): void {
   const lastY: number = track.values[track.values.length - 2]!;
   TestValidator.predicate(
     "free-fall height = origin.y + ½·g·t²",
-    nclose(lastY, 5 + 0.5 * -9.81 * 1 * 1),
+    nclose(lastY, 5 - 0.5 * AutoMovieGravity.STANDARD * 1 * 1),
   );
 }

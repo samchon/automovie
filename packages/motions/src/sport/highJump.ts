@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -232,7 +232,7 @@ export namespace highJump {
             fix: "raise the bar",
           });
         const vy: number = Math.sqrt(
-          2 * GymnasticsFlight.G * (bar - centre.y),
+          2 * AutoMovieGravity.STANDARD * (bar - centre.y),
         );
         if (vy > RISE)
           throw new HumanRefusal({
@@ -242,7 +242,8 @@ export namespace highJump {
             feasible: {
               kind: "range",
               minimum: centre.y,
-              maximum: centre.y + (RISE * RISE) / (2 * GymnasticsFlight.G),
+              maximum:
+                centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
               unit: "m",
             },
             reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,
@@ -269,9 +270,9 @@ export namespace highJump {
     HumanBound.above("bar", bar, c0.y, "m");
     const v: IAutoMovieVector3 = {
       ...takeoff.velocity,
-      y: Math.sqrt(2 * GymnasticsFlight.G * (bar - c0.y)),
+      y: Math.sqrt(2 * AutoMovieGravity.STANDARD * (bar - c0.y)),
     };
-    const rising: number = v.y / GymnasticsFlight.G;
+    const rising: number = v.y / AutoMovieGravity.STANDARD;
     const from: IHumanPosture = GymnasticsFlight.frozen(
       body,
       takeoff.plan.posture(off),
@@ -338,7 +339,7 @@ export namespace highJump {
       body,
       model,
       from: flying(down),
-      velocity: { x: v.x, y: v.y - GymnasticsFlight.G * down, z: v.z },
+      velocity: { x: v.x, y: v.y - AutoMovieGravity.STANDARD * down, z: v.z },
       height: surface,
     });
 

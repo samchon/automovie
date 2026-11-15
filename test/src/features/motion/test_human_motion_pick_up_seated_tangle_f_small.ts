@@ -6,9 +6,9 @@ import { motionPickUpSeated } from "../internal/motionPickUpSeated";
  * no tangle, no foot sliding, lifting or sinking, no joint past its range.
  * `motionPickUpSeated` states the stage and this scenario (6).
  *
- * It runs about 60 s alone: the verdicts' tangle audit reads sub-frame
- * points, each a pose of the per-frame arm fit, a cost routed to the arm
- * fit's owner.
+ * It runs about 50 s beside another spec: the verdicts' tangle audit reads
+ * sub-frame points, each a pose of the seated pick up, whose lean reads the
+ * thighs' rest from the legs alone.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Seats a polygon man, picks a real glass up through the public chain and reads the shipped verdicts over the pick up; any tangle, foot fault, range overshoot or jump fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the shipped verdicts' own, the campaign's; nothing is read from the lean.

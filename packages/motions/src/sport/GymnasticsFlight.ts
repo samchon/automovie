@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
@@ -41,12 +42,9 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/common.md#meaningful-documentation States what a flight posture is, why it is written by joints and the physics.
  * @evidence contracts/development/design.md#principled-representation Free functions over the posture record and the engine's mass model; no state.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What the gymnastic laws share: freezing, the centre, placing by it, a rigid turn, the fall time, the lowest point, the launch read off a plan and the touchdown search.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the only constant; every length is the body's or the plan's.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the engine's (`AutoMovieGravity`); every length is the body's or the plan's.
  */
 export namespace GymnasticsFlight {
-  /** Gravity, m/s². */
-  export const G: number = 9.81;
-
   /** The engine's mass model of a body. */
   export type Model = ReturnType<typeof resolveAutoMovieCenterOfMass>;
 
@@ -241,9 +239,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fall(from: number, vy: number, to: number): number | null {
-    const discriminant: number = vy * vy - 2 * G * (to - from);
+    const discriminant: number =
+      vy * vy - 2 * AutoMovieGravity.STANDARD * (to - from);
     if (discriminant < 0) return null;
-    const t: number = (vy + Math.sqrt(discriminant)) / G;
+    const t: number =
+      (vy + Math.sqrt(discriminant)) / AutoMovieGravity.STANDARD;
     return t > 0 ? t : null;
   }
 
@@ -270,7 +270,7 @@ export namespace GymnasticsFlight {
   ): IAutoMovieVector3 {
     return {
       x: from.x + velocity.x * t,
-      y: from.y + velocity.y * t - 0.5 * G * t * t,
+      y: from.y + velocity.y * t - 0.5 * AutoMovieGravity.STANDARD * t * t,
       z: from.z + velocity.z * t,
     };
   }
@@ -331,13 +331,16 @@ export namespace GymnasticsFlight {
     );
     const velocity: IAutoMovieVector3 = {
       x: (two.x - one.x) / delta,
-      y: (two.y - one.y) / delta + 1.5 * G * delta,
+      y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
       z: (two.z - one.z) / delta,
     };
     return {
       centre: {
         x: one.x - velocity.x * delta,
-        y: one.y - velocity.y * delta + 0.5 * G * delta * delta,
+        y:
+          one.y -
+          velocity.y * delta +
+          0.5 * AutoMovieGravity.STANDARD * delta * delta,
         z: one.z - velocity.z * delta,
       },
       velocity,

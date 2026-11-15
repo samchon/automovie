@@ -56,7 +56,9 @@ export namespace HumanArmConnect {
         }
       });
       const reached: boolean = least <= range;
-      const next: number[] = reached ? [...q] : lerp(tree.nodes[near]!, q, range / least);
+      const next: number[] = reached
+        ? [...q]
+        : lerp(tree.nodes[near]!, q, range / least);
       if (!clear(tree.nodes[near]!, next)) return "trapped";
       tree.nodes.push(next);
       tree.parent.push(near);
@@ -78,19 +80,22 @@ export namespace HumanArmConnect {
     return null;
   }
 
-
   /** The path through the two trees' last vertices, which coincide: the start tree's from its root, then the goal tree's to its root. */
   function joined(from: ITree, to: ITree): number[][] {
     const trace = (tree: ITree): number[][] => {
       const out: number[][] = [];
-      for (let i: number = tree.nodes.length - 1; i >= 0; i = tree.parent[i]!) out.push(tree.nodes[i]!);
+      for (let i: number = tree.nodes.length - 1; i >= 0; i = tree.parent[i]!)
+        out.push(tree.nodes[i]!);
       return out;
     };
     return [...trace(from).reverse(), ...trace(to).slice(1)];
   }
 
   /** The path with each vertex joined to the farthest later one its straight segment reaches. */
-  function shortcut(path: number[][], clear: (a: readonly number[], b: readonly number[]) => boolean): number[][] {
+  function shortcut(
+    path: number[][],
+    clear: (a: readonly number[], b: readonly number[]) => boolean,
+  ): number[][] {
     const out: number[][] = [path[0]!];
     let i: number = 0;
     while (i < path.length - 1) {
@@ -123,7 +128,11 @@ export namespace HumanArmConnect {
    * @param u The share.
    * @returns The configuration.
    */
-  export function lerp(a: readonly number[], b: readonly number[], u: number): number[] {
+  export function lerp(
+    a: readonly number[],
+    b: readonly number[],
+    u: number,
+  ): number[] {
     return a.map((v: number, i: number): number => v + (b[i]! - v) * u);
   }
 

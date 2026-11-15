@@ -234,11 +234,7 @@ export namespace createRacket {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     tennis: {
-      length: m(
-        0.685,
-        0.737,
-        `${BABOLAT}, to ${ITF}: at most 73.7 cm long`,
-      ),
+      length: m(0.685, 0.737, `${BABOLAT}, to ${ITF}: at most 73.7 cm long`),
       headWidth: m(
         0.247,
         0.292,
@@ -263,8 +259,16 @@ export namespace createRacket {
         0.677,
         "Yonex Astrox 10DG, 675 mm +/- 2 (https://www.badmintonbay.com/yonex-astrox-10dg-navy-turquoise-4ug5-badminton-racket.html), inside the BWF Law 4.1's 680 mm",
       ),
-      headWidth: m(0.23, 0.23, `${BWF}: the frame at most 230 mm wide, the limit the model takes`),
-      headLength: m(0.28, 0.28, `${BWF}: the strung area at most 280 mm long, the limit the model takes`),
+      headWidth: m(
+        0.23,
+        0.23,
+        `${BWF}: the frame at most 230 mm wide, the limit the model takes`,
+      ),
+      headLength: m(
+        0.28,
+        0.28,
+        `${BWF}: the strung area at most 280 mm long, the limit the model takes`,
+      ),
       handleLength: m(0.19, 0.21, UNREAD, true),
       gripDiameter: m(
         0.08 / Math.PI,
@@ -286,7 +290,11 @@ export namespace createRacket {
       mass: kg(0.11, 0.255, WSF, true),
     },
     tableTennis: {
-      length: m(0.257, 0.257, `${BUTTERFLY}: the blade's 157 mm and the handle's 100 mm`),
+      length: m(
+        0.257,
+        0.257,
+        `${BUTTERFLY}: the blade's 157 mm and the handle's 100 mm`,
+      ),
       headWidth: m(0.15, 0.15, BUTTERFLY),
       headLength: m(0.157, 0.157, BUTTERFLY),
       handleLength: m(0.1, 0.1, BUTTERFLY),

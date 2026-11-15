@@ -141,11 +141,33 @@ export namespace StrikingHeld {
       };
     }
     // The prop as the hand holds it, read by the one owner of that frame.
-    const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-      context,
-      side,
-      prop,
-    );
+    return read(AutoMovieMotionHumanHeld.of(context, side, prop), points);
+  }
+
+  /**
+   * The tool a held prop is, in the hand's grip frame: what `of` reads at an
+   * action's entry, and what a grasp not yet taken would hold (a pick-up's
+   * candidate grip, its prop's frame in that grip).
+   *
+   * @param held The prop in the hand's grip frame.
+   * @param points The affordances that mark its working point and edge; a blade's `point` and `edge` when absent.
+   * @returns The tool in the hand's frame.
+   * @throws {HumanRefusal} When the prop lacks the working point's affordance, listing the ones it has.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input's frame, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation An affordance's translation is its point and its rotated `+Y` its outward direction; the tool's line is that `+Y` where the archetype declares it along the tool, and the line from the grip to the working point where it declares a face's normal (`IAutoMovieAffordance.direction`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One change of frame for the point, the axis and the edge.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop without the named point is refused; an edge that is missing or parallel to the axis is replaced by a direction square to the axis, stated in `IPoints`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A scan of the prop's few affordances.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one reading of a tool from a held frame, for the held prop and a candidate grip alike.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function read(
+    held: AutoMovieMotionHumanHeld.IHeld,
+    points: IPoints = { tip: "point", edge: "edge" },
+  ): ITool {
+    const prop: string = held.prop;
+    const side: HumanHand.Side = held.side;
     const tip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
       AutoMovieMotionHumanHeld.point(held, points.tip);
     // The tool's line runs from the grip to its working point. A working
@@ -265,6 +287,43 @@ export namespace StrikingHeld {
       frame.point,
       Quaternion.rotateVector(frame.rotation, placed(tool, back)),
     );
+  }
+
+  /**
+   * How far the tool on one hand frame lies from itself on another: the
+   * greater of the displacements of the point it keeps and of its working
+   * point; a pose that keeps the working point itself reads the line at the
+   * tool's own length in place of the kept point, so a tool that keeps its
+   * point and points elsewhere is counted.
+   *
+   * @param tool The tool.
+   * @param fitted The hand frame the arm reaches.
+   * @param asked The hand frame asked.
+   * @param back The point the pose keeps, metres behind the working point.
+   * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two points read and the case of a kept working point.
+   * @evidence contracts/development/implementation.md#principled-implementation Two points of a rigid line fix where it lies and where it points: the displacement a viewer would see.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings of `point`, the greater.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both points are read, in metres, never an angle mixed in.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one measure of a held tool's pose: a law's (`StrikingRoll.miss`) and a grasp's use (`HumanGraspUse.presented`) read it alike.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function strayed(
+    tool: ITool,
+    fitted: IHandFrame,
+    asked: IHandFrame,
+    back: number,
+  ): number {
+    const off = (behind: number): number =>
+      Vector3.length(
+        Vector3.subtract(
+          point(tool, fitted, behind),
+          point(tool, asked, behind),
+        ),
+      );
+    return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 
   /**

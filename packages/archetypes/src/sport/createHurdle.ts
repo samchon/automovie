@@ -43,9 +43,10 @@ export function createHurdle(
   );
   const d: Record<createHurdle.Dimension, number> = ArchetypeDraw.dimensions(
     "hurdle",
-    { ...createHurdle.SHARED, height: createHurdle.HEIGHTS[kind] },
+    createHurdle.BANDS[kind],
     seed,
     params,
+    createHurdle.BANDS,
   );
   const builder: ArchetypeBuilder<
     createHurdle.Affordance,
@@ -186,11 +187,7 @@ export namespace createHurdle {
 
   /** The bands every race shares. */
   export const SHARED: Readonly<Record<"width" | "mass", IArchetypeBand>> = {
-    width: ArchetypeBand.metres(
-      1.18,
-      1.2,
-      `${RULE}: 1.18 to 1.20 m wide`,
-    ),
+    width: ArchetypeBand.metres(1.18, 1.2, `${RULE}: 1.18 to 1.20 m wide`),
     mass: ArchetypeBand.of(
       "kg",
       10,
@@ -198,5 +195,15 @@ export namespace createHurdle {
       `${RULE}: not less than 10 kg; the rule sets no upper end, and no maker's weight was read`,
       true,
     ),
+  };
+
+  /** Each race's bands, its height with the shared width and mass, the table every producer draws from and the gallery lists. */
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  > = {
+    men110: { ...SHARED, height: HEIGHTS.men110 },
+    women100: { ...SHARED, height: HEIGHTS.women100 },
+    men400: { ...SHARED, height: HEIGHTS.men400 },
+    women400: { ...SHARED, height: HEIGHTS.women400 },
   };
 }

@@ -273,10 +273,20 @@ export namespace AutoMovieMotionHumanTouch {
         weight: (seconds: number): number => share(clock, seconds),
         goal: goal(props),
         // A person read as perceived when the plan starts, then followed on the hold.
-        ...(props.perceived === undefined ? {} : { perceived: goal({ ...props, ...props.perceived }), tracked: true }),
+        ...(props.perceived === undefined
+          ? {}
+          : {
+              perceived: goal({ ...props, ...props.perceived }),
+              tracked: true,
+            }),
         // The whole touch planned as one trajectory: the reach from `start`,
         // the hold from `ready` to `relax` and the return by `end`.
-        span: { start: clock.at("start"), ready: clock.at("ready"), relax: clock.at("relax"), end: clock.at("end") },
+        span: {
+          start: clock.at("start"),
+          ready: clock.at("ready"),
+          relax: clock.at("relax"),
+          end: clock.at("end"),
+        },
         ...(props.together === undefined ? {} : { together: props.together }),
         ...(props.rests === undefined ? {} : { rests: props.rests }),
         ...(props.disc === undefined ? {} : { disc: props.disc }),
@@ -448,18 +458,32 @@ export namespace AutoMovieMotionHumanTouch {
       );
 
       // A held rotation turns with the heading and leans with the vessel.
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw - props.entry.yaw);
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        { x: 0, y: 1, z: 0 },
+        posture.yaw - props.entry.yaw,
+      );
       const rotation: IAutoMovieQuaternion | undefined =
         props.held === undefined
           ? undefined
-          : Quaternion.normalize(Quaternion.multiply(AutoMovieMotionHumanTouchUpright.tip(normal, lean), Quaternion.multiply(turn, props.held)));
+          : Quaternion.normalize(
+              Quaternion.multiply(
+                AutoMovieMotionHumanTouchUpright.tip(normal, lean),
+                Quaternion.multiply(turn, props.held),
+              ),
+            );
       return {
         ...laid,
         ...(rotation === undefined
           ? {}
           : {
               rotation,
-              point: Vector3.subtract(at, Quaternion.rotateVector(rotation, laid.contact ?? { x: 0, y: 0, z: 0 })),
+              point: Vector3.subtract(
+                at,
+                Quaternion.rotateVector(
+                  rotation,
+                  laid.contact ?? { x: 0, y: 0, z: 0 },
+                ),
+              ),
             }),
         ...(props.reference === undefined
           ? {}

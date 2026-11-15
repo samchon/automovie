@@ -399,28 +399,48 @@ export namespace seated {
       const rest: IAutoMovieVector3 | undefined = rests[side];
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      const goal: IHumanPosture.IGoal = armrest(body, posture, side, rest, yaw);
       limbs[`${side}Arm`] = {
-        point: Vector3.lerp(
-          hand.worldPosition,
-          { ...rest, y: rest.y + 0.2 * body.measure.hand },
-          s,
-        ),
-        rotation: Quaternion.slerp(
-          hand.worldRotation,
-          HumanHand.rotation(side, {
-            fingers: HumanFrame.point(
-              { origin: { x: 0, y: 0, z: 0 }, yaw },
-              { x: 0, y: 0, z: 1 },
-            ),
-            palm: { x: 0, y: -1, z: 0 },
-          }),
-          s,
-        ),
-        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        point: Vector3.lerp(hand.worldPosition, goal.point, s),
+        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
+        bend: goal.bend,
         planted: s >= 1,
       };
     }
     return { ...posture, limbs };
+  }
+
+  /**
+   * The goal that rests a hand on its armrest: the wrist a fifth of a hand's
+   * length above the rest, the palm down and the fingers ahead along the
+   * seat's heading, the hand bearing.
+   *
+   * @param body The body.
+   * @param posture The posture with its legs placed.
+   * @param side The hand.
+   * @param rest The armrest's point, world metres.
+   * @param yaw The seat's heading, degrees.
+   * @returns The arm's goal.
+   */
+  export function armrest(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: "left" | "right",
+    rest: IAutoMovieVector3,
+    yaw: number,
+  ): IHumanPosture.IGoal {
+    return {
+      point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
+      rotation: HumanHand.rotation(side, {
+        fingers: HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          { x: 0, y: 0, z: 1 },
+        ),
+        palm: { x: 0, y: -1, z: 0 },
+      }),
+      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+      planted: true,
+    };
   }
 
   /** A posture's leg goals alone, so its hands are read where its own joints hold them. */

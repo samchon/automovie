@@ -113,7 +113,10 @@ export namespace getUp {
    * kneel on the trailing knee with the leading foot flat ahead; standing.
    */
   export const POSES: Readonly<
-    Record<"sit" | "squat" | "prone" | "quadruped" | "halfKneel" | "stood", IPose>
+    Record<
+      "sit" | "squat" | "prone" | "quadruped" | "halfKneel" | "stood",
+      IPose
+    >
   > = {
     sit: lieDown.POSES.sit,
     squat: keyed(40, { hip: 120, knee: 100, ankle: 20, shoulder: 60 }),
@@ -186,7 +189,12 @@ export namespace getUp {
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const kind: HumanBase.Kind = context.entry.base.kind;
-    if (kind === "standing" || kind === "seated" || kind === "hanging" || kind === "leaning")
+    if (
+      kind === "standing" ||
+      kind === "seated" ||
+      kind === "hanging" ||
+      kind === "leaning"
+    )
       throw new HumanRefusal({
         kind: "base",
         axis: "base",
@@ -235,13 +243,13 @@ export namespace getUp {
     const phase: number =
       (SECONDS / ROUTES[supine ? pattern : "rotation"].length) *
       modifiers.tempo;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence(
-      [
-        { name: "getUp", seconds: phase },
-        ...route.slice(0, -1).map(([, event]) => ({ name: event, seconds: phase })),
-        { name: "standing", seconds: 0 },
-      ],
-    );
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
+      { name: "getUp", seconds: phase },
+      ...route
+        .slice(0, -1)
+        .map(([, event]) => ({ name: event, seconds: phase })),
+      { name: "standing", seconds: 0 },
+    ]);
     const duration: number = clock.duration;
 
     // The posture of a phase at a share of it, before it is placed: joints
@@ -267,8 +275,12 @@ export namespace getUp {
         ...Object.keys(a.joints),
         ...Object.keys(b.joints),
       ]) as Set<AutoMovieHumanoidBone>) {
-        const p: readonly [number, number, number] = a.joints[bone] ?? [0, 0, 0];
-        const q: readonly [number, number, number] = b.joints[bone] ?? [0, 0, 0];
+        const p: readonly [number, number, number] = a.joints[bone] ?? [
+          0, 0, 0,
+        ];
+        const q: readonly [number, number, number] = b.joints[bone] ?? [
+          0, 0, 0,
+        ];
         joints[bone] = [
           p[0] + (q[0] - p[0]) * u,
           p[1] + (q[1] - p[1]) * u,
@@ -305,24 +317,26 @@ export namespace getUp {
     const starts: IAutoMovieVector3[] = [];
     const placed = (i: number, u: number): IHumanPosture => {
       const shaped: IHumanPosture = between(i, u);
-      const at: IAutoMovieVector3 = Vector3.subtract(starts[i]!, pinOf(shaped, i));
+      const at: IAutoMovieVector3 = Vector3.subtract(
+        starts[i]!,
+        pinOf(shaped, i),
+      );
       return {
         ...shaped,
         root: { x: at.x, y: knockdown.rest(body, shaped), z: at.z },
       };
     };
     for (let i: number = 0; i < route.length; i++)
-      starts.push(
-        i === 0
-          ? pinOf(entered, 0)
-          : pinOf(placed(i - 1, 1), i),
-      );
+      starts.push(i === 0 ? pinOf(entered, 0) : pinOf(placed(i - 1, 1), i));
 
     const posture = (seconds: number): IHumanPosture => {
       let index: number = 0;
       for (let i: number = 0; i < route.length; i++)
-        if (seconds >= clock.at(i === 0 ? "getUp" : route[i - 1]![1])) index = i;
-      const from: number = clock.at(index === 0 ? "getUp" : route[index - 1]![1]);
+        if (seconds >= clock.at(i === 0 ? "getUp" : route[i - 1]![1]))
+          index = i;
+      const from: number = clock.at(
+        index === 0 ? "getUp" : route[index - 1]![1],
+      );
       const u: number = clock.progress(
         index === 0 ? "getUp" : route[index - 1]![1],
         route[index]![1],

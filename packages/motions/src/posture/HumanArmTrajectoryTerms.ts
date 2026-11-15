@@ -31,7 +31,8 @@ export namespace HumanArmTrajectoryTerms {
   export const DEPTH: number = AutoMovieMotionHumanAuditSkin.BUILT / 2;
 
   /** The slack a clearance miss has before the path is refused, millimetres, over the solver's own `TOLERANCE`: a probe is refused exactly where the tangle audit's skin (`BUILT`) is passed, the allowance's margin (`DEPTH`) aside. */
-  export const SKIN: number = 1000 * (AutoMovieMotionHumanAuditSkin.BUILT - DEPTH) - TOLERANCE;
+  export const SKIN: number =
+    1000 * (AutoMovieMotionHumanAuditSkin.BUILT - DEPTH) - TOLERANCE;
 
   /** TrajOpt's active set: a pair enters the convex subproblem only within this of its bound, millimetres. */
   export const CHECK: number = 20;

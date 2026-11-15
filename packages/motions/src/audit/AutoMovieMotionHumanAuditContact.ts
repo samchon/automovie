@@ -27,7 +27,8 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  *
  * A window of any kind declared on a foot (a plant, a pivot, a strike)
  * declares its contact, so only steps wholly outside all of them are read
- * for `skate`.
+ * for `skate`: a step a window's edge falls inside, between two grid
+ * instants, is partly declared and is not read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the gap it closes, how contact is inferred with each threshold's source, and what each reading means.
  * @evidence contracts/development/implementation.md#principled-implementation Kinematic contact inference by a height and a speed threshold on the sole's own sockets, compared with the declared windows.
@@ -168,7 +169,15 @@ export namespace AutoMovieMotionHumanAuditContact {
             before!.find(
               (s: HumanFoot.ISocket): boolean => s.socket === socket.socket,
             )!.point.y;
-          if (holding.length === 0)
+          // A step read for a skate lies wholly outside every window on the
+          // foot: one a window's end or start falls inside is partly
+          // declared, wherever the window falls between two instants.
+          if (
+            !declared.some(
+              (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+                w.from < t - 1e-9 && w.to > frames[i - 1]! + 1e-9,
+            )
+          )
             for (const socket of sole) {
               if (socket.point.y > HEIGHT || height(socket) > HEIGHT) continue;
               const v: number = speed(socket);

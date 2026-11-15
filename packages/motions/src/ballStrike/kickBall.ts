@@ -216,10 +216,12 @@ export namespace kickBall {
     const duration: number = clock.duration;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const stance: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    // The body stands under the kick, its sway signed in the kicking side's
+    // frame, so a left kick mirrors a right one (`stand.plan`).
+    const base: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      side,
+    );
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, base.posture(0), [
         {

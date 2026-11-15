@@ -102,8 +102,16 @@ export function test_human_motion_core_jacobian(): void {
         return [value(0), value(1), value(2)];
       };
       const inside = (a: readonly [number, number, number]): boolean => {
-        const pose: IAutoMovieJointPose = { bone, flexion: a[0], abduction: a[1], twist: a[2] };
-        const clamped: IAutoMovieJointPose = clampJointToSkeleton(pose, body.skeleton);
+        const pose: IAutoMovieJointPose = {
+          bone,
+          flexion: a[0],
+          abduction: a[1],
+          twist: a[2],
+        };
+        const clamped: IAutoMovieJointPose = clampJointToSkeleton(
+          pose,
+          body.skeleton,
+        );
         return (
           Math.abs((clamped.flexion ?? 0) - a[0]) < 1e-9 &&
           Math.abs((clamped.abduction ?? 0) - a[1]) < 1e-9 &&
@@ -118,7 +126,11 @@ export function test_human_motion_core_jacobian(): void {
       });
     }
     const posture: IHumanPosture = {
-      root: { x: random() * 2 - 1, y: 0.9 + random() * 0.2, z: random() * 2 - 1 },
+      root: {
+        x: random() * 2 - 1,
+        y: 0.9 + random() * 0.2,
+        z: random() * 2 - 1,
+      },
       yaw: random() * 360,
       pitch: random() * 60 - 30,
       roll: random() * 40 - 20,
@@ -139,7 +151,10 @@ export function test_human_motion_core_jacobian(): void {
     );
     const nudged = (v: HumanJacobian.IVariable, h: number): IHumanPosture => {
       if (v.kind === "place")
-        return { ...posture, root: { ...posture.root, [v.axis]: posture.root[v.axis] + h } };
+        return {
+          ...posture,
+          root: { ...posture.root, [v.axis]: posture.root[v.axis] + h },
+        };
       if (v.kind === "heading")
         return { ...posture, [v.axis]: posture[v.axis] + h };
       const was: readonly [number, number, number] = joints[v.bone]!;
@@ -148,16 +163,27 @@ export function test_human_motion_core_jacobian(): void {
       return { ...posture, joints: { ...joints, [v.bone]: set } };
     };
     const local = (b: IAutoMovieResolvedBone): IAutoMovieVector3 =>
-      Vector3.add(b.worldPosition, Quaternion.rotateVector(b.worldRotation, OFFSET));
+      Vector3.add(
+        b.worldPosition,
+        Quaternion.rotateVector(b.worldRotation, OFFSET),
+      );
     let worst: { error: number; where: string } = { error: 0, where: "none" };
-    const compare = (an: IAutoMovieVector3, fd: IAutoMovieVector3, where: string): void => {
+    const compare = (
+      an: IAutoMovieVector3,
+      fd: IAutoMovieVector3,
+      where: string,
+    ): void => {
       const error: number = Vector3.length(Vector3.subtract(an, fd));
       if (error > worst.error) worst = { error, where };
     };
     variables.forEach((v: HumanJacobian.IVariable, i: number): void => {
       const h: number = v.kind === "place" ? 1e-5 : 1e-3;
-      const up: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(nudged(v, h));
-      const down: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(nudged(v, -h));
+      const up: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
+        nudged(v, h),
+      );
+      const down: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
+        nudged(v, -h),
+      );
       const label: string =
         v.kind === "angle" ? `${v.bone}.${v.axis}` : `${v.kind}.${v.axis}`;
       for (const [bone, b] of bones) {
@@ -169,16 +195,29 @@ export function test_human_motion_core_jacobian(): void {
           Quaternion.inverse(c.worldRotation),
         );
         const sign: number = turn.w < 0 ? -1 : 1;
-        const vector: IAutoMovieVector3 = { x: turn.x * sign, y: turn.y * sign, z: turn.z * sign };
+        const vector: IAutoMovieVector3 = {
+          x: turn.x * sign,
+          y: turn.y * sign,
+          z: turn.z * sign,
+        };
         const sine: number = Vector3.length(vector);
         const angle: number = 2 * Math.atan2(sine, Math.abs(turn.w));
         const omega: IAutoMovieVector3 =
-          sine < 1e-15 ? { x: 0, y: 0, z: 0 } : Vector3.scale(vector, angle / sine / (2 * h));
-        const twist: HumanJacobian.ITwist = HumanJacobian.twist(motions[i]!, bone, b.worldPosition);
+          sine < 1e-15
+            ? { x: 0, y: 0, z: 0 }
+            : Vector3.scale(vector, angle / sine / (2 * h));
+        const twist: HumanJacobian.ITwist = HumanJacobian.twist(
+          motions[i]!,
+          bone,
+          b.worldPosition,
+        );
         compare(twist.angular, omega, `${label} turning ${bone}`);
         compare(
           twist.linear,
-          Vector3.scale(Vector3.subtract(a.worldPosition, c.worldPosition), 1 / (2 * h)),
+          Vector3.scale(
+            Vector3.subtract(a.worldPosition, c.worldPosition),
+            1 / (2 * h),
+          ),
           `${label} moving ${bone}'s origin`,
         );
         compare(

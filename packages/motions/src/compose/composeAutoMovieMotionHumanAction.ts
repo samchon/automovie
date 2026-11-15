@@ -112,7 +112,9 @@ export function composeAutoMovieMotionHumanAction(
   const base: IHumanActionPlan = props.base;
   // What is planned once over a span is planned now, in the order the
   // primitives write, each on the posture so far before it.
-  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void => p.prepare?.(so(i)));
+  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
+    p.prepare?.(so(i)),
+  );
   return {
     duration,
     events: props.clock.events(),

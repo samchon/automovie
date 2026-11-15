@@ -1,4 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -112,8 +116,8 @@ export namespace AutoMovieMotionHumanCourse {
         HumanBalance.support(props.body, props.posture(seconds, along)).centre,
         forward,
       );
-    const omega: number = Math.sqrt(
-      9.81 / (1.34 * props.body.measure.hipHeight),
+    const omega: number = resolveAutoMovieCenterOfMass.frequency(
+      resolveAutoMovieCenterOfMass.pendulum(props.body.measure.hipHeight),
     );
     const count: number = Math.max(
       1,

@@ -91,7 +91,12 @@ export function test_archetype_ladder_climb(): void {
       );
 
     // 3. The climber rises three rungs.
-    const reader: HumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "a",
+      body,
+      0,
+    );
     for (const bone of ["leftFoot", "rightFoot"] as const) {
       const start: IAutoMovieVector3 = HumanSignature.joint(reader, 0, bone);
       const end: IAutoMovieVector3 = HumanSignature.joint(

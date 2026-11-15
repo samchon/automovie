@@ -132,7 +132,12 @@ export namespace createTap {
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     height: ArchetypeBand.metres(0.146, 0.169, GROHE),
-    diameter: ArchetypeBand.metres(0.035, 0.05, `the body's diameter: ${UNREAD}`, true),
+    diameter: ArchetypeBand.metres(
+      0.035,
+      0.05,
+      `the body's diameter: ${UNREAD}`,
+      true,
+    ),
     reach: ArchetypeBand.metres(0.106, 0.109, GROHE),
     outlet: ArchetypeBand.metres(0.056, 0.095, GROHE),
     mass: ArchetypeBand.of("kg", 0.8, 2, `the weight: ${UNREAD}`, true),

@@ -1,8 +1,14 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { HumanBall } from "../ballStrike/HumanBall";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -12,7 +18,6 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanBall } from "../ballStrike/HumanBall";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -203,7 +208,7 @@ export namespace catchObject {
     const contact: number = released + flight;
     const speed: IAutoMovieVector3 = {
       x: launch.velocity.x,
-      y: launch.velocity.y - throwObject.GRAVITY * flight,
+      y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
       z: launch.velocity.z,
     };
     const along: IAutoMovieVector3 = Vector3.normalize(speed);

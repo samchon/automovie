@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   type IAutoMovieResolvedBone,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
@@ -28,8 +29,8 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * A body in its quiet stance is carried rigidly along its heading at a
  * constant speed `v` for 1 s, both feet declared planted on the ground. Its
  * feet travel with it, so its centre of mass keeps its place over them, and
- * the extrapolated centre lies `v / w` ahead of it, with `w = sqrt(9.81 /
- * (1.34 hipHeight))` the pendulum's eigenfrequency. The feet's hull ends in
+ * the extrapolated centre lies `v / w` ahead of it, with `w = sqrt(g /
+ * (1.34 hipHeight))` the pendulum's eigenfrequency, `g` standard gravity. The feet's hull ends in
  * front at the line through both toe points and behind at the line through
  * both heels, so past either line the distance outside is known in closed
  * form from the stance's centre of mass `c`, toe line `zToe` and heel line
@@ -109,7 +110,12 @@ export function test_human_motion_audit_balance(): void {
     );
     const zToe: number = Math.max(...sole);
     const zHeel: number = Math.min(...sole);
-    const lead: number = 1 / Math.sqrt(9.81 / (1.34 * body.measure.hipHeight));
+    const lead: number =
+      1 /
+      Math.sqrt(
+        AutoMovieGravity.STANDARD /
+          (resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight),
+      );
 
     const still: IAutoMovieMotionHumanAuditMeasure = measure(film(0));
     const margin: number = AutoMovieMotionHumanAuditBalance.margin(

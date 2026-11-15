@@ -252,9 +252,14 @@ export namespace gesture {
     // The body under the gesture: the carrier's when the gesture is an
     // overlay, otherwise the stand law's. Each hand starts where the entry
     // left it and rests where that body's arm hangs.
+    // A one-handed gesture's stand sways in that hand's frame, so a left
+    // gesture mirrors a right one (`stand.plan`).
     const under = (seconds: number): IHumanActionPlan =>
       context.carrier === undefined
-        ? stand.plan({ ...context, params: { seconds } })
+        ? stand.plan(
+            { ...context, params: { seconds } },
+            sides.length === 1 ? sides[0]! : "right",
+          )
         : AutoMovieMotionHumanBase.under(context, seconds);
     const probe: IHumanActionPlan = under(1);
     const at0: IHumanPosture = probe.posture(0);
@@ -397,7 +402,10 @@ export namespace gesture {
       // to rest.
       const requests: AutoMovieMotionHumanArm.ISided[] = [];
       for (const side of sides) {
-        const hand: { request: AutoMovieMotionHumanArm.ISided; fingers: IHumanPosture["joints"] } = gestureHands.hand(
+        const hand: {
+          request: AutoMovieMotionHumanArm.ISided;
+          fingers: IHumanPosture["joints"];
+        } = gestureHands.hand(
           body,
           posture,
           side,
@@ -409,12 +417,22 @@ export namespace gesture {
         );
         requests.push(hand.request);
         Object.assign(joints, hand.fingers);
-      }      return { posture: { ...posture, joints }, requests, envelope };
+      }
+      return { posture: { ...posture, joints }, requests, envelope };
     };
     // The arms planned over the whole gesture as one trajectory, when the
     // gesture is planned, so no posture read plans them.
     const arms: Map<HumanHand.Side, HumanArmTrajectory.Trajectory> | undefined =
-      sides.length === 0 ? undefined : gestureHands.planned(body, { start: 0, ready: prepare, relax: retractAt, end: duration }, sides, begin, rest, prior);
+      sides.length === 0
+        ? undefined
+        : gestureHands.planned(
+            body,
+            { start: 0, ready: prepare, relax: retractAt, end: duration },
+            sides,
+            begin,
+            rest,
+            prior,
+          );
 
     return {
       duration,
@@ -438,7 +456,8 @@ export namespace gesture {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const { posture, requests, envelope }: gestureHands.IPrior = prior(t);
-        if (arms !== undefined && t > 0 && t < duration) return gestureHands.written(posture, arms, t);
+        if (arms !== undefined && t > 0 && t < duration)
+          return gestureHands.written(posture, arms, t);
         return AutoMovieMotionHumanArm.carry(
           body,
           handGoals(body, posture, requests),

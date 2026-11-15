@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   IAutoMovieLaunchResult,
   compileLaunch,
   projectileAt,
@@ -237,7 +238,7 @@ export function test_film_launch(): void {
       knock.x > 0 && Math.abs(knock.z) < 1e-9 && nclose(knock.z, 0, 1e-9),
   );
   const vHit: IAutoMovieVector3 = projectileAt(
-    { origin, velocity: hit.velocity, gravity: { x: 0, y: -9.81, z: 0 } },
+    { origin, velocity: hit.velocity, gravity: AutoMovieGravity.DOWN },
     hit.hitTime,
   ).velocity;
   const vLen: number = Math.hypot(vHit.x, vHit.y, vHit.z);

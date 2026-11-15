@@ -125,8 +125,10 @@ export function test_human_motion_sport_sled(): void {
             sled.affordances!.find((a) => a.id === side)!.frame.translation,
           ),
         );
-        const bones: ReturnType<HumanPerformance["bones"]> =
-          performance.bones("a", seconds);
+        const bones: ReturnType<HumanPerformance["bones"]> = performance.bones(
+          "a",
+          seconds,
+        );
         const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
           body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
         const fist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(

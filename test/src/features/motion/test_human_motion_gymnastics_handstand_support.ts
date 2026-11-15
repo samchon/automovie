@@ -123,7 +123,6 @@ export function test_human_motion_gymnastics_handstand_support(): void {
       `${name}: at the end the feet are ${mm(feet)} mm above the floor, within ${mm(HumanVerdicts.SKIN)} expected`,
       feet <= HumanVerdicts.SKIN,
     );
-
   }
   all.assert("a handstand rests on the hands or the feet throughout");
 }

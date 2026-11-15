@@ -223,13 +223,20 @@ export namespace touchHold {
     perceived: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
   ): {
     region: (posture: IHumanPosture, seconds: number) => touchSite.IFrame;
-    others: (posture: IHumanPosture, seconds: number) => { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] };
+    others: (
+      posture: IHumanPosture,
+      seconds: number,
+    ) => { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] };
   } {
     const at: number = clock.at("start");
     const colliders: ReturnType<typeof others> = others(context, target, clock);
     return {
-      region: (posture: IHumanPosture): touchSite.IFrame => perceived(posture, at),
-      others: (posture: IHumanPosture): { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] } => colliders(posture, at),
+      region: (posture: IHumanPosture): touchSite.IFrame =>
+        perceived(posture, at),
+      others: (
+        posture: IHumanPosture,
+      ): { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] } =>
+        colliders(posture, at),
     };
   }
 

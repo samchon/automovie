@@ -8,6 +8,7 @@ import type { tags } from "typia";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
@@ -156,10 +157,12 @@ export namespace HumanTravelLeaf {
             : { radius: affordance.aperture / 2 }),
         };
       };
-      const standing: IHumanActionPlan = stand.plan({
-        ...context,
-        params: { seconds },
-      });
+      // The body stands while it opens, its sway signed in the opening
+      // hand's frame, so a left-handed opening mirrors a right one.
+      const standing: IHumanActionPlan = stand.plan(
+        { ...context, params: { seconds } },
+        side,
+      );
 
       // The hand keeps the side of the handle's axis it took it from, the
       // side the body faced as the hand arrived, however the body turns with
@@ -224,13 +227,13 @@ export namespace HumanTravelLeaf {
         REACH * arm
           ? null
           : // Lowered until the wrist the hold asks is within the bend's near
-            // full extension of the arm, 0.92 of it, the reach the bend
-            // lowers a palm to.
+            // full extension of the arm (`bendLower.REACH`), the reach the
+            // bend lowers a palm to.
             pickUpPosture.lowered(
               context,
               side,
               wristAt(TAKE, start),
-              0.92 * arm,
+              bendLower.REACH * arm,
             );
       const base = (t: number): IHumanPosture =>
         lowered === null

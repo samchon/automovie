@@ -29,7 +29,9 @@ const ballConstraint = (
   swingDeg,
   ...(turn === undefined
     ? {}
-    : { swingTwist: { twist: turn, ...(reach === undefined ? {} : { reach }) } }),
+    : {
+        swingTwist: { twist: turn, ...(reach === undefined ? {} : { reach }) },
+      }),
 });
 
 /**

@@ -134,8 +134,11 @@ export namespace createGlove {
     "Official Baseball Rules 2024 (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
 
   /** A band in metres at a rule's limit. */
-  const m = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, source);
+  const m = (
+    minimum: number,
+    maximum: number,
+    source: string,
+  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source);
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<

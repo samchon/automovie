@@ -1,3 +1,4 @@
+export * from "./AutoMovieGravity";
 export * from "./AutoMovieImpactKind";
 export * from "./AutoMovieMotionAudit";
 export * from "./AutoMoviePhysicalBalance";

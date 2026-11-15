@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   type IAutoMovieResolvedBone,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
@@ -291,11 +292,13 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     if (samples.length >= 3) {
       const fx = fit((s) => s.p.x);
       const fz = fit((s) => s.p.z);
-      const fy = fit((s) => s.p.y + 0.5 * 9.81 * s.t * s.t);
+      const fy = fit(
+        (s) => s.p.y + 0.5 * AutoMovieGravity.STANDARD * s.t * s.t,
+      );
       for (const s of samples) {
         const e: number = Math.hypot(
           s.p.x - fx(s.t),
-          s.p.y - (fy(s.t) - 0.5 * 9.81 * s.t * s.t),
+          s.p.y - (fy(s.t) - 0.5 * AutoMovieGravity.STANDARD * s.t * s.t),
           s.p.z - fz(s.t),
         );
         if (e > flight.value)

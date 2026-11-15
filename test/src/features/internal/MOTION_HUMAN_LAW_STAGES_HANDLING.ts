@@ -113,9 +113,9 @@ const handing = (
     meeting(a, b),
     HumanChain.pair(
       S.chain()
-        .act("stand", { seconds: 0.3 })
+        .act("stand", { seconds: 0.3, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
-      S.chain("b").act("stand", { seconds: 0.3 }),
+      S.chain("b").act("stand", { seconds: 0.3, sway: 0 }),
     ).handOver({
       prop: "bottle",
       handle: "high",
@@ -144,20 +144,20 @@ const throwing = (
     b,
     distance,
     [
-    S.chain().act(
-      "throwObject",
-      {
-        at: S.point(
-          0,
-          b.measure.chestHeight,
-          distance -
-            catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
-        ),
-        style,
-        ...thrower,
-      },
-      "throw",
-    ),
+      S.chain().act(
+        "throwObject",
+        {
+          at: S.point(
+            0,
+            b.measure.chestHeight,
+            distance -
+              catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
+          ),
+          style,
+          ...thrower,
+        },
+        "throw",
+      ),
       S.chain("b").act("catchObject", {
         from: "throw",
         ball: "ball",
@@ -216,7 +216,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4 })
+        .act("stand", { seconds: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
       [bottle(place(a, hand))],
     );
@@ -230,7 +230,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.4 })
+        .act("stand", { seconds: 0.4, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand })
         .act("putDown", { prop: "bottle", at, yaw: 0, hand }),
       [bottle(at)],
@@ -248,8 +248,8 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       b,
       meeting(a, b),
       HumanChain.pair(
-        S.chain().act("stand", { seconds: 0.4 }),
-        S.chain("b").act("stand", { seconds: 0.4 }),
+        S.chain().act("stand", { seconds: 0.4, sway: 0 }),
+        S.chain("b").act("stand", { seconds: 0.4, sway: 0 }),
       ).handshake(S.set(pick, "hand") as object).node,
     ),
   throwObject: (
@@ -353,14 +353,15 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     return S.solo(
       a,
       S.chain()
-        .act("stand", { seconds: 0.3 })
+        .act("stand", { seconds: 0.3, sway: 0 })
         .act("pickUp", {
           prop: "tool",
           handle: "grip",
           hand,
           use: {
             tip: "face",
-            line: tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
+            line:
+              tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
           },
         })
         .act("useTool", {
@@ -405,7 +406,17 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       a,
       S.chain()
         .act("stand", { seconds: 0.3 })
-        .act("pickUp", { prop: "item", handle: "hold", hand: "right" })
+        .act("pickUp", {
+          prop: "item",
+          handle: "hold",
+          hand: "right",
+          use: {
+            tip: "wear",
+            line: "worn",
+            at: { region: item === "hat" ? "crown" : "noseBridge" },
+            round: item === "hat",
+          },
+        })
         .act("dress", { item, prop: "item", hand: "right" }),
       [
         HumanObject.prop(

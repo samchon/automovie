@@ -22,7 +22,9 @@ export namespace HumanArmMirror {
    * @param base The base.
    * @returns Its mirror image.
    */
-  export function mirrored(base: HumanArmGeometry.IBase): HumanArmGeometry.IBase {
+  export function mirrored(
+    base: HumanArmGeometry.IBase,
+  ): HumanArmGeometry.IBase {
     return {
       pose: {
         ...base.pose,
@@ -34,14 +36,15 @@ export namespace HumanArmMirror {
                 translation: flip(base.pose.root.translation),
                 rotation: turn(base.pose.root.rotation),
               },
-        joints: base.pose.joints.map((joint: HumanArmGeometry.IBase["pose"]["joints"][number]) =>
-          joint.bone.startsWith("left") || joint.bone.startsWith("right")
-            ? { ...joint, bone: opposite(joint.bone) }
-            : {
-                ...joint,
-                abduction: joint.abduction === null ? null : -joint.abduction,
-                twist: joint.twist === null ? null : -joint.twist,
-              },
+        joints: base.pose.joints.map(
+          (joint: HumanArmGeometry.IBase["pose"]["joints"][number]) =>
+            joint.bone.startsWith("left") || joint.bone.startsWith("right")
+              ? { ...joint, bone: opposite(joint.bone) }
+              : {
+                  ...joint,
+                  abduction: joint.abduction === null ? null : -joint.abduction,
+                  twist: joint.twist === null ? null : -joint.twist,
+                },
         ),
       },
       others: base.others.map(reflected),
@@ -54,7 +57,9 @@ export namespace HumanArmMirror {
    * @param placed The colliders.
    * @returns Their mirror image.
    */
-  export function reflected(placed: HumanColliders.IPlaced): HumanColliders.IPlaced {
+  export function reflected(
+    placed: HumanColliders.IPlaced,
+  ): HumanColliders.IPlaced {
     return {
       ...placed,
       bone: opposite(placed.bone),
@@ -63,15 +68,17 @@ export namespace HumanArmMirror {
         position: flip(placed.pose.position),
         rotation: turn(placed.pose.rotation),
       },
-      shapes: placed.shapes.map((shape: HumanColliders.IPlaced["shapes"][number]) => ({
-        ...shape,
-        transform: {
-          ...shape.transform,
-          position: flip(shape.transform.position),
-          rotation: turn(shape.transform.rotation),
-        },
-        ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
-      })) as HumanColliders.IPlaced["shapes"],
+      shapes: placed.shapes.map(
+        (shape: HumanColliders.IPlaced["shapes"][number]) => ({
+          ...shape,
+          transform: {
+            ...shape.transform,
+            position: flip(shape.transform.position),
+            rotation: turn(shape.transform.rotation),
+          },
+          ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
+        }),
+      ) as HumanColliders.IPlaced["shapes"],
     };
   }
 
@@ -83,7 +90,9 @@ export namespace HumanArmMirror {
    * @param points The points.
    * @returns Their mirror images.
    */
-  export function flipped(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
+  export function flipped(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3[] {
     let found: IAutoMovieVector3[] | undefined = FLIPPED.get(points);
     if (found === undefined) FLIPPED.set(points, (found = points.map(flip)));
     return found;
@@ -125,4 +134,5 @@ export namespace HumanArmMirror {
 }
 
 /** Each hull's mirrored points, kept while the source array is held. */
-const FLIPPED: WeakMap<readonly IAutoMovieVector3[], IAutoMovieVector3[]> = new WeakMap();
+const FLIPPED: WeakMap<readonly IAutoMovieVector3[], IAutoMovieVector3[]> =
+  new WeakMap();

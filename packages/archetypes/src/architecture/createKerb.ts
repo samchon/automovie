@@ -140,11 +140,24 @@ export namespace createKerb {
       height: ArchetypeBand.metres(0.1, 0.15, UPSTAND),
       depth: ArchetypeBand.metres(0.125, 0.125, HB2),
       length: ArchetypeBand.metres(0.915, 0.915, HB2),
-      mass: ArchetypeBand.of("kg", 72, 72, `${HB2}: the whole unit, its bedded part below the road not modelled`),
+      mass: ArchetypeBand.of(
+        "kg",
+        72,
+        72,
+        `${HB2}: the whole unit, its bedded part below the road not modelled`,
+      ),
     },
     step: {
-      height: ArchetypeBand.metres(0.196, 0.196, `${IRC}: the riser's limit, which the model takes`),
-      depth: ArchetypeBand.metres(0.254, 0.254, `${IRC}: the tread's limit, which the model takes`),
+      height: ArchetypeBand.metres(
+        0.196,
+        0.196,
+        `${IRC}: the riser's limit, which the model takes`,
+      ),
+      depth: ArchetypeBand.metres(
+        0.254,
+        0.254,
+        `${IRC}: the tread's limit, which the model takes`,
+      ),
       length: ArchetypeBand.metres(
         0.9,
         1.2,

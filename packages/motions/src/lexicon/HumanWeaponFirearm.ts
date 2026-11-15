@@ -412,7 +412,7 @@ export namespace HumanWeaponFirearm {
    * Fire one shot from where the weapon is held: the trigger breaks at `strokeStart` (the decisive instant), the recoil peaks at `stroke`, and the weapon is back where it was held at the end.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three instants and which is decisive.
-   * @evidence contracts/development/implementation.md#principled-implementation Recoil turns the weapon about the hand, muzzle up: the held frame is turned about the horizontal axis square to the bore by the rise, which grows from the trigger to the peak and decays over the recovery, the hand's grip point kept.
+   * @evidence contracts/development/implementation.md#principled-implementation Recoil turns the weapon about the hand, muzzle up: the held frame is turned about the horizontal axis square to the bore by the rise, which grows from the trigger to the peak and decays over the recovery, the hand's grip point kept, and the arm the hold showed kept with it (`StrikingBlade.IStroke.kept`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The held frame, the axis, then the shared stroke planner with a phrase of press, rise and recovery.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rise and the three times are provisional (no recoil study was read); the rise is scaled by recovery skill only.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
@@ -476,6 +476,7 @@ export namespace HumanWeaponFirearm {
         stay: false,
         stop: 1,
         decisive: "strokeStart",
+        kept: true,
       });
     },
   };

@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -38,7 +39,7 @@ import { poseBones } from "../posture/poseBones";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, when, in which frame, why it stays constant and where the fact of holding comes from.
  * @evidence contracts/development/design.md#principled-representation A held thing is a rigid offset in the hand's frame (inverse(hand) times object, captured once), the parent constraint of the motion skill's held-object rule.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The held record, its reading, a declared point and direction in the hand's frame, and the grip window and hold that keep the prop held; read by the hand-to-face and striking families, which add their own effector and tool on top.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The held record, its reading, the record a candidate grip would hold, a declared point and direction in the hand's frame, and the grip window and hold that keep the prop held; read by the hand-to-face and striking families, which add their own effector and tool on top.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: points are the prop's own affordance ids, and a missing one is refused with the ids the prop has.
  */
 export namespace AutoMovieMotionHumanHeld {
@@ -150,6 +151,59 @@ export namespace AutoMovieMotionHumanHeld {
         ),
       },
       affordances: read.prop.affordances ?? [],
+    };
+  }
+
+  /**
+   * A prop in the grip frame of a hand that has not taken it yet: a grasp's
+   * candidate wrist, the prop where it lies, the offset the grip would keep
+   * once it closed there.
+   *
+   * @param body The body.
+   * @param side The hand.
+   * @param prop The prop's subject id.
+   * @param lying The prop's world frame.
+   * @param affordances The prop's contacts, in its own frame.
+   * @param wrist The candidate hand's wrist, world.
+   * @returns The prop in that hand's grip frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and in which frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The same change of frame as `of` (inverse(hand) times prop, from the grip socket), with the grip socket the candidate wrist puts at its hand's offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One grip socket and one change of frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Holding is not asserted: the record is what the grip would hold.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held record `point` and the tool reading (`StrikingHeld.read`) take, so a grasp's use is judged on the frame the hold will keep.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function grasped(
+    body: IHumanBody,
+    side: "left" | "right",
+    prop: string,
+    lying: IHumanProp.IFrame,
+    affordances: readonly IAutoMovieAffordance[],
+    wrist: { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
+  ): IHeld {
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(wrist.rotation);
+    const socket: IAutoMovieVector3 = Vector3.add(
+      wrist.point,
+      Quaternion.rotateVector(
+        wrist.rotation,
+        HumanHand.offset(body, side, "grip").point,
+      ),
+    );
+    return {
+      prop,
+      side,
+      frame: {
+        position: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(lying.position, socket),
+        ),
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(inverse, lying.rotation),
+        ),
+      },
+      affordances,
     };
   }
 

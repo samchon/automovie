@@ -182,6 +182,6 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
         partner: "b",
         ...S.set(pick, "grip", "hand"),
       }),
-      S.chain("b").act("stand", { seconds: 4 }),
+      S.chain("b").act("stand", { seconds: 4, sway: 0 }),
     ]),
 };

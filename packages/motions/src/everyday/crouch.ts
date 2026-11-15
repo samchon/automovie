@@ -45,7 +45,11 @@ import { HumanTrunk } from "./HumanTrunk";
  * plus the heel lift when the heels are up (the foot pivots about its toes'
  * joint, which stays on the floor), and the thigh takes the rest of the knee
  * flexion, so the hip joint's place over the ankle follows from the leg's
- * two lengths. A depth whose thigh angle and the hip's flexion range leave
+ * two lengths. On the way down the shank and the thigh tilt together, each
+ * by the descent's share of its own tilt, so the hips follow the leg's arc
+ * and the ankle never passes its range: the heel stays down until the ankle
+ * reaches the range and then rises by the rest, the heel-off of a
+ * range-limited ankle. A depth whose thigh angle and the hip's flexion range leave
  * no room for the trunk is refused with the deepest knee flexion the heels
  * allow: a full squat with flat heels needs more ankle dorsiflexion than the
  * range table's 20 degrees, so it asks for `heels: "up"` (Hemmerich et al.
@@ -53,10 +57,12 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * The trunk's forward inclination is found by bisection at every eighth of
  * the descent, and by a secant search from those between them, so that the
- * whole-body centre of mass (`HumanBalance.offset`) keeps a straight course
- * over the soles, with no speed to carry it off them: it stays where it
- * stands with the heels flat, or as near to that as the lumbar range brings
- * it at the lowest pose, and goes to the soles' middle when the heels rise.
+ * whole-body centre of mass keeps a straight course over the soles, with no
+ * speed to carry it off them: it stays where it stands with the heels flat,
+ * or as near to that as the lumbar range brings it at the lowest pose, and
+ * reaches the middle of the forefoot the body will stand on
+ * (`HumanBalance.offset`, the base of support `HumanFoot.base`) by the time
+ * the heels rise.
  * The inclination is shared by
  * the lumbopelvic rhythm: the pelvis tilts about the hips as far as the
  * folded thighs leave the hip room and the spine flexes for the rest, the
@@ -222,7 +228,15 @@ export namespace crouch {
     const share = (seconds: number): number =>
       clock.envelope(["descend", "lowest"], ["ascend", "end"], seconds);
 
-    // The feet at a share of the heel lift: each pivots about its toes' joint.
+    // The leg's angles move together over the descent, the shank's tilt and
+    // the thigh's each by its share, so the ankle never passes its range: it
+    // takes the shank's tilt until it reaches the range, and the heel rises
+    // about the toes' joint by the rest (the heel-off of a ROM-limited ankle).
+    const lift = (s: number): number =>
+      Math.max(0, shankTilt * s - dorsiflexion);
+
+    // The feet at a share of the descent: each pivots about its toes' joint
+    // by the heel's lift there.
     const feet = (
       posture: IHumanPosture,
       s: number,
@@ -243,7 +257,7 @@ export namespace crouch {
                 "mtp",
                 HumanFoot.point(body, side, "mtp", flat),
                 HumanFoot.heading(flat.rotation),
-                -heel * s,
+                -lift(s),
               );
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
@@ -256,37 +270,45 @@ export namespace crouch {
       return limbs;
     };
 
-    // The hip joints' move at the lowest pose, from the leg's geometry over
-    // each lifted ankle, averaged over the two legs.
-    const lowLimbs: IHumanPosture["limbs"] = feet(standing, 1);
+    // The hip joints over each ankle at a share, from the leg's two lengths
+    // at the share's tilts, averaged over the two legs. The standing legs
+    // stand a little off the straight vertical leg this places at the start;
+    // that difference is carried in by the share, so the root starts where
+    // the standing posture puts it and ends where the leg's geometry does.
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
     const rad = (deg: number): number => (deg * Math.PI) / 180;
     const joints = hipJoints(body, standing.root, HumanFrame.turn(yaw));
-    let move: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const side of ["left", "right"] as const) {
-      const ankle: IAutoMovieVector3 = lowLimbs[`${side}Leg`]!.point;
-      const hip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(ankle, {
-          x: 0,
-          y:
-            m.shank * Math.cos(rad(shankTilt)) +
-            m.thigh * Math.cos(rad(thighTilt)),
-          z: 0,
-        }),
-        Vector3.scale(
-          forward,
-          m.shank * Math.sin(rad(shankTilt)) -
-            m.thigh * Math.sin(rad(thighTilt)),
-        ),
-      );
-      move = Vector3.add(
-        move,
-        Vector3.scale(Vector3.subtract(hip, joints[side]), 0.5),
-      );
-    }
+    const over = (s: number): IAutoMovieVector3 => {
+      const limbs: IHumanPosture["limbs"] = feet(standing, s);
+      let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      for (const side of ["left", "right"] as const) {
+        const hip: IAutoMovieVector3 = Vector3.add(
+          Vector3.add(limbs[`${side}Leg`]!.point, {
+            x: 0,
+            y:
+              m.shank * Math.cos(rad(shankTilt * s)) +
+              m.thigh * Math.cos(rad(thighTilt * s)),
+            z: 0,
+          }),
+          Vector3.scale(
+            forward,
+            m.shank * Math.sin(rad(shankTilt * s)) -
+              m.thigh * Math.sin(rad(thighTilt * s)),
+          ),
+        );
+        out = Vector3.add(
+          out,
+          Vector3.scale(Vector3.subtract(hip, joints[side]), 0.5),
+        );
+      }
+      return out;
+    };
+    const start: IAutoMovieVector3 = over(0);
+    const move = (s: number): IAutoMovieVector3 =>
+      Vector3.add(Vector3.subtract(over(s), start), Vector3.scale(start, s));
 
     // The body at a share: root moved, trunk inclined by the lumbopelvic
     // rhythm (the pelvis about the hips as far as the folded thighs leave
@@ -298,7 +320,7 @@ export namespace crouch {
     ): IHumanPosture => {
       const moved: IHumanPosture = {
         ...posture,
-        root: Vector3.add(posture.root, Vector3.scale(move, s)),
+        root: Vector3.add(posture.root, move(s)),
       };
       const stood: IHumanPosture["limbs"] = feet(moved, s);
       const inclined = HumanTrunk.incline(
@@ -322,8 +344,8 @@ export namespace crouch {
           ...(heel === 0
             ? {}
             : {
-                leftToes: [heel * s, 0, 0] as const,
-                rightToes: [heel * s, 0, 0] as const,
+                leftToes: [lift(s), 0, 0] as const,
+                rightToes: [lift(s), 0, 0] as const,
               }),
         },
         limbs: feet(tipped, s),
@@ -339,18 +361,30 @@ export namespace crouch {
       ((AutoMovieMotionHumanRange.limit("spine", "flexion") ?? 0) *
         (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)) /
       HumanTrunk.RHYTHM.lumbar;
-    // The centre keeps a straight course, so it has no speed to carry it
-    // off the soles: from where it stands over them to their middle when
-    // the heels rise, and otherwise staying where it stands, or as near to
-    // that as the most inclination brings it at the lowest pose.
+    // The centre keeps a straight course along the heading, read in the
+    // world so the course does not turn where the base does, and has no
+    // speed to carry it off the soles: with the heels flat it stays where it
+    // stands, or as near to that as the most inclination brings it at the
+    // lowest pose; with the heels rising it reaches the middle of the
+    // forefoot (`HumanBalance.offset`) by the share the heels leave the
+    // floor at, and stays over it.
     const ahead = (s: number, q: number): number =>
-      HumanBalance.offset(body, lowered(standing, s, q));
+      Vector3.dot(
+        HumanBalance.support(body, lowered(standing, s, q)).centre,
+        forward,
+      );
     const upright: number = ahead(0, 0);
-    const low: number = heel === 0 ? Math.min(upright, ahead(1, most)) : 0;
+    const low: number =
+      heel === 0
+        ? Math.min(upright, ahead(1, most))
+        : ahead(1, 0) - HumanBalance.offset(body, lowered(standing, 1, 0));
+    const rises: number = heel === 0 ? 1 : dorsiflexion / shankTilt;
+    const course = (s: number): number =>
+      upright + (low - upright) * Math.min(1, s / rises);
     const inclinations: number[] = [0];
     for (let k: number = 1; k <= SHARES; k++) {
       const error = (q: number): number =>
-        ahead(k / SHARES, q) - (upright + (low - upright) * (k / SHARES));
+        ahead(k / SHARES, q) - course(k / SHARES);
       let lo: number = 0;
       let hi: number = most;
       if (error(lo) >= 0) hi = lo;
@@ -371,7 +405,7 @@ export namespace crouch {
       const k: number = Math.min(SHARES - 1, Math.floor(at));
       const within = (q: number): number => Math.max(0, Math.min(most, q));
       const error = (q: number): number =>
-        ahead(at / SHARES, q) - (upright + ((low - upright) * at) / SHARES);
+        ahead(at / SHARES, q) - course(at / SHARES);
       let a: number =
         inclinations[k]! + (inclinations[k + 1]! - inclinations[k]!) * (at - k);
       if (at === k || at === SHARES) return a;

@@ -70,7 +70,16 @@ export function createExerciseBike(
     d.handlebarHeight,
     createExerciseBike.REACH,
   );
-  builder.box("base", v(createExerciseBike.FOOTPRINT.width, 0.06, createExerciseBike.FOOTPRINT.length), v(0, 0.03, 0), { color: "#2c2f33" });
+  builder.box(
+    "base",
+    v(
+      createExerciseBike.FOOTPRINT.width,
+      0.06,
+      createExerciseBike.FOOTPRINT.length,
+    ),
+    v(0, 0.03, 0),
+    { color: "#2c2f33" },
+  );
   builder.rod(
     "seatPost",
     tube,

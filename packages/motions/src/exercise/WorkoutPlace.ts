@@ -33,15 +33,17 @@ import type { WorkoutKind } from "./WorkoutKind";
  *   on a raised support has its hip joints as high above it as above the
  *   floor when it lies flat.
  * - `bar`: the prop's with the joints' own height above it, or, with none,
- *   the floor rule for a kind done on equipment (an imagined support). A
- *   hanging kind hangs from the bar it names and is refused without one;
+ *   the places a support exercise's bars stand at (`WorkoutKind.bars`)
+ *   beside the place stood on, or the floor rule for a kind done on
+ *   equipment (an imagined support). A hanging kind hangs from the bar it
+ *   names and is refused without one;
  *   hands that grip a bar are pinned by their grip sockets, so the bar lies
  *   in the fists.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is decided, when, and each anchor's rule.
  * @evidence contracts/development/design.md#principled-representation One world point per plan, from which every posture's root follows by the pin, so the support cannot drift between postures.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The one function the workout law calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Heights are the entry's own joints', the prop's or the body's shapes'; no bar is imagined.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Heights are the entry's own joints', the prop's, the body's shapes' or the body's own for a support exercise's bars; no bar is imagined to hang from.
  */
 export namespace WorkoutPlace {
   /** The hip joints, by which a body on a raised support is placed. */
@@ -49,7 +51,6 @@ export namespace WorkoutPlace {
     "leftUpperLeg",
     "rightUpperLeg",
   ];
-
 
   /**
    * The place the bearing bones keep.
@@ -174,9 +175,25 @@ export namespace WorkoutPlace {
         kind.pin,
       );
 
-    // A bar's place: the prop's with the joints' own height above it, or an
-    // imagined support under a kind done on equipment (the body rested on
-    // the floor); a hanging kind hangs only from a bar it names.
+    // A bar's place: the prop's with the joints' own height above it, the
+    // places a support exercise's bars stand at beside the place stood on,
+    // or an imagined support under a kind done on equipment (the body
+    // rested on the floor); a hanging kind hangs only from a bar it names.
+    const barred = (height: number): IAutoMovieVector3 => {
+      const beside: IAutoMovieVector3 = ExerciseKey.mean(
+        body,
+        {
+          ...based,
+          root: {
+            x: hips.x - pelvis(based).x,
+            y: 0,
+            z: hips.z - pelvis(based).z,
+          },
+        },
+        kind.pin,
+      );
+      return { x: beside.x, y: height + (kind.rise?.(body) ?? 0), z: beside.z };
+    };
     const rested: IAutoMovieVector3 =
       kind.anchor === "stance"
         ? shown
@@ -184,9 +201,11 @@ export namespace WorkoutPlace {
           ? floored()
           : borne !== null
             ? { ...borne, y: borne.y + (kind.rise?.(body) ?? 0) }
-            : kind.rise !== undefined
-              ? floored()
-              : unhung();
+            : kind.bars !== undefined
+              ? barred(kind.bars(body))
+              : kind.rise !== undefined
+                ? floored()
+                : unhung();
     return grounded === null ? rested : { ...rested, y: grounded };
   }
 }

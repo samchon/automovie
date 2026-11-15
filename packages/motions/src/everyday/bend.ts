@@ -35,8 +35,9 @@ import { handGoals } from "./handGoals";
  * keeps the knees nearly straight, a squat lowers the hips to 0.45 of their
  * height, a semi-squat to 0.75; provisional shares, the postures the lifting
  * literature compares), and the trunk then inclines forward just enough to
- * bring the shoulder within the arm's reach of the target (`0.92` of the
- * arm's length plus the palm's offset), found by bisection, while the hips
+ * bring the shoulder within the arm's reach of the target (`bendLower.REACH`,
+ * where freely reaching people lean in, of the arm's length plus the palm's
+ * offset), found by bisection, while the hips
  * move back to keep the body balanced over the feet ({@link HumanBalance}).
  * The inclination is shared by the lumbopelvic rhythm of forward bending:
  * about 40 degrees of lumbar flexion against 70 of hip flexion at full
@@ -151,10 +152,10 @@ export namespace bend {
       context.start,
     ).point;
     const requested: Strategy = context.params.strategy ?? "auto";
-    const probe: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: 1 },
-    });
+    const probe: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: 1 } },
+      side,
+    );
     const upright: IHumanPosture = probe.posture(0);
     const { strategy, lean, pitch }: bendLower.ISolved = bend.lowering(
       body,
@@ -177,10 +178,12 @@ export namespace bend {
       speed *
       (FITTS.a + FITTS.b * Math.log2(Math.max(1, (2 * D) / FITTS.width)));
     const duration: number = 2 * down + hold;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    // The body stands under the bend, its sway signed in the bending side's
+    // frame, so a left bend mirrors a right one (`stand.plan`).
+    const base: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      side,
+    );
 
     return {
       duration,

@@ -263,10 +263,7 @@ export namespace HumanSwordParry {
           (1 - found.share) * s.tool.length,
           context.entry.posture,
         );
-        if (
-          chosen === undefined ||
-          missed < least - HumanFreedomChoice.EXACT
-        ) {
+        if (chosen === undefined || missed < least - HumanFreedomChoice.EXACT) {
           least = missed;
           m = meeting;
           chosen = found;

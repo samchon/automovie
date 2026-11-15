@@ -100,16 +100,7 @@ export namespace StrikingRoll {
       point: HumanHand.frame(context.body, bones, tool.side, "grip").point,
       rotation: bones.get(`${tool.side}Hand`)!.worldRotation,
     };
-    const off = (behind: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          StrikingHeld.point(tool, fitted, behind),
-          StrikingHeld.point(tool, frame, behind),
-        ),
-      );
-    // A pose that keeps its working point keeps the line through it read at
-    // the tool's own length, so its orientation still counts.
-    return Math.max(off(back > 0 ? back : tool.length), off(0));
+    return StrikingHeld.strayed(tool, fitted, frame, back);
   }
 
   /**

@@ -8,13 +8,15 @@ import {
   Quaternion,
   Vector3,
 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanHeld,
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanBase,
+  AutoMovieMotionHumanBend,
+  AutoMovieMotionHumanTiming,
   HumanChain,
+  HumanGraspUse,
   HumanObject,
   HumanPerformance,
   type IHumanActionContext,
@@ -22,7 +24,11 @@ import {
   type IHumanActionPlan,
   type IHumanBody,
   type IHumanEntryState,
+  type IHumanPosture,
   type IHumanProp,
+  StrikingHeld,
+  StrikingRoll,
+  composeAutoMovieMotionHumanAction,
   poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -35,10 +41,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * reach alone may leave the blade where the wrist cannot aim it.
  *
  * A sword stands point up before the right hand. It is picked up, then a
- * registered law presents it: the wrist goes ahead of the shoulder and the
- * hand is asked for the rotation that lays the blade's line, from its grip to
- * its point, on a line in the plane the body faces. The reading is the angle
- * between that asked line and the line of the displayed sword at the end.
+ * registered law presents it as a presenting law does: the grip goes to the
+ * place a tool is presented at (`HumanGraspUse.place`), the blade's line, from its grip to its point, laid on a line in
+ * the plane the body faces, its roll about that line the one the arm holds
+ * (`StrikingRoll.hand`, the shared chooser judged by the fitted arm), the elbow
+ * at its place of least joint strain (`AutoMovieMotionHumanBend.solve`), and the
+ * reach planned from where the pick-up leaves the arm
+ * (`AutoMovieMotionHumanArm.carried` over a span) in the aimed movement time
+ * (`AutoMovieMotionHumanTiming.aimed`): the arm a law presents with is the arm
+ * the grasp is judged with. The reading is the angle between that asked line
+ * and the line of the displayed sword at the end.
  *
  * Scenarios, on the average man for the lines `forearm` (level ahead, a
  * thrust's), `oblique` (45 degrees up, a sabre grip's) and `square`
@@ -47,9 +59,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * glass on the average man and the cigarette on the small woman. A planned
  * pick-up with a use costs seconds, and each claim is about the rule, so
  * one body per claim with the opposite build on one line is enough:
- * 1. Picked up with that use, the presented blade lies within 15 degrees of
- *    the asked line: the most a grasp chosen for a use may leave unmet
- *    (`HumanGraspUse.UNMET`, provisional).
+ * 1. Picked up with that use, the presented blade lies within `BOUND` of the
+ *    asked line: the angle at which the sword's point strays the held-tool
+ *    bound (`StrikingRoll.MISS`, the most a grasp chosen for a use may leave
+ *    its working point off the use's pose) over the sword's length from its
+ *    grip to its point.
  * 2. It lies no farther from the asked line, by more than 1 degree, than
  *    when the same sword is picked up with no use named: naming the use
  *    never makes the use worse.
@@ -78,6 +92,20 @@ export function test_human_motion_core_grasp_use(): void {
   const sword: ReturnType<typeof createSword> = createSword({
     kind: "armingSword",
   });
+  // The angle off its line at which the sword's point strays the held-tool
+  // bound over the sword's length from its grip, degrees.
+  const BOUND: number =
+    (Math.asin(
+      StrikingRoll.MISS /
+        Vector3.length(
+          Vector3.subtract(
+            sword.affordance("point").frame.translation,
+            sword.affordance("grip").frame.translation,
+          ),
+        ),
+    ) *
+      180) /
+    Math.PI;
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
@@ -88,77 +116,117 @@ export function test_human_motion_core_grasp_use(): void {
       name: "present",
       interrupts: {},
       plan: (context: IHumanActionContext<never>): IHumanActionPlan => {
-        const held: AutoMovieMotionHumanHeld.IHeld =
-          AutoMovieMotionHumanHeld.of(context, "right", "sword");
+        // The held sword as the striking owner reads it, and the place its
+        // grip is presented at, the one the grasp is judged at
+        // (`HumanGraspUse.place`).
+        const tool: StrikingHeld.ITool = StrikingHeld.of(
+          context,
+          "right",
+          "sword",
+        );
         const bones: ReturnType<typeof poseBones> = poseBones(
           body,
           context.entry.pose,
         );
         const hand: IAutoMovieResolvedBone = bones.get("rightHand")!;
-        const shoulder: IAutoMovieVector3 =
-          bones.get("rightUpperArm")!.worldPosition;
-        const elbow: IAutoMovieVector3 =
-          bones.get("rightLowerArm")!.worldPosition;
-        const arm: number =
-          Vector3.length(Vector3.subtract(elbow, shoulder)) +
-          Vector3.length(Vector3.subtract(hand.worldPosition, elbow));
-        const lying: IAutoMovieVector3 = Vector3.normalize(
-          Quaternion.rotateVector(
-            hand.worldRotation,
-            Vector3.subtract(
-              AutoMovieMotionHumanHeld.point(held, "point").point,
-              AutoMovieMotionHumanHeld.point(held, "grip").point,
-            ),
-          ),
+        const at: IAutoMovieVector3 = HumanGraspUse.place(
+          bones,
+          "right",
+          context.entry.posture.yaw,
         );
-        const asked: IAutoMovieVector3 = line(rise);
-        const across: IAutoMovieVector3 = Vector3.cross(lying, asked);
-        const turn: IAutoMovieQuaternion =
-          Vector3.length(across) < 1e-9
-            ? { x: 0, y: 0, z: 0, w: 1 }
-            : Quaternion.fromAxisAngle(
-                Vector3.normalize(across),
-                (Math.acos(
-                  Math.max(-1, Math.min(1, Vector3.dot(lying, asked))),
-                ) *
-                  180) /
-                  Math.PI,
-              );
-        return {
-          duration: 0.8,
-          events: [],
-          contacts: [
-            ...context.entry.supports.map(
-              (
-                support: IHumanEntryState.ISupport,
-              ): IHumanActionPlan["contacts"][number] => ({
-                ...support,
-                from: 0,
-                to: 1,
-              }),
-            ),
-            AutoMovieMotionHumanHeld.grip(held),
-          ],
-          holds: [AutoMovieMotionHumanHeld.hold(context, held)],
-          posture: (): ReturnType<IHumanActionPlan["posture"]> => ({
-            ...context.entry.posture,
-            limbs: {
-              ...context.entry.posture.limbs,
-              rightArm: {
-                point: {
-                  x: shoulder.x,
-                  y: shoulder.y - 0.1 * arm,
-                  z: shoulder.z + 0.6 * arm,
-                },
-                rotation: Quaternion.normalize(
-                  Quaternion.multiply(turn, hand.worldRotation),
-                ),
-                bend: { x: shoulder.x - 0.2 * arm, y: 0, z: shoulder.z },
-                planted: true,
-              },
-            },
+        const back: number = Vector3.length(tool.tip);
+
+        // The sword's line laid on the asked one, its roll about the line
+        // the arm's to choose as a presenting law chooses it
+        // (`StrikingRoll.hand`, the shared chooser judged by the fitted
+        // arm), so the arm a law presents with is the arm the grasp is
+        // judged with.
+        const frame: StrikingHeld.IHandFrame = StrikingRoll.hand(
+          context,
+          tool,
+          back,
+          at,
+          line(rise),
+          0,
+          context.entry.posture,
+        );
+        const asked: IHumanPosture.IGoal = StrikingHeld.goal(
+          context,
+          tool,
+          frame,
+          back,
+          at,
+        );
+        const goal: IHumanPosture.IGoal = {
+          ...asked,
+          bend: AutoMovieMotionHumanBend.solve({
+            body,
+            posture: context.entry.posture,
+            side: "right",
+            point: asked.point,
+            ...(asked.rotation === undefined
+              ? {}
+              : { rotation: asked.rotation }),
+            fallback: "hang",
           }),
         };
+        const contacts: IHumanActionPlan["contacts"] = [
+          ...context.entry.supports.map(
+            (
+              support: IHumanEntryState.ISupport,
+            ): IHumanActionPlan["contacts"][number] => ({
+              ...support,
+              from: 0,
+              to: 1,
+            }),
+          ),
+          ...StrikingHeld.grips(tool),
+        ];
+
+        // The reach to the presented pose, planned from the arm as the
+        // pick-up leaves it (`AutoMovieMotionHumanArm.carried` over a span)
+        // in the aimed movement time (`AutoMovieMotionHumanTiming.aimed`),
+        // as a law that presents a held tool reaches.
+        const clock: AutoMovieMotionClock.IClock =
+          AutoMovieMotionClock.sequence([
+            {
+              name: "reaching",
+              seconds: AutoMovieMotionHumanTiming.aimed(
+                Vector3.length(
+                  Vector3.subtract(goal.point, hand.worldPosition),
+                ),
+                0.03,
+              ),
+            },
+            { name: "ready", seconds: 0.3 },
+          ]);
+        const ready: number = clock.at("ready");
+        const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+          base: AutoMovieMotionHumanBase.still(
+            clock.duration,
+            context.entry.posture,
+            contacts,
+          ),
+          clock,
+          primitives: [
+            AutoMovieMotionHumanArm.carried({
+              body,
+              side: "right",
+              from: 0,
+              to: clock.duration,
+              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+              weight: (seconds: number): number => Math.min(1, seconds / ready),
+              span: {
+                start: 0,
+                ready,
+                relax: clock.duration,
+                end: clock.duration,
+              },
+              goal: (): IHumanPosture.IGoal => goal,
+            }),
+          ],
+        });
+        return { ...composed, holds: StrikingHeld.holds(context, tool) };
       },
     });
     const line = (rise: number): IAutoMovieVector3 => ({
@@ -231,9 +299,9 @@ export function test_human_motion_core_grasp_use(): void {
         );
         continue;
       }
-      if (named > 15)
+      if (named > BOUND)
         complaints.push(
-          `${name}: taken up for the ${use} line, the presented blade lies ${named.toFixed(1)} degrees off it (${unnamed.toFixed(1)} with no use named), within 15 expected`,
+          `${name}: taken up for the ${use} line, the presented blade lies ${named.toFixed(1)} degrees off it (${unnamed.toFixed(1)} with no use named), within ${BOUND.toFixed(2)} expected`,
         );
       if (named > unnamed + 1)
         complaints.push(

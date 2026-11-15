@@ -8,7 +8,6 @@ import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanT
 import type { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import type { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import type { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import type { HumanGrasp } from "../handling/HumanGrasp";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -82,8 +81,8 @@ export namespace handToFaceArm {
    * A held vessel is carried upright and brought to the face as a drinker
    * holds it: leaned toward the lips as little as lets the arm stay low, and
    * turned the way its arm then meets it best. Its elbow is hinted where the
-   * arm hangs, the hint its drinking arm was found with, so the arm shown is
-   * the one admitted. A vessel held as the grasp it was taken up by presents
+   * arm hangs, moved into the drinking range where it lies outside, the hint
+   * its drinking arm was found with, so the arm shown is the one admitted. A vessel held as the grasp it was taken up by presents
    * it (`own`) has its turn in the hand fixed, so only its lean toward the
    * lips is sought, with the grasp's elbow hint: the same drink takes the
    * same arm however the vessel came to the hand.
@@ -109,7 +108,7 @@ export namespace handToFaceArm {
       atFace,
       side,
     );
-    const vessel: AutoMovieMotionHumanTouchUpright.IFacing | undefined =
+    const vessel: AutoMovieMotionHumanTouchDrink.IDrink | undefined =
       props.upright && own === null
         ? AutoMovieMotionHumanTouchDrink.drinking(
             body,
@@ -140,7 +139,7 @@ export namespace handToFaceArm {
     const facing: IAutoMovieVector3 | undefined = vessel?.facing;
     const bend: IAutoMovieVector3 =
       own?.bend ??
-      (vessel !== undefined ? hang : undefined) ??
+      vessel?.bend ??
       AutoMovieMotionHumanTouchLaid.bend(
         body,
         atFace,
