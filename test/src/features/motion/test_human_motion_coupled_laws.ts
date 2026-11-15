@@ -36,7 +36,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. One support carries everything.
  * 5. For each carry of `HumanCarried.CARRIES` on the average man bearing the
  *    small woman, the coupling's load for the bearer is its contacts' share
- *    of the borne mass, the shares on all bearers summing to one.
+ *    of the borne mass, the shares on every support (the bearer, and the
+ *    floor under a drag) summing to one.
  * 6. A borne mass just past the bearer's capacity in a cradle, the small
  *    woman bearing another of her build with extra mass, is refused on `mass`
  *    with the feasible maximum `M h / |d|` over the bearer's share; the
@@ -109,19 +110,26 @@ export function test_human_motion_coupled_laws(): void {
       );
       continue;
     }
+    // Every bearing contact's share, the bearer's and the floor's under a
+    // drag, together carry the whole weight.
     const share: number = sum(
+      coupling.contacts
+        .filter((c) => c.kind === "bear")
+        .map((c) => c.load),
+    );
+    all.check(
+      `${carry}: the bearing shares on every support sum to ${share}, one expected`,
+      close(share, 1),
+    );
+    const own: number = sum(
       coupling.contacts
         .filter((c) => c.on.role === HumanCarriedCoupling.BEARER)
         .map((c) => c.load),
     );
-    all.check(
-      `${carry}: the bearing shares sum to ${share}, one expected`,
-      close(share, 1),
-    );
     const load = HumanCarriedCouplingLoad.load(bearer, coupling);
     all.check(
-      `${carry}: the bearer's load is ${load.load} kg, the borne ${coupling.mass} kg times its share expected`,
-      close(load.load, coupling.mass * share),
+      `${carry}: the bearer's load is ${load.load} kg, the borne ${coupling.mass} kg times its share ${own} expected`,
+      close(load.load, coupling.mass * own),
     );
   }
 
