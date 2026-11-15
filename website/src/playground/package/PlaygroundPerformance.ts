@@ -7,10 +7,9 @@ import { PlaygroundChain } from "./PlaygroundChain";
 import { PlaygroundObjects } from "./PlaygroundObjects";
 
 /**
- * Builds the `HumanPerformance` of a composition, the one path the
- * playground in the browser and the site's bake in Node both take, so a
- * baked scene is the performance the playground shows for the same
- * composition.
+ * Builds the `HumanPerformance` of a composition, which `TakeCompute` calls
+ * in the take worker for the playground and every scene alike, so a scene
+ * is the performance the playground shows for the same composition.
  */
 export namespace PlaygroundPerformance {
   /** One performer to draw. */

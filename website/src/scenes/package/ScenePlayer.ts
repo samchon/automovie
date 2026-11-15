@@ -6,24 +6,23 @@ import {
 } from "@automovie/render";
 import * as THREE from "three";
 
-import { SITE_BASE } from "../../SITE_BASE";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
+import type { TakeClient } from "../../takes/TakeClient";
+import type { ITake } from "../../takes/structures/ITake";
 import { SCENE_REFUSAL } from "../SCENE_REFUSAL";
 import { SceneTrack } from "../SceneTrack";
+import { computeSceneTake } from "../computeSceneTake";
 import type { IScene } from "../structures/IScene";
-import type { ISceneManifest } from "../structures/ISceneManifest";
 import type { IScenePlayer } from "../structures/IScenePlayer";
 import { SceneArchetype } from "./SceneArchetype";
 
 /**
- * Plays a baked take: the polygon man of every performer, drawn by
- * `@automovie/render` from the baked rest bones, and every placed archetype,
- * posed at any second from the take's track. No motion is computed here.
+ * Plays a take the take worker computed: the polygon man of every performer,
+ * drawn by `@automovie/render` from the take's rest bones, and every placed
+ * archetype, posed at any second from the take's track. This module computes
+ * no motion and imports neither the motion nor the Human package.
  */
 export namespace ScenePlayer {
-  /** Where the bake's files are served from, under the site's base path. */
-  const BAKED: string = `${SITE_BASE}/baked`;
-
   /** Metres between the floor grid's lines. */
   const CELL: number = 0.5;
 
@@ -35,143 +34,44 @@ export namespace ScenePlayer {
     top: new THREE.Vector3(0, 1, 0.02).normalize(),
   };
 
-  let manifest: Promise<ISceneManifest> | null = null;
-  const bodies: Map<string, Promise<AutoMovieHumanPolygon.IBone[]>> = new Map();
-  const tracks: Map<string, Promise<Int16Array>> = new Map();
-
   /**
-   * The bake's manifest, fetched once; a failed fetch is forgotten, so a
-   * later view asks again.
+   * Compute one take of a scene and build its player.
    *
-   * @returns The manifest.
-   * @throws {Error} When it cannot be fetched or is of another version.
-   */
-  export function index(): Promise<ISceneManifest> {
-    manifest ??= fetch(`${BAKED}/manifest.json`).then(
-      async (response: Response): Promise<ISceneManifest> => {
-        if (!response.ok)
-          throw new Error(`The baked scenes did not load (${response.status})`);
-        const read: ISceneManifest = await response.json();
-        if (read.version !== 1)
-          throw new Error(
-            `The baked scenes are of version ${String(read.version)}; this page reads version 1`,
-          );
-        return read;
-      },
-    );
-    manifest.catch((): void => {
-      manifest = null;
-    });
-    return manifest;
-  }
-
-  /**
-   * Load one take of a scene.
+   * A refusal of a scene whose record marks `refusedUntil` is thrown as an
+   * error named `SCENE_REFUSAL`, its message the packages' words, which the
+   * view shows as the scene's known refusal; any other refusal is an error,
+   * since an unmarked scene record must plan.
    *
    * @param scene The scene's record.
    * @param take The take's index.
+   * @param signal Aborted when the view stops waiting.
    * @returns The player.
-   * @throws {Error} When the take was not baked or a file does not load.
+   * @throws {Error} When the packages refuse the take, the worker fails, or `signal` aborts.
    */
   export async function load(
     scene: IScene,
     take: number,
+    signal?: AbortSignal,
   ): Promise<IScenePlayer> {
-    const read: ISceneManifest = await index();
-    const baked: ISceneManifest.ITake | undefined =
-      read.scenes[scene.id]?.takes[take];
-    if (baked === undefined)
-      throw new Error(`The scene ${scene.id} has no baked take ${take}`);
-    if (baked.refusal !== undefined) {
-      const refused: Error = new Error(baked.refusal);
+    const result: TakeClient.Result = await computeSceneTake(
+      scene,
+      take,
+      signal,
+    );
+    if (result.kind === "take") return build(scene, result.take);
+    if (scene.refusedUntil !== undefined) {
+      const refused: Error = new Error(result.refusal.message);
       refused.name = SCENE_REFUSAL;
       throw refused;
     }
-
-    const [values, rests]: [Int16Array, AutoMovieHumanPolygon.IBone[][]] =
-      await Promise.all([
-        samples(baked.file),
-        Promise.all(
-          baked.figures.map(
-            (
-              figure: ISceneManifest.IFigure,
-            ): Promise<AutoMovieHumanPolygon.IBone[]> =>
-              rest(read, figure.body),
-          ),
-        ),
-      ]);
-    const track: SceneTrack.ITrack = {
-      fps: baked.fps,
-      frames: baked.frames,
-      orders: [
-        ...baked.figures.map(
-          (figure: ISceneManifest.IFigure): string[] =>
-            read.bodies[figure.body]!.order,
-        ),
-        ...baked.props.map((): string[] => ["frame"]),
-      ],
-      values,
-    };
-    return build(scene, baked, track, rests, read.reflection);
+    throw new Error(
+      `The packages refused the scene ${scene.id}, take ${take}: ${result.refusal.message}`,
+    );
   }
 
-  /** A take's track, fetched once for every view that shows it; a failed fetch is forgotten. */
-  function samples(file: string): Promise<Int16Array> {
-    let known: Promise<Int16Array> | undefined = tracks.get(file);
-    if (known === undefined) {
-      known = fetch(`${BAKED}/${file}`).then(
-        async (response: Response): Promise<Int16Array> => {
-          if (!response.ok)
-            throw new Error(`The take did not load (${response.status})`);
-          return new Int16Array(await response.arrayBuffer());
-        },
-      );
-      known.catch((): void => {
-        tracks.delete(file);
-      });
-      tracks.set(file, known);
-    }
-    return known;
-  }
-
-  /** A body's rest bones, fetched once; a failed fetch is forgotten. */
-  function rest(
-    read: ISceneManifest,
-    body: string,
-  ): Promise<AutoMovieHumanPolygon.IBone[]> {
-    let known: Promise<AutoMovieHumanPolygon.IBone[]> | undefined =
-      bodies.get(body);
-    if (known === undefined) {
-      const entry: ISceneManifest.IBody | undefined = read.bodies[body];
-      if (entry === undefined)
-        return Promise.reject(new Error(`No baked body is named ${body}`));
-      known = fetch(`${BAKED}/${entry.file}`).then(
-        async (response: Response): Promise<AutoMovieHumanPolygon.IBone[]> => {
-          if (!response.ok)
-            throw new Error(
-              `The body ${body} did not load (${response.status})`,
-            );
-          const json: { bones: AutoMovieHumanPolygon.IBone[] } =
-            await response.json();
-          return json.bones;
-        },
-      );
-      known.catch((): void => {
-        bodies.delete(body);
-      });
-      bodies.set(body, known);
-    }
-    return known;
-  }
-
-  /** Build the scene of a loaded take. */
-  function build(
-    record: IScene,
-    baked: ISceneManifest.ITake,
-    track: SceneTrack.ITrack,
-    rests: AutoMovieHumanPolygon.IBone[][],
-    reflection: number[],
-  ): IScenePlayer {
+  /** Build the scene of a computed take. */
+  function build(record: IScene, take: ITake): IScenePlayer {
+    const track: SceneTrack.ITrack = take.track;
     const scene: THREE.Scene = new THREE.Scene();
     const style: CSSStyleDeclaration = getComputedStyle(
       document.documentElement,
@@ -190,14 +90,13 @@ export namespace ScenePlayer {
 
     // Each figure under the matrix that puts Human's own frame in the world.
     const first: SceneTrack.IPlacement[][] = SceneTrack.sample(track, 0);
-    const reflect: THREE.Matrix4 = new THREE.Matrix4().fromArray(reflection);
-    const figures: AutoMovieHumanPolygon.IDrawing[] = rests.map(
-      (
-        bones: AutoMovieHumanPolygon.IBone[],
-        i: number,
-      ): AutoMovieHumanPolygon.IDrawing => {
+    const reflect: THREE.Matrix4 = new THREE.Matrix4().fromArray(
+      take.reflection,
+    );
+    const figures: AutoMovieHumanPolygon.IDrawing[] = take.figures.map(
+      (figure: ITake.IFigure, i: number): AutoMovieHumanPolygon.IDrawing => {
         const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon({
-          bones,
+          bones: figure.bones,
           posed: first[i]!,
         });
         const group: THREE.Group = new THREE.Group();
@@ -213,7 +112,7 @@ export namespace ScenePlayer {
     // Each prop as its archetype, moved by its frame.
     const objects: readonly IPlaygroundComposition.IObject[] =
       record.composition?.objects ?? [];
-    const props: THREE.Object3D[] = baked.props.map(
+    const props: THREE.Object3D[] = take.props.map(
       (subject: string): THREE.Object3D => {
         const placed: IPlaygroundComposition.IObject | undefined = objects.find(
           (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
@@ -242,7 +141,7 @@ export namespace ScenePlayer {
     // first entry of every figure and prop at every second.
     const box: THREE.Box3 = new THREE.Box3();
     const point: THREE.Vector3 = new THREE.Vector3();
-    for (let s: number = 0; s <= baked.duration + 1e-9; s += 0.5)
+    for (let s: number = 0; s <= take.duration + 1e-9; s += 0.5)
       SceneTrack.sample(track, s).forEach(
         (entries: SceneTrack.IPlacement[], i: number): void => {
           for (const entry of entries) {
@@ -325,8 +224,9 @@ export namespace ScenePlayer {
     return {
       scene,
       camera,
-      duration: baked.duration,
-      fps: baked.fps,
+      duration: take.duration,
+      fps: track.fps,
+      timeline: take.timeline,
       centre: centre.toArray() as [number, number, number],
       seek,
       frame,

@@ -66,7 +66,7 @@ export function test_website_scene_records(): void {
     "a scene that does not play names its issues",
     SCENES.filter(
       (s: IScene): boolean =>
-        !SceneStatus.bakes(SceneStatus.of(s)) && s.needs.length === 0,
+        !SceneStatus.computes(SceneStatus.of(s)) && s.needs.length === 0,
     ).map((s: IScene): string => s.id),
     [],
   );
@@ -74,7 +74,7 @@ export function test_website_scene_records(): void {
     "a scene that plays or is refused waits on nothing",
     SCENES.filter(
       (s: IScene): boolean =>
-        SceneStatus.bakes(SceneStatus.of(s)) && s.needs.length !== 0,
+        SceneStatus.computes(SceneStatus.of(s)) && s.needs.length !== 0,
     ).map((s: IScene): string => s.id),
     [],
   );

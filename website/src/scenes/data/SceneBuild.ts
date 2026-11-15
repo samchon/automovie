@@ -275,7 +275,7 @@ export namespace SceneBuild {
     /** Its place in the landing page's hero. */
     featured?: number;
 
-    /** The issue that fixes the refusal the installed packages give this scene today; it is written as it should play and baked as that refusal until then. */
+    /** The issue that fixes the refusal the installed packages give this scene today; it is written as it should play and shows that refusal until then. */
     refusedUntil?: number;
   }
 

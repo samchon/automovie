@@ -1,8 +1,9 @@
 import type * as THREE from "three";
 
+import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
 import type { IScene } from "./IScene";
 
-/** A loaded take, ready to be posed at any second and drawn. */
+/** A computed take, ready to be posed at any second and drawn. */
 export interface IScenePlayer {
   /** What to draw. */
   scene: THREE.Scene;
@@ -13,8 +14,11 @@ export interface IScenePlayer {
   /** The film's length, seconds. */
   duration: number;
 
-  /** Frames a second the take was baked at. */
+  /** Frames a second the take was posed at. */
   fps: number;
+
+  /** Each performer's placed actions on the film clock. */
+  timeline: IPlaygroundTimeline;
 
   /** The middle of the action, world metres, which the camera orbits. */
   centre: [number, number, number];
