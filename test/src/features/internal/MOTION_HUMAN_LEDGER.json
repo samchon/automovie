@@ -1459,6 +1459,8 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.nearer", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.refused", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingSwivel.bounded", "tests": ["test_motion_compose_drinking_swivel"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.arm", "tests": ["test_motion_compose_drinking_swivel"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.bounded", "tests": ["test_motion_compose_drinking_swivel"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.carried", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchLaid.lie", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },

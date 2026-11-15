@@ -208,6 +208,7 @@ export * from "./compose/AutoMovieMotionHumanTouchStance";
 export * from "./compose/AutoMovieMotionHumanTouchUpright";
 export * from "./compose/AutoMovieMotionHumanDrinkingArm";
 export * from "./compose/AutoMovieMotionHumanDrinkingSwivel";
+export * from "./compose/AutoMovieMotionHumanSwivelBound";
 export * from "./compose/AutoMovieMotionHumanTouchDrink";
 export * from "./posture/HumanArmClearance";
 export * from "./posture/HumanArmOvershoot";

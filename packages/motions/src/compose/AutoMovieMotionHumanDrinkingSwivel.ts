@@ -1,7 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
   Vector3,
-  swivelArcs,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -14,6 +13,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
+import { AutoMovieMotionHumanSwivelBound } from "./AutoMovieMotionHumanSwivelBound";
 
 /**
  * The drinking range as a bound on an elbow's swivel: the places on the
@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingA
  * which the drinking search hints each candidate arm within.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is bounded, where it is read and who reads it.
- * @evidence contracts/development/design.md#principled-representation The range as an arc set of one swivel, the representation `swivelArcs` owns.
+ * @evidence contracts/development/design.md#principled-representation The range as four half-planes on the elbow, the form `AutoMovieMotionHumanSwivelBound` keeps an elbow in.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by `AutoMovieMotionHumanTouchDrink`; split from the arm's readings so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bounds and the measure are `AutoMovieMotionHumanDrinkingArm`'s; nothing is restated.
  */
@@ -48,11 +48,11 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the circle, why each bound is a sinusoid, the choice and the cases that keep the hint.
    * @evidence contracts/development/implementation.md#principled-implementation The range constrains the hint the arm is fitted with, in the source's own measure, solved in closed form on the swivel circle: the hint inside it is kept, one outside it moves to the nearest end of its refused arc.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk once; per hint the circle, four sinusoids, their union and its nearest swivel.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk once, the four bounds once; per hint one call of the shared bound.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep and no sampling beyond the exact three-point fit; a wrist out of the arm's reach and a fully refused circle keep the hint for the admission to judge.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per posture, then constant work per hint.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's sinusoid fit, arcs and union (`swivelArcs`), the ones `boxExcludedSwivels` reads a joint box with, and the bounds `AutoMovieMotionHumanDrinkingArm.drinks` admits by.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the trunk's three joints, the arm's two lengths and the heading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closed-form bound on an elbow (`AutoMovieMotionHumanSwivelBound`), over the engine's arcs (`swivelArcs`), and the bounds `AutoMovieMotionHumanDrinkingArm.drinks` admits by.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the arm and its four bounds.
    */
   export function bounded(
     body: IHumanBody,
@@ -108,68 +108,15 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         );
       },
     );
-    return (
-      point: IAutoMovieVector3,
-      hint: IAutoMovieVector3,
-    ): IAutoMovieVector3 => {
-      const reach: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-      const distance: number = Vector3.length(reach);
-      if (
-        !(distance > 1e-9) ||
-        distance >= upper + lower ||
-        distance <= Math.abs(upper - lower)
-      )
-        return hint;
-      const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
-      const foot: number =
-        (upper * upper - lower * lower + distance * distance) / (2 * distance);
-      const radius: number = Math.sqrt(Math.max(0, upper * upper - foot * foot));
-      const radial: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.subtract(hint, shoulder),
-        Vector3.scale(line, Vector3.dot(Vector3.subtract(hint, shoulder), line)),
-      );
-      if (!(Vector3.length(radial) > 1e-9)) return hint;
-      const u: IAutoMovieVector3 = Vector3.normalize(radial);
-      const v: IAutoMovieVector3 = Vector3.cross(line, u);
-      // The elbow from the shoulder at a swivel from the hint's, degrees.
-      const elbow = (swivel: number): IAutoMovieVector3 => {
-        const r: number = (swivel * Math.PI) / 180;
-        return Vector3.add(
-          Vector3.scale(line, foot),
-          Vector3.scale(
-            Vector3.add(
-              Vector3.scale(u, Math.cos(r)),
-              Vector3.scale(v, Math.sin(r)),
-            ),
-            radius,
-          ),
-        );
-      };
-      const [zero, quarter, half] = [0, 90, 180].map(elbow) as [
-        IAutoMovieVector3,
-        IAutoMovieVector3,
-        IAutoMovieVector3,
-      ];
-      const refused: swivelArcs.IArc[] = [];
-      for (const normal of normals) {
-        const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
-          swivelArcs.fitted(
-            -Vector3.dot(normal, zero),
-            -Vector3.dot(normal, quarter),
-            -Vector3.dot(normal, half),
-          ),
-          0,
-        );
-        if (arc === "all") return hint;
-        if (arc !== null) refused.push(arc);
-      }
-      const swivel: number | null = swivelArcs.nearest(
-        swivelArcs.union(refused),
-        0,
-      );
-      return swivel === null || swivel === 0
-        ? hint
-        : Vector3.add(shoulder, elbow(swivel));
-    };
+    const of: AutoMovieMotionHumanSwivelBound.IArm = { shoulder, upper, lower };
+    const bounds: AutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
+      (normal: IAutoMovieVector3): AutoMovieMotionHumanSwivelBound.IHalfPlane => ({
+        normal,
+        point: shoulder,
+        margin: 0,
+      }),
+    );
+    return (point: IAutoMovieVector3, hint: IAutoMovieVector3): IAutoMovieVector3 =>
+      AutoMovieMotionHumanSwivelBound.bounded(of, point, hint, bounds);
   }
 }
