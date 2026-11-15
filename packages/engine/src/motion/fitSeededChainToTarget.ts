@@ -2,6 +2,7 @@ import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { fitChainBend } from "./fitChainBend";
 import { orientChainEffector } from "./orientChainEffector";
+
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
  *

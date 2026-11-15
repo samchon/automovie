@@ -24,7 +24,6 @@ import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
-
 /**
  * The bend-plane fit of `fitSeededChainToTarget`, before its effector is
  * oriented, with the seed of its hinged candidate when that candidate is the
