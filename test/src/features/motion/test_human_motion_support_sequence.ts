@@ -26,10 +26,13 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * laid out reaches.
  *
  * Scenarios, on the average man:
- * 1. The landing plans; and down from standing onto the right knee, the
- *    right foot let go, the knee's window opens no later than the foot's
- *    closes, and the foot's closes before the end: a support the next
- *    stance adds bears before one it lacks lets go.
+ * 1. The landing plans. Standing, the right hand set on the floor as the
+ *    right foot lifts: the hand's window opens no later than the foot's
+ *    closes, and the foot's closes before the end, a support the next
+ *    stance adds bearing before one it lacks lets go. The right foot
+ *    handing its support to its own knee: the foot's window closes no
+ *    later than the knee's (the lower leg's) opens, since a leg bears in
+ *    one place at a time.
  * 2. Each palm's window opens after the move starts and closes before it
  *    ends: the palms bear only while the hands-down stance holds.
  * 3. A palm sent to a floor point the body's stature, its arm's span and
@@ -116,42 +119,63 @@ export function test_human_motion_support_sequence(): void {
       ),
   );
 
-  // 1. A move that adds one support and drops another: down onto the right
-  // knee from standing, the right foot let go. The knee bears before the
-  // foot releases.
-  try {
-    const kneel: HumanPerformance = perform([
-      { contacts: feet },
-      {
-        contacts: [
-          { part: "leftFoot", kind: "bear" },
-          { part: "rightKnee", kind: "bear" },
-        ],
-      },
-    ]);
-    const w: readonly IHumanContactWindow[] =
-      kneel.segments("a")[0]!.plan.contacts;
-    const knee: IHumanContactWindow | undefined = w.find(
-      (x: IHumanContactWindow): boolean => x.part === "rightLowerLeg",
-    );
-    const foot: IHumanContactWindow | undefined = w.find(
-      (x: IHumanContactWindow): boolean => x.part === "rightFoot",
-    );
+  // 1. A move that adds one support and drops another. Between limbs, the
+  // right hand set on the floor as the right foot lifts: the hand bears
+  // before the foot lets go. Within a limb, the right foot handing its
+  // support to its own knee: a leg bears in one place at a time, so the
+  // foot lets go before the knee bears.
+  const windowsOf = (
+    stances: unknown,
+  ): readonly IHumanContactWindow[] | null => {
+    try {
+      return perform(stances).segments("a")[0]!.plan.contacts;
+    } catch (error) {
+      all.check(`the move plans, refused ${(error as Error).message}`, false);
+      return null;
+    }
+  };
+  const part = (
+    w: readonly IHumanContactWindow[],
+    name: string,
+  ): IHumanContactWindow | undefined =>
+    w.find((x: IHumanContactWindow): boolean => x.part === name);
+  const reach: readonly IHumanContactWindow[] | null = windowsOf([
+    { contacts: feet },
+    {
+      contacts: [
+        { part: "leftFoot", kind: "bear" },
+        { part: "rightHand", kind: "bear" },
+      ],
+    },
+  ]);
+  if (reach !== null) {
+    const hand: IHumanContactWindow | undefined = part(reach, "rightHand");
+    const foot: IHumanContactWindow | undefined = part(reach, "rightFoot");
     all.check(
-      `the right knee bears (from ${knee?.from.toFixed(3)}) before the right foot lets go (at ${foot?.to.toFixed(3)})`,
-      knee !== undefined && foot !== undefined && knee.from <= foot.to,
-    );
-    all.check(
-      `the right foot lets go before the end, read ${foot?.to.toFixed(3)}`,
-      foot !== undefined && foot.to < 1,
-    );
-  } catch (error) {
-    all.check(
-      `the half kneel plans, refused ${(error as Error).message}`,
-      false,
+      `the right hand bears (from ${hand?.from.toFixed(3)}) no later than the right foot lets go (at ${foot?.to.toFixed(3)}), the foot before the end`,
+      hand !== undefined &&
+        foot !== undefined &&
+        hand.from <= foot.to &&
+        foot.to < 1,
     );
   }
-
+  const kneel: readonly IHumanContactWindow[] | null = windowsOf([
+    { contacts: feet },
+    {
+      contacts: [
+        { part: "leftFoot", kind: "bear" },
+        { part: "rightKnee", kind: "bear" },
+      ],
+    },
+  ]);
+  if (kneel !== null) {
+    const knee: IHumanContactWindow | undefined = part(kneel, "rightLowerLeg");
+    const foot: IHumanContactWindow | undefined = part(kneel, "rightFoot");
+    all.check(
+      `the right foot lets go (at ${foot?.to.toFixed(3)}) no later than its knee bears (from ${knee?.from.toFixed(3)})`,
+      knee !== undefined && foot !== undefined && foot.to <= knee.from,
+    );
+  }
   // The feet where the quiet stance has them.
   const stance = motionHumanStance(body);
   const toes = (side: "left" | "right") =>

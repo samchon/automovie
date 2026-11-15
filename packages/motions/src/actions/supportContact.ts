@@ -9,6 +9,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanSupport } from "../law/HumanSupport";
 import type { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -214,9 +215,87 @@ export namespace supportContact {
     return id(a) === id(b);
   }
 
-  /** A contact's identity: its part, how it touches and its target. */
+  /** A contact's identity: its part, how it touches, its target and the stance it was set down in (`placements`). */
   export function id(c: HumanSupport.IContact): string {
-    return `${c.part}|${c.kind}|${JSON.stringify(c.target)}`;
+    return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${(c as Partial<IPlaced>).placed ?? ""}`;
+  }
+
+  /** A contact with the index of the stance it was last set down in. */
+  export interface IPlaced extends HumanSupport.IContact {
+    /** The stance it was set down in. */
+    placed: number;
+  }
+
+  /**
+   * The stances with each contact marked by the stance it was set down in: a
+   * part bearing in the stance before on the same target and in the same way
+   * bears on from it, and one that bore in none, or that the stance sets down
+   * anew (`step`), is set down in that stance.
+   */
+  export function placements(
+    stances: readonly HumanSupport.IStance[],
+  ): HumanSupport.IStance[] {
+    const out: HumanSupport.IStance[] = [];
+    stances.forEach((stance: HumanSupport.IStance, i: number): void => {
+      const before: readonly HumanSupport.IContact[] =
+        i === 0 ? [] : out[i - 1]!.contacts;
+      out.push({
+        ...stance,
+        contacts: stance.contacts.map((c: HumanSupport.IContact): IPlaced => {
+          const was: HumanSupport.IContact | undefined =
+            c.step === true
+              ? undefined
+              : before.find(
+                  (p: HumanSupport.IContact): boolean =>
+                    p.part === c.part &&
+                    p.kind === c.kind &&
+                    (p.inset ?? 0) === (c.inset ?? 0) &&
+                    JSON.stringify(p.target) === JSON.stringify(c.target),
+                );
+          return {
+            ...c,
+            placed: was === undefined ? i : (was as IPlaced).placed,
+          };
+        }),
+      });
+    });
+    return out;
+  }
+
+  /**
+   * Where a contact on the action's surface (`on`) lies: on its own side of
+   * the surface's point (a hand out by the shoulder's half width, a foot or
+   * a knee by the hip's, the trunk at its middle) and in from the edge
+   * along the heading by its inset (`HumanSupport.IContact.inset`), a share
+   * of the forearm and hand's length.
+   *
+   * @param body The body.
+   * @param c The contact.
+   * @param edge The surface's point, world metres.
+   * @param yaw The heading the body enters with, degrees.
+   * @returns The place, world metres.
+   */
+  export function onSurface(
+    body: IHumanBody,
+    c: HumanSupport.IContact,
+    edge: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieVector3 {
+    const sign: number = c.part.startsWith("left")
+      ? 1
+      : c.part.startsWith("right")
+        ? -1
+        : 0;
+    const half: number = c.part.endsWith("Hand")
+      ? body.measure.shoulderHalfWidth
+      : body.measure.hipHalfWidth;
+    const reach: number = body.measure.forearm + body.measure.hand;
+    const frame: HumanFrame.IFrame = { origin: edge, yaw };
+    return HumanFrame.point(frame, {
+      x: sign * half,
+      y: 0,
+      z: (c.inset ?? 0) * reach,
+    });
   }
 
   /** Where a part bears in a posture, dropped to the floor: the place a contact without one keeps. */

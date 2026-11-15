@@ -371,6 +371,7 @@ export * from "./sport/GymnasticsMat";
 export * from "./sport/roundOff";
 export * from "./sport/handspring";
 export * from "./sport/vault";
+export * from "./sport/squatVault";
 export * from "./sport/highJump";
 export * from "./sport/poleVault";
 export * from "./lexicon/HumanGymnastics";

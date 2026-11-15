@@ -15,7 +15,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
 
 /**
  * Every row of the `support` family of the lexicon (`HumanSupportRows`:
- * the box vault, the scramble and the slide off an edge) is something a body
+ * the scramble and the slide off an edge) is something a body
  * can do on a surface at its own heights: on the average man and on the
  * small woman it is accepted and planned in its own name, and ends standing
  * on both feet.
@@ -26,22 +26,25 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * heights:
  * - the slide off: a table's edge at the body's popliteal height
  *   (`seated.popliteal`), the seat height whose sitter's feet reach the
- *   floor (ANSI/HFES 100-2007, the seated reference posture), at the toes;
- * - the box vault and the scramble: a box's top and a ledge at the body's
- *   hip height (provisional: no study of a vault box's or a ledge's height
- *   relative to the vaulter was read), half the arm's length ahead of the
- *   toes, where a body standing at it can lay its hands.
+ *   floor (ANSI/HFES 100-2007, the seated reference posture), 0.1 m behind
+ *   the heels as the law sweep stages its chair, the table behind it; the
+ *   row starts seated, so the body first sits down on the table (`sit`);
+ * - the scramble: a ledge's edge at the body's hip height (provisional: no
+ *   study of a ledge's height relative to the climber was read), half the
+ *   arm's length ahead of the toes, where a body standing at it can lay its
+ *   hands on the top.
+ * Where on the surface each contact lies is the row's own (its insets).
  * The toes are the quiet stance's (`motionHumanStance`). Whether a planned
  * row keeps the physical bounds is the verdict net's, and the planner's own
  * sequence its own test's (`test_human_motion_support_sequence`).
  *
  * Scenarios, for each row on each of the two bodies:
- * 1. The row plans, and the placed action carries the row's name.
+ * 1. The row plans, and an action placed under the row's name is there.
  * 2. It ends standing: both feet bear in windows that last to its end.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the rows through the public input and builds a performance of each on real bodies at surfaces of their own heights; a row that is refused, placed under another name, or that ends off its feet fails with the row, the body and the refusal's own message.
- * @evidence contracts/development/testing.md#independent-expectations That each row is humanly performable is what the row claims; the surfaces' heights are the seated standard's and the body's own, the vault's and the ledge's marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases The family's three rows, on two bodies of opposite build.
+ * @evidence contracts/development/testing.md#independent-expectations That each row is humanly performable is what the row claims; the surfaces' heights are the seated standard's and the body's own, the ledge's marked provisional.
+ * @evidence contracts/development/testing.md#distinguishing-cases The family's two rows, on two bodies of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per row and body; it runs wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the surfaces with their sources, what is left to the verdict net and to the planner's test, and the 2 scenarios.
  */
@@ -62,10 +65,17 @@ export function test_human_motion_lexicon_rows_support(): void {
         normal: { x: 0, y: 1, z: 0 },
       }) as AutoMovieMotionTarget;
     const arm: number = body.measure.upperArm + body.measure.forearm;
+    // The table's front edge where the law sweep stages its chair, 0.1 m
+    // behind the heels, the table behind it.
+    const edge: number = body.rest.get("leftFoot")!.z - 0.1 - toes;
+    const table: seated.ISeat = {
+      at: { x: 0, y: seated.popliteal(body), z: toes + edge },
+      yaw: 0,
+      depth: 0.45,
+    };
     const rows: readonly [string, AutoMovieMotionTarget][] = [
-      ["boxVault", surface(body.measure.hipHeight, arm / 2)],
       ["scramble", surface(body.measure.hipHeight, arm / 2)],
-      ["slideOff", surface(seated.popliteal(body), 0)],
+      ["slideOff", surface(seated.popliteal(body), edge)],
     ];
     for (const [row, on] of rows) {
       const cell: string = `${row} on ${name}`;
@@ -74,7 +84,6 @@ export function test_human_motion_lexicon_rows_support(): void {
         performance = new HumanPerformance({
           seed: "support-rows",
           laws: [
-            HumanSupportRows.boxVault,
             HumanSupportRows.scramble,
             HumanSupportRows.slideOff,
           ],
@@ -87,7 +96,12 @@ export function test_human_motion_lexicon_rows_support(): void {
               proficiency: { level: "trained" },
             },
           ],
-          composition: HumanChain.subject("a").registered(row, { on }).node,
+          // A slide off starts seated on its table: the body sits down on it
+          // first.
+          composition: (row === "slideOff"
+            ? HumanChain.subject("a").sit({ seat: table, seconds: 0.5 })
+            : HumanChain.subject("a")
+          ).registered(row, { on }).node,
         });
       } catch (error) {
         complaints.check(
@@ -96,8 +110,9 @@ export function test_human_motion_lexicon_rows_support(): void {
         );
         continue;
       }
-      const placed: HumanSegment.ISegment | undefined =
-        performance.segments("a")[0];
+      const placed: HumanSegment.ISegment | undefined = performance
+        .segments("a")
+        .find((s: HumanSegment.ISegment): boolean => s.name === row);
       complaints.check(
         `${cell}: placed as ${placed?.name ?? "nothing"}`,
         placed?.name === row,

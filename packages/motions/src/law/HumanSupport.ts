@@ -49,7 +49,7 @@ export namespace HumanSupport {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
    * @evidence contracts/development/design.md#principled-representation A part on a target, bearing or gripping.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by the support law.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the support law.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is the shared target union.
    */
   export interface IContact {
@@ -61,6 +61,12 @@ export namespace HumanSupport {
 
     /** How it touches: `bear`, laid on a surface whose up it faces and pressed by the body's weight; `grip`, a hand closed on a handle, holding as well as pressing. */
     kind: "bear" | "grip";
+
+    /** How far in from the edge of the action's surface a contact on it (`on`) lies along the heading, as a share of the forearm and hand's length: positive onto a surface ahead of the body, negative onto one behind it; at the edge when absent. */
+    inset?: number;
+
+    /** Whether the part is set down anew in this stance, stepping from where it bore before to where the stance's solve lays it; a part that bears on from the stance before stays where it bore when absent. */
+    step?: boolean;
   }
 
   /**

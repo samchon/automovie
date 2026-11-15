@@ -3,15 +3,16 @@ import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
 import { poleVault } from "../sport/poleVault";
 import { roundOff } from "../sport/roundOff";
+import { squatVault } from "../sport/squatVault";
 import { vault } from "../sport/vault";
 
 /**
  * The airborne acrobatics and jumps of gymnastics and athletics under their
  * names (#3377), each a row of the law that plans it: a round-off and a
- * handspring that roll over the hands, a vault over a prop's top, the
- * Fosbury flop over a bar and a vault on a pole. The composition gives what
- * the law leaves open: the prop vaulted over, the bar's height and the
- * landing place, the pole the hand holds.
+ * handspring that roll over the hands, a handspring vault and a box vault
+ * over a prop's top, the Fosbury flop over a bar and a vault on a pole. The
+ * composition gives what the law leaves open: the prop vaulted over, the
+ * bar's height and the landing place, the pole the hand holds.
  *
  * The laws own the physics a row inherits: each phase turns the body about
  * one axis, flights are ballistic in the centre of mass with their times
@@ -48,6 +49,9 @@ export namespace HumanGymnastics {
     vault,
     {},
   );
+
+  /** A two-hand box vault: the hands on the near edge of the top of the box the composition names as `on`, the body tucked over them and flying to land beyond its far edge. */
+  export const boxVault = HumanActionRow.of("boxVault", squatVault, {});
 
   /** A Fosbury flop over the bar the composition sets, onto its landing place. */
   export const fosburyFlop = HumanActionRow.of("fosburyFlop", highJump, {});

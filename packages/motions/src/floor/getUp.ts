@@ -255,8 +255,10 @@ export namespace getUp {
     // The stances: each posture of the route on what it bears on, turned half
     // about the vertical after a roll from the back, so the head stays where
     // it lay.
+    // The leading foot steps ahead into the half kneel, and the trailing foot
+    // steps up beside it to stand.
     const stances: HumanSupport.IStance[] = route.map(
-      ([key, event]): HumanSupport.IStance => ({
+      ([key, event], i: number): HumanSupport.IStance => ({
         contacts: BEARS[key].map(
           (
             part: HumanSupport.Part | "lead" | "trail",
@@ -268,6 +270,12 @@ export namespace getUp {
                   ? `${trail}Knee`
                   : part,
             kind: "bear",
+            ...((key === "halfKneel" && part === `${lead}Foot`) ||
+            (key === "stood" &&
+              route[i - 1]?.[0] === "halfKneel" &&
+              part === `${trail}Foot`)
+              ? { step: true }
+              : {}),
           }),
         ),
         seconds: phase,

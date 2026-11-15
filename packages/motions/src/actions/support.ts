@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
@@ -16,7 +16,6 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanBodyFit } from "../posture/HumanBodyFit";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { supportContact } from "./supportContact";
@@ -115,7 +114,9 @@ export namespace support {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
-    const stances: readonly HumanSupport.IStance[] = context.params.stances;
+    // Each contact marked by the stance it was set down in.
+    const stances: readonly HumanSupport.IStance[] =
+      supportContact.placements(context.params.stances);
     if (stances.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -145,10 +146,6 @@ export namespace support {
     };
 
     // Each contact's target, read once at the start.
-    const left: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-      { x: 1, y: 0, z: 0 },
-    );
     const at = (c: HumanSupport.IContact): IAutoMovieVector3 | null => {
       if (c.target === undefined) return null;
       if (c.target !== "on") return context.aim(c.target, context.start).point;
@@ -161,20 +158,11 @@ export namespace support {
           reason: `the ${c.part} is placed on the action's surface, and none is given`,
           fix: "give the surface the row's contacts touch as `on`",
         });
-
-      // A part on the surface on its own side: a hand out by the shoulder's
-      // half width, a foot or a knee by the hip's, the trunk at its middle.
-      const sign: number = c.part.startsWith("left")
-        ? 1
-        : c.part.startsWith("right")
-          ? -1
-          : 0;
-      const half: number = c.part.endsWith("Hand")
-        ? body.measure.shoulderHalfWidth
-        : body.measure.hipHalfWidth;
-      return Vector3.add(
+      return supportContact.onSurface(
+        body,
+        c,
         context.aim(on, context.start).point,
-        Vector3.scale(left, sign * half),
+        entry.yaw,
       );
     };
 
@@ -187,14 +175,10 @@ export namespace support {
       if (
         c.target === undefined &&
         context.entry.supports.some(
-          (s: { part: string }): boolean =>
-            s.part === supportContact.window(c.part),
+          (s: { part: string }): boolean => s.part === supportContact.window(c.part),
         )
       )
-        laid.set(
-          supportContact.id(c),
-          supportContact.onFloor(body, entry, c.part),
-        );
+        laid.set(supportContact.id(c), supportContact.onFloor(body, entry, c.part));
     const place = (c: HumanSupport.IContact): IAutoMovieVector3 | null =>
       at(c) ?? laid.get(supportContact.id(c)) ?? null;
 
@@ -222,10 +206,7 @@ export namespace support {
       keys.push(key);
       for (const c of key.contacts)
         if (c.target === undefined && !laid.has(supportContact.id(c)))
-          laid.set(
-            supportContact.id(c),
-            supportContact.onFloor(body, key.posture, c.part),
-          );
+          laid.set(supportContact.id(c), supportContact.onFloor(body, key.posture, c.part));
     };
     let seconds: number = 0;
     stances.forEach((stance: HumanSupport.IStance, i: number): void => {
@@ -235,16 +216,12 @@ export namespace support {
         i === 0 ? [] : stances[i - 1]!.contacts;
       const added: HumanSupport.IContact[] = stance.contacts.filter(
         (c: HumanSupport.IContact): boolean =>
-          !previous.some((p: HumanSupport.IContact): boolean =>
-            supportContact.same(p, c),
-          ),
+          !previous.some((p: HumanSupport.IContact): boolean => supportContact.same(p, c)),
       );
-      // A limb that bears in both stances on different places steps (a part
-      // to another target, or a foot to its own knee): it lets go, swings
-      // over the middle of its step lifted clear of the surface, and sets
-      // down, the other contacts bearing all along (a contact is broken, then
-      // made: Escande, Kheddar and Miossec 2013). A limb cannot bear in two
-      // places at once, so its old contact never waits for its new one.
+      // A limb set down anew (another target, a foot to its knee, a `step`)
+      // lets go, swings over the middle of its step clear of the surface and
+      // sets down while the rest bear: a contact broken, then made (Escande,
+      // Kheddar and Miossec 2013); a limb never bears in two places at once.
       const left = (p: HumanSupport.IContact): boolean =>
         !stance.contacts.some((s: HumanSupport.IContact): boolean =>
           supportContact.same(s, p),
@@ -271,12 +248,16 @@ export namespace support {
           ),
       );
       if (i > 0 && moved.length > 0) {
+        // The lift still stands in the stance it leaves: it keeps that
+        // stance's posture and starts from the key before; the set-down
+        // places the limb where the stance it arrives at lays it.
+        const leaving: HumanSupport.IStance = stances[i - 1]!;
         seconds += move / 3;
         push({
           posture: supportKey.solved(
             body,
-            preference(stance, before),
-            seed(stance, before),
+            preference(leaving, before),
+            before,
             kept,
             place,
             `lift${i}`,
@@ -364,10 +345,7 @@ export namespace support {
           st.contacts.map(
             (
               c: HumanSupport.IContact,
-            ): [string, HumanSupport.IContact["kind"]] => [
-              supportContact.id(c),
-              c.kind,
-            ],
+            ): [string, HumanSupport.IContact["kind"]] => [supportContact.id(c), c.kind],
           ),
       ),
     );
@@ -421,9 +399,7 @@ export namespace support {
       const lifted: number = (keyAt(`lift${i + 1}`) ?? held).seconds;
       for (const c of stance.contacts)
         if (
-          !next.contacts.some((n: HumanSupport.IContact): boolean =>
-            supportContact.same(n, c),
-          )
+          !next.contacts.some((n: HumanSupport.IContact): boolean => supportContact.same(n, c))
         )
           close(
             supportContact.id(c),
@@ -466,15 +442,10 @@ export namespace support {
         );
         const pin: HumanSupport.IContact | undefined = a.contacts.find(
           (p: HumanSupport.IContact): boolean =>
-            b.contacts.some((q: HumanSupport.IContact): boolean =>
-              supportContact.same(p, q),
-            ),
+            b.contacts.some((q: HumanSupport.IContact): boolean => supportContact.same(p, q)),
         );
         if (pin === undefined)
-          return {
-            ...shaped,
-            root: { ...shaped.root, y: knockdown.rest(body, shaped) },
-          };
+          return { ...shaped, root: { ...shaped.root, y: knockdown.rest(body, shaped) } };
         const held: IAutoMovieVector3 = supportContact.pinned(
           body,
           a.posture,
