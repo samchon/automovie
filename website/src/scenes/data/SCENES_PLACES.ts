@@ -122,7 +122,12 @@ export const SCENES_PLACES: readonly IScene[] = [
           prop: "hat",
           handle: "hold",
           hand: "left",
-          use: { tip: "wear", line: "worn", at: { region: "crown" }, round: true },
+          use: {
+            tip: "wear",
+            line: "worn",
+            at: { region: "crown" },
+            round: true,
+          },
         }),
         act("dress", { item: "hat", prop: "hat" }),
         act("kneel", { kind: "one", hold: 0.6 }),
@@ -135,7 +140,15 @@ export const SCENES_PLACES: readonly IScene[] = [
       // line with the left shoulder, the mirror of `SceneBuild.counter`'s
       // place for the right hand, so the left hand takes it standing.
       object("counter", "createTable", "counter", 0.6, 0.53, 180),
-      object("hat", "createWearable", "hat", 0.18, 0.3, 0, SceneBuild.COUNTER_TOP),
+      object(
+        "hat",
+        "createWearable",
+        "hat",
+        0.18,
+        0.3,
+        0,
+        SceneBuild.COUNTER_TOP,
+      ),
     ],
   ),
   scene(
@@ -185,10 +198,19 @@ export const SCENES_PLACES: readonly IScene[] = [
       ),
       // A fixture, so the hands that grip its rungs bear on it.
       {
-        ...object("ladder", "createLadder", "fixed", 0.5, TOE + LADDER.start, 180, 0, {
-          rungs: LADDER.placed,
-          spacing: LADDER.spacing,
-        }),
+        ...object(
+          "ladder",
+          "createLadder",
+          "fixed",
+          0.5,
+          TOE + LADDER.start,
+          180,
+          0,
+          {
+            rungs: LADDER.placed,
+            spacing: LADDER.spacing,
+          },
+        ),
         fixed: true,
       },
       object("kerb", "createKerb", "kerb", KERB.x, KERB.z, 180),

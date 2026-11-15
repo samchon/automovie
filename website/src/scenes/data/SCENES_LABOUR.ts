@@ -55,12 +55,28 @@ export const SCENES_LABOUR: readonly IScene[] = [
     ],
     [
       object("stove", "createTable", "counter", -2, 0.6, 180),
-      object("pan", "createVessel", "saucepan", -1.95, 0.5, 0, SceneBuild.COUNTER_TOP),
+      object(
+        "pan",
+        "createVessel",
+        "saucepan",
+        -1.95,
+        0.5,
+        0,
+        SceneBuild.COUNTER_TOP,
+      ),
       // The spoon lies level on the counter by the pan, its bowl toward the
       // far side: `createTool` stands a tool along +Y from the butt of its
       // handle, so it is turned a quarter turn about +X.
       {
-        ...object("spoon", "createTool", "spoon", -2.2, 0.34, 0, SceneBuild.COUNTER_TOP),
+        ...object(
+          "spoon",
+          "createTool",
+          "spoon",
+          -2.2,
+          0.34,
+          0,
+          SceneBuild.COUNTER_TOP,
+        ),
         rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
       },
       object("bar", "createTable", "counter", 0, 0.65, 180),

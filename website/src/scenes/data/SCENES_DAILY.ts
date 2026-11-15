@@ -104,7 +104,15 @@ export const SCENES_DAILY: readonly IScene[] = [
       object("deskD", "createTable", "desk", -1.2, 0.75, 0, 0, { depth: 0.7 }),
       object("chairD", "createSeat", "office", -1.2, 0.08),
       // Turned half round, so its typist's +Z side faces the chair.
-      object("keyboard", "createKeyboard", "keyboard", -1.2, 0.48, 180, DESK_TOP),
+      object(
+        "keyboard",
+        "createKeyboard",
+        "keyboard",
+        -1.2,
+        0.48,
+        180,
+        DESK_TOP,
+      ),
       object("deskE", "createTable", "desk", 1, 0.75),
       object("chairE", "createSeat", "office", 1, -0.15),
       object("switch", "createSwitch", "rocker", 2.2, 0, 270),
