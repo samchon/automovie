@@ -40,7 +40,7 @@ import { HumanRideHands } from "./HumanRideHands";
  * within the support, a pedal on its crank or a stirrup; with `hands` each
  * hand holds a grip, a rein or a wheel's rim and follows it the same way,
  * the trunk leaning forward at each instant as far as the hands need to
- * reach what they hold (`HumanMountRider.reach`), as a fixed-seat rower
+ * reach what they hold (`HumanMountReach.reach`), as a fixed-seat rower
  * leans to the catch the oar's handle comes to. First pass: the rider
  * leans exactly as the support does and absorbs no bump, a pedalling foot
  * keeps its pitch to the frame except where the leg would run short and it

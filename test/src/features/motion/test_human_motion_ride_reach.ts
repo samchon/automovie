@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  HumanMountReach,
   HumanMountRider,
   type IHumanBody,
   type IHumanPosture,
@@ -14,7 +15,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A rider's trunk leans forward exactly as far as the hands need to reach
- * what they hold (`HumanMountRider.reach`), as a fixed-seat rower leans to
+ * what they hold (`HumanMountReach.reach`), as a fixed-seat rower leans to
  * the catch: the least flexion of the spine that brings each shoulder within
  * `ARM` of its arm's length of its point, read in closed form from the
  * shoulder's circle under the spine's flexion.
@@ -79,7 +80,7 @@ export function test_human_motion_ride_reach(): void {
       });
     const reach: (
       points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
-    ) => number = HumanMountRider.reach(body, seated, ["left", "right"]);
+    ) => number = HumanMountReach.reach(body, seated, ["left", "right"]);
 
     // 1. Within reach.
     const near: number = reach({ right: ahead("right", 0.95) });

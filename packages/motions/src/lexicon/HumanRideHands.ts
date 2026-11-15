@@ -9,6 +9,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
 
 /**
@@ -36,7 +37,7 @@ export namespace HumanRideHands {
      * The trunk's forward lean that brings the holding hands in reach at a
      * film second, the support in its frame then, degrees: the grips are
      * followed as they move, as a rower leans to the catch the oar's handle
-     * comes to (`HumanMountRider.reach`).
+     * comes to (`HumanMountReach.reach`).
      */
     lean: (film: number, frame: IHumanProp.IFrame) => number;
 
@@ -110,7 +111,7 @@ export namespace HumanRideHands {
     );
     const reach: (
       points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
-    ) => number = HumanMountRider.reach(context.body, seated, holding);
+    ) => number = HumanMountReach.reach(context.body, seated, holding);
 
     // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
     const gripAt = (
