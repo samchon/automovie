@@ -47,14 +47,6 @@ export namespace clampJointToSkeleton {
    * @param bone The bone.
    * @param skeleton The skeleton.
    * @returns The clamp of a joint of that bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is resolved once and that each call equals the per-call clamp.
-   * @evidence contracts/development/implementation.md#principled-implementation The same override precedence, constraint and frame as `clampJointToSkeleton`, read once.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The lookup, then one closure.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The skeleton is read when the clamp is made; a caller holds the clamp only within one solve, over which the skeleton does not change.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) lookup per clamp made, none per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `getConstraint`, `swingTwistRange.of` and `clampJointRom`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the constraint and the frame, released with it.
    */
   export function of(
     bone: IAutoMovieJointPose["bone"],
