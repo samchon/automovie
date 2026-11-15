@@ -101,6 +101,7 @@ export * from "./physicalModelRestTransforms";
 export * from "./physicalNativeShape";
 export * from "./physicalNativeVector";
 export * from "./physicalPointProjection";
+export * from "./physicalInertiaTensor";
 export * from "./physicalPrincipalAxes";
 export * from "./physicalRecoverySupportGoals";
 export * from "./physicalReleasedQuality";

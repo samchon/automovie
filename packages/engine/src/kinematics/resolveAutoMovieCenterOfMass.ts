@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
@@ -65,12 +66,26 @@ export function resolveAutoMovieCenterOfMass(
           s.neutral.position,
           Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
         );
+        const unturn: IAutoMovieQuaternion = Quaternion.inverse(
+          bone.worldRotation,
+        );
         return {
           bone: bone.bone,
           mass: s.mass,
           point: Quaternion.rotateVector(
-            Quaternion.inverse(bone.worldRotation),
+            unturn,
             Vector3.subtract(world, bone.worldPosition),
+          ),
+          inertia: s.inertia,
+
+          // The principal axes go from the segment's neutral frame to the
+          // bone's rest frame as the centre does, so a pose turns them by
+          // the bone's world rotation alone.
+          axes: Quaternion.normalize(
+            Quaternion.multiply(
+              unturn,
+              Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+            ),
           ),
         };
       },
@@ -113,6 +128,12 @@ export namespace resolveAutoMovieCenterOfMass {
 
     /** Centre of mass relative to the bone's joint, in its rest frame, metres. */
     point: IAutoMovieVector3;
+
+    /** Principal moments about the segment's centre, kg m², the profile's own. */
+    inertia: IAutoMovieVector3;
+
+    /** The rotation from the principal axes to the bone's rest frame, so a posed segment's axes are its bone's world rotation times this (`resolveAutoMovieMomentum.inertia`). */
+    axes: IAutoMovieQuaternion;
   }
 
   /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `pendulum` takes its length from. */
