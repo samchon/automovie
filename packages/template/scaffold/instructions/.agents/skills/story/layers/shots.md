@@ -28,8 +28,8 @@ Pace comes from shot length: shorter shots as pressure rises, longer ones for st
 
 ## Frame
 
-Compose for the delivered aspect ratio. A vertical frame holds one figure or a close pair, so stage travel toward or away from the camera rather than across the frame.
+Compose for the delivered aspect ratio. A vertical frame fits one figure or a close pair best, so stage travel toward or away from the camera rather than across the frame.
 
 ## Writing them down
 
-Write the view in each scene's standing state and its changes in the beat records, as [notation](notation.md#records) sets, by each shot's size, subject, camera position and movement. These are the terms the installed camera grammar performs, as the interface package's types define it.
+In the screenplay, write the view in each scene's standing state and its changes in the beat records, as [notation](notation.md#records) sets. Give each shot's size, subject and movement in the terms the installed camera grammar performs, as the interface package's types define them, and the camera's height, angle or side of the line in words where they matter, which [staging](../../motion/staging.md#the-view) realizes by placing the camera.

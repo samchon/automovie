@@ -41,7 +41,7 @@ The vocabulary joins actions with a few operators:
 | An action on an object, such as sitting on it, gripping it, opening it or riding it | Attaching the action to the object's [affordance](../../development/entities.md#objects) |
 | An action timed to another's instant, a partner, a line of dialogue or a beat | A sync between the named instants |
 
-Start a following action inside the window where the previous one admits a cut, rather than letting each return to rest, because a person begins the next thing before finishing the last.
+Start a following action inside the window where the previous one lets the next interrupt it, rather than letting each return to rest, because a person begins the next thing before finishing the last.
 
 ## Seed
 

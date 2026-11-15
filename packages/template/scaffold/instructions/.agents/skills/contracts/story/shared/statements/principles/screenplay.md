@@ -71,9 +71,9 @@ What each beat decides:
 What the modules can perform:
 
 8. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
-9. Each camera entry gives a shot's size, subject, camera position and movement in the terms the installed camera grammar performs, and one that starts a new shot opens with `Cut to`.
+9. Each camera entry states what it changes, giving size, subject and movement in the terms the installed camera grammar performs. One that starts a new shot opens with `Cut to` or names its transition, and gives that shot's size and subject.
 10. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-11. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: a commissioned generated film's beat states the reactions it needs, such as a facial expression, and the generation prompt carries them.
+11. The beat asks nothing the adopted representation cannot show, such as a facial expression on a faceless polygon man. Exception: a commissioned generated film's beat states the reactions it needs, such as a facial expression, and the generation prompt carries them.
 
 Measurements:
 

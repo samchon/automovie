@@ -20,7 +20,7 @@ Ambience generated per request jumps at every cut, and music generated per reque
 
 ## Loudness
 
-Every delivered film with sound has a loudness target in the [delivery profile](../production/project-context.md). Ask the user for the release's target as three values: integrated loudness with its tolerance, whether it is measured over the whole programme or gated on dialogue, and the maximum true peak, such as -23 LUFS over the whole programme and -1 dBTP under EBU R128. Measure on the decoded mix, with [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) and dialogue gating where the target asks for it, that loudness and true peak meet the target and every spoken line rises over the bed.
+Every delivered film with sound has a loudness target in the [delivery profile](../production/project-context.md). Ask the user for three things of the release's target: integrated loudness with its tolerance, whether it is measured over the whole programme or gated on dialogue, and the maximum true peak, such as -23 LUFS over the whole programme and -1 dBTP under EBU R128. Measure on the decoded mix, with [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) and dialogue gating where the target asks for it, that loudness and true peak meet the target and every spoken line rises over the bed.
 
 Keep dialogue, music and effects on separate tracks through the whole mix, so the stems and a music-and-effects mix the profile asks for can be exported; a generated take's speech reaches its own track only through separation.
 

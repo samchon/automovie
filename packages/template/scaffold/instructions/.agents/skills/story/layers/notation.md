@@ -33,4 +33,4 @@ A screenplay scene file's first section opens with the scene's standing state as
 - Camera: slow push in from the standing two-shot.
 ```
 
-A `Camera` entry that starts a new shot opens with `Cut to`, and any other entry moves or reframes the running shot, so the edit inside a scene is read from the records. The standing state's camera default is the scene's first shot.
+A `Camera` entry that starts a new shot opens with `Cut to` or names its transition, such as `Dissolve to`, and any other entry moves or reframes the running shot, so the edit inside a scene is read from the records. The standing state's camera default is the scene's first shot.

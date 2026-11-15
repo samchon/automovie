@@ -11,7 +11,7 @@ A direct 3D film is the programmed film itself, rendered at the detail its commi
 
 Give each subject the [detail option](../development/entities.md#detail) its closest shot needs, built under [3D modeling](../3d-modeling/SKILL.md#requested-detail) from its record and canon references, and record the selection in [project context](../production/project-context.md). Ask the user which subjects need detail and from which source, because 3D modeling leaves a detailed form's source to the user.
 
-A person keeps the skeleton and proportions the motion was accepted on. The detailed body comes from the installed human package where it offers one, otherwise from a generated or found body bound to that skeleton under [rigging](../3d-modeling/rigging.md). Wardrobe and hair are detail options of the same cast entity, rigged to the same skeleton. Secondary motion the installed packages do not simulate, such as cloth or hair following the body, follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
+A person keeps the skeleton and proportions the motion was accepted on. The detailed body comes from the installed human package where it offers one, otherwise from a generated or found body bound to that skeleton under [rigging](../3d-modeling/rigging.md). Wardrobe and hair are detail options of the same cast entity, rigged to the same skeleton. Secondary motion such as cloth or hair following the body moves only as far as the installed packages simulate it. Where their types record it as excluded, tell the user it is a limit of the film; otherwise it follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
 
 ## Look
 
@@ -31,7 +31,7 @@ Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md
 
 The installed renderer draws the film through the README's render command. Read in its README which effects it draws, such as depth of field, motion blur and antialiasing, and at what cost. An effect the commission needs and the renderer lacks follows a defect or a gap, and [delivery review](../review/delivery-review.md) discloses it.
 
-A renderer outside the installed packages, such as an offline path tracer or a 3D suite, is reached only through an export the installed packages provide; where none exists, tell the user rather than write one in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
+The installed packages export no scene, so a renderer outside them, such as an offline path tracer or a 3D suite, cannot draw the film; tell the user rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
 
 ## What to look for
 
