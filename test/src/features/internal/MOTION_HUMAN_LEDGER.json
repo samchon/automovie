@@ -433,7 +433,8 @@
         "test_human_motion_signature_salute",
         "test_human_motion_hand_effectors"
       ]
-    },    {
+    },
+    {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.arm",
       "tests": [
@@ -474,10 +475,6 @@
       ]
     },
     {
-      "layer": "compose",
-      "symbol": "AutoMovieMotionHumanBend.strainOf",
-      "tests": []
-    },    {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.strainOf",
       "tests": []
