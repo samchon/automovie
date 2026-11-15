@@ -31,6 +31,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
+import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import { HumanCarriedLift } from "./HumanCarriedLift";
 
@@ -330,7 +331,7 @@ export namespace HumanCarried {
    * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`). A person named as their own carrier is refused on `by`; a borne mass no lean of the carrier balances is refused on `mass` with the feasible mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, who does what, the phases and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting, computed once whichever role plans first; at each second the carrier's displayed bones are read and the carry's key posture is registered on the carrier's bearing regions by Horn's closed-form absolute orientation (`HumanCarriedCoupling.posture`). A meeting that is not solid falls back to the single-region placement on the carrier's region, found by one forward kinematics of the trunk.
+   * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting, computed once whichever role plans first; at each second the carrier's displayed bones are read and the carry's key posture is registered on the carrier's bearing regions by Horn's closed-form absolute orientation (`HumanCarriedCouplingPose.posture`). A meeting that is not solid falls back to the single-region placement on the carrier's region, found by one forward kinematics of the trunk.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The posture is rigid in the carry (no sag, no sway) and its angles are provisional; with no carrier the posture is taken in place and declares no support.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution, one read of the carrier's bones and one four-by-four eigen solve per posture.
@@ -420,7 +421,7 @@ export namespace HumanCarried {
           if (carrier === undefined)
             return { ...entry, pitch: row.pitch, joints, limbs: {} };
           if (coupling !== undefined)
-            return HumanCarriedCoupling.posture(
+            return HumanCarriedCouplingPose.posture(
               body,
               coupling,
               row,
@@ -474,7 +475,7 @@ export namespace HumanCarried {
    * Hold a person in a named carry: the carrier's hands where the carry takes the carried body. Performed over the carrier's own action (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims only the arms that hold. The lean against the load is a layer the composition schedules over the carry (`HumanCarriedLean`), since a walk keeps its trunk for itself.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the hands do, how it is composed and what is missing.
-   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named (`of`), each holding wrist goes where the coupled carry lays the held region, in the carrier's own displayed hips frame (`HumanCarriedCoupling.holds`); otherwise to a place measured from one of the carrier's own regions on the trunk the carrier's action has placed, in arm lengths. Either way the hold follows the walk, and the arm is carried in joint space from what it held (`AutoMovieMotionHumanArm.carried`).
+   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named (`of`), each holding wrist goes where the coupled carry lays the held region, in the carrier's own displayed hips frame (`HumanCarriedCouplingPose.holds`); otherwise to a place measured from one of the carrier's own regions on the trunk the carrier's action has placed, in arm lengths. Either way the hold follows the walk, and the arm is carried in joint space from what it held (`AutoMovieMotionHumanArm.carried`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm primitive per holding hand over the inherited base.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands do not read the carried body, which reads the carrier, so the two cannot chase each other; the holds' places are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
@@ -512,7 +513,7 @@ export namespace HumanCarried {
       ] =
         coupling === undefined || of === undefined
           ? [null, null]
-          : HumanCarriedCoupling.holds(
+          : HumanCarriedCouplingPose.holds(
               context.performer(of).body,
               coupling,
               row,
