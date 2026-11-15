@@ -6,7 +6,7 @@ Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaff
 
 Follow each changed rule from its entry point to the actual task and contract, repair owner and handoff.
 
-A Markdown-only change needs these checks and its affected-consumer review; it does not justify inventing a test or generating a disposable production.
+A Markdown-only change needs only this tracing and a review of its affected consumers, not a new test or a disposable generated production.
 
 Inspect the file map the template function returns, as [scaffold](../scaffold/SKILL.md) names it, when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
 
@@ -18,6 +18,6 @@ Take the cases prompting's verification asks for from the tasks the change affec
 
 For a changed expression criterion, test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the item's own question catches what its [sentence classification](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/inspection.md) alone misses.
 
-Under prompting's separate-context check, also withhold the author defense and prior verdict, and observe which resources it reads. Record what it produced and what it could not check.
+Under prompting's separate-context check, also withhold the author defense and prior verdict, and observe which resources it reads.
 
 Name what was established: instruction consistency, rendered distribution, observed author behavior or actual media result. Static case comparison does not prove better storytelling, a clean sentence classification does not approve the whole experience, and an instruction-only change does not verify an unrendered film.

@@ -14,7 +14,7 @@ After detailed repairs, read the complete result to check that the goal and the 
 
 Trace a proposed instruction through the production's actual handoff: the brief or parent layers it starts from, the author's decision, the contract respondent, the repair owner, and the stage that consumes the result. The production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md) set those boundaries.
 
-A changed instruction must still let the whole motion hint pass through coded performance, camera staging, the complete edit and the observed output, with identities, contacts, timing and requested controls kept on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets.
+A changed instruction must not break the motion hint's path from coded performance through camera staging and the complete edit to the observed output. Identities, contacts, timing and requested controls stay on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets.
 
 Judge audiovisual expression as a plan at screenplay time and as the captured and encoded result at delivery, where the user hears its sound; neither observation establishes the other.
 

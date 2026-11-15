@@ -5,7 +5,7 @@ description: Owns how any document is written, with its sentences, terms, paragr
 
 # Documentation
 
-Every document follows [Writing](writing.md). A README and a doc comment add the rules below.
+Every document follows [Writing](writing.md). A README adds the rules below, and a doc comment says what the project's development skill names.
 
 ## READMEs
 
@@ -17,7 +17,3 @@ Write a README from the view of the person who uses its project or package, and 
 - where the detail lives.
 
 A README lists no API that the source and its types already own, because that list goes stale at the next change, and it carries nothing only a maintainer needs. Every name, command and sample in it exists in the code, and every sample runs.
-
-## Doc comments
-
-The project's development skill names what a public declaration's comment must say.

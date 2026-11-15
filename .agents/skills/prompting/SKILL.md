@@ -23,7 +23,7 @@ Give an example only where the rule alone leaves the pattern unclear, and keep e
 
 ## One owner
 
-Every other place links to a rule's one owner, as [Writing](../documentation/writing.md) requires, so a task receives one consistent requirement. Moving a rule updates its callers.
+Give each rule one owner, as [Writing](../documentation/writing.md) requires, and link to it from every other place that needs it, so a task receives one consistent requirement. When moving a rule, update every link to it.
 
 Resolve two conflicting instructions inside the prompts by changing one of them, never by adding an instruction about which one wins, because a model applies a stated priority unreliably.
 
@@ -37,7 +37,7 @@ A skill gives a job's goal, order and boundaries, and points to the checklists i
 
 An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
 
-Put questions the agent can answer together in one checklist item, and split them when their task, respondent (whoever answers), evidence or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
+Put judgments the agent can make together into one checklist item, and split them into separate items when their task, respondent (whoever answers), evidence or repair owner differs. Keep a question about the overall achievement apart from its detailed checks, because passing every check does not prove the whole works.
 
 ## Layout
 
@@ -47,7 +47,7 @@ Put questions the agent can answer together in one checklist item, and split the
 
 ### Skill files
 
-A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory and a third-person `description` that says what it does and when to use it. A job with its own trigger gets its own skill.
+A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory, in lowercase letters, digits and hyphens within 64 characters, and a third-person `description` within 1024 characters that says what it does and when to use it. A job with its own trigger gets its own skill.
 
 ### Splitting a skill
 
