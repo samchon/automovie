@@ -428,7 +428,7 @@ function laid(frame: IHumanFormation.IPath): HumanFormationPath.ILaid {
   return out;
 }
 
-/** A course frame at a second: linear between its samples, heading the way it moves, kept while it stands (the first way it moves before it sets off). */
+/** A course frame at a second: linear between its samples, heading the way it moves, kept while it stands (the first way it moves before it sets off), or the samples' own headings when they carry them. */
 function coursed(
   frame: IHumanFormation.ICourse,
   seconds: number,
@@ -442,6 +442,16 @@ function coursed(
   const span: number = b.seconds - a.seconds;
   const u: number =
     span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));
+  // A course that carries its headings (a wheel) turns as they say, read between samples linearly.
+  if (a.heading !== undefined && b.heading !== undefined)
+    return {
+      at: {
+        x: a.x + (b.x - a.x) * u,
+        y: a.y + (b.y - a.y) * u,
+        z: a.z + (b.z - a.z) * u,
+      },
+      heading: a.heading + (b.heading - a.heading) * u,
+    };
   const heading = (k: number): number | null => {
     const p: IHumanFormation.ISample = s[k]!;
     const q: IHumanFormation.ISample = s[k + 1]!;

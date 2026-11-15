@@ -88,6 +88,7 @@ export * from "./ensemble/IHumanEnsemblePreset";
 export * from "./ensemble/IHumanFormation";
 export * from "./ensemble/IHumanManoeuvre";
 export * from "./ensemble/instance";
+export * from "./ensemble/manoeuvreWheel";
 export * from "./everyday/HumanAffect";
 export * from "./everyday/HumanBalance";
 export * from "./everyday/HumanBreath";

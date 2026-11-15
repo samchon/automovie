@@ -110,8 +110,10 @@ export namespace IHumanFormation {
 
   /**
    * A frame that travels a planned course: samples of its origin at film
-   * seconds (a steered course, `HumanCrowd.steer`), read between them
-   * linearly, its heading the direction it moves in and kept while it stands.
+   * seconds (a steered course, `HumanCrowd.steer`, or a wheel,
+   * `manoeuvreWheel`), read between them linearly, its heading the samples'
+   * own when they carry one, else the direction it moves in, kept while it
+   * stands.
    */
   export interface ICourse {
     /** The discriminator. */
@@ -185,5 +187,8 @@ export namespace IHumanFormation {
 
     /** World metres, z. */
     z: number;
+
+    /** A course frame's heading here, degrees, unwrapped along the course, when it turns otherwise than it moves (a wheel about its pivot, `manoeuvreWheel`); the way it moves when absent. Not read on a slot's way. */
+    heading?: number;
   }
 }

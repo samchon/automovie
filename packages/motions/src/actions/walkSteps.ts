@@ -62,8 +62,8 @@ import { walkStepFoot } from "./walkStepFoot";
  * every foot goal reachable on the actual pelvis.
  */
 export namespace walkSteps {
-  /** Planner input. */
-  export interface IInput {
+  /** Planner input; a way set from outside (`travel`) is handed to the timing as it is. */
+  export interface IInput extends Pick<WalkPace.IProps, "travel"> {
     /** The body. */
     body: IHumanBody;
 
@@ -203,8 +203,8 @@ export namespace walkSteps {
           2;
     const pace: WalkPace = WalkPace.fit(
       {
+        ...input,
         distance: D,
-        speed: input.speed,
         share: input.swing ?? 0.8,
         period: (seconds: number): number => input.period(seconds),
         lead: rolled,

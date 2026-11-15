@@ -101,5 +101,8 @@ export namespace IHumanManoeuvre {
 
     /** What it does on arrival. */
     arrive: "stand" | "kneel";
+
+    /** The slot it keeps on the way, a wheel's turning formation (`manoeuvreWheel`), so its step shortens with its radius; it travels its way at its own pace when absent. */
+    station?: IHumanFormation.IStation;
   }
 }

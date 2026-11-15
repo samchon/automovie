@@ -1,10 +1,14 @@
 import { ArchetypeCourse } from "@automovie/archetypes";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
   HumanEnsemble,
   HumanFormation,
+  HumanGait,
   HumanPerformance,
   type HumanSegment,
   type IHumanBody,
@@ -32,8 +36,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    member faces away from the square's centre and no two slots stand closer
  *    than the file spacing.
  * 4. Six members on two bodies march their slots behind a path frame that
- *    turns 90 degrees: every member takes the same number of steps within
- *    one, and every member ends within its step's length of its slot.
+ *    stands half a second, gathers speed and turns 90 degrees: every member
+ *    takes the same number of steps within one, ends within its step's
+ *    length of its slot, and at every heel strike stands within half a drill
+ *    step of its slot, its place kept by the length of its step at the
+ *    called cadence (`walkStation.cadenced`), not by drifting ahead while
+ *    the frame stands.
  * 5. Two members walk freely behind a path frame that starts, slows and
  *    halts: each ends within 0.15 m of its slot, and never falls behind its
  *    slot by more than the lag the speed-matching gain gives for the
@@ -229,6 +237,26 @@ export function test_human_motion_ensemble_formation(): void {
     const off: number = Math.hypot(root.x - slot.x, root.z - slot.z);
     if (off > 0.4)
       findings.push(`${m.subject} ends ${off.toFixed(3)} m from its slot`);
+
+    // Through the frame's standing start, its gathering of speed and its corner, the count kept and the place kept by the step's length.
+    const segment: HumanSegment.ISegment = march.segments(m.subject)[0]!;
+    const half: number = 0.5 * HumanGait.MARCH.step * m.body.measure.hipHeight;
+    for (const e of segment.plan.events.filter(
+      (e: IAutoMovieMotionEvent): boolean =>
+        /HeelStrike\d+$/.test(e.name),
+    )) {
+      const t: number = segment.start + e.share * segment.plan.duration;
+      if (t > end) continue;
+      const at: IAutoMovieVector3 = march.posture(m.subject, t).root;
+      const slot: IAutoMovieVector3 = HumanFormation.slot(path, m.index, t).at;
+      const gap: number = Math.hypot(at.x - slot.x, at.z - slot.z);
+      if (gap > half) {
+        findings.push(
+          `${m.subject} stands ${gap.toFixed(3)} m from its slot at ${e.name}, ${t.toFixed(2)} s, more than half a drill step`,
+        );
+        break;
+      }
+    }
   }
 
   // 5. Free station keeping through a start, a slowing and a halt.

@@ -12,6 +12,7 @@ import type { HumanEnsemble } from "./HumanEnsemble";
 import { HumanFormation } from "./HumanFormation";
 import type { IHumanFormation } from "./IHumanFormation";
 import type { IHumanManoeuvre } from "./IHumanManoeuvre";
+import { manoeuvreWheel } from "./manoeuvreWheel";
 
 /**
  * Manoeuvres planned as each member's own travel, and appended to the
@@ -25,12 +26,13 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  * members whose ways bring them closer than their summed shoulder half
  * breadths, and closer than they stand in either formation, at any 1/24 s
  * instant refuse the manoeuvre, unless its rule leaves crossings to the
- * crowd's steering. A member's step-off is the drill order's delay here plus
+ * crowd's steering or wheels the formation rigidly, each member keeping its
+ * slot of the turning formation (`manoeuvreWheel`). A member's step-off is the drill order's delay here plus
  * its own response latency, drawn when the sync places it (#3462).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a plan decides, the file-order rule, the crossing check and how latency joins.
  * @evidence contracts/development/design.md#principled-representation A plan is a list of parts over the vocabulary's travel.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `plan`, `append`, the drill interval `INTERVAL`, the arc's step `ARC`, and the steered re-form's `STEERED` and `SPAN`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `plan`, `append`, the drill interval `INTERVAL`, and the steered re-form's `STEERED` and `SPAN`; the wheel is `manoeuvreWheel`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No manoeuvre is an action law.
  */
 export namespace HumanManoeuvre {
@@ -43,16 +45,13 @@ export namespace HumanManoeuvre {
   /** How many times the longest straight way's walking time a steered re-form is given (provisional: room to go round). */
   export const SPAN: number = 3;
 
-  /** Degrees between two points of a wheeling member's arc. */
-  export const ARC: number = 10;
-
   /**
    * Plan a manoeuvre: each member's part.
    *
    * @param ensemble The ensemble, member `i` standing in slot `i` of `from`.
    * @param manoeuvre The manoeuvre.
    * @returns The parts, by member index.
-   * @throws {HumanRefusal} When the target holds too few slots, a deployment's column has more blocks than its line, or two ways cross under a rule that does not steer, naming both members, the instant and the distance.
+   * @throws {HumanRefusal} When the target holds too few slots, a deployment's column has more blocks than its line, a wheel's target is not its formation turned about the pivot, or two ways cross under a rule that does not steer, naming both members, the instant and the distance.
    */
   export function plan(
     ensemble: HumanEnsemble.IEnsemble,
@@ -98,19 +97,23 @@ export namespace HumanManoeuvre {
         HumanFormation.slot(manoeuvre.to, s, at),
     );
 
-    // Each way: about the pivot, straight, or none.
-    const pivot: IAutoMovieVector3 = pivotOf(manoeuvre, members, starts);
+    // Each way: a wheel's arcs with the stations that keep its line straight, steered, straight, or none.
+    const speeds: number[] = travelSpeeds(members, manoeuvre);
+    const wheel: manoeuvreWheel.IWheel | null =
+      rule.path === "arc"
+        ? manoeuvreWheel(ensemble, manoeuvre, starts, ends, speeds)
+        : null;
     const ways: IAutoMovieVector3[][] =
-      rule.path === "steered"
-        ? steered(ensemble, manoeuvre, starts, ends)
-        : members.map(
-            (_: HumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
-              rule.path === "inPlace"
-                ? [starts[i]!]
-                : rule.path === "arc"
-                  ? arc(pivot, starts[i]!, ends[i]!.at)
+      wheel !== null
+        ? wheel.ways
+        : rule.path === "steered"
+          ? steered(ensemble, manoeuvre, starts, ends)
+          : members.map(
+              (_: HumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
+                rule.path === "inPlace"
+                  ? [starts[i]!]
                   : [starts[i]!, ends[i]!.at],
-          );
+            );
 
     // Who steps off when: by block for the deployments, by rank in turn, or together.
     const blocks: number[] = members.map(
@@ -166,10 +169,15 @@ export namespace HumanManoeuvre {
           via: ways[i]!,
           face: ends[i]!.heading,
           arrive,
+          ...(wheel === null || wheel.stations === null
+            ? {}
+            : { station: wheel.stations[i]! }),
         };
       },
     );
-    if (rule.path !== "steered") crossings(ensemble, manoeuvre, parts);
+    // A wheel's turn is rigid, so no two of its members come closer than they stand.
+    if (rule.path !== "steered" && wheel === null)
+      crossings(ensemble, parts, speeds);
     return parts;
   }
 
@@ -197,11 +205,16 @@ export namespace HumanManoeuvre {
             : "march";
     const to: IAutoMovieVector3 = part.via[part.via.length - 1]!;
     const travelled: C = chain
-      .registered(gait, {
-        to,
-        ...(part.via.length > 2 ? { via: part.via.slice(1, -1) } : {}),
-        face: part.face,
-      })
+      .registered(
+        gait,
+        part.station === undefined
+          ? {
+              to,
+              ...(part.via.length > 2 ? { via: part.via.slice(1, -1) } : {}),
+              face: part.face,
+            }
+          : { to, face: part.face, station: part.station },
+      )
       .sync({
         ...manoeuvre.on,
         offset: (manoeuvre.on.offset ?? 0) + part.delay,
@@ -210,82 +223,6 @@ export namespace HumanManoeuvre {
       ? travelled.registered("kneel", { rise: false })
       : travelled;
   }
-}
-
-/** The wheel's pivot: the front rank's left or right file, or its centre, where the members stand at the word. */
-function pivotOf(
-  manoeuvre: IHumanManoeuvre,
-  members: readonly HumanEnsemble.IMember[],
-  starts: readonly IAutoMovieVector3[],
-): IAutoMovieVector3 {
-  const front: number[] = members
-    .map(
-      (
-        m: HumanEnsemble.IMember,
-        i: number,
-      ): [number, HumanFormation.ILocal] => [
-        i,
-        HumanFormation.local(manoeuvre.from, m.index),
-      ],
-    )
-    .filter(
-      (e: [number, HumanFormation.ILocal]): boolean =>
-        e[1].rank === 0 && e[1].block === 0,
-    )
-    .sort(
-      (
-        a: [number, HumanFormation.ILocal],
-        b: [number, HumanFormation.ILocal],
-      ): number => a[1].file - b[1].file,
-    )
-    .map((e: [number, HumanFormation.ILocal]): number => e[0]);
-  if (front.length === 0) return starts[0] ?? { x: 0, y: 0, z: 0 };
-  const side: "left" | "right" | "centre" = manoeuvre.pivot ?? "left";
-  if (side === "centre") {
-    const n: number = front.length;
-    return {
-      x:
-        front.reduce((s: number, i: number): number => s + starts[i]!.x, 0) / n,
-      y: 0,
-      z:
-        front.reduce((s: number, i: number): number => s + starts[i]!.z, 0) / n,
-    };
-  }
-  // The layout's files run from the frame's left (file 0) to its right.
-  return starts[side === "left" ? front[0]! : front[front.length - 1]!]!;
-}
-
-/** A way about a pivot from one point to another: the radius and the angle each changed evenly, a point every `ARC` degrees. */
-function arc(
-  centre: IAutoMovieVector3,
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-): IAutoMovieVector3[] {
-  const r0: number = Math.hypot(from.x - centre.x, from.z - centre.z);
-  const r1: number = Math.hypot(to.x - centre.x, to.z - centre.z);
-  if (r0 < 1e-6 || r1 < 1e-6) return [from, to];
-  const a0: number = Math.atan2(from.x - centre.x, from.z - centre.z);
-  const a1: number = Math.atan2(to.x - centre.x, to.z - centre.z);
-  const sweep: number =
-    ((((a1 - a0 + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) -
-    Math.PI;
-  const count: number = Math.max(
-    1,
-    Math.ceil(Math.abs(sweep) / ((HumanManoeuvre.ARC * Math.PI) / 180)),
-  );
-  const out: IAutoMovieVector3[] = [from];
-  for (let k: number = 1; k < count; ++k) {
-    const u: number = k / count;
-    const r: number = r0 + (r1 - r0) * u;
-    const a: number = a0 + sweep * u;
-    out.push({
-      x: centre.x + r * Math.sin(a),
-      y: 0,
-      z: centre.z + r * Math.cos(a),
-    });
-  }
-  out.push(to);
-  return out;
 }
 
 /** The last rank of a block of a formation. */
@@ -298,19 +235,12 @@ function lastRank(formation: IHumanFormation, block: number): number {
   return last;
 }
 
-/**
- * Refuse a manoeuvre whose ways cross: each member read on its way at its
- * travel's speed from its delay, every 1/24 s, against every other.
- */
-function crossings(
-  ensemble: HumanEnsemble.IEnsemble,
+/** Each member's speed in the manoeuvre's travel at its leg length, m/s: the walk's or the run's Froude speed, or the drill's step times its cadence. */
+function travelSpeeds(
+  members: readonly HumanEnsemble.IMember[],
   manoeuvre: IHumanManoeuvre,
-  parts: readonly IHumanManoeuvre.IPart[],
-): void {
-  const members: readonly HumanEnsemble.IMember[] = ensemble.members;
-
-  // Each member's speed: its travel's at its leg length.
-  const speeds: number[] = members.map((m: HumanEnsemble.IMember): number => {
+): number[] {
+  return members.map((m: HumanEnsemble.IMember): number => {
     const l: number = m.body.measure.hipHeight;
     if (manoeuvre.gait === "walk")
       return Math.sqrt(walk.FROUDE.normal * AutoMovieGravity.STANDARD * l);
@@ -320,6 +250,18 @@ function crossings(
       manoeuvre.gait === "double" ? HumanGait.DOUBLE : HumanGait.MARCH;
     return (drill.step * l * drill.cadence) / 60;
   });
+}
+
+/**
+ * Refuse a manoeuvre whose ways cross: each member read on its way at its
+ * travel's speed from its delay, every 1/24 s, against every other.
+ */
+function crossings(
+  ensemble: HumanEnsemble.IEnsemble,
+  parts: readonly IHumanManoeuvre.IPart[],
+  speeds: readonly number[],
+): void {
+  const members: readonly HumanEnsemble.IMember[] = ensemble.members;
   const lengths: number[][] = parts.map(
     (p: IHumanManoeuvre.IPart): number[] => {
       const out: number[] = [0];

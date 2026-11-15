@@ -22,8 +22,9 @@ import { walkTempo } from "./walkTempo";
  * times that, two independent steps making a stride (`walkTempo`). On a beat
  * track a locked walker lands each strike by its phase correction toward its
  * beat (`walkCadence`, `walkTempo.entrained`). A cadenced gait keeps its
- * count; any other keeps its station by matching the slot's speed
- * (`walkStation`).
+ * count, its station kept by the length of its steps when it was planned
+ * (`walkStation.cadenced`); any other keeps its station by matching the
+ * slot's speed (`walkStation`).
  *
  * @param context The walk's context, its station resolved.
  * @param planned The stepping plan on its own clock.

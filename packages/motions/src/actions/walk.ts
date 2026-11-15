@@ -233,6 +233,7 @@ export namespace walk {
           : HumanSkill.jitter(context.skill, walkSteps.tempo(context), seconds),
       swing: gait.swing,
       gait,
+      ...walkStation.cadenced(context, gait, speed * share * weary),
     });
     const duration: number = steps.duration;
 

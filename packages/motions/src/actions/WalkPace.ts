@@ -34,10 +34,19 @@
  * leg trails no further at the start than in full stride. The period then
  * lengthens so the longer ramp does not quicken the cruise, and a plan too short
  * for both ramps shrinks them in proportion.
+ *
+ * A walk whose way is set from outside (`IProps.travel`, a cadenced station)
+ * keeps the asked period and as many steps as the way takes to be gone, and
+ * its pelvis is where the way says: each step is then as long as the way
+ * gone in it, as a drilled soldier keeps his place at a called cadence by
+ * the length of his step.
  */
 export class WalkPace {
   /** The delay of the first toe-off, seconds: a provisional gait initiation (anticipatory postural adjustments take a few tenths of a second, Brenière, Do and Bouisset 1987). */
   public static readonly FIRST: number = 0.25;
+
+  /** The longest a way set from outside is searched for its end, seconds: ten minutes, which no shot reaches. */
+  public static readonly LONGEST: number = 600;
 
   /** The number of steps to the closing pair. */
   public readonly steps: number;
@@ -65,6 +74,12 @@ export class WalkPace {
 
   /** The cruising speed, m/s. */
   private readonly speed: number;
+
+  /** The path's length, metres. */
+  private readonly distance: number;
+
+  /** The share of the way gone at a second, when the way is set from outside. */
+  private readonly travel: ((seconds: number) => number) | undefined;
 
   /**
    * @param props The distance in metres, the number of steps, the longest
@@ -96,7 +111,8 @@ export class WalkPace {
     let accel: number = 0;
     let excess: number = 0;
     for (let k: number = 0; k < 8; k++) {
-      T = base + excess / (2 * n);
+      // A way set from outside keeps the asked period: its pelvis does not ramp by itself.
+      T = base + (props.travel === undefined ? excess / (2 * n) : 0);
       const formula: number = Math.max(
         1e-3,
         2 * (first + props.share * T - (1 - front) * T),
@@ -135,6 +151,8 @@ export class WalkPace {
       props.distance /
       Math.max(1e-6, this.last - (this.accel + this.decel) / 2);
     this.stride = this.speed * T;
+    this.distance = props.distance;
+    this.travel = props.travel;
   }
 
   /**
@@ -148,6 +166,8 @@ export class WalkPace {
    * @returns The timing.
    */
   public static fit(props: WalkPace.IProps, longest: number): WalkPace {
+    if (props.travel !== undefined && props.distance >= 1e-6)
+      return WalkPace.travelled(props, props.travel, longest);
     const least: number = Math.max(
       props.distance < 1e-6 ? 1 : 2,
       Math.ceil(props.distance / longest - 1e-9),
@@ -171,6 +191,10 @@ export class WalkPace {
    * @returns Metres from the start, the whole distance from the last heel strike on.
    */
   public progress(seconds: number): number {
+    if (this.travel !== undefined)
+      return seconds >= this.last
+        ? this.distance
+        : this.distance * Math.min(1, this.travel(Math.max(0, seconds)));
     const t: number = Math.min(this.last, Math.max(0, seconds));
     const rise: number =
       this.accel * WalkPace.integral(Math.min(1, t / this.accel));
@@ -185,6 +209,33 @@ export class WalkPace {
             WalkPace.integral(1 - (t - (this.last - this.decel)) / this.decel))
         : 0;
     return this.speed * (rise + cruise + fall);
+  }
+
+  /**
+   * The timing of a way set from outside: the asked period, and the fewest
+   * steps, at least two, whose closing heel strike comes once the whole way
+   * is gone. The second the way is gone is found by bisection on the share,
+   * which never falls.
+   */
+  private static travelled(
+    props: WalkPace.IProps,
+    travel: (seconds: number) => number,
+    longest: number,
+  ): WalkPace {
+    const T: number = props.period(Math.max(longest, 0.05) / props.speed);
+    let low: number = 0;
+    let high: number = 1;
+    while (travel(high) < 1 - 1e-9 && high < WalkPace.LONGEST) high *= 2;
+    for (let i: number = 0; i < 50; i++) {
+      const middle: number = (low + high) / 2;
+      if (travel(middle) < 1 - 1e-9) low = middle;
+      else high = middle;
+    }
+    const steps: number = Math.max(
+      2,
+      Math.ceil((high - WalkPace.FIRST - props.share * T) / T - 1e-9),
+    );
+    return new WalkPace({ ...props, steps, longest });
   }
 
   /** The integral of the smooth step `10 u^3 - 15 u^4 + 6 u^5` from 0 to `u`. */
@@ -209,5 +260,8 @@ export namespace WalkPace {
 
     /** How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent. */
     lead?: number;
+
+    /** The share of the way the pelvis has gone at a second of the walk, from 0, never falling and reaching 1, when the way is set from outside (a cadenced station, `walkStation.cadenced`); the pelvis ramps, cruises and ramps by itself when absent. */
+    travel?: (seconds: number) => number;
   }
 }

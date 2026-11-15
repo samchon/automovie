@@ -11,6 +11,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { IWalkGait } from "./IWalkGait";
+import type { WalkPace } from "./WalkPace";
 import { walkPaced } from "./walkPaced";
 
 /**
@@ -163,7 +165,7 @@ export function walkStation(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit, and its source or that it is provisional.
  * @evidence contracts/development/design.md#principled-representation A cited rate, a dimensionless factor, intervals in seconds and counts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: `resolve` (the way), `rests` (its end) and `point` (the dressed slot), with `IStationed`, `SPACING` and `DRESS_FREQUENCY`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: `resolve` (the way), `rests` (its end), `point` (the dressed slot) and `cadenced` (a called gait's way on it), with `IStationed`, `SPACING` and `DRESS_FREQUENCY`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkStation {
@@ -297,6 +299,79 @@ export namespace walkStation {
         fix: "start the walk before its station ends, or end the station later",
       });
     return until;
+  }
+
+  /**
+   * A cadenced walk's way on its station: the share of its way its pelvis
+   * has gone at each second of the walk, the share of the slot's way the slot
+   * has gone by then. A gait whose cadence is called keeps its count, so it
+   * keeps its place by the length of its steps (`WalkPace`'s way set from
+   * outside), as a drilled soldier lengthens or shortens his pace to keep his
+   * dressing: it marks time while the slot stands, steps short while the
+   * frame gathers speed and on the inner flank of a wheel, and halts as the
+   * slot halts.
+   *
+   * The slot's way is read every `STEP` seconds and between readings
+   * linearly. The pelvis goes no faster than `FASTEST` times the walk's
+   * cruising speed, integrated every `TICK`: a walker who cannot keep up
+   * falls behind and closes up once the slot slows or stops. Nothing when
+   * the gait draws its own tempo (`walkStation` keeps its station by speed
+   * matching), when the walk keeps no station, or when the slot does not
+   * move.
+   *
+   * @param context The walk's context, its station resolved.
+   * @param gait Whether the gait's cadence is called.
+   * @param cruise The walk's cruising speed, m/s.
+   * @returns The way to hand to the stepping plan, or nothing.
+   */
+  export function cadenced(
+    context: IHumanActionContext<IStationed>,
+    gait: Pick<IWalkGait, "called">,
+    cruise: number,
+  ): Pick<WalkPace.IProps, "travel"> {
+    const station: IHumanFormation.IStation | undefined =
+      context.params.station;
+    if (station === undefined || gait.called !== true) return {};
+    const from: number = context.start;
+    const count: number = Math.ceil(
+      (rests(context, station) - from) / STEP - 1e-9,
+    );
+    if (count < 1) return {};
+    const step: number = (rests(context, station) - from) / count;
+
+    // The length of the slot's way gone by each reading.
+    const where: (seconds: number) => IAutoMovieVector3 = point(
+      context,
+      station,
+    );
+    const gone: number[] = [0];
+    let before: IAutoMovieVector3 = where(from);
+    for (let i: number = 1; i <= count; ++i) {
+      const now: IAutoMovieVector3 = where(from + i * step);
+      gone.push(gone[i - 1]! + Math.hypot(now.x - before.x, now.z - before.z));
+      before = now;
+    }
+    const whole: number = gone[count]!;
+    if (whole < 1e-6) return {};
+    const slot = (seconds: number): number => {
+      const u: number = Math.min(count, Math.max(0, seconds / step));
+      const i: number = Math.min(count - 1, Math.floor(u));
+      return (gone[i]! + (gone[i + 1]! - gone[i]!) * (u - i)) / whole;
+    };
+
+    // The walker's share: the slot's, no faster than it can step.
+    const rate: number = (FASTEST * cruise) / whole;
+    const shares: number[] = [0];
+    for (let k: number = 1; shares[k - 1]! < 1 - 1e-9 && k < TICKS; ++k)
+      shares.push(Math.min(slot(k * TICK), shares[k - 1]! + rate * TICK));
+    return {
+      travel: (seconds: number): number => {
+        const u: number = Math.max(0, seconds / TICK);
+        const i: number = Math.floor(u);
+        if (i >= shares.length - 1) return 1;
+        return shares[i]! + (shares[i + 1]! - shares[i]!) * (u - i);
+      },
+    };
   }
 
   /**

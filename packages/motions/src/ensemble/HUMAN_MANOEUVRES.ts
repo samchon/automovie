@@ -4,9 +4,9 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  * The drills as rows over the four choices of a manoeuvre, so a new drill
  * (deploying on the head, by the rear) is a row, not code.
  *
- * - `wheel`: file order kept, every member on an arc about the pivot flank
- *   with its step growing with its radius, all together (Dundas 1792's
- *   wheeling at quickest time, through secondary sources).
+ * - `wheel`: file order kept, the formation turned rigidly about the pivot
+ *   flank, each member's step growing with its radius, all together
+ *   (`manoeuvreWheel`, after Dundas 1792).
  * - `deploy`: column block k takes line block k, each slanting to its place
  *   (the French deployment by oblique march, secondary), the farthest first
  *   so no two ways cross; the base block halts in place.
