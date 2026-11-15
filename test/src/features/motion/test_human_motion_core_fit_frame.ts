@@ -90,7 +90,7 @@ export function test_human_motion_core_fit_frame(): void {
       ...(pivoting
         ? {
             rotation: Quaternion.multiply(
-              Quaternion.fromAxisAngle(UP, (yaw * Math.PI) / 180),
+              Quaternion.fromAxisAngle(UP, yaw),
               PALM_TURN,
             ),
             contact: PALM,
@@ -190,10 +190,10 @@ const CHEST: AutoMovieHumanoidBone = "chest";
 /** The vertical, about which every heading turns. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The hand's rotation from its rest in scenario 6, at heading 0: a 0.6 rad pitch. */
+/** The hand's rotation from its rest in scenario 6, at heading 0: pitched 35 degrees about the body's cross axis (`Quaternion.fromAxisAngle` reads degrees). */
 const PALM_TURN: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
   { x: 1, y: 0, z: 0 },
-  -0.6,
+  -35,
 );
 
 /** The palm the hand turns about in scenario 6, in its rest frame from the wrist. */

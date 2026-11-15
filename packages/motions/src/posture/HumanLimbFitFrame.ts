@@ -28,7 +28,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world.
  * @evidence contracts/development/design.md#principled-representation A rigid frame on the floor plan: a translation in x and z and a turn about +Y, kept as both quaternions so moving in and out is one multiplication each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The frame, moving a pose, a goal and a point into it, and the memory's hit counts; `HumanLimbFit.remembered` is the one caller.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The frame, moving a pose, a goal and a point into it, the key's grid (`grid`, `GRID`), and the memory's hit counts; `HumanLimbFit.remembered` is the one caller.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is moved that names a world collider: it is keyed in the world, not approximated.
  */
 export namespace HumanLimbFitFrame {
@@ -143,6 +143,32 @@ export namespace HumanLimbFitFrame {
         : { rotation: Quaternion.multiply(frame.into, goal.rotation) }),
     };
   }
+
+  /**
+   * A key's number on the memory's grid (`GRID`), for `JSON.stringify`: a
+   * pose and a goal moved into the frame from two places or headings differ
+   * by the rounding of the move, a few units in the last place of a double
+   * (about 1e-15 of a metre or a unit quaternion), so their exact digits
+   * never meet; read on the grid they are one key. Every other value is
+   * kept as it is.
+   *
+   * @param _ The member's name, unread.
+   * @param value The member's value.
+   * @returns A number as its whole count of `GRID`, any other value as it is.
+   */
+  export function grid(_: string, value: unknown): unknown {
+    return typeof value === "number" ? Math.round(value / GRID) : value;
+  }
+
+  /**
+   * The memory key's resolution, in metres and in units of a quaternion or
+   * an angle: a thousand times the rounding of a move into the frame, so two
+   * copies of one fit read the same key but for the rare value that falls
+   * on a step of the grid, which is only solved again; and a thousand times
+   * finer than the 1e-9 m to which #3463 holds a moved fit to its original,
+   * so two inputs read as one differ by less than that acceptance reads.
+   */
+  export const GRID: number = 1e-12;
 
   /**
    * Count a read of a body's memory.

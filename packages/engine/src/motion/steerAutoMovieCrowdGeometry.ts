@@ -58,13 +58,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * Agents ordered by their own data: the canonical order the pass integrates in, so the order given changes nothing.
    *
-   * @evidence Constant work per comparison./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Constant work per comparison./implementation.md#principled-implementation A lexicographic order on the agent's start, start second, speed, radius, herding and destination.
-   * @evidence Constant work per comparison./implementation.md#clear-and-simple-structure One chain of differences.
-   * @evidence Constant work per comparison./implementation.md#prohibited-implementation-shortcuts No index enters the order; equal agents are interchangeable.
-   * @evidence Constant work per comparison./implementation.md#efficient-algorithms Constant work per comparison.
-   * @evidenceExclude Constant work per comparison./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Constant work per comparison./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation A lexicographic order on the agent's start, start second, speed, radius, herding and destination.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain of differences.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No index enters the order; equal agents are interchangeable.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per comparison.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function compare(
     a: IAutoMovieCrowdAgent,
@@ -87,13 +87,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * An agent's destination: its last goal.
    *
-   * @evidence Constant work./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Constant work./implementation.md#principled-implementation The last of its goals.
-   * @evidence Constant work./implementation.md#clear-and-simple-structure One read.
-   * @evidence Constant work./implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence Constant work./implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude Constant work./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Constant work./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation The last of its goals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function finalGoal(agent: IAutoMovieCrowdAgent): IAutoMovieVector3 {
     const list: readonly IAutoMovieVector3[] = goals(agent);
@@ -103,13 +103,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * An agent's goals as a list: one point or the points in order.
    *
-   * @evidence Constant work./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Constant work./implementation.md#principled-implementation A point is told from a list by its own x coordinate.
-   * @evidence Constant work./implementation.md#clear-and-simple-structure One branch.
-   * @evidence Constant work./implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence Constant work./implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude Constant work./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Constant work./implementation.md#bound-retention-and-release-resources Returns the agent's own list or a new one-element list.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation A point is told from a list by its own x coordinate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the agent's own list or a new one-element list.
    */
   export function goals(
     agent: IAutoMovieCrowdAgent,
@@ -120,13 +120,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * The polyline from an agent's start through its goals, with the arc distance at each corner.
    *
-   * @evidence Linear in the goals./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Linear in the goals./implementation.md#principled-implementation Cumulative Euclidean distance on the floor plan.
-   * @evidence Linear in the goals./implementation.md#clear-and-simple-structure One pass over the corners.
-   * @evidence Linear in the goals./implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence Linear in the goals./implementation.md#efficient-algorithms Linear in the goals.
-   * @evidenceExclude Linear in the goals./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Linear in the goals./implementation.md#bound-retention-and-release-resources Returns a new path the caller keeps.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation Cumulative Euclidean distance on the floor plan.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the corners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the goals.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new path the caller keeps.
    */
   export function pathOf(agent: IAutoMovieCrowdAgent): IPath {
     const points: IAutoMovieVector3[] = [agent.at, ...goals(agent)];
@@ -145,13 +145,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * The desired heading and speed at a position: toward the point lookahead seconds of desired travel past the nearest point of the path, the speed falling linearly within rrival relaxation times of travel from the destination (Reynolds 1999's path following and arrival).
    *
-   * @evidence Linear in the path's corners./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Linear in the path's corners./implementation.md#principled-implementation Closest-point projection onto each stretch, the earliest on a tie, then a carrot point along the arc; the arrival slowing is linear in the remaining distance.
-   * @evidence Linear in the path's corners./implementation.md#clear-and-simple-structure Project, find the carrot, scale the speed.
-   * @evidence Linear in the path's corners./implementation.md#prohibited-implementation-shortcuts The lookahead and arrival are the caller's named constants.
-   * @evidence Linear in the path's corners./implementation.md#efficient-algorithms Linear in the path's corners.
-   * @evidenceExclude Linear in the path's corners./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Linear in the path's corners./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation Closest-point projection onto each stretch, the earliest on a tie, then a carrot point along the arc; the arrival slowing is linear in the remaining distance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Project, find the carrot, scale the speed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lookahead and arrival are the caller's named constants.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the path's corners.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function follow(
     path: IPath,
@@ -208,15 +208,15 @@ export namespace steerAutoMovieCrowdGeometry {
   }
 
   /**
-   * The first contact of two discs moving at constant velocities, or null: `|p - u t| = R` with `p` from the agent to the other and `u` the agent's velocity relative to the other; the normal at contact points toward the agent.
+   * The first contact of two discs moving at constant velocities, or null: `|p - u t| = R` with `p` from the agent to the other and `u` the agent's velocity relative to the other; the normal at contact points toward the agent. Two discs that already overlap are in contact now: time 0, the normal from the other's centre toward the agent's.
    *
-   * @evidence Constant work./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Constant work./implementation.md#principled-implementation The smaller root of the quadratic, taken only when the discs approach and do not already overlap.
-   * @evidence Constant work./implementation.md#clear-and-simple-structure One discriminant and one root.
-   * @evidence Constant work./implementation.md#prohibited-implementation-shortcuts An overlap or a parting returns null rather than a guessed time.
-   * @evidence Constant work./implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude Constant work./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Constant work./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation The smaller root of the quadratic when the discs approach, and time 0 when they already overlap, the collision Karamouzas, Skinner and Guy's time to collision reads as zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One discriminant and one root.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A parting returns null and an overlap time 0, never a guessed time; coincident centres, which name no direction, return null.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function discs(
     px: number,
@@ -236,7 +236,13 @@ export namespace steerAutoMovieCrowdGeometry {
     const a: number = ux * ux + uz * uz;
     const b: number = dx * ux + dz * uz;
     const c: number = dx * dx + dz * dz - R * R;
-    if (c <= 0 || a < 1e-12 || b <= 0) return null;
+    if (c <= 0) {
+      const d: number = Math.hypot(dx, dz);
+      return d < 1e-12
+        ? null
+        : { time: 0, nx: -dx / d, nz: -dz / d, ux, uz };
+    }
+    if (a < 1e-12 || b <= 0) return null;
     const disc: number = b * b - a * c;
     if (disc <= 0) return null;
     const time: number = (b - Math.sqrt(disc)) / a;
@@ -249,13 +255,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * The first contact of a disc of radius `r` moving at `u` with a still convex polygon, or null: the earliest of its edges offset by `r` and its corners' rounded caps.
    *
-   * @evidence Linear in the corners./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Linear in the corners./implementation.md#principled-implementation The Minkowski sum of a convex polygon and a disc is its edges pushed out by the radius and a disc at each corner; each is met by a ray in closed form.
-   * @evidence Linear in the corners./implementation.md#clear-and-simple-structure One pass over the edges, each tested as a pushed-out segment and a corner disc.
-   * @evidence Linear in the corners./implementation.md#prohibited-implementation-shortcuts Outward normals are turned away from the centroid, so either winding works.
-   * @evidence Linear in the corners./implementation.md#efficient-algorithms Linear in the corners.
-   * @evidenceExclude Linear in the corners./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Linear in the corners./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation The Minkowski sum of a convex polygon and a disc is its edges pushed out by the radius and a disc at each corner; each is met by a ray in closed form.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the edges, each tested as a pushed-out segment and a corner disc.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outward normals are turned away from the centroid, so either winding works.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the corners.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function polygon(
     px: number,
@@ -309,13 +315,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * The signed distance from a point to a convex polygon, negative inside.
    *
-   * @evidence Linear in the corners./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Linear in the corners./implementation.md#principled-implementation Inside, the greatest signed distance to the edges' lines; outside, the least distance to the edges as segments.
-   * @evidence Linear in the corners./implementation.md#clear-and-simple-structure One pass over the edges.
-   * @evidence Linear in the corners./implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence Linear in the corners./implementation.md#efficient-algorithms Linear in the corners.
-   * @evidenceExclude Linear in the corners./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Linear in the corners./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation Inside, the greatest signed distance to the edges' lines; outside, the least distance to the edges as segments.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the edges.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the corners.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function signedDistance(
     px: number,
@@ -364,13 +370,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * An obstacle's footprint in the world at a second: as given when still, placed by its motion when moving (its own x to its left, z ahead).
    *
-   * @evidence Linear in the corners./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Linear in the corners./implementation.md#principled-implementation A rigid placement on the floor plan by the motion's position and heading.
-   * @evidence Linear in the corners./implementation.md#clear-and-simple-structure One branch and one map.
-   * @evidence Linear in the corners./implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence Linear in the corners./implementation.md#efficient-algorithms Linear in the corners.
-   * @evidenceExclude Linear in the corners./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Linear in the corners./implementation.md#bound-retention-and-release-resources Returns a new list the caller keeps.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation A rigid placement on the floor plan by the motion's position and heading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch and one map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the corners.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list the caller keeps.
    */
   export function footprintAt(
     obstacle: IAutoMovieCrowdAgent.IObstacle,
@@ -396,13 +402,13 @@ export namespace steerAutoMovieCrowdGeometry {
   /**
    * An obstacle's velocity at a second, by a central difference of its motion over a millisecond; zero for a still one.
    *
-   * @evidence Constant work./common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
-   * @evidence Constant work./implementation.md#principled-implementation A central difference, second-order accurate in its step, of the motion's position.
-   * @evidence Constant work./implementation.md#clear-and-simple-structure Two reads of the motion.
-   * @evidence Constant work./implementation.md#prohibited-implementation-shortcuts The step is named here; a motion that is not differentiable there gives its difference quotient.
-   * @evidence Constant work./implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude Constant work./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
-   * @evidenceExclude Constant work./implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
+   * @evidence contracts/development/implementation.md#principled-implementation A central difference, second-order accurate in its step, of the motion's position.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two reads of the motion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step is named here; a motion that is not differentiable there gives its difference quotient.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function velocityOf(
     obstacle: IAutoMovieCrowdAgent.IObstacle,

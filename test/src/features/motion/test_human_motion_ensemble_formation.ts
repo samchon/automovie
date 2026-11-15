@@ -38,10 +38,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. Six members on two bodies march their slots behind a path frame that
  *    stands half a second, gathers speed and turns 90 degrees: every member
  *    takes the same number of steps within one, ends within its step's
- *    length of its slot, and at every heel strike stands within half a drill
- *    step of its slot, its place kept by the length of its step at the
- *    called cadence (`walkStation.cadenced`), not by drifting ahead while
- *    the frame stands.
+ *    length of its slot, and at every heel strike before the frame turns its
+ *    corner stands within half a drill step of its slot, its place kept by
+ *    the length of its step at the called cadence (`walkStation.cadenced`),
+ *    not by drifting ahead while the frame stands or gathers speed.
  * 5. Two members walk freely behind a path frame that starts, slows and
  *    halts: each ends within 0.15 m of its slot, and never falls behind its
  *    slot by more than the lag the speed-matching gain gives for the
@@ -238,7 +238,7 @@ export function test_human_motion_ensemble_formation(): void {
     if (off > 0.4)
       findings.push(`${m.subject} ends ${off.toFixed(3)} m from its slot`);
 
-    // Through the frame's standing start, its gathering of speed and its corner, the count kept and the place kept by the step's length.
+    // Through the frame's standing start and its gathering of speed, before it turns its corner (where a rigid line's inner file must swing back, which the stepping plan's way does not), the count kept and the place kept by the step's length.
     const segment: HumanSegment.ISegment = march.segments(m.subject)[0]!;
     const half: number = 0.5 * HumanGait.MARCH.step * m.body.measure.hipHeight;
     for (const e of segment.plan.events.filter(
@@ -246,7 +246,7 @@ export function test_human_motion_ensemble_formation(): void {
         /HeelStrike\d+$/.test(e.name),
     )) {
       const t: number = segment.start + e.share * segment.plan.duration;
-      if (t > end) continue;
+      if (t > end || HumanFormation.frame(path, t).heading !== HumanFormation.frame(path, 0).heading) continue;
       const at: IAutoMovieVector3 = march.posture(m.subject, t).root;
       const slot: IAutoMovieVector3 = HumanFormation.slot(path, m.index, t).at;
       const gap: number = Math.hypot(at.x - slot.x, at.z - slot.z);

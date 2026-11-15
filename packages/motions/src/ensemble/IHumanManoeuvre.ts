@@ -102,7 +102,7 @@ export namespace IHumanManoeuvre {
     /** What it does on arrival. */
     arrive: "stand" | "kneel";
 
-    /** The slot it keeps on the way, a wheel's turning formation (`manoeuvreWheel`), so its step shortens with its radius; it travels its way at its own pace when absent. */
+    /** The place it keeps on the way: its slot of a wheel's turning formation (`manoeuvreWheel`), so its step shortens with its radius, or its place on its straight way at the unit's pace, the slowest member's, so a block keeps together; it travels its way at its own pace when absent (a steered way, a turn in place). */
     station?: IHumanFormation.IStation;
   }
 }

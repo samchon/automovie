@@ -17,7 +17,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * anybody, everybody arrives, and the same seed steers them the same way.
  *
  * Scenarios, 40 civilians on three bodies in two flows of 20 along a street,
- * a 2.4 by 1.6 m carriage footprint crossing it at 3 m/s:
+ * each three abreast 0.8 m apart in ranks 1.1 m apart, a 2.4 by 1.6 m
+ * carriage footprint crossing it at 3 m/s:
  * 1. No member's course comes within its shoulders' half breadth of the
  *    carriage's footprint at any 1/24 s sample.
  * 2. No two members' courses come within their summed half breadths at any
@@ -49,7 +50,10 @@ export function test_human_motion_crowd_parting(): void {
       preset: "civilians",
       places: (index: number): { at: IAutoMovieVector3; yaw: number } => ({
         at: {
-          x: dx + (index % 2 === 0 ? -1.5 : 1.5) + 0.3 * ((index >> 1) % 3),
+          // Three abreast 0.8 m apart, wider than any two of the bodies' shoulders, each flow keeping to its own side.
+          x:
+            dx +
+            (index % 2 === 0 ? -1 : 1) * (1.5 + 0.8 * ((index >> 1) % 3)),
           y: 0,
           z:
             dz +

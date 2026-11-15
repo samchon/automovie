@@ -43,9 +43,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    is no larger than the militia's.
  * 3. Halt: every member stands still within one step's time after the word
  *    "halt" plus its reaction latency.
- * 4. Volley: each member shoulders its musket (`HumanMusketDrill`, a long
- *    gun standing in until the musket archetype, #3483, gives a cock to make
- *    ready), presents on "present" and fires on "fire", each synced with a
+ * 4. Volley: each member shoulders its flintlock musket (`HumanMusketDrill`
+ *    on #3483's musket), presents on "present" and fires on "fire", each synced with a
  *    reaction latency; the fire instants spread less for the elite than for
  *    the militia, none comes before the word plus the reaction floor, and the
  *    six members picked to misfire present and do not fire.
@@ -93,9 +92,9 @@ export function test_human_motion_scene_line_infantry(): void {
     { word: "present", at: 10.4 },
     { word: "fire", at: 12, caution: 1.5 },
   ]);
-  // The musket's stand-in, a long gun with a butt, a grip, a fore-end and a muzzle. Phase 2 swaps it for the musket archetype with a cock (#3483, PR #3560) and adds makeReady before present.
+  // The flintlock musket (#3483), its lock's cock, frizzen and pan on the right of the breech.
   const musket: ReturnType<typeof createLongGun> = createLongGun({
-    kind: "carbine",
+    kind: "musket",
   });
   const battalion = (
     preset: IHumanEnsemble["preset"],

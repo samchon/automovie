@@ -69,7 +69,9 @@ export namespace HumanLimbFitMemory {
    * the pose's root, the goal's point, bend, contact and rotation and the
    * rival wrist are moved by minus the root's floor point and turned by minus
    * its heading, so one body doing the same thing in another place or facing
-   * another way reads the same fit. A hit hands back the stored pose with the
+   * another way reads the same fit, the key read on the frame's grid
+   * (`HumanLimbFitFrame.grid`) so the move's rounding does not part two
+   * copies of one fit. A hit hands back the stored pose with the
    * caller's own root and the stored seed unchanged: the seed's swivel and
    * branch live in the chain root's bone-local frame, which a turn about +Y
    * and a floor translation leave invariant. A goal attached to a bone or
@@ -136,15 +138,10 @@ export namespace HumanLimbFitMemory {
       frame === null || rival === undefined
         ? rival
         : HumanLimbFitFrame.point(frame, rival);
-    const key: string = JSON.stringify([
-      limb,
-      placed,
-      away ?? null,
-      aim,
-      own.root,
-      own.joints,
-      near ?? null,
-    ]);
+    const key: string = JSON.stringify(
+      [limb, placed, away ?? null, aim, own.root, own.joints, near ?? null],
+      HumanLimbFitFrame.grid,
+    );
     let fits: Map<string, IAutoMovieSeededChainFit> | undefined =
       FITS.get(body);
     if (fits === undefined) {

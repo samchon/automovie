@@ -13,6 +13,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IWalkGait } from "./IWalkGait";
 import type { WalkPace } from "./WalkPace";
+import { WalkPath } from "./WalkPath";
 import { walkPaced } from "./walkPaced";
 
 /**
@@ -303,18 +304,22 @@ export namespace walkStation {
 
   /**
    * A cadenced walk's way on its station: the share of its way its pelvis
-   * has gone at each second of the walk, the share of the slot's way the slot
-   * has gone by then. A gait whose cadence is called keeps its count, so it
+   * has gone at each second of the walk, where the slot then projects onto
+   * that way (its nearest point, as path following reads a target), never
+   * going back. A gait whose cadence is called keeps its count, so it
    * keeps its place by the length of its steps (`WalkPace`'s way set from
    * outside), as a drilled soldier lengthens or shortens his pace to keep his
    * dressing: it marks time while the slot stands, steps short while the
    * frame gathers speed and on the inner flank of a wheel, and halts as the
    * slot halts.
    *
-   * The slot's way is read every `STEP` seconds and between readings
-   * linearly. The pelvis goes no faster than `FASTEST` times the walk's
-   * cruising speed, integrated every `TICK`: a walker who cannot keep up
-   * falls behind and closes up once the slot slows or stops. Nothing when
+   * The way is the stepping plan's own, from the feet's midpoint through the
+   * resolved `via` to `to`, so a slot that swings round a corner the way cuts
+   * holds the walker where it is rather than stretching every step. The
+   * slot is read every `TICK`, and the pelvis goes no faster than `FASTEST`
+   * times the walk's cruising speed: a walker who cannot keep up falls
+   * behind and closes up once the slot slows or stops, and walks what is
+   * left once it rests. Nothing when
    * the gait draws its own tempo (`walkStation` keeps its station by speed
    * matching), when the walk keeps no station, or when the slot does not
    * move.
@@ -333,37 +338,50 @@ export namespace walkStation {
       context.params.station;
     if (station === undefined || gait.called !== true) return {};
     const from: number = context.start;
-    const count: number = Math.ceil(
-      (rests(context, station) - from) / STEP - 1e-9,
-    );
-    if (count < 1) return {};
-    const step: number = (rests(context, station) - from) / count;
+    const span: number = rests(context, station) - from;
+    if (!(span > 0)) return {};
 
-    // The length of the slot's way gone by each reading.
+    // The plan's own way, as the stepping plan lays it: from the feet's midpoint through `via` to `to`.
+    const feet: IHumanActionContext["entry"]["feet"] = context.entry.feet;
+    const way: WalkPath = new WalkPath(
+      [
+        {
+          x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
+          y: 0,
+          z: (feet.left.ankle.z + feet.right.ankle.z) / 2,
+        },
+        ...(context.params.via ?? []),
+        context.params.to,
+      ].map(
+        (q: IAutoMovieVector3): IAutoMovieVector3 => ({ x: q.x, y: 0, z: q.z }),
+      ),
+    );
+    if (way.length < 1e-6) return {};
     const where: (seconds: number) => IAutoMovieVector3 = point(
       context,
       station,
     );
-    const gone: number[] = [0];
-    let before: IAutoMovieVector3 = where(from);
-    for (let i: number = 1; i <= count; ++i) {
-      const now: IAutoMovieVector3 = where(from + i * step);
-      gone.push(gone[i - 1]! + Math.hypot(now.x - before.x, now.z - before.z));
-      before = now;
-    }
-    const whole: number = gone[count]!;
-    if (whole < 1e-6) return {};
-    const slot = (seconds: number): number => {
-      const u: number = Math.min(count, Math.max(0, seconds / step));
-      const i: number = Math.min(count - 1, Math.floor(u));
-      return (gone[i]! + (gone[i + 1]! - gone[i]!) * (u - i)) / whole;
-    };
+    if (
+      Math.hypot(
+        where(from + span).x - where(from).x,
+        where(from + span).z - where(from).z,
+      ) < 1e-6
+    )
+      return {};
 
-    // The walker's share: the slot's, no faster than it can step.
-    const rate: number = (FASTEST * cruise) / whole;
+    // The walker's share: where the slot projects onto the way, never back, no faster than it can step.
+    const rate: number = (FASTEST * cruise) / way.length;
     const shares: number[] = [0];
-    for (let k: number = 1; shares[k - 1]! < 1 - 1e-9 && k < TICKS; ++k)
-      shares.push(Math.min(slot(k * TICK), shares[k - 1]! + rate * TICK));
+    for (let k: number = 1; shares[k - 1]! < 1 - 1e-9 && k < TICKS; ++k) {
+      const slot: number =
+        way.nearest(where(from + Math.min(span, k * TICK))) / way.length;
+      const before: number = shares[k - 1]!;
+      shares.push(
+        k * TICK >= span
+          ? Math.min(1, before + rate * TICK)
+          : Math.max(before, Math.min(slot, before + rate * TICK)),
+      );
+    }
     return {
       travel: (seconds: number): number => {
         const u: number = Math.max(0, seconds / TICK);
@@ -373,7 +391,6 @@ export namespace walkStation {
       },
     };
   }
-
   /**
    * The point a walk's station keeps at a film second: its slot, moved by
    * the member's slow dress deviation when the station carries one.

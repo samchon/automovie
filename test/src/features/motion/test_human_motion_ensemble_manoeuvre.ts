@@ -22,10 +22,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * drills only rows over four choices.
  *
  * Scenarios, members on three bodies:
- * 1. A column of four 2 by 6 blocks deploys into a line of four 2 by 6
- *    blocks: every member's way ends on its new slot, file order is kept
- *    (member i takes slot i), the farthest block steps off first, and the
- *    plan's own crossing check passes.
+ * 1. A column of four 2 by 6 blocks deploys on its head into a line of four
+ *    2 by 6 blocks, block 0 halting in its place: every member's way ends on its new slot, file order is kept
+ *    (member i takes slot i), the farthest block steps off first, every
+ *    member marches its way at one pace, the slowest member's march speed,
+ *    so the unit keeps together on three bodies, and the plan's own
+ *    crossing check passes.
  * 2. A 2 by 12 line wheels through 90 degrees on its left flank: every way
  *    is an arc whose length grows with the member's radius from the pivot
  *    (front rank, file by file), and the pivot marks time. Every member
@@ -33,18 +35,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    never moves, its outward file's slot reaches the manual's lengthened
  *    step of the slowest member's march speed and never exceeds it, and at
  *    the wheel's end every slot lies on its target slot within 1e-6 m.
- * 3. A square from an attack column: four outward faces, the front rank of
- *    each face kneeling and the others standing.
+ * 3. A square from an attack column, its crossings left to the crowd's
+ *    steering: four outward faces, the front rank of each face kneeling and
+ *    the others standing.
  * 4. The same deployment with the whole scene moved by (5, 0, -3) m and turned
  *    by 30 degrees gives the same ways moved and turned, within 1e-9 m.
  * 5. A deployment whose column has more blocks than its line, a straight
- *    re-form whose ways cross, and a wheel to a line half a metre off the
- *    turned one are refused as located refusals naming the ensemble.
+ *    re-form whose ways cross, the square row's straight ways that turn each
+ *    block a quarter turn, and a wheel to a line half a metre off the turned
+ *    one are refused as located refusals naming the ensemble.
  * 6. The `deploy` row and its four choices written out plan the same parts.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans manoeuvres and reads their parts: a reordered file, a member that misses its slot, a crossing left in, a wheel with uneven steps, an inward face, a frame-dependent plan, or a row with logic of its own is caught.
  * @evidence contracts/development/testing.md#independent-expectations File order and non-crossing are the drill's; arc length proportional to radius is the wheel's geometry, and the outward man's 33 inch step over the ordinary 30 is the manual's; outward faces and kneeling front ranks are the square's regulation; frame invariance is geometric.
- * @evidence contracts/development/testing.md#distinguishing-cases Deploy, wheel and square, a wheel's turning stations, a moved frame, three refusals and the row's equivalence; performing the parts belongs to the scene tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Deploy, wheel and square, a wheel's turning stations, a moved frame, four refusals and the row's equivalence; performing the parts belongs to the scene tests.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on prepared polygon-man bodies, discovered by its exported name; plans only, no pose, no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
@@ -76,7 +80,8 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     frame,
   });
   const line = (frame: IHumanFormation.Frame): IHumanFormation => ({
-    blocks: [-1.5, -0.5, 0.5, 1.5].map(
+    // Deployed on the head of the column: block 0 halts in its place and the others take post to its right.
+    blocks: [0, 1, 2, 3].map(
       (k: number): IHumanFormation.IBlock => block(k * 4.2, 0),
     ),
     frame,
@@ -136,6 +141,28 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     findings.push(
       `the farthest member steps off ${farthest.delay} s after the word`,
     );
+  // The unit keeps together: every way is marched at the slowest member's march speed.
+  const slowestMarch: number = Math.min(
+    ...troop.members.map(
+      (m: HumanEnsemble.IMember): number =>
+        (HumanGait.MARCH.step *
+          m.body.measure.hipHeight *
+          HumanGait.MARCH.cadence) /
+        60,
+    ),
+  );
+  for (const p of parts.filter(
+    (p: IHumanManoeuvre.IPart): boolean => reach(p) > 1e-6,
+  )) {
+    const frame: IHumanFormation.Frame | undefined =
+      p.station?.formation.frame;
+    if (frame?.kind !== "path" || frame.speed !== slowestMarch) {
+      findings.push(
+        `member ${p.member} does not march its way at the unit's pace`,
+      );
+      break;
+    }
+  }
 
   // 2. Wheel.
   const wide: IHumanFormation = {
@@ -259,12 +286,17 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     blocks: [face(0, 0, -3), face(90, -3, 0), face(180, 0, 3), face(270, 3, 0)],
     frame: origin,
   };
-  const squared: IHumanManoeuvre.IPart[] = HumanManoeuvre.plan(troop, {
+  // Each face turns its block a quarter turn, which straight ways inside a block cross (the plan refuses them, below); the crowd's steering takes those crossings.
+  const squareRow: IHumanManoeuvre = {
     from: column(origin),
     to: square,
     rule: "square",
     on: { of: "orders", event: "square" },
     at: 0,
+  };
+  const squared: IHumanManoeuvre.IPart[] = HumanManoeuvre.plan(troop, {
+    ...squareRow,
+    rule: { ...HUMAN_MANOEUVRES.square, path: "steered" },
   });
   for (const p of squared) {
     const slot: HumanFormation.ILocal = HumanFormation.local(square, p.slot);
@@ -331,6 +363,10 @@ export function test_human_motion_ensemble_manoeuvre(): void {
           on: { of: "orders", event: "x" },
           at: 0,
         }),
+    ],
+    [
+      "a square formed by straight ways that turn each block a quarter turn",
+      (): unknown => HumanManoeuvre.plan(troop, squareRow),
     ],
     [
       "a wheel to a formation that is not the line turned",

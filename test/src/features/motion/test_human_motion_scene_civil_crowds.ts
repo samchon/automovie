@@ -22,7 +22,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * same seed replays.
  *
  * Scenarios, on three bodies:
- * 1. Shot: 30 civilians in a scatter each look at the shot synced on it with
+ * 1. Shot: 30 civilians in a scatter each look at the shot, heard (a
+ *    `signal` cue) from off their attended field, synced on it with
  *    a reaction latency; no look starts before the shot plus the reaction
  *    floor, and their onsets spread (a crowd does not turn as one).
  * 2. Mob: 30 rabble and 30 civilians flee 30 m from the same places; no two
@@ -88,6 +89,8 @@ export function test_human_motion_scene_civil_crowds(): void {
               frame: "world",
             },
             seconds: 1.5,
+            // A shot is heard, so it draws the look from outside the attended field.
+            cue: "signal",
           })
           .sync({ of: "shot", event: "report", latency: "reaction" }),
     ),

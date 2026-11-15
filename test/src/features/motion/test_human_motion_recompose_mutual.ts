@@ -39,17 +39,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    MacKenzie 2005).
  * 4. A kiss on the partner's cheek: the kisser's `contact` exists and falls
  *    inside the action.
- * 5. Pick up and put down a mug and a ball: `gripClosed` before `lifted`,
- *    and the prop rides the hand between them (its offset from the right
- *    hand changes by at most 5 mm).
+ * 5. Pick up a mug and a ball and put it down where it stood: `gripClosed`
+ *    before `lifted`, and the prop rides the hand between them (its offset
+ *    from the right hand changes by at most 5 mm).
  * 6. On the seated base, the pelvis stays within 10 mm of where sitting left
  *    it through each act (the seat is not left).
- * 7. A pass joined by `HumanMutual.pass`: the ball thrown at the partner's
+ * 7. A pass joined by `HumanMutual.pass`, the pair `TOSS` apart, beyond both
+ *    arms' reach of the release: the ball thrown at the partner's
  *    right palm is caught, the catch's `secured` after the throw's
  *    `release`; a pass without an anchor is refused; and a kick of a ball on
- *    the floor names its `plant`.
+ *    the floor strikes it (`stroke`) within the act.
  * 8. Replay: the handshake performed again with the same seed is bit for bit
- *    the same; with another seed its duration differs (variation, #3359).
+ *    the same; with another seed the hand moves otherwise on its reach to
+ *    the clasp, whose velocity peak is drawn (variation, #3359).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs every law of the matrix through the public chains and reads events, displayed bones and prop frames: roles that meet apart, a drifting grip, a release before the receiver's grip, a prop sliding in the hand, a seat left, a catch before its throw, or a non-replaying take is caught.
  * @evidence contracts/development/testing.md#independent-expectations The 10 mm grip drift and the release order are the shipped verdicts of #3229 and #3231 carried by #3364; the hand-length bound is the mutual join's own; the 10 mm seat bound is #3361's seated base; replay is the keyed-draw contract.
@@ -105,6 +107,7 @@ export function test_human_motion_recompose_mutual(): void {
         composition: { node: HumanPerformance.IInput["composition"] },
         props: IHumanProp[] = [],
         seed: string = "recompose",
+        distance: number = apart,
       ): HumanPerformance =>
         new HumanPerformance({
           seed,
@@ -112,7 +115,7 @@ export function test_human_motion_recompose_mutual(): void {
           performers: (["a", "b"] as const).map((subject: "a" | "b") => ({
             subject,
             body: bodies[subject],
-            at: { x: 0, y: 0, z: subject === "a" ? 0 : apart },
+            at: { x: 0, y: 0, z: subject === "a" ? 0 : distance },
             yaw: subject === "a" ? 0 : 180,
             proficiency: { level: "trained" as const },
           })),
@@ -209,8 +212,13 @@ export function test_human_motion_recompose_mutual(): void {
           [],
           "another",
         );
-        if (other.segments("a")[1]!.plan.duration === sa!.plan.duration)
-          findings.push(`${label}: another seed shakes for exactly as long`);
+        // The reach's velocity peak is drawn (`HumanPrehension.peak`), so another seed moves the hand otherwise on its way to the clasp.
+        const reaching: number = (sa!.entryTime + clasp) / 2;
+        if (
+          JSON.stringify(other.pose("a", reaching)) ===
+          JSON.stringify(p.pose("a", reaching))
+        )
+          findings.push(`${label}: another seed reaches for the clasp exactly alike`);
       });
 
       // 2. High five.
@@ -245,14 +253,38 @@ export function test_human_motion_recompose_mutual(): void {
       const mug: ReturnType<typeof createDrinkware> = createDrinkware({
         kind: "mug",
       });
-      const before = (who: "a" | "b"): HumanObject.Placement => {
+      // Where each sits once seated: its right shoulder, read from the pair sitting down.
+      const sat: HumanPerformance | null =
+        base === "seated"
+          ? perform({
+              node: {
+                kind: "parallel",
+                parts: [start("a").node, start("b").node],
+              },
+            })
+          : null;
+      // A prop on a table before the performer, 0.6 of the arm ahead of the right shoulder: at the waist standing, at the elbow seated (a seated table's height).
+      const before = (
+        who: "a" | "b",
+      ): { at: IAutoMovieVector3; yaw: number } => {
         const m: IHumanBody["measure"] = bodies[who].measure;
         const ahead: number = 0.6 * (m.upperArm + m.forearm);
+        const toward: number = who === "a" ? 1 : -1;
+        const shoulder: IAutoMovieVector3 =
+          sat === null
+            ? {
+                x: who === "a" ? -m.shoulderHalfWidth : m.shoulderHalfWidth,
+                y: m.waistHeight + m.upperArm,
+                z: who === "a" ? 0 : apart,
+              }
+            : sat
+                .bones(who, sat.segments(who).at(-1)!.end)
+                .get("rightUpperArm")!.worldPosition;
         return {
           at: {
-            x: who === "a" ? -m.shoulderHalfWidth : m.shoulderHalfWidth,
-            y: m.waistHeight,
-            z: who === "a" ? ahead : apart - ahead,
+            x: shoulder.x,
+            y: shoulder.y - m.upperArm,
+            z: shoulder.z + toward * ahead,
           },
           yaw: who === "a" ? 0 : 180,
         };
@@ -315,7 +347,7 @@ export function test_human_motion_recompose_mutual(): void {
                 parts: [
                   start("a")
                     .pickUp({ prop: name, handle })
-                    .putDown({ prop: name }).node,
+                    .putDown({ prop: name, at: before("a").at }).node,
                   start("b").node,
                 ],
               },
@@ -367,6 +399,8 @@ export function test_human_motion_recompose_mutual(): void {
               "toss",
             ),
             [HumanObject.prop("ball", ball, before("a"))],
+            "recompose",
+            TOSS,
           );
           const thrown: number = instant(
             p
@@ -422,8 +456,10 @@ export function test_human_motion_recompose_mutual(): void {
               }),
             ],
           );
-          if (!Number.isFinite(instant(p.segments("a")[1], "plant")))
-            findings.push(`${label}: the kick names no plant`);
+          const kick: HumanSegment.ISegment | undefined = p.segments("a")[1];
+          const stroke: number = instant(kick, "stroke");
+          if (!(stroke > kick!.entryTime && stroke < kick!.end))
+            findings.push(`${label}: the kick's stroke falls at ${stroke} s, outside the act`);
         });
       }
     }
@@ -434,3 +470,6 @@ export function test_human_motion_recompose_mutual(): void {
     [],
   );
 }
+
+/** Metres between a thrower and a catcher in scenario 7: a toss across a room, beyond both arms' reach of the release, which a catch refuses inside. */
+const TOSS: number = 3;

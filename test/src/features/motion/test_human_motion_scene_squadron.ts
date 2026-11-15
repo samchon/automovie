@@ -40,9 +40,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    the gait changes of the six horses fall within one stride time of each
  *    other's (their tempos are their own).
  * 4. Each rider, posting to its own horse's right-fore footfalls, keeps its
- *    pelvis over its horse's saddle seat on the floor plan (within 0.15 m,
+ *    pelvis over its horse's saddle seat on the floor plan (between the seat's
+ *    front edge and its depth behind it, and within 0.15 m of its middle line,
  *    provisional) at every footfall from the first gait change to the end of
- *    its ride; the seat's 10 mm verdict is the riding law's own spec's.
+ *    its ride; the seat's 10 mm verdict is the riding law's own spec's. Every
+ *    rider is riding before its horse sets off at `WAIT`: a horse that leaves
+ *    while its rider is still sitting down leaves the rider behind.
  * 5. Each member's horse seed is its own and stays when a member is added,
  *    and two members' horses differ.
  * 6. The rides and the riders replay bit for bit.
@@ -55,7 +58,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_scene_squadron(): void {
   const findings: string[] = [];
-  const WAIT: number = 3;
+  // The horses set off once every rider has sat down (the sit takes 5 s for these bodies, checked in scenario 4).
+  const WAIT: number = 6;
   const pool: IHumanBody[] = [
     motionHumanBody("m-average"),
     motionHumanBody("m-tall"),
@@ -262,6 +266,10 @@ export function test_human_motion_scene_squadron(): void {
       findings.push(`${m.subject} does not ride`);
       continue;
     }
+    if (ride.entryTime > WAIT + 1e-9)
+      findings.push(
+        `${m.subject} starts riding at ${ride.entryTime.toFixed(2)} s, after its horse sets off at ${WAIT} s`,
+      );
     for (const cue of HumanCue.instants(rides[m.index]!, ["rightForeOn"])) {
       const seconds: number = cue.seconds;
       if (seconds < changes[m.index]! || seconds > ride.end) continue;
@@ -273,7 +281,16 @@ export function test_human_motion_scene_squadron(): void {
       const hips: IAutoMovieVector3 = performance
         .bones(m.subject, seconds)
         .get("hips")!.worldPosition;
-      if (Math.hypot(hips.x - seat.at.x, hips.z - seat.at.z) > 0.15) {
+      // The seat is its front edge's middle and its depth behind it, facing `yaw`: the pelvis on the floor plan lies between the edge and the depth, and within 0.15 m of its middle line.
+      const radians: number = (seat.yaw * Math.PI) / 180;
+      const dx: number = hips.x - seat.at.x;
+      const dz: number = hips.z - seat.at.z;
+      const along: number = dx * Math.sin(radians) + dz * Math.cos(radians);
+      const across: number = dx * Math.cos(radians) - dz * Math.sin(radians);
+      if (
+        !(along <= 1e-9 && along >= -(seat.depth ?? 0) - 1e-9) ||
+        Math.abs(across) > 0.15
+      ) {
         findings.push(
           `${m.subject} is off its saddle at the footfall at ${seconds.toFixed(2)} s`,
         );

@@ -131,7 +131,14 @@ export function steerAutoMovieCrowd(
 
       // The anticipatory push from every agent and obstacle it would meet.
       const push = (hit: steerAutoMovieCrowdGeometry.IHit | null): void => {
-        if (hit === null || hit.time > steerAutoMovieCrowd.CUTOFF * t0) return;
+        // The energy falls off by its own exponential: no time to collision is cut off, so even a slow drift toward another is turned before it touches.
+        if (hit === null) return;
+        // A present overlap is a time to collision of zero, the energy's singularity: the pair is pushed apart at the cap, as the power law's reference implementation treats a collision.
+        if (hit.time === 0) {
+          ax += steerAutoMovieCrowd.CAP * hit.nx;
+          az += steerAutoMovieCrowd.CAP * hit.nz;
+          return;
+        }
         const closing: number = -(hit.nx * hit.ux + hit.nz * hit.uz);
         if (!(closing > 1e-9)) return;
         const tt: number = Math.max(hit.time, 1e-3);
@@ -305,9 +312,6 @@ export namespace steerAutoMovieCrowd {
 
   /** The largest push, metres per second squared (provisional: caps the gradient's singularity at a grazing pass, which the implicit-crowds work of Karamouzas, Sohre, Narain and Guy 2017 describes). */
   export const CAP: number = 20;
-
-  /** Times to collision beyond this many horizons are ignored (provisional: the energy has fallen below a ten-thousandth of its value at one second by then). */
-  export const CUTOFF: number = 3;
 
   /** Metres within which a neighbour's heading enters the herding mean (provisional: Helbing, Farkas and Vicsek 2000 say "a certain neighborhood"). */
   export const NEIGHBOURHOOD: number = 2;

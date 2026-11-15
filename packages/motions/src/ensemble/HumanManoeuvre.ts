@@ -27,7 +27,10 @@ import { manoeuvreWheel } from "./manoeuvreWheel";
  * breadths, and closer than they stand in either formation, at any 1/24 s
  * instant refuse the manoeuvre, unless its rule leaves crossings to the
  * crowd's steering or wheels the formation rigidly, each member keeping its
- * slot of the turning formation (`manoeuvreWheel`). A member's step-off is the drill order's delay here plus
+ * slot of the turning formation (`manoeuvreWheel`). A unit keeps together:
+ * a straight or slanting way is marched at the slowest member's pace, each
+ * member keeping its place on it as a station, so the ways are checked, and
+ * walked, as those places move. A member's step-off is the drill order's delay here plus
  * its own response latency, drawn when the sync places it (#3462).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a plan decides, the file-order rule, the crossing check and how latency joins.
@@ -148,6 +151,29 @@ export namespace HumanManoeuvre {
             : turns.indexOf(blocks[i]!) * INTERVAL,
     );
 
+    // A unit keeps together: each member marches its straight way at the slowest member's pace, keeping its own place on it as a station, so the parallel ways of a block stay parallel whatever each body's own step.
+    const pace: number = Math.min(...speeds);
+    const stations: (IHumanFormation.IStation | undefined)[] = members.map(
+      (_: HumanEnsemble.IMember, i: number): IHumanFormation.IStation | undefined =>
+        wheel !== null && wheel.stations !== null
+          ? wheel.stations[i]!
+          : (rule.path === "straight" || rule.path === "oblique") &&
+              length(ways[i]!) > 1e-6
+            ? {
+                formation: {
+                  blocks: [ALONE],
+                  frame: {
+                    kind: "path",
+                    via: ways[i]!,
+                    start: at + delays[i]!,
+                    speed: pace,
+                  },
+                },
+                slot: 0,
+              }
+            : undefined,
+    );
+
     // What each member does on arrival, by its new rank.
     const parts: IHumanManoeuvre.IPart[] = members.map(
       (m: HumanEnsemble.IMember, i: number): IHumanManoeuvre.IPart => {
@@ -169,15 +195,13 @@ export namespace HumanManoeuvre {
           via: ways[i]!,
           face: ends[i]!.heading,
           arrive,
-          ...(wheel === null || wheel.stations === null
-            ? {}
-            : { station: wheel.stations[i]! }),
+          ...(stations[i] === undefined ? {} : { station: stations[i]! }),
         };
       },
     );
     // A wheel's turn is rigid, so no two of its members come closer than they stand.
     if (rule.path !== "steered" && wheel === null)
-      crossings(ensemble, parts, speeds);
+      crossings(ensemble, parts, speeds, at);
     return parts;
   }
 
@@ -225,6 +249,12 @@ export namespace HumanManoeuvre {
   }
 }
 
+/** The block of one member a stationed straight way is read on: its one slot stands at the block's origin. */
+const ALONE: IHumanFormation.IBlock = {
+  layout: { kind: "line", ranks: 1, files: 1, spacing: { lateral: 1, depth: 1 } },
+  count: 1,
+};
+
 /** The last rank of a block of a formation. */
 function lastRank(formation: IHumanFormation, block: number): number {
   let first: number = 0;
@@ -260,6 +290,7 @@ function crossings(
   ensemble: HumanEnsemble.IEnsemble,
   parts: readonly IHumanManoeuvre.IPart[],
   speeds: readonly number[],
+  at: number,
 ): void {
   const members: readonly HumanEnsemble.IMember[] = ensemble.members;
   const lengths: number[][] = parts.map(
@@ -278,6 +309,8 @@ function crossings(
   );
   const where = (i: number, t: number): IAutoMovieVector3 => {
     const p: IHumanManoeuvre.IPart = parts[i]!;
+    if (p.station !== undefined)
+      return HumanFormation.slot(p.station.formation, p.station.slot, at + t).at;
     const s: number = Math.max(0, (t - p.delay) * speeds[i]!);
     const arcs: number[] = lengths[i]!;
     let k: number = 0;
@@ -295,7 +328,9 @@ function crossings(
     0,
     ...parts.map(
       (p: IHumanManoeuvre.IPart, i: number): number =>
-        p.delay + lengths[i]![lengths[i]!.length - 1]! / speeds[i]!,
+        p.station === undefined
+          ? p.delay + lengths[i]![lengths[i]!.length - 1]! / speeds[i]!
+          : (HumanFormation.end(p.station.formation) ?? at) - at,
     ),
   );
   const n: number = parts.length;

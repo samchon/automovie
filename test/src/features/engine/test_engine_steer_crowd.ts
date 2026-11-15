@@ -15,8 +15,9 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Two agents head-on along one line 10 m apart: they never come within
  *    their summed radii, they pass on opposite sides (the lateral offset of
  *    each changes sign relative to the other), and both arrive.
- * 2. Two flows of six crossing at 90 degrees: no two agents overlap at any
- *    step and every agent arrives.
+ * 2. Two flows of six crossing at 90 degrees, each agent going 20 m along
+ *    its flow to a goal of its own: no two agents overlap at any step and
+ *    every agent arrives.
  * 3. A random crossing of 60 agents: the share of agent pairs whose time to
  *    collision falls under 1 s at some sample is smaller with the interaction
  *    than without it (the power law's qualitative oracle; Karamouzas,
@@ -85,14 +86,20 @@ export function test_engine_steer_crowd(): void {
   for (const [i, c] of headOn.courses.entries())
     if (c.arrival === null) findings.push(`head-on: agent ${i} did not arrive`);
 
-  // 2. Crossing flows.
+  // 2. Crossing flows, each agent going 20 m along its flow to a place of its own: two people cannot stand on one goal.
   const flows: IAutoMovieCrowdAgent[] = [];
   for (let k: number = 0; k < 6; ++k) {
     flows.push(
-      agent(point(-8 - 1.2 * k, 0.9 * (k % 2)), point(10, 0.9 * (k % 2))),
+      agent(
+        point(-8 - 1.2 * k, 0.9 * (k % 2)),
+        point(12 - 1.2 * k, 0.9 * (k % 2)),
+      ),
     );
     flows.push(
-      agent(point(0.9 * (k % 2), -8 - 1.2 * k), point(0.9 * (k % 2), 10)),
+      agent(
+        point(0.9 * (k % 2), -8 - 1.2 * k),
+        point(0.9 * (k % 2), 12 - 1.2 * k),
+      ),
     );
   }
   const crossing: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
