@@ -106,7 +106,7 @@ export namespace HumanForceThrow {
    * @throws {HumanRefusal} A `participant` refusal on `fulcrum` with no thrower, fulcrum or placed thrower posture; a `parameter` refusal on `outcome` when the swing stops before the vertical.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases, the inputs and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The fulcrum is the thrower's region on its placed posture at the broken base; the frozen body turns about it by HumanForceExchange.swing, whose start rate is the pull's speed across the fulcrum line, whose drive is the pull's moment about the fulcrum while it lasts, and whose inertia is the body's composite tensor on the swing's axis plus the parallel-axis term; after release the centre follows the parabola and the orientation the conserved angular momentum R I ω (integrateAirborneRotation); the landing is the first integrator step at which the lowest joint reaches the floor.
+   * @evidence contracts/development/implementation.md#principled-implementation The fulcrum is the thrower's region on its placed posture at the broken base; the frozen body turns about it by `HumanForceExchange.swing`, whose start rate is the pull's speed across the fulcrum line, whose drive is the pull's moment about the fulcrum while it lasts, and whose inertia is the body's composite tensor on the swing's axis plus the parallel-axis term; after release the centre follows the parabola and the orientation the conserved angular momentum `R I ω` (`integrateAirborneRotation`); the landing is the first integrator step at which the lowest joint reaches the floor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fulcrum, swing, release state, flight, landing, plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops is refused; the landing is searched, never set.
    * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight integration at plan time, and a landing search over the flight's steps reading the trunk's joints.
@@ -336,8 +336,7 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two branches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: a missing bone is the caller's canonical rig's defect.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work 
-esolveAutoMovieHumanoidSurfaces.place.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `resolveAutoMovieHumanoidSurfaces.place`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function site(
