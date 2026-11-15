@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -17,6 +17,8 @@ import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHuma
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanHeld } from "../handling/HumanHeld";
+import { handshake } from "../handling/handshake";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -31,9 +33,15 @@ import { poseBones } from "../posture/poseBones";
  * shared instant (#3284), the mutual goal the handshake uses
  * (`AutoMovieMotionMeeting`).
  *
- * The meeting point lies on the floor midpoint of the two performers, at the
- * mean of their crown heights for a high five, of their waist heights for a
- * low five and of their chest heights for a fist bump (provisional). Each
+ * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal`
+ * on both acting arms as the handshake reads them, `handshake.arm`, as the
+ * handover does): the action prefers the mean of the two crown heights for a
+ * high five, of their waist heights for a low five and of their chest
+ * heights for a fist bump (provisional), and the point lies at that height
+ * where both arms are the same share of their comfortable reaches, moved
+ * down or up only as far as both arms' reach demands. Partners of unequal
+ * stature therefore meet where the shorter one can reach, and partners no
+ * point lies within both arms of are refused, never stretched. Each
  * role's hand reaches it in the free-space transport time of its distance
  * (`AutoMovieMotionHumanTiming.transport`); the pair meets when the slower
  * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
@@ -127,10 +135,10 @@ export namespace highFive {
    * @returns The kind.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the variant's geometry and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact on the roles' floor midpoint at the mean of their named heights; each role's natural timing the free-space transport of its hand to it.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact is the pair's mutual goal at the mean of their named heights, inside both arms' reach; each role's natural timing the free-space transport of its hand to it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record with a placement and a timing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Heights are named body heights; the default place is used only when a role is alone.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the target heights, `HumanHand.frame` and the timing owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Heights are named body heights; a pair no point lies within both arms of is refused, never stretched; the default place is used only when a role is alone.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the target heights, the engine's mutual goal, the handshake's arm, `HumanHand.frame` and the timing owner.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two roles, constant work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -145,16 +153,46 @@ export namespace highFive {
       roles: ["slapper", "slapper"],
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => {
-        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-        for (const r of roles)
-          sum = Vector3.add(sum, {
-            x: r.posture.root.x,
-            y:
+        const arms: resolveAutoMovieMutualGoal.ISide[] = roles.map(
+          (r: AutoMovieMotionMeeting.IRole): resolveAutoMovieMutualGoal.ISide =>
+            handshake.arm(
+              r.body,
+              side,
+              r.bones.get(`${side}UpperArm`)!.worldPosition,
+            ),
+        );
+        const preferred: number =
+          roles.reduce(
+            (sum: number, r: AutoMovieMotionMeeting.IRole): number =>
+              sum +
               AutoMovieMotionHumanTargetGrid.height(r.body, height) *
-              r.body.measure.stature,
-            z: r.posture.root.z,
+                r.body.measure.stature,
+            0,
+          ) / roles.length;
+        // The engine refuses a pair no point lies within both arms of; its
+        // message names the shoulder gap the pair can close.
+        try {
+          return {
+            meet: resolveAutoMovieMutualGoal({
+              a: arms[0]!,
+              b: arms[1]!,
+              height: preferred,
+            }).point,
+          };
+        } catch (error: unknown) {
+          const span: IAutoMovieVector3 = Vector3.subtract(
+            arms[1]!.shoulder,
+            arms[0]!.shoulder,
+          );
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "partner",
+            value: Math.hypot(span.x, span.z),
+            feasible: null,
+            reason: error instanceof Error ? error.message : String(error),
+            fix: "stand the partners within reach of each other",
           });
-        return { meet: Vector3.scale(sum, 1 / roles.length) };
+        }
       },
       timing: (role, contacts) => {
         const from: IAutoMovieVector3 = HumanHand.frame(
@@ -177,6 +215,7 @@ export namespace highFive {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {HumanRefusal} A `reach` refusal on `partner` when no point lies within both partners' arms.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan; the law's doc gives the geometry and timing.
    * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand, or the point of the prop it holds stood upright on its steadiest side (`HumanHeld`), is a press of the touch stroke on the meeting point.
