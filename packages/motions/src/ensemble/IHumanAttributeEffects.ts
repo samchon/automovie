@@ -42,6 +42,9 @@ export interface IHumanAttributeEffects {
 
     /** The herding share. */
     herding: IHumanAttributeEffects.IEffect;
+
+    /** The factor on a fleeing member's individual fluctuation: the spread of its drawn desired speed. */
+    fluctuation: IHumanAttributeEffects.IEffect;
   };
 }
 

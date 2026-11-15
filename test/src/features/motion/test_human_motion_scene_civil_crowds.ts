@@ -28,9 +28,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    floor, and their onsets spread (a crowd does not turn as one).
  * 2. Mob: 30 rabble and 30 civilians flee 30 m from the same places; no two
  *    members' courses come within their summed half breadths; every member
- *    arrives; the rabble's arrival seconds spread wider than the civilians'
- *    (their latencies, speeds and herding are drawn from lower morale and
- *    discipline).
+ *    arrives. The presets imply the rabble's arrivals vary more: over
+ *    `PILOT` seeds, the arrivals their drawn desires alone imply (latency
+ *    plus the course over the desired speed) have a variance ratio above 1.
+ *    The steered arrivals resolve it: over as many seeded scenes as a
+ *    one-sided test of that ratio at alpha 0.05 with power 0.8 needs (n = 1
+ *    + 4 (z_0.95 + z_0.8)^2 / (ln ratio)^2 per preset, from the log variance
+ *    ratio's large-sample variance 4 / (n - 1)), Levene's test in its
+ *    Brown-Forsythe form finds the rabble's spread wider (t > z_0.95).
  * 3. Street: 24 pedestrians, about two thirds in groups of two and three
  *    (Moussaid et al. 2010), each group steered as one agent: every grouped
  *    member shares its group's course, groups and singles keep apart, and
@@ -41,7 +46,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    courses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs and steers crowds and reads look onsets and courses: a look before the shot, a crowd turning as one, members passing through each other, a member left behind, a rabble as orderly as civilians, groups split apart, clones, or a scene that does not replay is caught.
- * @evidence contracts/development/testing.md#independent-expectations The floor is the false-start rule; rabble wider than civilians is the requirement's relation; group shares are Moussaid et al.'s; non-penetration and arrival are the scene's requirement; the clone floor is provisional and named.
+ * @evidence contracts/development/testing.md#independent-expectations The floor is the false-start rule; rabble wider than civilians is the requirement's relation, read by Levene's test at alpha 0.05 over a sample sized by power for the ratio the presets imply; group shares are Moussaid et al.'s; non-penetration and arrival are the scene's requirement; the clone floor is provisional and named.
  * @evidence contracts/development/testing.md#distinguishing-cases A shot, a mob of two presets, a street with groups, an anti-clone pass and a replay with another seed; the carriage parting is `test_human_motion_crowd_parting`'s.
  * @evidence contracts/development/testing.md#execution-ownership A scene test of the motions package on prepared polygon-man bodies, discovered by its exported name; events and courses, no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
@@ -156,25 +161,77 @@ export function test_human_motion_scene_civil_crowds(): void {
   };
   apart("mob", rabble, mob, 30);
   apart("calm", civilians, calm, 30);
-  const spread = (r: HumanCrowd.IResult, label: string): number => {
-    const a: number[] = r.arrivals.map(
-      (x: number | null, i: number): number => {
-        if (x === null) findings.push(`${label}: member ${i} never arrives`);
-        return x ?? 30;
-      },
-    );
-    const m: number =
-      a.reduce((p: number, q: number): number => p + q, 0) / a.length;
-    return Math.sqrt(
+  const arrived = (r: HumanCrowd.IResult, label: string): number[] =>
+    r.arrivals.map((x: number | null, i: number): number => {
+      if (x === null) findings.push(`${label}: member ${i} never arrives`);
+      return x ?? 30;
+    });
+  const mean = (a: readonly number[]): number =>
+    a.reduce((p: number, q: number): number => p + q, 0) / a.length;
+  const variance = (a: readonly number[]): number => {
+    const m: number = mean(a);
+    return (
       a.reduce((p: number, q: number): number => p + (q - m) ** 2, 0) /
-        (a.length - 1),
+      (a.length - 1)
     );
   };
-  const rabbleSpread: number = spread(mob, "mob");
-  const calmSpread: number = spread(calm, "calm");
-  if (!(rabbleSpread > calmSpread))
+
+  // The presets' own claim, deterministic: the arrivals the drawn desires alone imply (delay plus the course over the desired speed) vary more for the rabble, over `PILOT` seeds.
+  const implied = (preset: IHumanEnsemble["preset"]): number[] =>
+    Array.from({ length: PILOT }, (_: unknown, k: number): number[] => {
+      const e: HumanEnsemble.IEnsemble = scatter("x", preset, 30, `pilot:${k}`);
+      return e.members.map((m: HumanEnsemble.IMember): number => {
+        const d: HumanCrowd.IDesired = HumanCrowd.desired(e, m, {
+          gait: "run",
+          latency: "reaction",
+          flight: true,
+        });
+        return d.delay + 30 / d.speed;
+      });
+    }).flat();
+  const ratio: number = variance(implied("rabble")) / variance(implied("civilians"));
+  if (!(ratio > 1))
     findings.push(
-      `the rabble's arrivals spread ${rabbleSpread.toFixed(3)} s, the civilians' ${calmSpread.toFixed(3)} s`,
+      `the presets imply the rabble's arrivals vary ${ratio.toFixed(3)} times the civilians'`,
+    );
+
+  // The behaviour: the steered arrivals over enough seeds to resolve that ratio. A one-sided test of the variance ratio at alpha 0.05 with power 0.8 needs, by the large-sample normality of the log variance ratio (variance 2 / (n - 1) per sample), n = 1 + 4 (z_0.95 + z_0.8)^2 / (ln ratio)^2 arrivals per preset; the seeds are that many scenes of 30.
+  const needed: number =
+    1 + (4 * (Z_ALPHA + Z_POWER) ** 2) / Math.log(Math.max(ratio, 1 + 1e-9)) ** 2;
+  const seeds: number = Math.max(1, Math.ceil(needed / 30));
+  if (seeds > MOST_SEEDS)
+    findings.push(
+      `resolving the implied ratio ${ratio.toFixed(3)} needs ${seeds} seeds of 30, beyond ${MOST_SEEDS}`,
+    );
+  const rabbleArrivals: number[] = arrived(mob, "mob");
+  const calmArrivals: number[] = arrived(calm, "calm");
+  for (let k: number = 1; k < Math.min(seeds, MOST_SEEDS); ++k) {
+    rabbleArrivals.push(
+      ...arrived(flee(scatter("r", "rabble", 30, `mob:${k}`)), "mob"),
+    );
+    calmArrivals.push(
+      ...arrived(flee(scatter("c", "civilians", 30, `mob:${k}`)), "calm"),
+    );
+  }
+  // Levene's test in its Brown-Forsythe form (absolute deviations from each group's median, robust to skewed arrivals), one-sided: for two groups it is the pooled t-test on those deviations, read against z_0.95 at these sizes.
+  const deviations = (a: readonly number[]): number[] => {
+    const sorted: number[] = [...a].sort((p: number, q: number): number => p - q);
+    const median: number =
+      sorted.length % 2 === 1
+        ? sorted[(sorted.length - 1) / 2]!
+        : (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2;
+    return a.map((x: number): number => Math.abs(x - median));
+  };
+  const dr: number[] = deviations(rabbleArrivals);
+  const dc: number[] = deviations(calmArrivals);
+  const pooled: number =
+    ((dr.length - 1) * variance(dr) + (dc.length - 1) * variance(dc)) /
+    (dr.length + dc.length - 2);
+  const t: number =
+    (mean(dr) - mean(dc)) / Math.sqrt(pooled * (1 / dr.length + 1 / dc.length));
+  if (!(t > Z_ALPHA))
+    findings.push(
+      `over ${rabbleArrivals.length} arrivals each, the rabble's spread is not resolved wider than the civilians' (Levene t ${t.toFixed(3)}, ${Z_ALPHA} needed)`,
     );
 
   // 3. A street with groups.
@@ -266,3 +323,15 @@ export function test_human_motion_scene_civil_crowds(): void {
   if (!moved) findings.push("another seed steers the mob the same way");
   TestValidator.equals("civil crowds", findings, []);
 }
+
+/** Seeds of 30 members per preset the implied variance ratio is read over: 600 drawn desires each, no steering. */
+const PILOT: number = 20;
+
+/** The standard normal's 0.95 quantile: the one-sided test at alpha 0.05. */
+const Z_ALPHA: number = 1.6448536269514722;
+
+/** The standard normal's 0.8 quantile: power 0.8. */
+const Z_POWER: number = 0.8416212335729143;
+
+/** The most mob scenes per preset the spec steers; a ratio needing more is reported, for the spec to be split into parts. */
+const MOST_SEEDS: number = 24;

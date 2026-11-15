@@ -38,12 +38,15 @@ import type { IHumanFormation } from "./IHumanFormation";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the pass gives, how each agent is built and from which sources, and the coupling.
  * @evidence contracts/development/design.md#principled-representation A request names goals, a gait, a cue and the obstacles; the result is a course frame per member, the data station keeping reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `steer`, a member's half breadth `half`, and the desired speeds' spread `SPREAD`; the law is the engine's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `steer`, a member's drawn desire `desired` (with `IDesired`), its half breadth `half`, and the desired speeds' spread `SPREAD` and floor `SLOWEST`; the law is the engine's.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is animated by the pass: its courses are frames, walked by the vocabulary.
  */
 export namespace HumanCrowd {
   /** The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s (Helbing and Molnar 1995). */
   export const SPREAD: number = 0.26 / 1.34;
+
+  /** The least share of its gait's speed a member's draw may give: one half, about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the normal draw's far tail from a walker who barely moves). */
+  export const SLOWEST: number = 0.5;
 
   /** What a crowd is steered by. */
   export interface IRequest {
@@ -83,6 +86,90 @@ export namespace HumanCrowd {
     arrivals: readonly (number | null)[];
   }
 
+  /** A member's drawn desire: its desired speed, metres per second, and its delay after the cue, seconds. */
+  export interface IDesired {
+    /** The desired speed, metres per second. */
+    speed: number;
+
+    /** The delay after the cue, seconds. */
+    delay: number;
+  }
+
+  /**
+   * A member's desired speed and delay as the pass draws them: its gait's
+   * speed at its leg length scaled by its keyed normal draw (floored at
+   * `SLOWEST`, its spread widened in flight by low morale's fluctuation,
+   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight
+   * by morale, and its response
+   * latency when the request names one.
+   *
+   * @param ensemble The ensemble.
+   * @param m The member.
+   * @param request The request.
+   * @returns The member's desire.
+   */
+  export function desired(
+    ensemble: HumanEnsemble.IEnsemble,
+    m: HumanEnsemble.IMember,
+    request: Pick<IRequest, "gait" | "latency" | "flight">,
+  ): IDesired {
+    const skill: HumanSkill.ISkill = HumanSkill.resolve(
+      m.proficiency,
+      ensemble.input.seed,
+    );
+    const random: IAutoMovieRandom = HumanAttribute.stream(
+      ensemble.input.seed,
+      ensemble.input.id,
+      m.index,
+      "crowd",
+    );
+    const froude: number =
+      request.gait === "walk" ? walk.FROUDE.normal : run.GAITS.run.froude;
+    const speed: number =
+      Math.sqrt(froude * AutoMovieGravity.STANDARD * m.body.measure.hipHeight) *
+      Math.max(
+        SLOWEST,
+        1 +
+          SPREAD *
+            (request.flight === true
+              ? HumanAttribute.effect(
+                  HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation,
+                  m.attributes.morale,
+                  1,
+                )
+              : 1) *
+            HumanSkill.normal(random, 0),
+      ) *
+      HumanAttribute.effect(
+        HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace,
+        m.attributes.fatigue,
+        0,
+      ) *
+      (request.flight === true
+        ? HumanAttribute.effect(
+            HUMAN_ATTRIBUTE_EFFECTS.morale.speed,
+            m.attributes.morale,
+            1,
+          )
+        : 1);
+    const delay: number =
+      request.latency === undefined
+        ? 0
+        : HumanResponse.latency(
+            skill,
+            HumanAttribute.stream(
+              ensemble.input.seed,
+              ensemble.input.id,
+              m.index,
+              "crowd:latency",
+            ),
+            request.latency,
+            false,
+            m.attributes,
+          );
+    return { speed, delay };
+  }
+
   /**
    * Steer the crowd.
    *
@@ -112,49 +199,7 @@ export namespace HumanCrowd {
           (sum: number, i: number): number => sum + 2 * half(members[i]!),
           0,
         );
-        const skill: HumanSkill.ISkill = HumanSkill.resolve(
-          m.proficiency,
-          ensemble.input.seed,
-        );
-        const random: IAutoMovieRandom = HumanAttribute.stream(
-          ensemble.input.seed,
-          ensemble.input.id,
-          m.index,
-          "crowd",
-        );
-        const l: number = m.body.measure.hipHeight;
-        const froude: number =
-          request.gait === "walk" ? walk.FROUDE.normal : run.GAITS.run.froude;
-        const speed: number =
-          Math.sqrt(froude * AutoMovieGravity.STANDARD * l) *
-          Math.max(0.5, 1 + SPREAD * HumanSkill.normal(random, 0)) *
-          HumanAttribute.effect(
-            HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace,
-            m.attributes.fatigue,
-            0,
-          ) *
-          (request.flight === true
-            ? HumanAttribute.effect(
-                HUMAN_ATTRIBUTE_EFFECTS.morale.speed,
-                m.attributes.morale,
-                1,
-              )
-            : 1);
-        const delay: number =
-          request.latency === undefined
-            ? 0
-            : HumanResponse.latency(
-                skill,
-                HumanAttribute.stream(
-                  ensemble.input.seed,
-                  ensemble.input.id,
-                  m.index,
-                  "crowd:latency",
-                ),
-                request.latency,
-                false,
-                m.attributes,
-              );
+        const { speed, delay }: IDesired = desired(ensemble, m, request);
         return {
           at: m.place.at,
           goal: request.goals(m),

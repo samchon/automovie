@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
 import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
@@ -7,7 +8,7 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
 /**
  * A crowd's ways planned once: every agent heads for its goals at its own desired speed and avoids the others and the obstacles by anticipation, the whole crowd integrated together on a fixed step and each agent's course read back by time.
  *
- * Each agent's acceleration is the social force model's driving term toward its desired velocity, `(v0 e0 - v) / tau` with the relaxation time `tau` (Helbing and Molnar 1995, Phys Rev E 51:4282), plus the anticipatory interaction of the universal power law (Karamouzas, Skinner and Guy 2014, Phys Rev Lett 113:238701): with every other agent and obstacle it would meet within the time to collision `t` at the current velocities, the force is minus the spatial gradient of `E(t) = k t^-2 exp(-t / t0)`. That gradient is `k exp(-t / t0) t^-2 (2 / t + 1 / t0)` along the contact normal `n` at the predicted collision, divided by the closing speed along it, `-(n . u)`, so the push grows as a collision nears in time and is aimed away from where it would happen. The desired direction `e0` follows the goals as Reynolds's path following does (Reynolds 1999): toward the point `LOOKAHEAD` seconds of desired travel past the agent's nearest point on the polyline of its start and goals, slowed within `ARRIVAL` relaxation times of desired travel from its destination; with a herding share `p` it is `N[(1 - p) e0 + p <e_j>]`, `<e_j>` the mean heading of the moving agents within `NEIGHBOURHOOD` (Helbing, Farkas and Vicsek 2000, Nature 407:487). A position moves at most at the agent's `maximum` speed, as in that model.
+ * Each agent's acceleration is the social force model's driving term toward its desired velocity, `(v0 e0 - v) / tau` with the relaxation time `tau` (Helbing and Molnar 1995, Phys Rev E 51:4282), plus the anticipatory interaction of the universal power law (Karamouzas, Skinner and Guy 2014, Phys Rev Lett 113:238701): with every other agent and obstacle it would meet within the time to collision `t` at the current velocities, the force is minus the spatial gradient of `E(t) = k t^-2 exp(-t / t0)`. That gradient is `k exp(-t / t0) t^-2 (2 / t + 1 / t0)` along the contact normal `n` at the predicted collision, divided by the closing speed along it, `-(n . u)`, so the push grows as a collision nears in time and is aimed away from where it would happen. The desired direction `e0` follows the goals as Reynolds's path following does (Reynolds 1999): toward the point `LOOKAHEAD` seconds of desired travel past the agent's nearest point on the polyline of its start and goals, slowed within `ARRIVAL` relaxation times of desired travel from its destination; with a herding share `p` it is `N[(1 - p) e0 + p <v_j> / v0]` (Helbing, Farkas and Vicsek 2000, Nature 407:487), `<v_j>` the mean velocity of the agents within `NEIGHBOURHOOD`, each weighted by Tukey's biweight kernel `(1 - (d / NEIGHBOURHOOD)^2)^2` (Beaton and Tukey 1974; the compactly supported smoothing kernels of SPH and Wendland's family are of the same kind): the paper's mean heading of the neighbours, read with a compact, continuously differentiable weight that falls to nothing at the neighbourhood's edge and a velocity that grows from rest, so the right-hand side is Lipschitz, which a well-posed integration needs (Picard and Lindelof), and no neighbour's entry or start jumps it. A position moves at most at the agent's `maximum` speed, as in that model, and at the velocity nearest the agent's own that optimal reciprocal collision avoidance admits against every other agent over the horizon `t0` (van den Berg, Guy, Lin and Manocha 2011, `solveAutoMovieHalfPlaneProgram`): the anticipatory force steers, and the half-plane program is the hard guarantee that two agents never step into each other, an overlap already there being undone within one step.
  *
  * The state of the whole crowd is one vector handed to the engine's one fixed-step integrator, `integrateMotionTrajectory` (#3424), so every agent sees every other at the same instant (a synchronous update) and the courses are read back by its Hermite interpolation. Agents are integrated in a canonical order of their own data, not in the order given, so listing them in another order gives bit-identical courses. Interaction couples agents: adding one changes the others' courses, as a real crowd does. The pass is kinematic; contact forces of a crush are out of scope, and every overlap that outlasts one step is reported in `contacts` for the caller to refuse.
  *
@@ -18,10 +19,10 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
  * @throws {Error} When an agent's radius, speed or start is not finite and positive where it must be, a goal list is empty, or the interval is not forward: a caller's defect.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the law with its sources, the gradient's closed form, the goal following, herding, the speed cap, the integration, the order independence, the coupling, the contacts and the provisional constants with the search recorded.
- * @evidence contracts/development/implementation.md#principled-implementation The social force driving term plus the power-law interaction's exact spatial gradient: the time to collision of two discs solves `|p - u t| = R`, and implicit differentiation gives `grad t = n / -(n . u)` at the contact normal `n`, the same expression for an offset edge or a corner of a convex obstacle. Classical RK4 on the stacked state through `integrateMotionTrajectory`.
+ * @evidence contracts/development/implementation.md#principled-implementation The social force driving term plus the power-law interaction's exact spatial gradient: the time to collision of two discs solves `|p - u t| = R`, and implicit differentiation gives `grad t = n / -(n . u)` at the contact normal `n`, the same expression for an offset edge or a corner of a convex obstacle. The position's rate is the ORCA velocity, the cited paper's reciprocal half-planes solved by its linear program. Classical RK4 on the stacked state through `integrateMotionTrajectory`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the agents, fix the canonical order, define the right-hand side, integrate, then read the courses, the arrivals and the contacts at the knots.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No agent is moved apart after the fact: overlaps are reported, not repaired. The force cap is named and provisional, documented as the cure for the gradient's grazing singularity the implicit-crowds work describes, not a tuning of one scene.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is O(N^2 + N M) for N agents and M obstacle edges, four per step over `(to - from) / step` steps; a read is one interpolation of the stacked state. A spatial grid would cut the pairs for crowds of thousands; the crowds planned here are hundreds.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is O(N^2 + N M) for N agents and M obstacle edges, plus N half-plane programs of N - 1 half-planes each, expected linear, four per step over `(to - from) / step` steps; a read is one interpolation of the stacked state. A spatial grid would cut the pairs for crowds of thousands; the crowds planned here are hundreds.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One integration serves every agent's course and every read of it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the trajectory's knots, 4 N numbers per step, for as long as the caller keeps the courses.
  */
@@ -30,6 +31,7 @@ export function steerAutoMovieCrowd(
 ): steerAutoMovieCrowd.IResult {
   const tau: number = props.law?.relaxation ?? steerAutoMovieCrowd.RELAXATION;
   const t0: number = props.law?.horizon ?? steerAutoMovieCrowd.HORIZON;
+  const h: number = props.step ?? integrateMotionTrajectory.STEP;
   const agents: readonly IAutoMovieCrowdAgent[] = props.agents;
   agents.forEach((a: IAutoMovieCrowdAgent, i: number): void => {
     for (const [name, value] of [
@@ -99,26 +101,24 @@ export function steerAutoMovieCrowd(
       let ez: number = want.z;
       const p: number = agent.herding ?? 0;
       if (p > 0) {
+        // The neighbours' velocities, each weighted by Tukey's biweight `(1 - (d / NEIGHBOURHOOD)^2)^2`, compact and continuously differentiable, over the agent's own desired speed: a mean heading that grows from nothing as the neighbours set off, so the right-hand side stays Lipschitz and the integration well posed.
         let mx: number = 0;
         let mz: number = 0;
+        let weight: number = 0;
         for (let j: number = 0; j < n; ++j) {
           if (j === k) continue;
-          const sx: number = x[4 * j + 2]!;
-          const sz: number = x[4 * j + 3]!;
-          const s: number = Math.hypot(sx, sz);
-          if (
-            s < 1e-6 ||
-            Math.hypot(x[4 * j]! - px, x[4 * j + 1]! - pz) >
-              steerAutoMovieCrowd.NEIGHBOURHOOD
-          )
-            continue;
-          mx += sx / s;
-          mz += sz / s;
+          const d: number =
+            Math.hypot(x[4 * j]! - px, x[4 * j + 1]! - pz) /
+            steerAutoMovieCrowd.NEIGHBOURHOOD;
+          if (d >= 1) continue;
+          const w: number = (1 - d * d) ** 2;
+          mx += w * x[4 * j + 2]!;
+          mz += w * x[4 * j + 3]!;
+          weight += w;
         }
-        const m: number = Math.hypot(mx, mz);
-        if (m > 1e-9) {
-          ex = (1 - p) * ex + (p * mx) / m;
-          ez = (1 - p) * ez + (p * mz) / m;
+        if (weight > 0) {
+          ex = (1 - p) * ex + (p * mx) / (weight * agent.speed);
+          ez = (1 - p) * ez + (p * mz) / (weight * agent.speed);
           const e: number = Math.hypot(ex, ez);
           if (e > 1e-9) {
             ex /= e;
@@ -179,13 +179,37 @@ export function steerAutoMovieCrowd(
         ),
       );
 
-      // A position moves no faster than the agent's maximum.
+      // A position moves at the velocity nearest the agent's own that keeps it clear of every other agent for the horizon, taking its half of each avoidance, and no faster than its maximum (ORCA's linear program, the hard guarantee under the anticipatory force).
       const top: number =
         agent.maximum ?? steerAutoMovieCrowd.MAXIMUM * agent.speed;
-      const speed: number = Math.hypot(vx, vz);
-      const scale: number = speed > top ? top / speed : 1;
-      dx[4 * k] = vx * scale;
-      dx[4 * k + 1] = vz * scale;
+      const lines: solveAutoMovieHalfPlaneProgram.ILine[] = [];
+      for (let j: number = 0; j < n; ++j)
+        if (j !== k)
+          lines.push(
+            steerAutoMovieCrowdGeometry.reciprocal(
+              px,
+              pz,
+              vx,
+              vz,
+              x[4 * j]!,
+              x[4 * j + 1]!,
+              x[4 * j + 2]!,
+              x[4 * j + 3]!,
+              agent.radius + agents[order[j]!]!.radius,
+              t0,
+              h,
+              top,
+              // An agent that has not set off stands and avoids nobody.
+              t < agents[order[j]!]!.start
+                ? 0
+                : (agents[order[j]!]!.maximum ??
+                    steerAutoMovieCrowd.MAXIMUM * agents[order[j]!]!.speed),
+            ),
+          );
+      const moved: solveAutoMovieHalfPlaneProgram.IPoint =
+        solveAutoMovieHalfPlaneProgram(lines, top, { x: vx, y: vz }).point;
+      dx[4 * k] = moved.x;
+      dx[4 * k + 1] = moved.y;
       dx[4 * k + 2] = ax;
       dx[4 * k + 3] = az;
     }

@@ -1,11 +1,14 @@
+import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
+  HUMAN_ATTRIBUTE_EFFECTS,
   HumanCrowd,
   HumanEnsemble,
   HumanFormation,
   type HumanObstacle,
   type IHumanBody,
   type IHumanFormation,
+  walk,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,13 +26,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    carriage's footprint at any 1/24 s sample.
  * 2. No two members' courses come within their summed half breadths at any
  *    1/24 s sample (the pass reports no contact).
- * 3. Every member reaches its goal before the pass ends.
+ * 3. Every member reaches its goal before the pass ends: the course over the
+ *    slowest desired speed the law can draw, plus the law's start and
+ *    arrival times.
  * 4. Steering again with the same seed gives bit-identical courses.
  * 5. Moving the whole scene by (4, 0, -2) m moves every course by the same
- *    vector within 1e-6 m.
+ *    vector within 1e-6 m over the first second, inside the divergence a
+ *    crowd of 40 was measured to show (1.8e-15 m at 0 s, 1.2e-6 m at 2 s),
+ *    and every member of the moved scene arrives (the pass refuses any
+ *    contact in it too).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Steers an ensemble with a moving obstacle and reads every member's course: a member entering the carriage or another member, a member that never arrives, a non-replaying pass or a frame-dependent one is caught.
- * @evidence contracts/development/testing.md#independent-expectations Non-penetration and arrival are the scene's requirement; the breadths are the bodies' own measures; replay and translation invariance follow from a deterministic law with no absolute frame.
+ * @evidence contracts/development/testing.md#independent-expectations Non-penetration and arrival are the scene's requirement; the breadths are the bodies' own measures; the span is the law's own speed floor, start and arrival; replay follows from keyed draws, and the moved scene's bound is the measured divergence of a crowd sensitive to its initial conditions.
  * @evidence contracts/development/testing.md#distinguishing-cases A moving obstacle, two opposing flows, a replay and a moved scene; the engine law's own cases belong to `test_engine_steer_crowd`, the members' steps on their courses to the civil crowd scene.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on prepared polygon-man bodies, discovered by its exported name; courses only, no pose, no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
@@ -41,6 +49,29 @@ export function test_human_motion_crowd_parting(): void {
     motionHumanBody("f-small"),
     motionHumanBody("m-tall"),
   ];
+
+  // The pass's span, derived from the law: the course at the slowest desired speed the population can draw (the walk's normal Froude speed at the shortest hip, the draw's floor `HumanCrowd.SLOWEST` and fatigue's heaviest factor), plus the driving term's start, one relaxation time, and its arrival, whose speed falls linearly within `ARRIVAL` relaxation times of travel and so closes on the goal exponentially, `tau ARRIVAL ln(near / radius)` to come within the agent's radius.
+  const slowest: number =
+    Math.min(
+      ...pool.map((b: IHumanBody): number =>
+        Math.sqrt(
+          walk.FROUDE.normal * AutoMovieGravity.STANDARD * b.measure.hipHeight,
+        ),
+      ),
+    ) *
+    HumanCrowd.SLOWEST *
+    Math.min(
+      HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.low,
+      HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace.high,
+    );
+  const tau: number = steerAutoMovieCrowd.RELAXATION;
+  const near: number = slowest * tau * steerAutoMovieCrowd.ARRIVAL;
+  const spanOf = (e: HumanEnsemble.IEnsemble): number =>
+    (COURSE - near) / slowest +
+    tau +
+    tau *
+      steerAutoMovieCrowd.ARRIVAL *
+      Math.log(near / Math.min(...e.members.map(HumanCrowd.half)));
   const scene = (dx: number, dz: number): IScene => {
     const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: "street",
@@ -82,19 +113,20 @@ export function test_human_motion_crowd_parting(): void {
       goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({
         x: m.place.at.x,
         y: 0,
-        z: m.place.at.z + (m.index % 2 === 0 ? 30 : -30),
+        z: m.place.at.z + (m.index % 2 === 0 ? COURSE : -COURSE),
       }),
       gait: "walk",
       start: 0,
-      until: 40,
+      until: spanOf(ensemble),
       obstacles: [carriage],
     });
     return { result, ensemble, carriage };
   };
   const { result, ensemble, carriage }: IScene = scene(0, 0);
+  const SPAN: number = spanOf(ensemble);
   const at = (frame: IHumanFormation.ICourse, t: number): IAutoMovieVector3 =>
     HumanFormation.frame({ blocks: [], frame }, t).at;
-  for (let t: number = 0; t <= 40; t += 1 / 24) {
+  for (let t: number = 0; t <= SPAN; t += 1 / 24) {
     const c: IAutoMovieVector3 = carriage.motion!(t).position;
     const points: IAutoMovieVector3[] = result.frames.map(
       (f: IHumanFormation.ICourse): IAutoMovieVector3 => at(f, t),
@@ -133,7 +165,7 @@ export function test_human_motion_crowd_parting(): void {
   });
   const again: IScene = scene(0, 0);
   for (let i: number = 0; i < 40; ++i)
-    for (let t: number = 0; t <= 40; t += 2) {
+    for (let t: number = 0; t <= SPAN; t += 2) {
       const a: IAutoMovieVector3 = at(result.frames[i]!, t);
       const b: IAutoMovieVector3 = at(again.result.frames[i]!, t);
       if (a.x !== b.x || a.z !== b.z) {
@@ -141,9 +173,10 @@ export function test_human_motion_crowd_parting(): void {
         break;
       }
     }
+  // A crowd of 40 is sensitive to its initial conditions: measured on this street, the moved scene's courses part from the original's by 1.8e-15 m at 0 s, 1.2e-6 m at 2 s and 1.5e-2 m at 4 s, into another, equally valid parting. So the moved scene is held to 1e-6 m over its first second, inside that measured envelope, and to the scene's own requirements throughout; the law's bitwise frame invariance is `test_engine_steer_crowd`'s.
   const moved: IScene = scene(4, -2);
   for (let i: number = 0; i < 40; ++i)
-    for (let t: number = 0; t <= 40; t += 2) {
+    for (let t: number = 0; t <= 1; t += 1 / 24) {
       const a: IAutoMovieVector3 = at(result.frames[i]!, t);
       const b: IAutoMovieVector3 = at(moved.result.frames[i]!, t);
       if (Math.hypot(b.x - a.x - 4, b.z - a.z + 2) > 1e-6) {
@@ -153,8 +186,17 @@ export function test_human_motion_crowd_parting(): void {
         break;
       }
     }
+  moved.result.arrivals.forEach((a: number | null, i: number): void => {
+    if (a === null)
+      findings.push(
+        `${ensemble.members[i]!.subject} never arrives in the moved scene`,
+      );
+  });
   TestValidator.equals("a street parting round a carriage", findings, []);
 }
+
+/** Metres each member walks along the street. */
+const COURSE: number = 30;
 
 /** A steered street: the crowd's courses, its ensemble and the carriage. */
 interface IScene {

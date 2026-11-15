@@ -1,11 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
 import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
 
 /**
  * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
  * agent's goal path and the point it heads for, the time to collision of two
- * discs and of a disc with a convex obstacle, a point's distance from an
+ * discs and of a disc with a convex obstacle, the reciprocal half-plane of
+ * velocities that keeps two discs apart, a point's distance from an
  * obstacle, and a moving obstacle's footprint and velocity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and who reads it.
@@ -207,6 +209,173 @@ export namespace steerAutoMovieCrowdGeometry {
     };
   }
 
+  /** The share of the product of two lengths under which their cross product counts as zero in `reciprocal`: several million times a double's rounding, far under any side a walker would choose. */
+  export const TIE: number = 1e-9;
+
+  /**
+   * The half-plane of velocities that keeps an agent clear of another for a
+   * time horizon, taking its half of the avoidance: optimal reciprocal
+   * collision avoidance (van den Berg, Guy, Lin and Manocha 2011, section
+   * 5.1). The velocity obstacle of the other, truncated at the horizon, is
+   * left by the smallest change `u` of the relative velocity, and the agent
+   * takes its share `a` of it, the other `1 - a`: the half-plane passes
+   * through `v + a u` with its outward normal along `u`. The share is the
+   * α-weighted reciprocity of the reciprocal velocity obstacle (van den Berg,
+   * Lin and Manocha 2008, with the uneven split of its generalisations): one
+   * half while both can take their half within their speed caps
+   * (`capacity`), so the paper's even split stands wherever it is
+   * feasible; otherwise an agent at its cap takes what the cap allows and
+   * the other the rest, and against an agent that does not avoid, all it can. A relative velocity within `TIE` of the cone's
+   * axis, relative to the two lengths, takes the right leg, so the choice of
+   * side does not turn on the rounding of where the scene stands. Two discs that already overlap are separated
+   * within one step `step` instead of the horizon. Coordinates are the
+   * floor's `x` and `z` as the plane's two.
+   *
+   * @param px The agent's x, metres.
+   * @param pz The agent's z, metres.
+   * @param vx The agent's velocity x, metres per second.
+   * @param vz The agent's velocity z.
+   * @param qx The other's x.
+   * @param qz The other's z.
+   * @param wx The other's velocity x.
+   * @param wz The other's velocity z.
+   * @param R The two radii summed, metres.
+   * @param horizon The time horizon, seconds.
+   * @param step The integration step, seconds, for an overlap.
+   * @param top The agent's speed cap, metres per second.
+   * @param other The other's speed cap, or 0 when it does not avoid (a standing agent that has not set off).
+   * @returns The half-plane, its direction a unit vector, the admissible side on its left.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the constraint, its source, the overlap case and the coordinates.
+   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap, with the reciprocal half.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three cases, each one projection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident centres, which name no direction, take the relative velocity's own direction, or +x when that is zero, so the half-plane is always defined.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function reciprocal(
+    px: number,
+    pz: number,
+    vx: number,
+    vz: number,
+    qx: number,
+    qz: number,
+    wx: number,
+    wz: number,
+    R: number,
+    horizon: number,
+    step: number,
+    top: number,
+    other: number,
+  ): solveAutoMovieHalfPlaneProgram.ILine {
+    const rx: number = qx - px;
+    const rz: number = qz - pz;
+    const ux: number = vx - wx;
+    const uz: number = vz - wz;
+    const distance2: number = rx * rx + rz * rz;
+    let line: { dx: number; dz: number; cx: number; cz: number };
+    if (distance2 > R * R) {
+      // Not colliding: the cone truncated at the horizon.
+      const inverse: number = 1 / horizon;
+      const sx: number = ux - inverse * rx;
+      const sz: number = uz - inverse * rz;
+      const s2: number = sx * sx + sz * sz;
+      const dot: number = sx * rx + sz * rz;
+      if (dot < 0 && dot * dot > R * R * s2) {
+        // The cut-off disc.
+        const s: number = Math.sqrt(s2);
+        const nx: number = sx / s;
+        const nz: number = sz / s;
+        line = {
+          dx: nz,
+          dz: -nx,
+          cx: (R * inverse - s) * nx,
+          cz: (R * inverse - s) * nz,
+        };
+      } else {
+        // The nearer leg.
+        const leg: number = Math.sqrt(distance2 - R * R);
+        // A relative velocity on the cone's axis names no leg; within the rounding of the inputs the right leg is taken, so a pair met head-on or in file passes the same way however the scene is placed.
+        const cross: number = rx * sz - rz * sx;
+        const left: boolean =
+          Math.abs(cross) > TIE * Math.sqrt(distance2 * s2) && cross > 0;
+        const dx: number = left
+          ? (rx * leg - rz * R) / distance2
+          : -(rx * leg + rz * R) / distance2;
+        const dz: number = left
+          ? (rx * R + rz * leg) / distance2
+          : -(-rx * R + rz * leg) / distance2;
+        const along: number = ux * dx + uz * dz;
+        line = { dx, dz, cx: along * dx - ux, cz: along * dz - uz };
+      }
+    } else {
+      // Colliding: separated within one step.
+      const inverse: number = 1 / step;
+      let sx: number = ux - inverse * rx;
+      let sz: number = uz - inverse * rz;
+      let s: number = Math.hypot(sx, sz);
+      if (s < 1e-12) {
+        sx = 1;
+        sz = 0;
+        s = 1;
+      }
+      const nx: number = sx / s;
+      const nz: number = sz / s;
+      line = {
+        dx: nz,
+        dz: -nx,
+        cx: (R * inverse - s) * nx,
+        cz: (R * inverse - s) * nz,
+      };
+    }
+    // The share: half while both can take their half within their speed caps; otherwise the capped one takes what its cap allows and the other the rest.
+    const own: number = capacity(vx, vz, line.cx, line.cz, top);
+    const theirs: number =
+      other > 0 ? capacity(wx, wz, -line.cx, -line.cz, other) : 0;
+    const share: number = Math.min(own, Math.max(1 - theirs, 0.5));
+    return {
+      point: { x: vx + share * line.cx, y: vz + share * line.cz },
+      direction: { x: line.dx, y: line.dz },
+    };
+  }
+
+  /**
+   * The largest share `a` in [0, 1] of a velocity change `u` an agent can
+   * take within its speed cap, `|v + a u| <= top`: the larger root of the
+   * quadratic when the cap holds at `a = 0`, and nothing when it does not.
+   *
+   * @param vx The velocity's x, metres per second.
+   * @param vz The velocity's z.
+   * @param ux The change's x.
+   * @param uz The change's z.
+   * @param top The speed cap, metres per second.
+   * @returns The share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bound solved and its two ends.
+   * @evidence contracts/development/implementation.md#principled-implementation The closed-form root of `|v + a u|^2 = top^2`, clipped to the unit interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One discriminant and one root.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A change too small to measure is taken whole; a velocity already past its cap can take none.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function capacity(
+    vx: number,
+    vz: number,
+    ux: number,
+    uz: number,
+    top: number,
+  ): number {
+    const a: number = ux * ux + uz * uz;
+    if (a < 1e-24) return 1;
+    const b: number = vx * ux + vz * uz;
+    const c: number = vx * vx + vz * vz - top * top;
+    if (c > 0) return 0;
+    const root: number = (-b + Math.sqrt(Math.max(0, b * b - a * c))) / a;
+    return Math.min(1, Math.max(0, root));
+  }
+
   /**
    * The first contact of two discs moving at constant velocities, or null: `|p - u t| = R` with `p` from the agent to the other and `u` the agent's velocity relative to the other; the normal at contact points toward the agent. Two discs that already overlap are in contact now: time 0, the normal from the other's centre toward the agent's.
    *
@@ -238,7 +407,9 @@ export namespace steerAutoMovieCrowdGeometry {
     const c: number = dx * dx + dz * dz - R * R;
     if (c <= 0) {
       const d: number = Math.hypot(dx, dz);
-      return d < 1e-12 ? null : { time: 0, nx: -dx / d, nz: -dz / d, ux, uz };
+      return d < 1e-12
+        ? null
+        : { time: 0, nx: -dx / d, nz: -dz / d, ux, uz };
     }
     if (a < 1e-12 || b <= 0) return null;
     const disc: number = b * b - a * c;

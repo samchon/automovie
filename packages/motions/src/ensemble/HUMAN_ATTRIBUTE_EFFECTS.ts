@@ -40,6 +40,16 @@ import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
  * - `morale.herding`: the herding share `p` of the same model, the weight of
  *   the neighbours' mean direction; 0 for a steady crowd, and the provisional
  *   0.4 at broken morale, inside the model's own range of 0 to 1.
+ * - `morale.fluctuation`: the factor on a fleeing member's individual
+ *   fluctuation, the spread of its drawn desired speed. Nervousness `n`
+ *   raises the fluctuation strength as it raises the desired speed, both by
+ *   the same mixing, `eta = (1 - n) eta_0 + n eta_max` beside
+ *   `v_0 = (1 - n) v_0(0) + n v_max` (Helbing and Johansson, Pedestrian,
+ *   Crowd and Evacuation Dynamics, Encyclopedia of Complexity and Systems
+ *   Science 2009, arXiv 1309.1609; Helbing, Farkas and Vicsek 2000, Phys Rev
+ *   Lett 84:1240, on panicking pedestrians' large fluctuations), with low
+ *   morale as high nervousness. The review leaves `eta_max / eta_0` to
+ *   calibration; 2 at broken morale is provisional.
  */
 export const HUMAN_ATTRIBUTE_EFFECTS: IHumanAttributeEffects = {
   discipline: {
@@ -55,5 +65,6 @@ export const HUMAN_ATTRIBUTE_EFFECTS: IHumanAttributeEffects = {
     latency: { low: 1.3, high: 1 },
     speed: { low: 1.5, high: 1 },
     herding: { low: 0.4, high: 0 },
+    fluctuation: { low: 2, high: 1 },
   },
 };
