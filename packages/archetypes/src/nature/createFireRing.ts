@@ -145,7 +145,8 @@ export namespace createFireRing {
       diameter: ArchetypeBand.metres(
         30 * ArchetypeUnits.INCH,
         30 * ArchetypeUnits.INCH,
-        RING,
+        `${RING}: taking it as the outside is a choice, not a reading, and the rim reads it; the inside reading differs by twice the plate, about 9.5 mm`,
+        true,
       ),
       height: ArchetypeBand.metres(
         8 * ArchetypeUnits.INCH,
