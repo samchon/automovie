@@ -1,6 +1,6 @@
 # Lofting
 
-Lofting builds a surface through one family of related sections and guides, authored from dimensions or fitted to a source. Choose it as a [representation](SKILL.md#representation) by the form, and organize its ownership by [Modularization](../modularization.md). For a fixed mesh or ordered line source, follow [Recovery](recovery.md) before fitting the section family.
+Lofting builds a surface through one family of related sections and guides, authored from dimensions or fitted to a source. Choose it as a [representation](SKILL.md#representation) by the form, and organize its ownership by [Modularization](../modularization.md). For a fixed mesh or ordered line source, follow [mesh recovery](recovery.md) before fitting the section family.
 
 ## One section family
 

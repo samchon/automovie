@@ -11,7 +11,7 @@ A take that is right except for a local flaw, such as a hand, a face, a stray ob
 - edit by instruction, saying what changes and that everything else stays;
 - re-sync a face to the accepted dialogue audio with a dubbing model.
 
-A dubbing model regenerates the head and body around the mouth, follows the take's camera only approximately and often returns a lower resolution, so recheck identity and contacts after it. Examples: [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk), and [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) for several speakers, each bound to its own audio track.
+A dubbing model regenerates the head and body around the mouth, follows the take's camera only approximately and often returns a lower resolution, so recheck identity and contacts after it; [video models](diffusion/models.md#other-roles) shows examples.
 
 Compare the frames outside the repair with the original at matched times, and check the boundary frames one by one, because the kept frames are re-encoded too.
 

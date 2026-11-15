@@ -25,7 +25,7 @@ Give each subject the number and form of references the video model's guide sets
 
 Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity, and record the answer in [project context](../production/project-context.md).
 
-Give each prop a plain-background view, and each place one canon plate without people for each light state its scenes use, such as day and night. For each camera angle a scene uses, render the set's coarse form from that shot's camera and restyle it against the canon plate, as [shot frames](#shot-frames) are made, so every angle keeps one layout.
+Give each prop a plain-background view, and each place one canon plate without people for each light state its scenes use, such as day and night.
 
 Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both. Name each garment and its color every time, because references carry a face more surely than clothes.
 
@@ -42,6 +42,8 @@ Render the first frame of the request's hint at the video model's exact output s
 Generate the shot frame from that render and the canon references, prompted as canon references are: give the render to a hosted model as an input labeled "pose and camera reference only", and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the render and regenerate when silhouettes, horizon or facing move. Upscale a frame only in a mode that keeps detail rather than inventing it, and overlay it again.
 
 Make a last frame or a keyframe the same way, from the hint's frame there, where the model takes one and the shot needs it: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
+
+Make a place's view at each camera angle a scene uses the same way: render the set's coarse form from that shot's camera and restyle it against the canon plate, so every angle keeps one layout.
 
 ## Turnaround views
 

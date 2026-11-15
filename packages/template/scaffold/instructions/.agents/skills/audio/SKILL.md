@@ -11,7 +11,7 @@ Audio work has four cases: a generated film's sound, its finishing across takes,
 
 A generated film's voices, effects and ambience come from the video model, which generates them in sync with the picture. The production's audio work is to decide what each shot sounds like, from the screenplay's speech and sound decisions, and write it into each request's prompt in the selected model's syntax under [video](../video/SKILL.md).
 
-The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length, one speaker at a time.
+The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length, with no two speakers overlapping.
 
 A character's generated voice can change between requests even with the same description and seed. Describe each voice once in the [shared description](../video/diffusion/prompts.md#shared-description), and where the model binds reference audio to a character, give it the voice the user accepted, such as a [voice preview](#voice-preview). Ask the user to listen across takes for a voice that drifts. Re-voice a drifted line with speech-to-speech in the accepted voice rather than regenerate the take, after separating the speech as [film sound](film-sound.md) sets.
 

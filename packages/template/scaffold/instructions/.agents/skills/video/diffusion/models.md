@@ -17,3 +17,7 @@ Video models differ most in how they take the motion hint, how they set adherenc
 Hosted models take the hint as RGB video at most; open models with control adapters also take depth, edge or pose videos.
 
 Read each model's terms before adopting it: territory limits, rejected reference content such as real human faces or minors, revenue thresholds and labeling duties for open weights, and price per second.
+
+## Other roles
+
+A few models serve one role beside the hint: [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2) generates from dialogue audio with a pose video, and dubbing models such as [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk), or [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) for several speakers each bound to its own audio track, re-sync a face to accepted speech.

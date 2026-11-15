@@ -40,7 +40,7 @@ Keep a loft's sections, guides and parameter directions related through one gene
 
 Tessellation is the last step, made for renderers and exporters, and nothing is read back from it; a quantity found by reading, searching, clipping, ray casting or relaxing the emitted triangles moves with the detail setting, so it drifts between preview and final render and answers to no input.
 
-A directly used or generated mesh, an imported mesh's weights under [Rigging](../rigging.md), and a fixed source observed for [Recovery](recovery.md) have no generating definition, so their own triangles are what is measured.
+A directly used or generated mesh, an imported mesh's weights under [Rigging](../rigging.md), and a fixed source observed for [mesh recovery](recovery.md) have no generating definition, so their own triangles are what is measured.
 
 ## Dimensions
 

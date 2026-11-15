@@ -34,7 +34,7 @@ Leave out what the request keeps from the hint, such as positions, actions, timi
 
 ## Sound
 
-Write the request's sound, decided under [audio](../../audio/SKILL.md), in the dialogue form the selected model's current guide gives, because forms differ and quotation marks render a line as on-screen text in one model. Attribute each line to its speaker as the visual description names them, and keep effects, ambience and music apart from speech. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../../audio/SKILL.md), in the dialogue form the selected model's current guide gives, because forms differ and quotation marks render a line as on-screen text in one model. Attribute each line to its speaker as the visual description names them, and keep effects and ambience apart from speech. Leave the scene's score out of the prompt, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays in the prompt as the screenplay decides it. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Wording
 

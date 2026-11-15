@@ -9,7 +9,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | Location | Owns | Realizes, under |
 | --- | --- | --- |
 | `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, appearance, rig, wardrobe, habits or affordances | Its settings or brief record's facts and the research its measurements follow, [entities](../contracts/development/entities.md) |
-| `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws [extend](../motion/laws/SKILL.md) registers with the motion vocabulary, the laws of what is not a person, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
+| `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws a production registers with the motion vocabulary under [vocabulary extension](../motion/laws/SKILL.md), the laws of what is not a person, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene file's composition | That scene file, its sections and beats, [composition](../contracts/development/composition.md) |
@@ -54,7 +54,7 @@ Node-only tooling the installed command-line tool does not run, such as the phys
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
 
-A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [extend](../motion/laws/SKILL.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay scene file, then its composition folder and its place in the film.
+A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [vocabulary extension](../motion/laws/SKILL.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay scene file, then its composition folder and its place in the film.
 
 ## Shared modules
 

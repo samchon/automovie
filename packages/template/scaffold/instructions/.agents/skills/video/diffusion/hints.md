@@ -10,7 +10,7 @@ A video model takes the motion hint in one of a few ways, and the chosen model d
 | Control passes through adapters | Each pass at its own strength, optionally masked over frames and regions | Contacts and positions must hold exactly | A dense pass keeps the coarse shape, as [dense passes](../../motion/control-channels.md#dense-passes) sets; some adapters take one pass per run, so combine passes only where the model's documentation allows |
 | Still frames | Only the pose and camera of the frames given | The model takes no video | The motion between frames is the model's, so [still frames](prompts.md#still-frames) sets how to prompt it |
 | Motion transfer onto a character image | One figure's body motion | A single performer | Only one figure transfers, and [video models](models.md) shows what else a model drops |
-| Dialogue audio with a pose video | Lip sync and gesture from the accepted speech, and the pose where the model takes one | Speech carries the shot, at the speech-and-reaction level | Few models take both; [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2) does |
+| Dialogue audio with a pose video | Lip sync and gesture from the accepted speech, and the pose where the model takes one | Speech carries the shot, at the speech-and-reaction level | Few models take both; [video models](models.md#other-roles) shows one |
 
 Keep the hint bare, because surface detail in it competes with the references: plain forms, no textures, no lettering, and no [inspection overlays](../../motion/control-channels.md#render-what-the-receiver-takes).
 

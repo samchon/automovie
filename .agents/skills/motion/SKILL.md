@@ -9,19 +9,7 @@ This repository develops the motion vocabulary: the actions productions install 
 
 The goal is that composition expresses every act a human body performs. The shipped actions are a floor, and no kind of human motion is out of scope.
 
-Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, a function that, given a body and its inputs, produces the same motion every time. Each rule file covers one part of designing or checking a law:
-
-| Rule | Covers |
-| --- | --- |
-| [Effector goals](laws/authoring.md) | Interaction as end-effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
-| [Law design](laws/declaration.md) | What every action declares: its plan, entry state, events, outcome and time scale |
-| [Variation](laws/variation.md) | Parameters, skill and seed, and draws that replay |
-| [Transitions](laws/transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |
-| [Contacts](laws/contacts.md) | Support frames, feet, held objects and contact between performers |
-| [Layers](laws/layers.md) | Gaze, breathing and other motion that runs over every action |
-| [Verification](laws/verification.md) | Bounded checks, body sweeps and frame review |
-
-Those files hold only what is true of motion in any project and name roles rather than this repository's packages and paths, because the shared ones ship to productions unchanged. This file holds what applies only here.
+Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, and [laws](laws/SKILL.md) holds the rules for designing and checking one that are true of motion in any project. This file holds what applies only here.
 
 ## Choosing the form {#choosing-the-form}
 

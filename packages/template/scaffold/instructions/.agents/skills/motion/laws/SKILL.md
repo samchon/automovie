@@ -1,6 +1,6 @@
 ---
 name: motion-laws
-description: Extends the installed motion vocabulary when composing cannot stage a beat, by a lexicon row, a row of the production's own or a registered law, and holds the shared rules for designing and verifying a law. Use when a beat needs an action or a moving body the installed packages lack.
+description: Extends the installed motion vocabulary when composing cannot stage a beat, by a registered row or law, and holds the shared rules for designing and verifying a law. Use when a beat needs an action or a moving body the installed packages lack.
 ---
 
 # Vocabulary extension
@@ -13,7 +13,7 @@ Read the nearest action's parameters and the [operators](../compose/SKILL.md#joi
 
 ## Register a row
 
-A row is one named entry of an action's table, such as a kind of gesture, touch or task. When what is missing is a new entry of a table the vocabulary has, register the vocabulary's own lexicon row where it ships one, and otherwise a row of your own, as its README shows. The action that owns the table then performs the row, with every axis the row leaves open and every operator.
+A row is one named entry of an action's table, such as a kind of gesture, touch or task. When what is missing is a new entry of a table the vocabulary has, register the row with the vocabulary as its README shows. The action that owns the table then performs the row, with every axis the row leaves open and every operator.
 
 ## Register a law
 
