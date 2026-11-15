@@ -33,12 +33,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    of its starting height, and the ankles' middle at least 0.3 m further
  *    along the heading than it started (a provisional reading of "it
  *    travels").
+ * 5. From `down` to `rising`, at every thirtieth of a second, at least
+ *    three of the four limbs bear (a plant window open): one limb moves at
+ *    a time.
+ * 6. Every limb steps, and each step `<limb>Liftoff<n>` comes before its
+ *    `<limb>Touchdown<n>`; a hand touches down by `plank1`, a foot after it
+ *    and by `folded1`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the inchworm through the public chain and reads the displayed joints and soles at its events; a bent plank, hands ahead of or behind the shoulders, feet afloat, hips under the shoulders in the fold, or a body that does not travel or stand up again fails.
  * @evidence contracts/development/testing.md#independent-expectations Each check is a cue of the exercise read on the body's own joints, or the campaign's contact bound; the 40 mm, the tenth of the arm and the 0.3 m are provisional readings stated as such.
- * @evidence contracts/development/testing.md#distinguishing-cases The plank, the fold and standing again, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two performances in memory, reading four instants of each.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases The plank, the fold, standing again, the limbs that bear between them and the order of every step, on two bodies of opposite build.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two performances in memory, reading four instants of each, the plan's windows at every thirtieth of a second and its events.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 6 scenarios with their bounds.
  */
 export function test_human_motion_travel_inchworm(): void {
   const complaints: string[] = [];
@@ -162,6 +168,48 @@ export function test_human_motion_travel_inchworm(): void {
       complaints.push(
         `${name} end: the ankles came ${travelled.toFixed(3)} m along the heading, at least 0.3 m expected`,
       );
+
+    // 5. One limb moves at a time: three bear from the fold to the rise.
+    const limbs = ["leftHand", "rightHand", "leftFoot", "rightFoot"] as const;
+    const down: number = event("down");
+    const rising: number = event("rising");
+    for (let t: number = down; t <= rising; t += 1 / 30) {
+      const share: number = (t - worm!.start) / worm!.plan.duration;
+      const bearing: number = limbs.filter((limb): boolean =>
+        worm!.plan.contacts.some(
+          (w): boolean =>
+            w.part === limb && w.from <= share + 1e-9 && w.to >= share - 1e-9,
+        ),
+      ).length;
+      if (bearing < 3) {
+        complaints.push(
+          `${name}: ${bearing} limbs bear at ${t.toFixed(3)} s, at least 3 expected between down and rising`,
+        );
+        break;
+      }
+    }
+
+    // 6. Each step lifts before it touches down, the hands' steps before
+    // the plank and the feet's after it, before the fold.
+    for (const limb of limbs) {
+      const hand: boolean = limb.endsWith("Hand");
+      for (let n: number = 1; ; n++) {
+        const off: number = event(`${limb}Liftoff${n}`);
+        const on: number = event(`${limb}Touchdown${n}`);
+        if (Number.isNaN(off) && Number.isNaN(on)) {
+          if (n === 1)
+            complaints.push(`${name}: the ${limb} never steps`);
+          break;
+        }
+        if (
+          !(off < on) ||
+          (hand ? !(on <= plank + 1e-9) : !(on > plank && on <= folded + 1e-9))
+        )
+          complaints.push(
+            `${name}: the ${limb}'s step ${n} lifts at ${off.toFixed(3)} s and touches down at ${on.toFixed(3)} s, after its lift and ${hand ? "by the plank" : "between the plank and the fold"} (${plank.toFixed(3)}, ${folded.toFixed(3)} s) expected`,
+          );
+      }
+    }
   }
   TestValidator.equals(
     "an inchworm walks out to a plank and in again",
