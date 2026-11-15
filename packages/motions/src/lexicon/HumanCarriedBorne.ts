@@ -45,10 +45,10 @@ export namespace HumanCarriedBorne {
    * @throws {HumanRefusal} As `HumanCarried.borne` states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and where the law is documented.
-   * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting; each second the key posture is registered on every bearer's displayed regions (`HumanCarriedCouplingPose.posture`); without a solid meeting the resting region is placed on the carrier's.
+   * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting; each second the key posture rides the first bearer's displayed anchor bone at the key offset (`HumanCarriedCouplingPose.posture`); without a solid meeting the resting region is placed on the carrier's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A second helper on a carry with no other side is refused; the posture is rigid in the carry and its angles provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution, one read of each bearer's bones and one four-by-four eigen solve per posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key resolution, one read of each bearer's bones and one frame composition per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
@@ -149,11 +149,19 @@ export namespace HumanCarriedBorne {
                   from: 0,
                   to: 1,
                   load: contact.load,
-                  support: {
-                    kind: "person",
-                    subject: by,
-                    region: contact.on.region,
-                  },
+                  // Each contact bears on its own bearer, or on the floor.
+                  support:
+                    contact.on.role === HumanCarriedCoupling.GROUND
+                      ? { kind: "ground" }
+                      : {
+                          kind: "person",
+                          subject:
+                            contact.on.role === HumanCarriedCoupling.SECOND &&
+                            second !== undefined
+                              ? second
+                              : by,
+                          region: contact.on.region,
+                        },
                 }),
               ),
       posture: (at: number): IHumanPosture => {

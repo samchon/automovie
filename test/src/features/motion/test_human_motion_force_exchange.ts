@@ -48,8 +48,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    forward and to its left, the pull sized to break the base one
  *    pendulum time constant `1 / ω` after it starts: b's displayed centre
  *    moves along the pull at every twentieth of that span, and its
- *    displayed extrapolated centre leaves the feet's base within one
- *    integrator step of the declared instant; the plan's `kuzushi` event
+ *    displayed extrapolated centre reaches the feet's base's edge (its
+ *    margin no more than its own travel over one sampling interval) within
+ *    one integrator step of the declared instant; the plan's `kuzushi` event
  *    lies there too.
  * 2. Resist, the same bodies and directions, a pull of half the force the
  *    base's extent behind can resist: b's displayed centre stays inside its
@@ -213,25 +214,39 @@ export function test_human_motion_force_exchange(): void {
         );
         previous = now;
       }
+      // The instant the extrapolated centre reaches the base's edge: the
+      // first sample whose margin is no more than the extrapolated centre
+      // travels in one sampling interval, the resolution of the reading.
+      const xcom = (t: number): IAutoMovieVector3 => {
+        const c: IAutoMovieVector3 = HumanSignature.centre(reader, t);
+        const v: IAutoMovieVector3 = Vector3.scale(
+          Vector3.subtract(c, HumanSignature.centre(reader, t - STEP / 4)),
+          4 / STEP,
+        );
+        return resolveAutoMovieCenterOfMass.extrapolate(c, v, length);
+      };
       let crossed: number | null = null;
       for (
         let t: number = START + STEP;
         t <= START + declared + 2 * STEP && crossed === null;
         t += STEP / 4
       ) {
-        const c: IAutoMovieVector3 = HumanSignature.centre(reader, t);
-        const v: IAutoMovieVector3 = Vector3.scale(
-          Vector3.subtract(c, HumanSignature.centre(reader, t - STEP / 4)),
-          4 / STEP,
+        const xi: IAutoMovieVector3 = xcom(t);
+        const travel: number = Vector3.length(
+          Vector3.subtract(xi, xcom(t - STEP / 4)),
         );
         const margin: number = resolveAutoMovieCenterOfMass.margin(
-          resolveAutoMovieCenterOfMass.extrapolate(c, v, length),
+          xi,
           HumanFoot.base(body, HumanSignature.bones(reader, t)),
         );
-        if (margin < 0) crossed = t;
+        if (margin <= travel) crossed = t;
       }
+      // Where the displayed base's edge lies then, against the standing one.
+      const shown = (t: number): number =>
+        HumanForceExchange.edge(still.centre, direction, HumanFoot.base(body, HumanSignature.bones(reader, t)));
+      const moved: string = crossed === null ? "" : `; the base's edge then lies ${(shown(crossed) * 1000).toFixed(1)} mm along the pull, ${(edge * 1000).toFixed(1)} mm standing`;
       all.check(
-        `${cell}: the extrapolated centre leaves the base at ${crossed === null ? "no instant" : `${crossed.toFixed(4)} s`}, within ${STEP.toFixed(4)} s of ${(START + declared).toFixed(4)} s expected`,
+        `${cell}: the extrapolated centre reaches the base's edge at ${crossed === null ? "no instant" : `${crossed.toFixed(4)} s`}, within ${STEP.toFixed(4)} s of ${(START + declared).toFixed(4)} s expected${moved}`,
         crossed !== null && Math.abs(crossed - (START + declared)) <= STEP,
       );
       const plan = film.segments("b")[film.segments("b").length - 1]!.plan;

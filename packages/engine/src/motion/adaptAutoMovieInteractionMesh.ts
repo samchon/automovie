@@ -19,18 +19,18 @@ import { tetrahedralizeAutoMovieDelaunay } from "../math/tetrahedralizeAutoMovie
  *   mesh is deterministic in that order. Its edges are the points'
  *   neighbourhoods.
  * - **Laplacian coordinates.** Each point's offset from the mean of its
- *   neighbours, `灌_i = p_i - (1 / |N_i|) 誇 p_j`, the uniform-weight
- *   Laplacian of the mesh (Sorkine 2006, "Differential representations for
- *   mesh processing", Computer Graphics Forum 25(4)).
- * - **Solve.** `min 誇 |L(p)_i - 灌_i|짼` subject to each bone's length and
- *   each contact's pairing, the constraints as penalty rows of weight
- *   `琯^(-1/4)`, which balances the penalty's residual `1 / w짼` against the
- *   round-off `w짼 琯` the normal equations amplify. Each Gauss-Newton step
- *   linearizes a bone `|p_i - p_j| = l` as `u 쨌 (p_i - p_j) = l` along the
+ *   neighbours, `d_i = p_i - (1 / |N_i|) sum_(j in N_i) p_j`, the
+ *   uniform-weight Laplacian of the mesh (Sorkine 2006, "Differential
+ *   representations for mesh processing", Computer Graphics Forum 25(4)).
+ * - **Solve.** `min sum_i |L(p)_i - d_i|^2` subject to each bone's length
+ *   and each contact's pairing, the constraints as penalty rows of weight
+ *   `eps^(-1/4)`, which balances the penalty's residual `1 / w^2` against the
+ *   round-off `w^2 eps` the normal equations amplify. Each Gauss-Newton step
+ *   linearizes a bone `|p_i - p_j| = l` as `u . (p_i - p_j) = l` along the
  *   bone's current direction `u` and solves the linear least squares by
  *   conjugate gradients on the normal equations, at most `3 n` iterations
  *   for `n` points, the system's dimension; the steps repeat until one moves
- *   no point by more than the points' extent times `sqrt(ε)`, the accuracy
+ *   no point by more than the points' extent times `sqrt(eps)`, the accuracy
  *   a least-squares solve in double precision keeps, at most `3 n` times.
  *
  * The paper's own weights (distance-based importance of the mesh's

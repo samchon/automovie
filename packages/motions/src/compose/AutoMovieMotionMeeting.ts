@@ -1,17 +1,15 @@
 import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import type { IAutoMovieMotionCoupling } from "./IAutoMovieMotionCoupling";
 
 /**
  * The meeting of an action two or more performers do together: one frame
@@ -28,7 +26,7 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a meeting holds, when it is computed, why the order of asking does not matter and what a missing role means.
  * @evidence contracts/development/design.md#principled-representation A mutual action has one geometry and one timing that both performers obey, the scene with named roles of contextual animation and the shared synchronisation points of BML; the record is that scene, so neither law derives the other's side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Seven records and three functions; the coupling records (#3437) are present only for a kind in which one role bears another. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Five records, the coupling's two names (IAutoMovieMotionCoupling, #3437) and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
  */
 export namespace AutoMovieMotionMeeting {
@@ -37,8 +35,8 @@ export namespace AutoMovieMotionMeeting {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the record is and at which moment; each member gives its meaning.
    * @evidence contracts/development/design.md#principled-representation What a kind needs to place contacts and time a role: who it is, its body, where it stands and where its bones are at the start.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five required members; the posture and the bones are picks of their owners' types, only the members a meeting reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member; an absent performer is an absent role, not a role with empty fields.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five required members and whether a seat bears the role; the posture and the bones are picks of their owners' types, only the members a meeting reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The one optional member is the seat, absent for the standing body most meetings hold; an absent performer is an absent role, not a role with empty fields.
    */
   export interface IRole {
     /** The role's name within the kind (`giver`, `attacker`). */
@@ -58,6 +56,9 @@ export namespace AutoMovieMotionMeeting {
       AutoMovieHumanoidBone,
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >;
+
+    /** Whether a seat bears the performer then, so a reach may lean the trunk over the seat; standing when absent. */
+    seated?: boolean;
   }
 
   /**
@@ -155,80 +156,11 @@ export namespace AutoMovieMotionMeeting {
     couple?(roles: readonly IRole[], instants: ITiming): ICoupling;
   }
 
-  /**
-   * How one role of a meeting bears another (#3437): the borne role's
-   * contacts on the bearer's regions, each with the share of the borne
-   * weight it carries, and the borne mass with its centre, which the
-   * bearer's balance takes in.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation A coupled contact is a part of one body on a region of the other with a load share, the support model of #3425 between two people; the carried mass and its centre are what the bearer's moment balance (#3431) reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two role names, the contacts, the borne mass and centre, and the borne body's key frame on the bearer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The frames are the bearer's hips frame, so the record is plain data that survives a move of the pair and keeps no body.
-   */
-  export interface ICoupling {
-    /** The bearing role's name. */
-    bearer: string;
+  /** How one role of a meeting bears another (`IAutoMovieMotionCoupling`, #3437). */
+  export type ICoupling = IAutoMovieMotionCoupling;
 
-    /** The borne role's name. */
-    borne: string;
-
-    /** The borne role's contacts on the bearer. */
-    contacts: readonly ICoupledContact[];
-
-    /** The borne mass the bearer carries, kilograms. */
-    mass: number;
-
-    /** The borne centre of mass in the bearer's hips frame, metres. */
-    centre: IAutoMovieVector3;
-
-    /**
-     * Each further bearer's hips frame in the first bearer's hips frame at
-     * the key pose, by role: a borne body walked between two helpers. None
-     * when one body bears alone.
-     */
-    bearers?: Readonly<
-      Record<
-        string,
-        { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
-      >
-    >;
-
-    /** The borne body's root frame in the bearer's hips frame at the coupling's key pose. */
-    key: {
-      /** Metres. */
-      position: IAutoMovieVector3;
-
-      /** Unit quaternion. */
-      rotation: IAutoMovieQuaternion;
-    };
-  }
-
-  /**
-   * One contact of a borne body on its bearer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member gives its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A part and its region on one body, the other body's role and region it lies on, how it bears and its load share: a contact window between two people.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, the ones a borne law turns into its windows and a bearer into its holds.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The part and the kind are the contact window's own unions.
-   */
-  export interface ICoupledContact {
-    /** The borne body's part. */
-    part: IHumanContactWindow["part"];
-
-    /** The borne body's region that touches. */
-    region: AutoMovieHumanoidRegion;
-
-    /** The bearer's role and region it lies on. */
-    on: { role: string; region: AutoMovieHumanoidRegion };
-
-    /** How it bears: on the bearer (`bear`), or a hold of the borne hand (`grip`). */
-    kind: "bear" | "grip";
-
-    /** The share of the borne weight it carries, in [0, 1]; a grip carries none. */
-    load: number;
-  }
-
+  /** One contact of a borne body on its bearer (`IAutoMovieMotionCoupling.IContact`). */
+  export type ICoupledContact = IAutoMovieMotionCoupling.IContact;
   /**
    * The film seconds a meeting holds over, as the composition states them:
    * the contact is made no earlier than `from` and left at `to`, and the

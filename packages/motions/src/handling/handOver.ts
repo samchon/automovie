@@ -7,17 +7,25 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
+import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
+import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanPrehension } from "./HumanPrehension";
+import { handshake } from "./handshake";
 
 /**
  * Handing a held prop to a receiver: the giver's half of a handover.
@@ -32,7 +40,10 @@ import { HumanPrehension } from "./HumanPrehension";
  * transport's progress and back on the way home; on the way out the prop is
  * turned about the vertical where the arm keeps it upright so, back to the
  * offer's own turn at the handover point (`HumanHandover.upright`); and the
- * rest of the body holds the posture it was entered in. The
+ * rest of the body holds the posture it was entered in, a seated giver
+ * whose arm alone falls short of the offer leaning its trunk forward over
+ * the seat with the arm's course (`HumanSeatedReach`, the place read from
+ * the partners' one meeting, `HumanHandoverMeeting`). The
  * prop rides the giver's hand until the receiver's grip closes, then the
  * receiver's (the latest grip carries a prop), so it never jumps.
  *
@@ -102,6 +113,24 @@ export namespace handOver {
     const receiver: IHumanActionContext.IPerformer = context.performer(
       context.params.to,
     );
+    const receiverSide: HumanHand.Side = context.params.receiverHand ?? "right";
+    const prop: IHumanProp = context.prop(context.params.prop).prop;
+    const frame: IHumanProp.IFrame = context
+      .prop(context.params.prop)
+      .frame(context.start);
+    // The place both partners read from one meeting record.
+    const met: AutoMovieMotionMeeting.IMeeting = context.meeting(
+      HumanHandoverMeeting.kind({
+        giver: side,
+        receiver: receiverSide,
+        prop,
+        frame,
+        handle: context.params.handle,
+        exchange: HumanHandover.EXCHANGE,
+      }),
+      HumanHandoverMeeting.GIVER,
+      { role: HumanHandoverMeeting.RECEIVER, subject: context.params.to },
+    );
     const shared: HumanHandover.IPlan = HumanHandover.plan({
       giver: {
         body,
@@ -110,11 +139,11 @@ export namespace handOver {
       },
       receiver: {
         body: receiver.body,
-        side: context.params.receiverHand ?? "right",
+        side: receiverSide,
         bones: receiver.bones(context.start),
       },
-      prop: context.prop(context.params.prop).prop,
-      frame: context.prop(context.params.prop).frame(context.start),
+      prop,
+      frame,
       handle: context.params.handle,
       ...(context.params.mass === undefined
         ? {}
@@ -122,7 +151,37 @@ export namespace handOver {
       ...(context.params.outcome === undefined
         ? {}
         : { outcome: context.params.outcome }),
+      meet: HumanFrame.point(met.frame, met.contacts.meet!),
     });
+
+    // Seated, the trunk leans forward over the seat as far as the offer
+    // needs, the hand's target first (`HumanSeatedReach.need`), with the
+    // arm's own course in and out; standing, it leans none.
+    const entered: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+    );
+    const shoulder: IAutoMovieVector3 = entered.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
+    const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
+      HumanSeatedReach.need(
+      {
+        name: HumanHandoverMeeting.GIVER,
+        subject: context.subject,
+        body,
+        posture: held,
+        bones: entered,
+        seated: context.entry.supports.some(
+          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+        ),
+      },
+      shoulder,
+      shared.giverAt.point,
+      handshake.arm(body, side, shoulder).limit,
+    );
+    const leaned = (share: number): IHumanPosture =>
+      HumanSeatedReach.posed(body, held, lean.joints, lean.share * share);
 
     // The giver's path: out to the offer, a hold, then home or back.
     const out: HumanPrehension.ITransport = HumanPrehension.transport(
@@ -173,7 +232,7 @@ export namespace handOver {
     );
     const offered: IHumanPosture.IReference = resolveHumanPosture.reference(
       resolveHumanPosture(body, {
-        ...held,
+        ...leaned(1),
         limbs: {
           ...held.limbs,
           [limb]: {
@@ -244,11 +303,12 @@ export namespace handOver {
             r / back,
           );
       }
+      const base: IHumanPosture = leaned(share);
       return {
-        ...held,
-        joints: { ...held.joints, ...digits },
+        ...base,
+        joints: { ...base.joints, ...digits },
         limbs: {
-          ...held.limbs,
+          ...base.limbs,
           [limb]: {
             point: wrist,
             rotation,

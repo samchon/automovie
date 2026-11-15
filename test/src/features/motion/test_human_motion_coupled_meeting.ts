@@ -40,9 +40,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * load on the back leans the trunk forward, more for more load.
  *
  * Scenarios, the bearer standing 0.3 s then walking 2 m (or standing) under
- * `bearing` with the borne person named and the lean of the coupled load
- * scheduled over the carry (`HumanCarriedLean.layer` with
- * `HumanCarriedCouplingLoad.load`), the borne person under `borne`,
+ * `bearing` with the borne person named and the pair's tip scheduled over
+ * the carry (`HumanCarriedLean.coupled` with `HumanCarriedCouplingLoad.lean`),
+ * the borne person under `borne`,
  * read at 20 Hz from 0.8 s to 2.2 s:
  * 1. For the piggyback, the cradle and the fireman's carry (`overShoulder`),
  *    each by the pairs (m-large bears f-small) and (m-average bears
@@ -65,7 +65,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    the same coupling, bit for bit.
  * 7. Invariance: the same pair gives the same borne posture bit for bit in
  *    two performances.
- * 8. A borne mass one kilogram above the capacity is refused as a
+ * 8. The average man cradling the small woman, whose own mass lies within
+ *    the cradle's capacity: an extra mass one kilogram above it is refused as a
  *    `participant` refusal on `mass` whose feasible maximum is the capacity,
  *    and one kilogram below it is accepted.
  * 9. With a lift and a set-down of 0.5 s each, at every sampled share at
@@ -90,7 +91,6 @@ export function test_human_motion_coupled_meeting(): void {
     carry: HumanCarried.Carry,
     walking: boolean,
     extra: { mass?: number; lift?: number; setDown?: number } = {},
-    lean: boolean = false,
   ): {
     film: HumanPerformance;
     bodies: Record<"a" | "b", IHumanBody>;
@@ -103,15 +103,16 @@ export function test_human_motion_coupled_meeting(): void {
     const moved: HumanChain = walking
       ? own.walk({ to: { x: 0, y: 0, z: 2 } })
       : own.stand({ seconds: 2 });
-    const coupling: AutoMovieMotionMeeting.ICoupling | null = lean
-      ? HumanCarriedCoupling.couple(
-          bodies.a,
-          bodies.b,
-          HumanCarried.CARRIES[carry],
-          carry,
-          extra.mass ?? 0,
-        )
-      : null;
+    // The hold rides the bearer's own action, which keeps its trunk, so the
+    // pair's tip is scheduled as a layer over it.
+    const coupling: AutoMovieMotionMeeting.ICoupling =
+      HumanCarriedCoupling.couple(
+        bodies.a,
+        bodies.b,
+        HumanCarried.CARRIES[carry],
+        carry,
+        extra.mass ?? 0,
+      );
     return {
       bodies,
       film: new HumanPerformance({
@@ -138,22 +139,17 @@ export function test_human_motion_coupled_meeting(): void {
               .stand({ seconds: 0.3 })
               .registered("borne", { by: "a", carry, seconds: 2, ...extra }),
           ).node,
-        ...(coupling === null
-          ? {}
-          : {
-              layers: {
-                a: [
-                  {
-                    layer: HumanCarriedLean.layer(
-                      carry,
-                      HumanCarriedCouplingLoad.load(bodies.a, coupling),
-                    ),
-                    from: 0.3,
-                    fade: HumanCarried.TAKE,
-                  },
-                ],
-              },
-            }),
+        layers: {
+          a: [
+            {
+              layer: HumanCarriedLean.coupled(
+                HumanCarriedCouplingLoad.lean(bodies.a, coupling),
+              ),
+              from: 0.3,
+              fade: HumanCarried.TAKE,
+            },
+          ],
+        },
       }),
     };
   };
@@ -200,7 +196,7 @@ export function test_human_motion_coupled_meeting(): void {
         );
 
       // 1, 3 and 4. Walking: contacts, slip and the extrapolated centre.
-      const walked = stage(names, carry, true, {}, true);
+      const walked = stage(names, carry, true);
       const borne: HumanSignature.IReader = HumanSignature.of(
         walked.film,
         "b",
@@ -297,7 +293,7 @@ export function test_human_motion_coupled_meeting(): void {
       }
 
       // 2. Standing: the combined centre over the feet.
-      const stood = stage(names, carry, false, {}, true);
+      const stood = stage(names, carry, false);
       const still: Record<"a" | "b", HumanSignature.IReader> = {
         a: HumanSignature.of(stood.film, "a", stood.bodies.a, 0),
         b: HumanSignature.of(stood.film, "b", stood.bodies.b, 0),
@@ -324,8 +320,8 @@ export function test_human_motion_coupled_meeting(): void {
     );
     return (Math.atan2(up.z, up.y) * 180) / Math.PI;
   };
-  const light = stage(["m-average", "f-small"], "piggyback", true, {}, true);
-  const heavy = stage(["m-average", "m-large"], "piggyback", true, {}, true);
+  const light = stage(["m-average", "f-small"], "piggyback", true);
+  const heavy = stage(["m-average", "m-large"], "piggyback", true);
   for (const t of [1.3, 1.6, 1.9]) {
     const a: number = tip(light.film, light.bodies.a, t);
     const b: number = tip(heavy.film, heavy.bodies.a, t);
@@ -388,8 +384,8 @@ export function test_human_motion_coupled_meeting(): void {
   }
 
   // 8. The capacity and its boundary.
-  const bearerBody: IHumanBody = motionHumanBody("f-small");
-  const borneBody: IHumanBody = motionHumanBody("m-large");
+  const bearerBody: IHumanBody = motionHumanBody("m-average");
+  const borneBody: IHumanBody = motionHumanBody("f-small");
   const load = HumanCarriedCouplingLoad.load(
     bearerBody,
     HumanCarriedCoupling.couple(
@@ -403,7 +399,7 @@ export function test_human_motion_coupled_meeting(): void {
   const own: number = load.load;
   let refusal: HumanRefusal | null = null;
   try {
-    stage(["f-small", "m-large"], "cradle", false, {
+    stage(["m-average", "f-small"], "cradle", false, {
       mass: Math.max(0, capacity - own) + 1,
     }).film.segments("b");
   } catch (error) {
@@ -424,7 +420,7 @@ export function test_human_motion_coupled_meeting(): void {
       `a borne mass 1 kg under the cradle's capacity of ${capacity.toFixed(1)} kg is accepted`,
       (() => {
         try {
-          stage(["f-small", "m-large"], "cradle", false, {
+          stage(["m-average", "f-small"], "cradle", false, {
             mass: capacity - own - 1,
           }).film.segments("b");
           return true;

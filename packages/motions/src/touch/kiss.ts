@@ -17,11 +17,13 @@ import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -42,7 +44,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * Sedgewick et al. 2019 did not find, so the side is a parameter. The
  * approach is the free-space transport
  * of the mouth's travel, the kiss holds 0.6 s (provisional) and the return
- * takes the approach's time. The feet stay where they stand; a difference
+ * takes the approach's time. Standing, the hips move back by the static
+ * balance's shift at the solved lean (`HumanBalance.shift`, as a bow's do),
+ * so the centre stays over the feet, and the lean is solved again with them
+ * there. The feet stay where they stand; a difference
  * the lean, the neck and the toes cannot close is left as a miss the verdict
  * reports, and a step in is not drafted yet.
  *
@@ -141,10 +146,12 @@ export namespace kiss {
    * @param stance Both feet as they stand.
    * @param twist The head's twist, degrees.
    * @param at The point, world.
+   * @param seated Whether a seat bears the body: no heel is raised then, the lean from the seat being all.
+   * @param behind How far the hips stand back along the heading for balance, metres; none when absent.
    * @returns The angles, degrees, and the miss, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unknowns, the grid and the result's units.
-   * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains, the least heel raise that closes it; the lean and the neck are fitted again after each.
+   * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains and a stance bears the body, the least heel raise that closes it; the lean and the neck are fitted again after each.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One miss function, a sagittal grid and two line searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The miss is returned, never hidden; the ranges are the lean's, the neck's and the ankle's working ranges (provisional).
    * @evidence contracts/development/implementation.md#efficient-algorithms At most four sagittal grids of 273 forward-kinematics passes and two line searches at plan time.
@@ -157,13 +164,18 @@ export namespace kiss {
     stance: AutoMovieMotionHumanRise.Stance,
     twist: number,
     at: IAutoMovieVector3,
+    seated: boolean = false,
+    behind: number = 0,
   ): ISolved {
     const body = context.body;
     const miss = (s: Omit<ISolved, "miss">): number =>
       Vector3.length(
         Vector3.subtract(
-          HumanTrunk.region(body, posed(body, entry, stance, s, twist), "mouth")
-            .point,
+          HumanTrunk.region(
+            body,
+            posed(body, entry, stance, s, twist, behind),
+            "mouth",
+          ).point,
           at,
         ),
       );
@@ -207,7 +219,8 @@ export namespace kiss {
     best = sagittal(
       least(span(-ROLL, ROLL, 1).map((roll: number) => ({ ...best, roll }))),
     );
-    if (best.miss <= NEAR) return best;
+    // A seated body has no heels to raise: the lean from the seat is all.
+    if (best.miss <= NEAR || seated) return best;
     const raised: ISolved[] = span(0, RAISE, 1).map(
       (raise: number): ISolved => {
         const c = { ...best, raise };
@@ -220,21 +233,26 @@ export namespace kiss {
     );
   }
 
-  /** A standing posture risen on its toes, leaned from the hips, the head flexed and turned. */
+  /** A standing posture risen on its toes, its hips moved back along the heading, leaned from the hips, the head flexed and turned. */
   function posed(
     body: IHumanActionContext["body"],
     entry: IHumanPosture,
     stance: AutoMovieMotionHumanRise.Stance,
     s: Pick<ISolved, "pitch" | "roll" | "flexion" | "raise">,
     twist: number,
+    behind: number,
   ): IHumanPosture {
+    const yaw: number = (entry.yaw * Math.PI) / 180;
     const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
       body,
       {
         ...entry,
         root: Vector3.add(
-          entry.root,
-          AutoMovieMotionHumanRise.lift(body, stance, s.raise),
+          Vector3.add(
+            entry.root,
+            AutoMovieMotionHumanRise.lift(body, stance, s.raise),
+          ),
+          { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind },
         ),
       },
       { pitch: s.pitch, roll: s.roll },
@@ -271,11 +289,11 @@ export namespace kiss {
    * @throws {HumanRefusal} When the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal; the law's doc gives the solve and the timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The lean and the neck solved once against the target at the start, then raised and lowered on the phrase envelope with the head's turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Target, solve, clock, the body's primitive, the legs' when the heels rise, the head's, composition.
+   * @evidence contracts/development/implementation.md#principled-implementation The lean and the neck solved against the target at the start, standing with the hips moved back by the static balance's shift at the solved lean and solved again there, then raised and lowered on the phrase envelope with the head's turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Target, solve, balance, solve, clock, the body's primitive, the legs' when the heels rise, the head's, composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn and the hold are named provisional constants; an unreachable target leaves a measured miss.
    * @evidence contracts/development/implementation.md#efficient-algorithms One grid solve at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, the rise, the planted legs' lowering, the head share and the joint pulse.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, the rise, the planted legs' lowering, `HumanBalance.shift`, the head share and the joint pulse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the solved angles, the stance and the clock.
    */
   export function plan(
@@ -310,7 +328,75 @@ export namespace kiss {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const solved: ISolved = solve(context, entry, stance, twist, at);
+    // Seated, the seat bears the body: the lean pivots about the hips over
+    // it and the legs keep their place, so neither the heels rise nor the
+    // root is lowered onto the feet.
+    const seated: boolean = context.entry.supports.some(
+      (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+    );
+    const forward: IAutoMovieVector3 = {
+      x: Math.sin((entry.yaw * Math.PI) / 180),
+      y: 0,
+      z: Math.cos((entry.yaw * Math.PI) / 180),
+    };
+    // The body at a share of the kiss: risen, leaned from the hips, the hips
+    // moved back by `behind` along the heading, and, standing, lowered onto
+    // the planted legs.
+    const written = (
+      posture: IHumanPosture,
+      s: ISolved,
+      k: number,
+      behind: number,
+    ): IHumanPosture => {
+      const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
+        body,
+        {
+          ...posture,
+          root: Vector3.add(
+            Vector3.add(
+              posture.root,
+              AutoMovieMotionHumanRise.lift(body, stance, s.raise * k),
+            ),
+            Vector3.scale(forward, -behind * k),
+          ),
+        },
+        { pitch: s.pitch * k, roll: s.roll * k },
+      );
+      if (seated) return leaned;
+      const goal = (side: "left" | "right") =>
+        AutoMovieMotionHumanLeg.goal(
+          body,
+          leaned,
+          side,
+          AutoMovieMotionHumanRise.foot(body, side, stance[side], s.raise * k),
+          true,
+        );
+      return {
+        ...leaned,
+        root: resolveHumanPosture.lower(body, {
+          ...leaned,
+          limbs: {
+            ...leaned.limbs,
+            leftLeg: goal("left"),
+            rightLeg: goal("right"),
+          },
+        }).root,
+      };
+    };
+    // Standing, the lean carries the centre ahead of the feet, so the hips
+    // move back by the static balance's shift at the solved lean
+    // (`HumanBalance.shift`, as a bow's do), and the lean is solved again
+    // with them there; seated, the seat bears the body.
+    const first: ISolved = solve(context, entry, stance, twist, at, seated);
+    const behind: number = seated
+      ? 0
+      : HumanBalance.shift(body, (back: number): IHumanPosture =>
+          written(entry, first, 1, back),
+        );
+    const solved: ISolved =
+      behind === 0
+        ? first
+        : solve(context, entry, stance, twist, at, seated, behind);
     const travel: number = Vector3.length(
       Vector3.subtract(HumanTrunk.region(body, entry, "mouth").point, at),
     );
@@ -344,44 +430,8 @@ export namespace kiss {
           channels: ["root", "trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-            const k: number = share(seconds);
-            const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
-              body,
-              {
-                ...posture,
-                root: Vector3.add(
-                  posture.root,
-                  AutoMovieMotionHumanRise.lift(body, stance, solved.raise * k),
-                ),
-              },
-              { pitch: solved.pitch * k, roll: solved.roll * k },
-            );
-            const goal = (side: "left" | "right") =>
-              AutoMovieMotionHumanLeg.goal(
-                body,
-                leaned,
-                side,
-                AutoMovieMotionHumanRise.foot(
-                  body,
-                  side,
-                  stance[side],
-                  solved.raise * k,
-                ),
-                true,
-              );
-            return {
-              ...leaned,
-              root: resolveHumanPosture.lower(body, {
-                ...leaned,
-                limbs: {
-                  ...leaned.limbs,
-                  leftLeg: goal("left"),
-                  rightLeg: goal("right"),
-                },
-              }).root,
-            };
-          },
+          write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+            written(posture, solved, share(seconds), behind),
         },
         ...(solved.raise > 0
           ? AutoMovieMotionHumanRise.legs({

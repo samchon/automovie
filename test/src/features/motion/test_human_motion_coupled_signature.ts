@@ -28,8 +28,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * expected.
  *
  * Bounds: a bearing contact within 10 mm of its region (#3349's contact
- * bound), the standing pair's centre within 2 % of the bearer's stature of
- * the feet's base (#3437), a resisted centre inside its base and a thrown
+ * bound), the standing bearer's centre with the borne weight its contacts
+ * carry, each share at its contact (all of it when the bearer bears alone,
+ * the pair's centre), within 2 % of the bearer's stature of the feet's base
+ * (#3437), a resisted centre inside its base and a thrown
  * one leaving it (#3439). A cell is refused as expected when its borne mass
  * exceeds the carry's capacity: a `participant` refusal on `mass` whose
  * feasible maximum lies below the borne mass.
@@ -39,15 +41,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. `carry` in the fireman's carry (`overShoulder`), the piggyback, the
  *    supported walk and the dance's waist lift and overhead lift on every
  *    pair, the bearer standing: every bearing contact within 10 mm of its
- *    region (raised by the row's `rise` for a lift at the arms' reach) at
- *    20 Hz over the carry, and the
- *    pair's centre over the bearer's feet within 2 % of the bearer's
- *    stature; or the expected capacity refusal.
+ *    region at 20 Hz over the carry (a palm that misses reports the
+ *    region's distance from the shoulder against the arm), and the loaded
+ *    centre over the bearer's feet within 2 % of the bearer's stature; or
+ *    the expected capacity refusal.
  * 2. `throwing` over a pairwise covering of its four kinds, the three pairs
  *    and the three outcomes (twelve cells, every pair of factors met):
  *    `thrown`, the pull the thrown body's weight, its centre leaves its base
  *    and its events run `kuzushi`, `release`, `land`; `resist`, the pull
- *    half the force a half foot behind the centre resists at hip height,
+ *    half the force its standing base resists by the moment balance,
  *    its centre stays inside its base; `yield`, the pull its weight, its
  *    `kuzushi` event is its plan's end.
  *
@@ -152,40 +154,79 @@ export function test_human_motion_coupled_signature(): void {
           (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
             c.kind === "bear",
         )) {
-          // A lift held at the arms' reach rests its region that far above
-          // the bearer's (`IRow.rise`).
-          const rise: number =
-            contact.on.region === HumanCarried.CARRIES[carry].theirs
-              ? (HumanCarried.CARRIES[carry].rise ?? 0) *
-                (bodies.a.measure.upperArm + bodies.a.measure.forearm)
-              : 0;
+          const held: IAutoMovieVector3 = HumanSignature.region(
+            readers.b,
+            contact.region,
+            t,
+          );
           const gap: number = Vector3.length(
             Vector3.subtract(
-              HumanSignature.region(readers.b, contact.region, t),
-              Vector3.add(
-                HumanSignature.region(readers.a, contact.on.region, t),
-                { x: 0, y: rise, z: 0 },
-              ),
+              held,
+              HumanSignature.region(readers.a, contact.on.region, t),
             ),
           );
+          // A palm that misses says whether the region lay beyond the arm.
+          const side: "left" | "right" | null =
+            contact.on.region === "palmLeft"
+              ? "left"
+              : contact.on.region === "palmRight"
+                ? "right"
+                : null;
+          const reach: string =
+            side === null
+              ? ""
+              : `; the region lies ${(
+                  Vector3.length(
+                    Vector3.subtract(
+                      held,
+                      HumanSignature.joint(readers.a, t, `${side}UpperArm`),
+                    ),
+                  ) * 1000
+                ).toFixed(0)} mm from the shoulder, the arm to the wrist ${(
+                  (bodies.a.measure.upperArm + bodies.a.measure.forearm) *
+                  1000
+                ).toFixed(0)} mm`;
           all.check(
-            `${cell} at ${t.toFixed(2)} s: the borne ${contact.region} is ${(gap * 1000).toFixed(1)} mm from the bearer's ${contact.on.region}, ${CONTACT * 1000} mm at most expected`,
+            `${cell} at ${t.toFixed(2)} s: the borne ${contact.region} is ${(gap * 1000).toFixed(1)} mm from the bearer's ${contact.on.region}, ${CONTACT * 1000} mm at most expected${reach}`,
             gap <= CONTACT,
           );
         }
+
+        // The bearer balances its own weight and the borne weight its
+        // contacts carry, each share acting where it bears.
+        const carried: AutoMovieMotionMeeting.ICoupledContact[] =
+          coupling.contacts.filter(
+            (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
+              c.kind === "bear" && c.on.role === coupling.bearer,
+          );
+        const borne: number = carried.reduce(
+          (s: number, c: AutoMovieMotionMeeting.ICoupledContact): number =>
+            s + c.load * masses.b,
+          0,
+        );
         const pair: IAutoMovieVector3 = Vector3.scale(
-          Vector3.add(
+          carried.reduce(
+            (
+              s: IAutoMovieVector3,
+              c: AutoMovieMotionMeeting.ICoupledContact,
+            ): IAutoMovieVector3 =>
+              Vector3.add(
+                s,
+                Vector3.scale(
+                  HumanSignature.region(readers.a, c.on.region, t),
+                  c.load * masses.b,
+                ),
+              ),
             Vector3.scale(HumanSignature.centre(readers.a, t), masses.a),
-            Vector3.scale(HumanSignature.centre(readers.b, t), masses.b),
           ),
-          1 / (masses.a + masses.b),
+          1 / (masses.a + borne),
         );
         const margin: number = resolveAutoMovieCenterOfMass.margin(
           pair,
           HumanFoot.base(bodies.a, HumanSignature.bones(readers.a, t)),
         );
         all.check(
-          `${cell} at ${t.toFixed(2)} s: the pair's centre is ${(-margin * 1000).toFixed(0)} mm outside the bearer's base, ${(STATICS * bodies.a.measure.stature * 1000).toFixed(0)} mm at most expected`,
+          `${cell} at ${t.toFixed(2)} s: the bearer's centre with its ${borne.toFixed(1)} kg of the borne weight is ${(-margin * 1000).toFixed(0)} mm outside its base, ${(STATICS * bodies.a.measure.stature * 1000).toFixed(0)} mm at most expected`,
           margin >= -STATICS * bodies.a.measure.stature,
         );
       }
@@ -217,12 +258,9 @@ export function test_human_motion_coupled_signature(): void {
     const weight: number =
       resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile).mass *
       AutoMovieGravity.STANDARD;
+    // Half the pull its base resists, read on the standing body.
     const force: number =
-      outcome === "resist"
-        ? (weight * bodies.b.measure.footLength) /
-          4 /
-          bodies.b.measure.hipHeight
-        : weight;
+      outcome === "resist" ? resistible(bodies.b) / 2 : weight;
     let film: HumanPerformance;
     try {
       film = new HumanPerformance({
@@ -314,4 +352,42 @@ export function test_human_motion_coupled_signature(): void {
     }
   }
   all.assert("the coupled records keep their bounds on every pair");
+}
+
+/**
+ * The pull a standing body resists at most, by the moment balance on its
+ * displayed base: its weight times the base's extent behind its centre over
+ * the collar-and-sleeve grips' height, `M g e / h` (`HumanForceExchange`).
+ */
+function resistible(body: IHumanBody): number {
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "resistible",
+    performers: [
+      {
+        subject: "b",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("b").stand({ seconds: 0.3 }).node,
+  });
+  const reader: HumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+  const centre: IAutoMovieVector3 = HumanSignature.centre(reader, 0.3);
+  const behind: number = HumanForceExchange.edge(
+    centre,
+    { x: 0, y: 0, z: -1 },
+    HumanFoot.base(body, HumanSignature.bones(reader, 0.3)),
+  );
+  const grip: number =
+    (HumanSignature.region(reader, "chestLeft", 0.3).y +
+      HumanSignature.region(reader, "elbowRight", 0.3).y) /
+    2;
+  return (
+    (resolveAutoMovieCenterOfMass(body.skeleton, body.profile).mass *
+      AutoMovieGravity.STANDARD *
+      behind) /
+    grip
+  );
 }

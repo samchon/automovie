@@ -33,15 +33,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * empty circumsphere within the points' extent times 1e-9 (round-off).
  *
  * Scenarios:
- * 1. The mesh of the reference pair (m-average, f-average): every
- *    tetrahedron is positively oriented, no point lies strictly inside any
- *    tetrahedron's circumsphere, and building it twice gives the same mesh.
+ * 1. The mesh of the reference pair (m-average, f-average), on the joggled
+ *    points it is built on (Qhull's joggle, each within its bound): every
+ *    tetrahedron is positively oriented, no point lies inside any
+ *    tetrahedron's circumsphere beyond 1e-9 of the extent, and building it
+ *    twice gives the same mesh.
  * 2. Identity: the reference adapted to its own bone lengths, with no
  *    contact, is itself within 1e-6 m.
  * 3. For the pairs (f-small, m-large) and (m-large, f-small): every bone
  *    keeps the target body's length within 10 mm, the paired wrists meet
  *    within 10 mm, and no tetrahedron of the mesh is inverted on the
- *    adapted points.
+ *    adapted points (a tetrahedron flat on the reference points, oriented
+ *    only by the joggle, records no side and is not counted).
  * 4. Determinism: the same pair adapted twice gives the same points, bit
  *    for bit.
  * 5. Fewer than four points, and a bone of no length, are refused.
@@ -124,36 +127,36 @@ export function test_human_motion_interaction_mesh(): void {
     `the reference mesh has tetrahedra, read ${mesh.tetrahedra.length}`,
     mesh.tetrahedra.length > 0,
   );
+  // The mesh is Delaunay on the joggled points it was built on: every
+  // tetrahedron positively oriented, and no other point inside its
+  // circumsphere by more than the round-off of the extent (1e-9 of it).
+  const points: readonly IAutoMovieVector3[] = mesh.points;
+  all.check(
+    `the joggled points move by at most the joggle, ${tetrahedralizeAutoMovieDelaunay.JOGGLE} epsilons of the largest coordinate`,
+    points.every(
+      (p: IAutoMovieVector3, i: number): boolean =>
+        Math.max(
+          Math.abs(p.x - reference.points[i]!.x),
+          Math.abs(p.y - reference.points[i]!.y),
+          Math.abs(p.z - reference.points[i]!.z),
+        ) <=
+        tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent,
+    ),
+  );
   for (const t of mesh.tetrahedra) {
-    const v: number = tetrahedralizeAutoMovieDelaunay.volume(reference.points, t);
+    const v: number = tetrahedralizeAutoMovieDelaunay.volume(points, t);
     all.check(`tetrahedron ${t.join(",")} has volume ${v}, positive expected`, v > 0);
-    for (let i: number = 0; i < reference.points.length; i++) {
+    const sphere = circumsphere(points, t);
+    if (sphere === null) continue;
+    for (let i: number = 0; i < points.length; i++) {
       if (t.includes(i)) continue;
-      const inside: boolean = tetrahedralizeAutoMovieDelaunay.circumscribes(
-        reference.points,
-        t,
-        Vector3.add(reference.points[i]!, { x: 0, y: 0, z: 0 }),
+      const depth: number =
+        sphere.radius -
+        Vector3.length(Vector3.subtract(points[i]!, sphere.centre));
+      all.check(
+        `point ${i} lies ${depth.toExponential(2)} m inside the circumsphere of tetrahedron ${t.join(",")}, none past ${(extent * 1e-9).toExponential(2)} m expected`,
+        depth <= extent * 1e-9,
       );
-      if (inside) {
-        // Allow round-off: the point must lie inside by more than it.
-        const shrunk: boolean = tetrahedralizeAutoMovieDelaunay.circumscribes(
-          reference.points,
-          t,
-          Vector3.add(
-            reference.points[i]!,
-            Vector3.scale(
-              Vector3.normalize(
-                Vector3.subtract(reference.points[i]!, reference.points[t[0]]!),
-              ),
-              extent * 1e-9,
-            ),
-          ),
-        );
-        all.check(
-          `point ${i} lies inside the circumsphere of tetrahedron ${t.join(",")}, outside expected`,
-          !shrunk,
-        );
-      }
     }
   }
   all.check(
@@ -222,8 +225,17 @@ export function test_human_motion_interaction_mesh(): void {
       `${cell}: the paired wrists are ${(open * 1000).toFixed(2)} mm apart, ${BOUND * 1000} mm at most expected`,
       open <= BOUND,
     );
+    // A tetrahedron flat on the reference points (coplanar joints, oriented
+    // only by the joggle) records no side; every other must keep its sign.
+    // The joggle moves each corner by at most `δ` per axis, so each edge by
+    // `2 √3 δ`, and the triple product of three edges no longer than twice
+    // the extent by at most `3 (2 √3 δ)(2 extent)²`.
+    const joggle: number =
+      tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent;
+    const flat: number = 3 * (2 * Math.sqrt(3) * joggle) * (2 * extent) ** 2;
     const inverted: number = mesh.tetrahedra.filter(
       (t: readonly [number, number, number, number]): boolean =>
+        tetrahedralizeAutoMovieDelaunay.volume(reference.points, t) > flat &&
         tetrahedralizeAutoMovieDelaunay.volume(adapted.points, t) <= 0,
     ).length;
     all.check(
@@ -385,4 +397,40 @@ export function test_human_motion_interaction_mesh(): void {
     }),
   );
   all.assert("the interaction mesh keeps a hold's relations on any pair");
+}
+
+/** A tetrahedron's circumsphere by the bisector planes' equations; null when flat. */
+function circumsphere(
+  points: readonly IAutoMovieVector3[],
+  t: readonly [number, number, number, number],
+): { centre: IAutoMovieVector3; radius: number } | null {
+  const a: IAutoMovieVector3 = points[t[0]]!;
+  const rows: IAutoMovieVector3[] = [t[1], t[2], t[3]].map(
+    (i: number): IAutoMovieVector3 =>
+      Vector3.scale(Vector3.subtract(points[i]!, a), 2),
+  );
+  const rhs: number[] = [t[1], t[2], t[3]].map(
+    (i: number): number =>
+      Vector3.dot(points[i]!, points[i]!) - Vector3.dot(a, a),
+  );
+  const det = (
+    u: IAutoMovieVector3,
+    v: IAutoMovieVector3,
+    w: IAutoMovieVector3,
+  ): number => Vector3.dot(u, Vector3.cross(v, w));
+  const d: number = det(rows[0]!, rows[1]!, rows[2]!);
+  if (d === 0) return null;
+  const solve = (k: 0 | 1 | 2): number => {
+    const m: IAutoMovieVector3[] = rows.map(
+      (r: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+        k === 0
+          ? { x: rhs[i]!, y: r.y, z: r.z }
+          : k === 1
+            ? { x: r.x, y: rhs[i]!, z: r.z }
+            : { x: r.x, y: r.y, z: rhs[i]! },
+    );
+    return det(m[0]!, m[1]!, m[2]!) / d;
+  };
+  const centre: IAutoMovieVector3 = { x: solve(0), y: solve(1), z: solve(2) };
+  return { centre, radius: Vector3.length(Vector3.subtract(a, centre)) };
 }

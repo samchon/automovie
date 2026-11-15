@@ -12,20 +12,20 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
  * The weight a coupled carry puts on its bearers (#3437): the bearing
- * contacts' shares of the borne weight, each bearer's load for its lean
- * (`HumanLoad.lean`) and the capacity a bearer's moment balance bounds.
+ * contacts' shares of the borne weight, each bearer's load for a layer's
+ * lean (`HumanLoad.lean`), the tip that balances a bearer the borne body
+ * rides, and the capacity a bearer's moment balance bounds.
  * `HumanCarriedCoupling` states the coupling these read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is computed and who states the coupling.
- * @evidence contracts/development/design.md#principled-representation Vertical reactions on point supports for the shares, the moment balance of #3431 for the lean and its bound for the capacity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three functions; the lean itself is `HumanLoad`'s.
+ * @evidence contracts/development/design.md#principled-representation Vertical reactions on point supports for the shares, the moment balance of #3431 for the layer's lean and its bound for the capacity, and the rigid pair's static balance for the coupled tip.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four functions; the layer's lean itself is `HumanLoad`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A mass no lean balances is refused, never clamped.
  */
 export namespace HumanCarriedCouplingLoad {
@@ -43,8 +43,8 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#principled-implementation The combined centre of the pair moves `m d / (M + m)` ahead of the bearer's own; the lean that balances it is #3431's moment balance, so this returns exactly its inputs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass model, one centre, one difference.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the borne centre's in the bearer's own standing frame, not a constant of the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and one mass model.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's mass model and the coupling's centre.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution and one mass model.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's mass model and the coupling's centre, through the standing read `lean` uses too.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function load(
@@ -52,8 +52,72 @@ export namespace HumanCarriedCouplingLoad {
     coupling: AutoMovieMotionMeeting.ICoupling,
     role: string = coupling.bearer,
   ): Parameters<typeof HumanLoad.lean>[0] {
+    const at: IStanding = standing(bearer, coupling, role);
+    return {
+      mass: at.mass,
+      height: at.own.y,
+      load: at.load,
+      ahead: at.borne.z - at.own.z,
+    };
+  }
+
+  /**
+   * The tip of a bearer standing still that brings its own centre and its
+   * share of the borne centre, the borne body riding it, over the midpoint
+   * of its feet.
+   *
+   * @param bearer The bearer's body.
+   * @param coupling The coupling.
+   * @param role The bearer's role; the coupling's first bearer when absent.
+   * @returns Degrees forward (`pitch`) and toward the bearer's right (`roll`), as `HumanCarriedLean.tipped` takes them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the balance, who rides and the angles' senses.
+   * @evidence contracts/development/implementation.md#principled-implementation Static balance of a rigid inverted pendulum: the borne body rides the bearer's anchor bone, so the whole pair turns about the feet, and the combined centre `(M c + m s) / (M + m)` lies over the pivot once turned by `-atan2(z, y)` forward and `atan2(x, y)` toward the right, its offsets ahead and to the left over its height above the pivot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing read, one combined centre, two angles.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the balance's, never bounded here; a mass no lean of the bearer holds is `bearable`'s refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution and one mass model.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The standing read `load` uses too.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   */
+  export function lean(
+    bearer: IHumanBody,
+    coupling: AutoMovieMotionMeeting.ICoupling,
+    role: string = coupling.bearer,
+  ): { pitch: number; roll: number } {
+    const at: IStanding = standing(bearer, coupling, role);
+    const pair: IAutoMovieVector3 = Vector3.subtract(
+      Vector3.scale(
+        Vector3.add(
+          Vector3.scale(at.own, at.mass),
+          Vector3.scale(at.borne, at.load),
+        ),
+        1 / (at.mass + at.load),
+      ),
+      at.pivot,
+    );
+    return {
+      pitch: (-Math.atan2(pair.z, pair.y) * 180) / Math.PI,
+      roll: (Math.atan2(pair.x, pair.y) * 180) / Math.PI,
+    };
+  }
+
+  /** A bearer standing still at the origin, facing +Z: its mass and centre, its share of the borne mass with the borne centre, and its feet's midpoint. */
+  interface IStanding {
+    mass: number;
+    own: IAutoMovieVector3;
+    load: number;
+    borne: IAutoMovieVector3;
+    pivot: IAutoMovieVector3;
+  }
+
+  /** The bearer standing still with its share of the coupled load, read once for the lean and the capacity. */
+  const standing = (
+    bearer: IHumanBody,
+    coupling: AutoMovieMotionMeeting.ICoupling,
+    role: string,
+  ): IStanding => {
     // This bearer's share of the borne weight, and the borne centre in its
-    // own hips frame.
+    // own anchor frame.
     const share: number = coupling.contacts
       .filter(
         (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
@@ -65,7 +129,11 @@ export namespace HumanCarriedCouplingLoad {
         0,
       );
     const frame:
-      | { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+      | {
+          position: IAutoMovieVector3;
+          rotation: IAutoMovieQuaternion;
+          anchor: AutoMovieHumanoidBone;
+        }
       | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
     const centre: IAutoMovieVector3 =
@@ -77,24 +145,34 @@ export namespace HumanCarriedCouplingLoad {
           );
     const model: resolveAutoMovieCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(bearer.skeleton, bearer.profile);
-    const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(bearer, HumanCarriedCouplingPose.still());
-    const hips: IAutoMovieResolvedBone = theirs.get("hips")!;
-    const own: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model,
-      theirs,
-    );
-    const borne: IAutoMovieVector3 = Vector3.add(
-      hips.worldPosition,
-      Quaternion.rotateVector(hips.worldRotation, centre),
-    );
+    const anchor: IAutoMovieResolvedBone = HumanCarriedCouplingPose.bones(
+      bearer,
+      HumanCarriedCouplingPose.still(),
+      frame?.anchor ?? coupling.anchor,
+    ).get(frame?.anchor ?? coupling.anchor)!;
+    const feet: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanCarriedCouplingPose.bones(
+        bearer,
+        HumanCarriedCouplingPose.still(),
+        "leftFoot",
+      );
     return {
       mass: model.mass,
-      height: own.y,
+      own: resolveAutoMovieCenterOfMass.place(model, feet),
       load: coupling.mass * share,
-      ahead: borne.z - own.z,
+      borne: Vector3.add(
+        anchor.worldPosition,
+        Quaternion.rotateVector(anchor.worldRotation, centre),
+      ),
+      pivot: Vector3.scale(
+        Vector3.add(
+          feet.get("leftFoot")!.worldPosition,
+          feet.get("rightFoot")!.worldPosition,
+        ),
+        0.5,
+      ),
     };
-  }
+  };
 
   /**
    * Refuse a coupling whose borne mass no lean of the bearer balances.

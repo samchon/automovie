@@ -162,10 +162,6 @@ export namespace HumanForceResponse {
       Vector3.add(feet.left.ankle, feet.right.ankle),
       0.5,
     );
-    const rest: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(body.rest.get("leftFoot")!, body.rest.get("rightFoot")!),
-      0.5,
-    );
     const height: number = centre.y - pivot.y;
     const forward: IAutoMovieVector3 = {
       x: Math.sin((entry.yaw * Math.PI) / 180),
@@ -176,12 +172,18 @@ export namespace HumanForceResponse {
     const right: IAutoMovieVector3 = { x: -forward.z, y: 0, z: forward.x };
 
     // The whole body tipped about the ankles by an angle along a direction,
-    // split into the posture's forward pitch and rightward roll.
+    // split into the posture's forward pitch and rightward roll. The pivot
+    // is read in the posture's own root frame, so no tip is the posture
+    // itself and the root never jumps when the response begins.
     const tipped = (
       posture: IHumanPosture,
       along: IAutoMovieVector3,
       degrees: number,
     ): IHumanPosture => {
+      const own: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(resolveHumanPosture.heading(posture)),
+        Vector3.subtract(pivot, posture.root),
+      );
       const turned: IHumanPosture = {
         ...posture,
         pitch: posture.pitch + degrees * Vector3.dot(along, forward),
@@ -191,7 +193,7 @@ export namespace HumanForceResponse {
         ...turned,
         root: Vector3.subtract(
           pivot,
-          Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
+          Quaternion.rotateVector(resolveHumanPosture.heading(turned), own),
         ),
       };
     };

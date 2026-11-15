@@ -19,6 +19,8 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
+import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
+import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
@@ -30,26 +32,31 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  *
  * - **Key pose.** The carry's posture of the borne body (its heading, tip and
  *   leg angles, `HumanCarried.CARRIES`) placed with its resting region on
- *   the bearer's region of a standing bearer, the same placement the carry
- *   always used; it is a pure function of the two bodies and the carry, so
- *   the record is the same whichever role plans first and wherever the pair
- *   stands.
- * - **Contacts.** The resting region on the bearer's region, each bearer
- *   hand's palm under the borne region it holds (`HOLDS`), both bearing, and
- *   each clinging hand on the bearer's region it clings to, a grip.
+ *   the bearer's region of a standing bearer, and turned about that point
+ *   so its held regions come nearest the places the row's holds put the
+ *   bearer's hands (`HumanCarriedCouplingFit.fit`); it is a pure function
+ *   of the two bodies and the carry, so the record is the same whichever
+ *   role plans first and wherever the pair stands.
+ * - **Floor.** A drag (`HumanCarriedDrag`) also rests the dragged body's
+ *   lowest region on the floor (role `ground`), which takes its share of the
+ *   weight, so a dragger carries only what its contacts bear.
+ * - **Contacts.** The resting region on the bearer's region, unless a lift
+ *   holds it at the arms' reach above (`IRow.rise`), where it touches
+ *   nothing; each bearer hand's palm under the borne region it holds
+ *   (`HOLDS`), both bearing; and each clinging hand on the bearer's region
+ *   it clings to, a grip.
  * - **Load shares.** The bearing contacts' shares of the borne weight are
  *   the least-norm shares whose weighted centre lies under the borne centre
  *   of mass, the vertical reactions of a body at rest on point supports
  *   (static equilibrium of forces and of the moments about the vertical's
  *   two horizontal axes).
- * - **Borne body per instant.** The borne key pose is registered rigidly on
- *   the bearer's displayed regions at that instant by Horn's closed-form
- *   absolute orientation (1987, `fitRigidMeshTransform`), every bearing
- *   contact a correspondence; with fewer than three, the key frame carried
- *   by the bearer's hips completes the correspondences, so a carry on one
- *   region keeps its heading on the bearer. The solve is per instant, with
- *   no state, so it cannot lag a turning bearer; a contact it cannot meet is
- *   a residual the slip check reads.
+ * - **Borne body per instant.** The borne key pose rides the bone its
+ *   resting region lies on (the anchor), a parent constraint at the key
+ *   offset, as a held object keeps its offset in the hand: the resting
+ *   region stays on its region however the bearer's trunk turns and bends.
+ *   The bearer's hands reach the held regions in the same anchor frame
+ *   (`HumanCarriedCouplingPose.holds`). It is per instant, with no state,
+ *   so it cannot lag a turning bearer.
  * - **Capacity.** The borne mass is refused above the mass whose moment
  *   about the bearer's base exceeds the bearer's own at a right angle,
  *   `m d <= M h`, the bound beyond which no lean balances the pair
@@ -64,11 +71,12 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  *
  * First pass: the key pose is the carry's table posture, not a whole-body
  * fit of both bodies (`HumanBodyFit`); the borne centre is read with the
- * arms at their clinical zero; the bearer's sideways moment (a supported
- * walk) is not balanced, as `HumanLoad.lean` leans only along the facing.
+ * arms at their clinical zero. The bearer tips by the pair's balance
+ * forward and sideways (`HumanCarriedCouplingLoad.lean`); the capacity
+ * reads the moment along the facing alone (`HumanLoad.lean`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the key pose, the contacts, the load shares with their law, the per-instant solve with its source, the capacity bound with its derivation and search record, and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A meeting kind with a coupling of plain data in the bearer's hips frame, the shared record of a coupled pair; the borne body's place is a rigid registration of its key pose on the bearer's contacts.
+ * @evidence contracts/development/design.md#principled-representation A meeting kind with a coupling of plain data in the frame of the bearer's bone the borne body rides, the shared record of a coupled pair; the borne body's place is a rigid registration of its key pose on the bearer's contacts.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The roles, the second side's table, the hold table, the kind and the coupling; the shares, the load and the capacity are `HumanCarriedCouplingLoad`'s, the borne posture and the holds `HumanCarriedCouplingPose`'s, the carries' rows stay `HumanCarried`'s and the lean `HumanLoad`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The borne body is placed on every bearing contact at once, never on one bone, and a mass no lean balances is refused, never clamped.
  */
@@ -78,6 +86,9 @@ export namespace HumanCarriedCoupling {
 
   /** The borne role's name. */
   export const BORNE: string = "borne";
+
+  /** The floor as the role of a borne body's contact on it: a drag's trailing region. */
+  export const GROUND: string = "ground";
 
   /** The second bearer's role name, when a borne body walks between two helpers. */
   export const SECOND: string = "second";
@@ -188,11 +199,11 @@ export namespace HumanCarriedCoupling {
    * @param carry The carry, for its holds.
    * @param extra Kilograms the borne person carries besides their body.
    * @param second A second helper on the carry's other side: its body, its side's row and carry; none when absent.
-   * @returns The coupling, in the bearer's hips frame.
+   * @returns The coupling, its key, holds and centre in the frame of the bearer's bone the resting region rides on.
    * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `parameter` refusal on `mass` for a negative extra mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame of the result and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at a standing bearer; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre); the capacity is the moment-balance bound of `HumanLoad.lean`.
+   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at a standing bearer and turns it about that point to the row's hold places (`HumanCarriedCouplingFit.fit`); each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre); the capacity is the moment-balance bound of `HumanLoad.lean`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key pose, contacts, centre, shares, capacity, record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A share the least-norm solution makes negative would pull the borne body down, which a resting contact cannot, so it is set to none and the rest renormalized; collinear bearing contacts, whose equations are singular, share equally. Both are stated here rather than hidden.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk resolutions, one mass model and a three-by-three solve, once per meeting.
@@ -223,31 +234,31 @@ export namespace HumanCarriedCoupling {
     const stand: IHumanPosture = HumanCarriedCouplingPose.still();
     const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(bearer, stand);
-    const hips: IAutoMovieResolvedBone = theirs.get("hips")!;
-    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row);
-    // A lift held at the arms' reach rests its region that far above.
-    const root: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(HumanCarriedCouplingPose.region(bearer, theirs, row.theirs), {
-        x: 0,
-        y: (row.rise ?? 0) * (bearer.measure.upperArm + bearer.measure.forearm),
-        z: 0,
-      }),
-      HumanCarriedCouplingPose.region(
-        borne,
-        HumanTrunk.resolve(borne, keyed),
-        row.mine,
-      ),
+    // The key frame is the bone the resting region rides on, so the borne
+    // body goes with that bone wherever the bearer's action takes it.
+    const anchor: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(
+      bearer,
+      row.theirs,
     );
-    const key: IHumanPosture = { ...keyed, root };
+    const anchored: IAutoMovieResolvedBone = theirs.get(anchor)!;
+    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row);
+    const fit: HumanCarriedCouplingFit.IFit = HumanCarriedCouplingFit.fit(
+      bearer,
+      theirs,
+      borne,
+      row,
+      HOLDS[carry],
+    );
+    const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(borne, key);
+      HumanTrunk.resolve(borne, keyed);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      hips.worldRotation,
+      anchored.worldRotation,
     );
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, hips.worldPosition),
+        Vector3.subtract(point, anchored.worldPosition),
       );
 
     // A second helper stands where its side's region meets the borne
@@ -259,26 +270,36 @@ export namespace HumanCarriedCoupling {
     }[] = [{ role: BEARER, row, carry }];
     const bearers: Record<
       string,
-      { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+      {
+        position: IAutoMovieVector3;
+        rotation: IAutoMovieQuaternion;
+        anchor: AutoMovieHumanoidBone;
+      }
     > = {};
     if (second !== undefined) {
       const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(second.body, stand);
       const shift: IAutoMovieVector3 = Vector3.subtract(
-        HumanCarriedCouplingPose.region(borne, mine, second.row.mine),
+        fit.place(HumanCarriedCouplingPose.region(borne, mine, second.row.mine)),
         HumanCarriedCouplingPose.region(second.body, still, second.row.theirs),
       );
-      const theirsHips: IAutoMovieResolvedBone = still.get("hips")!;
+      const own: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(
+        second.body,
+        second.row.theirs,
+      );
+      const bone: IAutoMovieResolvedBone = still.get(own)!;
       bearers[SECOND] = {
-        position: local(Vector3.add(theirsHips.worldPosition, shift)),
+        position: local(Vector3.add(bone.worldPosition, shift)),
         rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, theirsHips.worldRotation),
+          Quaternion.multiply(inverse, bone.worldRotation),
         ),
+        anchor: own,
       };
       besides.push({ role: SECOND, row: second.row, carry: second.carry });
     }
 
-    // The contacts: each bearer's resting region, its palms under the held
+    // The contacts: each bearer's resting region, which a lift held at the
+    // arms' reach leaves in the air (`IRow.rise`), its palms under the held
     // regions, and the clinging hands.
     const bearing: {
       role: string;
@@ -286,11 +307,12 @@ export namespace HumanCarriedCoupling {
       on: AutoMovieHumanoidRegion;
     }[] = [];
     for (const side of besides) {
-      bearing.push({
-        role: side.role,
-        region: side.row.mine,
-        on: side.row.theirs,
-      });
+      if (!((side.row.rise ?? 0) > 0))
+        bearing.push({
+          role: side.role,
+          region: side.row.mine,
+          on: side.row.theirs,
+        });
       (["left", "right"] as const).forEach(
         (hand: "left" | "right", index: number): void => {
           const held: AutoMovieHumanoidRegion | null =
@@ -308,17 +330,36 @@ export namespace HumanCarriedCoupling {
     }
     const model: resolveAutoMovieCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(borne.skeleton, borne.profile);
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model,
-      mine,
+    const centre: IAutoMovieVector3 = fit.place(
+      resolveAutoMovieCenterOfMass.place(model, mine),
     );
+
+    // A drag leaves the dragged body's lowest region on the floor, which
+    // bears its share of the weight with the dragger's contacts.
+    if (carry in HumanCarriedDrag.CARRIES) {
+      let lowest: AutoMovieHumanoidRegion | null = null;
+      let height: number = Number.POSITIVE_INFINITY;
+      for (const name of Object.keys(
+        borne.surfaces.regions,
+      ) as AutoMovieHumanoidRegion[]) {
+        const y: number = fit.place(
+          HumanCarriedCouplingPose.region(borne, mine, name),
+        ).y;
+        if (y < height) {
+          height = y;
+          lowest = name;
+        }
+      }
+      if (lowest !== null)
+        bearing.push({ role: GROUND, region: lowest, on: lowest });
+    }
     const loads: number[] = HumanCarriedCouplingLoad.shares(
       bearing.map(
         (b: {
           region: AutoMovieHumanoidRegion;
           on: AutoMovieHumanoidRegion;
         }): IAutoMovieVector3 =>
-          HumanCarriedCouplingPose.region(borne, mine, b.region),
+          fit.place(HumanCarriedCouplingPose.region(borne, mine, b.region)),
       ),
       centre,
     );
@@ -359,12 +400,13 @@ export namespace HumanCarriedCoupling {
       contacts,
       mass: model.mass + extra,
       centre: local(centre),
+      anchor,
       key: {
         position: local(root),
         rotation: Quaternion.normalize(
           Quaternion.multiply(
             inverse,
-            resolveHumanPosture.heading(HumanCarriedCouplingPose.key(row)),
+            Quaternion.multiply(fit.turn, resolveHumanPosture.heading(keyed)),
           ),
         ),
       },

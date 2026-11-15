@@ -3,13 +3,18 @@ import {
   Quaternion,
   Vector3,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -21,7 +26,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
+import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
+import { HumanCarriedLean } from "./HumanCarriedLean";
 
 /**
  * The plan of holding a person in a named carry (`HumanCarried.bearing`):
@@ -41,8 +48,8 @@ export namespace HumanCarriedBearing {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and where the law is documented.
-   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named, each holding wrist goes where the coupled carry lays the held region in this bearer's displayed hips frame (`HumanCarriedCouplingPose.holds`), a second helper's in its own; otherwise to the row's place from one of the carrier's own regions, in arm lengths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The role, the coupling, then one arm primitive per holding hand over the inherited base.
+   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named, each holding palm goes where the coupled carry lays the held region in this bearer's displayed anchor frame, the bone the borne body rides (`HumanCarriedCouplingPose.holds`), a second helper's in its own, the goal attached to that bone (`IGoal.on`) so a layer's tip carries it, and a lone bearer's base tips about the feet by the pair's balance (`HumanCarriedCouplingLoad.lean`) as the hands take the body, two helpers keeping their stances; otherwise each wrist goes to the row's place from one of the carrier's own regions, in arm lengths, and the base is kept.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The role, the coupling, one arm primitive per holding hand, then the inherited base tipped.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands do not read the carried body's displayed bones; the rows' places are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
@@ -60,7 +67,7 @@ export namespace HumanCarriedBearing {
     const arm: number = body.measure.upperArm + body.measure.forearm;
 
     // With the carried person named, each holding hand goes where the
-    // coupled carry lays the held region, in the carrier's own hips frame
+    // coupled carry lays the held region, in the frame of the carrier's own bone the borne body rides
     // (#3437); the carried body is never read, only its rest body.
     const of: string | undefined = context.params.of;
     const beside: string | undefined = context.params.beside;
@@ -107,12 +114,9 @@ export namespace HumanCarriedBearing {
                   ]),
             ],
           ).coupling;
-    const coupled: readonly [
-      IAutoMovieVector3 | null,
-      IAutoMovieVector3 | null,
-    ] =
+    const coupled: ReturnType<typeof HumanCarriedCouplingPose.holds> | null =
       coupling === undefined || of === undefined
-        ? [null, null]
+        ? null
         : HumanCarriedCouplingPose.holds(
             context.performer(of).body,
             coupling,
@@ -136,18 +140,62 @@ export namespace HumanCarriedBearing {
             to: seconds,
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
             goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
-              const local: IAutoMovieVector3 | null = coupled[index] ?? null;
-              if (local !== null) {
-                const hips: IAutoMovieResolvedBone = HumanTrunk.resolve(
+              const local: HumanCarriedCouplingPose.IHold | null =
+                coupled?.places[index] ?? null;
+              if (coupled !== null && local !== null) {
+                // The hold rides the same anchor bone as the borne body, and
+                // the palm, not the wrist, lies on the held region, facing it.
+                // The goal is attached to that bone (`IGoal.on`), so a layer
+                // that tips the body after this plan, as a walked carry's
+                // lean does, carries the hand with the body it holds.
+                const anchor: IAutoMovieResolvedBone =
+                  HumanCarriedCouplingPose.bones(
+                    body,
+                    posture,
+                    coupled.anchor,
+                  ).get(coupled.anchor)!;
+                const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+                  anchor.worldRotation,
+                );
+                const toBone = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+                  Quaternion.rotateVector(
+                    inverse,
+                    Vector3.subtract(point, anchor.worldPosition),
+                  );
+                const world: IHumanPosture.IGoal =
+                  AutoMovieMotionHumanArmTarget.goal(
                   body,
-                  posture,
-                ).get("hips")!;
-                return {
-                  point: Vector3.add(
-                    hips.worldPosition,
-                    Quaternion.rotateVector(hips.worldRotation, local),
+                  side,
+                  AutoMovieMotionHumanTarget.hand(
+                    body,
+                    posture,
+                    side,
+                    {
+                      point: Vector3.add(
+                        anchor.worldPosition,
+                        Quaternion.rotateVector(
+                          anchor.worldRotation,
+                          local.point,
+                        ),
+                      ),
+                      normal: Quaternion.rotateVector(
+                        anchor.worldRotation,
+                        local.normal,
+                      ),
+                    },
+                    { surface: "palm", shape: "relaxed" },
                   ),
-                  bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+                );
+                return {
+                  ...world,
+                  point: toBone(world.point),
+                  bend: toBone(world.bend),
+                  ...(world.rotation === undefined
+                    ? {}
+                    : {
+                        rotation: Quaternion.multiply(inverse, world.rotation),
+                      }),
+                  on: coupled.anchor,
                 };
               }
               return {
@@ -176,8 +224,34 @@ export namespace HumanCarriedBearing {
         );
       },
     );
+    // A coupled bearer tips about its feet by the pair's balance as its hands
+    // take the body, which rides it and so tips with it. Two helpers keep
+    // their stances: the body rides the first, so a tip of either would
+    // carry the other's contacts off it.
+    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      seconds,
+    );
+    const tip: { pitch: number; roll: number } =
+      coupling === undefined || coupling.bearers !== undefined
+        ? { pitch: 0, roll: 0 }
+        : HumanCarriedCouplingLoad.lean(body, coupling, role);
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, seconds),
+      base: {
+        ...base,
+        posture: (at: number): IHumanPosture => {
+          const w: number = clock.progress(
+            AutoMovieMotionClock.START,
+            "held",
+            at,
+          );
+          return HumanCarriedLean.tipped(
+            base.posture(at),
+            tip.pitch * w,
+            tip.roll * w,
+          );
+        },
+      },
       clock,
       primitives,
     });

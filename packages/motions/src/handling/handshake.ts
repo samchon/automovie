@@ -29,6 +29,7 @@ import { HumanClasp } from "./HumanClasp";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
+import { handshakeMeeting } from "./handshakeMeeting";
 import { handshakeOffer } from "./handshakeOffer";
 
 /**
@@ -54,9 +55,12 @@ import { handshakeOffer } from "./handshakeOffer";
  * practice of an effector socket on a world target), and through the clasp
  * and the pump the arm keeps the configuration it clasped in
  * (`IHumanPosture.IGoal.reference`); the feet stay planted as the stand law
- * places them. Both partners compute the same point from the same two
- * shoulders, so the palms meet without either reading the other's moving
- * hand. The comfortable reach is the shoulder-to-palm distance of an arm
+ * places them. Both partners read the point from one meeting record
+ * (`handshakeMeeting`), computed once from the two shoulders, so the palms
+ * meet without either reading the other's moving hand. A seated pair whose
+ * arms alone fall short leans its trunks forward over the seat, the hand's
+ * target first (`HumanSeatedReach`, Chan and Dubey 1995), the lean coming in
+ * over the reach and going over the return. The comfortable reach is the shoulder-to-palm distance of an arm
  * offering a hand: the upper arm 30 degrees forward of hanging and the elbow
  * flexed 45 degrees, which slopes the forearm 15 degrees down to the hand,
  * both provisional, as no measurement of the offering arm was located. The
@@ -92,8 +96,8 @@ import { handshakeOffer } from "./handshakeOffer";
  * transition's inertialization, continuous in velocity, with no offset left
  * once the blend ends.
  *
- * Both partners must stand within reach when the handshake starts; the
- * mutual goal refuses a gap neither arm can close. The partner's shoulder is
+ * Both partners must stand, or sit leaning, within reach when the handshake
+ * starts; the mutual goal refuses a gap neither arm can close. The partner's shoulder is
  * read at the start, so the partner's earlier actions must be placed first,
  * which `HumanChain.pair` arranges.
  */
@@ -147,7 +151,8 @@ export namespace handshake {
     const partner: IHumanBody = context.performer(context.params.partner).body;
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
 
-    // The meeting point from both acting shoulders at the start.
+    // The meeting point from both acting shoulders at the start, read from
+    // the one record both partners share (`handshakeMeeting`).
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, context.entry.pose);
     const mine: IAutoMovieVector3 = entered.get(
@@ -157,11 +162,13 @@ export namespace handshake {
       .performer(context.params.partner)
       .bones(context.start)
       .get(`${side}UpperArm`)!.worldPosition;
-    const meeting: handshakeOffer.IMeeting = handshakeOffer.point(
-      { body, shoulder: mine },
-      { body: partner, shoulder: theirs },
+    const shake: number = pumps / FREQUENCY;
+    const { meeting, lean }: handshakeMeeting.IRead = handshakeMeeting.read(
+      context,
       side,
-      AMPLITUDE,
+      { pump: AMPLITUDE, shake },
+      (b: IHumanBody, shoulder: IAutoMovieVector3): resolveAutoMovieMutualGoal.ISide =>
+        arm(b, side, shoulder),
     );
     const meet: IAutoMovieVector3 = meeting.point;
 
@@ -170,14 +177,15 @@ export namespace handshake {
       HumanPrehension.nominal(arm(body, side, mine).reach, 0),
       HumanPrehension.nominal(arm(partner, side, theirs).reach, 0),
     );
-    const shake: number = pumps / FREQUENCY;
     const back: number = reach;
     const duration: number = reach + shake + back;
     // The body stands under the handshake, its sway signed in the shaking
     // hand's frame, so a left handshake mirrors a right one (`stand.plan`).
-    const base: IHumanActionPlan = stand.plan(
-      { ...context, params: { seconds: duration } },
-      side,
+    const base: IHumanActionPlan = handshakeMeeting.leaned(
+      body,
+      stand.plan({ ...context, params: { seconds: duration } }, side),
+      lean,
+      { reach, shake, back },
     );
 
     // The hand's grasp frame: palm toward the partner's palm, fingers at the

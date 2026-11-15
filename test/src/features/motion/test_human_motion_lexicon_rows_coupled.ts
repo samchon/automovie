@@ -1,10 +1,17 @@
-import { AutoMovieGravity, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanCarried,
   HumanChain,
   HumanCoupled,
+  HumanFoot,
   HumanForceExchange,
   HumanPerformance,
+  HumanSignature,
   type IHumanBody,
 } from "@automovie/motions";
 
@@ -30,8 +37,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    placed action is `bearing` and the borne's `borne`.
  * 2. `throwing` in each of the four kinds by the three outcomes, the pull on
  *    the thrown body's collar and sleeve sized by the outcome (the thrown
- *    body's weight for `thrown` and `yield`, half the force its base can
- *    resist for `resist`), plans; the thrower's placed action is `clinch`
+ *    body's weight for `thrown` and `yield`, half the force its standing base
+ *    resists for `resist`), plans; the thrower's placed action is `clinch`
  *    and the thrown's `perturb`.
  * 3. `helpUp`, the helped person lying first, plans with both performing
  *    `support`; `supportWalk`, the helped person between two helpers of the
@@ -106,17 +113,14 @@ export function test_human_motion_lexicon_rows_coupled(): void {
     const model: resolveAutoMovieCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);
     const weight: number = model.mass * AutoMovieGravity.STANDARD;
-    const height: number = bodies.b.measure.hipHeight;
+
     for (const kind of Object.keys(HumanCoupled.FULCRUMS) as HumanCoupled.Throw[])
       for (const outcome of ["thrown", "resist", "yield"] as const) {
         const cell: string = `throw ${kind} ${outcome}, ${names[0]} throwing ${names[1]}`;
 
-        // Half the pull the base can resist, its half foot behind the
-        // centre at hip height: a pull the resistance holds by its law.
+        // Half the pull the standing base resists by the moment balance.
         const force: number =
-          outcome === "resist"
-            ? (weight * bodies.b.measure.footLength) / 4 / height
-            : weight;
+          outcome === "resist" ? resistible(bodies.b) / 2 : weight;
         try {
           const film: HumanPerformance = new HumanPerformance({
             seed: "coupled-rows",
@@ -162,13 +166,7 @@ export function test_human_motion_lexicon_rows_coupled(): void {
       const film: HumanPerformance = new HumanPerformance({
         seed: "coupled-rows",
         performers: performers(0).map((p) =>
-          p.subject === "a"
-            ? {
-                ...p,
-                at: { x: 0, y: 0, z: bodies.b.measure.stature / 2 },
-                yaw: 180,
-              }
-            : p,
+          p.subject === "a" ? { ...p, ...helperStand(bodies.b, bodies.a) } : p,
         ),
         composition: HumanChain.mutual(
           HumanCoupled.helpUp,
@@ -229,4 +227,86 @@ export function test_human_motion_lexicon_rows_coupled(): void {
       );
     }  }
   all.assert("every coupled record is performable");
+}
+
+/**
+ * Where a helper stands to help a person up: the helped body laid down on
+ * its own, its right wrist read where it lies, and the helper a foot's
+ * length beyond that wrist, away from the hips, facing it, so the wrist lies
+ * under the helper's reach.
+ */
+function helperStand(
+  helped: IHumanBody,
+  helper: IHumanBody,
+): { at: IAutoMovieVector3; yaw: number } {
+  const lying: HumanPerformance = new HumanPerformance({
+    seed: "helper-stand",
+    performers: [
+      {
+        subject: "b",
+        body: helped,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("b").lieDown().node,
+  });
+  const segments = lying.segments("b");
+  const last = segments[segments.length - 1]!;
+  const reader: HumanSignature.IReader = HumanSignature.of(lying, "b", helped, 0);
+  const end: number = last.start + last.plan.duration;
+  const wrist: IAutoMovieVector3 = HumanSignature.joint(reader, end, "rightHand");
+  const hips: IAutoMovieVector3 = HumanSignature.joint(reader, end, "hips");
+  const out: IAutoMovieVector3 = Vector3.normalize({
+    x: wrist.x - hips.x,
+    y: 0,
+    z: wrist.z - hips.z,
+  });
+  return {
+    at: {
+      x: wrist.x + out.x * helper.measure.footLength,
+      y: 0,
+      z: wrist.z + out.z * helper.measure.footLength,
+    },
+    yaw: (Math.atan2(-out.x, -out.z) * 180) / Math.PI,
+  };
+}
+
+/**
+ * The pull a standing body resists at most, by the moment balance on its
+ * displayed base: its weight times the base's extent behind its centre over
+ * the collar-and-sleeve grips' height, `M g e / h` (`HumanForceExchange`).
+ */
+function resistible(body: IHumanBody): number {
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "resistible",
+    performers: [
+      {
+        subject: "b",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("b").stand({ seconds: 0.3 }).node,
+  });
+  const reader: HumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+  const centre: IAutoMovieVector3 = HumanSignature.centre(reader, 0.3);
+  const behind: number = HumanForceExchange.edge(
+    centre,
+    { x: 0, y: 0, z: -1 },
+    HumanFoot.base(body, HumanSignature.bones(reader, 0.3)),
+  );
+  const grip: number =
+    (HumanSignature.region(reader, "chestLeft", 0.3).y +
+      HumanSignature.region(reader, "elbowRight", 0.3).y) /
+    2;
+  return (
+    (resolveAutoMovieCenterOfMass(body.skeleton, body.profile).mass *
+      AutoMovieGravity.STANDARD *
+      behind) /
+    grip
+  );
 }

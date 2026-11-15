@@ -1,16 +1,27 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "./Vector3";
+import { seededValue } from "./seededValue";
 
 /**
  * The Delaunay tetrahedralization of points by Bowyer-Watson insertion
  * in their given order.
  *
- * @param points The points.
- * @returns The mesh, each tetrahedron positively oriented.
+ * Coplanar and cospherical points, which a body's symmetric joints always
+ * hold, leave the floating-point predicates undecided and the insertion
+ * with flat or non-Delaunay tetrahedra. The input is therefore joggled as
+ * Qhull's `QJ` joggles it (Barber, Dobkin and Huhdanpaa 1996, "The
+ * quickhull algorithm for convex hulls", ACM TOMS 22(4); Qhull `user.h`
+ * `qh_JOGGLEdefault` and `geom2.c` `qh_detjoggle`): each coordinate moves
+ * by a deterministic amount within `JOGGLE` machine epsilons of the
+ * points' largest coordinate, and the mesh is the Delaunay mesh of the
+ * joggled points it returns.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, the order and the orientation.
- * @evidence contracts/development/implementation.md#principled-implementation Each point removes the tetrahedra whose circumsphere strictly contains it and fans the cavity's boundary faces to it; the enclosing tetrahedron's corners are dropped at the end.
+ * @param points The points.
+ * @returns The mesh, each tetrahedron positively oriented on the joggled points.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the method, the order, the joggle with its source and the orientation.
+ * @evidence contracts/development/implementation.md#principled-implementation Each joggled point removes the tetrahedra whose circumsphere strictly contains it and fans the cavity's boundary faces to it; the enclosing tetrahedron's corners are dropped at the end. The joggle is Qhull's, the default multiple of the round-off, drawn per coordinate from the point's index so the mesh is the same every time.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Enclose, insert, drop.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point on a circumsphere is left outside it by the strict test, so cospherical points resolve the same way every time.
  * @evidence contracts/development/implementation.md#efficient-algorithms Quadratic in the points at worst: each insertion scans the current tetrahedra.
@@ -21,8 +32,28 @@ export function tetrahedralizeAutoMovieDelaunay(
   points: readonly IAutoMovieVector3[],
 ): tetrahedralizeAutoMovieDelaunay.IMesh {
   const n: number = points.length;
+
+  // Qhull's joggle: each coordinate within `JOGGLE` epsilons of the
+  // largest coordinate, drawn from the point's index and axis.
+  const largest: number = Math.max(
+    ...points.map((p: IAutoMovieVector3): number =>
+      Math.max(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z)),
+    ),
+    Number.MIN_VALUE,
+  );
+  const amount: number =
+    tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * largest;
+  const jog = (i: number, axis: number): number =>
+    amount * (2 * seededValue(tetrahedralizeAutoMovieDelaunay.DOMAIN, i, axis) - 1);
+  const joggled: IAutoMovieVector3[] = points.map(
+    (p: IAutoMovieVector3, i: number): IAutoMovieVector3 => ({
+      x: p.x + jog(i, 0),
+      y: p.y + jog(i, 1),
+      z: p.z + jog(i, 2),
+    }),
+  );
   const centre: IAutoMovieVector3 = Vector3.scale(
-    points.reduce(
+    joggled.reduce(
       (s: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(s, p),
       { x: 0, y: 0, z: 0 },
@@ -30,7 +61,7 @@ export function tetrahedralizeAutoMovieDelaunay(
     1 / n,
   );
   const radius: number = Math.max(
-    ...points.map((p: IAutoMovieVector3): number =>
+    ...joggled.map((p: IAutoMovieVector3): number =>
       Vector3.length(Vector3.subtract(p, centre)),
     ),
     Number.MIN_VALUE,
@@ -41,7 +72,7 @@ export function tetrahedralizeAutoMovieDelaunay(
   // insphere of 3 r.
   const far: number = 9 * radius;
   const all: IAutoMovieVector3[] = [
-    ...points,
+    ...joggled,
     ...[
       { x: 1, y: 1, z: 1 },
       { x: 1, y: -1, z: -1 },
@@ -95,6 +126,7 @@ export function tetrahedralizeAutoMovieDelaunay(
     tetrahedra: tetrahedra.filter((t: readonly number[]): boolean =>
       t.every((v: number): boolean => v < n),
     ),
+    points: joggled,
   };
 }
 
@@ -103,14 +135,23 @@ export function tetrahedralizeAutoMovieDelaunay(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and convention.
  * @evidence contracts/development/design.md#principled-representation A mesh as its tetrahedra by point index, positively oriented.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The mesh, its neighbourhoods, the signed volume and the two predicates the insertion uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Indices into the caller's points, never copies of them.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The joggle's constants, the mesh, its neighbourhoods, the signed volume and the two predicates the insertion uses.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Indices into the caller's points, with the joggled copies the mesh is built on returned beside them.
  */
 export namespace tetrahedralizeAutoMovieDelaunay {
-  /** The tetrahedra over the points, each by four indices in positive orientation. */
+  /** Qhull's default joggle, in machine epsilons of the largest coordinate (`qh_JOGGLEdefault`). */
+  export const JOGGLE: number = 30000;
+
+  /** The seed domain of the joggle's draws, so no other draw shares them. */
+  export const DOMAIN: number = 3438;
+
+  /** The tetrahedra over the points, each by four indices in positive orientation on the joggled points. */
   export interface IMesh {
     /** The tetrahedra. */
     tetrahedra: readonly (readonly [number, number, number, number])[];
+
+    /** The joggled points the mesh is Delaunay and positively oriented on, world metres. */
+    points: readonly IAutoMovieVector3[];
   }
   /**
    * Each point's neighbours along the mesh's edges, ascending.

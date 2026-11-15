@@ -35,7 +35,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, the small woman throwing the large man, the pull his own
  * weight on his collar and sleeve from 0.3 s:
  * 1. Each hand's palm moves less than 10 mm in its gripped region's bone
- *    frame from half a second into the grip until the release.
+ *    frame through its grip window, as the clinch declares it, until the
+ *    release.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the throw record through the public chain with the force input and reads both displayed bodies; a hand that slides off its grip before the release fails with its slip.
  * @evidence contracts/development/testing.md#independent-expectations The bound is the campaign's; the hands and the regions are read from the displayed bones, never from the clinch's goals.
@@ -117,12 +118,33 @@ export function test_human_motion_force_exchange_grips(): void {
       bodies.b,
       0,
     );
+    // Each hand's grip window on the thrown body, as the thrower's clinch
+    // declares it: the grip holds from its closing, not while the hand
+    // still reaches.
+    const clinched = gripped.segments("a")[gripped.segments("a").length - 1]!;
     for (const side of ["left", "right"] as const) {
       const region: AutoMovieHumanoidRegion = grips[side].region;
       const boneName = bodies.b.surfaces.regions[region].bone;
+      const window = clinched.plan.contacts.find(
+        (w) =>
+          w.part === `${side}Hand` &&
+          w.kind === "grip" &&
+          w.support.kind === "person" &&
+          w.support.subject === "b",
+      );
+      if (window === undefined) {
+        all.check(`the o-goshi thrower's ${side} hand declares a grip on the thrown body`, false);
+        continue;
+      }
+      const from: number =
+        clinched.start + window.from * clinched.plan.duration;
+      const to: number = Math.min(
+        until,
+        clinched.start + window.to * clinched.plan.duration,
+      );
       let first: IAutoMovieVector3 | null = null;
       let slip: number = 0;
-      for (const t of HumanSignature.times(START + 0.5, until, 60)) {
+      for (const t of HumanSignature.times(from, to, 60)) {
         const bone = HumanSignature.bones(partner, t).get(boneName)!;
         const hand: IAutoMovieVector3 = HumanSignature.region(
           thrower,

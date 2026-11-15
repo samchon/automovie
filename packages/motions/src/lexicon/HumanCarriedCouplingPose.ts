@@ -2,7 +2,6 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
-  fitRigidMeshTransform,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -18,22 +17,44 @@ import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
 
 /**
  * The borne body of a coupled carry placed on its bearer (#3437): the carry's
- * key posture, the region places both bodies are read at, the per-instant
- * registration of the key pose on the bearer's displayed regions and the
- * bearer's hold places. `HumanCarriedCoupling` states the coupling these
+ * key posture, the region places both bodies are read at, the anchor bone
+ * the borne body rides, its posture carried by that bone at each instant
+ * and the bearer's hold places. `HumanCarriedCoupling` states the coupling these
  * read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is placed, what is read and who states the coupling.
- * @evidence contracts/development/design.md#principled-representation The borne body's place as a rigid registration of its key pose on the bearer's contacts, and the holds as points in the bearer's hips frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The key and standing postures, the region reader, the borne posture and the holds.
+ * @evidence contracts/development/design.md#principled-representation The borne body's place as its key frame carried by the bearer's anchor bone, a parent constraint, and the holds as points in the same frame.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The bearer record, the anchor rule and its bone reader, the key and standing postures, the region reader, the borne posture and the holds.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bearer never reads the borne body's displayed bones, so the two cannot chase each other.
  */
 export namespace HumanCarriedCouplingPose {
+  /** The bones `HumanTrunk.resolve` places from a posture's root and joints alone. */
+  export const TRUNK: readonly AutoMovieHumanoidBone[] = [
+    "hips",
+    "spine",
+    "chest",
+    "upperChest",
+    "neck",
+    "head",
+    "leftShoulder",
+    "rightShoulder",
+  ];
+
+  /** Where a bearer's hand holds: the held region's point and outward normal, in the bearer's anchor frame. */
+  export interface IHold {
+    /** Metres. */
+    point: IAutoMovieVector3;
+
+    /** Unit, out of the borne body. */
+    normal: IAutoMovieVector3;
+  }
+
   /** A bearer as the borne body reads it at an instant. */
   export interface IBearer {
     /** The bearer's body. */
@@ -43,23 +64,76 @@ export namespace HumanCarriedCouplingPose {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
+
   /**
-   * The borne body's posture at an instant: the key pose registered rigidly
-   * on the bearer's displayed regions, its clinging hands on theirs.
+   * The bone a region's place is carried by, as the coupling anchors on it:
+   * the region's own bone, a trunk bone or a limb's (a drag's thigh).
+   *
+   * @param body The body.
+   * @param name The region.
+   * @returns The bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule.
+   * @evidence contracts/development/implementation.md#principled-implementation A region rides its own bone, so whatever moves that bone moves what rests on it; a reader of a limb's bone resolves the limb (`bones`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fallback bone: a limb anchor is read where the limb's fit puts it.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function anchor(
+    body: IHumanBody,
+    name: AutoMovieHumanoidRegion,
+  ): AutoMovieHumanoidBone {
+    return body.surfaces.regions[name].bone;
+  }
+
+  /**
+   * A posture's bones as far as the anchor needs them: the trunk's alone
+   * (`HumanTrunk.resolve`) for a trunk anchor, the whole fitted pose for a
+   * limb's.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @param anchor The anchor bone.
+   * @returns The resolved bones, the anchor's among them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when.
+   * @evidence contracts/development/implementation.md#principled-implementation A trunk bone stands from the root and the joints alone; a limb's stands where its fit puts it, so only then are the limbs fitted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership test, one resolution.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb anchor is never read off the trunk-only resolution, whose limb bones stand at clinical zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics pass for a trunk anchor; the limb fits only for a limb anchor.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanTrunk.resolve`, `resolveHumanPosture` and `poseBones`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   */
+  export function bones(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    anchor: AutoMovieHumanoidBone,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return TRUNK.includes(anchor)
+      ? HumanTrunk.resolve(body, posture)
+      : poseBones(body, resolveHumanPosture(body, posture));
+  }
+
+  /**
+   * The borne body's posture at an instant: the key pose carried rigidly by
+   * the bearer's anchor bone as displayed, its clinging hands on the
+   * bearer's regions.
    *
    * @param body The borne body.
    * @param coupling The coupling.
    * @param row The carry's row, for its key posture.
    * @param bearers Each bearer's body and displayed bones at the instant, by role.
    * @returns The posture, with a whole-body rotation.
-   * @throws {HumanRefusal} A `participant` refusal on `by` when a bearer the coupling names is not given or has no hips.
+   * @throws {HumanRefusal} A `participant` refusal on `by` when a bearer the coupling names is not given or lacks its anchor bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is registered on what and what the hands do.
-   * @evidence contracts/development/implementation.md#principled-implementation Horn's least-squares rigid motion maps the key pose's bearing regions onto the bearer's displayed ones; with fewer than three bearing contacts the key frame carried by the bearer's hips adds three correspondences (its origin and two axis points), so the rotation is determined. The rigid motion becomes the root shift and a whole-body rotation about the registered centre (#3423), and each clinging hand's world goal is taken back through that rotation so the turned goal lands on the bearer's region.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Correspondences, one fit, the posture, the hands.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is dragged onto its region after the fit: what the rigid key pose cannot meet stays a residual the slip check reads.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution of the key pose, the bearer's region reads and one four-by-four eigen solve per instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit is `fitRigidMeshTransform`, the region places the engine's, the arm bend `AutoMovieMotionHumanBend.hang`.
+   * @evidence contracts/development/common.md#meaningful-documentation States what carries the borne body and what the hands do.
+   * @evidence contracts/development/implementation.md#principled-implementation The borne root frame is the bearer's anchor bone's displayed frame composed with the key frame, a parent constraint at its offset as a held object keeps its offset in the hand; the resting region therefore stays on its region however the bearer's trunk turns. The frame becomes the root and a whole-body rotation about it (#3423), and each clinging hand's world goal is taken back through that rotation so the turned goal lands on the bearer's region.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The anchor's frame, the composed frame, the posture, the hands.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The held regions are the bearer's hands' to reach (`holds`); the borne body is not dragged onto the hands.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One frame composition and one key resolution per instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The key posture is `key`'s, the region places the engine's, the arm bend `AutoMovieMotionHumanBend.hang`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function of the instant's bones.
    */
   export function posture(
@@ -68,9 +142,6 @@ export namespace HumanCarriedCouplingPose {
     row: HumanCarried.IRow,
     bearers: Readonly<Record<string, IBearer>>,
   ): IHumanPosture {
-    const keyed: IHumanPosture = key(row);
-    const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(body, keyed);
     const of = (role: string): IBearer => {
       const found: IBearer | undefined = bearers[role];
       if (found === undefined)
@@ -83,83 +154,37 @@ export namespace HumanCarriedCouplingPose {
         });
       return found;
     };
-    const hips: IAutoMovieResolvedBone | undefined = of(
+    const anchored: IAutoMovieResolvedBone | undefined = of(
       coupling.bearer,
-    ).bones.get("hips");
-    if (hips === undefined)
+    ).bones.get(coupling.anchor);
+    if (anchored === undefined)
       throw new HumanRefusal({
         kind: "participant",
         axis: "by",
-        value: "hips",
-        reason: "the bearer's rig has no hips to carry the borne body by",
+        value: coupling.anchor,
+        reason: `the bearer's rig has no ${coupling.anchor} to carry the borne body by`,
         fix: "carry on a body of the canonical humanoid rig",
       });
-    const reference: IAutoMovieVector3[] = [];
-    const target: IAutoMovieVector3[] = [];
-    for (const contact of coupling.contacts)
-      if (contact.kind === "bear") {
-        reference.push(region(body, mine, contact.region));
-        target.push(
-          region(
-            of(contact.on.role).body,
-            of(contact.on.role).bones,
-            contact.on.region,
-          ),
-        );
-      }
 
-    // Fewer than three correspondences leave a turn free: the key frame,
-    // carried by the bearer's hips, fixes it.
-    if (reference.length < 3) {
-      const frame = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
-          hips.worldPosition,
-          Quaternion.rotateVector(
-            hips.worldRotation,
-            Vector3.add(
-              coupling.key.position,
-              Quaternion.rotateVector(coupling.key.rotation, local),
-            ),
-          ),
-        );
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
-      const unit: number = body.measure.stature / 2;
-      for (const axis of [
-        { x: 0, y: 0, z: 0 },
-        { x: unit, y: 0, z: 0 },
-        { x: 0, y: 0, z: unit },
-      ]) {
-        reference.push(Quaternion.rotateVector(heading, axis));
-        target.push(frame(axis));
-      }
-    }
-    const fit: ReturnType<typeof fitRigidMeshTransform> = fitRigidMeshTransform(
-      {
-        reference: reference.flatMap((p: IAutoMovieVector3): number[] => [
-          p.x,
-          p.y,
-          p.z,
-        ]),
-        target: target.flatMap((p: IAutoMovieVector3): number[] => [
-          p.x,
-          p.y,
-          p.z,
-        ]),
-        vertices: reference.map((_: IAutoMovieVector3, i: number): number => i),
-      },
+    // The borne root frame: the anchor's displayed frame composed with the
+    // key frame.
+    const keyed: IHumanPosture = key(row);
+    const root: IAutoMovieVector3 = Vector3.add(
+      anchored.worldPosition,
+      Quaternion.rotateVector(anchored.worldRotation, coupling.key.position),
     );
-    const placed: IHumanPosture = {
-      ...keyed,
-      root: Vector3.subtract(fit.targetCenter, fit.referenceCenter),
-    };
-    const back: IAutoMovieQuaternion = Quaternion.inverse(fit.rotation);
+    const turn: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(
+        Quaternion.multiply(anchored.worldRotation, coupling.key.rotation),
+        Quaternion.inverse(resolveHumanPosture.heading(keyed)),
+      ),
+    );
+    const placed: IHumanPosture = { ...keyed, root };
+    const back: IAutoMovieQuaternion = Quaternion.inverse(turn);
     const unturn = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(
-        fit.targetCenter,
-        Quaternion.rotateVector(
-          back,
-          Vector3.subtract(point, fit.targetCenter),
-        ),
+        root,
+        Quaternion.rotateVector(back, Vector3.subtract(point, root)),
       );
     const limbs: IHumanPosture["limbs"] = {};
     for (const contact of coupling.contacts)
@@ -177,27 +202,23 @@ export namespace HumanCarriedCouplingPose {
           bend: AutoMovieMotionHumanBend.hang(body, placed, side),
         };
       }
-    return {
-      ...placed,
-      limbs,
-      rotation: { about: fit.targetCenter, turn: fit.rotation },
-    };
+    return { ...placed, limbs, rotation: { about: root, turn } };
   }
 
   /**
-   * Where each bearer hand holds, in the bearer's hips frame: the borne
-   * region it holds on the coupling's key pose, left then right; null for a
-   * hand that does not hold.
+   * Where each hand of a bearer holds, in that bearer's anchor frame: the
+   * borne region it holds on the coupling's key pose, left then right; null
+   * for a hand that does not hold.
    *
    * @param borne The borne body.
    * @param coupling The coupling.
    * @param row The carry's row.
    * @param role The bearer's role; the coupling's first bearer when absent.
-   * @returns The two places, metres in that bearer's hips frame.
+   * @returns The two holds, each the held region's point and outward normal in that bearer's anchor frame, and the anchor bone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the order and the null.
-   * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body is registered by, so the bearer reaches where the borne body will lie without reading it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one frame change per holding hand.
+   * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key resolution and one frame change per holding hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bearer never reads the borne body's displayed bones, which read the bearer's, so the two cannot chase each other.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per call; a law calls it once at plan time.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The coupling's key frame and the engine's region places.
@@ -208,42 +229,64 @@ export namespace HumanCarriedCouplingPose {
     coupling: AutoMovieMotionMeeting.ICoupling,
     row: HumanCarried.IRow,
     role: string = coupling.bearer,
-  ): readonly [IAutoMovieVector3 | null, IAutoMovieVector3 | null] {
-    // A further bearer reads the places in its own hips frame.
+  ): {
+    anchor: AutoMovieHumanoidBone;
+    places: readonly [IHold | null, IHold | null];
+  } {
+    // A further bearer reads the places in its own anchor frame.
     const frame:
-      | { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+      | {
+          position: IAutoMovieVector3;
+          rotation: IAutoMovieQuaternion;
+          anchor: AutoMovieHumanoidBone;
+        }
       | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
+    const keyed: IHumanPosture = key(row);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(borne, key(row));
-    const at = (palm: AutoMovieHumanoidRegion): IAutoMovieVector3 | null => {
+      HumanTrunk.resolve(borne, keyed);
+    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
+    const at = (palm: AutoMovieHumanoidRegion): IHold | null => {
       const contact: AutoMovieMotionMeeting.ICoupledContact | undefined =
         coupling.contacts.find(
           (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
             c.kind === "bear" && c.on.role === role && c.on.region === palm,
         );
       if (contact === undefined) return null;
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(
-        key(row),
-      );
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(heading),
-        region(borne, mine, contact.region),
-      );
-      const first: IAutoMovieVector3 = Vector3.add(
+      const surface: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+        borne.surfaces.regions[contact.region];
+      const placed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+        resolveAutoMovieHumanoidSurfaces.place(
+          surface,
+          mine.get(surface.bone)!,
+        );
+      const back: IAutoMovieQuaternion = Quaternion.inverse(heading);
+      const point: IAutoMovieVector3 = Vector3.add(
         coupling.key.position,
-        Quaternion.rotateVector(coupling.key.rotation, local),
+        Quaternion.rotateVector(
+          coupling.key.rotation,
+          Quaternion.rotateVector(back, placed.point),
+        ),
       );
-      return frame === undefined
-        ? first
-        : Quaternion.rotateVector(
-            Quaternion.inverse(frame.rotation),
-            Vector3.subtract(first, frame.position),
-          );
+      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+        coupling.key.rotation,
+        Quaternion.rotateVector(back, placed.normal),
+      );
+      if (frame === undefined) return { point, normal };
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation);
+      return {
+        point: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(point, frame.position),
+        ),
+        normal: Quaternion.rotateVector(inverse, normal),
+      };
     };
-    return [at("palmLeft"), at("palmRight")];
+    return {
+      anchor: frame?.anchor ?? coupling.anchor,
+      places: [at("palmLeft"), at("palmRight")],
+    };
   }
-
   /**
    * The posture of a body standing still at the origin.
    *

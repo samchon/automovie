@@ -1,8 +1,14 @@
-import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMotionMeeting,
   HumanCarried,
   HumanCarriedCoupling,
+  HumanCarriedCouplingPose,
   HumanChain,
   HumanCoupled,
   HumanPerformance,
@@ -29,13 +35,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios, over the pairs (m-large, f-small), (f-small, m-large) and
  * (m-average, m-average), the first named helping:
- * 1. `helpUp`, the helped person lying first and the helper standing half
- *    the helped stature away, facing them: the helped hand's grip on the
+ * 1. `helpUp`, the helped person lying first and the helper standing a
+ *    foot's length beyond the helped right wrist, facing it (`helperStand`): the helped hand's grip on the
  *    helper opens and closes within the rise, the feet bear to its end, the
  *    palms meet within 10 mm at the grip's middle, and the helped body ends
  *    standing.
  * 2. `supportWalk`, two average men helping the small woman and two small
- *    women helping the large man: each helper bears a positive share
+ *    women helping the large man, the second helper standing where the
+ *    coupling's frame puts it (`secondAt`): each helper bears a positive share
  *    summing to one, and every bearing contact lies within 10 mm of its
  *    helper's region at 20 Hz; or a capacity refusal on `mass` whose
  *    feasible maximum lies below the helped mass.
@@ -66,17 +73,17 @@ export function test_human_motion_coupled_helpers(): void {
     };
     let film: HumanPerformance;
     try {
+      const stand: { at: IAutoMovieVector3; yaw: number } = helperStand(
+        bodies.b,
+        bodies.a,
+      );
       film = new HumanPerformance({
         seed: "coupled-signature",
         performers: (["a", "b"] as const).map((subject) => ({
           subject,
           body: bodies[subject],
-          at: {
-            x: 0,
-            y: 0,
-            z: subject === "a" ? bodies.b.measure.stature / 2 : 0,
-          },
-          yaw: subject === "a" ? 180 : 0,
+          at: subject === "a" ? stand.at : { x: 0, y: 0, z: 0 },
+          yaw: subject === "a" ? stand.yaw : 0,
           proficiency: { level: "trained" as const },
         })),
         composition: HumanChain.mutual(
@@ -106,7 +113,7 @@ export function test_human_motion_coupled_helpers(): void {
       (w: IHumanContactWindow): boolean => w.part.endsWith("Foot"),
     );
     all.check(
-      `${cell}: the helped hand grips the helper through the rise and lets go before its end, read ${grips.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
+      `${cell}: the helped hand grips the helper through the rise and lets go before its end, read ${grips.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ") || "none"} among the rise's windows ${rise.plan.contacts.map((w) => `${w.part} ${w.kind} on ${w.support.kind} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
       grips.length > 0 && grips.every((w) => w.from < w.to && w.to < 1),
     );
     all.check(
@@ -149,23 +156,23 @@ export function test_human_motion_coupled_helpers(): void {
       c: motionHumanBody(names[1]),
       b: motionHumanBody(names[2]),
     };
-    const width: number = bodies.b.measure.stature / 4;
     let film: HumanPerformance;
     try {
+      // The first helper at the origin, the second where the coupling puts
+      // it, the helped body between them.
+      const offset: IAutoMovieVector3 = secondAt(bodies.a, bodies.c, bodies.b);
       film = new HumanPerformance({
         seed: "coupled-signature",
         laws: [HumanCarried.borne, HumanCarried.bearing],
         performers: (["a", "c", "b"] as const).map((subject) => ({
           subject,
           body: bodies[subject],
-          at: {
-            // The first helper on the helped body's left (+X when facing
-            // +Z), as `supported` lays its ribs on the helper's; the second
-            // on its right.
-            x: subject === "a" ? width : subject === "c" ? -width : 0,
-            y: 0,
-            z: 0,
-          },
+          at:
+            subject === "a"
+              ? { x: 0, y: 0, z: 0 }
+              : subject === "c"
+                ? { x: offset.x, y: 0, z: offset.z }
+                : { x: offset.x / 2, y: 0, z: offset.z / 2 },
           yaw: 0,
           proficiency: { level: "trained" as const },
         })),
@@ -259,4 +266,91 @@ export function test_human_motion_coupled_helpers(): void {
       }
   }
   all.assert("the helpers' compositions keep their bounds");
+}
+
+/**
+ * Where a helper stands to help a person up: the helped body laid down on
+ * its own, its right wrist read where it lies, and the helper a foot's
+ * length beyond that wrist, away from the hips, facing it, so the wrist lies
+ * under the helper's reach.
+ */
+function helperStand(
+  helped: IHumanBody,
+  helper: IHumanBody,
+): { at: IAutoMovieVector3; yaw: number } {
+  const lying: HumanPerformance = new HumanPerformance({
+    seed: "helper-stand",
+    performers: [
+      {
+        subject: "b",
+        body: helped,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("b").lieDown().node,
+  });
+  const segments = lying.segments("b");
+  const last = segments[segments.length - 1]!;
+  const reader: HumanSignature.IReader = HumanSignature.of(lying, "b", helped, 0);
+  const end: number = last.start + last.plan.duration;
+  const wrist: IAutoMovieVector3 = HumanSignature.joint(reader, end, "rightHand");
+  const hips: IAutoMovieVector3 = HumanSignature.joint(reader, end, "hips");
+  const out: IAutoMovieVector3 = Vector3.normalize({
+    x: wrist.x - hips.x,
+    y: 0,
+    z: wrist.z - hips.z,
+  });
+  return {
+    at: {
+      x: wrist.x + out.x * helper.measure.footLength,
+      y: 0,
+      z: wrist.z + out.z * helper.measure.footLength,
+    },
+    yaw: (Math.atan2(-out.x, -out.z) * 180) / Math.PI,
+  };
+}
+
+/**
+ * Where the second helper of a supported walk stands, relative to the first
+ * standing still at the origin: the coupling's frame of the second helper's
+ * anchor bone, read in the first's anchor bone, less where that bone lies on
+ * the second helper standing at the origin.
+ */
+function secondAt(
+  first: IHumanBody,
+  second: IHumanBody,
+  helped: IHumanBody,
+): IAutoMovieVector3 {
+  const coupling: AutoMovieMotionMeeting.ICoupling = HumanCarriedCoupling.couple(
+    first,
+    helped,
+    HumanCarried.CARRIES.supported,
+    "supported",
+    0,
+    {
+      body: second,
+      row: HumanCarried.CARRIES.supportedLeft,
+      carry: "supportedLeft",
+    },
+  );
+  const frame = coupling.bearers![HumanCarriedCoupling.SECOND]!;
+  const anchor = HumanCarriedCouplingPose.bones(
+    first,
+    HumanCarriedCouplingPose.still(),
+    coupling.anchor,
+  ).get(coupling.anchor)!;
+  const own: IAutoMovieVector3 = HumanCarriedCouplingPose.bones(
+    second,
+    HumanCarriedCouplingPose.still(),
+    frame.anchor,
+  ).get(frame.anchor)!.worldPosition;
+  return Vector3.subtract(
+    Vector3.add(
+      anchor.worldPosition,
+      Quaternion.rotateVector(anchor.worldRotation, frame.position),
+    ),
+    own,
+  );
 }

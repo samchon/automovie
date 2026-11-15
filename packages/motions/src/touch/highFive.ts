@@ -23,9 +23,11 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { HumanSeatedReach } from "./HumanSeatedReach";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -40,8 +42,11 @@ import { poseBones } from "../posture/poseBones";
  * heights for a fist bump (provisional), and the point lies at that height
  * where both arms are the same share of their comfortable reaches, moved
  * down or up only as far as both arms' reach demands. Partners of unequal
- * stature therefore meet where the shorter one can reach, and partners no
- * point lies within both arms of are refused, never stretched. Each
+ * stature therefore meet where the shorter one can reach. Seated partners
+ * whose arms alone fall short lean their trunks forward over the seat, the
+ * arm's target first, in equal shares of each hip's flexion room
+ * (`HumanSeatedReach`, Chan and Dubey 1995); partners no point lies within
+ * both arms of, leaned as far as they can, are refused, never stretched. Each
  * role's hand reaches it in the free-space transport time of its distance
  * (`AutoMovieMotionHumanTiming.transport`); the pair meets when the slower
  * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
@@ -171,13 +176,19 @@ export namespace highFive {
           ) / roles.length;
         // The engine refuses a pair no point lies within both arms of; its
         // message names the shoulder gap the pair can close.
+        // A seated pair leans its trunks over the seat when the arms
+        // alone fall short (`HumanSeatedReach`).
         try {
           return {
-            meet: resolveAutoMovieMutualGoal({
-              a: arms[0]!,
-              b: arms[1]!,
-              height: preferred,
-            }).point,
+            meet: HumanSeatedReach.goal(
+              [roles[0]!, roles[1]!],
+              [arms[0]!, arms[1]!],
+              (
+                a: resolveAutoMovieMutualGoal.ISide,
+                b: resolveAutoMovieMutualGoal.ISide,
+              ): IAutoMovieVector3 =>
+                resolveAutoMovieMutualGoal({ a, b, height: preferred }).point,
+            ),
           };
         } catch (error: unknown) {
           const span: IAutoMovieVector3 = Vector3.subtract(
@@ -347,8 +358,49 @@ export namespace highFive {
       lay,
       facing,
     );
+    // Seated, the trunk leans forward over the seat as far as this arm
+    // needs to reach the meeting, the arm's target first
+    // (`HumanSeatedReach.need`); standing, it leans none.
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+    );
+    const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
+      HumanSeatedReach.need(
+      {
+        name: "slapper",
+        subject: context.subject,
+        body,
+        posture: entry,
+        bones,
+        seated: context.entry.supports.some(
+          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+        ),
+      },
+      bones.get(`${side}UpperArm`)!.worldPosition,
+      place.point,
+      handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
+        .limit,
+    );
+    const under: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      clock.duration,
+    );
     const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      base:
+        lean.share === 0
+          ? under
+          : {
+              ...under,
+              posture: (seconds: number): IHumanPosture =>
+                HumanSeatedReach.posed(
+                  body,
+                  under.posture(seconds),
+                  lean.joints,
+                  lean.share *
+                    clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+                ),
+            },
       clock,
       primitives: AutoMovieMotionHumanTouch.touch({
         body,

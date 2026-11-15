@@ -9,7 +9,6 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
-import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -22,6 +21,7 @@ import { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
@@ -319,80 +319,13 @@ export namespace HumanPerformancePlace {
             HumanPerformanceObject.state(self, prop, seconds),
         };
       },
-      meeting: (
-        kind: AutoMovieMotionMeeting.IKind,
-        role: string,
-        partner?:
-          | IHumanActionContext.IPartner
-          | readonly IHumanActionContext.IPartner[],
-        window?: AutoMovieMotionMeeting.IWindow,
-      ): AutoMovieMotionMeeting.IMeeting => {
-        const own: AutoMovieMotionMeeting.IRole = {
-          name: role,
-          subject: intent.subject,
-          body,
-          posture: entry.posture,
-          bones: poseBones(body, entry.pose),
-        };
-        const others: readonly IHumanActionContext.IPartner[] =
-          partner === undefined
-            ? []
-            : "subject" in partner
-              ? [partner]
-              : partner;
-        if (others.length === 0)
-          return AutoMovieMotionMeeting.of(kind, [own], context, window);
-
-        // The role planned first computes the meeting; every other reads
-        // that record while it still lies ahead of its own start. The key
-        // names the whole cast in one order, so each role finds it.
-        const key: string = `${kind.name}|${[
-          intent.subject,
-          ...others.map(
-            (other: IHumanActionContext.IPartner): string => other.subject,
-          ),
-        ]
-          .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-          .join("|")}|${window?.from ?? ""}|${window?.to ?? ""}`;
-        const kept = self.meetings.get(key);
-        if (
-          kept !== undefined &&
-          kept.subject !== intent.subject &&
-          kept.meeting.instants.relax > context.start
-        )
-          return kept.meeting;
-        const meeting: AutoMovieMotionMeeting.IMeeting =
-          AutoMovieMotionMeeting.of(
-            kind,
-            [
-              own,
-              ...others.map(
-                (
-                  other: IHumanActionContext.IPartner,
-                ): AutoMovieMotionMeeting.IRole => ({
-                  name: other.role,
-                  subject: other.subject,
-                  body: HumanPerformanceRead.person(self, other.subject)
-                    .performer.body,
-                  posture: HumanPerformanceRead.posture(
-                    self,
-                    other.subject,
-                    context.start,
-                  ),
-                  bones: HumanPerformanceRead.bones(
-                    self,
-                    other.subject,
-                    context.start,
-                  ),
-                }),
-              ),
-            ],
-            context,
-            window,
-          );
-        self.meetings.set(key, { subject: intent.subject, meeting });
-        return meeting;
-      },
+      meeting: HumanPerformanceMeeting.reader(
+        self,
+        intent.subject,
+        body,
+        entry,
+        start,
+      ),
       action: (anchor: string): IHumanActionContext.IPlaced => {
         const placed = self.anchors.get(anchor);
         if (placed === undefined)
