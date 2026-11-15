@@ -38,8 +38,10 @@ import { HumanRideHands } from "./HumanRideHands";
  * With `rising` the rider posts to a trot, by a stride time or on the
  * strides of a cue track; with `feet` each foot stays on a part that moves
  * within the support, a pedal on its crank or a stirrup; with `hands` each
- * hand holds a grip, a rein or a wheel's rim and follows it the same way.
- * First pass: the rider
+ * hand holds a grip, a rein or a wheel's rim and follows it the same way,
+ * the trunk leaning forward at each instant as far as the hands need to
+ * reach what they hold (`HumanMountRider.reach`), as a fixed-seat rower
+ * leans to the catch the oar's handle comes to. First pass: the rider
  * leans exactly as the support does and absorbs no bump, a pedalling foot
  * keeps its pitch to the frame except where the leg would run short and it
  * points down about its ball (`HumanMountRider`), and mounting and dismounting are the
@@ -350,7 +352,7 @@ export namespace HumanRide {
           const out: IHumanPosture = {
             ...HumanMountRider.leant(
               carried,
-              lean * minimumJerk(Math.min(1, at / TAKE)).s,
+              lean(film, now) * minimumJerk(Math.min(1, at / TAKE)).s,
             ),
             limbs,
             root: {

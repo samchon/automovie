@@ -265,6 +265,7 @@ export * from "./lexicon/HumanGait";
 export * from "./lexicon/HumanLabour";
 export * from "./lexicon/HumanStance";
 export * from "./lexicon/HumanRide";
+export * from "./lexicon/HumanMountRider";
 export * from "./lexicon/HumanBlade";
 export * from "./audit/HumanVariation";
 export * from "./lexicon/HumanCarried";
