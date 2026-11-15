@@ -38,6 +38,7 @@ import {
   createLoad,
   createSafe,
   createSeat,
+  createShowcase,
   createStorage,
   createTable,
 } from "../furniture";
@@ -319,6 +320,7 @@ export function archetypeCaptureCatalog(): Readonly<
       lectern: createLectern(),
       console: createConsole(),
       safe: createSafe(),
+      showcase: createShowcase(),
     }),
     doors: still({
       "door-lever-right": door,

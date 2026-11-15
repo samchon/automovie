@@ -91,6 +91,7 @@ import {
   createSaloonDoor,
   createSanitary,
   createSeat,
+  createShowcase,
   createShield,
   createShot,
   createSkateboard,
@@ -232,6 +233,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   add(
     "console",
     (seed?: number | string): Archetype => createConsole({}, seed),
+  );
+  add(
+    "showcase",
+    (seed?: number | string): Archetype => createShowcase({}, seed),
   );
   for (const hinge of ["left", "right"] as const)
     add(

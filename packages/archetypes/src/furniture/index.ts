@@ -6,5 +6,6 @@ export * from "./createLectern";
 export * from "./createLoad";
 export * from "./createSafe";
 export * from "./createSeat";
+export * from "./createShowcase";
 export * from "./createStorage";
 export * from "./createTable";
