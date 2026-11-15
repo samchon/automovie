@@ -11,4 +11,4 @@ When the premise is delegated, compare materially different directions, distingu
 
 Record why the direction serves the work in the [requirements](requirements.md#requirements).
 
-When scale is delegated, choose a provisional duration from the turns and material to enact, and revisit it against performed scenes; text length is not running time.
+When scale is delegated, choose a provisional duration from the turns and material to enact, and revisit it against performed scenes; text length is not running time. When the user fixes the duration, choose the turns, people and places that time can play in full, rather than compress a larger story into synopsis.

@@ -25,9 +25,9 @@ Inspect contacts, support, facing, reactions, occlusion and continuity through t
 
 A whole motion hint, as [commissioned outputs](../production/SKILL.md#commissioned-outputs) define it, carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do. Check control channels at matched frames under [control channels](../motion/control-channels.md), and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning, and a direct 3D film also for what [direct film](../direct-film/SKILL.md#what-to-look-for) lists.
 
-Measure the delivered file against the [delivery profile](../production/project-context.md) by reading the file: container, codec, dimensions, frame rate, frame count and duration, and for a film with sound its audio tracks and loudness. An encoder exit or a matching nominal duration is not a measurement. Take runtime from performed and measured timing, never page or word count.
+Measure the delivered file against the [delivery profile](../production/project-context.md) by reading the file: container, codec, dimensions, frame rate, frame count, duration, scan, and the color primaries, transfer, matrix and range it is tagged with, and for a film with sound its audio tracks, sample rate and loudness. An untagged file is played with a guessed color matrix, so the stills extracted from it can match the source while the audience sees shifted color. An encoder exit or a matching nominal duration is not a measurement. Take runtime from performed and measured timing, never page or word count.
 
-Ask the user for what only playback shows, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets, and record what they report.
+Ask the user for what only playback shows, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets, with the film time of each note, and record each report against that time so its repair can find the frames.
 
 ## Measurement and comparison
 

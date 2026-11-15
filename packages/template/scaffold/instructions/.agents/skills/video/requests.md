@@ -8,7 +8,7 @@ End a request at a screenplay cut, unless the model takes several shots in one r
 
 Inside a continuous shot, split only where the model's length forces it, at a beat boundary or a held pose. Every split joins two generations where identity and light can jump, and a split inside a contact or a spoken line shows the seam. Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
 
-A take eases toward stillness and drifts in its last seconds. Keep a request shorter than the model's maximum where the shot allows, and render and generate it a little past each cut as an editor's handle, cutting inside it; [project context](../production/project-context.md) records the handle's length. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
+A take eases toward stillness and drifts in its last seconds. Keep a request shorter than the model's maximum where the shot allows, and render and generate it a little past each cut as an editor's handle, at least as long as any transition the screenplay decides there overlaps, cutting inside it; [project context](../production/project-context.md) records the handle's length. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
 ## Adherence
 

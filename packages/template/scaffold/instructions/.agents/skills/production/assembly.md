@@ -12,7 +12,7 @@ Assembly decides nothing. The screenplay owns the order of scenes, the cuts, tra
 
 ## Render
 
-Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#one-whole-film-render) of the complete scope at the delivery profile [project context](project-context.md) records, and measure the file's actual profile and extent against it. A programmed film renders with the README's render command; finished takes, their sound and [captions](captions.md) are joined through the installed renderer.
+Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#one-whole-film-render) of the complete scope at the delivery profile [project context](project-context.md) records, and measure the file's actual profile and extent against it. A programmed film renders picture only with the README's render command; finished takes, a programmed film's commissioned soundtrack, and [captions](captions.md) are joined with the picture through the installed renderer.
 
 ## Repair and delivery
 
@@ -22,6 +22,7 @@ Hand off the following, without secrets, for [delivery review](../review/deliver
 
 - the accepted output revision and its media identities;
 - the fixed inputs, source entry and dependencies;
+- for a whole motion hint, a shot list of each shot's name, frame range, resolved camera and lens intent;
 - the commands that reproduce it;
 - the checks observed, by whom, and what only the user watched or heard;
 - rights and attribution, with each generation request traceable to the derivatives the film uses, and a music cue sheet from the locked cut where the release asks for one;

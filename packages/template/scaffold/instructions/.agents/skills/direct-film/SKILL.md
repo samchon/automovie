@@ -11,7 +11,7 @@ A direct 3D film is the programmed film itself, rendered at the detail its commi
 
 Give each subject the [detail option](../development/entities.md#detail) its closest shot needs, built under [3D modeling](../3d-modeling/SKILL.md#requested-detail) from its record and canon references, and record the selection in [project context](../production/project-context.md). Ask the user which subjects need detail and from which source, because 3D modeling leaves a detailed form's source to the user.
 
-A person keeps the skeleton and proportions the motion was accepted on. The detailed body comes from the installed human package where it offers one, otherwise from a generated or found body bound to that skeleton under [rigging](../3d-modeling/rigging.md). Wardrobe and hair are detail options of the same cast entity, rigged to the same skeleton. Secondary motion such as cloth or hair following the body moves only as far as the installed packages simulate it. Where their types record it as excluded, tell the user it is a limit of the film; otherwise it follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
+A person keeps the skeleton and proportions the motion was accepted on. The detailed body comes from the installed human package where it offers one, otherwise from a generated or found body bound to that skeleton under [rigging](../3d-modeling/rigging.md). Wardrobe and hair belong to the same cast entity's detail option, rigged to the same skeleton, either as one clothed mesh or as separate garments that change by story day without a new body. Secondary motion such as cloth or hair following the body moves only as far as the installed packages simulate it. Where their types record it as excluded, tell the user it is a limit of the film; otherwise it follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
 
 ## Look
 
@@ -19,19 +19,19 @@ The look comes from the settings or brief cinematography and set records and is 
 
 Give each surface a material from its record and canon references, in the form the installed interface package's types describe, and take textures and environment maps from [sources](../3d-modeling/sources.md). Judge form in clay and materials in the beauty render, as [inspecting a form](../3d-modeling/inspection.md#light-and-material) sets.
 
-[Staging](../motion/staging.md#the-view) places each light at its motivated source. On a detailed film, light also models faces and separates each figure from its ground: a key from the motivated source, a fill that sets the contrast the look asks for, and an edge or back light where a figure would merge with what is behind it. Set one exposure and working color space for the film, and keep the grade in the film module, as [source layout](../development/source-layout.md#source) places it.
+[Staging](../motion/staging.md#the-view) places each light at its motivated source. On a detailed film, light also models faces and separates each figure from its ground: a key from the motivated source, a fill that sets the contrast the look asks for, and an edge or back light where a figure would merge with what is behind it. Set one exposure and tone curve for the film among those the renderer offers, tag each color texture as color and each normal or roughness map as data, and keep the grade in the film module, as [source layout](../development/source-layout.md#source) places it.
 
 ## Faces and speech
 
 A face the representation adopts, from a detail option or one the renderer draws on the polygon man, carries the expressions and speech the screenplay decides. Read in the installed packages' READMEs and types which faces, expressions and mouth shapes they perform, and follow a defect or a gap for one the film needs and they lack.
 
-Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md). Drive each mouth by a track of mouth shapes, visemes, timed from the take's phonemes: those a speech service reports, or a forced alignment of the screenplay's line to the accepted audio. On stills, check that the lips close at every p, b and m and meet the teeth at every f and v, and ask the user to watch and listen to the sync as a whole, because stills cannot show it.
+Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md). Drive each mouth by a track of mouth shapes, visemes, timed from the take's phonemes: those a speech service reports, or a forced alignment of the screenplay's line to the accepted audio. On stills, check that each mouth shape lands on the frames of its sound, the mouth closed where the line closes the lips, within the shapes the installed face performs, and ask the user to watch and listen to the sync as a whole, because stills cannot show it.
 
 ## Renderer
 
 The installed renderer draws the film through the README's render command. Read in its README which effects it draws, such as depth of field, motion blur and antialiasing, and at what cost. An effect the commission needs and the renderer lacks follows a defect or a gap, and [delivery review](../review/delivery-review.md) discloses it.
 
-The installed packages export no scene, so a renderer outside them, such as an offline path tracer or a 3D suite, cannot draw the film; tell the user rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
+A renderer outside the installed packages, such as an offline path tracer or a 3D suite, can draw the film only through a scene export the packages document. Where their types record scene export as excluded, tell the user it is a limit rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
 
 ## What to look for
 
