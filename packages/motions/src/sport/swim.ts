@@ -14,6 +14,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import { HumanSkill } from "../skill/HumanSkill";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -44,9 +45,10 @@ import { SwimStroke } from "./SwimStroke";
  *   hangs under the elbow clear of the plane; all provisional). Each arm
  *   pulls from overhead to the
  *   hip over 60 % of the cycle and recovers over the water, elbow high, in
- *   the rest (provisional shares). The arms are half a cycle apart, Chollet
- *   et al. 2000's opposition (index of coordination 0); a novice's
- *   catch-up is not drafted. Six kicks per cycle (provisional) and a breath
+ *   the rest (provisional shares). The arms are apart by the propulsive share
+ *   less the index of coordination, which runs from a novice's catch-up to an
+ *   elite's near-opposition with the `sequencing` skill (Chollet et al. 2000
+ *   as #3254 reads them; `PROPULSIVE`, `COORDINATION`). Six kicks per cycle (provisional) and a breath
  *   to the right once a cycle, the head turned 70 degrees (provisional) on
  *   the rolled trunk as the right arm recovers, which brings the mouth 2 cm
  *   (provisional) over the plane: there is no bow wave whose trough a real
@@ -84,6 +86,25 @@ export namespace swim {
 
   /** The pull's share of the crawl cycle (provisional). */
   export const PULL: number = 0.6;
+
+  /**
+   * The crawl's propulsive share of a cycle, the pull and push that end each
+   * arm's pull: 0.465, Chollet, Chalies and Chatard 2000's share at 100 m
+   * pace, as #3254 reads it in their abstract.
+   */
+  export const PROPULSIVE: number = 0.465;
+
+  /**
+   * The crawl's index of coordination, the lag from one arm's propulsion's
+   * end to the other's start as a share of the cycle, negated: a novice's
+   * catch-up and an elite's near-opposition (-6.07 % and -1.76 % by level,
+   * Chollet et al. 2000 as #3254 reads them), read on the `sequencing` skill
+   * axis.
+   */
+  export const COORDINATION: { novice: number; elite: number } = {
+    novice: -0.0607,
+    elite: -0.0176,
+  };
 
   /** The crawl's body roll toward a recovering arm, degrees (provisional). */
   export const ROLL: number = 45;
@@ -156,12 +177,23 @@ export namespace swim {
       });
     const period: number =
       (p.kind === "frontCrawl" ? CYCLE : 1) * modifiers.tempo;
+    // The left arm's entry follows the right's by the share the index of
+    // coordination leaves: its propulsion starts that index's lag after the
+    // right's ends (#3378).
+    const lag: number =
+      PROPULSIVE -
+      HumanSkill.quantity(
+        context.skill,
+        "sequencing",
+        COORDINATION.novice,
+        COORDINATION.elite,
+      );
     const instants: AutoMovieMotionClock.IInstant[] = [];
     for (let i: number = 0; i < cycles; i++)
       if (p.kind === "frontCrawl") {
         instants.push(
           { name: `entryRight${i + 1}`, seconds: i * period },
-          { name: `entryLeft${i + 1}`, seconds: (i + 0.5) * period },
+          { name: `entryLeft${i + 1}`, seconds: (i + lag) * period },
           {
             name: `breath${i + 1}`,
             seconds: (i + PULL + (1 - PULL) / 2) * period,
@@ -299,7 +331,7 @@ export namespace swim {
             0,
             duration,
             (_: IHumanPosture, s: number) => {
-              const u: number = phase(s, side === "right" ? 0 : 0.5);
+              const u: number = phase(s, side === "right" ? 0 : -lag);
               if (u < PULL) {
                 const w: number = u / PULL;
                 return {

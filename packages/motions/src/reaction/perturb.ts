@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -97,7 +98,16 @@ export namespace perturb {
    */
   export interface IParams {
     /** The outcome: decided by the impulse (`auto`), or fixed by the author and refused when the impulse cannot produce it; `auto` when absent. */
-    outcome?: "auto" | "absorb" | "step" | "fall";
+    outcome?: "auto" | "absorb" | "step" | "fall" | "resist" | "yield" | "thrown";
+
+    /** The thrower's subject, for a `thrown` outcome (#3439). */
+    by?: string;
+
+    /** The thrower's region the body turns over, for a `thrown` outcome (#3439). */
+    fulcrum?: AutoMovieHumanoidRegion;
+
+    /** The thrown body's region on the fulcrum, for a `thrown` outcome; the abdomen when absent (#3439). */
+    on?: AutoMovieHumanoidRegion;
   }
 
   /**
@@ -161,8 +171,28 @@ export namespace perturb {
         margin: body.measure.footLength / 2,
         step: AutoMovieMotionHumanTiming.seconds(stagger.LANDING),
       });
-    const asked: "auto" | "absorb" | "step" | "fall" =
+    const requested: NonNullable<IParams["outcome"]> =
       context.params.outcome ?? "auto";
+
+    // The two-body outcomes are the two-body response's (#3439), which
+    // answers them before this law plans its own.
+    if (
+      requested === "resist" ||
+      requested === "yield" ||
+      requested === "thrown"
+    )
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "outcome",
+        value: requested,
+        feasible: {
+          kind: "alternatives",
+          values: ["auto", "absorb", "step", "fall"],
+        },
+        reason: `the ${requested} outcome needs the two-body response, which is not wired here yet`,
+        fix: "ask for auto, absorb, step or fall",
+      });
+    const asked: "auto" | "absorb" | "step" | "fall" = requested;
     const chosen: "absorb" | "step" | "fall" =
       asked === "auto" ? outcome.outcome : asked;
     const magnitude: number = Math.hypot(impulse.x, impulse.z);
