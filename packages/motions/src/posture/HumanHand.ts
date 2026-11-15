@@ -64,9 +64,10 @@ import { HumanHandShape } from "./HumanHandShape";
  *   on a surface);
  * - `point`: the index straight, the other fingers curled as the fist and the
  *   thumb folded over them;
- * - `fist`: proximal phalanges 85, the middle and distal 95 degrees, and the
- *   thumb's proximal 40 and distal 50 degrees across the curled fingers,
- *   inside the finger range of `DEFAULT_HUMANOID_ROM` (-20 to 100).
+ * - `fist`: proximal phalanges 85, the middle 95 and the distal 90 degrees,
+ *   the distal at the end of its range (80 to 90 in every located norm,
+ *   `DEFAULT_HUMANOID_ROM`), and the thumb's proximal 40 and distal 50
+ *   degrees across the curled fingers.
  *
  * The arm solver (`fitChainToTarget`) gives the forearm the share of an
  * asked hand rotation that turns about the forearm's length, within its

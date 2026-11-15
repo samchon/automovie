@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanDigitFit } from "./HumanDigitFit";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
 import type { IHumanPosture } from "./IHumanPosture";
@@ -37,7 +38,8 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * arms with goals, neither riding the other, are one coupled problem
  * (`HumanLimbPair`): fitted each on its own, and solved together only
  * where the two fits meet, so a mirrored posture resolves to the mirror of
- * the original's bones.
+ * the original's bones. Digit goals are fitted after every limb, each
+ * digit reaching from the hand its arm placed (`HumanDigitFit`).
  *
  * @param body The performer's body.
  * @param posture The posture.
@@ -218,7 +220,9 @@ export namespace resolveHumanPosture {
       if (limb === "leftArm") placed.push("left");
       if (limb === "rightArm") placed.push("right");
     }
-    return { pose, seeds };
+
+    // The digits reach from the hands the arms placed (`HumanDigitFit`).
+    return { pose: HumanDigitFit.fitted(body, pose, posture.digits), seeds };
   }
 
   /**

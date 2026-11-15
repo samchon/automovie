@@ -61,7 +61,11 @@ export namespace HumanHandShape {
       const curled: boolean =
         form === "fist" || (form === "point" && digit !== "Index");
       for (const segment of ["Proximal", "Intermediate", "Distal"]) {
-        if (curled) set(`${digit}${segment}`, segment === "Proximal" ? 85 : 95);
+        if (curled)
+          set(
+            `${digit}${segment}`,
+            segment === "Proximal" ? 85 : segment === "Intermediate" ? 95 : 90,
+          );
         else if (form !== "relaxed") set(`${digit}${segment}`, 0);
         // The position of rest on a finger whose zero is straight: the
         // body's rest pose no longer carries a curl of its own.
@@ -129,7 +133,7 @@ export namespace HumanHandShape {
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, what is returned and that the angles are provisional.
    * @evidence contracts/development/implementation.md#principled-implementation Each digit is straight, folded as in the fist, or bent to the angles its shape names; a spread or a crossing is the proximal joint's abduction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table of digit states per shape and one loop that writes them.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold is the fist's own (85 and 95 degrees), so an emblem's folded fingers match the working shape.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold is the fist's own (85, 95 and 90 degrees), so an emblem's folded fingers match the working shape.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -187,7 +191,9 @@ export namespace HumanHandShape {
                   ? 0
                   : segment === "Proximal"
                     ? 85
-                    : 95;
+                    : segment === "Intermediate"
+                      ? 95
+                      : 90;
         out[bone] = [hooked, lean, 0];
       }
     });

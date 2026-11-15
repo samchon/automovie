@@ -9,9 +9,11 @@ import { HumanGait } from "./HumanGait";
 import { HumanGymnastics } from "./HumanGymnastics";
 import { HumanHabit } from "./HumanHabit";
 import { HumanLabour } from "./HumanLabour";
+import { HumanManipulate } from "./HumanManipulate";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
 import { HumanPursuit } from "./HumanPursuit";
+import { HumanRegrasp } from "./HumanRegrasp";
 import { HumanRide } from "./HumanRide";
 import { HumanSocial } from "./HumanSocial";
 import { HumanSport } from "./HumanSport";
@@ -72,4 +74,6 @@ export const HUMAN_LEXICON_FAMILIES = {
   sword: [HumanSword, HumanSwordGuard, HumanSwordParry, HumanSwordThrust],
   weaponFirearm: [HumanWeaponFirearm],
   weaponMelee: [HumanWeaponMelee],
+  manipulate: [HumanManipulate],
+  regrasp: [HumanRegrasp],
 } as const;

@@ -26,6 +26,7 @@ import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
@@ -190,6 +191,48 @@ export class HumanPerformance {
   }
 
   /**
+  /**
+   * A soft prop's particle positions at a film second: its lattice solved
+   * once over the performance from the displayed poses at its domain's
+   * fixed step, and read between the two steps around the second, so a seek
+   * costs no solve and every frame rate reads the same state
+   * (`HumanPerformanceSoft`).
+   *
+   * @param subject The soft prop.
+   * @param seconds Film seconds.
+   * @returns World metres, row-major `[x, y, z, ...]`.
+   * @throws {HumanRefusal} When the prop is not soft or the performance outlasts its domain's step budget.
+   */
+  public soft(subject: string, seconds: number): number[] {
+    return HumanPerformanceSoft.at(this.resolved, subject, seconds);
+  }
+
+  /**
+   * The force a soft prop pulls a gripping hand with at a film second
+   * (`HumanPerformanceSoft.load`): the compliant solver's force on the
+   * particle the hand holds, held over its step.
+   *
+   * @param subject The soft prop.
+   * @param person The gripping person.
+   * @param side The hand.
+   * @param seconds Film seconds.
+   * @returns Newtons on the hand, world frame; zero when the hand does not hold the prop or its domain declares no compliance.
+   */
+  public softLoad(
+    subject: string,
+    person: string,
+    side: "left" | "right",
+    seconds: number,
+  ): IAutoMovieVector3 {
+    return HumanPerformanceSoft.load(
+      this.resolved,
+      subject,
+      person,
+      side,
+      seconds,
+    );
+  }
+
    * The film second of an instant: a second as given, or a named instant of
    * an anchored action or of a cue track.
    *
