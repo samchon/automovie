@@ -18,6 +18,7 @@ import {
   createCar,
   createCareItem,
   createCart,
+  createCellFront,
   createCleaning,
   createClub,
   createCue,
@@ -34,6 +35,7 @@ import {
   createFood,
   createGate,
   createGlove,
+  createHandhold,
   createGoal,
   createGolfClub,
   createHammerThrow,
@@ -293,6 +295,15 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   add(
     "valve",
     (seed?: number | string): Archetype => createValve({}, seed),
+  );
+  for (const kind of createHandhold.KINDS)
+    add(
+      `handhold-${kind}`,
+      (seed?: number | string): Archetype => createHandhold({ kind }, seed),
+    );
+  add(
+    "cellFront",
+    (seed?: number | string): Archetype => createCellFront({ bars: 12 }, seed),
   );
   add(
     "elevator",

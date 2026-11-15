@@ -5,9 +5,11 @@ import {
   createAppliance,
   createBar,
   createBin,
+  createCellFront,
   createDoor,
   createElevator,
   createGate,
+  createHandhold,
   createLadder,
   createMachine,
   createObstacle,
@@ -386,6 +388,12 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       valve: createValve(),
       elevator: createElevator(),
+      ...kinds(
+        "handhold",
+        createHandhold.KINDS,
+        (kind: createHandhold.Kind): Archetype => createHandhold({ kind }),
+      ),
+      cellFront: createCellFront({ bars: 12 }),
     }),
     vehicles: still({
       ...kinds(
