@@ -74,10 +74,10 @@ export namespace ArchetypeArticulation {
    * The travel range of an articulation, in its kind's unit.
    *
    * @param affordance The articulation.
-   * @returns The least and greatest travel; null for an end without a limit, as the engine's `affordanceTravelRange` gives them: a `wheel` turns `travel` to either side, a `crank` without `travel` has no limit, every other kind runs from 0 to `travel`, and one without `travel` stays at rest.
+   * @returns The least and greatest travel; null for an end without a limit, as the engine's `affordanceTravelRange` gives them: a `wheel` turns `travel` to either side, a `crank` without `travel` has no limit, a `hinge`, `knob` or `slider` runs from minus its `reverse` to `travel`, every other kind runs from 0 to `travel`, and one without `travel` does not move forward.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each kind's range and the meaning of null.
-   * @evidence contracts/development/implementation.md#principled-implementation The ranges `IAutoMovieAffordance.travel` states for each kind, read from their engine owner.
+   * @evidence contracts/development/implementation.md#principled-implementation The ranges `IAutoMovieAffordance.travel` and `reverse` state for each kind, read from their engine owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call, kept so the package's readers, such as the website's gallery, ask the articulation module for a range.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
