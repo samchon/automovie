@@ -34,7 +34,7 @@ const CRIB_TOP: string =
 
 /** The stretcher read. */
 const PRIME: string =
-  "Stryker Prime Series stretcher spec sheet (M0000015589 REV AA): height range 20.75 to 34 in (52.7 to 86.4 cm) on the 1105 and 1115, patient surface 26 x 75.25 in, 85 in long (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf); its ComfortGel SE mattress 5.5 in (14 cm) thick (https://stryker.com/content/dam/stryker/acute-care/products/comfortgelse/resources/ComfortGel%20SE%20Spec%20Sheet.pdf)";
+  "Stryker Prime Series stretcher spec sheet (M0000015589 REV AA): height range 20.75 to 34 in (52.7 to 86.4 cm) on the 1105 and 1115, patient surface 26 x 75.25 in, 85 in long, 26 in wide with the siderails down (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf); its ComfortGel SE mattress 5.5 in (14 cm) thick (https://stryker.com/content/dam/stryker/acute-care/products/comfortgelse/resources/ComfortGel%20SE%20Spec%20Sheet.pdf)";
 
 /** The bunk bed read. */
 const MYDAL: string =
@@ -92,6 +92,7 @@ export const BED_BANDS: Readonly<
     width: ArchetypeBand.metres(0.6604, 0.6604, `${PRIME}: the patient surface`),
     length: ArchetypeBand.metres(1.9114, 1.9114, `${PRIME}: the patient surface`),
     overallLength: ArchetypeBand.metres(2.159, 2.159, PRIME),
+    overallWidth: ArchetypeBand.metres(0.6604, 0.6604, `${PRIME}: with the siderails down`),
     litter: ArchetypeBand.metres(0.527, 0.864, `${PRIME}: the height range`),
     thickness: ArchetypeBand.metres(0.1397, 0.1397, PRIME),
     mass: ArchetypeBand.of("kg", 80, 120, ArchetypeBand.TYPICAL_MASS, true),

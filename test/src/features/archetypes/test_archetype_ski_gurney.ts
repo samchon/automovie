@@ -12,7 +12,7 @@ const MM: number = 1e-3;
  *
  * Scenarios:
  * 1. A ski is 1.63 to 1.80 m long and 15 to 30 mm thick, its forebody and afterbody at the mean of LINE's 129-98-120 mm widths, its `stance` on its top 20 mm behind its centre.
- * 2. A stretcher's surface lies the ComfortGel's 5.5 in over a litter in the Prime's 20.75 to 34 in, its patient surface 26 x 75.25 in and its frame 85 in long.
+ * 2. A stretcher's surface lies the ComfortGel's 5.5 in over a litter in the Prime's 20.75 to 34 in, its patient surface 26 x 75.25 in and its frame 85 in long, its 8 in casters at the corners of its 85 x 26 in overall size.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a ski or a stretcher off its sources is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The figures are LINE's, Rossignol's and Stryker's restated here.
@@ -72,6 +72,9 @@ export function test_archetype_ski_gurney(): void {
   near("the patient surface's width", gurney.affordance("surface").width!, 0.6604);
   near("the patient surface's length", gurney.affordance("surface").depth!, 1.9114);
   near("the frame's length", archetypeExtent(gurney, "z").size, 2.159);
+  near("a caster's outer side", archetypeExtent(gurney, "x", ["caster-1"]).high, 0.6604 / 2);
+  near("a caster's outer end", archetypeExtent(gurney, "z", ["caster-1"]).high, 2.159 / 2);
+  near("the casters' 8 in", archetypeExtent(gurney, "y", ["caster-1"]).size, 0.2032);
   TestValidator.equals(
     "a ski and a stretcher stand at their sources",
     findings,
