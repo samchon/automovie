@@ -1,8 +1,4 @@
-import {
-  ArchetypeCourse,
-  createHorse,
-  rideHorse,
-} from "@automovie/archetypes";
+import { ArchetypeCourse, createHorse, rideHorse } from "@automovie/archetypes";
 import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,24 +25,43 @@ export function test_archetype_ride_horse_hysteresis(): void {
     ] as const) {
       const point: number =
         low === "walk"
-          ? Math.sqrt(0.35 * AutoMovieGravity.STANDARD * createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y)
+          ? Math.sqrt(
+              0.35 *
+                AutoMovieGravity.STANDARD *
+                createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y,
+            )
           : 5 * (horse.dimensions.mass! / 170) ** 0.216;
       const speeds: number[] = [point + 0.3];
-      for (let k: number = 0; k < 8; k++) speeds.push(point + (k % 2 === 0 ? -0.1 : 0.1));
+      for (let k: number = 0; k < 8; k++)
+        speeds.push(point + (k % 2 === 0 ? -0.1 : 0.1));
       speeds.push(0);
       const course: ArchetypeCourse.ICourse = {
         start: { x: 0, z: 0, heading: 0 },
-        legs: speeds.map((_: number, k: number): ArchetypeCourse.Leg => ({ kind: "straight", length: k === 0 ? 50 : 25 })),
+        legs: speeds.map(
+          (_: number, k: number): ArchetypeCourse.Leg => ({
+            kind: "straight",
+            length: k === 0 ? 50 : 25,
+          }),
+        ),
         speeds,
         cruise: point + 0.3,
         acceleration: 1,
         deceleration: 1,
       };
       const changes: string[] = rideHorse(horse, course)
-        .instants.filter((i: { label: string }): boolean => i.label.startsWith("gait:"))
+        .instants.filter((i: { label: string }): boolean =>
+          i.label.startsWith("gait:"),
+        )
         .map((i: { label: string }): string => i.label);
-      if (changes.length !== expected) findings.push(`seed ${seed}, about the ${low}-${high} point: ${changes.join(", ")}`);
+      if (changes.length !== expected)
+        findings.push(
+          `seed ${seed}, about the ${low}-${high} point: ${changes.join(", ")}`,
+        );
     }
   }
-  TestValidator.equals("a wavering speed changes the gait once each way", findings, []);
+  TestValidator.equals(
+    "a wavering speed changes the gait once each way",
+    findings,
+    [],
+  );
 }

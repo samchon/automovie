@@ -1,9 +1,9 @@
 import {
-  ArchetypeUnits,
   ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
   createBicycle,
   createCar,
   createCart,
@@ -236,7 +236,8 @@ export function test_archetype_ride_course(): void {
   )
     findings.push("the motorcycle's lean");
   const balance = (speed: number, limit: number): number =>
-    (speed * speed) / (AutoMovieGravity.STANDARD * Math.tan(limit * ArchetypeUnits.DEGREE));
+    (speed * speed) /
+    (AutoMovieGravity.STANDARD * Math.tan(limit * ArchetypeUnits.DEGREE));
   least(
     findings,
     "a motorcycle past 50 degrees",

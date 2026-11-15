@@ -1,4 +1,8 @@
-import { ArchetypeFrame, ArchetypeUnits, createBow } from "@automovie/archetypes";
+import {
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createBow,
+} from "@automovie/archetypes";
 import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 

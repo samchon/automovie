@@ -67,7 +67,9 @@ export namespace QuadrupedChange {
       high,
       dimensions.withersHeight!,
     );
-    return (Math.max(a.minimum, b.minimum) + Math.min(a.maximum, b.maximum)) / 2;
+    return (
+      (Math.max(a.minimum, b.minimum) + Math.min(a.maximum, b.maximum)) / 2
+    );
   }
 
   /**
