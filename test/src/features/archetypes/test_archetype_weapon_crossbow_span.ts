@@ -14,12 +14,14 @@ import { TestValidator } from "@nestia/e2e";
  * 2. At each of them the nock has come back toward the butt by the string's travel along the stock, within 0.1 mm, each string half runs from its bow tip to the nock, within 1e-9 m, and each tip keeps its braced distance from the bow's centre, the arc of its hinge.
  * 3. The trigger's travel is the affordance's own, the trigger's ⅛ in into the nut (p. 98).
  * 4. Naming the string in a state is refused, its leader being the crank.
+ * 5. At each of the thirty whole turns each string half keeps its braced length within the string's radius (`createBow.STRING`), the tolerance the limbs' table is bisected to: the string does not stretch.
+ * 6. Turning the crank back past rest or past its thirty turns is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Turns a real crossbow's crank and reads the posed string, nock and string halves; a string that does not follow, a wrong ratio, or halves that leave their tips is caught.
  * @evidence contracts/development/testing.md#independent-expectations The ratio is worked here from the book's 5½ in and thirty turns; the nock's place is read off the posed model.
- * @evidence contracts/development/testing.md#distinguishing-cases Rest, nine turns between and the full count, the trigger and one refusal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Rest, nine turns between and the full count, every whole turn for the string's length, the trigger and three refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_weapon_crossbow_span(): void {
   const findings: string[] = [];
@@ -73,12 +75,36 @@ export function test_archetype_weapon_crossbow_span(): void {
     1e-12
   )
     findings.push(`the trigger travels ${bow.affordance("trigger").travel} m`);
-  let refused: boolean = false;
-  try {
-    bow.articulate({ string: 0.01 });
-  } catch (error) {
-    refused = error instanceof ArchetypeRefusal;
+  // 5. The string does not stretch: each half keeps its braced length, within the string's radius the limbs' table is bisected to.
+  const braceLength: Record<string, number> = {
+    "string-upper": distance(bow.span("string-upper").from, braced),
+    "string-lower": distance(bow.span("string-lower").from, braced),
+  };
+  for (let k: number = 0; k <= 30; ++k) {
+    const spanned: ReturnType<typeof createBow> = bow.articulate({
+      crank: (k / 30) * full,
+    });
+    for (const half of ["string-upper", "string-lower"] as const) {
+      const line: ReturnType<typeof spanned.span> = spanned.span(half);
+      const stretch: number = distance(line.from, line.to) - braceLength[half]!;
+      if (Math.abs(stretch) > createBow.STRING)
+        findings.push(`at ${k} turns ${half} stretches ${stretch} m`);
+    }
   }
-  if (!refused) findings.push("naming the string in a state was not refused");
+
+  // 4 and 6. Naming the string, and turning the crank past either end of its thirty turns, are refused.
+  for (const [label, state] of [
+    ["the string named", { string: 0.01 }],
+    ["the crank turned back", { crank: -1 }],
+    ["the crank turned past its count", { crank: full + 1 }],
+  ] as const) {
+    let refused: boolean = false;
+    try {
+      bow.articulate(state);
+    } catch (error) {
+      refused = error instanceof ArchetypeRefusal;
+    }
+    if (!refused) findings.push(`${label} was not refused`);
+  }
   TestValidator.equals("a crossbow spans by its crank", findings, []);
 }

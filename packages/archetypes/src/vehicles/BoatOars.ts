@@ -64,6 +64,9 @@ export namespace BoatOars {
   /** The handle's held run, metres: a construction estimate, one hand's breadth and a little. */
   export const GRIP: number = 0.12;
 
+  /** The blade's thickness, metres: a construction estimate the picture shows; the blade's edges, which the stroke's heights read, lie in the oar's upright plane, so no contact reads it. */
+  export const THICKNESS: number = 0.012;
+
   /** The stroke's arc, degrees from square to the boat: the blade 62 degrees toward the bow at the catch and 43.5 toward the stern at the finish, the men's single sculls' gate angles (Holt et al. 2020, Frontiers in Sports and Active Living 2:589013, Table 1). Those are sliding-seat boats; a fixed thwart's arc no source read gives, so on a rowboat this is a provisional value. Searched for #3497 without a figure: fixed-seat oar angles at the catch and the finish for trainera, llaut, gig and dghajsa crews; Agius et al. 2023 (Bioengineering 10(7):774) and the 2025 static-seat ergometer study (PMC12289236) measure the body's angles, not the oar's; Angus's fixed-seat rowing geometry (Small Craft Advisor, 6 February 2023) gives the rig, not the arc. */
   export const ARC: Readonly<{ catch: number; finish: number }> = {
     catch: 62,
@@ -200,7 +203,7 @@ export namespace BoatOars {
       });
       builder.box(
         blade,
-        v(d.bladeLength!, d.bladeWidth!, 0.012),
+        v(d.bladeLength!, d.bladeWidth!, THICKNESS),
         at(g.outboard - d.bladeLength! / 2),
         {
           color: BLADE,

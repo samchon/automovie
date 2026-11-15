@@ -253,14 +253,14 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   /**
    * Declare the sets of parts a hit breaks off, each a fragment; the threshold is the body's `contact.fracture`, given to `build` as `outcome`.
    *
-   * @param sets The fragment sets, each an id and the parts it carries away.
+   * @param sets The fragment sets, each an id, the parts it carries away and the contacts on them that move none; declared after those contacts.
    * @returns This builder.
-   * @throws {Error} When a set's id is declared twice, a set carries no part, or a set names a part not yet recorded or one a set already names (its own included), a producer's defect.
+   * @throws {Error} When a set's id is declared twice, a set carries no part, a set names a part not yet recorded or one a set already names (its own included), or a contact not yet declared or one a set already carries, a producer's defect.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold goes and the failures.
-   * @evidence contracts/development/implementation.md#principled-implementation Each set's id is unique and its parts exist, at least one, each named once across the sets, so every part is in at most one fragment and the remainder is the rest.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's id is unique and its parts exist, at least one, each named once across the sets, so every part is in at most one fragment and the remainder is the rest; each contact a set carries is declared and carried by one set only.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One check per part, then the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id, an empty set, or an unknown or shared part throws rather than being dropped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id, an empty set, or an unknown or shared part or contact throws rather than being dropped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts per named part, tens at most.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records once per producer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps the sets until `build` hands them to the archetype.
@@ -273,6 +273,11 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     );
     const ids: Set<string> = new Set(
       this.#fractures.map((s: ArchetypeFracture.ISet): string => s.id),
+    );
+    const carried: Set<string> = new Set(
+      this.#fractures.flatMap(
+        (s: ArchetypeFracture.ISet): readonly string[] => s.affordances ?? [],
+      ),
     );
     for (const set of sets) {
       if (ids.has(set.id))
@@ -292,6 +297,21 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
             `fracture set ${set.id} names ${part}, which a set already carries`,
           );
         named.add(part);
+      }
+      for (const contact of set.affordances ?? []) {
+        if (
+          !this.#affordances.some(
+            (a: IAutoMovieAffordance): boolean => a.id === contact,
+          )
+        )
+          throw new Error(
+            `fracture set ${set.id} carries the undeclared affordance ${contact}`,
+          );
+        if (carried.has(contact))
+          throw new Error(
+            `fracture set ${set.id} carries ${contact}, which a set already carries`,
+          );
+        carried.add(contact);
       }
     }
     this.#fractures.push(...sets);

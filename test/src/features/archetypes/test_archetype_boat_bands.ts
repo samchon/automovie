@@ -2,6 +2,7 @@ import {
   ArchetypeUnits,
   type Archetype,
   ArchetypeFrame,
+  ArchetypeRefusal,
   createBoat,
 } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -12,13 +13,14 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  * 1. Over 200 seeds each kind's every drawn dimension lies inside its band, and every band cites its source.
+ * 1b. Each kind's every dimension fixed a micrometre past either end of its band is refused on that dimension.
  * 2. A rowboat's rowing thwart stands 0.17 of the oarlocks' span below their pivot and its aft edge 0.22 of the span ahead of them (WoodenBoat's oar geometry table); its rower faces the stern and its stern seat faces the bow.
  * 3. A canoe's seats stand their seat height above its bottom and face the bow.
  * 4. A launch's five thwarts stand 7 in below its gunwale and 28 in apart (the Peake boat), its rowers facing the stern.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Draws each kind across seeds and reads its dimensions and seats; a value outside its band, a band without a source, or a seat off its sourced place or facing the wrong way is caught.
  * @evidence contracts/development/testing.md#independent-expectations The 0.17 and 0.22 shares, the 7 in and the 28 in are the sources' figures written here, worked from the boat's drawn beam, depth and draft.
- * @evidence contracts/development/testing.md#distinguishing-cases Three kinds over 200 seeds, a rower facing aft and a paddler facing forward.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three kinds over 200 seeds, both ends of every band, a rower facing aft and a paddler facing forward.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
@@ -49,6 +51,27 @@ export function test_archetype_boat_bands(): void {
       }
     }
   }
+  // 1b. A step past either end of every band is refused on that dimension.
+  for (const kind of createBoat.KINDS)
+    for (const [dimension, band] of Object.entries(createBoat.BANDS[kind]) as [
+      createBoat.Dimension,
+      { minimum: number; maximum: number } | undefined,
+    ][]) {
+      if (band === undefined) continue;
+      for (const value of [band.minimum - 1e-6, band.maximum + 1e-6]) {
+        let refused: string | null = null;
+        try {
+          createBoat({ kind, [dimension]: value });
+        } catch (error) {
+          refused =
+            error instanceof ArchetypeRefusal ? error.axis : String(error);
+        }
+        if (refused !== dimension)
+          findings.push(
+            `${kind} with a ${dimension} of ${value} was refused at ${refused}`,
+          );
+      }
+    }
   const at = (
     boat: Archetype<createBoat.Affordance, createBoat.Dimension>,
     id: createBoat.Affordance,
