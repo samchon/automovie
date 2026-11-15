@@ -22,11 +22,13 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_weapon_bow_launch(): void {
   const findings: string[] = [];
-  const lbf: number = ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY;
+  // A pound-force in the order the band multiplies it, so a band end fixed here is the band's own float.
+  const lbf = (pounds: number): number =>
+    pounds * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY;
   for (const pounds of [49, 54]) {
     const bow: ReturnType<typeof createBow> = createBow({
       kind: "recurve",
-      draw: pounds * lbf,
+      draw: lbf(pounds),
     });
     const speed: number = createBow.launchSpeed(
       bow,
@@ -39,26 +41,19 @@ export function test_archetype_weapon_bow_launch(): void {
   // A crossbow's draw weight is unread, so its launch is refused at `draw`.
   let refused: string | null = null;
   try {
-    createBow.launchSpeed(
-      createBow({ kind: "crossbow" }),
-      createBow.KOOI.arrow,
-      0,
-    );
+    createBow.launchSpeed(createBow({ kind: "crossbow" }), createBow.KOOI.arrow, 0);
   } catch (error) {
     refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
   }
   if (refused !== "draw")
-    findings.push(
-      `a crossbow's launch was refused at ${refused}, not at its unread draw`,
-    );
+    findings.push(`a crossbow's launch was refused at ${refused}, not at its unread draw`);
   for (const kind of createBow.KINDS.filter(
     (k: createBow.Kind): boolean => k !== "crossbow",
   )) {
     const bow: ReturnType<typeof createBow> = createBow({ kind });
     const stroke: number = bow.affordance("string").travel!;
     let before: number = createBow.launchSpeed(bow, createBow.KOOI.arrow, 0);
-    if (before !== 0)
-      findings.push(`${kind} at brace launches at ${before} m/s`);
+    if (before !== 0) findings.push(`${kind} at brace launches at ${before} m/s`);
     for (let k: number = 1; k <= 10; ++k) {
       const now: number = createBow.launchSpeed(
         bow,
@@ -66,9 +61,7 @@ export function test_archetype_weapon_bow_launch(): void {
         (k / 10) * stroke,
       );
       if (!(now > before))
-        findings.push(
-          `${kind}: the speed does not grow at ${k / 10} of the draw`,
-        );
+        findings.push(`${kind}: the speed does not grow at ${k / 10} of the draw`);
       before = now;
     }
   }
