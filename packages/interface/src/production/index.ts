@@ -20,6 +20,7 @@ export * from "./IAutoMovieEffectCue";
 export * from "./IAutoMovieFilmOmission";
 export * from "./IAutoMovieFilmTimeline";
 export * from "./IAutoMovieFilmTimelineSegment";
+export * from "./IAutoMovieFormationBlock";
 export * from "./IAutoMovieFormationBounds";
 export * from "./IAutoMovieFormationChunk";
 export * from "./IAutoMovieFormationMotion";

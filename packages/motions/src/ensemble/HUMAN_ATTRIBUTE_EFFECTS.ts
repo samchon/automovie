@@ -27,9 +27,11 @@ import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
  *   (`HumanEnsemble.station`, read by the walk family's station keeping);
  *   provisional.
  * - `fatigue.pace`: the factor on a steered member's desired speed
- *   (`HumanCrowd.steer`), from fresh to the `weary` manner preset's pace
+ *   (`HumanCrowd.steer`) and on the speed of a walk-family gait that draws
+ *   its own tempo (`walk.locomote`; a cadenced march keeps its count), from
+ *   fresh to the `weary` manner preset's pace
  *   (`AutoMovieMotionManner.PRESETS.weary`, itself provisional), so one table
- *   owns weariness. The walk family does not read it yet.
+ *   owns weariness.
  * - `morale.latency`: the factor on a response latency's mean (hesitation,
  *   `HumanResponse.latency`); provisional.
  * - `morale.speed`: the factor on a fleeing member's desired speed, from the

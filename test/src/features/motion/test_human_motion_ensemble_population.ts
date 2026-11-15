@@ -39,7 +39,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    within the march's own per-sample travel (the stride over the sample
  *    count), so the loop closes.
  * 4. A window inside a stand, which holds no stride, is refused naming the
- *    template; a design over members of two blocks is refused.
+ *    template; a design over two blocks, the second faced about, set back
+ *    and dressed by its own seed, places every member on its own slot within
+ *    1e-9 m, the performed ones as heroes.
  * 5. `performers` and `chains` leave population members out.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Designs a population and takes a cycle from a performed march: a design off the ensemble's slots, a hero missing, a cycle that is not one stride, a loop that does not close, a stand taken as a cycle or a population performed is caught.
@@ -187,52 +189,30 @@ export function test_human_motion_ensemble_population(): void {
         `the stand refusal does not name the template: ${String(error)}`,
       );
   }
-  try {
-    HumanPopulation.design(
-      HumanEnsemble.of({
-        id: "q",
-        seed: "population",
-        count: 12,
-        bodies: [body],
-        formation: {
-          ...formation(0),
-          blocks: [
-            {
-              ...formation(0).blocks[0]!,
-              count: 6,
-              layout: {
-                kind: "line",
-                ranks: 1,
-                files: 6,
-                spacing: { lateral: 0.6, depth: 0.9 },
-              },
-            },
-            {
-              ...formation(0).blocks[0]!,
-              count: 6,
-              offset: { lateral: 0, depth: 3 },
-              layout: {
-                kind: "line",
-                ranks: 1,
-                files: 6,
-                spacing: { lateral: 0.6, depth: 0.9 },
-              },
-            },
-          ],
-        },
-        detail: (m: { index: number }): "population" | "full" =>
-          m.index % 2 === 0 ? "population" : "full",
-      }),
-      { id: "x", model: "soldier" },
-    );
-    findings.push("a population over two blocks was not refused");
-  } catch (error) {
-    if (!(error instanceof HumanRefusal))
-      findings.push(
-        `the two-block refusal is not a HumanRefusal: ${String(error)}`,
-      );
+  // A population over two blocks, the second faced about and set back: every population member's designed slot is its own.
+  const twoBlocks: IHumanFormation = {
+    ...formation(37),
+    blocks: [
+      { ...formation(37).blocks[0]!, count: 6, layout: { kind: "line", ranks: 1, files: 6, spacing: { lateral: 0.6, depth: 0.9 } } },
+      { ...formation(37).blocks[0]!, count: 6, seed: 5, facing: 180, offset: { lateral: 0.5, depth: 3 }, layout: { kind: "line", ranks: 1, files: 6, spacing: { lateral: 0.6, depth: 0.9 }, dressing: { lateral: 0.02, depth: 0.02 } } },
+    ],
+  };
+  const split: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    id: "q",
+    seed: "population",
+    count: 12,
+    bodies: [body],
+    formation: twoBlocks,
+    detail: (m: { index: number }): "population" | "full" => (m.index % 2 === 0 ? "population" : "full"),
+  });
+  const blocked: IAutoMovieFormationDesign = HumanPopulation.design(split, { id: "x", model: "soldier" });
+  for (const m of split.members) {
+    const engine: IAutoMovieVector3 = formationSlotPosition(blocked, m.index);
+    const own: IAutoMovieVector3 = HumanFormation.slot(twoBlocks, m.index, 0).at;
+    if (Math.hypot(engine.x - own.x, engine.z - own.z) > 1e-9)
+      findings.push(`two blocks: ${m.subject}'s designed slot lies ${Math.hypot(engine.x - own.x, engine.z - own.z).toExponential(2)} m off`);
   }
-
+  if (blocked.heroOverrides.length !== 6) findings.push(`two blocks: ${blocked.heroOverrides.length} heroes, 6 expected`);
   // 5. Population members are not performed.
   const performed: string[] = HumanEnsemble.performers(e).map(
     (p: { subject: string }): string => p.subject,
