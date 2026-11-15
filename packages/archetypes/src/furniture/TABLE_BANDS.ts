@@ -99,11 +99,7 @@ export const TABLE_BANDS: typeof createTable.BANDS = {
       1.05,
       `${ADM}: coffee table 500 x 1050 mm`,
     ),
-    depth: ArchetypeBand.metres(
-      0.5,
-      0.5,
-      `${ADM}: coffee table 500 x 1050 mm`,
-    ),
+    depth: ArchetypeBand.metres(0.5, 0.5, `${ADM}: coffee table 500 x 1050 mm`),
     mass: ArchetypeBand.of("kg", 8, 20, ArchetypeBand.TYPICAL_MASS, true),
   },
   bar: {

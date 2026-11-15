@@ -1,5 +1,6 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createLight } from "./createLight";
+
 /** Taper candles, seen only in search results. */
 const TAPER: string =
   "IKEA VINTERFINT and KLOKHET unscented taper candles, 25 to 26 cm long and 22 mm across, twenty KLOKHET packed at 1.29 kg, so 64.5 g each, seen only in search results";
@@ -36,7 +37,8 @@ export const LIGHT_BANDS: Readonly<
     createLight.Kind,
     Readonly<Partial<Record<createLight.Dimension, IArchetypeBand>>>
   >
-> = {  candle: {
+> = {
+  candle: {
     length: ArchetypeBand.metres(0.25, 0.26, TAPER, true),
     diameter: ArchetypeBand.metres(0.022, 0.022, TAPER, true),
     mass: ArchetypeBand.of("kg", 0.0645, 0.0645, TAPER, true),

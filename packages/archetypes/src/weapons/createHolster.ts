@@ -14,9 +14,9 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { CartridgeBox } from "./CartridgeBox";
 import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
 import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
-import { CartridgeBox } from "./CartridgeBox";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createHolster.Kind, string>> = {

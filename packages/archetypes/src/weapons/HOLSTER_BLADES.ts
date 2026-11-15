@@ -54,9 +54,7 @@ const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
 
 /** The blades of `createHolster` by kind, the default first, each made with Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved out, provisional where the blade's are. */
 export const HOLSTER_BLADES: Readonly<{
-  scabbard: Readonly<
-    Record<createHolster.ScabbardBlade, createHolster.Fitted>
-  >;
+  scabbard: Readonly<Record<createHolster.ScabbardBlade, createHolster.Fitted>>;
   sheath: Readonly<Record<createHolster.SheathBlade, createHolster.Fitted>>;
 }> = {
   scabbard: {

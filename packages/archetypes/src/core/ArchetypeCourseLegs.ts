@@ -85,7 +85,10 @@ export namespace ArchetypeCourseLegs {
       );
 
     // Each leg's run, its length along the grade, and the place and heading it starts from.
-    const { rows, length }: { rows: ArchetypeCoursePath.IRow[]; length: number } =
+    const {
+      rows,
+      length,
+    }: { rows: ArchetypeCoursePath.IRow[]; length: number } =
       ArchetypeCoursePath.lay(course, refuse);
 
     // The speed marks, each reachable from the one before it.

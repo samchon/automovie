@@ -84,7 +84,9 @@ export namespace CartFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call fits one cart.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function harness(draw: ArchetypeDrawSession<createCart.Dimension>): void {
+  export function harness(
+    draw: ArchetypeDrawSession<createCart.Dimension>,
+  ): void {
     const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> =
       draw.values;
     const girth: number = draw.derive(

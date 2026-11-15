@@ -40,6 +40,7 @@ export function bowLaunchSpeed(
   const share: number = Math.max(0, Math.min(1, travel / stroke));
   const stored: number = q * bow.dimensions.draw! * stroke * share ** (1 / q);
   const virtual: number =
-    (createBow.KOOI.arrow * (1 - createBow.KOOI.efficiency)) / createBow.KOOI.efficiency;
+    (createBow.KOOI.arrow * (1 - createBow.KOOI.efficiency)) /
+    createBow.KOOI.efficiency;
   return Math.sqrt((2 * stored) / (mass + virtual));
 }

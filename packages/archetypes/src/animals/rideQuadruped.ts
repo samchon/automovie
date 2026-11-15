@@ -201,10 +201,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         seconds: secondsAt(n),
         label: `gait:${was.gait}-${will.gait}`,
       });
-    else if (
-      was.lead !== will.lead &&
-      QuadrupedGait.LEADED.includes(will.gait)
-    )
+    else if (was.lead !== will.lead && QuadrupedGait.LEADED.includes(will.gait))
       instants.push({
         seconds: secondsAt(n),
         label: `lead:${was.lead}-${will.lead}`,

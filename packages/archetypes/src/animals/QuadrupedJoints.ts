@@ -36,7 +36,9 @@ export namespace QuadrupedJoints {
     limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>;
     neck: IAutoMovieVector3;
   } {
-    const ends = (id: QuadrupedBody.Bone): [IAutoMovieVector3, IAutoMovieVector3] => {
+    const ends = (
+      id: QuadrupedBody.Bone,
+    ): [IAutoMovieVector3, IAutoMovieVector3] => {
       const part: IAutoMovieModelPart = parts.find(
         (p: IAutoMovieModelPart): boolean => p.id === id,
       )!;

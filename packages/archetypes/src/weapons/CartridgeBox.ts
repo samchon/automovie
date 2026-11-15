@@ -68,7 +68,10 @@ export namespace CartridgeBox {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
-    builder: ArchetypeBuilder<createHolster.Affordance, createHolster.Dimension>,
+    builder: ArchetypeBuilder<
+      createHolster.Affordance,
+      createHolster.Dimension
+    >,
     d: Readonly<Partial<Record<createHolster.Dimension, number>>>,
     slots: number,
     hang: (at: IAutoMovieVector3) => IAutoMovieTransform,

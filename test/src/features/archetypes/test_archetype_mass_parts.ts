@@ -25,17 +25,37 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_mass_parts(): void {
   const findings: string[] = [];
   const EPSILON: number = 1e-12;
-  const part = (id: string, shape: AutoMoviePrimitiveShape, at: IAutoMovieVector3): IAutoMovieModelPart => ({
+  const part = (
+    id: string,
+    shape: AutoMoviePrimitiveShape,
+    at: IAutoMovieVector3,
+  ): IAutoMovieModelPart => ({
     id,
     name: null,
     geometry: { type: "primitive", shape },
     material: null,
     attachedBone: null,
-    transform: { translation: at, rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 } },
+    transform: {
+      translation: at,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
   });
-  const a: IAutoMovieModelPart = part("a", { type: "box", width: 1, height: 1, depth: 1 }, { x: 0, y: 0.5, z: 0 });
-  const b: IAutoMovieModelPart = part("b", { type: "box", width: 1, height: 1, depth: 2 }, { x: 2, y: 0.5, z: 0 });
-  const plane: IAutoMovieModelPart = part("floor", { type: "plane", width: 4, depth: 4 }, { x: 0, y: 0, z: 0 });
+  const a: IAutoMovieModelPart = part(
+    "a",
+    { type: "box", width: 1, height: 1, depth: 1 },
+    { x: 0, y: 0.5, z: 0 },
+  );
+  const b: IAutoMovieModelPart = part(
+    "b",
+    { type: "box", width: 1, height: 1, depth: 2 },
+    { x: 2, y: 0.5, z: 0 },
+  );
+  const plane: IAutoMovieModelPart = part(
+    "floor",
+    { type: "plane", width: 4, depth: 4 },
+    { x: 0, y: 0, z: 0 },
+  );
 
   for (const [label, parts, density, shares, expected] of [
     ["by volume", [a, b], {}, {}, { a: 1, b: 2 }],
@@ -43,7 +63,12 @@ export function test_archetype_mass_parts(): void {
     ["by shares", [a, b], {}, { a: 3, b: 1 }, { a: 2.25, b: 0.75 }],
     ["beside a plane", [a, b, plane], {}, {}, { a: 1, b: 2, floor: 0 }],
   ] as const) {
-    const got: Record<string, number> = ArchetypeMass.parts(parts, 3, density, shares);
+    const got: Record<string, number> = ArchetypeMass.parts(
+      parts,
+      3,
+      density,
+      shares,
+    );
     for (const [id, mass] of Object.entries(expected) as [string, number][])
       if (Math.abs((got[id] ?? Number.NaN) - mass) > EPSILON)
         findings.push(`${label}: ${id} weighs ${got[id]} kg, not ${mass} kg`);
@@ -51,7 +76,10 @@ export function test_archetype_mass_parts(): void {
       findings.push(`${label}: masses for ${Object.keys(got).join(", ")}`);
 
     // 5. The parts' masses place `of`'s centre.
-    const total: number = Object.values(got).reduce((sum: number, m: number): number => sum + m, 0);
+    const total: number = Object.values(got).reduce(
+      (sum: number, m: number): number => sum + m,
+      0,
+    );
     const centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const p of parts) {
       const at: IAutoMovieVector3 = p.transform!.translation;
@@ -60,13 +88,25 @@ export function test_archetype_mass_parts(): void {
       centre.y += (m * at.y) / total;
       centre.z += (m * at.z) / total;
     }
-    const of: IAutoMovieVector3 = ArchetypeMass.of(parts, 3, density, shares).centerOfMass;
-    if (Math.abs(of.x - centre.x) > EPSILON || Math.abs(of.y - centre.y) > EPSILON || Math.abs(of.z - centre.z) > EPSILON)
-      findings.push(`${label}: the parts place the centre at ${JSON.stringify(centre)}, of at ${JSON.stringify(of)}`);
+    const of: IAutoMovieVector3 = ArchetypeMass.of(
+      parts,
+      3,
+      density,
+      shares,
+    ).centerOfMass;
+    if (
+      Math.abs(of.x - centre.x) > EPSILON ||
+      Math.abs(of.y - centre.y) > EPSILON ||
+      Math.abs(of.z - centre.z) > EPSILON
+    )
+      findings.push(
+        `${label}: the parts place the centre at ${JSON.stringify(centre)}, of at ${JSON.stringify(of)}`,
+      );
   }
 
   // 4. Planes alone weigh nothing.
   const planes: Record<string, number> = ArchetypeMass.parts([plane], 3);
-  if (planes.floor !== 0) findings.push(`planes alone: the floor weighs ${planes.floor} kg`);
+  if (planes.floor !== 0)
+    findings.push(`planes alone: the floor weighs ${planes.floor} kg`);
   TestValidator.equals("parts weigh their share of the whole", findings, []);
 }

@@ -1,7 +1,7 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import { FlintLock } from "./FlintLock";
-import { LockTimes } from "./LockTimes";
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
+import { LockTimes } from "./LockTimes";
 import type { createLongGun } from "./createLongGun";
 
 /** A carbine's published data, from its maker. */
@@ -39,7 +39,10 @@ const UNPUBLISHED: string = "not published by the maker; an estimate";
 
 /** The band of each free dimension of `createLongGun` a model leaves, by kind, with the sources they are read at: kept apart from the producer, with its models, so each file stays within its size. */
 export const LONG_GUN_BANDS: Readonly<
-  Record<createLongGun.Kind, Readonly<Partial<Record<createLongGun.Dimension, IArchetypeBand>>>>
+  Record<
+    createLongGun.Kind,
+    Readonly<Partial<Record<createLongGun.Dimension, IArchetypeBand>>>
+  >
 > = {
   carbine: {
     length: ArchetypeBand.metres(

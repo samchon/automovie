@@ -1,7 +1,7 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import { FlintLock } from "./FlintLock";
-import { LockTimes } from "./LockTimes";
 import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
+import { LockTimes } from "./LockTimes";
 import type { createHandgun } from "./createHandgun";
 
 /** The Graz test of a flintlock pistol. */

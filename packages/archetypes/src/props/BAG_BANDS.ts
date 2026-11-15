@@ -90,12 +90,7 @@ export const BAG_BANDS: typeof createBag.BANDS = {
     mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
   },
   backpack: {
-    width: ArchetypeBand.metres(
-      0.27,
-      13 * ArchetypeUnits.INCH,
-      BACKPACK,
-      true,
-    ),
+    width: ArchetypeBand.metres(0.27, 13 * ArchetypeUnits.INCH, BACKPACK, true),
     height: ArchetypeBand.metres(
       0.38,
       16.7 * ArchetypeUnits.INCH,

@@ -281,11 +281,10 @@ export namespace createLight {
   /**
    * A lantern's parts no source read sizes, metres, provisional estimates: `fount`, the burner's height over the floor, where the globe stands and the flame burns; `wire`, the bail's wire across, the hooked grip's aperture. The search 'Dietz No. 20 Junior lantern fount height inches dimensions bail' found the lantern's height, base, globe, fount capacity and a bail-up height, neither of these.
    */
-  export const LANTERN_ESTIMATES: Readonly<{ fount: number; wire: number }> =
-    {
-      fount: 0.09,
-      wire: 0.003,
-    };
+  export const LANTERN_ESTIMATES: Readonly<{ fount: number; wire: number }> = {
+    fount: 0.09,
+    wire: 0.003,
+  };
 
   /** A pendant cord's radius, metres: a construction estimate that no act reads and no band declares. */
   export const CORD: number = 0.003;
