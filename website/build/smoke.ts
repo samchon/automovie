@@ -1,6 +1,6 @@
 // Open the built site in a headless browser and check that its pages run.
 //
-//   pnpm run smoke
+//   pnpm run smoke [--shots]
 //
 // The type check and the Node tests cannot see what only the browser bundle
 // does, such as a package source the bundler compiled wrongly. This serves
@@ -8,10 +8,13 @@
 // missing element, a page error, a console error, a failed request, a page
 // that creates more WebGL contexts than it may, or an address that does not
 // arrive where it should. The scene gallery's case also scrolls its last
-// card into view and checks that its take was computed only then, and how
-// long that took.
+// card into view and checks that its take was computed only then. Each
+// page's time to show what it must is logged, and with `--shots` each page
+// is saved once checked as `.shots/smoke-<n>.png`, which git ignores.
 import { compressToEncodedURIComponent } from "lz-string";
+import fs from "node:fs";
 import type http from "node:http";
+import path from "node:path";
 import {
   type Browser,
   type BrowserContext,
@@ -78,6 +81,9 @@ const REFUSED: string = compressToEncodedURIComponent(
 /** A drawn scene view: a canvas inside a view that finished loading. */
 const DRAWN: string = '.am-scene-view[aria-busy="false"] canvas';
 
+/** Whether each page is saved as a screenshot once checked. */
+const SHOTS: boolean = process.argv.includes("--shots");
+
 /** The longest a take may take to compute and draw in the headless browser, which poses on the CPU alone, before the case fails. */
 const COMPUTE_LIMIT: number = 180000;
 
@@ -97,6 +103,11 @@ const lazyCard: (page: Page, problems: string[]) => Promise<void> = async (
   problems: string[],
 ): Promise<void> => {
   const view: Locator = page.locator(".am-scene-card .am-scene-view").last();
+  const title: string =
+    (await page
+      .locator(".am-scene-card .am-scene-card-title")
+      .last()
+      .textContent()) ?? "";
   const before: string | null = await view.getAttribute("data-take");
   if (before !== "waiting")
     problems.push(
@@ -126,7 +137,7 @@ const lazyCard: (page: Page, problems: string[]) => Promise<void> = async (
     problems.push(`the last card's take ended ${after}, not ready`);
   else
     console.log(
-      `  the last card computed and drew its take ${((Date.now() - started) / 1000).toFixed(1)} s after it was scrolled into view`,
+      `  the last card, ${title}, computed and drew its take ${((Date.now() - started) / 1000).toFixed(1)} s after it was scrolled into view`,
     );
 };
 
@@ -300,6 +311,7 @@ const main = async (): Promise<void> => {
       page.on("requestfailed", (request): void => {
         problems.push(`failed request: ${request.url()}`);
       });
+      const opened: number = Date.now();
       await page.goto(`${served.address}${each.path}`, { waitUntil: "load" });
       if (each.arrives !== undefined)
         try {
@@ -318,6 +330,9 @@ const main = async (): Promise<void> => {
         } catch {
           problems.push(`missing: ${selector}`);
         }
+      console.log(
+        `  shown in ${((Date.now() - opened) / 1000).toFixed(1)} s after it was opened`,
+      );
       if (each.check !== undefined) await each.check(page, problems);
       for (const selector of each.lacks)
         if ((await page.locator(selector).count()) !== 0)
@@ -352,6 +367,13 @@ const main = async (): Promise<void> => {
           .then((text: string | null): string => text ?? "");
         if (time !== later)
           problems.push("the hero moved on under reduced motion");
+      }
+      if (SHOTS) {
+        const out: string = path.resolve(__dirname, "..", ".shots");
+        fs.mkdirSync(out, { recursive: true });
+        await page.screenshot({
+          path: path.join(out, `smoke-${CASES.indexOf(each)}.png`),
+        });
       }
       console.log(`${problems.length === 0 ? "pass" : "FAIL"} ${each.name}`);
       for (const problem of problems) {
