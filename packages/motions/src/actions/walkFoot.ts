@@ -1,4 +1,9 @@
-import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  carriedAcceleration,
+  carriedRate,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -18,10 +23,11 @@ import { HumanFoot } from "../posture/HumanFoot";
  * toes extending at the ball by the same angle so they stay flat on the floor.
  * The forefoot rocker starts at rest and ends still turning (`LEAVE`), the
  * rate the swing then carries on from.
- * In swing the ankle leaves the placement and the velocity its stance ended
- * with and arrives at rest on the placement its next stance begins with, on a
- * quintic Hermite curve (the minimum-jerk profile of Flash and Hogan 1985 plus
- * the engine's `carriedRate` term for the initial velocity), lifted at
+ * In swing the ankle leaves the placement, the velocity and the acceleration
+ * its stance ended with and arrives at rest on the placement its next stance
+ * begins with, on the quintic through those states (the minimum-jerk profile
+ * of Flash and Hogan 1985 plus the engine's `carriedRate` and
+ * `carriedAcceleration` terms for the initial rate and acceleration), lifted at
  * mid-swing on a raised-cosine bump, `sin²(π u)`, whose slope is zero at both
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
@@ -212,7 +218,10 @@ export namespace walkFoot {
    *
    * @param body The body.
    * @param side The foot.
-   * @param props The two ends, the ankle's velocity at the first (m/s), the
+   * @param props The two ends, the ankle's velocity (m/s) and acceleration
+   *   (m/s^2, carried by the engine's `carriedAcceleration`, so the swing
+   *   leaves its stance with no step in acceleration; none when absent) at
+   *   the first, the
    *   rates its pitch and its toes leave the first with (degrees per second,
    *   carried over the first half of the swing by the engine's `carriedRate`;
    *   none when absent), the share of the swing, its duration in seconds and
@@ -228,6 +237,7 @@ export namespace walkFoot {
     props: {
       from: IEnd;
       velocity: IAutoMovieVector3;
+      acceleration?: IAutoMovieVector3;
       rates?: { pitch: number; toes: number };
       to: IEnd;
       u: number;
@@ -258,6 +268,10 @@ export namespace walkFoot {
       (1 - settle) * props.seconds,
       travel * (1 - settle) * props.seconds,
     );
+    const pushed: number = carriedAcceleration(
+      (1 - settle) * props.seconds,
+      travel * (1 - settle) * props.seconds,
+    );
     const bump: number = Math.sin(Math.PI * u) ** 2;
 
     // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
@@ -265,16 +279,21 @@ export namespace walkFoot {
     const rising: number = stiff
       ? carriedRate(LEVEL * props.seconds, u * props.seconds)
       : carried;
+    const lifted: number = stiff
+      ? carriedAcceleration(LEVEL * props.seconds, u * props.seconds)
+      : pushed;
+    const kept: IAutoMovieVector3 = props.acceleration ?? { x: 0, y: 0, z: 0 };
     const a: IAutoMovieVector3 = props.from.ankle;
     const b: IAutoMovieVector3 = props.to.ankle;
     const ankle: IAutoMovieVector3 = {
-      x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
+      x: a.x + (b.x - a.x) * s + props.velocity.x * carried + kept.x * pushed,
       y:
         a.y +
         (b.y - a.y) * level +
         props.velocity.y * rising +
+        kept.y * lifted +
         (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
-      z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
+      z: a.z + (b.z - a.z) * s + props.velocity.z * carried + kept.z * pushed,
     };
     const leaving: number = HumanFoot.heading(props.from.rotation);
     const heading: number =
