@@ -5,7 +5,7 @@ description: Owns what makes an instruction for an agent work, namely what to st
 
 # Prompting
 
-Every prompt follows the documentation skill's [Writing](../documentation/writing.md) rules, applying their first-reading test as someone new to the project, because wording that serves that person serves the agent too. The rules here are what makes an instruction for an agent work.
+A prompt is any instruction an agent reads: `AGENTS.md`, `CLAUDE.md`, a skill or one of its resources. Every prompt follows the documentation skill's [Writing](../documentation/writing.md) rules, read top to bottom as someone new to the project would read it, because wording that serves that person serves the agent too. The rules below are what makes a prompt work for an agent.
 
 Before editing a prompt, fetch and read in full the current prompting guide for the model that will read it, rather than recalling it, because it changes with each model. Where it disagrees with the user's rules in this repository, the user's rules win.
 
@@ -21,53 +21,55 @@ Keep examples few and varied, because an agent copies an example's surface.
 
 ## One owner
 
-Give each rule one owner, as [Writing](../documentation/writing.md) requires, and link to it from every other place that needs it, so a task receives one consistent requirement. When moving a rule, update every link to it.
+Give each rule one owner, the one section of one file that states it, as [Writing](../documentation/writing.md) requires, and link to it from every other place that needs it, so a task receives one consistent requirement. When moving a rule, update every link to it.
 
-Resolve two conflicting instructions that one project owns by changing one of them, never by adding an instruction about which one wins, because a model applies a stated priority unreliably.
+Resolve two conflicting rules in the skills or `AGENTS.md` that one project owns by changing one of them, never by adding a rule about which one wins, because a model applies a stated priority unreliably.
 
 ## Packages
 
-A skill routes to a package and stops there; naming the package is the routing. Unless the skill maintains that package, it carries no function name, command line or file path the package owns, and it lists no package's features, because a copy in a skill cannot be kept in step with the package. The package's README and types own them.
+A skill that needs a package names it and leaves the rest to it. Unless the skill maintains that package, it copies none of the package's function names, command lines, file paths or features, because a copy in a skill cannot be kept in step with the package. The package's types and JSDoc own its API, and its README its entry points.
 
 ## Skills and contracts
 
 A skill gives a job's goal and boundaries, and points to the checklists it relies on without restating their items.
 
-An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration, document or record Evidence selects must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Each selected one answers it, and whoever answers is the question's respondent. The [contracts](../contracts/SKILL.md) skill names who checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
+An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration, document or record Evidence selects must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist, under the item whose question covers it or as a new item under its own H2. Each selected one answers it as the item's respondent, and the contracts skill names who checks that the answer is true and complete.
 
-Put judgments the agent can make together into one checklist item, and split them into separate items when their task, respondent, proof or repair owner differs. Ask about the overall achievement in its own item, separate from the items that check its parts, because passing every part does not prove the whole works.
+A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, not only in prose, because prose can be missed.
+
+Put judgments the agent makes in one reading into one checklist item, and split them into separate items when their task, respondent, proof or repair owner, the one who fixes a failure, differs. Ask about the overall achievement in its own item, separate from the items that check its parts, because passing every part does not prove the whole works.
 
 ## Layout
 
 ### Entry files
 
-[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, because an agent that does not scan `.agents/skills` finds skills only there. Lead each trigger with the words of the task it serves. [`CLAUDE.md`](../../../CLAUDE.md) is `@AGENTS.md`.
+[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, the task that calls for it, because an agent that does not scan `.agents/skills` finds a skill only through `AGENTS.md`. Lead each trigger with the words of that task. [`CLAUDE.md`](../../../CLAUDE.md) holds only `@AGENTS.md`, which imports that file.
 
 ### Skill files
 
-A top-level skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory, in lowercase letters, digits and hyphens within 64 characters, and a third-person `description` within 1024 characters that says what it does and when to use it. A job with its own trigger gets its own skill.
+A job with its own trigger gets its own skill at `.agents/skills/<name>/SKILL.md`. Its `name` equals the directory and uses lowercase letters, digits and hyphens, within 64 characters. Its third-person `description`, within 1024 characters, says what the skill does and when to use it.
 
 ### Splitting a skill
 
-`SKILL.md` stays a short overview, far under 500 lines: what the skill is for, when to read it, and which resource each task needs. An agent loads it on every use of the skill, so everything in it that the task at hand does not need costs attention on every task. Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
+`SKILL.md` stays a short router, far under 500 lines: what the skill is for, when to read it, and which resource file beside it each task needs. An agent loads it on every use of the skill, so everything in it that the task at hand does not need costs attention on every task. Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
 
 Split when any of these shows:
 
-- several unrelated branches in one file;
-- a branch only some tasks take;
+- several unrelated tasks in one file;
+- a section only some tasks need;
 - more content than the opening can introduce.
 
-A branch moves into a resource file beside `SKILL.md`, and a resource longer than about 100 lines usually holds a branch to move. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
+Such a section moves into a resource file beside `SKILL.md`, and a resource longer than about 100 lines usually holds one to move. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
 
 Each resource needs three things:
 
 - a name that states its subject;
 - an opening that states its subject, in its own words;
-- a direct link from the router of its own folder, never only through another resource.
+- a direct link, or a stated path pattern, from the nearest router above it.
 
 ### Helpers
 
-Put repeated deterministic operations in tested helpers, reusing existing tools before adding another. Link their task-specific invocation from the relevant guide, and take examples from working consumers rather than copying their implementation into the prompt.
+Put repeated deterministic operations in tested helpers, reusing existing tools before adding another. Link each helper's command for a task from the resource covering that task, and take examples from code that already calls the helper rather than copying the helper's code into the prompt.
 
 ## Shared skills
 
@@ -75,6 +77,6 @@ A skill shared with other projects, such as one a project template ships, holds 
 
 ## Verification
 
-Start a change from the actual failure it must fix, kept as a case, and check the changed instructions against that case, the strongest similar legitimate case they must leave alone, and a real governed task with its actual consumers. When a separate context is available and authorized, give it the task and raw inputs without the intended answer and observe its choices.
+Start a change from the actual failure it must fix, kept as a case. Check the changed instructions against that case, against the strongest similar legitimate case they must leave unchanged, and against a real task they govern together with the files that use its result. When a separate agent session is available and authorized, give it the task and raw inputs without the intended answer and observe its choices.
 
 Check statically that links resolve, triggers reach their resources and each rule has one owner. Report static inspection, behavioral observation and unavailable checks separately, because explaining a rule does not prove another session follows it.

@@ -38,7 +38,7 @@ Conquer one person before generalizing. Pass each step's [gates](verification.md
    - Correct only the knots that follow a reference artifact, such as hatching, holes or saw-toothed slices. Name each one in a comment.
    - Conic-loft those lines in absolute world coordinates.
 2. **Re-base.** Rewrite each part's traced coordinates about its own origin at its joint, with axes from its own landmarks. Chain the parts' relative frames so the round trip back to the reference pose is exact.
-3. **Generalize.** Derive, by reverse analysis of the re-based coordinates, the universal laws that produce them from parameters, under [Generate From Parameters](curves.md#generate-from-parameters), [Numbers](construction.md#numbers) and [Inputs](construction.md#inputs).
+3. **Generalize.** Derive, by reverse analysis of the re-based coordinates, the universal laws that produce them from parameters, under [Generate from parameters](curves.md#generate-from-parameters), [Numbers](construction.md#numbers) and [Inputs](construction.md#inputs).
 
 Know the method's classical limits before a step begins and plan their standard remedies: a level section cannot hold a horizontal floor, a pole cannot host ports, and a branch needs its connection. A limit discovered through a refusal costs a fix-and-revert cycle.
 
@@ -72,7 +72,7 @@ The polygon man that `render` draws is a deliberately simple stand-in of a few r
 ## Files
 
 - [Construction](construction.md): the tree, the connection operators, the repair order, identity and binding, form, numbers and inputs.
-- [Original 2D Curves](curves.md): sketches, view curves, representation choices and generation from parameters.
+- [Original 2D curves](curves.md): sketches, view curves, representation choices and generation from parameters.
 - [Verification](verification.md): seeing before believing, the reference overlay, the step gates, the inspection round and verdicts.
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Screenshots](screenshot.md): the shared instrument's selections and passes for the Human figure.

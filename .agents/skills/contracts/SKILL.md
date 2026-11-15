@@ -5,7 +5,7 @@ description: Defines the @evidence checklists every maintained automovie declara
 
 # Contracts
 
-Each checklist H2 is a question that every selected declaration answers in its doc comment. A package's `evidence.config.ts` selects the checklists; `pnpm run evidence` checks that answers exist, and [review](../review/SKILL.md) checks that they are true and complete.
+Each checklist H2 names one item, which every selected declaration answers in its doc comment as the item's respondent. A package's `evidence.config.ts` selects the checklists; `pnpm run evidence` checks that answers exist, and [review](../review/SKILL.md) checks that they are true and complete.
 
 | Checklist | Answered by | Asks about |
 | --- | --- | --- |
@@ -16,8 +16,8 @@ Each checklist H2 is a question that every selected declaration answers in its d
 
 ## Answering
 
-1. Before writing, read the declaration and everything its H2 asks about, such as its callees, callers, and tests.
-2. Answer every fact the H2 asks for, from what the code actually does. A partial, generic, or untrue answer is a defect, not a pass.
+1. Before writing, read the declaration and everything its item asks about, such as its callees, callers, and tests.
+2. Answer every fact the item asks for, from what the code actually does. A partial, generic, or untrue answer is a defect, not a pass.
 3. If the code falls short of the question, fix the code, and state any gap that remains instead of claiming the requirement is met.
 4. Write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line, and `@evidenceExclude` the same way only for an item that does not apply, never for a whole file.
 
@@ -32,4 +32,4 @@ Never narrow a selector or lower a severity to pass the check. Exclude only:
 
 ## Editing the checklists
 
-Tens of thousands of tags cite their paths and H2s, so adding, renaming, or removing an H2 needs an authorized migration of every answer. Keep one H2 per question.
+Tens of thousands of tags cite their paths and H2s, so adding, renaming, or removing an H2 needs an authorized migration of every answer.

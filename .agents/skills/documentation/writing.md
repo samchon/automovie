@@ -27,9 +27,9 @@ A metaphor or a plain picture may explain a concept once in prose, but it never 
 
 ## Signs of careless text
 
-Text reads as written by a person for this reader. These habits mark text as produced without thought, and a reader who spots one stops trusting the rest:
+Write as a person writing for this document's reader. These habits mark text as produced without thought, and a reader who spots one stops trusting the rest:
 
-- stock AI phrasing;
+- stock AI phrasing, such as "delve into" or "it's worth noting";
 - a sentence frame or opener repeated across sibling documents;
 - one template stamped on every document, whatever it holds;
 - three parallel items where the content has two or four.
@@ -38,7 +38,7 @@ Text reads as written by a person for this reader. These habits mark text as pro
 
 A heading names its topic in a few words, in sentence case. A question, claim or instruction belongs in the text under it, because a sentence in a heading is read twice and hides the topic it names.
 
-Link to a heading by its title's slug and give it no explicit anchor such as `{#name}`, because the title already gives one and a renderer that does not read the syntax shows it as text. No two headings in one document share a title, because their slugs would collide.
+Link to a heading by its title's slug, and give it an explicit anchor such as `{#name}` only where its address must survive a retitle, because a renderer that does not read the syntax shows the anchor as text. No two headings in one document share a title, because their slugs would collide.
 
 ## Paragraphs
 
@@ -48,9 +48,11 @@ Gluing several topics into one long paragraph to keep the count low is a failure
 
 ## Lists, tables and code
 
-A list is for parallel items short enough to take in at a glance, one rendered line of about 120 characters at most, and for steps whose order changes the result. Introduce it with a sentence that says what its items are, write every item in the same grammatical form, and give it at least two items. Mark a sublist differently from its parent, such as `-` items under a numbered list.
+A list is for parallel items short enough to take in at a glance, one rendered line of about 120 characters at most, and for steps whose order changes the result. Introduce it with a sentence that says what its items are, write every item in the same grammatical form, and give it at least two items. Fragment items end in semicolons and the last in a period; full-sentence items end in periods. Mark a sublist differently from its parent, such as `-` items under a numbered list.
 
-An item that runs long, or whose reasoning needs more than a short clause, is not a list item. Breaking an explanation into bullets does not make it concise, because the bullets hide how its points connect. Give it the form of what it is:
+A checklist whose heading names its items, such as a statements document, is the exception: it needs no introducing sentence, and each item holds one checkable assertion with its exceptions.
+
+An item that runs long, or whose reasoning needs more than a short clause, is not a list item. Breaking an explanation into bullets does not make it concise, because the bullets hide how its points connect. Give such content the form of what it is:
 
 | Content | Form |
 | --- | --- |

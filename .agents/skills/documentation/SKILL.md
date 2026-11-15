@@ -16,4 +16,4 @@ Write a README from the view of the person who uses its project or package, and 
 - the few entry points;
 - where the detail lives.
 
-A README lists no API that the source and its types already own, because that list goes stale at the next change, and it carries nothing only a maintainer needs. Every name, command and sample in it exists in the code, and every sample runs.
+A README lists no API that the source and its types already own, because such a list goes stale at the next change. It carries nothing that only a maintainer needs. Every name, command and sample in it exists in the code, and every sample runs.

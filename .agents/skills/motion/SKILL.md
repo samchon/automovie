@@ -11,7 +11,7 @@ The goal is that composition expresses every act a human body performs. The ship
 
 Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, and [laws](laws/SKILL.md) holds the rules for designing and checking one, which are true of motion in any project. This file holds what applies only here.
 
-## Choosing the form {#choosing-the-form}
+## Choosing the form
 
 Take the first form that expresses the act, because each later one writes more motion that must then be fitted, refused and checked anew.
 
@@ -48,7 +48,7 @@ Work in this order, because each step fixes what the next one builds on.
 
    A test states what a person does with a number from the study, never what the code returned. Use few tests that cover widely: a covering set of bodies, variants and supports, and relations that must hold between two runs.
 
-6. Run the tests and repair every finding of the round together by cause.
+6. Run the tests and fix the round's findings [by cause](../../../AGENTS.md#fixing-by-cause).
 
    A specification that fails on a defect outside the change stays in the feature tests, failing, with its measured numbers in its document and on the owning issue. The owner of the defective code fixes it in the same pull request. No specification is parked in a folder apart.
 

@@ -1,4 +1,4 @@
-# Original 2D Curves
+# Original 2D curves
 
 Author the shape through anatomical points, construction lines and visible curve controls before composing its source or judging its loft. Changing a polynomial basis alone keeps the shape, so it cannot repair a wrong datum, domain or boundary condition.
 

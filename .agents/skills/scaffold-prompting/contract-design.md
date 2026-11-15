@@ -1,6 +1,6 @@
 # Contract design
 
-A shipped contract is a checklist of items that a respondent answers about its work. The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
+A shipped contract is a checklist of items that each selected respondent answers about itself, as the production's [contracts](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md) defines them. The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
 
 ## Scope and failure
 
@@ -14,11 +14,11 @@ Shipped contracts take two levels, a broad item and its statements, as the produ
 
 Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
 
-A contract family is a folder of contracts that one owner keeps, and a new sentence pattern needs no new family. When adding a family, confirm against the selector documentation of `@automovie/evidence` that no selector reaches its statements.
+A contract family is a folder of contracts that one owner keeps, and a new sentence pattern needs no new family. When adding a family, confirm against the selector documentation of `@automovie/evidence` that no selector selects the family's statements documents.
 
 ## Changing items
 
-Compare proposed items with existing ones for overlap, contradiction and feasible joint satisfaction. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
+Compare proposed items with existing ones for overlap, contradiction and whether all can be met at once. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
 
 Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 

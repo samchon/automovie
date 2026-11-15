@@ -35,7 +35,7 @@ The parts' topology selects the operator:
 
 **Recesses.** Preserve real recesses and openings, such as the slit under the arm or the gap between the lips. A tape hull bridges them, and a common outward envelope cannot replace them.
 
-**Merges.** A merge or diff combines defined volumes; it neither establishes shared ownership nor repairs independent boundaries. Verify the source connection under [Shared Connections](verification.md#shared-connections) first, then judge the realized band, continuation, trim or Boolean separately. An operator failure never justifies distorting a valid anatomical input.
+**Merges.** A merge or diff combines defined volumes; it neither establishes shared ownership nor repairs independent boundaries. Verify the source connection under [Shared connections](verification.md#shared-connections) first, then judge the realized band, continuation, trim or Boolean separately. An operator failure never justifies distorting a valid anatomical input.
 
 ## Repair
 

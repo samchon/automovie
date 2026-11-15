@@ -20,7 +20,7 @@ Let a test run, CI run, review round, visual inspection round, or experiment fin
 
 ## Viewers
 
-Keep video and 3D viewers operational, and restore a broken viewer before other work. Fill a missing core capability at its package owner, then verify the real consumer and reconnect it before resuming.
+Keep video and 3D viewers operational, and restore a broken viewer before other work. Add a missing core capability in the package that owns it, then reconnect the viewer and verify it before resuming.
 
 ## Finishing work
 
@@ -38,7 +38,7 @@ Stop only when nothing can move without the user, a protected target blocks you,
 
 ## Skills
 
-Read the skill whose trigger applies.
+Read every skill whose trigger applies.
 
 | Skill | Use when |
 | --- | --- |
@@ -51,9 +51,9 @@ Read the skill whose trigger applies.
 | [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do |
 | [scaffold](.agents/skills/scaffold/SKILL.md) | Editing `packages/template`, or reading, authoring, or reviewing production content anywhere |
 | [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Designing or revising the production skills, contracts and routers shipped by the scaffold |
-| [production-campaign](.agents/skills/production-campaign/SKILL.md) | Sustained authoring campaigns with writers and reviewers launched as CLI processes, observation of a single production's runs, and production comparisons |
+| [production-campaign](.agents/skills/production-campaign/SKILL.md) | Running sustained authoring campaigns with writers and reviewers launched as CLI processes, observing one production's runs, or comparing productions |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md`, or a skill |
 | [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |
-| [review](.agents/skills/review/SKILL.md) | Any review or self-review |
-| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | A broad audit or repeated issue-to-pull-request work |
+| [review](.agents/skills/review/SKILL.md) | Doing any review or self-review |
+| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Running a broad audit or repeated issue-to-pull-request work |
 | [pull-request](.agents/skills/pull-request/SKILL.md) | Pushing, opening, updating, or merging a pull request, only when asked or under a delivery mandate |

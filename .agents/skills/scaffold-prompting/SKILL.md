@@ -1,6 +1,6 @@
 ---
 name: scaffold-prompting
-description: Owns the design of what AutoMovie productions receive, namely the product principles every shipped skill serves, task strategy, contracts with their statements, and the relation between root skills and the scaffold. Use when adding, revising or auditing scaffold instructions; prompting owns what makes an instruction work and scaffold owns distribution.
+description: Owns the design of what AutoMovie productions receive, namely the product principles every shipped skill serves, task strategy, contracts with their statements, and the relation between repository skills and the scaffold. Use when adding, revising or auditing scaffold instructions; prompting owns what makes an instruction work and scaffold owns distribution.
 ---
 
 # Scaffold prompting
@@ -24,17 +24,15 @@ The product contract sets [coarse models and detailed motion](../project/SKILL.m
 
 ### Screenplay detail
 
-The screenplay decides every exchange, outcome and reaction, and a film's code stages each one in screenplay order.
+A shipped instruction leaves every exchange, outcome and reaction to the [screenplay](../../../packages/template/scaffold/instructions/.agents/skills/story/layers/screenplay.md) and never lets code or a prompt choose one.
 
 ### Reuse
 
-A production composes what its installed packages provide and writes only what they lack. It cannot repair an installed package, so a defect goes to the upstream tracker through the user.
-
-Every object and motion a production writes is a reusable module varied by parameters and seed, never a copied variant, and a module several productions use moves to the workspace's shared packages.
+A shipped instruction sends a production to its installed packages first and varies a module rather than copying it, as the production's [reuse](../../../packages/template/scaffold/instructions/.agents/skills/development/reuse.md) skill sets.
 
 ### Two story routes
 
-The product contract sets the [two routes](../project/SKILL.md#commissions): a short film, and long-form work for a series or a very long film. The evidence graph and the story workflow route each to its own instructions.
+The product contract sets the [two routes](../project/SKILL.md#commissions), and the production's [route choice](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md#choosing-the-route) decides which a work takes.
 
 ### Skills and contracts
 
@@ -42,17 +40,15 @@ Shipped task skills and contracts follow prompting's [skills and contracts](../p
 
 ### Stills only
 
-The agent sees pictures only as still images and cannot hear. No shipped instruction asks it to watch playback, listen or read aloud; it judges motion on dense consecutive frames and asks the user for the rest.
+The agent sees pictures only as still images and cannot hear. No shipped instruction asks it to watch playback, listen or read aloud; the production's [observation rule](../../../packages/template/scaffold/instructions/AGENTS.md#what-you-can-observe) says what it does instead.
 
-## Root and scaffold
+## Repository and scaffold
 
-A rule that holds in every project lives in a root skill and ships through an empty `$` placeholder in the scaffold, as [shared items](../scaffold/SKILL.md#shared-items) defines. Such a skill follows prompting's [shared skill](../prompting/SKILL.md#shared-skills) rule. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops.
+A rule that holds in every project lives in a repository skill and ships through an empty `$` placeholder in the scaffold, as [shared items](../scaffold/SKILL.md#shared-items) defines. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops. [What a production owns](../scaffold/SKILL.md#what-a-production-owns) stays out of the scaffold.
 
-Keep the scaffold production-neutral and usable without repository operating skills. Work-specific genre, language, voice and delivery decisions belong to the production's own instructions, project context or work contracts.
+## The commissioned output
 
-## The commissioned result
-
-Design task guidance and its contract items around the same commissioned result, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that failure. When an existing item already covers it, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory. Compliant records cannot substitute for a usable film, so connect each observed failure back to its repair owner.
+Design task guidance and its contract items around the same commissioned output, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that failure. When an existing contract item already covers the failure, repair how that item is applied and answered; change the design only when the needed judgment is absent or contradictory. Compliant records cannot substitute for a usable film, so connect each observed failure back to its repair owner.
 
 ## Boundaries
 
@@ -60,4 +56,4 @@ Use the production [task router](../../../packages/template/scaffold/instruction
 
 Workflows borrowed from serial-novel writing can inform ownership and review, but their prose interiority, mobile reading, serial rewards and publishing commands do not apply to film production.
 
-Hand the change to [scaffold](../scaffold/SKILL.md) for distribution and project ownership checks, and implementation to [development](../development/SKILL.md). This skill adds no creative pass, graph stage or publication authority.
+This skill adds no authoring step, no Evidence graph stage and no permission to publish.
