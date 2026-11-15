@@ -25,7 +25,7 @@ For maintained code, check that each checklist answer is true and complete for i
 
 The review law over the whole change: the base-to-head diff and any uncommitted work. It grants no authority to push or merge.
 
-Report:
+The review reports three things:
 
 - the single pass over evidence-covered code, and the clean round over everything else;
 - every check that could not run;

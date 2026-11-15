@@ -23,7 +23,7 @@ Give an example only where the rule alone leaves the pattern unclear, and keep e
 
 ## One owner
 
-A rule lives in one section of one file, as Writing requires, so a task receives one consistent requirement; every other place links to it, and moving it updates its callers.
+Every other place links to a rule's one owner, as [Writing](../documentation/writing.md) requires, so a task receives one consistent requirement. Moving a rule updates its callers.
 
 Resolve two conflicting instructions inside the prompts by changing one of them, never by adding an instruction about which one wins, because a model applies a stated priority unreliably.
 
@@ -37,7 +37,7 @@ A skill gives a job's goal, order and boundaries, and points to the checklists i
 
 An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
 
-Group judgments the agent can make together, and split them when their task, respondent (whoever answers the question), evidence or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
+Put questions the agent can answer together in one checklist item, and split them when their task, respondent (whoever answers), evidence or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
 
 ## Layout
 
@@ -55,9 +55,9 @@ A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory 
 
 Split when any of these shows:
 
-- several unrelated branches sit in one file;
+- several unrelated branches in one file;
 - a branch only some tasks take;
-- a length the opening can no longer introduce.
+- more content than the opening can introduce.
 
 A branch moves into a sibling file, and a resource longer than about 100 lines usually holds a branch to move. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
 
@@ -65,7 +65,7 @@ Each sibling file has these three marks:
 
 - a name that states its subject;
 - an opening that states its subject, in its own words;
-- a direct link from its router, never a chain more than one step long.
+- a direct link from the router of its own folder, never only through another resource.
 
 ### Helpers
 

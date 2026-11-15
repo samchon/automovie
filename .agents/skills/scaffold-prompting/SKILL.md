@@ -52,7 +52,7 @@ Keep the scaffold production-neutral and usable without repository operating ski
 
 ## The commissioned result
 
-Design task guidance and its contract items around the same commissioned result. Start from the user's goal and the failure the change answers, kept as prompting's [verification](../prompting/SKILL.md#verification) sets, and decide whether the agent missed a rule or the current rules permit that result.
+Design task guidance and its contract items around the same commissioned result, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that result.
 
 When an existing item already covers the loss, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory.
 
