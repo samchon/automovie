@@ -21,12 +21,13 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
   roundShot: "round shot",
   grenade: "hand grenade",
   cartridge: "musket cartridge",
+  stone: "throwing stone",
 };
 
 /**
- * Something a weapon launches or a hand throws, or a soldier loads: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade or a musket's paper cartridge.
+ * Something a weapon launches or a hand throws, or a soldier loads: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade, a throwing stone or a musket's paper cartridge.
  *
- * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; each rests on that material, an arrow and a bolt on the wooden butt of its shaft, so its body's friction is that material's on concrete; a ball's lead has no measured pair, so its body carries no friction. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data is its model body's (`flight`): its drag, its restitution where it bounces or rolls and its depth where it sticks, each only where a source read it, with how it is held in flight and how its flight ends (`ATTITUDE`, `OUTCOME`), for the flight #3479 runs. A cartridge, the paper tube of a musket's ball and powder, stands along `+Y` from its ball end at the origin to its powder end: `grip` is its paper pinched between the thumb and two fingers, and `end` its powder end, which the teeth bite off to prime and load ("Bring it to the mouth ... and bite off the top of it", Duane, A Military Dictionary, 1810); it is loaded, never launched, so it carries no flight data.
+ * A ball, a shot and a stone rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers, the shot taken in two hands, or the stone closed round in one hand. A stone is a ball of granite whose mass is drawn and whose diameter follows from that mass at its drawn specific gravity, so a heavier stone is bigger; it rests on stone, so its body's friction is granite's on concrete. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; each rests on that material, an arrow and a bolt on the wooden butt of its shaft, so its body's friction is that material's on concrete; a ball's lead has no measured pair, so its body carries no friction. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data is its model body's (`flight`): its drag, its restitution where it bounces or rolls and its depth where it sticks, each only where a source read it, with how it is held in flight and how its flight ends (`ATTITUDE`, `OUTCOME`), for the flight #3479 runs. A cartridge, the paper tube of a musket's ball and powder, stands along `+Y` from its ball end at the origin to its powder end: `grip` is its paper pinched between the thumb and two fingers, and `end` its powder end, which the teeth bite off to prime and load ("Bring it to the mouth ... and bite off the top of it", Duane, A Military Dictionary, 1810); it is loaded, never launched, so it carries no flight data.
  *
  * @param params The kind, the read object where the kind has several, and any dimension the author fixes.
  * @param seed The seed that picks the object left free and draws every dimension left free inside its band; absent, the first object and the middle of each band.
@@ -34,7 +35,7 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
  * @throws {ArchetypeRefusal} For an object not of the kind, a fixed dimension outside its band, or one the object gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each projectile rests or stands, how it is held, and what waits.
- * @evidence contracts/development/implementation.md#principled-implementation A ball of the drawn calibre, a pound over the service count in mass; an arrow as its read shaft at its read whole mass; a bolt as its read shaft with a head of the read length drawn round at its head width; a grenade as the data sheet's sphere with its fuze standing to the data sheet's length; a shot as the read 6-pdr. or 12-pdr. shot, its diameter and weight together. NMM 11461's mass, which its record does not state, follows from its read figures: an ash shaft of its read width over its length less its head, and a steel head of its read length as a solid square pyramid on the shaft's width, the width its socket takes, 65.2 g.
+ * @evidence contracts/development/implementation.md#principled-implementation A ball of the drawn calibre, a pound over the service count in mass; an arrow as its read shaft at its read whole mass; a bolt as its read shaft with a head of the read length drawn round at its head width; a grenade as the data sheet's sphere with its fuze standing to the data sheet's length; a shot as the read 6-pdr. or 12-pdr. shot, its diameter and weight together; a stone as the sphere its drawn mass fills at its drawn specific gravity, `cbrt(6 m / (pi rho))` with `rho` that gravity times water's 1000 kg per cubic metre. NMM 11461's mass, which its record does not state, follows from its read figures: an ash shaft of its read width over its length less its head, and a steel head of its read length as a solid square pyramid on the shaft's width, the width its socket takes, 65.2 g.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the object, draw the other dimensions, then one branch per kind: its parts, its contacts, and its body with the flight data `flight` gives.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arrow's or a bolt's fletching, an arrow's head and a bolt head's facets are not drawn; no contact reads them.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
@@ -71,6 +72,13 @@ export function createProjectile(
     ...draw.dimensions(createProjectile.BANDS[kind], createProjectile.BANDS),
     ...model.figures,
   };
+
+  // A stone's diameter is the sphere its drawn mass fills at its drawn specific gravity, water being 1000 kg per cubic metre: derived, not drawn.
+  if (kind === "stone")
+    d.diameter = draw.derive(
+      "diameter",
+      Math.cbrt((6 * d.mass!) / (Math.PI * d.gravity! * 1000)),
+    );
   const builder: ArchetypeBuilder<
     createProjectile.Affordance,
     createProjectile.Dimension
@@ -163,7 +171,7 @@ export function createProjectile(
     });
   }
 
-  // A sphere: a ball pinched, a shot taken in two hands, a grenade's body in one hand with its fuze on top.
+  // A sphere: a ball pinched, a shot taken in two hands, a grenade's body in one hand with its fuze on top, a stone in one hand.
   if (kind === "grenade") {
     const top: number = d.length!;
     builder.rod(
@@ -175,9 +183,12 @@ export function createProjectile(
     );
   }
   const r: number = d.diameter! / 2;
+  const stone: boolean = kind === "stone";
   builder.ball(kind, r, v(0, r, 0), {
-    color: "#6f6f72",
-    ...(kind === "ball" ? {} : { surface: "steel" as const }),
+    color: stone ? "#8a8580" : "#6f6f72",
+    ...(kind === "ball"
+      ? {}
+      : { surface: stone ? ("stone" as const) : ("steel" as const) }),
   });
   builder.affordance({
     id: "body",
@@ -186,12 +197,18 @@ export function createProjectile(
     frame: ArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
     extent: null,
     grip:
-      kind === "ball" ? "precision" : kind === "grenade" ? "power" : "two-hand",
+      kind === "ball"
+        ? "precision"
+        : kind === "grenade" || stone
+          ? "power"
+          : "two-hand",
     aperture: d.diameter!,
   });
 
   return builder.build(d.mass!, {
-    ...(kind === "ball" ? {} : { rests: "steel" as const }),
+    ...(kind === "ball"
+      ? {}
+      : { rests: stone ? ("stone" as const) : ("steel" as const) }),
     ...createProjectile.flight(kind, model.name, r),
   });
 }
@@ -205,14 +222,15 @@ export function createProjectile(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind is built whose contacts lack a source; a bolt head's density over its shaft's is the ratio of read steel and ash densities, which places its balance. No object's figure stands in another's record: a figure an object does not give is drawn from a provisional band citing the read objects' range of it.
  */
 export namespace createProjectile {
-  /** The kinds: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade and a musket's paper cartridge. */
+  /** The kinds: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade, a musket's paper cartridge and a hand-thrown stone. */
   export type Kind =
     | "ball"
     | "arrow"
     | "bolt"
     | "roundShot"
     | "grenade"
-    | "cartridge";
+    | "cartridge"
+    | "stone";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -222,6 +240,7 @@ export namespace createProjectile {
     "roundShot",
     "grenade",
     "cartridge",
+    "stone",
   ];
 
   /** A grenade fuze's radius as a share of the body's diameter: a construction estimate that no act reads and no band declares; the fuze's height is the data sheet's length less the body. */
@@ -242,9 +261,10 @@ export namespace createProjectile {
     bolt: "velocity",
     roundShot: "free",
     grenade: "free",
+    stone: "free",
   };
 
-  /** How each launched kind's flight ends (#3482): `stick`, it embeds where it strikes; `bounce`, it rebounds and then rolls; `roll`, it rolls where it lands. A cartridge is loaded, not launched, so it has none. */
+  /** How each launched kind's flight ends (#3482): `stick`, it embeds where it strikes; `bounce`, it rebounds and then rolls, as a round shot and a stone do; `roll`, it rolls where it lands. A cartridge is loaded, not launched, so it has none. */
   export const OUTCOME: Readonly<
     Record<Exclude<Kind, "cartridge">, "stick" | "bounce" | "roll">
   > = {
@@ -253,17 +273,18 @@ export namespace createProjectile {
     bolt: "stick",
     roundShot: "bounce",
     grenade: "roll",
+    stone: "bounce",
   };
 
   /**
    * The flight data read, each with its source, metres and dimensionless coefficients:
    *
-   * - `sphere`: a sphere's drag coefficient, 0.47, "spheres exhibit a roughly constant drag with a CD value ~0.47" against the cross-sectional area (A. R. Collins, Cannonball Aerodynamic Drag, https://arc.id.au/CannonballDrag.html, on Miller and Bailey, J. Fluid Mech. 1979), inside NASA Glenn's ".07 to .5" on the projected frontal area (https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shape-effects-on-drag/); provisional for a musket ball, whose supersonic flight Collins puts near 1, and for a grenade, whose fuze and lever are not counted.
+   * - `sphere`: a sphere's drag coefficient, 0.47, "spheres exhibit a roughly constant drag with a CD value ~0.47" against the cross-sectional area (A. R. Collins, Cannonball Aerodynamic Drag, https://arc.id.au/CannonballDrag.html, on Miller and Bailey, J. Fluid Mech. 1979), inside NASA Glenn's ".07 to .5" on the projected frontal area (https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shape-effects-on-drag/); provisional for a musket ball, whose supersonic flight Collins puts near 1, for a grenade, whose fuze and lever are not counted, and for a stone, a rough spheroid rather than a smooth sphere.
    * - `arrow`: an arrow's drag coefficient, "about 1.5 for Re > 1.0 × 10^4" with a laminar boundary layer (Miyazaki et al., Aerodynamic properties of an archery arrow, Sports Engineering 16(1):43-54, 2013, abstract, https://www.bisp-surf.de/Record/PU201304002489); its reference area, which the abstract does not state, taken as the shaft's cross-section, provisional.
    * - `ballEmbed`: a musket ball's depth in wood, ".626-inch ball embedded ¾ inch in a dry loblolly pine post" (Scott et al., Colonial Era Firearm Bullet Performance, American Society of Arms Collectors, 2017, rev. 2024, p. 72, https://americansocietyofarmscollectors.org/wp-content/uploads/2024/07/I-Roundball-Shooting-Phase-1-Report-Revised-3-20-24.pdf).
    * - `arrowEmbed`: an arrow's depth in wood, a target arrow from a 65 lb bow at 7 yards through an oak board 1 in thick, "a total depth of 2 inches" (Pope, A Study of Bows and Arrows, 1923, p. 357, https://digitalassets.lib.berkeley.edu/anthpubs/ucb/text/ucp013-011.pdf).
    * - `shotEmbed`: a round shot's least depth in earth, "a 6-pounder from 3½ feet to 4½ feet; ... 12-pounder from 8½ feet to 10 feet" in "common earth, dug up and well rammed" (Griffiths, The Artillerist's Manual, 1856, p. 199, https://www.gutenberg.org/ebooks/73341), the least of each range.
-   * - `ground`: a restitution for a sphere striking soil, 0.30, the rockfall default for soil (Benoît et al., Evaluation of coefficients of restitution for rockfall modeling, 20th ICSMGE, 2022, p. 2381, Table 2, https://www.issmge.org/uploads/publications/1/120/ICSMGE_2022-408.pdf), measured on rock blocks, provisional for iron shot and a grenade.
+   * - `ground`: a restitution for a sphere striking soil, 0.30, the rockfall default for soil (Benoît et al., Evaluation of coefficients of restitution for rockfall modeling, 20th ICSMGE, 2022, p. 2381, Table 2, https://www.issmge.org/uploads/publications/1/120/ICSMGE_2022-408.pdf), measured on rock blocks, so read for a stone and provisional for iron shot and a grenade.
    *
    * Searched for #3482 without a figure, so left absent: a Mary Rose arrowhead's size and mass, which would place an arrow's balance ahead of its middle (Weapons of Warre's arrowhead chapter is not online; the Fletchers' Company's Mary Rose page gives none, its heads having corroded away); a crossbow bolt's drag (Mukaiyama et al. 2011's wind-tunnel study was seen only in search results) and its depth in a target; a sphere's rolling resistance on grass or ground; an iron, lead or grenade body's restitution on ground measured as such; the M67 safety pin's pull and travel (TM 43-0001-29 and FM 3-23.30 give the fuze's 4 to 5 s and the pin's spread end, not its size; MIL-F-63446B's 1 to 8 lb is for the M230 and M231 practice fuzes).
    */
@@ -346,7 +367,7 @@ export namespace createProjectile {
   /**
    * The affordance ids:
    *
-   * - `body`: a ball, a shot or a grenade's body, taken from `-X`.
+   * - `body`: a ball, a shot, a grenade's body or a stone, taken from `-X`.
    * - `shaft`: an arrow's or a bolt's shaft, taken from `-Z` anywhere along it.
    * - `nock`: an arrow's or a bolt's butt, facing down along it.
    * - `tip`: an arrow's or a bolt's point, `+Y` along it.
@@ -358,13 +379,20 @@ export namespace createProjectile {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `diameter`: a ball's, a shot's or a grenade's body across, an arrow's or a bolt's shaft across.
+   * - `diameter`: a ball's, a shot's or a grenade's body across, an arrow's or a bolt's shaft across; a stone's, derived from its mass and specific gravity.
    * - `length`: an arrow's or a bolt's, butt to point; a grenade's, base to fuze top; a cartridge's, ball end to powder end.
    * - `head`: a bolt's head along it.
    * - `headWidth`: a bolt's head across, drawn round.
+   * - `gravity`: a stone's specific gravity, its density over water's.
    * - `mass`: kilograms.
    */
-  export type Dimension = "diameter" | "length" | "head" | "headWidth" | "mass";
+  export type Dimension =
+    | "diameter"
+    | "length"
+    | "head"
+    | "headWidth"
+    | "gravity"
+    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
@@ -372,6 +400,7 @@ export namespace createProjectile {
     length: "m",
     head: "m",
     headWidth: "m",
+    gravity: "",
     mass: "kg",
   };
 

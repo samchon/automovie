@@ -1,4 +1,5 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import { createRock } from "../nature/createRock";
 import type { createProjectile } from "./createProjectile";
 
 /** The British service musket ball, seen only in search results. */
@@ -21,8 +22,12 @@ const M67: string =
 const CARTRIDGE: string =
   'Ordnance Manual for the Use of the Officers of the United States Army, 3rd ed., 1862, p. 270, Cartridges for Small Arms, round ball, musket 1842: ball .65 in, 412 grs, powder 110 grs, "Weight of 10 cartridges" 13.2 oz, "Bundles of 10" 2.6 x 3.1 x 1.35 in, and p. 268, the bundling box\'s "length that of the cartridge" (https://archive.org/details/ordnancemanualfo00unitrich); Mordecai, Ordnance Manual, 1850, p. 246, the paper rolled on a former "of the same diameter as the ball" (https://archive.org/details/ordnancemanualf00mordgoog)';
 
+/** The hand-thrown stone's mass, read. */
+const STONE: string =
+  "Wilson et al., Scientific Reports 6:30614 (2016), p. 5 (https://doi.org/10.1038/srep30614): the stone thrown farthest weighs \"approximately 0.75 kg +/- 0.25 kg\", the range 81.8 % of 55 spheroids chosen for throwing fell in";
+
 /**
- * The band of each free dimension of {@link createProjectile} an object leaves, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. Read only as `createProjectile.BANDS`; an arrow's and a bolt's provisional bands are drawn only for the object that does not give the figure, and every band names its source.
+ * The band of each free dimension of {@link createProjectile} an object leaves, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. Read only as `createProjectile.BANDS`; an arrow's and a bolt's provisional bands are drawn only for the object that does not give the figure, a stone's specific gravity is granite's as `createRock` reads it, and every band names its source.
  */
 export const PROJECTILE_BANDS: Readonly<
   Record<
@@ -99,5 +104,9 @@ export const PROJECTILE_BANDS: Readonly<
       (13.2 * ArchetypeUnits.OUNCE) / 10,
       `${CARTRIDGE}: "Weight of 10 cartridges" 13.2 oz`,
     ),
+  },
+  stone: {
+    mass: ArchetypeBand.of("kg", 0.5, 1, STONE),
+    gravity: createRock.BANDS.cobble.gravity,
   },
 };

@@ -8,9 +8,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios, for every read object of every kind, and each kind without one at its seedless draw:
  * 1. The model passes `validateModel`, its drag and contact admitted.
- * 2. Each kind flies and ends as the issue's table, written here, states: an arrow and a bolt along their velocity and sticking, a round shot free and bouncing, a ball free and sticking, a grenade free and rolling.
+ * 2. Each kind flies and ends as the issue's table, written here, states: an arrow and a bolt along their velocity and sticking, a round shot free and bouncing, a ball free and sticking, a grenade free and rolling, a stone free and bouncing.
  * 3. A kind that bounces or rolls by that table carries the 0.30 restitution of a sphere on soil (Benoît et al. 2022); a sticking kind carries its depth in wood, a musket ball's ¾ in (Scott et al. 2017) and an arrow's 2 in (Pope 1923), except the crossbow bolt, whose depth no source read gave.
- * 4. A sphere's drag coefficient is 0.47 (Collins, on Miller and Bailey 1979) and its reference area its cross-section, `pi r^2` of its drawn diameter; an arrow's is 1.5 (Miyazaki et al. 2013) on its shaft's cross-section; a bolt carries no drag, none being read.
+ * 4. A sphere's and a stone's drag coefficient is 0.47 (Collins, on Miller and Bailey 1979) and its reference area its cross-section, `pi r^2` of its drawn diameter; an arrow's is 1.5 (Miyazaki et al. 2013) on its shaft's cross-section; a bolt carries no drag, none being read.
  * 5. A round shot's depth is its object's: the 6-pounder's least 3½ ft and the 12-pounder's least 8½ ft (Griffiths 1856).
  * 6. A bolt's centre of mass lies ahead of its middle, toward its steel head, the reason it flies point first. An arrow's head is not drawn, no read giving its size and mass, so its balance waits for that source.
  * 7. A cartridge, loaded and never launched, carries no drag and no contact.
@@ -63,6 +63,7 @@ export function test_archetype_projectile_flight_data(): void {
     roundShot: ["free", "bounce"],
     ball: ["free", "stick"],
     grenade: ["free", "roll"],
+    stone: ["free", "bounce"],
   };
   for (const kind of launched)
     if (
