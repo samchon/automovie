@@ -17,4 +17,4 @@ A generated form serves only a commissioned [detail option](../../development/en
 
 Choose the model with the user from [3D models](models.md) or another, and record it in [project context](../../production/project-context.md); whatever steers it, [request](request.md) sets what to ask for.
 
-Keep each accepted result under [media records](../../production/media-records.md#files), take it into the entity's detail option under [Conditioning](../conditioning.md), and check that it keeps the coarse form's size, pivots and contacts.
+Freeze each accepted result and take it into the entity's detail option under [Conditioning](../conditioning.md), keep it where [media records](../../production/media-records.md#files) sets, and check that it keeps the coarse form's size, pivots and contacts.

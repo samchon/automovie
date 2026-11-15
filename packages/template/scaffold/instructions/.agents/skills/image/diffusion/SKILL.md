@@ -17,7 +17,7 @@ Most hosted generators take a rendered frame only as an image to follow, and a f
 
 Follow the selected generator's prompting guide. Describe scene, subject, key details and constraints in that order and state the image's use.
 
-Label each input image by index and role in the prompt, never as text in the image, such as "Image 1: identity of Mara; Image 2: the kitchen plate". Generators take the output's size from different inputs, some from the first and some from the last, so set the size explicitly or put the render where the generator reads it. Turn off any prompt rewriting the generator offers, as the [shared description](../../video/diffusion/prompts.md#shared-description) sets.
+Label each input image by index and role in the prompt, such as "Image 1: identity of Mara; Image 2: the kitchen plate", never as text in the image. Generators take the output's size from different inputs, some from the first and some from the last, so set the size explicitly or put the render where the generator reads it. Turn off any prompt rewriting the generator offers, as the [shared description](../../video/diffusion/prompts.md#shared-description) sets.
 
 For an edit, state what changes and repeat what stays the same. Where everything else must stay identical, composite the approved change back over the original instead of accepting the whole regenerated image.
 
