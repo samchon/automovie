@@ -15,23 +15,39 @@ import {
 const BREAD: string =
   "Klosterman White Sandwich Bread 32 oz, 14.75 by 4.25 by 4.25 in (https://klostermanbakery.com/white-sandwich-bread-32-oz), and a 1 lb loaf from the USA Pan 1140LF's 8.5 by 4.5 by 2.75 in baking surface, seen only in search results";
 
+/** USDA's drumstick, read. */
+const DRUMSTICK: string =
+  "USDA FoodData Central 172373, chicken drumstick, 130 g";
+
+/** A drumstick's shape, which no source read gives. */
+const DRUMSTICK_SHAPE: string =
+  "a provisional estimate: the searches 'broiler drumstick length cm measured study', 'drumstick length broiler cm table mean' and 'tibiotarsus length mm broiler 42 days Ross 308 mean' found carcass studies that measure a drumstick's length without reporting it, and no length or girth";
+
+/** The readable name of each kind. */
+const NAMES: Readonly<Record<createFood.Kind, string>> = {
+  bread: "loaf of bread",
+  apple: "apple",
+  drumstick: "drumstick",
+};
+
 /**
- * Food a hand takes to the mouth: a loaf of bread or an apple. A chicken drumstick waits for a measured length and girth: the searches read found its mass (USDA FoodData Central 173612) but no study of its shape.
+ * Food a hand takes to the mouth: a loaf of bread, an apple or a chicken drumstick.
  *
  * Each lies on the floor of its own space at rest, as it lies on a plate's `top`. `grip` is where the hand holds it and `bite` the place `handToFace` brings to the mouth, as its `drink` task brings a cup's `lip`:
  *
- * - a loaf lies along `X`; the hand at `grip` holds it from above at its middle, and `bite` is its `-X` end. Tearing it in two waits for a source of how far a torn half is drawn away.
+ * - a loaf lies along `X` in two halves that meet at its middle; the hand at `grip` holds it from above at its middle, and `bite` is its `-X` end. Two hands tear it: one holds the `-X` half at `hold`, the other draws the `+X` half away along `+X` on the `tear` slider.
  * - an apple sits on its base with its stalk up; `grip` closes round it and `bite` is its side toward `+Z`, `+Y` the skin's outward normal.
+ * - a drumstick lies along `X`, its meat toward `-X` and its bare knuckle toward `+X`; `grip` closes round the knuckle and `bite` is the meat's `-X` end.
  *
  * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The food.
  * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and why the loaf does not tear yet.
- * @evidence contracts/development/implementation.md#principled-implementation A loaf as one box of its drawn length, width and height; an apple as one ball of the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span along its `+Y` as the aperture.
+ * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and how two hands tear a loaf.
+ * @evidence contracts/development/implementation.md#principled-implementation A loaf as two boxes of half its drawn length each, its drawn width and height, the `+X` one on the slider; an apple as one ball of the drawn diameter; a drumstick as its meat and its knuckle on one axis, the meat as thick as the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span across the grip as the aperture.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's parts, grip and bite.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loaf's dome and an apple's dimples are not modelled; the stalk is a construction estimate.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loaf's dome and an apple's dimples are not modelled; the stalk, a drumstick's shape and the tear's travel are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -73,19 +89,27 @@ export function createFood(
   const builder: ArchetypeBuilder<createFood.Affordance, createFood.Dimension> =
     new ArchetypeBuilder({
       id: params.id,
-      name: kind === "bread" ? "loaf of bread" : kind,
+      name: NAMES[kind],
       draw,
     });
   const v: typeof Vector3.create = Vector3.create;
 
   if (kind === "bread") {
+    // Two halves meeting at the middle: the -X one held, the +X one drawn away on the tear.
     const length: number = d.length!;
     const width: number = d.width!;
     const height: number = d.height!;
     const color: string = "#c98f4e";
-    builder.box("loaf", v(length, height, width), v(0, height / 2, 0), {
-      color,
-    });
+    for (const [part, sign] of [
+      ["half", -1],
+      ["torn", 1],
+    ] as const)
+      builder.box(
+        part,
+        v(length / 2, height, width),
+        v((sign * length) / 4, height / 2, 0),
+        { color },
+      );
     builder.affordance({
       id: "grip",
       kind: "handle",
@@ -96,10 +120,77 @@ export function createFood(
       aperture: height,
     });
     builder.affordance({
+      id: "hold",
+      kind: "handle",
+      symmetry: "half",
+      frame: ArchetypeFrame.facing(
+        v(-length / 4, height / 2, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: height,
+    });
+    builder.affordance({
+      id: "tear",
+      kind: "slider",
+      frame: ArchetypeFrame.facing(
+        v(length / 4, height / 2, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: height,
+      travel: createFood.TEAR,
+      parts: ["torn"],
+    });
+    builder.affordance({
       id: "bite",
       kind: "surface",
       direction: "along",
       frame: ArchetypeFrame.facing(v(-length / 2, height / 2, 0), v(-1, 0, 0)),
+      extent: null,
+    });
+    return builder.build(d.mass!);
+  }
+
+  if (kind === "drumstick") {
+    // The meat toward -X lying on the floor, the bare knuckle on its axis toward +X.
+    const length: number = d.length!;
+    const r: number = d.diameter! / 2;
+    const knuckle: number = createFood.KNUCKLE.length;
+    const joint: number = length / 2 - knuckle;
+    builder.rod("meat", r, v(-length / 2, r, 0), v(joint, r, 0), {
+      color: "#b5703a",
+    });
+    builder.rod(
+      "knuckle",
+      createFood.KNUCKLE.diameter / 2,
+      v(joint, r, 0),
+      v(length / 2, r, 0),
+      { color: "#ece3d0" },
+    );
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        v(joint + knuckle / 2, r, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: createFood.KNUCKLE.diameter,
+      length: knuckle,
+    });
+    builder.affordance({
+      id: "bite",
+      kind: "surface",
+      direction: "along",
+      frame: ArchetypeFrame.facing(v(-length / 2, r, 0), v(-1, 0, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -138,16 +229,16 @@ export function createFood(
  * Companion types, constants and bands of {@link createFood}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of two generic foods, one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes and the bite the mouth meets (#3501).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every food has the same `grip` and `bite`, so an eating act is written once; no food is one production's dish. A drumstick and a loaf's tear are left out until their sizes have a source; the stalk is a construction estimate.
+ * @evidence contracts/development/design.md#principled-representation A closed union of three generic foods, one cited band per dimension per kind; a drumstick's shape is a provisional band with its search recorded.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the bite the mouth meets, and a loaf's hold and tear for two hands (#3501).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every food has the same `grip` and `bite`, so an eating act is written once; no food is one production's dish. The stalk, the knuckle and the tear's travel are named estimates.
  */
 export namespace createFood {
   /** The kinds. */
-  export type Kind = "bread" | "apple";
+  export type Kind = "bread" | "apple" | "drumstick";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["bread", "apple"];
+  export const KINDS: readonly Kind[] = ["bread", "apple", "drumstick"];
 
   /** An apple's stalk, metres: a construction estimate that no act reads and no band declares. */
   export const STALK: Readonly<{ radius: number; length: number }> = {
@@ -155,19 +246,36 @@ export namespace createFood {
     length: 0.015,
   };
 
+  /** A drumstick's bare knuckle, metres, its length along the drumstick and its diameter: a provisional estimate, searched for as its band's shape was, the grip's length and aperture. */
+  export const KNUCKLE: Readonly<{ length: number; diameter: number }> = {
+    length: 0.03,
+    diameter: 0.015,
+  };
+
+  /** How far a loaf's torn half is drawn away, metres: a provisional estimate, since the search 'tearing bread by hand distance halves pulled apart' found recipes and customs that pull a loaf into halves, none giving how far. */
+  export const TEAR: number = 0.1;
+
+  /** A drumstick's length and its meat's diameter, metres: provisional estimates that its bands declare, no source read giving either. */
+  export const ESTIMATES: Readonly<{ length: number; diameter: number }> = {
+    length: 0.12,
+    diameter: 0.045,
+  };
+
   /**
    * The affordance ids:
    *
-   * - `grip`: where the hand holds it; a loaf from above at its middle, an apple round it.
+   * - `grip`: where the hand holds it; a loaf from above at its middle, an apple round it, a drumstick round its knuckle.
    * - `bite`: the place brought to the mouth.
+   * - `hold`: a loaf's `-X` half from above, held while the other half is torn away.
+   * - `tear`: a loaf's `+X` half from above, a slider drawing that half away along `+X`.
    */
-  export type Affordance = "grip" | "bite";
+  export type Affordance = "grip" | "bite" | "hold" | "tear";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `length`, `width`, `height`: a loaf's along `X`, across and up.
-   * - `diameter`: an apple's.
+   * - `length`, `width`, `height`: a loaf's along `X`, across and up; `length` also a drumstick's along `X`.
+   * - `diameter`: an apple's, or a drumstick's meat across.
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "height" | "diameter" | "mass";
@@ -243,5 +351,20 @@ export namespace createFood {
       ),
     },
     apple: {},
+    drumstick: {
+      length: ArchetypeBand.metres(
+        ESTIMATES.length,
+        ESTIMATES.length,
+        DRUMSTICK_SHAPE,
+        true,
+      ),
+      diameter: ArchetypeBand.metres(
+        ESTIMATES.diameter,
+        ESTIMATES.diameter,
+        DRUMSTICK_SHAPE,
+        true,
+      ),
+      mass: ArchetypeBand.of("kg", 0.13, 0.13, DRUMSTICK),
+    },
   };
 }

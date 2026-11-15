@@ -35,6 +35,10 @@ const TABLE_LAMP: string =
 const FLOOR_LAMP: string =
   "IKEA RINGSTA/SKAFTET floor lamp, 153 cm high, base 29 cm, shade 42 cm (https://www.ikea.com/gb/en/p/ringsta-skaftet-floor-lamp-white-nickel-plated-s99387446); SKAFTET floor lamp base 804.055.39, 130 cm high, base 29 cm, net 3.06 kg (https://www.ikea.com.tw/en/products/luminaires/floor-lamps/skaftet-art-80405539); RINGSTA shade 704.053.61, 42 cm wide, 31 cm high, net 0.49 kg (https://www.ikea.is/en/products/lighting/luminaires/shades-bases-and-cord-set/ringsta-lamp-shade-art-70405361)";
 
+/** Dietz's lantern, read. */
+const LANTERN: string =
+  "Dietz #20 Junior cold blast lantern: 12 in high, a 5 1/4 in base, 2 lb, its globe 5 1/2 in high and 2 3/8 in across its top and 2 13/16 in across its bottom (https://lanternnet.com/product/dietz-20-junior-cold-blast-lantern/); 16 in high with its handle extended (https://scholarworks.moreheadstate.edu/mh_and_rm_artifacts/23)";
+
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createLight.Kind, string>> = {
   candle: "candle",
@@ -42,12 +46,13 @@ const NAMES: Readonly<Record<createLight.Kind, string>> = {
   pendant: "pendant",
   tableLamp: "table lamp",
   floorLamp: "floor lamp",
+  lantern: "lantern",
 };
 
 /**
- * A light a person carries, hangs or stands: a taper candle, a hand-held fire torch, a pendant lamp, a table lamp or a floor lamp.
+ * A light a person carries, hangs or stands: a taper candle, a hand-held fire torch, a pendant lamp, a table lamp, a floor lamp or a hurricane lantern.
  *
- * A candle and a torch stand upright on the floor of their own space, `+Y` up; a pendant hangs from its `hook` at the origin, on the ceiling, its cord down to its shade; a table or floor lamp stands on its round base, its stem up to the lampholder inside its shade. `grip` is where a hand holds it: anywhere along a candle's taper, a torch's shaft below its head, taken from `-Z`, or a lamp's shade, taken from the side to aim it. `light` is where the light comes from, the frame a production places a light at: the top of a candle's wick or a torch's head with `+Y` up the flame, a pendant's shade mouth with `+Y` down its beam, or a standing lamp's lampholder top with `+Y` up. The light itself is the render's, not the archetype's. A candle holder and a hurricane lantern wait for sources of the sizes their contacts need, and a standing lamp's switch for its place and travel.
+ * A candle and a torch stand upright on the floor of their own space, `+Y` up; a pendant hangs from its `hook` at the origin, on the ceiling, its cord down to its shade; a table or floor lamp stands on its round base, its stem up to the lampholder inside its shade; a lantern stands on its fount, its globe above it and its cap on top, its bail raised over it along `X`. `grip` is where a hand holds it: anywhere along a candle's taper, a torch's shaft below its head, taken from `-Z`, a lamp's shade, taken from the side to aim it, or a lantern's bail top, hooked from above. A lantern hangs by its `hook`, the same bail top. `light` is where the light comes from, the frame a production places a light at: the top of a candle's wick or a torch's head with `+Y` up the flame, a lantern's burner at its globe's foot with `+Y` up the flame, a pendant's shade mouth with `+Y` down its beam, or a standing lamp's lampholder top with `+Y` up. The light itself is the render's, not the archetype's; the electric flashlight is `createTorch`'s, its `lens` the beam's frame. A candle holder waits for a source of the sizes its contacts need, and a standing lamp's switch for its place and travel.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -55,10 +60,10 @@ const NAMES: Readonly<Record<createLight.Kind, string>> = {
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each light stands or hangs, where it is held, where its light is and that the light is the render's.
- * @evidence contracts/development/implementation.md#principled-implementation A candle as its taper; a torch as a shaft of its whole length with a wick head at its top; a pendant as a cord and a shade of the read sizes; a standing lamp as its base of the read diameter, its stem to the read lampholder height, and its shade of the read sizes ending at the read overall height, weighing its base's and shade's read net weights together. Every grip's frame lies at the centre of the part it closes on, with that part's span along its `+Y` as the aperture, and every light frame is on the end of a read part.
+ * @evidence contracts/development/implementation.md#principled-implementation A candle as its taper; a torch as a shaft of its whole length with a wick head at its top; a pendant as a cord and a shade of the read sizes; a standing lamp as its base of the read diameter, its stem to the read lampholder height, and its shade of the read sizes ending at the read overall height, weighing its base's and shade's read net weights together; a lantern as its fount of the read base, its globe of the read height and bottom width, its cap to the read overall height as wide as the globe's read top, and its bail's two sides and top at the read extended height. Every grip's frame lies at the centre of the part it closes on, with that part's span across the grip as the aperture, and every light frame is on the end of a read part.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind: its parts, its grip, its light.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flame and the beam are frames, not parts. The torch's head is drawn as long as its read width, and the cord's radius and a standing lamp's base plate and stem radius are construction estimates; no contact or band reads any of them.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flame and the beam are frames, not parts. The torch's head is drawn as long as its read width, and the cord's radius and a standing lamp's base plate and stem radius are construction estimates; no contact or band reads any of them. A lantern's fount height and bail wire are provisional estimates with their search recorded.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most six parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -179,6 +184,66 @@ export function createLight(
     return builder.build(d.mass!);
   }
 
+  if (kind === "lantern") {
+    // The fount up to the burner, the globe over it, the cap to the body's top, and the bail raised over all along X.
+    const foot: number = createLight.LANTERN_ESTIMATES.fount;
+    const crown: number = foot + d.height!;
+    const half: number = d.base! / 2;
+    const wire: number = createLight.LANTERN_ESTIMATES.wire;
+    // The bail's wire runs on this line, its top at the read raised height.
+    const hang: number = d.bail! - wire / 2;
+    const color: string = "#9c2a22";
+    builder.rod("fount", half, v(0, 0, 0), v(0, foot, 0), { color });
+    builder.rod("globe", d.shade! / 2, v(0, foot, 0), v(0, crown, 0), {
+      color: "#e8eef0",
+    });
+    builder.rod(
+      "cap",
+      createLight.GLOBE_TOP / 2,
+      v(0, crown, 0),
+      v(0, d.overall!, 0),
+      { color },
+    );
+    for (const [part, sign] of [
+      ["bailLeft", 1],
+      ["bailRight", -1],
+    ] as const)
+      builder.rod(
+        part,
+        wire / 2,
+        v(sign * half, foot, 0),
+        v(sign * half, hang, 0),
+        { color: "#4a4d50" },
+      );
+    builder.rod("bail", wire / 2, v(-half, hang, 0), v(half, hang, 0), {
+      color: "#4a4d50",
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(v(0, hang, 0), v(0, 1, 0), v(1, 0, 0)),
+      extent: null,
+      grip: "hook",
+      aperture: wire,
+      length: d.base!,
+    });
+    builder.affordance({
+      id: "hook",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, hang, 0)),
+      extent: null,
+    });
+    builder.affordance({
+      id: "light",
+      kind: "socket",
+      direction: "along",
+      frame: ArchetypeFrame.upright(v(0, foot, 0)),
+      extent: null,
+    });
+    return builder.build(d.mass!);
+  }
+
   // A candle's taper, or a torch's shaft with its wick head at the top: the grip runs below the head.
   const length: number = d.length!;
   const radius: number = d.diameter! / 2;
@@ -214,18 +279,19 @@ export function createLight(
  * Companion types, constants and bands of {@link createLight}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of two flame lights and three lamps, one cited band per dimension per kind; the flame and the beam are frames, never parts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the hook a pendant hangs by, and the light a production places (#3501, #3468's N1); the electric flashlight is `createTorch`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying, aiming and lighting are written once; bands seen only in search results are provisional.
+ * @evidence contracts/development/design.md#principled-representation A closed union of three flame lights and three lamps, one cited band per dimension per kind; the flame and the beam are frames, never parts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the hook a pendant or a lantern hangs by, and the light a production places (#3501, #3468's N1); the electric flashlight is `createTorch`'s.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying, aiming and lighting are written once; bands seen only in search results are provisional, and a lantern's unread fount and wire are named estimates.
  */
 export namespace createLight {
-  /** The kinds: a taper candle, a hand-held fire torch, a pendant lamp, a table lamp and a floor lamp. */
+  /** The kinds: a taper candle, a hand-held fire torch, a pendant lamp, a table lamp, a floor lamp and a hurricane lantern. */
   export type Kind =
     | "candle"
     | "fireTorch"
     | "pendant"
     | "tableLamp"
-    | "floorLamp";
+    | "floorLamp"
+    | "lantern";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -234,7 +300,20 @@ export namespace createLight {
     "pendant",
     "tableLamp",
     "floorLamp",
+    "lantern",
   ];
+
+  /** A lantern's globe across its top, metres: Dietz's 2 3/8 in, the width its cap is drawn at. */
+  export const GLOBE_TOP: number = (2 + 3 / 8) * ArchetypeUnits.INCH;
+
+  /**
+   * A lantern's parts no source read sizes, metres, provisional estimates: `fount`, the burner's height over the floor, where the globe stands and the flame burns; `wire`, the bail's wire across, the hooked grip's aperture. The search 'Dietz No. 20 Junior lantern fount height inches dimensions bail' found the lantern's height, base, globe, fount capacity and a bail-up height, neither of these.
+   */
+  export const LANTERN_ESTIMATES: Readonly<{ fount: number; wire: number }> =
+    {
+      fount: 0.09,
+      wire: 0.003,
+    };
 
   /** A pendant cord's radius, metres: a construction estimate that no act reads and no band declares. */
   export const CORD: number = 0.003;
@@ -255,9 +334,9 @@ export namespace createLight {
   /**
    * The affordance ids:
    *
-   * - `grip`: a candle's taper, a torch's shaft below its head, a lamp's shade.
-   * - `hook`: a pendant's ceiling end, to hang it by.
-   * - `light`: the top of a wick or a torch's head, `+Y` up the flame; a pendant's shade mouth, `+Y` down its beam; a standing lamp's lampholder top, `+Y` up.
+   * - `grip`: a candle's taper, a torch's shaft below its head, a lamp's shade, a lantern's bail top.
+   * - `hook`: a pendant's ceiling end or a lantern's bail top, to hang it by.
+   * - `light`: the top of a wick or a torch's head, or a lantern's burner, `+Y` up the flame; a pendant's shade mouth, `+Y` down its beam; a standing lamp's lampholder top, `+Y` up.
    */
   export type Affordance = "grip" | "hook" | "light";
 
@@ -267,12 +346,13 @@ export namespace createLight {
    * - `length`: a candle's taper or a torch, end to end.
    * - `diameter`: a candle's taper or a torch's shaft, across.
    * - `headDiameter`: a torch's wick head.
-   * - `height`: a lamp's shade, bottom to top.
-   * - `shade`: a lamp's shade across.
+   * - `height`: a lamp's shade or a lantern's globe, bottom to top.
+   * - `shade`: a lamp's shade across, or a lantern's globe across its bottom.
    * - `cord`: a pendant's cord from the ceiling to its shade.
-   * - `overall`: a standing lamp, floor to the shade's top.
+   * - `overall`: a standing lamp, floor to the shade's top; a lantern, floor to its cap's top.
    * - `stem`: a standing lamp's base with its stem, floor to the lampholder's top.
-   * - `base`: a standing lamp's base across.
+   * - `base`: a standing lamp's or a lantern's base across.
+   * - `bail`: a lantern with its bail raised, floor to the bail's top.
    * - `mass`: kilograms; a standing lamp's is its base's and its shade's net weights together.
    */
   export type Dimension =
@@ -285,6 +365,7 @@ export namespace createLight {
     | "overall"
     | "stem"
     | "base"
+    | "bail"
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
@@ -298,6 +379,7 @@ export namespace createLight {
     overall: "m",
     stem: "m",
     base: "m",
+    bail: "m",
     mass: "kg",
   };
 
@@ -373,6 +455,39 @@ export namespace createLight {
         3.06 + 0.49,
         3.06 + 0.49,
         `${FLOOR_LAMP}: the base's and the shade's net weights together`,
+      ),
+    },
+    lantern: {
+      overall: ArchetypeBand.metres(
+        12 * ArchetypeUnits.INCH,
+        12 * ArchetypeUnits.INCH,
+        LANTERN,
+      ),
+      bail: ArchetypeBand.metres(
+        16 * ArchetypeUnits.INCH,
+        16 * ArchetypeUnits.INCH,
+        LANTERN,
+      ),
+      base: ArchetypeBand.metres(
+        (5 + 1 / 4) * ArchetypeUnits.INCH,
+        (5 + 1 / 4) * ArchetypeUnits.INCH,
+        LANTERN,
+      ),
+      height: ArchetypeBand.metres(
+        (5 + 1 / 2) * ArchetypeUnits.INCH,
+        (5 + 1 / 2) * ArchetypeUnits.INCH,
+        LANTERN,
+      ),
+      shade: ArchetypeBand.metres(
+        (2 + 13 / 16) * ArchetypeUnits.INCH,
+        (2 + 13 / 16) * ArchetypeUnits.INCH,
+        LANTERN,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        2 * ArchetypeUnits.POUND,
+        2 * ArchetypeUnits.POUND,
+        LANTERN,
       ),
     },
   };

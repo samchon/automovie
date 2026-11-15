@@ -4,20 +4,25 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
 
+/** Dietz's lantern, with its handle extended as a museum measured it. */
+const LANTERN: string =
+  "Dietz #20 Junior, lanternnet.com and the Morehead State museum";
+
 /**
- * Lights stay inside their cited dimensions for every seed, measured on the produced thing; each flame stands on top of what burns, the pendant shines down from its shade, and a standing lamp's bulb sits on its lampholder over a heavy base.
+ * Lights stay inside their cited dimensions for every seed, measured on the produced thing; each flame stands on top of what burns, the pendant shines down from its shade, a standing lamp's bulb sits on its lampholder over a heavy base, and a lantern burns at its globe's foot and hangs from its bail.
  *
  * Scenarios:
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a taper 25 to 26 cm long; a fire torch 16 to 24 in long whose shaft lies in the 30 to 40 mm comfortable power grip band, 205 to 265 g; a pendant's shade 15 in across hanging 4 ft 11 in plus its 11 in shade below its hook.
  * 2. For three seeds of the candle and the torch, the `light` frame is at the top of the taper or the head, `+Y` up.
  * 3. For three seeds of the pendant, the `light` frame is at the shade's lowest point with `+Y` straight down, and its `hook` at the top of its cord.
+ * 5. Over 200 seeds, a lantern 12 in high to its cap's top and 16 in to its raised bail's top, its fount 5 1/4 in across, its globe 5 1/2 in high and 2 13/16 in across, 2 lb; for three seeds, its `light` at its globe's foot, `+Y` up, its `hook` and its hooked `grip` on the bail's top wire, the grip along the bail and as long as the base is wide.
  * 4. For three seeds of the table lamp (41 cm, base 15 cm, shade 19 by 15 cm, 0.81 kg) and the floor lamp (153 cm, base 29 cm, shade 42 by 31 cm, 3.55 kg), each also swept in scenario 1: the `light` frame is at the lampholder's read height, 30 or 130 cm, inside the shade, `+Y` up, and the centre of mass lies below half that height, as a heavy base under a light shade puts it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each light for 200 seeds and measures colliders, grip widths, masses, the centre of mass and the light's and hook's frames; a band other than the citation's, a seed that does not vary it, a flame off the top of the wick or head, a beam off the shade or pointing up, a bulb off its lampholder, or a lamp balanced in its shade is caught.
- * @evidence contracts/development/testing.md#independent-expectations The taper's sizes are IKEA's VINTERFINT and KLOKHET listings; the torch's lengths and masses fire-performance torches'; the shaft band Kong and Lowe 2005; the pendant's sizes IKEA's SKURUP page; the standing lamps' sizes and net weights IKEA's RINGSTA and SKAFTET pages; a flame burns from the top of what burns, a shaded lamp's light leaves its shade's mouth, and a standing lamp's bulb sits on its lampholder.
- * @evidence contracts/development/testing.md#distinguishing-cases Each kind's sourced dimensions; a flame against a hanging lamp's beam and a standing lamp's bulb.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces each light for 200 seeds and measures colliders, grip widths, masses, the centre of mass and the light's, grip's and hook's frames; a band other than the citation's, a seed that does not vary it, a flame off the top of the wick or head or off a lantern's burner, a beam off the shade or pointing up, a bulb off its lampholder, a lamp balanced in its shade, or a lantern hung or carried anywhere but its bail's top is caught.
+ * @evidence contracts/development/testing.md#independent-expectations The taper's sizes are IKEA's VINTERFINT and KLOKHET listings; the torch's lengths and masses fire-performance torches'; the shaft band Kong and Lowe 2005; the pendant's sizes IKEA's SKURUP page; the standing lamps' sizes and net weights IKEA's RINGSTA and SKAFTET pages; the lantern's Dietz's #20 Junior page and the Morehead State museum's extended handle; a flame burns from the top of what burns, a shaded lamp's light leaves its shade's mouth, and a standing lamp's bulb sits on its lampholder.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each kind's sourced dimensions; a flame against a hanging lamp's beam and a standing lamp's bulb; a lantern's body top against its bail's top.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
 export function test_archetype_props_light_bands(): void {
   const row = (
@@ -142,6 +147,37 @@ export function test_archetype_props_light_bands(): void {
         ];
       },
     ),
+    ...(
+      [
+        ["lantern height", "y", ["cap"], "high", 12],
+        ["lantern bail", "y", undefined, "high", 16],
+        ["lantern base", "x", ["fount"], "size", 5 + 1 / 4],
+        ["lantern globe height", "y", ["globe"], "size", 5 + 1 / 2],
+        ["lantern globe", "x", ["globe"], "size", 2 + 13 / 16],
+      ] as const
+    ).map(
+      ([name, axis, parts, end, inches]): archetypeBandSweep.IRow =>
+        row(
+          name,
+          inches * ArchetypeUnits.INCH,
+          inches * ArchetypeUnits.INCH,
+          LANTERN,
+          (seed: number): number =>
+            archetypeExtent(
+              createLight({ kind: "lantern" }, seed),
+              axis,
+              parts === undefined ? undefined : [...parts],
+            )[end],
+        ),
+    ),
+    row(
+      "lantern mass",
+      2 * ArchetypeUnits.POUND,
+      2 * ArchetypeUnits.POUND,
+      LANTERN,
+      (seed: number): number =>
+        createLight({ kind: "lantern" }, seed).body.mass,
+    ),
   ]);
   for (const seed of [0, 1, 2]) {
     // 2. A flame on top of the taper or the head.
@@ -198,6 +234,36 @@ export function test_archetype_props_light_bands(): void {
       )
         findings.push(`${kind}@${seed}: the light or the balance is off`);
     }
+
+    // 5. A lantern's flame at its globe's foot, hung and carried by its bail's top.
+    const lantern: ReturnType<typeof createLight> = createLight(
+      { kind: "lantern" },
+      seed,
+    );
+    const flame: ReturnType<typeof lantern.affordance> =
+      lantern.affordance("light");
+    const grip: ReturnType<typeof lantern.affordance> =
+      lantern.affordance("grip");
+    const bail: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      lantern,
+      "y",
+      ["bail"],
+    );
+    const top: number = (bail.low + bail.high) / 2;
+    if (
+      Math.abs(
+        flame.frame.translation.y -
+          archetypeExtent(lantern, "y", ["globe"]).low,
+      ) > 1e-9 ||
+      Math.abs(ArchetypeFrame.axis(flame.frame, "y").y - 1) > 1e-12 ||
+      Math.abs(lantern.affordance("hook").frame.translation.y - top) > 1e-9 ||
+      Math.abs(grip.frame.translation.y - top) > 1e-9 ||
+      grip.grip !== "hook" ||
+      Math.abs(Math.abs(ArchetypeFrame.axis(grip.frame, "x").x) - 1) > 1e-12 ||
+      Math.abs(grip.length! - archetypeExtent(lantern, "x", ["fount"]).size) >
+        1e-9
+    )
+      findings.push(`lantern@${seed}: the flame, the hook or the bail is off`);
   }
   TestValidator.equals("lights stay in their cited bands", findings, []);
 }

@@ -11,10 +11,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** IKEA's bowl, read. */
-const BOWL: string =
-  "IKEA 365+ bowl, rounded sides, 16 cm across and 7 cm high, 0.44 kg packed (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/)";
-
 /** IKEA's saucepan, read. */
 const SAUCEPAN: string =
   "IKEA 365+ saucepan 2.0 l, 17 cm across, 10 cm high, 35 cm long with its handle (https://www.ikea.com/gb/en/p/ikea-365-saucepan-with-lid-stainless-steel-40484232/)";
@@ -67,7 +63,7 @@ export function createVessel(
   );
   const drawn: Partial<Record<createVessel.Dimension, number>> =
     draw.dimensions(createVessel.BANDS[kind]);
-  // An ashtray is one of the two glass ashtrays read, whole.
+  // A bowl or an ashtray is one of the read models whole.
   const model: {
     name: createVessel.Model | undefined;
     figures: createVessel.Figures;
@@ -224,9 +220,9 @@ export function createVessel(
  * Companion types, constants and bands of {@link createVessel}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the four vessels and one band per dimension each.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the five vessels: a bowl and an ashtray each one read model whole, the others one band per dimension.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The rim, the inside and the hold each vessel is used by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read; a pan's weight alone is not given, so those bands are provisional; the wall's and the handles' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, never a size between two models; the IKEA bowl's and a pan's weight alone is not given, so that model's mass and those bands are provisional; the wall's and the handles' sizes are named estimates.
  */
 export namespace createVessel {
   /** The kinds. */
@@ -297,7 +293,7 @@ export namespace createVessel {
     /** Which vessel. */
     kind: Kind;
 
-    /** An ashtray's model; drawn from the seed when absent. */
+    /** A bowl's or an ashtray's model; drawn from the seed when absent. */
     model?: Model;
 
     /** The model's id, unique in a scene; `vessel` when absent. */
@@ -307,34 +303,38 @@ export namespace createVessel {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The glass ashtrays read: Nachtmann's Cigar Cuba and Harris's. */
-  export type Model = "nachtmann" | "harris";
+  /** The models read: IKEA 365+'s bowl and Thomas's Sunny Day bowl 18 cm and cereal bowl; Nachtmann's Cigar Cuba and Harris's glass ashtrays. */
+  export type Model =
+    | "ikea365"
+    | "sunnyDay18"
+    | "sunnyDayCereal"
+    | "nachtmann"
+    | "harris";
 
-  /** Each kind's models whole, the default first: the ashtrays' 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings. */
+  /**
+   * Each kind's models whole, the default first. The bowls: IKEA 365+ bowl, rounded sides, 16 cm across and 7 cm high, 0.44 kg packed, a provisional mass the bowl alone is lighter than by an unread amount (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/); Thomas Sunny Day bowl 18 cm, 16.60 cm across, 7.90 cm high, 477 g (https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html); Thomas Sunny Day cereal bowl, 12.20 cm across, 8.00 cm high, 300 g (https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html).
+   *
+   * The ashtrays: 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings.
+   */
   export const MODELS: Readonly<
-    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
   > = {
+    bowl: {
+      ikea365: { diameter: 0.16, height: 0.07, mass: 0.44 },
+      sunnyDay18: { diameter: 0.166, height: 0.079, mass: 0.477 },
+      sunnyDayCereal: { diameter: 0.122, height: 0.08, mass: 0.3 },
+    },
     ashtray: {
       nachtmann: { diameter: 0.1, height: 0.03, mass: 0.258 },
       harris: { diameter: 0.168, height: 0.035, mass: 1.7 },
     },
   };
 
-  /** The band of each free dimension, by kind; an ashtray's are its model's. */
+  /** The band of each free dimension, by kind; a bowl's and an ashtray's are its model's. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
-    bowl: {
-      diameter: ArchetypeBand.metres(0.16, 0.16, BOWL),
-      height: ArchetypeBand.metres(0.07, 0.07, BOWL),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.4,
-        0.44,
-        `${BOWL}; the bowl alone is lighter than its packing by an unread amount`,
-        true,
-      ),
-    },
+    bowl: {},
     ashtray: {},
     saucepan: {
       diameter: ArchetypeBand.metres(0.17, 0.17, SAUCEPAN),

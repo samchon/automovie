@@ -7,11 +7,14 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 /** IKEA's 365+ plates as their pages give them. */
 const IKEA_365: string = "IKEA 365+ side plate, plate and serving plates";
 
+/** The platters read: IKEA's 27 by 15 by 3 cm, Rosenthal's Heritage Midas 33.20 by 21.20 by 3.80 cm, Thomas's Loft 33.80 by 24.00 by 3.10 cm. */
+const PLATTERS: string = "IKEA 365+ serving plate, Rosenthal Heritage Midas and Thomas Loft platters";
+
 /**
  * Tableware stays inside its cited dimensions for every seed, measured on the produced thing where a hand, a plate or food meets it.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a round plate 20 to 27 cm across its colliders and 2 to 3 cm high at its face; a platter 27 cm long along `X`, 15 cm wide along `Z`, its face 3 cm up; a saucer 12 cm across and 1.4 cm high.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a round plate 20 to 27 cm across its colliders and 2 to 3 cm high at its face; a platter 27 to 33.8 cm long along `X`, 15 to 24 cm wide along `Z`, its face 3 to 3.8 cm up, over IKEA's, Rosenthal's and Thomas's platters; a saucer 12 cm across and 1.4 cm high.
  * 2. A plate's two rim pinches are on its two edges along `X`, the plate's measured diameter apart, and their aperture is the plate's measured height.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each plate for 200 seeds and measures colliders, contact frames and grip widths; a band other than the citation's, a plate drawn at another size than its band, a seed that does not vary it, or a pinch off the plate's edge is caught.
@@ -49,24 +52,24 @@ export function test_archetype_props_tableware_bands(): void {
     row(
       "platter length",
       0.27,
-      0.27,
-      IKEA_365,
+      0.338,
+      PLATTERS,
       (seed: number): number =>
         archetypeExtent(createTableware({ kind: "platter" }, seed), "x").size,
     ),
     row(
       "platter width",
       0.15,
-      0.15,
-      IKEA_365,
+      0.24,
+      PLATTERS,
       (seed: number): number =>
         archetypeExtent(createTableware({ kind: "platter" }, seed), "z").size,
     ),
     row(
       "platter face height",
       0.03,
-      0.03,
-      IKEA_365,
+      0.038,
+      PLATTERS,
       (seed: number): number =>
         archetypeExtent(createTableware({ kind: "platter" }, seed), "y").high,
     ),
