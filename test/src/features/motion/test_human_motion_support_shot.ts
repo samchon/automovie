@@ -111,7 +111,10 @@ export function test_human_motion_support_shot(): void {
   const along = (id: "muzzle" | "sight"): IAutoMovieVector3 =>
     Vector3.add(
       held.position,
-      Quaternion.rotateVector(held.rotation, gun.affordance(id).frame.translation),
+      Quaternion.rotateVector(
+        held.rotation,
+        gun.affordance(id).frame.translation,
+      ),
     );
   const miss: number = Vector3.length(
     Vector3.subtract(launch.point, along("muzzle")),

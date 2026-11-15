@@ -1,7 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieAffordance,
@@ -129,7 +126,6 @@ export namespace HumanWeaponPresent {
   /** The angle the bore's line may miss the aim point by once presented, degrees: the declared dispersion (provisional). */
   export const DISPERSION: number = 1;
 
-
   /** How far the sight line of a shouldered long gun lies below the head's joint, a share of the head's height over the firing shoulder (provisional: the head down on the stock; the head's own tilt is not posed yet). */
   export const CHEEK: number = 0.4;
 
@@ -161,7 +157,6 @@ export namespace HumanWeaponPresent {
       },
     ],
   });
-
 
   /**
    * Present the weapon: bring the muzzle onto the line from the eye to the target, or to a ready position, by `stroke`, and hold it. A target more than `TURN` degrees off the heading is refused on `target`, a long gun in one hand on `hands`, a fore-end the support arm cannot reach on `gun`.
@@ -260,8 +255,7 @@ export namespace HumanWeaponPresent {
         return [];
       const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
         ahead,
-        (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
-          grip.tool(points),
+        (points: StrikingHeld.IPoints): StrikingHeld.ITool => grip.tool(points),
       );
       try {
         const { bladed, pose } = HumanWeaponPose.of(

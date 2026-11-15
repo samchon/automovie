@@ -142,7 +142,10 @@ export function test_human_motion_throw_implement(): void {
       `${name}: the blade carries the launch velocity (${(1000 * error).toFixed(1)} mm off over the carry)`,
       error <= 2 * HumanVerdicts.SKIN,
     );
-    const blade: IAutoMovieVector3 = Vector3.scale(moved("blade"), 1 / (2 * dt));
+    const blade: IAutoMovieVector3 = Vector3.scale(
+      moved("blade"),
+      1 / (2 * dt),
+    );
     const hand: number = Vector3.length(moved("grip")) / (2 * dt);
     TestValidator.predicate(
       `${name}: the hand moves slower than the blade (${hand.toFixed(2)} < ${Vector3.length(blade).toFixed(2)} m/s)`,

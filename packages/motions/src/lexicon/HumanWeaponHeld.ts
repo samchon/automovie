@@ -116,9 +116,7 @@ export namespace HumanWeaponHeld {
     // shooting hand as that hand holds the weapon; beside the shooting hand
     // on a handgun.
     const fore: IAutoMovieVector3 | undefined =
-      long && p.gun !== undefined
-        ? read({ tip: "foreEnd" }).tip
-        : undefined;
+      long && p.gun !== undefined ? read({ tip: "foreEnd" }).tip : undefined;
     return {
       tool,
       long,

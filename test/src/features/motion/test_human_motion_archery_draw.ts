@@ -79,12 +79,16 @@ export function test_human_motion_archery_draw(): void {
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "bow", handle: "grip", hand: "left" })
-          .registered("presentBow", {
-            gun: "bow",
-            hand: "left",
-            target: { kind: "point", frame: "world", at: target },
-            seconds: 3,
-          }, "present")
+          .registered(
+            "presentBow",
+            {
+              gun: "bow",
+              hand: "left",
+              target: { kind: "point", frame: "world", at: target },
+              seconds: 3,
+            },
+            "present",
+          )
           .over((u) =>
             u
               // The draw begins once the bow is held out (the set-up), not

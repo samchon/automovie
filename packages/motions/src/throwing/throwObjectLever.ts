@@ -1,4 +1,8 @@
-import { type IAutoMovieProjectile, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieProjectile,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,

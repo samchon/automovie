@@ -120,7 +120,10 @@ export function test_human_motion_firearm_shot_launch(): void {
     );
     // The bore runs along the muzzle's own +Y, as the archetype declares it.
     const bore: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.multiply(held.rotation, gun.affordance("muzzle").frame.rotation),
+      Quaternion.multiply(
+        held.rotation,
+        gun.affordance("muzzle").frame.rotation,
+      ),
       { x: 0, y: 1, z: 0 },
     );
     const off: number =
@@ -136,7 +139,7 @@ export function test_human_motion_firearm_shot_launch(): void {
       `it leaves along the bore within the dispersion (${off.toFixed(3)} degrees)`,
       off <=
         HumanWeaponFirearm.DISPERSION +
-        (Number.EPSILON * 2 ** Math.ceil(Math.log2(8)) * 180) / Math.PI,
+          (Number.EPSILON * 2 ** Math.ceil(Math.log2(8)) * 180) / Math.PI,
     );
     TestValidator.predicate(
       "the ball flies",
