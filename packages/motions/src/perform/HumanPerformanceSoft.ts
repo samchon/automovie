@@ -1,25 +1,18 @@
 import {
-  type IAutoMovieResolvedBone,
   type IAutoMovieSoftBodyBoundarySample,
   type IAutoMovieSoftBodyObserver,
-  type IAutoMovieSoftBodyResolvedCapsule,
-  Quaternion,
-  Vector3,
-  type resolveAutoMovieHumanoidSurfaces,
   simulateSoftBodyWithBoundaries,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidSocket,
   IAutoMovieSoftAnchor,
-  IAutoMovieSoftAnchorBinding,
   IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftCollider,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanForce } from "./HumanForce";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -138,6 +131,49 @@ export namespace HumanPerformanceSoft {
   }
 
   /**
+   * Every soft prop's pull on the hands that grip it, as sustained forces
+   * for the display-time load and balance (#3431, #3451): one record per grip
+   * window on a soft prop, on the gripping person's palm of that side, over
+   * the window, its force the compliant solver's anchor force at the step
+   * before each second (`load`). The coupling is one-way per solve: the cloth
+   * is solved from the displayed body, and the body's lean is then read from
+   * these forces, never fed back into the solve or into a law's plan.
+   *
+   * @param state The performance.
+   * @returns The forces, in prop and grip order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each record holds, where it acts, its window and the one-way order.
+   * @evidence contracts/development/implementation.md#principled-implementation The XPBD anchor force recorded per gripping hand, read back at a film second as a pure function.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record per grip window, its force delegated to `load`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip worn on a bone is no hand's load and is left out; a plain solve's force reads zero rather than an estimate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the soft props' grip windows; each force read is constant work on the kept solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the solve `at` and `load` keep.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records; the solves are kept by `of`.
+   */
+  export function sustained(
+    state: HumanPerformanceState,
+  ): HumanForce.ISustained[] {
+    const out: HumanForce.ISustained[] = [];
+    for (const prop of state.props.values()) {
+      if (prop.soft === undefined) continue;
+      for (const g of HumanPerformanceRead.grips(state, prop.subject)) {
+        if (g.bone !== undefined) continue;
+        const subject: string = prop.subject;
+        out.push({
+          kind: "sustained",
+          subject: g.subject,
+          at: g.side === "left" ? "palmLeft" : "palmRight",
+          from: g.from,
+          to: g.to,
+          force: (seconds: number): IAutoMovieVector3 =>
+            HumanPerformanceSoft.load(state, subject, g.subject, g.side, seconds),
+        });
+      }
+    }
+    return out;
+  }
+
+  /**
    * A soft prop's whole solve, made on first read and kept.
    *
    * @param state The performance.
@@ -197,8 +233,8 @@ export namespace HumanPerformanceSoft {
 
     // The displayed bones of every person the domain or a grip names, read
     // once per step.
-    const bones: BoneReader = memoBones(state);
-    const grips: IGripAnchor[] = [];
+    const bones: HumanPerformanceSoftBoundary.BoneReader = HumanPerformanceSoftBoundary.memoBones(state);
+    const grips: HumanPerformanceSoftBoundary.IGripAnchor[] = [];
     const solve = (
       upto: number,
       record: boolean,
@@ -209,19 +245,19 @@ export namespace HumanPerformanceSoft {
           ...domain.anchors.filter(
             (a: IAutoMovieSoftAnchor): boolean =>
               !grips.some(
-                (g: IGripAnchor): boolean => g.particle === a.particle,
+                (g: HumanPerformanceSoftBoundary.IGripAnchor): boolean => g.particle === a.particle,
               ),
           ),
           ...[
-            ...new Set(grips.map((g: IGripAnchor): number => g.particle)),
+            ...new Set(grips.map((g: HumanPerformanceSoftBoundary.IGripAnchor): number => g.particle)),
           ].map(
             (particle: number): IAutoMovieSoftAnchor => ({
-              id: `${GRIP}${particle}`,
+              id: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
               particle,
               position: null,
               binding: {
                 kind: "node",
-                node: `${GRIP}${particle}`,
+                node: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
                 offset: { x: 0, y: 0, z: 0 },
               },
             }),
@@ -230,9 +266,9 @@ export namespace HumanPerformanceSoft {
       };
       const boundaries: IAutoMovieSoftBodyBoundarySample[] = [];
       for (let k: number = 0; k <= upto; ++k)
-        boundaries.push(boundary(state, anchored, grips, bones, k, k * dt));
+        boundaries.push(HumanPerformanceSoftBoundary(state, anchored, grips, bones, k, k * dt));
       const steps: Float64Array[] = [
-        new Float64Array(rest(anchored, boundaries[0]!)),
+        new Float64Array(HumanPerformanceSoftBoundary.rest(anchored, boundaries[0]!)),
       ];
       const loads: Map<string, IAutoMovieVector3>[] = [new Map()];
       const observer: IAutoMovieSoftBodyObserver = {
@@ -250,7 +286,7 @@ export namespace HumanPerformanceSoft {
             if (
               seconds >= g.from &&
               seconds <= g.to &&
-              owner(grips, g.particle, seconds) === g
+              HumanPerformanceSoftBoundary.owner(grips, g.particle, seconds) === g
             ) {
               const f: IAutoMovieVector3 | undefined = held.get(g.particle);
               if (f !== undefined) hands.set(`${g.person}:${g.side}`, f);
@@ -287,7 +323,7 @@ export namespace HumanPerformanceSoft {
     for (const window of windows) {
       const k: number = Math.min(count, Math.round(window.from / dt));
       const positions: Float64Array = solve(k, false).steps[k]!;
-      const socket: IAutoMovieVector3 = gripSocket(
+      const socket: IAutoMovieVector3 = HumanPerformanceSoftBoundary.gripSocket(
         state,
         bones,
         window.subject,
@@ -326,201 +362,8 @@ export namespace HumanPerformanceSoft {
   }
 }
 
-/** A grip that binds a particle to a hand's socket for a window. */
-interface IGripAnchor {
-  particle: number;
-  person: string;
-  side: "left" | "right";
-  from: number;
-  to: number;
-}
-
 /** The solves kept per performance. */
 const SOLVED: WeakMap<
   HumanPerformanceState,
   Map<string, HumanPerformanceSoft.ISolved>
 > = new WeakMap();
-
-/** Displayed bones by person and step. */
-type BoneReader = (
-  person: string,
-  k: number,
-  seconds: number,
-) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-/** A reader of displayed bones by person and step, each read once. */
-const memoBones: (state: HumanPerformanceState) => BoneReader = (
-  state: HumanPerformanceState,
-): BoneReader => {
-  const kept: Map<
-    string,
-    ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-  > = new Map();
-  return (
-    person: string,
-    k: number,
-    seconds: number,
-  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    const key: string = `${person}:${k}`;
-    let read:
-      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-      | undefined = kept.get(key);
-    if (read === undefined) {
-      read = HumanPerformanceRead.bones(state, person, seconds);
-      kept.set(key, read);
-    }
-    return read;
-  };
-};
-
-/** The grip that holds a particle at a second: the one that closed last among those open. */
-const owner: (
-  grips: readonly IGripAnchor[],
-  particle: number,
-  seconds: number,
-) => IGripAnchor | undefined = (
-  grips: readonly IGripAnchor[],
-  particle: number,
-  seconds: number,
-): IGripAnchor | undefined =>
-  grips
-    .filter(
-      (g: IGripAnchor): boolean =>
-        g.particle === particle && seconds >= g.from && seconds <= g.to,
-    )
-    .reduce<
-      IGripAnchor | undefined
-    >((last: IGripAnchor | undefined, g: IGripAnchor): IGripAnchor => (last === undefined || g.from >= last.from ? g : last), undefined);
-
-/** A hand's grip socket in the world at a step. */
-const gripSocket: (
-  state: HumanPerformanceState,
-  bones: BoneReader,
-  person: string,
-  side: "left" | "right",
-  k: number,
-  seconds: number,
-) => IAutoMovieVector3 = (
-  state: HumanPerformanceState,
-  bones: BoneReader,
-  person: string,
-  side: "left" | "right",
-  k: number,
-  seconds: number,
-): IAutoMovieVector3 => {
-  const socket: resolveAutoMovieHumanoidSurfaces.IFrame =
-    HumanPerformanceRead.person(state, person).performer.body.surfaces.sockets[
-      `grip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidSocket
-    ];
-  const hand: IAutoMovieResolvedBone = bones(person, k, seconds).get(
-    `${side}Hand`,
-  )!;
-  return Vector3.add(
-    hand.worldPosition,
-    Quaternion.rotateVector(hand.worldRotation, socket.point),
-  );
-};
-
-/** One step's boundary: every moving anchor's world point, released grips, and every body capsule. */
-const boundary: (
-  state: HumanPerformanceState,
-  domain: IAutoMovieSoftBodyDomain,
-  grips: readonly IGripAnchor[],
-  bones: BoneReader,
-  k: number,
-  seconds: number,
-) => IAutoMovieSoftBodyBoundarySample = (
-  state: HumanPerformanceState,
-  domain: IAutoMovieSoftBodyDomain,
-  grips: readonly IGripAnchor[],
-  bones: BoneReader,
-  k: number,
-  seconds: number,
-): IAutoMovieSoftBodyBoundarySample => {
-  const anchors: { particle: number; position: IAutoMovieVector3 }[] = [];
-  const released: number[] = [];
-  for (const anchor of domain.anchors) {
-    const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
-    if (binding === undefined) continue;
-    if (binding.kind === "node" && binding.node.startsWith(GRIP)) {
-      const g: IGripAnchor | undefined = owner(grips, anchor.particle, seconds);
-      if (g === undefined) released.push(anchor.particle);
-      else
-        anchors.push({
-          particle: anchor.particle,
-          position: gripSocket(state, bones, g.person, g.side, k, seconds),
-        });
-      continue;
-    }
-    if (binding.kind === "node") {
-      const frame: IHumanProp.IFrame = HumanPerformanceRead.prop(
-        state,
-        binding.node,
-        seconds,
-      );
-      anchors.push({
-        particle: anchor.particle,
-        position: Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(frame.rotation, binding.offset),
-        ),
-      });
-      continue;
-    }
-    const bone: IAutoMovieResolvedBone = bones(binding.actor, k, seconds).get(
-      binding.bone,
-    )!;
-    anchors.push({
-      particle: anchor.particle,
-      position: Vector3.add(
-        bone.worldPosition,
-        Quaternion.rotateVector(bone.worldRotation, binding.offset),
-      ),
-    });
-  }
-  const capsules: IAutoMovieSoftBodyResolvedCapsule[] = domain.colliders
-    .filter(
-      (c: IAutoMovieSoftCollider): c is IAutoMovieSoftCollider.IBodyCapsule =>
-        c.kind === "body-capsule",
-    )
-    .map(
-      (
-        c: IAutoMovieSoftCollider.IBodyCapsule,
-      ): IAutoMovieSoftBodyResolvedCapsule => {
-        const read: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          bones(c.actor, k, seconds);
-        return {
-          id: c.id,
-          from: { ...read.get(c.capsule.from)!.worldPosition },
-          to: { ...read.get(c.capsule.to)!.worldPosition },
-          radius: c.capsule.radius,
-        };
-      },
-    );
-  return {
-    step: k,
-    anchors,
-    capsules,
-    ...(released.length === 0 ? {} : { released }),
-  };
-};
-
-/** The node name prefix of an anchor a grip makes. */
-const GRIP: string = "grip:";
-
-/** Step 0's positions: the rest with the first boundary's anchors applied, as the engine starts. */
-const rest: (
-  domain: IAutoMovieSoftBodyDomain,
-  first: IAutoMovieSoftBodyBoundarySample,
-) => number[] = (
-  domain: IAutoMovieSoftBodyDomain,
-  first: IAutoMovieSoftBodyBoundarySample,
-): number[] => {
-  const out: number[] = [...domain.rest];
-  for (const a of first.anchors) {
-    out[a.particle * 3] = a.position.x;
-    out[a.particle * 3 + 1] = a.position.y;
-    out[a.particle * 3 + 2] = a.position.z;
-  }
-  return out;
-};
