@@ -1,6 +1,14 @@
 import { createBall } from "@automovie/archetypes";
-import { AutoMovieGravity, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  ROM_TOLERANCE,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
@@ -38,12 +46,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. The composition matrix: every row of the six sport families above
  *    plans alone on the smallest and the largest body (`f-small`,
  *    `m-large`) at novice and at elite proficiency.
- * 6. The sprint start's set (Harland and Steele 1997), on `f-small`,
- *    `m-average` and `m-large` at elite proficiency: at the `set` event
- *    the front (left) knee's included angle is 90 degrees and the rear
- *    knee's 130, each within the angle a 1 mm miss of its hip-to-ankle
- *    distance turns the knee by through the law of cosines, 1 mm the limb
- *    fit's convergence scale (`KickForm.TOLERANCE`).
+ * 6. The sprint start's set, on `f-small`, `m-average` and `m-large` at
+ *    elite proficiency, against the anthropometry-driven block setting's
+ *    measurements (Cavedon et al. 2019, PLoS One 14:e0213979, table 2): at
+ *    the `set` event the front (left) knee's included angle is 90 degrees
+ *    within the angle a 1 mm miss of its hip-to-ankle distance turns it by
+ *    through the law of cosines, 1 mm the limb fit's convergence scale
+ *    (`KickForm.TOLERANCE`); the rear knee is 117 degrees within one
+ *    standard deviation (11), and the front hip, between the thigh and the
+ *    line from the hip joint to the shoulders, 43 within one (6); and the
+ *    whole body's centre of mass stands behind the line by its sex's
+ *    measured distance, 16.2 cm for a woman (Ciacci et al. 2017) and 22.9 cm
+ *    for a man (Slawinski et al. 2010), both as Valamatos et al. 2022 report
+ *    them, within the limb fit's 1 mm.
  * 7. A throw-in of a football held from a `pickUp`, at a point on the floor
  *    15 m ahead, on the same two bodies: the ball is launched at the
  *    throw-in's `stroke`, rising at the distance-best release angle, 30
@@ -291,14 +306,28 @@ export function test_human_motion_sport_rows(): void {
   };
   for (const name of ["f-small", "m-average", "m-large"] as const) {
     const body: IHumanBody = motionHumanBody(name);
-    const built: HumanPerformance | string = solo(
-      body,
-      "elite",
-      HumanSport.sprintStart as IHumanActionLaw<never>,
-      {},
-    );
-    if (typeof built === "string") {
-      complaints.push(`${name} sprint start: ${built}`);
+    // The fixtures' bodies are named by sex (`f-`, `m-`), the stratum the
+    // centre of mass's measured distance is read in.
+    const sex: "female" | "male" = name.startsWith("f-") ? "female" : "male";
+    let built: HumanPerformance;
+    try {
+      built = new HumanPerformance({
+        seed: "sport",
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "elite" },
+          },
+        ],
+        composition: HumanChain.subject("a").athletics({ sex }).node,
+      });
+    } catch (error) {
+      complaints.push(
+        `${name} sprint start: ${error instanceof Error ? error.message : String(error)}`,
+      );
       continue;
     }
     const placed = built.segments("a")[0]!;
@@ -312,31 +341,70 @@ export function test_human_motion_sport_rows(): void {
       continue;
     }
     const bones: ReturnType<HumanPerformance["bones"]> = built.bones("a", set);
-    for (const [side, asked] of [
-      ["left", 90],
-      ["right", 130],
-    ] as const) {
-      const hip: IAutoMovieVector3 = bones.get(
-        `${side}UpperLeg`,
-      )!.worldPosition;
-      const knee: IAutoMovieVector3 = bones.get(
-        `${side}LowerLeg`,
-      )!.worldPosition;
-      const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
+    const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+      bones.get(bone)!.worldPosition;
+
+    // The front knee: 90 degrees within the angle a 1 mm miss of its
+    // hip-to-ankle distance d turns it by, dd = (a b sin(theta) / d) dtheta.
+    {
+      const hip: IAutoMovieVector3 = at("leftUpperLeg");
+      const knee: IAutoMovieVector3 = at("leftLowerLeg");
+      const ankle: IAutoMovieVector3 = at("leftFoot");
       const thigh: number = Vector3.length(Vector3.subtract(knee, hip));
       const shank: number = Vector3.length(Vector3.subtract(ankle, knee));
-      // dd = (a b sin(theta) / d) dtheta: the angle a 1 mm miss of the
-      // hip-to-ankle distance d turns the knee by.
       const d: number = Vector3.length(Vector3.subtract(ankle, hip));
       const bound: number =
-        ((0.001 * d) / (thigh * shank * Math.sin((asked * Math.PI) / 180))) *
+        ((0.001 * d) / (thigh * shank * Math.sin(Math.PI / 2))) *
         (180 / Math.PI);
       const got: number = included(hip, knee, ankle);
-      if (!(Math.abs(got - asked) <= bound))
+      if (!(Math.abs(got - 90) <= bound))
         complaints.push(
-          `${name} sprint start: the ${side} knee is ${got.toFixed(2)} degrees at the set, ${asked} within ${bound.toFixed(2)} expected`,
+          `${name} sprint start: the front knee is ${got.toFixed(2)} degrees at the set, 90 within ${bound.toFixed(2)} expected`,
         );
     }
+
+    // The angles the block setting leaves, within one standard deviation of
+    // Cavedon et al.'s means: the rear knee 117 (SD 11), the front hip 43
+    // (SD 6), the hip angle between the thigh and the trunk's line from the
+    // hip joint to the shoulder.
+    const shoulder: IAutoMovieVector3 = Vector3.lerp(
+      at("leftUpperArm"),
+      at("rightUpperArm"),
+      0.5,
+    );
+    for (const [label, got, mean, sd] of [
+      [
+        "rear knee",
+        included(at("rightUpperLeg"), at("rightLowerLeg"), at("rightFoot")),
+        117,
+        11,
+      ],
+      [
+        "front hip",
+        included(at("leftLowerLeg"), at("leftUpperLeg"), shoulder),
+        43,
+        6,
+      ],
+    ] as const)
+      if (!(Math.abs(got - mean) <= sd))
+        complaints.push(
+          `${name} sprint start: the ${label} is ${got.toFixed(1)} degrees at the set, ${mean} within ${sd} expected`,
+        );
+
+    // The whole body's centre of mass behind the line (the entry's foot
+    // length ahead of the root, where the hands lie): 16.2 cm for women and
+    // 22.9 cm for men (Ciacci et al. 2017; Slawinski et al. 2010, as
+    // Valamatos et al. 2022 report them), within the limb fit's 1 mm.
+    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+      resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
+      bones,
+    );
+    const measured: number = sex === "female" ? 0.162 : 0.229;
+    const behind: number = body.measure.footLength - centre.z;
+    if (!(Math.abs(behind - measured) <= 0.001))
+      complaints.push(
+        `${name} sprint start: the centre of mass stands ${(100 * behind).toFixed(1)} cm behind the line at the set, ${(100 * measured).toFixed(1)} within 0.1 expected`,
+      );
   }
 
   // 7 and 8. A throw-in of a football.
