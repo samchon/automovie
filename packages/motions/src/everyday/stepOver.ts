@@ -8,6 +8,7 @@ import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -60,7 +61,8 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
  * whole action takes `2.4 sqrt(l / 0.93)` seconds for a hip height `l`
- * (provisional: a deliberate two-step crossing near 1 s a step for an adult),
+ * (provisional: a deliberate two-step crossing near 1 s a step for an adult)
+ * times the manner's tempo,
  * the lead swinging over 8 to 42 % and the trail over 50 to 82 %, the
  * pelvis staying between the feet until 70 % so the trail limb crosses with
  * the hip above the obstacle, where hip and knee flexion can lift its toe
@@ -108,6 +110,9 @@ export namespace stepOver {
 
     /** The leading foot; `right` when absent. */
     lead?: "left" | "right";
+
+    /** How it is performed: the manner's tempo scales the whole crossing's time, every phase keeping its share; neutral when absent. */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** How far the lead foot lifts its toes as they pass over the obstacle's near side, degrees toes-up (provisional): the toe clears the edge with the ankle lower than a level foot's would be. */
@@ -227,7 +232,10 @@ export namespace stepOver {
       ankle,
       rotation: HumanFoot.rotation(heading(side), 0),
     });
-    const duration: number = 2.4 * Math.sqrt(m.hipHeight / 0.93);
+    const duration: number =
+      2.4 *
+      Math.sqrt(m.hipHeight / 0.93) *
+      AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const windows: Record<"left" | "right", [number, number]> = {
       [lead]: [0.08 * duration, 0.42 * duration],
       [trail]: [0.5 * duration, 0.82 * duration],

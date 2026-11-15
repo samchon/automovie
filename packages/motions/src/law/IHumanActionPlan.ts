@@ -43,6 +43,13 @@ export interface IHumanActionPlan {
   channels?: readonly AutoMovieMotionHumanChannel.Claim[];
 
   /**
+   * What this instance lets an overlay take, where its parameters decide it
+   * apart from its law (`IHumanActionLaw.yields`): a carry in one hand
+   * yields its free arm, one in both hands none. The law's when absent.
+   */
+  yields?: readonly AutoMovieMotionHumanChannel.Claim[];
+
+  /**
    * The base the action leaves the body on at its end, declared by an
    * action that changes what carries the body: sitting down declares the
    * seat, kneeling the kneel, rising the stand. Absent for an action that
@@ -228,7 +235,7 @@ export namespace IHumanActionPlan {
     /** The somersault frame in the root's frame at take-off (a side salto turns it a quarter about the long axis); the root's own axes when absent. */
     frame?: IAutoMovieQuaternion;
 
-    /** The largest momentum the take-off can give, kg m²/s; unbounded when absent. */
+    /** The largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot (`HumanPerformanceFlight`). */
     maximum?: number;
   }
 

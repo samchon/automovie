@@ -62,7 +62,7 @@ export namespace HumanPerformanceOverlays {
    * @throws {HumanRefusal} When the plan claims a channel the carrier does not yield, or one another overlay of the same span holds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, the result and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The claimed channels are the plan's own; the carrier's yields and the running overlays' claims bound them, and the hold of a prop passes to the overlay as it does to any placed action.
+   * @evidence contracts/development/implementation.md#principled-implementation The claimed channels are the plan's own; the carrier's yields (its instance's where its plan states them, its law's otherwise) and the running overlays' claims bound them, and the hold of a prop passes to the overlay as it does to any placed action.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two checks, one record, its registration.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both conflicts throw with the channels at fault and the repair.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the hold to `HumanPerformanceContacts.hold`.
@@ -86,8 +86,9 @@ export namespace HumanPerformanceOverlays {
     // and no other overlay of the same span may hold.
     const channels: readonly AutoMovieMotionHumanChannel.Claim[] =
       plan.channels ?? [];
+    // An instance's own yields, where its parameters decide them, before its law's.
     const yielded: readonly AutoMovieMotionHumanChannel.Claim[] =
-      carrier.law.yields ?? [];
+      carrier.plan.yields ?? carrier.law.yields ?? [];
     // A claimed digit is yielded with its hand; a claimed hand needs the
     // hand itself yielded, not one of its digits.
     const kept: AutoMovieMotionHumanChannel.Claim[] = channels.filter(

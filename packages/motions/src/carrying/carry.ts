@@ -6,6 +6,7 @@ import { walk } from "../actions/walk";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -45,7 +46,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * (provisional: no located study gives the slope), shared between the chest
  * and the spine, and grows in over the first `RAMP` seconds. The load
  * itself is not a prop yet, so no grip window is declared. Events: the
- * walk's.
+ * walk's. An overlay may take the head and, under a one-hand or hip load,
+ * the free arm and hand (the plan's `yields`), so a wave or a phone rides a
+ * carry as it rides a walk.
  *
  * Not yet: shoulder straps, backpacks, overhead and head loads, a level
  * tray, the child in the arms, on the shoulders or in a carrier, pulling a
@@ -310,10 +313,27 @@ export namespace carry {
         }),
       );
     }
-    return composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives: [trunk, ...arms],
-    });
+    // The head and an arm no load holds are the walk's to yield, as a
+    // walk's own are: a one-hand or hip load leaves the other arm free.
+    const free: readonly HumanHand.Side[] =
+      how === "oneHand" || how === "hip"
+        ? [loaded === "left" ? "right" : "left"]
+        : [];
+    return {
+      ...composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives: [trunk, ...arms],
+      }),
+      yields: [
+        "head",
+        ...free.flatMap(
+          (side: HumanHand.Side): AutoMovieMotionHumanChannel.Claim[] => [
+            `${side}Arm`,
+            `${side}Hand`,
+          ],
+        ),
+      ],
+    };
   }
 }
