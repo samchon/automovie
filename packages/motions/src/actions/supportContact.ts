@@ -121,6 +121,38 @@ export namespace supportContact {
     };
   }
 
+  /**
+   * The target of a part stepping from one contact to another, at the top
+   * of its swing: over the middle of the step, lifted by a stepping limb's
+   * rise (`crawl.LIFT`) above the higher end, its surface facing as it will
+   * bear. Where only one end has a place the swing rises over it; where
+   * neither has, the part swings free.
+   *
+   * @param body The body.
+   * @param to The contact it steps to.
+   * @param from Where it leaves, world metres; no place when null.
+   * @param onto Where it sets down, world metres; no place when null.
+   * @param rise How high the swing clears the higher end, metres.
+   * @returns The fit's target, or null for a step with no place.
+   */
+  export function swing(
+    body: IHumanBody,
+    to: HumanSupport.IContact,
+    from: IAutoMovieVector3 | null,
+    onto: IAutoMovieVector3 | null,
+    rise: number,
+  ): HumanBodyFit.ITarget | null {
+    const a: IAutoMovieVector3 | null = from ?? onto;
+    const b: IAutoMovieVector3 | null = onto ?? from;
+    if (a === null || b === null) return null;
+    const top: IAutoMovieVector3 = {
+      x: (a.x + b.x) / 2,
+      y: Math.max(a.y, b.y) + rise,
+      z: (a.z + b.z) / 2,
+    };
+    return form(body, { ...to, kind: "bear" }, top).target;
+  }
+
   /** Where a part bears in a posture: the joint or bone its contact rides. */
   export function pinned(
     body: IHumanBody,

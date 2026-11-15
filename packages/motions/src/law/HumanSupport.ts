@@ -7,7 +7,9 @@ import type { lieDown } from "../floor/lieDown";
  * the set of the body's parts that touch something and how they bear,
  * which the support planner (`support`) solves into key postures and moves
  * between, a contact of the next stance bearing before one the next stance
- * lacks lets go (the support sequences of Escande, Kheddar and Miossec 2013,
+ * lacks lets go, and a part on another target in the next stance stepping
+ * there, let go, swung and set down (the support sequences of Escande,
+ * Kheddar and Miossec 2013,
  * Robot Auton Syst 61:428, and Hauser's non-gaited motion, Hauser, Bretl and
  * Latombe 2005).
  *
@@ -79,7 +81,7 @@ export namespace HumanSupport {
     /** The heading the stance faces, degrees about the vertical from the heading the body enters with: half a turn after a roll from the back to the front; the entry's when absent. */
     turn?: number;
 
-    /** The event the stance is held at; `stance<i>` when absent. */
+    /** The event the stance is held at, unique in the sequence; `stance<i>` when absent. */
     event?: string;
 
     /** The posture the stance's solve stays nearest, by its whole body's tilt and its joints (degrees); the posture the body enters with when absent. A stance without targets is shaped by it: kneeling, squatting, standing. */
