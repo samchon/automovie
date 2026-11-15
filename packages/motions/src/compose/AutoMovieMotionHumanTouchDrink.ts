@@ -55,7 +55,15 @@ export namespace AutoMovieMotionHumanTouchDrink {
     goal: IHumanPosture.IGoal;
   }
 
-  /** The facing and lean `drinking` found, with the elbow's hint its arm was admitted with, world metres, for the stroke to show that arm. */
+  /**
+   * The facing and lean `drinking` found, with the elbow's hint its arm
+   * was admitted with, so the stroke shows that arm.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The member states its meaning and frame; the facing's own are `AutoMovieMotionHumanTouchUpright.IFacing`'s.
+   * @evidence contracts/development/design.md#principled-representation The search's answer and the hint it was admitted with, one record, so the stroke reads the arm the admission read.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One member beyond the facing's, read by the hand-to-face arm.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The hint is the one the admitted arm was fitted with, never solved again by the caller.
+   */
   export interface IDrink extends AutoMovieMotionHumanTouchUpright.IFacing {
     /** The elbow's hint, world metres. */
     bend: IAutoMovieVector3;
