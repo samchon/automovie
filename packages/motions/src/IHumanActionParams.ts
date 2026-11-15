@@ -26,6 +26,7 @@ import type { exercise } from "./exercise/exercise";
 import type { stretch } from "./exercise/stretch";
 import type { crawl } from "./floor/crawl";
 import type { getUp } from "./floor/getUp";
+import type { support } from "./actions/support";
 import type { lieDown } from "./floor/lieDown";
 import type { clinch } from "./grappling/clinch";
 import type { handOver } from "./handling/handOver";
@@ -194,6 +195,9 @@ export interface IHumanActionParams {
 
   /** Getting up from the floor. */
   getUp: getUp.IParams;
+
+  /** Moving the body's weight across a sequence of supports. */
+  support: support.IParams;
 
   /** Crawling. */
   crawl: crawl.IParams;

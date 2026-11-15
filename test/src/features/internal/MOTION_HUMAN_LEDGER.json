@@ -5954,6 +5954,30 @@
       ]
     },
     {
+      "law": "support",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "speed",
+        "floor",
+        "determinism",
+        "slip",
+        "balance",
+        "contact"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [
+            "test_human_motion_support_sequence"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
       "law": "getUp",
       "checks": [
         "tangle",

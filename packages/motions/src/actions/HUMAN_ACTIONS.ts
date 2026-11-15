@@ -23,6 +23,7 @@ import { exercise } from "../exercise/exercise";
 import { stretch } from "../exercise/stretch";
 import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
+import { support } from "./support";
 import { lieDown } from "../floor/lieDown";
 import { clinch } from "../grappling/clinch";
 import { handOver } from "../handling/handOver";
@@ -111,6 +112,7 @@ export const HUMAN_ACTIONS: Readonly<
   operate,
   lieDown,
   getUp,
+  support,
   crawl,
   climbLadder,
   clinch,

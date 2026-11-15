@@ -44,6 +44,7 @@
  * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
  * - `getUp`: getting up from the floor to standing, from the back, the front or the hands and knees, symmetrically or by rolling over.
+ * - `support`: moving the body's weight across a sequence of supports (feet, hands, knees, the seat or the trunk), each stance's new supports bearing before the old ones let go.
  * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern, the bear crawl on hands and feet, or the inchworm.
  * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
  * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
@@ -107,6 +108,7 @@ export type HumanActionName =
   | "operate"
   | "lieDown"
   | "getUp"
+  | "support"
   | "crawl"
   | "climbLadder"
   | "clinch"

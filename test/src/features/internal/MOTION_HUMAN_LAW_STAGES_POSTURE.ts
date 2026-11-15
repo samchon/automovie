@@ -176,6 +176,27 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     a: IHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("lieDown", S.set(pick, "position"))),
+  support: (
+    _pick: motionHumanLawSweep.Pick,
+    a: IHumanBody,
+  ): motionHumanLawSweep.IScene =>
+    S.solo(
+      a,
+      S.chain().act("support", {
+        stances: [
+          { contacts: [{ part: "leftFoot", kind: "bear" }, { part: "rightFoot", kind: "bear" }] },
+          {
+            contacts: [
+              { part: "leftFoot", kind: "bear" },
+              { part: "rightFoot", kind: "bear" },
+              { part: "leftHand", kind: "bear" },
+              { part: "rightHand", kind: "bear" },
+            ],
+          },
+          { contacts: [{ part: "leftFoot", kind: "bear" }, { part: "rightFoot", kind: "bear" }] },
+        ],
+      }),
+    ),
   getUp: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,
