@@ -235,8 +235,8 @@ export namespace HumanSegment {
 
   /** One action placed over a carrier. */
   export interface IOverlay extends ISegment {
-    /** The channels it takes from the carrier. */
-    channels: readonly AutoMovieMotionHumanChannel[];
+    /** The channels, or single digits, it takes from the carrier. */
+    channels: readonly AutoMovieMotionHumanChannel.Claim[];
   }
 
   /** How long an overlay takes to come in over its carrier and to give its channels back, seconds (provisional, the voluntary blend of a cancel row doubled so both ends fit a short gesture). */

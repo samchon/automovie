@@ -1,6 +1,8 @@
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
@@ -32,6 +34,23 @@ export interface IHumanContactWindow {
 
   /** The frame the contact bears on. */
   support: IHumanContactWindow.Support;
+
+  /**
+   * A grip's in-hand motion of the held object (#3447): a rigid displacement
+   * in the hand's frame at a share of this window from 0 to 1, metres, the
+   * identity at 0. The performance composes it before the offset it stored
+   * at closure (position R_d p + t_d, rotation R_d R), so a pen
+   * turned into a writing grip or a coin rolled across the fingers moves in
+   * the hand while the hand holds it. It must be a pure function of the
+   * share. Absent, the object keeps the offset it had at closure.
+   *
+   * @param share The share of the window, in [0, 1].
+   * @returns The object's displacement in the hand's frame.
+   */
+  inHand?(share: number): {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+  };
 
   /**
    * The surface region of the body that touches, when the window names it

@@ -36,7 +36,7 @@ export interface IHumanActionPlan {
    * primitives over a base: what an overlay takes from its carrier. Absent
    * for a plan that writes the whole body.
    */
-  channels?: readonly AutoMovieMotionHumanChannel[];
+  channels?: readonly AutoMovieMotionHumanChannel.Claim[];
 
   /**
    * The base the action leaves the body on at its end, declared by an

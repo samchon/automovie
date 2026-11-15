@@ -63,9 +63,10 @@ export interface IHumanActionLaw<P = object> {
   /**
    * The channels this action lets an overlay take while it carries the body:
    * a walk yields its arms, its hands and its head, so a wave or a phone can
-   * be performed during it. None when absent.
+   * be performed during it. A digit yields that digit alone, so an overlay
+   * may take a thumb while the other four keep holding. None when absent.
    */
-  yields?: readonly AutoMovieMotionHumanChannel[];
+  yields?: readonly AutoMovieMotionHumanChannel.Claim[];
 
   /**
    * Whether the action can be performed over a carrier (`HumanChain.over`):

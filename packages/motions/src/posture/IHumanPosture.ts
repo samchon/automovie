@@ -58,12 +58,21 @@ export interface IHumanPosture {
    * (`turnHumanPosture`).
    */
   rotation?: IHumanPosture.IRotation;
+
+  /**
+   * Digit goals, each solved by the digit's own inverse kinematics after
+   * every limb, so the arm places the hand first and the digit reaches from
+   * there (`HumanDigitFit`): a fingertip on a key, a thumb pad on a phone's
+   * screen. A digit with a goal takes the fit's angles instead of `joints`.
+   * None when absent.
+   */
+  digits?: Partial<Record<IHumanPosture.Digit, IHumanPosture.IDigitGoal>>;
 }
 /**
  * Companion types of {@link IHumanPosture}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation World-frame goals with a bend hint and an optional end rotation, the inputs of two-bone IK with a pole vector.
+ * @evidence contracts/development/design.md#principled-representation World-frame goals with a bend hint and an optional end rotation, the inputs of two-bone IK with a pole vector; a digit goal is a surface of the distal phalanx on a point with an optional facing.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What laws write and the resolver reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions.
  */
@@ -156,6 +165,43 @@ export namespace IHumanPosture {
 
     /** The turn, a unit quaternion in the world frame, applied after the heading. */
     turn: IAutoMovieQuaternion;
+  }
+
+  /** A digit of a hand, by side: the thumb or a finger. */
+  export type Digit = (typeof DIGITS)[number];
+
+  /** The digits of {@link Digit}, as data, the left hand's first, each thumb to little finger. */
+  export const DIGITS = [
+    "leftThumb",
+    "leftIndex",
+    "leftMiddle",
+    "leftRing",
+    "leftLittle",
+    "rightThumb",
+    "rightIndex",
+    "rightMiddle",
+    "rightRing",
+    "rightLittle",
+  ] as const;
+
+  /** One digit's goal: a surface of its distal phalanx on a point. */
+  export interface IDigitGoal {
+    /** Where the surface goes, world metres, or in the posed frame of `on` when given. */
+    point: IAutoMovieVector3;
+
+    /** The outward normal of the surface touched, world (or `on`'s posed frame); the digit's surface is turned to face against it. Any direction when absent. */
+    normal?: IAutoMovieVector3;
+
+    /** Which surface of the digit: its tip or its pad. */
+    surface: "tip" | "pad";
+
+    /**
+     * The bone the goal rides, when it moves with the body: `point` and
+     * `normal` are then in its posed frame, read from the pose as fitted, so
+     * a fingertip on the other hand's palm stays there. A goal on a prop is
+     * written by its law in the world from the prop's frame at the instant.
+     */
+    on?: AutoMovieHumanoidBone;
   }
 
   /** A limb's reference solution: its upper and lower bones' clinical degrees. */

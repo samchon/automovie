@@ -1,7 +1,7 @@
 import type { IAutoMovieIntent, IAutoMovieSchedule } from "@automovie/engine";
 
 import type { HumanActionKey } from "../HumanActionKey";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -84,12 +84,15 @@ export namespace HumanPerformanceOverlays {
     const { name, params, law, context, plan, start }: IPlanned = planned;
     // The overlay takes what its plan claims, which the carrier must yield
     // and no other overlay of the same span may hold.
-    const channels: readonly AutoMovieMotionHumanChannel[] =
+    const channels: readonly AutoMovieMotionHumanChannel.Claim[] =
       plan.channels ?? [];
-    const yielded: readonly AutoMovieMotionHumanChannel[] =
+    const yielded: readonly AutoMovieMotionHumanChannel.Claim[] =
       carrier.law.yields ?? [];
-    const kept: AutoMovieMotionHumanChannel[] = channels.filter(
-      (c: AutoMovieMotionHumanChannel): boolean => !yielded.includes(c),
+    // A claimed digit is yielded with its hand; a claimed hand needs the
+    // hand itself yielded, not one of its digits.
+    const kept: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
+      (c: AutoMovieMotionHumanChannel.Claim): boolean =>
+        !AutoMovieMotionHumanChannel.claims(yielded, c),
     );
     if (kept.length !== 0)
       throw new HumanRefusal({
@@ -103,8 +106,15 @@ export namespace HumanPerformanceOverlays {
     const end: number = start + plan.duration;
     for (const other of person.overlays) {
       if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9)) continue;
-      const shared: AutoMovieMotionHumanChannel[] = channels.filter(
-        (c: AutoMovieMotionHumanChannel): boolean => other.channels.includes(c),
+      // Two claims clash when either covers the other: a hand and one of
+      // its digits, or the same digit twice; two digits of one hand do not.
+      const shared: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
+        (c: AutoMovieMotionHumanChannel.Claim): boolean =>
+          AutoMovieMotionHumanChannel.claims(other.channels, c) ||
+          other.channels.some(
+            (o: AutoMovieMotionHumanChannel.Claim): boolean =>
+              AutoMovieMotionHumanChannel.claims([c], o),
+          ),
       );
       if (shared.length !== 0)
         throw new HumanRefusal({

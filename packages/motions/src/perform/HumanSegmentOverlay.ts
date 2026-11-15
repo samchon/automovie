@@ -151,7 +151,7 @@ export namespace HumanSegmentOverlay {
           ),
         ),
       ].filter((bone: AutoMovieHumanoidBone): boolean =>
-        overlay.channels.includes(AutoMovieMotionHumanChannel.of(bone)),
+        AutoMovieMotionHumanChannel.covers(overlay.channels, bone),
       );
       return {
         ...without,

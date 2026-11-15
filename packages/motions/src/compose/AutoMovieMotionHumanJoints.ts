@@ -114,7 +114,7 @@ export namespace AutoMovieMotionHumanJoints {
           AutoMovieHumanoidBone,
           readonly [number, number, number],
         ][]) {
-          if (!props.channels.includes(AutoMovieMotionHumanChannel.of(bone)))
+          if (!AutoMovieMotionHumanChannel.covers(props.channels, bone))
             throw new Error(
               `A joint primitive writes ${bone} outside its channels`,
             );

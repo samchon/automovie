@@ -14,6 +14,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -395,5 +396,8 @@ export namespace HumanPerformanceState {
 
     /** The prop's frame in the hand's or the bone's frame, kept from the span's start. */
     offset?: IHumanProp.IFrame;
+
+    /** The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IHumanContactWindow.inHand`); none when the prop keeps its offset. */
+    inHand?: IHumanContactWindow["inHand"];
   }
 }
