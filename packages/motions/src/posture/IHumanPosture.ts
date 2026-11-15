@@ -44,6 +44,20 @@ export interface IHumanPosture {
 
   /** Limb goals solved by inverse kinematics. */
   limbs: Partial<Record<IHumanPosture.Limb, IHumanPosture.IGoal>>;
+
+  /**
+   * A rigid turn of the whole posture about a world point, applied after
+   * the heading: the root's position and rotation and every world limb goal
+   * (its point, its bend and its rotation) go round `about` by `turn`, while
+   * a goal attached to a bone (`on`) moves with its bone. It carries the
+   * orientations the heading's Euler angles cannot blend or read back, such
+   * as a somersault through the vertical or a twist about the long axis of a
+   * pitched body, so `yaw`, `pitch` and `roll` keep meaning the facing a law
+   * reads on the floor plan. Absent for no turn. A planted world goal cannot
+   * go round with the body and is refused with it
+   * (`turnHumanPosture`).
+   */
+  rotation?: IHumanPosture.IRotation;
 }
 /**
  * Companion types of {@link IHumanPosture}.
@@ -133,6 +147,15 @@ export namespace IHumanPosture {
      * (`HumanArmClearance`). Ignored on a leg.
      */
     rests?: readonly HumanColliders.IPlaced[];
+  }
+
+  /** A rigid turn of a whole posture about a world point. */
+  export interface IRotation {
+    /** The point that stays, world metres; normally the centre of mass. */
+    about: IAutoMovieVector3;
+
+    /** The turn, a unit quaternion in the world frame, applied after the heading. */
+    turn: IAutoMovieQuaternion;
   }
 
   /** A limb's reference solution: its upper and lower bones' clinical degrees. */

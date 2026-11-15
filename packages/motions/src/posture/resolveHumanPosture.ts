@@ -19,6 +19,7 @@ import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
 import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
+import { turnHumanPosture } from "./turnHumanPosture";
 
 /**
  * Resolve a posture into a canonical pose: the root from the posture's
@@ -129,12 +130,17 @@ export namespace resolveHumanPosture {
         );
       },
     );
+    // A whole-body rotation turns the root and the world goals before any fit
+    // (`turnHumanPosture`), so the limbs are fitted on the turned body.
+    const turned: turnHumanPosture.ITurned = turnHumanPosture(posture);
+    posture = { ...posture, limbs: turned.limbs };
+
     // The set joints are clamped first and the limbs fitted last, so the clamp
     // never moves a solved goal; the fit keeps the limb's own angles in range.
     let pose: IAutoMoviePose = clampPose(
       {
         skeleton: body.skeleton.id,
-        root: Transform.of(posture.root, resolveHumanPosture.heading(posture)),
+        root: Transform.of(turned.position, turned.rotation),
         joints,
       },
       body.skeleton,

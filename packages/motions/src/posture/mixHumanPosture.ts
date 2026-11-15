@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -16,7 +16,10 @@ import type { IHumanPosture } from "./IHumanPosture";
  * set moves its point and its bend by the weight and keeps everything else
  * of `from` (its planting, its contact, its attachment), since a layer adds
  * to a goal and never changes what holds it; a goal only one of them sets
- * is kept as that one has it.
+ * is kept as that one has it. A whole-body `rotation` blends as a rotation,
+ * the shorter-arc slerp of the two turns at constant angular speed with a
+ * line between their points; a posture without one counts as the identity
+ * turn about the other's point.
  *
  * @param from The posture at weight 0.
  * @param to The posture at weight 1.
@@ -67,6 +70,22 @@ export function mixHumanPosture(
           };
     if (goal !== undefined) limbs[limb] = goal;
   }
+  // A whole-body turn blends as a rotation: the shorter-arc slerp of the two
+  // turns and a line between their points, a missing one the identity turn
+  // about the other's point.
+  const a: IHumanPosture.IRotation | undefined = from.rotation;
+  const b: IHumanPosture.IRotation | undefined = to.rotation;
+  const rotation: IHumanPosture.IRotation | undefined =
+    a === undefined && b === undefined
+      ? undefined
+      : {
+          about: move((a ?? b)!.about, (b ?? a)!.about),
+          turn: Quaternion.slerp(
+            a?.turn ?? Quaternion.identity(),
+            b?.turn ?? Quaternion.identity(),
+            weight,
+          ),
+        };
   return {
     root: move(from.root, to.root),
     yaw: lerp(from.yaw, to.yaw),
@@ -74,5 +93,6 @@ export function mixHumanPosture(
     roll: lerp(from.roll, to.roll),
     joints,
     limbs,
+    ...(rotation === undefined ? {} : { rotation }),
   };
 }
