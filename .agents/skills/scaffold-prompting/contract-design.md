@@ -24,6 +24,6 @@ Keep stable family paths and H2 titles where Evidence addresses them, because a 
 
 ## New criteria
 
-Record verified source support and its limits in [research routes](research-routes.md), never beside the item, because a shipped item cites no source under the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements). Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
+Record verified source support and its limits in [research routes](research-routes.md), never in the item or its statements, because the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) lets neither cite a source. Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
 Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).
