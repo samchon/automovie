@@ -47,7 +47,9 @@ import { toRigAngle } from "../rom/toRigAngle";
  *   `above`, the world rotation the mid joint's articulation composes after
  *   (its parent's world rotation and its rest); the mid and effector bases
  *   (normalized) and rest frames; the effector's rest rotation; the requested
- *   effector world rotation; and the skeleton whose ranges clamp.
+ *   effector world rotation; the skeleton whose ranges clamp; and, from a
+ *   caller that solves many candidates, the two joints' clamps resolved once
+ *   on that skeleton (`clampJointToSkeleton.of`).
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the effector cannot take, the equation its twist makes, how it is solved, which solution is taken and the start that breaks a tie.
@@ -69,9 +71,21 @@ export function solveDistalTwist(props: {
   effectorFrame: IAutoMovieRestFrame | undefined;
   rotation: IAutoMovieQuaternion;
   skeleton: IAutoMovieSkeleton;
+  clamps?: {
+    lower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+    effector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+  };
 }): IAutoMovieJointPose {
+  // Each joint's clamp, resolved once for the call or handed in by a sweep
+  // that resolved it once for all its candidates.
+  const clampLower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    props.clamps?.lower ??
+    clampJointToSkeleton.of(props.joint.bone, props.skeleton);
+  const clampEffector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    props.clamps?.effector ??
+    clampJointToSkeleton.of(props.effector.bone, props.skeleton);
   const at = (twist: number): IAutoMovieJointPose =>
-    clampJointToSkeleton({ ...props.joint, twist }, props.skeleton);
+    clampLower({ ...props.joint, twist });
   const effectorOf = (joint: IAutoMovieJointPose): IAutoMovieQuaternion =>
     Quaternion.normalize(
       Quaternion.multiply(
@@ -101,15 +115,12 @@ export function solveDistalTwist(props: {
       props.effectorFrame,
     );
     const shown: IAutoMovieQuaternion = jointToQuaternionOnBasis(
-      clampJointToSkeleton(
-        {
-          bone: props.effector.bone,
-          flexion: a.flexion,
-          abduction: a.abduction,
-          twist: a.twist,
-        },
-        props.skeleton,
-      ),
+      clampEffector({
+        bone: props.effector.bone,
+        flexion: a.flexion,
+        abduction: a.abduction,
+        twist: a.twist,
+      }),
       props.effectorBasis,
       props.effectorFrame,
     );

@@ -68,10 +68,19 @@ export function fitHingedRotationError(
   const held: IAutoMovieJointPose = props.pose.joints.find(
     (j: IAutoMovieJointPose): boolean => j.bone === effector,
   ) ?? { bone: effector, flexion: null, abduction: null, twist: null };
+  // Each joint's clamp is resolved once for the whole sweep, as is the
+  // effector's rest's inverse.
+  const clampLower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    clampJointToSkeleton.of(props.chain.lower, props.skeleton);
+  const clampEffector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    clampJointToSkeleton.of(effector, props.skeleton);
+  const restInverse: IAutoMovieQuaternion = Quaternion.inverse(rest);
   // A sweep's candidates on one bend branch share one mid rotation record,
-  // so its angles are read once per record.
+  // so its angles are read once per record, and a mid bone that does not
+  // twist distally its clamped local rotation too.
   let seen: IAutoMovieQuaternion | undefined;
   let angles: IAutoMovieResolvedJointAngles | undefined;
+  let clamped: IAutoMovieQuaternion | undefined;
   return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
     const above: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(prepared.upper.worldRotation, upper),
@@ -86,33 +95,41 @@ export function fitHingedRotationError(
         lowerFrame,
         prepared.lowerDomain,
       );
+      clamped =
+        axes.twistPlacement === "distal"
+          ? undefined
+          : jointToQuaternionOnBasis(
+              clampLower({ bone: props.chain.lower, ...angles }),
+              lowerBasis,
+              lowerFrame,
+            );
     }
     const read: IAutoMovieResolvedJointAngles = angles;
     const joint: IAutoMovieJointPose = { bone: props.chain.lower, ...read };
     const mid: IAutoMovieQuaternion = Quaternion.multiply(
       above,
-      jointToQuaternionOnBasis(
-        axes.twistPlacement === "distal"
-          ? solveDistalTwist({
-              joint,
-              effector: held,
-              above,
-              lowerBasis,
-              lowerFrame,
-              effectorRest: rest,
-              effectorBasis,
-              effectorFrame,
-              rotation,
-              skeleton: props.skeleton,
-            })
-          : clampJointToSkeleton(joint, props.skeleton),
-        lowerBasis,
-        lowerFrame,
-      ),
+      clamped ??
+        jointToQuaternionOnBasis(
+          solveDistalTwist({
+            joint,
+            effector: held,
+            above,
+            lowerBasis,
+            lowerFrame,
+            effectorRest: rest,
+            effectorBasis,
+            effectorFrame,
+            rotation,
+            skeleton: props.skeleton,
+            clamps: { lower: clampLower, effector: clampEffector },
+          }),
+          lowerBasis,
+          lowerFrame,
+        ),
     );
     const local: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.inverse(rest),
+        restInverse,
         Quaternion.multiply(Quaternion.inverse(mid), rotation),
       ),
     );
@@ -121,15 +138,12 @@ export function fitHingedRotationError(
       effectorBasis,
       effectorFrame,
     );
-    const kept: IAutoMovieJointPose = clampJointToSkeleton(
-      {
-        bone: effector,
-        flexion: a.flexion,
-        abduction: a.abduction,
-        twist: a.twist,
-      },
-      props.skeleton,
-    );
+    const kept: IAutoMovieJointPose = clampEffector({
+      bone: effector,
+      flexion: a.flexion,
+      abduction: a.abduction,
+      twist: a.twist,
+    });
     if (
       kept.flexion === a.flexion &&
       kept.abduction === a.abduction &&

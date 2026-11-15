@@ -20,27 +20,63 @@ import { getConstraint } from "./getConstraint";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All consumers share getConstraint precedence; repeated standalone bone lookup remains uncached over mutable skeleton contents.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns new joints and borrows unchanged joints/constraints, with no retained index, handle or task.
  */
-export const clampJointToSkeleton: (
+export function clampJointToSkeleton(
   joint: IAutoMovieJointPose,
   skeleton: IAutoMovieSkeleton,
-) => IAutoMovieJointPose = (
-  joint: IAutoMovieJointPose,
-  skeleton: IAutoMovieSkeleton,
-): IAutoMovieJointPose => {
-  const bone: IAutoMovieBone | undefined = skeleton.bones.find(
-    (b: IAutoMovieBone): boolean => b.bone === joint.bone,
-  );
-  const constraint: IAutoMovieJointConstraint | null = getConstraint(
-    joint.bone,
-    bone?.constraint ?? null,
-  );
-  // A joint gated by swing and twist is read in the frame this skeleton
-  // resolves for its bone, the frame its angles are written in.
-  return constraint === null
-    ? joint
-    : clampJointRom(
-        joint,
-        constraint,
-        swingTwistRange.of(joint.bone, skeleton),
-      );
-};
+): IAutoMovieJointPose {
+  return clampJointToSkeleton.of(joint.bone, skeleton)(joint);
+}
+
+/**
+ * Companion of {@link clampJointToSkeleton}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the companion holds.
+ * @evidence contracts/development/design.md#principled-representation One bone's clamp, resolved once.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One function.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The clamp is `clampJointToSkeleton`'s own, with its lookup taken out of the call.
+ */
+export namespace clampJointToSkeleton {
+  /**
+   * One bone's clamp under a skeleton, its override or the humanoid table and
+   * its swing-twist frame resolved once, for a caller that clamps the same
+   * bone many times within one solve (a sweep's candidates): each call clamps
+   * exactly as `clampJointToSkeleton` does with the skeleton as it stood when
+   * the clamp was made. Nothing is kept beyond the closure, since a skeleton's
+   * contents may change between solves.
+   *
+   * @param bone The bone.
+   * @param skeleton The skeleton.
+   * @returns The clamp of a joint of that bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is resolved once and that each call equals the per-call clamp.
+   * @evidence contracts/development/implementation.md#principled-implementation The same override precedence, constraint and frame as `clampJointToSkeleton`, read once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The lookup, then one closure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The skeleton is read when the clamp is made; a caller holds the clamp only within one solve, over which the skeleton does not change.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) lookup per clamp made, none per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `getConstraint`, `swingTwistRange.of` and `clampJointRom`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the constraint and the frame, released with it.
+   */
+  export function of(
+    bone: IAutoMovieJointPose["bone"],
+    skeleton: IAutoMovieSkeleton,
+  ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
+    const found: IAutoMovieBone | undefined = skeleton.bones.find(
+      (b: IAutoMovieBone): boolean => b.bone === bone,
+    );
+    const constraint: IAutoMovieJointConstraint | null = getConstraint(
+      bone,
+      found?.constraint ?? null,
+    );
+    if (constraint === null)
+      return (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint;
+
+    // A joint gated by swing and twist is read in the frame this skeleton
+    // resolves for its bone, the frame its angles are written in.
+    const rig: swingTwistRange.IJoint | undefined = swingTwistRange.of(
+      bone,
+      skeleton,
+    );
+    return (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+      clampJointRom(joint, constraint, rig);
+  }
+}
