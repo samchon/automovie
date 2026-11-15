@@ -39,6 +39,19 @@ const CIVIC: Readonly<Partial<Record<createCar.Dimension, number>>> = {
 /** The Transit Custom's front overhang, metres: 958 mm from the front of the van to the front wheels' centre, CarExpert's MK3 listings and a Ford brochure seen in search results, secondary; with the 992 mm rear overhang it closes both bodies exactly, 958 + 3,100 + 992 = 5,050 mm and 958 + 3,500 + 992 = 5,450 mm. */
 const TRANSIT_NOSE: number = 0.958;
 
+/** The Transit Custom L1's read figures, the L2's load length being derived from them: Ford's specification, p. 3. */
+const TRANSIT_L1: Readonly<Partial<Record<createCar.Dimension, number>>> = {
+  length: 5.05,
+  width: 2.032,
+  wheelbase: 3.1,
+  frontOverhang: TRANSIT_NOSE,
+  mass: 1892,
+  loadLength: 2.394,
+};
+
+/** The Transit Custom L2's overall length, metres: the dealer's guide's 5,450 mm. */
+const TRANSIT_L2_LENGTH: number = 5.45;
+
 /** The Transit Custom's tyres: 215/65 R16C on its standard wheels, 215/60 R17C on its optional ones (p. 2). */
 const TRANSIT_TYRES: Readonly<
   Partial<Record<createCar.Tyre, Readonly<Partial<Record<createCar.Dimension, number>>>>>
@@ -120,21 +133,14 @@ export const CAR_MODELS: Readonly<{
       camry: { width: 1.84, height: 1.445, wheelbase: 2.82 },
     },
     van: {
-      transitL1: {
-        length: 5.05,
-        width: 2.032,
-        wheelbase: 3.1,
-        frontOverhang: TRANSIT_NOSE,
-        mass: 1892,
-        loadLength: 2.394,
-      },
+      transitL1: TRANSIT_L1,
       transitL2: {
-        length: 5.45,
+        length: TRANSIT_L2_LENGTH,
         frontOverhang: TRANSIT_NOSE,
         width: 2.032,
         height: 1.966,
         wheelbase: 3.5,
-        loadLength: 2.394 + (5.45 - 5.05),
+        loadLength: TRANSIT_L1.loadLength! + (TRANSIT_L2_LENGTH - TRANSIT_L1.length!),
       },
     },
     pickup: {

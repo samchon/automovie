@@ -117,9 +117,11 @@ export namespace CarBody {
 
     // The front doors from the front axle, the middle pillar their span behind, and the seating reference point just ahead of the pillar, as the measured sedans have them; a pickup takes the same cabin. A van's middle pillar is its bulkhead, which its sheet places by the load length ahead of the rear doors' inner face, their 0.04 m panel inside the rear: a van's cab partition is its B-pillar line, and no source read gives the Transit's front-door or B-pillar station (three searches recorded), so the station is derived from the bulkhead rather than borrowed from the sedans, whose door chain would put the pillar 75.6 mm behind the read bulkhead.
     const door: number = wheelbase / 2 - createCar.DOOR_AXLE;
+    // A van's rear doors' inner face, their 0.04 m panel inside the rear.
+    const inside: number = rear + 0.04;
     const pillar: number =
       kind === "van"
-        ? rear + 0.04 + d.loadLength!
+        ? inside + d.loadLength!
         : door - createCar.DOOR_SPAN;
     const sz: number = pillar + createCar.PILLAR_SGRP;
     const sy: number = floor + d.seatHeight!;
@@ -167,7 +169,7 @@ export namespace CarBody {
       pillar,
       back:
         kind === "van"
-          ? rear + 0.04
+          ? inside
           : kind === "pickup"
             ? rear + d.bedLength!
             : door - createCar.REAR_DOOR,
