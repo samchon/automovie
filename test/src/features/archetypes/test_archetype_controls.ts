@@ -19,7 +19,7 @@ const MM: number = 1e-3;
  *
  * Scenarios:
  * 1. A lever's and a dial's axis lie in the ADA's 380 to 1220 mm (15 to 48 in) reach range. The 100 mm lever is the sheet's row: a 25 mm ball, 100 g, the ball 100 mm from the hub's centre, 18.5 / 2 mm out from the panel, along an arm rising 20 degrees. Over 200 seeds every lever drawn is one of DIN 6337's five rows exactly, its ball and mass together, and all five are drawn; a lever named for a dial is refused.
- * 2. A dial's head is the ZB4BD3's 28.5 mm across and 27 mm proud of the panel, turns 45 degrees and weighs 0.04 kg.
+ * 2. A dial's head is the ZB4BD3's 28.5 mm across and 27 mm proud of the panel, turns 45 degrees each way and weighs 0.04 kg.
  * 3. A console's work surface is one of the Winsted sheet's 48, 60 and 72 in widths, all three drawn over the seeds, and 28-9/16 to 29 in high; the console is 34-5/8 in deep with its edge at its front, the surface 20 in deep.
  * 4. A hatch's opening is the Bilco Type S's 30 in along its hinge by 36 in across, the cover on the 12 in curb, the hatch 50 to 83 kg; opened its 70 degrees, the cover's top corner rises to its length times sin 70 plus its thickness times cos 70 over the hinge.
  * 5. A safe is the AMSEC BFX6030's 30 by 59 1/4 by 26 in and 1,081 lb, its door the 22 5/16 by 51 3/4 in clearance and 4 3/4 in thick; its hinge stands at the clearance's `+X` edge for a right hinge and `-X` for a left, stating no travel.
@@ -138,9 +138,12 @@ export function test_archetype_controls(): void {
   near("a dial's head across", archetypeExtent(dial, "x").size, 28.5 * mm);
   near("a dial's head proud", archetypeExtent(dial, "z").high, 27 * mm);
   near("a dial's mass", dial.properties.mass, 0.04);
-  if (dial.affordance("dial").travel !== 45)
+  if (
+    dial.affordance("dial").travel !== 45 ||
+    dial.affordance("dial").reverse !== 45
+  )
     findings.push(
-      `a dial turns ${dial.affordance("dial").travel} degrees, 45 expected`,
+      `a dial turns ${dial.affordance("dial").travel} and back ${dial.affordance("dial").reverse} degrees, 45 each way expected`,
     );
 
   // 3. The console.

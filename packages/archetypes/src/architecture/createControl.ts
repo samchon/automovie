@@ -40,7 +40,7 @@ const RISE: number = 20;
  * The panel is the `XY` plane facing `+Z`, not built, and the control's axis stands out of it at the drawn height above the origin on the floor, within the reach range for operable parts.
  *
  * - A lever's hub turns on a shaft along `+Z`, its arm pointing up at rest and rising off the panel at the drawing's 20 degrees to its ball knob. It is one of the maker's five levers read, whole: the lever given, or one drawn from the seed. `knob` is the ball, a handle riding `shaft`, the shaft's turn about `+Z`; the shaft states no travel, since no source read gives a lever's throw.
- * - A dial is a selector head, its handle standing proud of the panel; `dial` turns it about `+Z` by the maker's 45 degrees, as far either way.
+ * - A dial is a selector head, its handle standing proud of the panel; `dial` turns it about `+Z` by the maker's 45 degrees, and as far the other way as its `reverse`.
  *
  * @param params The kind, a lever's model and any dimension the author fixes.
  * @param seed The seed that draws a lever's model when it is not given and every dimension left free inside its band; absent, the first lever and the middle of each band.
@@ -104,6 +104,7 @@ export function createControl(
       extent: null,
       grip: "precision",
       travel: createControl.SELECTOR.turn,
+      reverse: createControl.SELECTOR.turn,
       parts: ["head"],
     });
     return builder.build(createControl.SELECTOR.mass);

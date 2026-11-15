@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
-import { createTap } from "./createTap";
 import type { createSanitary } from "./createSanitary";
+import { createTap } from "./createTap";
 
 /** The builder every kind's construction fills. */
 type Builder = ArchetypeBuilder<
@@ -60,7 +60,7 @@ export namespace SanitaryConstruction {
   /**
    * A pedestal washbasin: the basin block at its rim height, a pedestal under its middle, and a single-lever mixer on the deck behind the opening, built as `createTap` builds one.
    *
-   * The mixer's lever turns about its body as a `knob`, `tap`, by the maker's 50 degrees toward `+X` (it turns as far the other way), and lifts about a level axis across it as a `hinge`, `lift`, by the maker's 39 degrees, the lever's part bound to the lift, which rides the turn, so a turned lever turns with it and a lifted one lifts in its turned plane.
+   * The mixer's lever turns about its body as a `knob`, `tap`, by the maker's 50 degrees toward `+X` and, as its `reverse`, as far the other way, and lifts about a level axis across it as a `hinge`, `lift`, by the maker's 39 degrees, the lever's part bound to the lift, which rides the turn, so a turned lever turns with it and a lifted one lifts in its turned plane.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -132,6 +132,7 @@ export namespace SanitaryConstruction {
       extent: null,
       grip: "precision",
       travel: MIXER.turn,
+      reverse: MIXER.turn,
     });
     builder.affordance({
       id: "lift",

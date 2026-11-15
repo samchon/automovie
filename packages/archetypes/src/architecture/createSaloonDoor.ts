@@ -12,11 +12,11 @@ import {
 
 /** The café doors read. */
 const DOORS: string =
-  "Swinging Cafe Doors, Timeless Craftsman Beadboard saloon doors: \"Doors Measure 40\" in Height\", \"3/4\" Thick\", for \"30\",32\",36\" Door Opening Sizes\", hardware \"double action\" (https://swingingcafedoors.com/timeless-craftsman-beadboard-saloon-doors)";
+  'Swinging Cafe Doors, Timeless Craftsman Beadboard saloon doors: "Doors Measure 40" in Height", "3/4" Thick", for "30",32",36" Door Opening Sizes", hardware "double action" (https://swingingcafedoors.com/timeless-craftsman-beadboard-saloon-doors)';
 
 /** The floor gap, from an unbranded sheet. */
 const GAP: string =
-  "an unbranded café doors installation sheet hosted by Home Depot: \"a measurement of 18\" to 24\" from the finished floor to the bottom edge of finished doors is recommended\" (https://images.homedepot-static.com/catalog/pdfImages/42/428f879b-22b1-4888-9933-013639f2e559.pdf); its maker is not named";
+  'an unbranded café doors installation sheet hosted by Home Depot: "a measurement of 18" to 24" from the finished floor to the bottom edge of finished doors is recommended" (https://images.homedepot-static.com/catalog/pdfImages/42/428f879b-22b1-4888-9933-013639f2e559.pdf); its maker is not named';
 
 /** A leaf's opening on its gravity hinge, degrees: Swinging Cafe Doors' standard gravity hinge, which "can be locked open in either direction" at 125 degrees (https://swingingcafedoors.com/hardware-info). */
 const SWING: number = 125;
@@ -24,15 +24,15 @@ const SWING: number = 125;
 /**
  * A pair of saloon (café) doors hung in a doorway: two leaves meeting at its middle, each on a double-acting gravity hinge at its jamb.
  *
- * The doorway stands in the `XY` plane with its threshold's middle at the origin; each leaf is half the read opening, the two meeting at the middle, its foot the drawn gap above the floor. `leftLeaf` and `rightLeaf` are the hinges on the `+X` and `-X` jambs; a positive travel swings a leaf out toward `+Z` up to the hinge's 125 degrees, as far as it opens the other way too, which one articulation's single sense does not state. `leftPush` and `rightPush` are the leaves' faces at their middles, where a body pushes through, riding their hinges; `passage` is the opening under the leaves' tops. The doorway's frame is the wall's, not built.
+ * The doorway stands in the `XY` plane with its threshold's middle at the origin; each leaf is half the read opening, the two meeting at the middle, its foot the drawn gap above the floor. `leftLeaf` and `rightLeaf` are the hinges on the `+X` and `-X` jambs; a positive travel swings a leaf out toward `+Z` up to the hinge's 125 degrees, and a negative one toward `-Z` as far, the hinge's `reverse`, since the double-acting hinge locks open at 125 degrees in either direction. `leftPush` and `rightPush` are the leaves' faces at their middles, where a body pushes through, riding their hinges; `passage` is the opening under the leaves' tops. The doorway's frame is the wall's, not built.
  *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The doors.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the doors hang, which way they swing, what the articulation leaves unstated and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation The maker's leaf height, thickness and openings; each leaf half the opening, a derivation from two leaves meeting at the middle, no meeting gap being read; the hinge's 125 degrees.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the doors hang, which ways they swing and each contact.
+ * @evidence contracts/development/implementation.md#principled-implementation The maker's leaf height, thickness and openings; each leaf half the opening, a derivation from two leaves meeting at the middle, no meeting gap being read; the hinge's 125 degrees each way, its travel and its reverse.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then each leaf with its hinge and push face, then the passage.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The leaves are slabs, without louvres or beading; the floor gap is provisional.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
@@ -43,12 +43,13 @@ export function createSaloonDoor(
   params: createSaloonDoor.IParams = {},
   seed?: number | string,
 ): Archetype<createSaloonDoor.Affordance, createSaloonDoor.Dimension> {
-  const d: Record<createSaloonDoor.Dimension, number> = ArchetypeDraw.dimensions(
-    "saloonDoor",
-    createSaloonDoor.BANDS,
-    seed,
-    params,
-  );
+  const d: Record<createSaloonDoor.Dimension, number> =
+    ArchetypeDraw.dimensions(
+      "saloonDoor",
+      createSaloonDoor.BANDS,
+      seed,
+      params,
+    );
   const builder: ArchetypeBuilder<
     createSaloonDoor.Affordance,
     createSaloonDoor.Dimension
@@ -65,9 +66,14 @@ export function createSaloonDoor(
     ["leftLeaf", "leftPush", "leaf-left", 1],
     ["rightLeaf", "rightPush", "leaf-right", -1],
   ] as const) {
-    builder.box(part, v(half, d.height, d.thickness), v((sign * half) / 2, middle, 0), {
-      color: "#8a5a2b",
-    });
+    builder.box(
+      part,
+      v(half, d.height, d.thickness),
+      v((sign * half) / 2, middle, 0),
+      {
+        color: "#8a5a2b",
+      },
+    );
     builder.affordance({
       id: hinge,
       kind: "hinge",
@@ -78,6 +84,7 @@ export function createSaloonDoor(
       ),
       extent: null,
       travel: SWING,
+      reverse: SWING,
       parts: [part],
     });
     builder.affordance({
@@ -117,7 +124,7 @@ export namespace createSaloonDoor {
   /**
    * The affordance ids:
    *
-   * - `leftLeaf`, `rightLeaf`: the leaves' hinges on `+X` and `-X`, swinging toward `+Z`.
+   * - `leftLeaf`, `rightLeaf`: the leaves' hinges on `+X` and `-X`, swinging toward `+Z` and, by their reverse, as far toward `-Z`.
    * - `leftPush`, `rightPush`: the leaves' faces at their middles, riding their hinges.
    * - `passage`: the doorway's opening under the leaves' tops.
    */
@@ -146,10 +153,27 @@ export namespace createSaloonDoor {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    opening: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 36 * ArchetypeUnits.INCH, DOORS),
-    height: ArchetypeBand.metres(40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, DOORS),
-    thickness: ArchetypeBand.metres(0.75 * ArchetypeUnits.INCH, 0.75 * ArchetypeUnits.INCH, DOORS),
-    gap: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, GAP, true),
+    opening: ArchetypeBand.metres(
+      30 * ArchetypeUnits.INCH,
+      36 * ArchetypeUnits.INCH,
+      DOORS,
+    ),
+    height: ArchetypeBand.metres(
+      40 * ArchetypeUnits.INCH,
+      40 * ArchetypeUnits.INCH,
+      DOORS,
+    ),
+    thickness: ArchetypeBand.metres(
+      0.75 * ArchetypeUnits.INCH,
+      0.75 * ArchetypeUnits.INCH,
+      DOORS,
+    ),
+    gap: ArchetypeBand.metres(
+      18 * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
+      GAP,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 8, 16, ArchetypeBand.TYPICAL_MASS, true),
   };
 }
