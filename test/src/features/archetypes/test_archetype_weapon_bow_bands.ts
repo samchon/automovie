@@ -1,9 +1,9 @@
 import {
-  ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeUnits,
   createBow,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -78,8 +78,8 @@ export function test_archetype_weapon_bow_bands(): void {
     ),
     row(
       "horse bow draw",
-      15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-      60 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      15 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      60 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => horse(s).dimensions.draw!,
     ),
     row("horse bow brace", 0.14, 0.15, (s: number): number => {
@@ -111,8 +111,8 @@ export function test_archetype_weapon_bow_bands(): void {
     ),
     row(
       "recurve draw",
-      49 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-      54 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      49 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      54 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => recurve(s).dimensions.draw!,
     ),
     row(
@@ -143,8 +143,8 @@ export function test_archetype_weapon_bow_bands(): void {
     ),
     row(
       "draw",
-      101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-      141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      101 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      141 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => bow(s).dimensions.draw!,
     ),
   ]);

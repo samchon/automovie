@@ -1,14 +1,15 @@
 import {
-  ArchetypeUnits,
   ArchetypeCourse,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
   createCar,
   createCart,
   createMotorcycle,
   driveCar,
   rideMotorcycle,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/predicates";
@@ -80,22 +81,25 @@ export function test_archetype_ride_course_timed(): void {
     const now: ArchetypeCourse.IState = plan.at(t);
     const heading = (s: ArchetypeCourse.IState): number =>
       Math.atan2(
-        2 * (s.placement.rotation.x * s.placement.rotation.z +
-          s.placement.rotation.w * s.placement.rotation.y),
+        2 *
+          (s.placement.rotation.x * s.placement.rotation.z +
+            s.placement.rotation.w * s.placement.rotation.y),
         1 - 2 * (s.placement.rotation.x ** 2 + s.placement.rotation.y ** 2),
       );
     if (Math.abs(now.speed - before.speed) > 0.05)
       findings.push(`the speed jumps at ${t} s`);
     if (Math.abs(heading(now) - heading(before)) > 0.01)
       findings.push(`the heading jumps at ${t} s`);
-    if (Math.abs(now.speed - 6) > 0.12) findings.push(`the speed is ${now.speed} at ${t} s`);
+    if (Math.abs(now.speed - 6) > 0.12)
+      findings.push(`the speed is ${now.speed} at ${t} s`);
     if (Math.abs(now.curvature - 0.05) > 0.0025)
       findings.push(`the curvature is ${now.curvature} at ${t} s`);
     before = now;
   }
 
   // 3. Length and its inverse.
-  if (Math.abs(plan.length - 60) > 0.01) findings.push(`the length is ${plan.length}`);
+  if (Math.abs(plan.length - 60) > 0.01)
+    findings.push(`the length is ${plan.length}`);
   for (let k: number = 0; k <= 50; k++) {
     const t: number = (10 * k) / 50;
     if (Math.abs(plan.when(plan.at(t).distance) - t) > 1e-6)
@@ -105,7 +109,13 @@ export function test_archetype_ride_course_timed(): void {
   // 4. Ridden like any course.
   const cart: ArchetypeRide.IRide<createCart.Affordance, createCart.Dimension> =
     ArchetypeRide.along(createCart({ kind: "trolley" }, 1), plan);
-  if (!vclose(cart.at(3).placement.translation, plan.at(3).placement.translation, 1e-12))
+  if (
+    !vclose(
+      cart.at(3).placement.translation,
+      plan.at(3).placement.translation,
+      1e-12,
+    )
+  )
     findings.push("a cart does not ride the timed course");
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" }, 2);
   if (!(driveCar(car, plan).at(5).archetype.travel("wheel") > 0))
@@ -118,7 +128,9 @@ export function test_archetype_ride_course_timed(): void {
       ArchetypeCourse.timed("motorcycle", circle(5, 12, 4, 0.05)),
     ),
   );
-  const allowed: number = Math.sqrt(ArchetypeCourse.GRAVITY * 5 * Math.tan(50 * ArchetypeUnits.DEGREE));
+  const allowed: number = Math.sqrt(
+    AutoMovieGravity.STANDARD * 5 * Math.tan(50 * ArchetypeUnits.DEGREE),
+  );
   if (
     !(fast instanceof ArchetypeRefusal) ||
     !fast.axis.startsWith("samples[") ||
@@ -130,7 +142,10 @@ export function test_archetype_ride_course_timed(): void {
   const tight: unknown = caught(() =>
     driveCar(car, ArchetypeCourse.timed("car", circle(2, 2, 3, 0.25))),
   );
-  if (!(tight instanceof ArchetypeRefusal) || !tight.axis.startsWith("samples["))
+  if (
+    !(tight instanceof ArchetypeRefusal) ||
+    !tight.axis.startsWith("samples[")
+  )
     findings.push(`a car past its lock: ${String(tight)}`);
 
   // 6. Malformed samples.

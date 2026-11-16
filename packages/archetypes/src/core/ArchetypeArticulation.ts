@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 
 /**
@@ -17,12 +18,12 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  *
  * The model declares the articulation itself (`IAutoMovieAffordance.parts`, `rides` and `follows`), so this reads any `IAutoMovieModel`'s affordances, not only an archetype's. Each kind moves about or along an axis of its own rest frame, as `AutoMovieAffordanceKind` states: a `hinge`, `knob`, `crank` and `wheel` turn about `+Y`, a `slider` runs along `+X`, a `button`, a `pedal` and a `trigger` go in along `-Y`. A carried affordance takes its carrier's motion after its own, up the chain of `rides`, so a door's lever turns on the leaf and swings with it. An articulation's own frame moves with its own travel, so a drawer's grip is where the hand holds it at every travel.
  *
- * A follower's travel is set by its leader's (`follows`), resolved before any motion: a state names leaders only, and a car's road wheels steer when its steering wheel is set.
+ * A follower's travel is set by its leader's (`follows`), resolved before any motion. A state names independent leaders, or explicitly reversible followers whose requested travels uniquely determine their leaders. Spatial parentage (`rides`) is resolved afterwards as a separate dependency graph.
  *
  * A `pedal` carried by a `crank` goes round with it and keeps its orientation, since a pedal turns freely on its spindle and the foot holds it level.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, each kind's motion, how followers are set, the order of carried motions and the pedal rule.
- * @evidence contracts/development/design.md#principled-representation A kinematic tree of one-degree-of-freedom joints whose joint frames are the affordance frames, with some joints' travels coupled to others'; a state is one travel per leader articulation id, in the unit of that kind's `travel`.
+ * @evidence contracts/development/design.md#principled-representation A kinematic tree of one-degree-of-freedom joints whose joint frames are the affordance frames, with some travels coupled to others. A state gives one input per coupled degree of freedom, by a leader or an explicitly reversible follower, in that kind's travel unit; travel and spatial-parent graphs are resolved separately.
  * @evidence contracts/development/design.md#minimal-and-owned-surface `pose` for the posed model and its travels, `motion` for a single articulation's motion and `range` for its limits. The archetypes own it: the product's own prop articulation (`IAutoMoviePropArticulation`) is a joint subtree with a profile, declared per staged prop and played by authored clips, and reads no affordance; this poses what the affordances themselves declare, and no code yet derives that record from an archetype's affordances (#3368).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind's motion is named after an archetype; the pedal rule is the kind's own, stated on `AutoMovieAffordanceKind`; ranges and a follower's rule are the engine's, read here, not restated.
  */
@@ -135,15 +136,15 @@ export namespace ArchetypeArticulation {
    *
    * @param archetype The name refusals carry.
    * @param rest The model's parts and affordances at rest.
-   * @param state The travel of each leader articulation by id; an articulation not listed stays at rest, and a follower takes the travel its rule gives at its leader's.
+   * @param state One travel per coupled degree of freedom, named by its leader or an explicitly reversible follower; an independent articulation not listed stays at rest.
    * @returns New parts and affordances and every articulation's travel; the rest records are not changed.
-   * @throws {ArchetypeRefusal} When an id names no articulation of the model, listing those that exist; names a follower, giving the leader that sets it; a travel is not finite or lies outside the articulation's range, giving the range; a follower's leader is no articulation of the model, or its chain of leaders returns to it, listing the articulations it may follow; or a follower's rule takes it outside its own range at the stated travels, giving that range.
+   * @throws {ArchetypeRefusal} For an unknown articulation, a non-finite or out-of-range travel, an unmarked follower input, a non-invertible reverse input, duplicate inputs for one coupled degree of freedom, an unresolved or cyclic follows chain, or a followed travel outside its range. Model admission owns the separate acyclic rides graph.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the state's meaning, what is returned and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Travels first: each follower's is its rule (`affordanceFollowedTravel`) at its leader's resolved travel, memoised, with a visiting set that catches a chain returning to itself. Then forward kinematics of the tree: each affordance's motion is its carrier's motion after its own, memoised per affordance; `validateModel` admits the `rides` tree as acyclic, which producers satisfy by construction.
+   * @evidence contracts/development/implementation.md#principled-implementation Normalize reversible inputs to leaders with ArchetypeArticulationState, then resolve every travel by affordanceFollowedTravel with memoization and cycle detection. Only then resolve spatial transforms through rides, with a separate memo; model admission requires each graph to be acyclic separately.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the state, resolve every travel, resolve each affordance's motion once, then move frames and bound parts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A travel outside its range is refused, never clamped, a follower's included.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in affordances and bound parts, each travel and motion computed once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Forward travel and spatial evaluation are linear in affordances, bound parts and coupling table lookups; reverse input normalization additionally costs one follows-chain walk and inverse-table validation per authored input.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A carrier's motion and a leader's travel are shared by everything that reads them within one call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memos live for one call; the travels are handed to the caller.
    */
@@ -191,37 +192,10 @@ export namespace ArchetypeArticulation {
       );
     };
 
-    // Admit the state: known leader articulations, travels inside their ranges.
-    for (const [id, travel] of state) {
-      const affordance: IAutoMovieAffordance | undefined = byId.get(id);
-      if (affordance === undefined || !KINDS.has(affordance.kind))
-        throw new ArchetypeRefusal({
-          kind: "articulation",
-          archetype,
-          axis: "articulation",
-          value: id,
-          feasible: { kind: "alternatives", values: articulations },
-          reason: `"${id}" is not an articulation of this model`,
-          fix: "name one of the model's articulations",
-        });
-      if (affordance.follows !== undefined)
-        throw new ArchetypeRefusal({
-          kind: "articulation",
-          archetype,
-          axis: id,
-          value: travel,
-          feasible: { kind: "alternatives", values: [affordance.follows.id] },
-          reason: `"${id}" follows "${affordance.follows.id}", which sets its travel`,
-          fix: "set the leader's travel instead",
-        });
-      if (!within(affordance, travel))
-        throw outside(
-          affordance,
-          travel,
-          `the ${affordance.kind} "${id}" cannot travel ${travel}`,
-          "set the travel inside the articulation's range",
-        );
-    }
+    // Normalize reversible inputs before resolving any dependent travel.
+    const inputs: Map<string, number> = ArchetypeArticulationState(
+      archetype, byId, articulations, state,
+    );
 
     // Every articulation's travel: a leader's as set, a follower's by its rule from its leader's.
     const travels: Map<string, number> = new Map();
@@ -230,7 +204,7 @@ export namespace ArchetypeArticulation {
       const known: number | undefined = travels.get(a.id);
       if (known !== undefined) return known;
       if (a.follows === undefined) {
-        const set: number = state.get(a.id) ?? 0;
+        const set: number = inputs.get(a.id) ?? 0;
         travels.set(a.id, set);
         return set;
       }

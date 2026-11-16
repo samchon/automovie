@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { ArchetypeCourseLegs } from "./ArchetypeCourseLegs";
@@ -296,9 +296,6 @@ export namespace ArchetypeCourse {
     at: (seconds: number) => IState;
   }
 
-  /** Standard gravity, metres per second squared. */
-  export const GRAVITY: number = 9.80665;
-
   /**
    * The lean a single-track vehicle holds on its course: the angle from upright at which gravity and the turn's centripetal pull balance.
    *
@@ -315,8 +312,10 @@ export namespace ArchetypeCourse {
    */
   export function lean(state: IState): number {
     const balance: number =
-      Math.atan((state.speed * state.speed * state.curvature) / GRAVITY) /
-      ArchetypeUnits.DEGREE;
+      Math.atan(
+        (state.speed * state.speed * state.curvature) /
+          AutoMovieGravity.STANDARD,
+      ) / ArchetypeUnits.DEGREE;
     return state.reverse ? -balance : balance;
   }
 
@@ -373,7 +372,8 @@ export namespace ArchetypeCourse {
       course.kind === "plan" ? course : plan(archetype, course);
     const tangent: number = Math.tan(limit * ArchetypeUnits.DEGREE);
     for (const bend of planned.bends) {
-      const least: number = (bend.speed * bend.speed) / (GRAVITY * tangent);
+      const least: number =
+        (bend.speed * bend.speed) / (AutoMovieGravity.STANDARD * tangent);
       if (!(bend.radius < least)) continue;
 
       // At the cruising speed the turn is what an author widens; at a mark or a timed sample, the speed is what they lower.
@@ -395,7 +395,7 @@ export namespace ArchetypeCourse {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: Math.sqrt(GRAVITY * tangent * bend.radius),
+          maximum: Math.sqrt(AutoMovieGravity.STANDARD * tangent * bend.radius),
           unit: "m/s",
         },
         reason: `a ${bend.radius} m bend at ${bend.speed} m/s at ${bend.seconds} s leans the ${archetype} past ${limit} degrees`,

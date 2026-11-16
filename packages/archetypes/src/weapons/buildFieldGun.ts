@@ -14,9 +14,9 @@ import type { createCannon } from "./createCannon";
  * @param recoil The run back on firing, metres: the travel of the `recoil` slider every part rides.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is built and how the weights are shared.
- * @evidence contracts/development/implementation.md#principled-implementation The tube lies level with its axis on the trunnions' axis (Gibbon, p. 62: "In all our pieces, the axis of the trunnions is in the same plane with the axis of the piece"), the trunnions 43.1 in up and 0.5 in behind the axle, so its muzzle stands 5.91 in ahead of the wheels as p. 74 reads; the trail's underside runs from the top of the axle arm to its ground contact 74.4 in behind the wheels', and lies on the ground to its end 116.6 in behind their front; the elevation is a hinge on the trunnions' axis.
+ * @evidence contracts/development/implementation.md#principled-implementation The tube lies level with its axis on the trunnions' axis (Gibbon, p. 62: "In all our pieces, the axis of the trunnions is in the same plane with the axis of the piece"), the trunnions 43.1 in up and 0.5 in behind the axle, so its muzzle stands 5.91 in ahead of the wheels as p. 74 reads; the trail's underside runs from the top of the axle arm to its ground contact 74.4 in behind the wheels', and lies on the ground to its end 116.6 in behind their front; the elevation is a hinge on the trunnions' axis, and the elevating screw under the base ring rises and sinks with the ring's own path as the tube turns, its handle turning once for every pitch of travel.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The tube, the carriage, the wheels, then the affordances, the service contacts last, each placed from a read length: the primer the friction tube's 1.75 in out along the vent, the toggle the lanyard's 12 ft behind it, the handspike its read 53 in's `FIELD_GUN.ESTIMATES.handspike` share behind the trail.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tube is two rods at the base-ring's and the swell's diameters meeting at the trunnions, the cheeks and stock are boxes, a wheel is a disc of its tire's width with its spokes.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tube is two rods at the base-ring's and the swell's diameters meeting at the trunnions, the cheeks and stock are boxes, a wheel is a disc of its tire's width with its spokes. The screw's translation follows a rotating ring reference point's height at a fixed longitudinal screw axis; the ring's breadth and the head's full contact geometry remain unread, so this is not a three-dimensional support-contact solve.
  * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -104,11 +104,13 @@ export function buildFieldGun(
   const cheekLength: number = trunnions + trunnion - (base - trunnion);
   const cheekHeight: number = axis - radius;
   const vCheeks: number = 2 * cheek * cheekLength * cheekHeight;
-  // The screw stands on the stock's top at the base-ring's rear and reaches the breech's underside.
+  // The screw, of the read bar, stands on the stock's top at the base-ring's rear and reaches the breech's underside.
+  const screwRadius: number = FIELD_GUN.SCREW.bar / 2;
   const screwTop: number = axis - breech;
   const screwFoot: number =
     ((radius + arm) * (base - contact)) / -contact + depth / Math.cos(slope);
-  const vScrew: number = Math.PI * arm * arm * (screwTop - screwFoot);
+  const vScrew: number =
+    Math.PI * screwRadius * screwRadius * (screwTop - screwFoot);
   const wooden: number = c.mass - c.axleMass;
   const vWood: number = vStock + vTrail + vCheeks + vScrew;
   builder.box("stock", v(width, depth, run), stockCentre, {
@@ -136,10 +138,16 @@ export function buildFieldGun(
       ),
       { color: wood, share: (wooden * vCheeks) / 2 / vWood / total },
     );
-  builder.rod("screw", arm, v(0, screwFoot, base), v(0, screwTop, base), {
-    color: iron,
-    share: (wooden * vScrew) / vWood / total,
-  });
+  builder.rod(
+    "screw",
+    screwRadius,
+    v(0, screwFoot, base),
+    v(0, screwTop, base),
+    {
+      color: iron,
+      share: (wooden * vScrew) / vWood / total,
+    },
+  );
   builder.rod(
     "axle",
     arm,
@@ -229,7 +237,23 @@ export function buildFieldGun(
     });
   }
 
-  // The elevation: a hinge on the trunnions' axis whose positive travel raises the muzzle up to the read 12 degrees and whose reverse lowers it the read 8.
+  // A turn of the screw sinks its head by pitch times turns. The base ring's
+  // underside fixes the elevation: its fall about the trunnions is
+  // behind*sin(angle) - radius*(1-cos(angle)). This is monotone over the field
+  // of fire; the inverse table makes the screw the independent input.
+  const behind: number = trunnions - base;
+  const sinking = (degrees: number): number => {
+    const turn: number = (degrees * Math.PI) / 180;
+    return behind * Math.sin(turn) - breech * (1 - Math.cos(turn));
+  };
+  const degrees: number[] = [];
+  for (let k: number = -c.depression; k <= c.elevation; k++) degrees.push(k);
+  const advance: number = FIELD_GUN.SCREW.pitch / 360;
+  const turns = (k: number): number =>
+    sinking(k) / advance;
+
+  // The dependent elevation can also be named as a desired input through the
+  // reversible coupling, without a second law for existing launch consumers.
   builder.affordance({
     id: "elevation",
     kind: "hinge",
@@ -243,6 +267,11 @@ export function buildFieldGun(
     reverse: c.depression,
     parts: ["breech", "cascabel", "chase", "trunnions"],
     rides: "recoil",
+    follows: {
+      id: "screw",
+      table: degrees.map((k: number): [number, number] => [turns(k), k]),
+      reversible: true,
+    },
   });
   // The recoil: the whole gun runs back along the ground, the carriage's parts on this slider and everything else riding it.
   builder.affordance({
@@ -251,7 +280,7 @@ export function buildFieldGun(
     frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(0, 0, -1)),
     extent: null,
     travel: recoil,
-    parts: ["stock", "trail", "cheek-left", "cheek-right", "screw", "axle"],
+    parts: ["stock", "trail", "cheek-left", "cheek-right", "axle"],
   });
   builder.affordance({
     id: "muzzle",
@@ -311,14 +340,32 @@ export function buildFieldGun(
     travel: s.wire,
   });
 
-  // The elevating screw's handle under the breech at the base-ring's rear, where the breech rests: Plate 2 draws it there without dimensions, so its place is provisional, its travel bounded by the vertical field of fire (p. 74). The trail's end, where the handspike bears.
+  // Travel resolves before spatial parentage: the slider reads the screw's
+  // turn, then the screw's handle rides that translated head.
   builder.affordance({
-    id: "elevatingScrew",
+    id: "screwRise",
+    kind: "slider",
+    frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 0, 1), v(0, -1, 0)),
+    extent: null,
+    travel: turns(c.elevation) * advance,
+    reverse: -turns(-c.depression) * advance,
+    parts: ["screw"],
+    rides: "recoil",
+    follows: {
+      id: "screw",
+      ratio: advance,
+    },
+  });
+  builder.affordance({
+    id: "screw",
     kind: "knob",
     frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
-    rides: "recoil",
+    travel: turns(c.elevation),
+    reverse: -turns(-c.depression),
+    rides: "screwRise",
   });
+  // The trail's end, where the handspike bears.
   builder.affordance({
     id: "trail",
     kind: "surface",

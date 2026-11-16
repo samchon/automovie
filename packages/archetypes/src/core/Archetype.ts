@@ -310,9 +310,9 @@ export class Archetype<
   /**
    * This archetype with its articulations at stated travels.
    *
-   * @param state The travel of each articulation by id, degrees for a `hinge`, `knob`, `crank` and `wheel` and metres for a `slider`, `button`, `pedal` and `trigger`; an articulation not listed is at rest, whatever this archetype's own state.
+   * @param state One input per coupled degree of freedom, by its leader or an explicitly reversible follower, degrees for turning kinds and metres for translating kinds. An independent articulation not listed is at rest, whatever this archetype's own state.
    * @returns A new archetype; this one is unchanged.
-   * @throws {ArchetypeRefusal} When an id is no articulation of the archetype, or a travel lies outside its range.
+   * @throws {ArchetypeRefusal} For an unknown articulation, a travel outside its range or its reversible coupling's image, an unmarked follower, or duplicate inputs for one coupled degree of freedom.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the units, that the state is absolute and that the receiver is unchanged.
    * @evidence contracts/development/implementation.md#principled-implementation Poses the rest model again at the new state, so travel never accumulates error over successive calls.

@@ -33,7 +33,11 @@ const DOUGLAS: string =
 /**
  * A cannon on its carriage: the 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them.
  *
- * The gun stands on level ground, its axle across `X` at the origin's `Z`, its muzzle toward `+Z`. `muzzle` is the muzzle's face, `+Y` along the bore; `vent` is the vent's outer orifice on the breech, `+Y` out along the vent, which leans to the rear; both ride `elevation`, a hinge on the trunnions' axis whose positive travel raises the muzzle up to the manual's 12 degrees and whose reverse lowers it its 8 degrees below level. `elevatingScrew` is the screw's handle under the breech, a place read from an undimensioned plate and so provisional; the screw's thread is unread, so the elevation does not follow it. `trail` is the top of the trail's end, where the trail handspike bears to traverse the piece; where the pointing rings sit on it is unread. The friction `primer` stands in the vent and the `lanyard`'s toggle 12 ft behind it fires it when drawn by the wire's length; the `handspike`, the `limber`'s pintle seat, the `axle` and each wheel's top (`leftWheel`, `rightWheel`) are the crew's other contacts. `muzzleVelocity`, `recoil` and `ball` are the manual's and Gibbon's. `leftSpin` and `rightSpin` turn the wheels on the axle, a positive turn rolling them forward. The gun rests on its iron tires and its wooden trail, two materials, so its body carries no friction.
+ * The gun stands on level ground, its axle across `X` at the origin's `Z`, its muzzle toward `+Z`. `muzzle` is the muzzle's face, `+Y` along the bore; `vent` is the vent's outer orifice on the breech, `+Y` out along the vent, which leans to the rear; both ride `elevation`, a hinge on the trunnions' axis whose positive travel raises the muzzle up to the manual's 12 degrees and whose reverse lowers it its 8 degrees below level.
+ *
+ * The elevating `screw` is the driver. Turning its handle sinks its head by the pitch times its turns; `screwRise` translates it in its brass box, and `elevation` follows the base ring's reference height through a table at every whole degree. The pitch is borrowed from the mountain howitzer's screw, provisional (`FIELD_GUN.SCREW`). The table models vertical coupling; the ring's breadth and the screw head's full contact geometry remain unread. The elevation coupling is reversible, so an author may name either the screw or the desired elevation in a state, but never both; existing elevation-based launches use the same relation. The handle rides the translated head.
+ *
+ * `trail` is the top of the trail's end, where the trail handspike bears to traverse the piece; where the pointing rings sit on it is unread. The friction `primer` stands in the vent and the `lanyard`'s toggle 12 ft behind it fires it when drawn by the wire's length; the `handspike`, the `limber`'s pintle seat, the `axle` and each wheel's top (`leftWheel`, `rightWheel`) are the crew's other contacts. `muzzleVelocity`, `recoil` and `ball` are the manual's and Gibbon's. `leftSpin` and `rightSpin` turn the wheels on the axle, a positive turn rolling them forward. The gun rests on its iron tires and its wooden trail, two materials, so its body carries no friction.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -155,7 +159,8 @@ export namespace createCannon {
    * - `tiller`: a swivel gun's tiller behind the breech, where the hand pans and tilts it; it rides `elevation`.
    * - `recoil`: a field gun's whole carriage running back along the ground by its `recoil`, a slider every other part and contact rides; `createCannon.recoil` drives it after a shot.
    * - `elevation`: the tube's hinge on the trunnions' axis, raising the muzzle and, in reverse, lowering it.
-   * - `elevatingScrew`: the elevating screw's handle under the breech, provisional.
+   * - `screwRise`: the elevating screw rising and sinking in its box with the elevation.
+   * - `screw`: the independent elevating screw's handle; its turns drive the elevation and its head's rise by the screw's pitch.
    * - `trail`: the top of the trail's end, where the handspike bears.
    * - `leftSpin`, `rightSpin`: the wheels' turns on the axle.
    */
@@ -163,7 +168,8 @@ export namespace createCannon {
     | "muzzle"
     | "vent"
     | "elevation"
-    | "elevatingScrew"
+    | "screwRise"
+    | "screw"
     | "trail"
     | "leftSpin"
     | "rightSpin"

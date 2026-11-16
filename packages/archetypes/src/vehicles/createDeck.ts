@@ -4,13 +4,13 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
+  ArchetypeDensity,
   ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { createProjectile } from "../weapons/createProjectile";
 
 /** The guardrail standard read. */
 const ISO_5480: string =
@@ -157,7 +157,7 @@ export function createDeck(
     2 *
       ((bays + 1) * d.breadth * d.thickness * post +
         (rails * Math.PI * (d.rail / 2) ** 2 + tube) * length);
-  return builder.build(draw.derive("mass", createProjectile.STEEL * volume));
+  return builder.build(draw.derive("mass", ArchetypeDensity.STEEL * volume));
 }
 
 /**

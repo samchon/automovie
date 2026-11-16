@@ -5,6 +5,7 @@ import {
   createQuadruped,
   rideHorse,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeHorseRide } from "../internal/archetypeHorseRide";
@@ -34,18 +35,35 @@ export function test_archetype_ride_horse_transition(): void {
     const horse: ReturnType<typeof createHorse> = createHorse({}, seed);
     const withers: number = horse.dimensions.withersHeight!;
     const middle = (a: QuadrupedGait.Gait, b: QuadrupedGait.Gait): number => {
-      const p: { minimum: number; maximum: number } = QuadrupedGait.range(HORSE, a, withers);
-      const q: { minimum: number; maximum: number } = QuadrupedGait.range(HORSE, b, withers);
-      return (Math.max(p.minimum, q.minimum) + Math.min(p.maximum, q.maximum)) / 2;
+      const p: { minimum: number; maximum: number } = QuadrupedGait.range(
+        HORSE,
+        a,
+        withers,
+      );
+      const q: { minimum: number; maximum: number } = QuadrupedGait.range(
+        HORSE,
+        b,
+        withers,
+      );
+      return (
+        (Math.max(p.minimum, q.minimum) + Math.min(p.maximum, q.maximum)) / 2
+      );
     };
     const hip: number = createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y;
-    const trot: number = 1.6 * Math.sqrt(0.35 * ArchetypeCourse.GRAVITY * hip);
+    const trot: number =
+      1.6 * Math.sqrt(0.35 * AutoMovieGravity.STANDARD * hip);
     const gallop: number = 5 * (horse.dimensions.mass! / 170) ** 0.216;
     const canter: number = (gallop + middle("canter", "gallop")) / 2;
     for (const which of ["trot", "canter"] as const) {
-      const range: { minimum: number; maximum: number } = QuadrupedGait.range(HORSE, which, withers);
+      const range: { minimum: number; maximum: number } = QuadrupedGait.range(
+        HORSE,
+        which,
+        withers,
+      );
       if (!(gallop > range.minimum && gallop < range.maximum))
-        findings.push(`seed ${seed}: the trot-to-canter point ${gallop} m/s is outside the measured ${which}`);
+        findings.push(
+          `seed ${seed}: the trot-to-canter point ${gallop} m/s is outside the measured ${which}`,
+        );
     }
     const course: ArchetypeCourse.ICourse = {
       start: { x: 0, z: 0, heading: 0 },
@@ -64,15 +82,27 @@ export function test_archetype_ride_horse_transition(): void {
     const changes: { seconds: number; label: string }[] = ride.instants.filter(
       (i: { label: string }): boolean => i.label.startsWith("gait:"),
     );
-    const labels: string = changes.map((i: { label: string }): string => i.label).join(", ");
-    if (labels !== "gait:walk-trot, gait:trot-canter, gait:canter-trot, gait:trot-walk")
+    const labels: string = changes
+      .map((i: { label: string }): string => i.label)
+      .join(", ");
+    if (
+      labels !==
+      "gait:walk-trot, gait:trot-canter, gait:canter-trot, gait:trot-walk"
+    )
       findings.push(`seed ${seed}: changes ${labels}`);
     const starts: number[] = archetypeHorseRide.footfalls(ride, "leftFore");
     for (const change of changes)
-      if (!starts.some((s: number): boolean => Math.abs(s - change.seconds) < 1e-9))
-        findings.push(`seed ${seed}: ${change.label} at ${change.seconds} s is at no left fore landing`);
+      if (
+        !starts.some(
+          (s: number): boolean => Math.abs(s - change.seconds) < 1e-9,
+        )
+      )
+        findings.push(
+          `seed ${seed}: ${change.label} at ${change.seconds} s is at no left fore landing`,
+        );
     const slid: { worst: number; at: string } = archetypeHorseRide.slide(ride);
-    if (!(slid.worst < 1e-3)) findings.push(`seed ${seed}: a hoof slid ${slid.worst} m (${slid.at})`);
+    if (!(slid.worst < 1e-3))
+      findings.push(`seed ${seed}: a hoof slid ${slid.worst} m (${slid.at})`);
 
     // A fixed gait is unchanged.
     const steady: ArchetypeCourse.ICourse = {
@@ -82,9 +112,21 @@ export function test_archetype_ride_horse_transition(): void {
       acceleration: 2,
       deceleration: 2,
     };
-    const fixed: ReturnType<typeof rideHorse> = rideHorse(horse, steady, "trot");
-    if (fixed.instants.some((i: { label: string }): boolean => i.label.includes(":")))
+    const fixed: ReturnType<typeof rideHorse> = rideHorse(
+      horse,
+      steady,
+      "trot",
+    );
+    if (
+      fixed.instants.some((i: { label: string }): boolean =>
+        i.label.includes(":"),
+      )
+    )
       findings.push(`seed ${seed}: a fixed trot names a change`);
   }
-  TestValidator.equals("the gaits change with the speed at footfalls", findings, []);
+  TestValidator.equals(
+    "the gaits change with the speed at footfalls",
+    findings,
+    [],
+  );
 }

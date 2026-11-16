@@ -1,6 +1,5 @@
 import {
   type Archetype,
-  ArchetypeCourse,
   ArchetypeRefusal,
   ArchetypeUnits,
   createBow,
@@ -15,17 +14,18 @@ import {
   createWeaponLoop,
   createWeaponRack,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeModelSweep } from "../internal/archetypeModelSweep";
-
 
 /** A dimension the archetype reports, metres, newtons or kilograms. */
 const dim: (made: Archetype, name: string) => number = (
   made: Archetype,
   name: string,
 ): number =>
-  (made.dimensions as Readonly<Record<string, number | undefined>>)[name] ?? Number.NaN;
+  (made.dimensions as Readonly<Record<string, number | undefined>>)[name] ??
+  Number.NaN;
 
 /** An inch, metres. */
 const IN: number = ArchetypeUnits.INCH;
@@ -37,8 +37,7 @@ const LB: number = ArchetypeUnits.POUND;
 const OZ: number = ArchetypeUnits.OUNCE;
 
 /** A pound-force, newtons. */
-const LBF: number = ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY;
-
+const LBF: number = ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
 
 /**
  * Every weapon whose source lists discrete models is one of them whole: over 200 seeds each draw's figures equal one read model's exactly, never a blend of two, and every model is drawn; a figure a model gives cannot be fixed over it.
@@ -69,7 +68,11 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createBow({ kind: "longbow" }, seed);
         return [a.body.mass, dim(a, "draw")];
       },
-      models: [[0.905, 108 * LBF], [0.868, 101 * LBF], [0.785, 141 * LBF]],
+      models: [
+        [0.905, 108 * LBF],
+        [0.868, 101 * LBF],
+        [0.785, 141 * LBF],
+      ],
     },
     {
       name: "horse bow",
@@ -78,7 +81,10 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createBow({ kind: "horseBow" }, seed);
         return [dim(a, "length"), a.body.mass];
       },
-      models: [[53 * IN, 0.33], [48 * IN, 0.315]],
+      models: [
+        [53 * IN, 0.33],
+        [48 * IN, 0.315],
+      ],
     },
     {
       name: "horse bow draw",
@@ -87,7 +93,9 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createBow({ kind: "horseBow" }, seed);
         return [dim(a, "draw")];
       },
-      models: [15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((lb: number): readonly number[] => [lb * LBF]),
+      models: [15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(
+        (lb: number): readonly number[] => [lb * LBF],
+      ),
     },
     {
       name: "bat",
@@ -96,7 +104,12 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createClub({ kind: "bat" }, seed);
         return [dim(a, "length"), a.body.mass];
       },
-      models: [[35.2 * IN, 33.9 * OZ], [35.1 * IN, 34 * OZ], [35.2 * IN, 34 * OZ], [35.1 * IN, 34.5 * OZ]],
+      models: [
+        [35.2 * IN, 33.9 * OZ],
+        [35.1 * IN, 34 * OZ],
+        [35.2 * IN, 34 * OZ],
+        [35.1 * IN, 34.5 * OZ],
+      ],
     },
     {
       name: "baton",
@@ -114,7 +127,10 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createHandgun({ frame: "fullSize" }, seed);
         return [dim(a, "length"), dim(a, "height"), a.body.mass];
       },
-      models: [[0.202, 0.139, 0.708], [0.216, 0.139, 0.8391]],
+      models: [
+        [0.202, 0.139, 0.708],
+        [0.216, 0.139, 0.8391],
+      ],
     },
     {
       name: "compact pistol",
@@ -123,13 +139,19 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createHandgun({ frame: "compact" }, seed);
         return [dim(a, "length"), dim(a, "height"), a.body.mass];
       },
-      models: [[0.185, 0.128, 0.67], [0.183, 0.14, 0.797]],
+      models: [
+        [0.185, 0.128, 0.67],
+        [0.183, 0.14, 0.797],
+      ],
     },
     {
       name: "G17 sights",
       source: "GLOCK G17 Gen5 sight radius by sights",
       measure: (seed: number): readonly number[] => {
-        const a: Archetype = createHandgun({ frame: "fullSize", model: "g17" }, seed);
+        const a: Archetype = createHandgun(
+          { frame: "fullSize", model: "g17" },
+          seed,
+        );
         return [dim(a, "sightRadius")];
       },
       models: [[0.165], [0.164], [0.163]],
@@ -141,7 +163,11 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createLongGun({ kind: "carbine" }, seed);
         return [dim(a, "length"), a.body.mass];
       },
-      models: [[30.5 * IN, 3.13], [30.5 * IN, 2.95], [30.5 * IN, 2.9]],
+      models: [
+        [30.5 * IN, 3.13],
+        [30.5 * IN, 2.95],
+        [30.5 * IN, 2.9],
+      ],
     },
     {
       name: "buckler",
@@ -150,7 +176,10 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createShield({ kind: "buckler" }, seed);
         return [dim(a, "diameter"), a.body.mass];
       },
-      models: [[17.5 * IN, 3 * LB + 7 * OZ], [20.75 * IN, 3 * LB + 13 * OZ]],
+      models: [
+        [17.5 * IN, 3 * LB + 7 * OZ],
+        [20.75 * IN, 3 * LB + 13 * OZ],
+      ],
     },
     {
       name: "belt loop",
@@ -168,7 +197,10 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createWeaponRack({}, seed);
         return [dim(a, "width"), dim(a, "depth"), dim(a, "height")];
       },
-      models: [[0.66, 0.23, 0.84], [0.695, 0.22, 0.66]],
+      models: [
+        [0.66, 0.23, 0.84],
+        [0.695, 0.22, 0.66],
+      ],
     },
     {
       name: "arrow",
@@ -187,7 +219,12 @@ export function test_archetype_weapons_models(): void {
         return [dim(a, "length"), dim(a, "head"), a.body.mass];
       },
       models: [
-        [0.36, 0.077, Math.PI * 0.0068 * 0.0068 * (0.36 - 0.077) * 680 + ((0.0136 * 0.0136 * 0.077) / 3) * 7850],
+        [
+          0.36,
+          0.077,
+          Math.PI * 0.0068 * 0.0068 * (0.36 - 0.077) * 680 +
+            ((0.0136 * 0.0136 * 0.077) / 3) * 7850,
+        ],
         [0.437, 0.066, 0.074],
       ],
     },
@@ -198,7 +235,10 @@ export function test_archetype_weapons_models(): void {
         const a: Archetype = createProjectile({ kind: "roundShot" }, seed);
         return [dim(a, "diameter"), a.body.mass];
       },
-      models: [[3.58 * IN, 6.1 * LB], [4.52 * IN, 12.3 * LB]],
+      models: [
+        [3.58 * IN, 6.1 * LB],
+        [4.52 * IN, 12.3 * LB],
+      ],
     },
     {
       name: "longsword",
@@ -206,14 +246,17 @@ export function test_archetype_weapons_models(): void {
       measure: (seed: number): readonly number[] => {
         const a: Archetype = createSword({ kind: "longsword" }, seed);
         return [
-        dim(a, "bladeLength"),
-        dim(a, "bladeWidth"),
-        dim(a, "hiltLength"),
-        dim(a, "balance"),
-        a.body.mass,
-      ];
+          dim(a, "bladeLength"),
+          dim(a, "bladeWidth"),
+          dim(a, "hiltLength"),
+          dim(a, "balance"),
+          a.body.mass,
+        ];
       },
-      models: [[0.9, 0.05, 1.137 - 0.9, 0.1016, 1.39], [0.94, 0.05, 1.22 - 0.94, 0.13, 1.59]],
+      models: [
+        [0.9, 0.05, 1.137 - 0.9, 0.1016, 1.39],
+        [0.94, 0.05, 1.22 - 0.94, 0.13, 1.59],
+      ],
     },
     {
       name: "arming sword",
@@ -221,14 +264,17 @@ export function test_archetype_weapons_models(): void {
       measure: (seed: number): readonly number[] => {
         const a: Archetype = createSword({ kind: "armingSword" }, seed);
         return [
-        dim(a, "bladeLength"),
-        dim(a, "bladeWidth"),
-        dim(a, "hiltLength"),
-        dim(a, "balance"),
-        a.body.mass,
-      ];
+          dim(a, "bladeLength"),
+          dim(a, "bladeWidth"),
+          dim(a, "hiltLength"),
+          dim(a, "balance"),
+          a.body.mass,
+        ];
       },
-      models: [[0.8, 0.0524, 0.968 - 0.8, 0.1143, 1.2], [0.7779, 0.0556, 0.9477 - 0.7779, 0.0857, 1.19]],
+      models: [
+        [0.8, 0.0524, 0.968 - 0.8, 0.1143, 1.2],
+        [0.7779, 0.0556, 0.9477 - 0.7779, 0.0857, 1.19],
+      ],
     },
     {
       name: "sabre",
@@ -262,7 +308,8 @@ export function test_archetype_weapons_models(): void {
     },
   ];
   const findings: string[] = archetypeModelSweep(rows);
-  const same = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a));
+  const same = (a: number, b: number): boolean =>
+    Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a));
 
   // A scabbard made to a read sword is that blade with the maker's fit; 200 seeds draw every read sword's scabbard.
   const swords: readonly (readonly [string, number, number])[] = [
@@ -272,30 +319,64 @@ export function test_archetype_weapons_models(): void {
     ["poitiers", 0.7779, 0.0556],
   ];
   for (const [blade, length, width] of swords) {
-    const scabbard: Archetype = createHolster({ kind: "scabbard", blade: blade as "crecy" }, 3);
-    if (!same(dim(scabbard, "length"), length + 0.015) || !same(dim(scabbard, "width"), width + 0.02))
-      findings.push(`a scabbard made to the ${blade} is not its blade with the fit`);
+    const scabbard: Archetype = createHolster(
+      { kind: "scabbard", blade: blade as "crecy" },
+      3,
+    );
+    if (
+      !same(dim(scabbard, "length"), length + 0.015) ||
+      !same(dim(scabbard, "width"), width + 0.02)
+    )
+      findings.push(
+        `a scabbard made to the ${blade} is not its blade with the fit`,
+      );
   }
   const lengths: number[] = [];
-  for (let seed: number = 0; seed < 200; seed++) lengths.push(dim(createHolster({ kind: "scabbard" }, seed), "length"));
+  for (let seed: number = 0; seed < 200; seed++)
+    lengths.push(dim(createHolster({ kind: "scabbard" }, seed), "length"));
   for (const [blade, length] of swords)
     if (!lengths.some((value: number): boolean => same(value, length + 0.015)))
       findings.push(`200 seeds never made a scabbard to the ${blade}`);
 
   // 9. A model's own figure cannot be fixed.
   for (const [label, make, dimension] of [
-    ["a G17's slide width", (): Archetype => createHandgun({ frame: "fullSize", model: "g17", width: 0.0255 }, 1), "width"],
-    ["a holster's ride", (): Archetype => createHolster({ kind: "holster", ride: 0 }, 1), "ride"],
-    ["a lance's shaft", (): Archetype => createPolearm({ kind: "lance", length: 2.5 }, 1), "length"],
-    ["a longbow's draw weight", (): Archetype => createBow({ kind: "longbow", weight: "lb40" }, 1), "weight"],
+    [
+      "a G17's slide width",
+      (): Archetype =>
+        createHandgun({ frame: "fullSize", model: "g17", width: 0.0255 }, 1),
+      "width",
+    ],
+    [
+      "a holster's ride",
+      (): Archetype => createHolster({ kind: "holster", ride: 0 }, 1),
+      "ride",
+    ],
+    [
+      "a lance's shaft",
+      (): Archetype => createPolearm({ kind: "lance", length: 2.5 }, 1),
+      "length",
+    ],
+    [
+      "a longbow's draw weight",
+      (): Archetype => createBow({ kind: "longbow", weight: "lb40" }, 1),
+      "weight",
+    ],
   ] as const)
     try {
       make();
       findings.push(`${label} was accepted`);
     } catch (error) {
-      if (!(error instanceof ArchetypeRefusal) || error.kind !== "parameter" || error.axis !== dimension)
+      if (
+        !(error instanceof ArchetypeRefusal) ||
+        error.kind !== "parameter" ||
+        error.axis !== dimension
+      )
         findings.push(`${label} was not refused on ${dimension}`);
     }
 
-  TestValidator.equals("every weapon with read models is one of them whole", findings, []);
+  TestValidator.equals(
+    "every weapon with read models is one of them whole",
+    findings,
+    [],
+  );
 }
