@@ -27,6 +27,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import type { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
@@ -169,8 +170,8 @@ export namespace gesture {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing, transport and the channels and hands it declares; the body under it is the stand law's or, over a carrier, the carrier's (`under`); gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
    * @evidence contracts/development/implementation.md#efficient-algorithms Only moving hands resolve entry/rest arms and plan trajectories; a bow keeps its balance solve. Planned playback reads one base, actual direct joint/finger laws and cubic arms without discarded target/FK/rotation/bend geometry. Kinds declaring no direct joint keys skip their empty map/entry array; planning/endpoints retain complete goals and fixed hand/padding metadata prepares once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Phase times, actual closed-kind direct-joint membership, entry/rest arms, fixed working shape, digit directions, palm-plane turn, padding and bow shift belong to one immutable plan. Membership only skips kinds whose exhaustive joint writer returns no keys for every share; all time-varying angles remain actual. Full goals/playback share curl/finger owners and planner goals share the exact completed before posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, parameters, phase times and start and rest hands, released with the performance; nothing grows per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed phase/hand metadata and exact closed-kind joint membership belong to one plan; only identically empty joint writers are skipped. Each current evaluation lends its FK/ROM workspace through the complete base, actual raw hand goals and endpoint carry, retaining every fit/admission. Curl/finger owners and exact planner-before geometry remain shared without result/time reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed instance inputs until performance release. Current FK getters and genuine ROM loans belong only to the synchronous posture/prior call; no returned posture, hand request, planning frame or retained callback stores them.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -220,6 +221,7 @@ export namespace gesture {
       base: IHumanPosture,
       seconds: number,
       side: HumanHand.Side,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): gestureStroke.IInput => {
       const point: IAutoMovieVector3 | undefined = target(seconds);
       return {
@@ -229,6 +231,7 @@ export namespace gesture {
         region: p.region ?? "forehead",
         extent: mods.extent,
         ...(padding[side] === undefined ? {} : { fingerPadding: padding[side] }),
+        ...(resolution === undefined ? {} : { resolution }),
         ...(point === undefined ? {} : { target: point }),
         ...(source === undefined || travel === undefined
           ? {}
@@ -381,10 +384,13 @@ export namespace gesture {
         : t <= retractAt
           ? 1
           : 1 - minimumJerk.share((t - retractAt) / retract);
-    const prior = (t: number, geometry: boolean = true): gestureHands.IPrior => {
+    const prior = (t: number, geometry: boolean = true,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3]): gestureHands.IPrior => {
+      const read: Parameters<IHumanActionPlan["posture"]>[2] = resolution ?? prepareHumanPoseResolution();
       const envelope: number = weight(t);
       const u: number = Math.min(1, Math.max(0, (t - prepare) / stroke));
-      let posture: IHumanPosture = base.posture(t);
+      let posture: IHumanPosture = base.posture(t, undefined, read, projection);
       if (p.kind === "bow")
         posture = gestureBow.bowed(
           body,
@@ -420,7 +426,7 @@ export namespace gesture {
           fingers: IHumanPosture["joints"];
         } = hands[side]!.hand(
           posture,
-          gestureStroke.hand(p.kind, side, u, cycles, input(posture, t, side)),
+          gestureStroke.hand(p.kind, side, u, cycles, input(posture, t, side, read)),
           envelope,
         );
         requests.push(hand.request);
@@ -439,7 +445,10 @@ export namespace gesture {
             sides,
             begin,
             rest,
-            prior,
+            (at: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+              resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+              projection?: Parameters<IHumanActionPlan["posture"]>[3]): gestureHands.IPrior =>
+              prior(at, true, resolution, projection),
             weight,
           );
 
@@ -462,10 +471,13 @@ export namespace gesture {
               (c: AutoMovieMotionHumanChannel): boolean => claimed.has(c),
             ),
           }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
         const t: number = Math.min(duration, Math.max(0, seconds));
         const planned: boolean = arms !== undefined && t > 0 && t < duration;
-        const { posture, requests, envelope }: gestureHands.IPrior = prior(t, !planned);
+        const { posture, requests, envelope }: gestureHands.IPrior = prior(t, !planned, read, projection);
         if (arms === undefined) return posture;
         if (planned) return gestureHands.written(posture, arms!, t);
         return AutoMovieMotionHumanArm.carry(
@@ -473,6 +485,9 @@ export namespace gesture {
           handGoals(body, posture, requests),
           t < prepare ? begin : rest,
           envelope,
+          undefined,
+          read,
+          projection,
         );
       },
     };

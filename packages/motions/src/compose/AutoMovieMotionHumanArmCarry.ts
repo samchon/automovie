@@ -63,6 +63,8 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @param from The held angles of each arm to carry; an arm absent is left as it is.
    * @param share How far each arm is from its held angles to its goal, clamped to [0, 1].
    * @param planned The posture with the goals the clearing course is planned against, the arrival's; the posture's own when absent. A course planned against a fixed arrival is a constant of the carry, so the arm moves continuously with the share; one planned against the goal of each second is solved again as the goal moves, and its least clear turn steps where it crosses a ridge of the room. The trade is that the keys are exactly clear for the arrival's goal and clear for the goal of a second only as far as that goal has moved from it.
+   * @param source Optional same-body exact FK source borrowed only through this synchronous carry.
+   * @param projection Optional genuine same-body direct ROM projector; both actual native pose solves still project every joint.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both ends, what is blended, why and what the result holds.
@@ -70,8 +72,8 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve (two with a planned arrival), then three blended joints and one clearing course per arm (`HumanArmClearing.course`, solved at fixed shares of the carry so the turn does not step between two instants), each arm cleared in the pose the arms before it were written into.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder takes the shorter arc between its two rotations, so neither a twist near 180 degrees nor a solution in its other chart swings the arm; the share is clamped so the arm cannot pass either end.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms and a second for planned arrival when given, none at either end. Fixed joint pairs prepare endpoint rotation/chart only at first interior use; every course key still runs the actual blend/clearing. Two paired endpoint baseline observations replace four duplicate full FK/clearance reads; their original scalar projection/interpolation remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual native current/planned posture solves and baseline room observations share one operation-local exact FK getter. Body and each endpoint triple stay unchanged during this carry, so between shares endpoint preparation across original course shares; different poses, goals, clearing candidates and numerical blends remain actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous carry owns its lazy exact FK metadata, existing per-key arm/pose maps and local course callbacks until return/throw. No returned posture or goal retains those readers, maps or callbacks.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual current/planned solves and baseline/cleared observations share one exact FK getter, optionally borrowed from the same-body parent; a genuine parent projector shares only direct ROM metadata. Body and endpoint triples stay unchanged during this carry, so between shares fixed endpoint preparation across original course shares; all varying poses, goals and clearing candidates remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous carry owns or borrows lazy FK/ROM metadata, existing per-key arm/pose maps and local course callbacks only until return/throw. No returned posture or goal retains the readers, projector, maps or callbacks.
    */
   export function carry(
     body: IHumanBody,
@@ -81,16 +83,18 @@ export namespace AutoMovieMotionHumanArmCarry {
     >,
     share: number,
     planned?: IHumanPosture,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): IHumanPosture {
     const s: number = Math.min(1, Math.max(0, share));
     const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
       (side: HumanHand.Side): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const solved: IAutoMoviePose | null =
       s <= 0 ? null : resolveHumanPosture.seeded(body, posture,
-        undefined, undefined, resolution).pose;
+        undefined, undefined, resolution, undefined, projection).pose;
     // The pose the clearing course is planned in: the arrival's, when the
     // caller names it, so the course is a plan constant and not re-solved
     // against the goal of each second.
@@ -98,7 +102,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       solved === null || planned === undefined
         ? solved
         : resolveHumanPosture.seeded(body, planned,
-          undefined, undefined, resolution).pose;
+          undefined, undefined, resolution, undefined, projection).pose;
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     // Each carried arm at a share of the carry: the plain blend of its two

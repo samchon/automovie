@@ -199,7 +199,7 @@ export namespace HumanSegmentPose {
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
         HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-          unplantedHumanObservation(written.limbs, observed), prepared.clamp);
+          unplantedHumanObservation(written.limbs, observed), prepared);
       return {
         posture: {
           ...written,
@@ -258,7 +258,7 @@ export namespace HumanSegmentPose {
         ...posture,
         limbs: {
           ...posture.limbs,
-          ...Object.fromEntries(HumanSegmentCarry.carries(person, pose, kept, prepared.resolution)),
+          ...Object.fromEntries(HumanSegmentCarry.carries(person, pose, kept, prepared.resolution, prepared)),
         },
       };
 

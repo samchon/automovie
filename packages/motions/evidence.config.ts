@@ -224,6 +224,7 @@ const files: string[] = [
   "src/sport/prepareGymnasticsPlacement.ts",
   "src/sport/IPreparedGymnasticsFrame.ts",
   "src/sport/prepareGymnasticsFrame.ts",
+  "src/sport/preparePoleVaultPlant.ts",
   "src/sport/roundOff.ts",
   "src/sport/squatVault.ts",
   "src/striking/StrikingBody.ts",

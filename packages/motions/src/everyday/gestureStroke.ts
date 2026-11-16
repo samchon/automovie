@@ -9,6 +9,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
@@ -165,6 +166,9 @@ export namespace gestureStroke {
 
     /** Axis-to-skin padding, metres, prepared from this same body's profile and hand for a self-touch; computed on demand when absent. */
     fingerPadding?: number;
+
+    /** Exact FK source borrowed only during this synchronous actual goal query; never retained in the returned goal. */
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0];
 
     /**
      * This repeat's variation of a named place, for `wave` and `stopPalm`;

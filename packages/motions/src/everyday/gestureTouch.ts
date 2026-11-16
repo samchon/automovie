@@ -48,7 +48,7 @@ export namespace gestureTouch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The line, the reach, the distance on the line, then the hand's turn.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The palm turns back or forward for a line near the vertical, where palm down has no meaning; the `0.95` reach share is a documented provisional value.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk forward-kinematics pass and constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's input, whose base posture changes each instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Forwards only the parent's optional same-body synchronous exact FK workspace to the actual eye/shoulder observation; every current target subtraction, line, reach and hand goal still evaluates independently.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function point(
@@ -65,7 +65,7 @@ export namespace gestureTouch {
         fix: "give the point gesture a target",
       });
     const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
-      body, input.base, undefined, undefined, POINT_FRAMES[side],
+      body, input.base, undefined, input.resolution, POINT_FRAMES[side],
     );
     const eye: IAutoMovieVector3 = bones.get(`${side}Eye`)!.worldPosition;
     const shoulder: IAutoMovieVector3 = bones.get(
@@ -121,7 +121,7 @@ export namespace gestureTouch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The region, its upward tangent, the slide, then the goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The slide sizes are documented provisional values; no body is special-cased.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk forward-kinematics pass and a scan of one segment's shapes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's input, whose base posture changes each instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual region observation may borrow its parent's same-body synchronous exact FK workspace; current region placement, slide, normal and goal remain actual, and only unchanged profile padding is prepared separately.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function touch(
@@ -140,7 +140,7 @@ export namespace gestureTouch {
             ? "templeLeft"
             : "templeRight"
           : input.region;
-    const surface = HumanTrunk.region(body, input.base, region);
+    const surface = HumanTrunk.region(body, input.base, region, input.resolution);
     const up: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
         { x: 0, y: 1, z: 0 },

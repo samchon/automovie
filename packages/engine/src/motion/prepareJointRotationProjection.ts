@@ -23,25 +23,18 @@ type ClinicalAxis = "flexion" | "abduction" | "twist";
 /** Fixed coordinate order used only for stable reference and tie bookkeeping. */
 const AXES: readonly ClinicalAxis[] = ["flexion", "abduction", "twist"];
 
-/** One unique ordered query-local candidate, with its completed actual score. */
-interface IReading {
-  /** First admitted clinical record with these exact coordinates. */
-  joint: IAutoMovieJointPose;
-
-  /** Absolute dot of normalized actual and requested rotations. */
-  value: number;
-
-  /** Binary64 dot-product roundoff, with no physical angular tolerance. */
-  error: number;
-
-  /** Actual unnormalized joint composition, before the score's normalization. */
-  quaternion: IAutoMovieQuaternion;
-
-  /** Squared mobile-coordinate distance to this query's unchanged reference. */
-  distance: number;
-
-  /** Earlier unique reading with this first mobile coordinate. */
-  previous: number | undefined;
+/** Four numeric cells for each ordered analytic candidate; links use -1 as absent. */
+const enum ScoreField {
+  /** Absolute normalized actual-target dot. */
+  VALUE = 0,
+  /** Existing four-product roundoff radius. */
+  ERROR = 1,
+  /** Squared clinical distance from the unchanged query reference. */
+  DISTANCE = 2,
+  /** Previous candidate index in this first-coordinate row, or -1. */
+  PREVIOUS = 3,
+  /** Fixed cells per candidate, independent of the query's numerical inputs. */
+  STRIDE = 4,
 }
 
 /** One of two reusable general-query readings, with a separately owned raw rotation. */
@@ -96,12 +89,12 @@ function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
  * it does not declare an unreachable rotation reached or change a ROM limit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines local target frame, normalized-basis and matching-clamp premises, closure lifetime, reference, analytic eligibility, actual-composition scoring and the retained fallback's limitation.
- * @evidence contracts/development/implementation.md#principled-implementation Quaternion products are linear in each mobile factor's cosine and sine. A box optimum is a feasible top singular pair or boundary sinusoid optimum (Eberly, Constrained Quaternions, sections 2.3 and 3); four actual factor coefficients include clinical placement and fixed axes. Only score intervals overlapping the largest measured four-term dot use squared clinical distance to the initial reading as a tie-break; comparison never chains approximate ties.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Rig-invariant factors, coefficient dot readers and a lazy fixed-box enumerator precede one query evaluator; the callable and paired-result reader share it. Math owners enumerate candidates and expose the original normalization scalars; this owner alone converts, clamps and scores actual articulations. One synchronous score visitor per query receives its current joint/raw arguments, without allocating one callback per candidate or retaining pending-input slots. The prior general refinement remains here, with only exact incumbent-composition reuse.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixture, synthetic motion axis, grid, ROM relaxation or fitted result replaces the objective. Top-SVD and boundary candidates are never excluded by a numerical-rank classifier. The retained generic fallback still clips its probe spans to principal angles and has no global guarantee.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation composes fixed-axis coefficients, at most four three-factor coefficients and dot roundoff in constant work. Fixed coefficient readers specialize exact one-component nonzero dots after finite target admission; general and zero-product dots retain the original formula. Scorers share three lazy axis magnitude preparations; an eligible box also declares at most two existing endpoint/fixed rig angles per axis, whose private factors and at most four fixed inner combinations are composed only on their first actual match. Every query keeps fresh dynamic slots. Eligible queries compare at most nineteen unique scores and pass six scalars without argument tuples; a coordinate index narrows exact-key lookup and duplicate admissions add no reading wrapper or final selection work. General refinement keeps four sweeps, at most three axes and forty golden probes, at most 528 error reads, with unchanged-incumbent reuse and only two reusable metadata rows rather than one row allocation per new score. Both score paths omit the temporary normalized quaternion through a query-owned scalar visitor. Joint-only output creates no result wrapper; withQuaternion directly returns its single pair and reuses the raw winner or composes once for an unscored result. Probe clipping and every clamp remain; runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#principled-implementation Quaternion products are linear in each mobile factor's cosine and sine. A box optimum is a feasible top singular pair or boundary sinusoid optimum (Eberly, Constrained Quaternions, sections 2.3 and 3); four actual factor coefficients include clinical placement and fixed axes. A null/immobile coordinate supplies the actual producer's rig-zero factor regardless of its frame neutral/sign, while a numeric zero-width coordinate maps its stated minimum through the frame. Only score intervals overlapping the largest measured four-term dot use squared clinical distance to the initial reading as a tie-break; comparison never chains approximate ties.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Rig-invariant factors, coefficient dot readers and a lazy fixed-box enumerator precede one query evaluator; the callable and paired-result reader share it. Math owners enumerate candidates and expose original normalization scalars; this owner alone converts, clamps and scores actual articulations. Three query-local arrays keep ordered joints, raw quaternions and four numeric cells per candidate for value/error/distance/previous link, with named offsets and no per-score wrapper records. One synchronous visitor receives current joint/raw arguments, without a callback per candidate or pending-input slots. The prior general refinement remains here, with only exact incumbent-composition reuse.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixture, synthetic motion axis, grid, ROM relaxation or fitted result replaces the objective. Null fixed coordinates retain null rest semantics rather than being changed to clinical zero; numeric fixed ranges retain their actual clinical/frame map. Top-SVD and boundary candidates are never excluded by a numerical-rank classifier. Indexed score storage keeps every same arithmetic expression, duplicate's first record, maximum, interval overlap and strict distance/tie order; -1 replaces only the absent row-link marker, outside all nonnegative candidate indices. The retained generic fallback still clips its probe spans to principal angles and has no global guarantee.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation composes fixed-axis coefficients, at most four three-factor coefficients and dot roundoff in constant work. Fixed coefficient readers specialize exact one-component nonzero dots after finite target admission; general and zero-product dots retain the original formula. Scorers share three lazy axis magnitude preparations; an eligible box also declares at most two endpoint/fixed rig angles per axis, whose private factors/four fixed inner combinations are composed only on first actual match. Every query keeps fresh dynamic slots. Eligible queries compare at most nineteen unique scores and pass six scalars without argument tuples; three bounded arrays replace one evaluated array plus up to nineteen six-field score records, with one numeric append for four cells and the same coordinate index/duplicate checks. General refinement keeps four sweeps, at most three axes and forty golden probes, at most 528 error reads, with unchanged-incumbent reuse and two reusable metadata rows. Both paths omit temporary normalized quaternions through a query-owned scalar visitor. Joint-only output creates no wrapper; paired output directly returns its single pair and reuses the raw winner or composes once for an unscored result. Probe clipping/every clamp remain; runtime speedup is unmeasured, and a one-score query uses one extra array header.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares basis, coefficients, intervals, dot roundoff, box endpoint/trigonometric/lift-bound metadata and axis/affine scalars. Box-only fixed-angle declarations collect numbers computed at the original range/coefficient sites. Exact resolved-angle matches alone borrow pure factors and two declared private operands alone share a fixed inner product; null, sign, alias, frame-rounding or clamp differences keep ordinary query work. Each query keeps fresh dynamic factors/inner slots, original F/A/T axis/frame lookup and clinical finite checks. Inverse rig conversion and forward candidate-clinical conversion admit each actual-used nonnull fixed frame at its original first-use site, then share unchanged neutral/sign; absent frames create no mapper and replacements admit anew. Outer output stays fresh. Equal admitted records share score/distance only in this query; strict first-distance ties make later identical readings redundant. General search reuses two rows while preserving incumbent/final candidate during first-effector comparison; raw quaternions never mutate. Raw winners serve world composition. No target/reference/candidate or target-dependent factor crosses queries.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns projector/rig/clamp, fixed-box metadata, coefficients/four dot readers, at most three axis-scalar, three inverse-affine and two forward-affine readers, each affine reader holding one frame/two scalars; six declared factors, at most six weak identity markers and four fixed inner products release with that operation. Each query owns dynamic factor/inner slots and one synchronous normalized-score/error visitor. Analytic queries hold at most nineteen unique readings plus one index map; visitor inputs stay on the call. Numeric links avoid bucket wrappers and duplicate admissions retain no new reading/joint. General queries hold at most two private incumbent/latest metadata rows. Joint-only output returns its joint directly; paired output owns one wrapper/raw quaternion/joint and no map, composer, visitor, metadata row or prior query. No target history, global cache, handle or task is retained.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns projector/rig/clamp, fixed-box metadata, coefficients/four dot readers, at most three axis-scalar, three inverse-affine and two forward-affine readers, each affine reader holding one frame/two scalars; six declared factors, at most six weak identity markers and four fixed inner products release with that operation. Each query owns dynamic factor/inner slots and one synchronous normalized-score/error visitor. Analytic queries hold two arrays of at most nineteen joints/quaternions, one array of at most seventy-six numeric cells and one row-head map; visitor inputs stay on the call, links are numeric and duplicate admissions retain no entry/joint. General queries hold two private incumbent/latest rows. Joint-only output returns its joint directly; paired output owns one wrapper/raw quaternion/joint and no arrays, map, composer, visitor, metadata row or prior query. No target history, global cache, handle or task is retained.
  */
 export function prepareJointRotationProjection(props: {
   domain: IAutoMovieJointRotationDomain;
@@ -118,9 +111,9 @@ export function prepareJointRotationProjection(props: {
   const mobile: ClinicalAxis[] = [];
   const fixed: IAutoMovieJointPose = {
     bone: props.domain.bone,
-    flexion: 0,
-    abduction: 0,
-    twist: 0,
+    flexion: null,
+    abduction: null,
+    twist: null,
   };
   for (const axis of AXES) {
     const range: IAutoMovieAngleRange | null = constraint?.[axis] ?? null;
@@ -357,14 +350,17 @@ export function prepareJointRotationProjection(props: {
     // Four least-subnormal units cover gradual-underflow product errors.
     const compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> =
       prepareComposition();
+    const joints: IAutoMovieJointPose[] = [];
+    const quaternions: IAutoMovieQuaternion[] = [];
+    const scores: number[] = [];
     /** One synchronous visitor per query, never one closure per candidate. */
     const normalizedScore: (
       x: number, y: number, z: number, w: number,
       quaternion: IAutoMovieQuaternion, joint: IAutoMovieJointPose,
-    ) => IReading = (
+    ) => number = (
       normalizedX: number, normalizedY: number, normalizedZ: number, normalizedW: number,
       quaternion: IAutoMovieQuaternion, joint: IAutoMovieJointPose,
-    ): IReading => {
+    ): number => {
       const x: number = local.x * normalizedX;
       const y: number = local.y * normalizedY;
       const z: number = local.z * normalizedZ;
@@ -379,25 +375,22 @@ export function prepareJointRotationProjection(props: {
       magnitude += Math.abs(y);
       magnitude += Math.abs(z);
       magnitude += Math.abs(w);
-      return {
-        joint,
-        value: Math.abs(value),
-        error: (gamma * magnitude) / (1 - gamma) + 4 * Number.MIN_VALUE,
-        quaternion,
-        distance: 0,
-        previous: undefined,
-      };
+      const index: number = joints.length;
+      joints.push(joint);
+      quaternions.push(quaternion);
+      scores.push(Math.abs(value), (gamma * magnitude) / (1 - gamma) + 4 * Number.MIN_VALUE, 0, -1);
+      return index;
     };
-    const score: (joint: IAutoMovieJointPose) => IReading = (
+    const score: (joint: IAutoMovieJointPose) => number = (
       joint: IAutoMovieJointPose,
-    ): IReading => {
+    ): number => {
       const quaternion: IAutoMovieQuaternion = compose(joint);
       return readNormalizedQuaternion(quaternion, normalizedScore, joint);
     };
-    const evaluated: IReading[] = [score(reference)];
+    score(reference);
     const buckets: Map<number | null, number> = new Map();
     buckets.set(reference[first], 0);
-    let maximum: IReading = evaluated[0]!;
+    let maximum: number = 0;
     for (const pair of pairs) {
       const candidate: IAutoMovieJointPose = { ...reference };
       candidate[first] = clinical(first, pair[0]);
@@ -411,41 +404,44 @@ export function prepareJointRotationProjection(props: {
       // distinguishes signed zeros, every other coordinate and bone.
       const coordinate: number | null = admitted[first];
       const head: number | undefined = buckets.get(coordinate);
-      let index: number | undefined = head;
-      let known: IReading | undefined;
-      while (index !== undefined) {
-        const entry: IReading = evaluated[index]!;
-        if (sameJoint(entry.joint, admitted)) {
-          known = entry;
+      let index: number = head ?? -1;
+      let known: number | undefined;
+      while (index >= 0) {
+        if (sameJoint(joints[index]!, admitted)) {
+          known = index;
           break;
         }
-        index = entry.previous;
+        index = scores[index * ScoreField.STRIDE + ScoreField.PREVIOUS]!;
       }
       if (known !== undefined) continue;
-      const next: IReading = score(admitted);
+      const next: number = score(admitted);
+      const offset: number = next * ScoreField.STRIDE;
       for (const axis of mobile)
-        next.distance += ((admitted[axis] ?? 0) - (reference[axis] ?? 0)) ** 2;
-      next.previous = head;
-      buckets.set(coordinate, evaluated.length);
-      evaluated.push(next);
-      if (next.value > maximum.value) maximum = next;
+        scores[offset + ScoreField.DISTANCE]! += ((admitted[axis] ?? 0) - (reference[axis] ?? 0)) ** 2;
+      scores[offset + ScoreField.PREVIOUS] = head ?? -1;
+      buckets.set(coordinate, next);
+      if (scores[offset + ScoreField.VALUE]! > scores[maximum * ScoreField.STRIDE + ScoreField.VALUE]!)
+        maximum = next;
     }
-    let best: IReading = evaluated[0]!;
+    let best: number = 0;
     let bestDistance: number = Infinity;
-    const maximumLow: number = maximum.value - maximum.error;
-    const maximumHigh: number = maximum.value + maximum.error;
-    for (const candidate of evaluated)
+    const maximumOffset: number = maximum * ScoreField.STRIDE;
+    const maximumLow: number = scores[maximumOffset + ScoreField.VALUE]! - scores[maximumOffset + ScoreField.ERROR]!;
+    const maximumHigh: number = scores[maximumOffset + ScoreField.VALUE]! + scores[maximumOffset + ScoreField.ERROR]!;
+    for (let candidate: number = 0; candidate < joints.length; candidate++) {
+      const offset: number = candidate * ScoreField.STRIDE;
       if (
-        candidate.value + candidate.error >=
+        scores[offset + ScoreField.VALUE]! + scores[offset + ScoreField.ERROR]! >=
           maximumLow &&
         maximumHigh >=
-          candidate.value - candidate.error &&
-        candidate.distance < bestDistance
+          scores[offset + ScoreField.VALUE]! - scores[offset + ScoreField.ERROR]! &&
+        scores[offset + ScoreField.DISTANCE]! < bestDistance
       ) {
         best = candidate;
-        bestDistance = candidate.distance;
+        bestDistance = scores[offset + ScoreField.DISTANCE]!;
       }
-    return finish(best.joint, requested, best.quaternion);
+    }
+    return finish(joints[best]!, requested, quaternions[best]!);
   };
   return Object.assign(
     (rotation: IAutoMovieQuaternion): IAutoMovieJointPose =>

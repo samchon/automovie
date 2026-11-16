@@ -33,16 +33,18 @@ export namespace WorkoutFeet {
    * @evidence contracts/development/implementation.md#principled-implementation A `plant` support of a `stance` kind that does not stride is a planted leg goal on the entry's ankle and rotation; a `pivot` support is a planted goal on the foot turned about its ball by the posture's turn from the entry heading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lists of sides, read once, and one goal per side per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A striding kind's feet are left to its keys, which solve its stance on the body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry placements, active sides, fixed pivot points and headings are prepared once; each changing posture still gets independent leg goals.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The keeper closes over the entry's feet.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed planted feet prepare their heading/contact once through Leg.prepareGoal; each current root/yaw still computes its original knee hint. Pivot feet retain their current rotation and goal computation, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry placements, active sides, fixed pivot points/headings and planted-goal metadata belong to the unchanged body/entry. Each changing posture still gets an independent actual knee/leg goal.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The keeper owns at most two fixed planted-goal readers or pivot records until its plan ends; no evaluated knee, current posture, FK reader or query history is retained.
    */
   export function keep(
     context: Pick<IHumanActionContext, "body" | "entry">,
     kind: WorkoutKind,
     yaw: number,
   ): (placed: IHumanPosture) => IHumanPosture {
-    const bearing = (
+    const bearing: (
+      how: WorkoutKind.ISupport["kind"],
+    ) => readonly ("left" | "right")[] = (
       how: WorkoutKind.ISupport["kind"],
     ): readonly ("left" | "right")[] =>
       kind.anchor !== "stance"
@@ -64,7 +66,16 @@ export namespace WorkoutFeet {
           rotation: context.entry.feet[side].rotation,
         };
         return planted.includes(side)
-          ? { side, kind: "plant", stance }
+          ? {
+              side,
+              kind: "plant",
+              goal: AutoMovieMotionHumanLeg.prepareGoal(
+                context.body,
+                side,
+                stance,
+                true,
+              ),
+            }
           : {
               side,
               kind: "pivot",
@@ -78,22 +89,23 @@ export namespace WorkoutFeet {
       const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
       for (const plan of plans) {
         const side: "left" | "right" = plan.side;
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
-          context.body,
-          placed,
-          side,
+        limbs[`${side}Leg`] =
           plan.kind === "plant"
-            ? plan.stance
-            : HumanFoot.pivot(
+            ? plan.goal(placed)
+            : AutoMovieMotionHumanLeg.goal(
                 context.body,
+                placed,
                 side,
-                "mtp",
-                plan.at,
-                plan.heading + (placed.yaw - yaw),
-                0,
-              ),
-          true,
-        );
+                HumanFoot.pivot(
+                  context.body,
+                  side,
+                  "mtp",
+                  plan.at,
+                  plan.heading + (placed.yaw - yaw),
+                  0,
+                ),
+                true,
+              );
       }
       return { ...placed, limbs };
     };
@@ -107,8 +119,8 @@ export namespace WorkoutFeet {
     | {
         /** An unturned plant. */
         kind: "plant";
-        /** The entry ankle and foot rotation. */
-        stance: HumanFoot.IPlacement;
+        /** The fixed entry placement's goal reader, with its current-root knee hint. */
+        goal: ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>;
       }
     | {
         /** A turn about the metatarsophalangeal contact. */

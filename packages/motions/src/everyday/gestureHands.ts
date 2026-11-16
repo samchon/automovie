@@ -9,6 +9,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
@@ -170,14 +171,36 @@ export namespace gestureHands {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing stroke goal's exact shape/curl fields and existing hand result; it contains no solved arm, target proxy, time sample or contact tolerance.
    */
   export interface IPrepared {
-    /** Live request and finger angles for a planner or an endpoint carry. */
+    /**
+     * A live world-space hand request and fresh clinical finger triples for
+     * the actual posture/goal at transport envelope [0,1].
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines current posture/goal, envelope range and fresh world-request/clinical-joint outputs for planning or endpoint carry.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare owns actual palm turn, digit aim, bend and finger interpolation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration specifies one complete hand read; prepare supplies its implementation.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No body here can replace a hand goal, change a surface or skip an actual query.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepare documents the actual live-geometry and finger-writing costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature shares no result; prepare owns fixed hand metadata and every current input read.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration retains no pose/goal; prepare owns the reader's bounded plan lifetime.
+     */
     hand(
       posture: IHumanPosture,
       goal: gestureStroke.IHand,
       envelope: number,
     ): ReturnType<typeof hand>;
 
-    /** Fresh finger joints from the same stroke shape/curl and envelope, independent of its world goal. */
+    /**
+     * Fresh clinical finger joints from this actual shape/curl and envelope
+     * [0,1], without requesting independent world hand geometry.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines shape/clinical-curl input, envelope range, fresh finger triples and independence from the world goal.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare supplies the same actual relaxed-to-working interpolation as the complete hand reader.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares the finger-only read used when planned arms already supply displayed geometry.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The declaration contains no replacement surface, target, curl formula or solved arm.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepare documents the bounded named entries and fresh fifteen-joint writing cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Prepare owns shared named angle entries; this signature stores no interpolated answer.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration retains no result or frame; prepare owns and releases its fixed metadata.
+     */
     fingers(
       goal: Pick<gestureStroke.IHand, "shape" | "curl">,
       envelope: number,
@@ -195,7 +218,7 @@ export namespace gestureHands {
    * @param sides The moving hands.
    * @param begin Each arm at the entry.
    * @param rest Each arm at rest.
-   * @param prior The gesture before its arms at a second.
+   * @param prior The gesture before its arms at a second, borrowing the planner's current FK3/ROM4 operation loans only for that synchronous query.
    * @param envelope The same transport share used by prior, without computing its geometry.
    * @returns Each arm's trajectory.
    *
@@ -204,8 +227,8 @@ export namespace gestureHands {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame producer supplies the base posture and both hands, while each arm selects its own request and the envelope remains a scalar time law.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every goal, trajectory constraint, authored timing and solver call; the separate envelope must be the same time law prior uses, and an unfamiliar posture falls back to the original pure producer.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each planner base read computes one complete gesture frame instead of repeating that geometry per goal and weight; each selected goal builds only its own arm goal. Trajectory optimization retains its existing cost and precision.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A local WeakMap shares each completed frame only with goals receiving the exact posture object the planner obtained from it; it stores no time key and does not reuse frames across changed postures or separate planning calls.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The WeakMap belongs to this synchronous planning invocation, weakly keys only the planner's existing posture objects, and is unreachable after the solver returns or throws; returned trajectories retain their solved waypoints only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Before forwards the planner's actual FK/ROM loans to the complete prior query; a local WeakMap shares its completed numeric frame only with goals receiving that exact posture object. No time key, changed posture or separate plan reuses a frame.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning call owns its local WeakMap and borrows current FK/ROM loans only while prior executes. Frames store numeric posture/requests/envelope, never those loans; the map ends with return/throw and trajectories retain solved waypoints only.
    */
   export function planned(
     body: IHumanBody,
@@ -213,7 +236,7 @@ export namespace gestureHands {
     sides: readonly HumanHand.Side[],
     begin: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
     rest: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
-    prior: (seconds: number) => IPrior,
+    prior: (...args: Parameters<IHumanActionPlan["posture"]>) => IPrior,
     envelope: (seconds: number) => number,
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
     // The planner passes the exact posture returned by before to each arm.
@@ -240,8 +263,10 @@ export namespace gestureHands {
           weight: envelope,
         }),
       ),
-      (at: number): IHumanPosture => {
-        const before: IPrior = prior(at);
+      (at: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        const before: IPrior = prior(at, undefined, resolution, projection);
         frames.set(before.posture, before);
         return before.posture;
       },

@@ -290,10 +290,10 @@ export namespace HumanQuadraticBand {
    * @returns Whether the rows are certified infeasible.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Tests the cited primal-infeasibility certificate on original-unit hard-row multiplier changes, with the support function of each possibly unbounded interval.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the hard-row delta and its support, rejects a missing separating direction, then checks its transpose product norm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the hard-row delta and its support, unscaling only the bound selected by the current delta sign; rejects a missing separating direction, then checks its transpose product norm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Excludes soft rows because their penalties permit interval violations; keeps the existing epsilon and honest infinite-bound support behavior.
    * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(m+Z+n) without new vectors, reusing before and transpose; exceptional multiplier changes may restore and visit R original row entries through the solve-local owner.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes the certificate from current iterates and intervals; before is disposable after this check and the next ADMM prox overwrites every entry before it is read again.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes the certificate from current iterates/intervals, omitting only unused opposite-bound divisions and both divisions for a zero or unordered delta. Before is disposable after this check and the next check copies current multipliers before another certificate reads it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes only solve-local before and transpose scratch, zeroes soft-row deltas and returns a boolean without retaining data.
    * @evidence contracts/development/common.md#meaningful-documentation States the certificate inequalities, original units, soft-row exclusion and behavior for absent bounds or a zero direction.
    */
@@ -315,10 +315,13 @@ export namespace HumanQuadraticBand {
       const v: number = (s.e[r]! * (y[r]! - before[r]!)) / s.c;
       delta[r] = v;
       size = Math.max(size, Math.abs(v));
-      const u: number = s.hi[r]! / s.e[r]!;
-      const l: number = s.lo[r]! / s.e[r]!;
-      if (v > 0) support += u === Infinity ? Infinity : u * v;
-      else if (v < 0) support += l === -Infinity ? Infinity : l * v;
+      if (v > 0) {
+        const u: number = s.hi[r]! / s.e[r]!;
+        support += u === Infinity ? Infinity : u * v;
+      } else if (v < 0) {
+        const l: number = s.lo[r]! / s.e[r]!;
+        support += l === -Infinity ? Infinity : l * v;
+      }
     }
     if (!(size > 0) || !(support < -epsilon * size)) return false;
     // Aᵀδy unscaled: D⁻¹ Āᵀ E⁻¹ δy.

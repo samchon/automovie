@@ -1,4 +1,4 @@
-import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
+import { Vector3, carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -281,7 +281,7 @@ export namespace walkFoot {
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same minimum-jerk travel, carried rates, raised-cosine lift and sole-clearance correction as `swing`; only endpoint angle decomposition and terminal-settle preparation leave the reader.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule retain their original formulas and bounds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and constant work per share; endpoint quaternion decompositions and terminal-settle inverse trigonometry run once per prepared swing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Height-only heel queries omit unread world-point components.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader shares preparation only for the fixed body, side and endpoint inputs it closes over.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader retains one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
    */
@@ -315,12 +315,16 @@ export namespace walkFoot {
     const rolled: number = HumanFoot.roll(props.from.rotation);
     const rollDelta: number = HumanFoot.roll(props.to.rotation) - rolled;
     const heel: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "heel");
+    const delta: IAutoMovieVector3 = Vector3.subtract(props.to.ankle, props.from.ankle);
+    const carriedSeconds: number = (1 - settle) * props.seconds;
+    const turnSeconds: number = (stiff ? LEVEL : 0.5) * props.seconds;
+    const levelSeconds: number = LEVEL * props.seconds;
     return (share: number): IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - settle));
       const s: number = minimumJerk.share(travel);
       const carried: number = carriedRate(
-        (1 - settle) * props.seconds,
+        carriedSeconds,
         travel * (1 - settle) * props.seconds,
       );
       const bump: number = Math.sin(Math.PI * u) ** 2;
@@ -328,22 +332,21 @@ export namespace walkFoot {
       // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
       const level: number = stiff ? minimumJerk.share(Math.min(1, u / LEVEL)) : s;
       const rising: number = stiff
-        ? carriedRate(LEVEL * props.seconds, u * props.seconds)
+        ? carriedRate(levelSeconds, u * props.seconds)
         : carried;
       const a: IAutoMovieVector3 = props.from.ankle;
-      const b: IAutoMovieVector3 = props.to.ankle;
       const ankle: IAutoMovieVector3 = {
-        x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
+        x: a.x + delta.x * s + props.velocity.x * carried,
         y:
           a.y +
-          (b.y - a.y) * level +
+          delta.y * level +
           props.velocity.y * rising +
-          (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
-        z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
+          height * bump,
+        z: a.z + delta.z * s + props.velocity.z * carried,
       };
       const heading: number = leaving + headingDelta * s;
       const turning: number = carriedRate(
-        (stiff ? LEVEL : 0.5) * props.seconds,
+        turnSeconds,
         u * props.seconds,
       );
       const toes: number =

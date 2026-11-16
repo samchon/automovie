@@ -26,20 +26,35 @@ export namespace HumanQuadraticWorkspace {
    * Fixed-size scratch owned by one prepared model and overwritten on every
    * solve. Returned iterates always transfer independently of this owner.
    *
-   * @evidence contracts/development/design.md#principled-representation Stores distinct positive row steps, soft thresholds, the prox-emitted rho*z-y and n/m workspace buffers for fixed admitted dimensions; current input initialization and rho changes refresh their exact dependencies.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only disposable arrays consumed by HumanQuadraticSolve; the prepared model owns their lifetime and fixed dimensions.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains no public solution, solved status or approximate answer key; discarded candidate buffers are reset or overwritten, and every solve resets rho and computes current thresholds/products.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed dimensions, overwrite discipline, model ownership and independence from returned state.
+   * @evidence contracts/development/design.md#principled-representation Stores the read-only initial factor, initial-policy rho/threshold baselines, optional distinct adaptations, current soft threshold-shifted bounds, prox-emitted rho*z-y and n/m work. Changed scaled classes invalidate factor/baselines; weights invalidate baselines, and current-bound production/adaptation overwrites every used soft cut before reading.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains initial-factor/configuration ownership and disposable arrays consumed by HumanQuadraticSolve; Model owns exact class/weight invalidation, initial/adapted row production owns current soft cuts, and adaptation/polishing retain separate numeric storage/factors.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains no public solution, solved status or approximate answer key; each solve selects the RHO0 baseline, never an earlier adaptation. Only exactly unchanged scaled classes/weights permit baseline reuse; discarded candidates reset and current products recompute.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed dimensions, initial-factor and baseline dependencies/invalidation, separate adaptive overwrite discipline, model ownership and independence from returned state.
    */
   export interface IMemory {
-    /** m-entry row steps reset from current bound classifications. */
+    /** Read-only initial factor for this fixed P/A and unchanged free/equality/interval classifications; Model invalidates it on any changed scaled classification. */
+    initialFactor?: IFactor;
+
+    /** Initial m-entry row steps from current scaled bound classes and fixed RHO0; adaptation never mutates this baseline. */
     rho: Float64Array;
 
-    /** m-entry soft thresholds recomputed from current weights and rho. */
+    /** Initial m-entry soft thresholds from current scaled weights and baseline rho; adaptation never mutates this baseline. */
     thresholds: Float64Array;
+
+    /** Model sets this after a changed scaled row class or weight; the next solve fully rebuilds both baseline vectors before reading them. */
+    resetSteps: boolean;
+
+    /** Optional distinct m-entry adaptation buffers; every use overwrites both completely from current base, bounds and weights. */
+    adapted?: { rho: Float64Array; thresholds: Float64Array };
 
     /** m-entry rho*z-y, emitted by the preceding prox step and rebuilt after any rho change. */
     rowRhs: Float64Array;
+
+    /** Current soft upper ends plus their thresholds; initial row production and every adaptation overwrite all soft entries. */
+    softUpper: Float64Array;
+
+    /** Current soft lower ends minus their thresholds, with the same current-bound/rho lifetime as softUpper. */
+    softLower: Float64Array;
 
     /** Distinct disposable rhs, xt, previous multipliers and factor storage. */
     work: IWork;
@@ -263,14 +278,14 @@ export namespace HumanQuadraticWorkspace {
    *
    * @param s Read-only scaled matrices with canonical upper-band row lengths.
    * @param x Current variable vector, distinct from out.
-   * @param out Disposable n-entry product buffer, reset to positive zero first.
+   * @param out Disposable n-entry product buffer; every accumulator begins at positive zero, directly at diagonal production or by full reset before a scatter.
    * @param finiteX Optional current-vector finiteness proved by its unchanged producer or same-call reader; absent preserves the local check.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Multiplies symmetric P with its original ordered contributions; for finite x, omitted exact-zero terms contribute only signed zeros to positive-zero accumulators, leaving the same sums. Nonfinite x retains the original full traversal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One overwrite operation serves residual and polishing products, selecting exact diagonal, ordered sparse-position or unchanged full-band traversal from prepared structure and current x finiteness.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One overwrite operation serves residual and polishing products, selecting direct positive-zero diagonal emission, ordered sparse-position scatter or unchanged full-band traversal from prepared structure and current x finiteness.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only exact off-diagonal zeros for finite x, preserving positive-zero initialization and each diagonal addition; a nonfinite x resets scratch and uses the original full traversal so zero-times-infinity/NaN still reaches the existing residual rejection.
    * @evidence contracts/development/implementation.md#efficient-algorithms Finite x costs O(n) for diagonal P or O(n+K) for K recorded sparse off-diagonal positions; other cases cost O(n*w). Uses O(1) auxiliary storage beyond out and ignores supplied padding outside the canonical band.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation records exact diagonal/sparse structure with its immutable core; every current x product rebuilds. Current finite-x proof avoids another scan; absent proof is checked locally for compressed paths, and nonfinite x retains every original zero term.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation records exact diagonal/sparse structure with its immutable core; every current x product rebuilds. Diagonal emission writes 0+Pii*xi directly without a separate zero fill, current finite-x proof avoids another scan, and absent proof is checked locally before compression. Nonfinite x retains original zero terms; band zero already has none off diagonal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays, changes only out and retains no input after the call.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the scaled symmetric product, nonaliasing premise, reset and preserved accumulation order.
    */
@@ -280,11 +295,10 @@ export namespace HumanQuadraticWorkspace {
     out: Float64Array,
     finiteX?: boolean,
   ): void {
-    out.fill(0);
-    if (s.diagonal && s.band > 0) {
-      if (finiteX === true) {
+    if (s.band === 0 || s.diagonal) {
+      if (s.band === 0 || finiteX === true) {
         for (let i: number = 0; i < s.n; ++i)
-          out[i] = out[i]! + s.p[i]![0]! * x[i]!;
+          out[i] = 0 + s.p[i]![0]! * x[i]!;
         return;
       }
       if (finiteX === undefined) {
@@ -295,14 +309,15 @@ export namespace HumanQuadraticWorkspace {
             finite = false;
             break;
           }
-          out[i] = out[i]! + s.p[i]![0]! * xi;
+          out[i] = 0 + s.p[i]![0]! * xi;
         }
         if (finite) return;
-
-        // Preserve the original nonfinite propagation through zero terms.
-        out.fill(0);
       }
     }
+
+    // A partial diagonal attempt may have encountered a nonfinite operand;
+    // reset before the unchanged scatter restores every original zero term.
+    out.fill(0);
     const pattern: B.IScaled["pPattern"] = s.pPattern;
     if (pattern !== undefined && (finiteX ?? x.every(Number.isFinite))) {
       for (let i: number = 0; i < s.n; ++i) {

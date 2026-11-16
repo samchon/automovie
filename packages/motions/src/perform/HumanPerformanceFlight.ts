@@ -69,7 +69,7 @@ import type { HumanSegment } from "./HumanSegment";
  * Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * A turn the take-off cannot give is refused, never clamped.
- * Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and their ancestors, using the body's static rig snapshot. Root-space FK omits the rigid world placement and its later reversal. Different queries may rebuild a shared difference node's bones; adaptive shooting controls the query population and runtime improvement remains unmeasured.
+ * Takeoff attitude requests only the original displayed root, without unrelated bone observations; unsupported composition retains ordinary complete fitting. Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and ancestors. Root-space FK omits rigid world placement and reversal. Adaptive shooting controls the query population and runtime improvement remains unmeasured.
  * Exact query times share numeric inertia and relative momentum, fixed stencils share numeric moments, and playback uses the flight whose residual was judged. One planning-owned mass snapshot shares exact local offsets, principal frames, intrinsic tensors and endpoint quaternion differences. A per-flight displayed-evaluation workspace lends the same clamp metadata and lazy exact FK reader to observational composition/IK and its mass FK consumers, so unchanged rig work is shared across history, ceiling and table requests. Every actual goal, current shape, orbital shift, interval rate and momentum check remains evaluated with normal context fallbacks.
  * The numeric table and completed trajectory escape only through HumanPerformanceFlightRotation, whose factory receives no performance, model, history or evaluation workspace. Each synchronous flight owns O(B+D) clamp metadata and O(J+B) last FK rows; the person's pass owns O(S) mass/intrinsic/interval prerequisites, and history retains at most four numeric mass nodes plus O(N) I/h. Finally clears history on success/refusal, the flight-local workspace ends with the call, and the outer finally releases the mass token. No full pose, raw bone map or live reader enters retained playback.
  */
@@ -201,7 +201,9 @@ export namespace HumanPerformanceFlight {
       integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 });
     const errorScope: symbol = Symbol("human flight");
     try {
-      const q0: IAutoMovieQuaternion = root(unturned(t0));
+      const q0: IAutoMovieQuaternion = root(
+        HumanPerformanceRead.pose(self, subject, t0, ROOT_ONLY, evaluation),
+      );
 
       // The largest angular momentum the take-off can give: the momentum about
       // the centre is the moment of the ground's impulse, `|L| <= r |J|`, with
@@ -335,3 +337,6 @@ export namespace HumanPerformanceFlight {
     }
   }
 }
+
+/** Takeoff attitude observes the original root and demands no fitted bone frame. */
+const ROOT_ONLY: ReadonlySet<AutoMovieHumanoidBone> = new Set();

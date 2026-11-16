@@ -75,9 +75,9 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#principled-implementation Retains the original TrajOpt outer loop, exact l1 constraint merit, keyed multiplier warm start and Nocedal-Wright second-order bound correction under the same schedule and stopping thresholds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The course problem owns physical evaluations, HumanSequentialConvex owns acceptance and steering, and a prepared quadratic model owns each fixed P/q/A convexification's numeric solves.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original QP calls, warm/cold choices, penalties, attempts and tolerance tests; preparation shares numeric prerequisites only while changing row intervals remain explicit solve inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One x/objective linearization shares fixed matrices/preparation across steering prices, radius retries and bound-only corrections. Corrections reuse trial merit's raw bounds instead of unused derivatives/P/q; value/violation share one row pass and discarded steering proposals defer trial-vector allocation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed layout, ordered A and P/q stay private to one x/objective linearization. Repricing sets the exact new mu and starts fresh cold/keyed-dual state; radius retries keep their original warm state. Trust rows lend fixed index/coefficient arrays only to Q.prepare's snapshot, prepared.solve's bound reads and multipliers' key reads; fresh bounds remain explicit. Reading the selected trial selects its exact model/d/radius for cold correction using that trial's raw bounds, so discarded feasibility proposals cannot replace the context.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve retains current multipliers, selected-proposal metadata and active prepared-model state, each bounded by its course dimensions. Each live step owns one fixed metadata record until release; no history/map or global cache is added, and model closures/scratch release with the solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One x/objective linearization shares fixed matrices/preparation across prices, radius retries and bound-only corrections. Stable private region rows also avoid repeated bound records and full-row concatenation; changed record identities keep the ordinary rebuild path. Corrections omit unused derivatives/P/q, value/violation share one row pass and discarded proposals defer trial vectors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed A/P/q stay private to one x/objective; repricing starts fresh cold/keyed-dual state and radius retries retain warm state. Region loans refresh bounds before Q.prepare's numeric snapshot/prepared.solve's scalar snapshot; multipliers read only keys, so no prior-bound snapshot aliases the workspace. The selected trial alone chooses its fixed model/d/radius and matching raw bounds for cold correction.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns current multipliers, selected-proposal metadata, active prepared state and one bounded region workspace. Each price retains at most one trusted row list, reused only after length/record-identity checks; live steps own fixed metadata without region snapshots. All closures/scratch release with the solve, without history/maps or global caches.
    */
   export function optimise(
     body: IHumanBody,
@@ -144,12 +144,17 @@ export namespace walkStanceSolve {
           const zero: number = Q.value(model);
           let trusted: Q.IProblem | undefined;
           let warm: Q.IState | undefined;
+          const retained: (rows: readonly Q.IRow[]) => boolean = (rows: readonly Q.IRow[]): boolean => {
+            if (trusted === undefined || trusted.rows.length !== model.rows.length + rows.length) return false;
+            for (let i: number = 0; i < rows.length; ++i)
+              if (trusted.rows[model.rows.length + i] !== rows[i]) return false;
+            return true;
+          };
           return {
             solve: (radius: number): SCO.IStep<Float64Array> => {
-              trusted = {
-                ...model,
-                rows: [...model.rows, ...shape.region(x, radius, true)],
-              };
+              const rows: Q.IRow[] = shape.region(x, radius, true);
+              if (trusted === undefined || !retained(rows))
+                trusted = { ...model, rows: [...model.rows, ...rows] };
               // Radius changes alter the bounds alone; P, q and every row's
               // coefficients belong to this one convexification.
               prepared ??= Q.prepare(trusted);
@@ -416,8 +421,8 @@ export namespace walkStanceSolve {
         return { objective, violation, worst, bounds };
       },
       convexify: walkStanceConvexify(tail, size, built.sweep),
-      region: (x: Float64Array, radius: number, borrowedTopology: boolean = false): Q.IRow[] =>
-        built.bounds(x, radius, borrowedTopology),
+      region: (x: Float64Array, radius: number, borrowedRows: boolean = false): Q.IRow[] =>
+        built.bounds(x, radius, borrowedRows),
       length: (step: Float64Array): number => {
         let longest: number = 0;
         for (let i: number = 0; i < step.length; i++)

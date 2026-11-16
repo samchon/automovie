@@ -52,6 +52,7 @@ export function prepareSupportContactForm(
         undefined,
         TOES,
       );
+
       /** Re-express world down in a measured toe's local rotation. */
       const normal: (foot: "left" | "right") => IAutoMovieVector3 = (
         foot: "left" | "right",

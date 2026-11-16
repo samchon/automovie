@@ -15,6 +15,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 
@@ -106,8 +107,8 @@ export namespace look {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan times the shift; the stand law places the body, or the carrier does when the look is an overlay, which then takes the head and, when recruited, the trunk; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts FIELD is a named constant and the 0.6 s hold after settling is the documented default duration; nothing is special-cased per target or body.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning is constant work plus one base plan; each posture costs one aim of the target, one base posture (the stand's or the carrier's) and one gaze solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The split, durations and delay are computed once per instance; the target is re-read per instant because it may move.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's context, timing and stand base, released with the performance; nothing grows per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Split, durations and delay prepare once; every instant re-reads its actual target and lends one local/host FK workspace to the complete base and raw gaze aim. A supplied genuine ROM projector is forwarded to the base only, preserving gaze's raw authored-trunk policy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed context/timing/base until performance release. Its current lazy FK getter and optional ROM loan end on synchronous return/throw, without entering the returned posture or retained callback.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -179,10 +180,13 @@ export namespace look {
                 ? (["head"] as const)
                 : (["trunk", "head"] as const),
           }),
-      posture: (seconds: number): IHumanPosture =>
-        HumanGaze.aim(
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+        return HumanGaze.aim(
           context.body,
-          base.posture(seconds),
+          base.posture(seconds, undefined, read, projection),
           at(seconds),
           recruit,
           {
@@ -190,7 +194,9 @@ export namespace look {
             head: weight(seconds, head),
             trunk: weight(seconds, trunk),
           },
-        ),
+          read,
+        );
+      },
     };
   }
 

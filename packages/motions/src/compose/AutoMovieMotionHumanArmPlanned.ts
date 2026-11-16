@@ -1,12 +1,14 @@
 import type { IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import type { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import type { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
@@ -210,7 +212,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @param body The body.
    * @param span The span's instants.
    * @param carries The arms.
-   * @param before The posture so far at any second of the span.
+   * @param before The prefix posture at any second, accepting this same-body plan's synchronous FK/ROM loans through the shared posture signature.
    * @returns Each arm's trajectory.
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
    *
@@ -219,16 +221,17 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture, cached goal and exact endpoint second prove fit equivalence within this synchronous plan. One operation-local exact FK getter serves actual removed-arm bases, endpoint fits and all original reach probes. A single-arm at(t).pose equals the removed-goal base reaching would rebuild; multiarm planners retain the original cold base requests. Issued provenance remains subject to exact dependency checks.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture/goal and endpoint second prove fit equivalence within this synchronous plan. One genuine projector/exact FK getter reaches actual prefix reads, removed-arm bases and endpoint fits; FK also serves all original probes/sites. Single-arm at(t).pose equals reaching's removed-goal base; multiarm planners retain original actual requests. Issued provenance still needs exact checks.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
   export function planned(
     body: IHumanBody,
     span: ISpan,
     carries: readonly IPlanned[],
-    before: (seconds: number) => IHumanPosture,
+    before: IHumanActionPlan["posture"],
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
     // Each phrase is an interval cut into pieces, its own end left to the
     // next one; an empty interval (a hold that lasts to the end, a reach
     // that starts on its site) has no piece, and the last phrase closes on
@@ -259,9 +262,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
       let found: { posture: IHumanPosture; pose: IAutoMoviePose } | undefined =
         read.get(t);
       if (found === undefined) {
-        const posture: IHumanPosture = before(t);
+        const posture: IHumanPosture = before(t, undefined, resolution, projection);
         found = { posture, pose: resolveHumanPosture.seeded(body, without(posture),
-          undefined, undefined, resolution).pose };
+          undefined, undefined, resolution, undefined, projection).pose };
         read.set(t, found);
       }
       return found;
@@ -288,7 +291,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         found = AutoMovieMotionHumanArmAngles.angles(resolveHumanPosture.seeded(body,
           resolveHumanPosture.rebased(p, { ...p,
             limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } }),
-          undefined, undefined, resolution).pose, c.side);
+          undefined, undefined, resolution, undefined, projection).pose, c.side);
         fits[a]!.set(t, found);
       }
       return found;
@@ -301,7 +304,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         const rest: AutoMovieMotionHumanArmAngles.IAngles = sign === 1 ? c.rest : (c.back ?? c.rest);
         const duration: number = carries.length === 1
           ? AutoMovieMotionHumanArmObservation.reachingPose(body, at(t).pose, c.side, rest, fit, resolution)
-          : reaching(body, p, c.side, rest, fit, resolution);
+          : reaching(body, p, c.side, rest, fit, resolution, projection);
         longest = Math.max(longest, (duration * HumanArmTrajectoryModel.SPEED_LIMIT) / 1.875);
       });
       return longest;

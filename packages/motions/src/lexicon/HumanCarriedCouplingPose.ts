@@ -422,11 +422,11 @@ export namespace HumanCarriedCouplingPose {
    * @throws {HumanRefusal} A `parameter` refusal on `carry` when the rig lacks the region's bone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's surface resolution of the region's frame on its bone.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's shared rigid point placement of the region's bone-local point on its actual world bone frame; no unused normal or forward direction is requested.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone is refused, never read as the origin.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `resolveAutoMovieHumanoidSurfaces.place`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical point owner is shared with full surface placement, retaining its exact original Vector3.add/Quaternion.rotateVector expression; every current bone/frame input is evaluated normally.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function region(
@@ -445,6 +445,6 @@ export namespace HumanCarriedCouplingPose {
         reason: `the rig has no bone ${frame.bone} for the region ${name}`,
         fix: "carry on a body of the canonical humanoid rig",
       });
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
+    return resolveAutoMovieHumanoidSurfaces.point(frame, bone);
   }
 }

@@ -363,8 +363,8 @@ export namespace HumanGaze {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Layer construction declares channels; each apply owns binary request selection, one target call, scalar timings and one synchronous gaze workspace.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves request order, context.aim calls, weights and timing coefficients, without reusing an earlier target or posed face across changed stages or instants.
    * @evidence contracts/development/implementation.md#efficient-algorithms Construction scans R ordered requests for channels; each apply selects the last eligible request in O(log R), then performs two demanded trunk readings for eyes-only or three with cervical recruitment. Every target, timing and recruited numerical aim still executes, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work This apply computes its actual direction once and lends it and its exact FK workspace to aim with identical body/posture/point inputs; target callback, timing and changed clinical frames still execute normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned layer retains its existing request array/name and channels. Its reader/getter is created only inside an active apply and ends with that call; no sampled target, FK map or workspace is retained across time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work This apply computes direction once and lends it plus one local or host-borrowed exact FK workspace to aim with identical body/posture/point inputs. The host's optional resolution getter establishes the same synchronous body scope; target callbacks, timings and changed clinical frames still evaluate normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains its existing requests/name/channels only. Its local getter is created inside active apply and ends on return/throw, borrowing the host's revocable source when supplied; no target, FK map, reader or context enters retained layer state.
    */
   export function layer(
     requests: readonly ILayer[],
@@ -400,7 +400,7 @@ export namespace HumanGaze {
           seconds,
         ).point;
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
+          prepareHumanPoseResolution(context.resolution);
         const towards: { yaw: number; pitch: number } = direction(
           context.body,
           posture,

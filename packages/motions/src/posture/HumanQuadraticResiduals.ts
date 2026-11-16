@@ -19,7 +19,7 @@ import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns residual measurement separately from Band factorization/polishing; one ordered row pass supplies Ax and A-transpose-y, then the existing curvature owner supplies Px.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every norm, normalization and finite-result decision. Nonfinite operands restore actual zero products in original order rather than hiding them, inventing a NaN or rejecting a genuinely empty row.
  * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks cost O(n+Z+m+n*w), with exact diagonal finite-x curvature reducing n*w to n; supplied products cost O(m+n*w). Exceptional products may visit R original entries and lazily allocate their restored rows.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses unchanged inverse dual scales and q norms; max of nonnegative magnitudes retains finite/NaN/infinity results. Immediate polishing products and its finite-x proof require unchanged x/y/A; other products recompute, sharing same-call finiteness with compressed curvature and immutable exceptional layouts.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses unchanged inverse dual scales/q norms and same-call absolute row/dual errors and magnitudes. Positive E and nonnegative 1/(cD) move only sign removal across division/multiplication, preserving exact rounded magnitudes and zero/infinite/NaN results. Immediate polishing products/finite-x proof require unchanged x/y/A; other products recompute with immutable exceptional layouts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Products and diagnostics belong to the supplied workspace; accepted scalars are copied before reuse, and restored rows release with their one-shot wrapper or fixed model without entering public state or numeric preparation.
  * @evidence contracts/development/common.md#meaningful-documentation Defines residual equations, units, producer-supplied-product premise, IEEE-754 exceptional path, dimensions and borrowed result lifetime.
  */
@@ -74,20 +74,26 @@ export function HumanQuadraticResiduals(
       }
     }
     const e: number = s.e[r]!;
-    out.scaledPrimal = Math.max(out.scaledPrimal, Math.abs(ax - z[r]!));
-    out.scaledPrimalScale = Math.max(out.scaledPrimalScale, Math.abs(ax), Math.abs(z[r]!));
-    out.primal = Math.max(out.primal, Math.abs((ax - z[r]!) / e));
-    out.primalScale = Math.max(out.primalScale, Math.abs(ax / e), Math.abs(z[r]! / e));
+    const error: number = Math.abs(ax - z[r]!);
+    const magnitude: number = Math.abs(ax);
+    const split: number = Math.abs(z[r]!);
+    out.scaledPrimal = Math.max(out.scaledPrimal, error);
+    out.scaledPrimalScale = Math.max(out.scaledPrimalScale, magnitude, split);
+    out.primal = Math.max(out.primal, error / e);
+    out.primalScale = Math.max(out.primalScale, magnitude / e, split / e);
   }
   const px: Float64Array = work.curvature;
   Work.curvature(s, x, px, known === undefined ? finiteX : known.productFiniteX);
   for (let i: number = 0; i < s.n; ++i) {
     const unscale: number = s.unscale[i]!;
     const r: number = px[i]! + s.q[i]! + aty[i]!;
-    out.scaledDual = Math.max(out.scaledDual, Math.abs(r));
-    out.scaledDualScale = Math.max(out.scaledDualScale, Math.abs(px[i]!), Math.abs(aty[i]!));
-    out.dual = Math.max(out.dual, Math.abs(r * unscale));
-    out.dualScale = Math.max(out.dualScale, Math.abs(px[i]! * unscale), Math.abs(aty[i]! * unscale));
+    const error: number = Math.abs(r);
+    const curvature: number = Math.abs(px[i]!);
+    const transpose: number = Math.abs(aty[i]!);
+    out.scaledDual = Math.max(out.scaledDual, error);
+    out.scaledDualScale = Math.max(out.scaledDualScale, curvature, transpose);
+    out.dual = Math.max(out.dual, error * unscale);
+    out.dualScale = Math.max(out.dualScale, curvature * unscale, transpose * unscale);
   }
   return out;
 }

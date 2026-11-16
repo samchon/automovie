@@ -71,7 +71,7 @@ import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
  * Events: `handsDown`, `release` (the hands leave), `touchdown`, `settled`
  * and `relax`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the phases with their one axis each, the physics of the flight and how its rate is found, the landing, the bound, the vault, the first pass and the events.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phases, flight physics/rate, landing, bound, vault, first pass and events. The unchanged lunged alias names handspringKeys.lunged's left-leading provisional shape; arched names handspringKeys.arched's provisional line used by the wheel and flight.
  * @evidence contracts/development/design.md#principled-representation A wheel table and a parabola, both from the body's own joints and mass model; the rate is solved, not stated.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the keyed shapes and angles, the parameters, the plan and the plan over a prop's top.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres and no speed stated: they follow from the spokes and the flight.
@@ -101,16 +101,12 @@ export namespace handspring {
   /**
    * The body-dependent lunge with the left leg leading, constructed by
    * `handspringKeys.lunged` with the law's existing provisional angles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape, its leading side and the constructor that owns it.
    */
   export const lunged: typeof handspringKeys.lunged = handspringKeys.lunged;
 
   /**
    * The body-dependent arched line of the wheel and flight, constructed by
    * `handspringKeys.arched` with the law's existing provisional angles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape, its uses and the constructor that owns it.
    */
   export const arched: typeof handspringKeys.arched = handspringKeys.arched;
 

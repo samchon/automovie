@@ -61,9 +61,9 @@ export namespace HumanPerformanceHits {
    * @evidence contracts/development/implementation.md#principled-implementation Actual melee stops, blast impulse geometry and prop-flight contacts produce the existing shared interaction records; time/id sorting defines deterministic order.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three private producer readers feed one sort and optional target filter.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps central-difference velocity, provisional profile segment mass, nearest surface/region and producer outcomes; a complete-axis melee read changes no physical acceptance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes actual producer queries and O(H log H) sorting for H hits; target filtering is O(H). A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing weak performance result is used only outside resolving; resolving always rebuilds from current state. Registered capsule constructor metadata shares its head/tail source only within one exact contact-time read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak performance keys retain H immutable hit records for that placed performance; temporary producer arrays and endpoint frames end after the build. No pose/endpoint history or new resource is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes actual producer queries and O(H log H) sorting for H hits; target filtering is O(H). A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads. R canonical region-entry pairs are prepared once per unchanged body instead of allocated at every nearest-region query; every actual point placement/distance and strict first-minimum comparison still executes through the shared point owner, omitting only unused normal/forward rotations and their result wrapper.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing weak performance result is used only outside resolving; resolving always rebuilds from current state. Registered capsule constructor metadata shares its head/tail source only within one exact contact-time read. The body producer fixes region order and bone-local surface frames, so only that immutable entry table is shared; current posed bones and world region points are never retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak performance keys retain H immutable hit records for that placed performance; temporary producer arrays and endpoint frames end after the build. A separate weak body key owns only its R fixed region-name/local-frame pairs until body release; no pose, world point, endpoint history or external resource is retained.
    */
   export function hits(
     self: HumanPerformanceState,
@@ -258,16 +258,13 @@ export namespace HumanPerformanceHits {
     point: IAutoMovieVector3,
   ): AutoMovieHumanoidRegion | undefined {
     let best: { region: AutoMovieHumanoidRegion; distance: number } | undefined;
-    for (const [region, frame] of Object.entries(body.surfaces.regions) as [
-      AutoMovieHumanoidRegion,
-      resolveAutoMovieHumanoidSurfaces.IFrame,
-    ][]) {
+    for (const [region, frame] of regionFrames(body)) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
       if (bone === undefined) continue;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
         frame,
         bone,
-      ).point;
+      );
       const distance: number = Vector3.length(Vector3.subtract(at, point));
       if (best === undefined || distance < best.distance)
         best = { region, distance };
@@ -275,6 +272,21 @@ export namespace HumanPerformanceHits {
     return best?.region;
   }
 
+  /** Fixed canonical region order and bone-local frames, never world-posed answers. */
+  function regionFrames(body: IHumanBody): IRegions {
+    let regions: IRegions | undefined = REGIONS.get(body);
+    if (regions === undefined) {
+      regions = Object.entries(body.surfaces.regions) as IRegions;
+      REGIONS.set(body, regions);
+    }
+    return regions;
+  }
+
+  /** The body's original entry order, used unchanged by strict first-minimum selection. */
+  type IRegions = readonly (readonly [AutoMovieHumanoidRegion, resolveAutoMovieHumanoidSurfaces.IFrame])[];
+
+  /** Weak immutable body metadata only; no posed bone, observation or time survives here. */
+  const REGIONS: WeakMap<IHumanBody, IRegions> = new WeakMap();
   /** The hits kept per placed performance. */
   const KEPT: WeakMap<
     HumanPerformanceState,

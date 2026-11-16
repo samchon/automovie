@@ -1,6 +1,7 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -289,7 +290,15 @@ export namespace roll {
   ]);
 }
 
-/** Build the unchanged roll table with synchronous exact FK and genuine ROM metadata, projecting every actual sample. */
+/**
+ * Read every original roll-table sample, borrowing only a privately checked
+ * identical direct-joint projection across rigid placements. One actual cold
+ * source owns the projection; its owner rechecks current raw/rig scalars for
+ * every later sample and reconstructs that sample's current Euler placement.
+ * Changed/unsupported contexts retain ordinary canonical resolution. Source
+ * proof checks and copying remain O(B+J), and every full FK/minimum reading
+ * still executes; no time-keyed sample, map or query history is retained.
+ */
 function heightsOf(
   body: IHumanBody,
   posed: (turn: number) => IHumanPosture,
@@ -300,18 +309,27 @@ function heightsOf(
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
   const heights: number[] = [];
+  let source: resolveHumanPosture.IPrepared | undefined;
   for (let k: number = 0; k <= samples; k++) {
-    const bones: ReturnType<typeof poseBones> = poseBones(
-      body,
-      resolveHumanPosture.seeded(
+    const posture: IHumanPosture = posed((360 * k) / samples);
+    let pose: IAutoMoviePose;
+    if (source === undefined) {
+      source = resolveHumanPosture.prepare(body, posture, prepared, projection);
+      pose = source.pose;
+    } else {
+      pose = resolveHumanPosture.seeded(
         body,
-        posed((360 * k) / samples),
+        resolveHumanPosture.carried(source, posture),
         undefined,
         undefined,
         prepared,
         undefined,
         projection,
-      ).pose,
+      ).pose;
+    }
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      pose,
       prepared(),
     );
     let lowest: number = Infinity;

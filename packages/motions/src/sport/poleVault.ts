@@ -32,6 +32,7 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
+import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
 
 /**
  * A pole vault (#3377): out of a run, the hand that holds the pole plants
@@ -297,39 +298,17 @@ export namespace poleVault {
     // raised or lowered by that end's height and solved again until the end
     // is on the floor, the hand's turn being nearly the same a few
     // centimetres away.
-    let from: IHumanPosture = GymnasticsFlight.frozen(body, pushing(off));
-    let shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readGrip(resolveHumanPosture(body, from));
-    const endOf: (bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IAutoMovieVector3 = (
-      bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ): IAutoMovieVector3 =>
-      Vector3.add(
-        HumanHand.frame(body, bones, side, "grip").point,
-        Quaternion.rotateVector(bones.get(`${side}Hand`)!.worldRotation, end),
-      );
-    // The end's height is a root in the wrist goal's height, found by the
-    // secant method from a first step of the miss itself: the solved hand's
-    // turn follows the goal, so the end need not move with it one for one.
-    let last: { y: number; miss: number } | undefined;
-    for (let pass: number = 0; pass < PLANT; pass++) {
-      const miss: number = endOf(shown).y;
-      if (Math.abs(miss) <= 1e-3) break;
-      const slope: number =
-        last === undefined || Math.abs(miss - last.miss) < 1e-9
-          ? 1
-          : (miss - last.miss) / (wrist.y - last.y);
-      last = { y: wrist.y, miss };
-      wrist = { ...wrist, y: wrist.y - miss / slope };
-      from = GymnasticsFlight.frozen(body, pushing(off));
-      shown = readGrip(resolveHumanPosture(body, from));
-    }
-    const tipAt: IAutoMovieVector3 = endOf(shown);
-    const gripAt: IAutoMovieVector3 = HumanHand.frame(
-      body,
-      shown,
-      side,
-      "grip",
-    ).point;
-    const c0: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, from);
+    const plantFit: ReturnType<typeof preparePoleVaultPlant> = preparePoleVaultPlant({
+      body, model, side, end, height: wrist.y, passes: PLANT,
+      posture: (height: number, resolution: Parameters<IHumanActionPlan["posture"]>[2], projection: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        wrist = { ...wrist, y: height };
+        return pushing(off, resolution, projection);
+      },
+    });
+    const from: IHumanPosture = plantFit.posture;
+    const tipAt: IAutoMovieVector3 = plantFit.tip;
+    const gripAt: IAutoMovieVector3 = plantFit.grip;
+    const c0: IAutoMovieVector3 = plantFit.centre;
     const radius: IAutoMovieVector3 = Vector3.subtract(c0, tipAt);
     const rf: number = Vector3.dot(radius, ahead);
     const ry: number = radius.y;

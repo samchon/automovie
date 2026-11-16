@@ -335,6 +335,7 @@ export namespace crawlFrame {
     }
     return { ...posture, joints, limbs };
   }
+
   /**
    * The body tilted forward by a pitch at a share of the way down, its
    * pelvis turned about the spine's axis and the spine and the chest

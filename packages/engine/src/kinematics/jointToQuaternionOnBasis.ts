@@ -60,9 +60,9 @@ const readAngle: (
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the caller must have done to the basis, why the entry exists, that the conventions are `jointToQuaternion`'s, what is thrown and what an unnormalized basis silently gives.
  * @evidence contracts/development/implementation.md#principled-implementation An intrinsic Euler composition of three axis-angle quaternions in a declared order, a rotation for any orthonormal basis; the frame map is the exact affine inverse of `toClinicalAngle`. For an exact rig-declared outer identity and finite inner components, every Hamilton term after 1*b is a signed zero. Nonzero components therefore copy unchanged; zero components keep those original three products and addition/subtraction order, replacing only exact 1*b with b, including its zero sign. A fresh result preserves raw binary64 values; nonfinite inputs retain the full product.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct composition and its prepared companion read F/A/T and use the same two Hamilton products. Each prepared axis factor also owns clinical finite admission and its lazy affine reader, eliminating a second generic angle-reader call/keyed joint lookup. Its arguments evaluate axis, frame and direct named clinical value in the original order. One nonescaping query scratch receives dynamic inner products through multiply's same scalar owner; rig-only inner products remain private immutable records, and jointToQuaternion still delegates after admitting the basis.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct composition and its prepared companion read F/A/T and use the same two Hamilton products. Each prepared axis factor also owns clinical finite admission and its lazy affine reader, eliminating a second generic angle-reader call/keyed joint lookup. Its arguments evaluate axis, frame and direct named clinical value in the original order. One nonescaping query scratch receives dynamic inner products through the math owner's raw write-target companion; rig-only inner products remain private immutable records, and jointToQuaternion still delegates after admitting the basis.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A `null` angle is the documented rest rotation, and a non-finite angle throws instead of becoming zero.
- * @evidence contracts/development/implementation.md#efficient-algorithms Direct composition keeps three axis-angle factors and two products in constant time. Prepared candidates fold three former generic readAngle calls into their required factor readers, use direct named joint properties, borrow a successful affine reader locally and omit each query's affine lookup record. Null/absent frames use exact direct results without a conversion call; finite admission remains on every value. Changed dynamic inner pairs reuse one query scratch instead of one quaternion allocation per pair; shared constant pairs retain their original product record. Pure factor/fixed inner sharing remains. For an exact marked outer identity with a finite component sum, each nonzero result component omits four products/three additions and each zero component keeps three zero products/three additions. Guards and a fresh four-field result remain; nonidentity/nonfinite products keep the original formula. No basis validation is added and runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Direct composition keeps three axis-angle factors and two products in constant time. Prepared candidates fold three former generic readAngle calls into their required factor readers, use direct named joint properties, borrow a successful affine reader locally and omit each query's affine lookup record. Axis/affine reader publication occurs only on the query's first successful local use, eliminating repeated operation-map reads and same-reference stores; the operation's fixed-declaration mode is read once at construction. Null/absent frames use exact direct results without a conversion call; finite admission remains on every value. Changed dynamic inner pairs reuse one query scratch instead of one quaternion allocation per pair; shared constant pairs retain their original product record. Pure factor/fixed inner sharing remains. For an exact marked outer identity with a finite component sum, each nonzero result component omits four products/three additions and each zero component keeps three zero products/three additions. Guards and a fresh four-field result remain; nonidentity/nonfinite products keep the original formula. No basis validation is added and runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller admits the basis once. Direct composition recomputes every factor/frame admission; prepared composition keeps original F/A/T axis then frame then clinical-value reads and finite checks inside its three factor readers, then lazily admits each actual nonnull fixed frame once through toRigAngle.prepare. A factor borrows its successful converter locally, with the operation map used only at first actual framed conversion; unchanged frame identities share only neutral/sign, replacement admits anew and null/absent frames allocate no converter. One query reuses its initial and two recent Object.is-equal rig-angle factors per axis and an unchanged inner pair's exact Hamilton product. Pinning the first reading lets a box query reuse reference factors after corner traversal without retaining a completed joint answer. prepareQueries shares three fixed-axis scalar and at most three affine readers plus, when declared by its rig, two fixed-angle factors per axis and four fixed inner products. Exact resolved-number matches alone borrow factors, and two actual private declared operands alone share an operation inner product. Dynamic factors/inner slots remain query-owned. Changed dynamic pairs write only a private scratch after the preceding outer output copied its scalar components; shared factors, rig-only products and returned raw quaternions never mutate. Initialization and sine-division/component-product grouping remain unchanged.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct calls retain nothing and return a fresh quaternion. A prepared query owns three factor closures with at most nine initial/recent scalar-keyed factors, one dynamic inner product and up to three locally borrowed affine readers, with no joint/target/output history. Without an operation those readers release with the query. prepareQueries owns at most three axis and three affine readers, six declared factors/their weak identity markers and four fixed inner products until rig-operation release; query state releases independently and every outer output stays fresh.
  */
@@ -185,6 +185,8 @@ function preparedComposition(
   frame?: IAutoMovieRestFrame,
   operation?: IOperationState,
 ): ReturnType<typeof jointToQuaternionOnBasis.prepare> {
+  const fixedOperation: IOperationState | undefined =
+    operation?.fixedAngles === undefined ? undefined : operation;
   const flexion: IPreparedFactor = prepareFactor("flexion", operation);
   const abduction: IPreparedFactor = prepareFactor("abduction", operation);
   const twist: IPreparedFactor = prepareFactor("twist", operation);
@@ -214,13 +216,14 @@ function preparedComposition(
     const left: IAutoMovieQuaternion = distal ? qFlexion : qAbduction;
     const right: IAutoMovieQuaternion = distal ? qTwist : qFlexion;
     if (innerLeft !== left || innerRight !== right) {
-      const shared: IAutoMovieQuaternion | undefined = operation?.fixedAngles === undefined
+      const shared: IAutoMovieQuaternion | undefined = fixedOperation === undefined
         ? undefined
-        : fixedInnerProduct(operation, distal, left, right);
+        : fixedInnerProduct(fixedOperation, distal, left, right);
       if (shared !== undefined) inner = shared;
       else {
-        dynamicInner ??= { x: 0, y: 0, z: 0, w: 0 };
-        multiplyQuaternionInto(dynamicInner, left, right);
+        if (dynamicInner === undefined)
+          dynamicInner = Quaternion.multiply(left, right);
+        else multiplyQuaternionInto(dynamicInner, left, right);
         inner = dynamicInner;
       }
       innerLeft = left;
@@ -284,6 +287,8 @@ function prepareFactor(
   key: AutoMovieClinicalAxis,
   operation: IOperationState | undefined,
 ): IPreparedFactor {
+  const fixedOperation: IOperationState | undefined =
+    operation?.fixedAngles === undefined ? undefined : operation;
   let currentAngle: number | undefined;
   let current: IAutoMovieQuaternion | undefined;
   let initialAngle: number | undefined;
@@ -306,11 +311,13 @@ function prepareFactor(
       const read: ReturnType<typeof toRigAngle.prepare> =
         rigAngle ?? operation?.rigAngles?.[key] ?? toRigAngle.prepare();
       angle = read(clinical, frame) ?? 0;
-      if (rigAngle === undefined && operation !== undefined) {
-        operation.rigAngles ??= {};
-        operation.rigAngles[key] = read;
+      if (rigAngle === undefined) {
+        if (operation !== undefined) {
+          operation.rigAngles ??= {};
+          operation.rigAngles[key] = read;
+        }
+        rigAngle = read;
       }
-      rigAngle = read;
     }
     if (current !== undefined && Object.is(currentAngle, angle)) return current;
     const reused: IAutoMovieQuaternion | undefined =
@@ -326,11 +333,13 @@ function prepareFactor(
     }
     const axisAngle: ReturnType<typeof Quaternion.prepareAxisAngle> =
       reader ?? operation?.axisReaders[key] ?? Quaternion.prepareAxisAngle(axis);
-    const quaternion: IAutoMovieQuaternion = operation?.fixedAngles === undefined
-      ? axisAngle(angle) : fixedFactor(operation, key, angle, axisAngle);
-    if (operation !== undefined && operation.axisReaders[key] === undefined)
-      operation.axisReaders[key] = axisAngle;
-    reader = axisAngle;
+    const quaternion: IAutoMovieQuaternion = fixedOperation === undefined
+      ? axisAngle(angle) : fixedFactor(fixedOperation, key, angle, axisAngle);
+    if (reader === undefined) {
+      if (operation !== undefined && operation.axisReaders[key] === undefined)
+        operation.axisReaders[key] = axisAngle;
+      reader = axisAngle;
+    }
     if (initial === undefined) {
       initialAngle = angle;
       initial = quaternion;

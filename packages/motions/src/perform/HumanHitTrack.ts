@@ -99,8 +99,8 @@ export namespace HumanHitTrack {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Parses one hit-track address, selects current producers, then filters/maps/sorts cue records.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every provisional live window, original STEP/bisections/taper and actual struck-body distance; no event is fabricated or skipped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Provisional work retains actual weapon/body/sample geometry; registered head/tail reads share one exact chain evaluation. H selected records cost O(H log H) sorting and O(H) temporary space, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The common record owns committed reuse; provisional scans remain independent by weapon/context and only one sampled capsule's two ends share a synchronous source read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call sweep inputs/events and cue arrays end at return or throw; returned cues keep only names/seconds and retain no callbacks, bodies or sampled poses.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The common record owns committed reuse; provisional scans remain independent by weapon/context. One struck-actor/profile-name producer is prepared lazily for this synchronous call, while every exact-time query still observes current placed state and returns fresh scopes/maps; only one sampled capsule's two ends share their actual synchronous source read.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call sweep inputs/events, cue arrays and at most one fixed-name struck-actor query producer end on return or throw. Each actual query owns its own FK/projector/pose scope; returned cues keep only names/seconds and retain no callbacks, bodies, readers or sampled poses.
    */
   export function instants(
     self: HumanPerformanceState,
@@ -141,6 +141,11 @@ export namespace HumanHitTrack {
     if (struck === undefined) return [];
     const requested: ReadonlySet<AutoMovieHumanoidBone> =
       HumanColliders.bones(struck.performer.body);
+    let frames: ReturnType<typeof HumanPerformanceRead.prepareBones> | undefined;
+    const readBones = (seconds: number): ReturnType<typeof HumanPerformanceRead.bones> => {
+      if (frames === undefined) frames = HumanPerformanceRead.prepareBones(self, on, requested);
+      return frames(seconds);
+    };
     const out: IAutoMovieInteractionEvent[] = [];
     for (const person of self.people.values()) {
       if (person === struck) continue;
@@ -178,7 +183,7 @@ export namespace HumanHitTrack {
                   distance: (p: IAutoMovieVector3, t: number): number =>
                     HumanColliders.distance(
                       struck.performer.body,
-                      HumanPerformanceRead.bones(self, on, t, requested),
+                      readBones(t),
                       p,
                     ).distance,
                   axis: (
@@ -190,7 +195,7 @@ export namespace HumanHitTrack {
                   ): number =>
                     HumanColliders.distanceToSegment(
                       struck.performer.body,
-                      HumanPerformanceRead.bones(self, on, t, requested),
+                      readBones(t),
                       a,
                       b,
                       taper,

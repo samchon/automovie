@@ -20,8 +20,8 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/implementation.md#principled-implementation Runs Stellato et al. 2020 OSQP scaled ADMM, original-unit residual/certificate checks, adaptive rho and active-set polish on the admitted convex program.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns one iteration shared by public solve and fixed-matrix models; Preparation owns admission/scaling/topology, while finite rhs products gather by column in original contribution order and exceptional products retain the original row owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every rho, sigma, relaxation, iteration, residual, certificate and polishing parameter. Column gathers retain each variable's original row/duplicate product sequence and scalar association; nonfinite row multipliers restore the original raw zero terms rather than using the compressed fast path.
- * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1 and Z compressed row entries, each finite ADMM iteration takes O(n*w+Z+m), at most 4000 iterations; its rhs writes each variable once instead of once per contributing coefficient. Factorization and polishing retain their documented band costs, and runtime speed is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses admitted preparation, exact factors and disposable scratch; initial row-state scaling emits rho*z-y/finite status directly, and backward solve emits finite status/relaxation. Each prox emits its next row vector/proof, while rho adaptation rebuilds both in its step/threshold pass. Topology-only positions serve current products, discarded candidates reset, rho restarts, residuals recompute and previous y copies only at certificate checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1 and Z compressed row entries, each finite iteration costs O(n*w+Z+m), at most 4000. Its rhs writes each variable once; initial/adapted row production computes u+t/l-t once per rho epoch, avoiding those repeated soft-prox additions without another row pass. Factorization/polishing retain documented costs; runtime speed is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Model invalidates initial factors on scaled-class changes and RHO0/threshold baselines on class/weight changes; adaptations overwrite a distinct pair, so every solve restarts initial policy. Initial row production emits current rhs/finite status and threshold-shifted soft bounds; adaptation refreshes those cuts with steps, and each prox emits its next rhs proof. Backward solves emit finite status/relaxation, residuals recompute and previous y copies only at certificate checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One-shot scratch releases on return or throw; optional memory belongs to one fixed model, retaining at most one discarded candidate triple. Selected unscaled x/z/y and diagnostics transfer independently, never remaining in scratch or mutating warm input.
  * @evidence contracts/development/common.md#meaningful-documentation States the admitted data premise, shared numeric ownership, optional scratch lifetime and independently owned outputs.
  */
@@ -39,12 +39,14 @@ export function HumanQuadraticSolve(
   // Each row's step size: an equality row's a thousand times the step, a
   // row bounded on neither side the least (section 5.2).
   let base: number = RHO0;
-  const rho: Float64Array = memory?.rho ?? new Float64Array(m);
-  const thresholds: Float64Array = memory?.thresholds ?? new Float64Array(m);
+  let rho: Float64Array = memory?.rho ?? new Float64Array(m);
+  let thresholds: Float64Array = memory?.thresholds ?? new Float64Array(m);
   const rowRhs: Float64Array = memory?.rowRhs ?? new Float64Array(m);
+  const softUpper: Float64Array = memory?.softUpper ?? new Float64Array(m);
+  const softLower: Float64Array = memory?.softLower ?? new Float64Array(m);
 
-  // Adaptation supplies both current vectors so its changed rho also emits
-  // the next rhs product; initial row-state production emits that later.
+  // Adaptation supplies both vectors so its new rho emits the next rhs
+  // product and soft cuts; initial row-state production emits them later.
   const steps: (currentZ?: Float64Array, currentY?: Float64Array) => boolean = (
     currentZ?: Float64Array,
     currentY?: Float64Array,
@@ -63,12 +65,20 @@ export function HumanQuadraticSolve(
         const value: number = step * currentZ[r]! - currentY![r]!;
         rowRhs[r] = value;
         if (!Number.isFinite(value)) finite = false;
+        if (weight[r]! >= 0) {
+          softUpper[r] = hi[r]! + thresholds[r]!;
+          softLower[r] = lo[r]! - thresholds[r]!;
+        }
       }
     }
     return finite;
   };
-  steps();
-  let factor: Workspace.IFactor = Preparation.factor(s, rho, SIGMA);
+  if (memory === undefined || memory.resetSteps) {
+    steps();
+    if (memory !== undefined) memory.resetSteps = false;
+  }
+  let factor: Workspace.IFactor = memory?.initialFactor ?? Preparation.factor(s, rho, SIGMA);
+  if (memory !== undefined) memory.initialFactor = factor;
 
   // The iterates in the scaled problem: x̄ = D⁻¹x, z̄ = E z, ȳ = c E⁻¹ y.
   const spare: Workspace.IMemory["spare"] = memory?.spare;
@@ -106,6 +116,10 @@ export function HumanQuadraticSolve(
       const product: number = rho[r]! * scaledZ - scaledY;
       rowRhs[r] = product;
       if (!Number.isFinite(product)) finiteRows = false;
+      if (weight[r]! >= 0) {
+        softUpper[r] = hi[r]! + thresholds[r]!;
+        softLower[r] = lo[r]! - thresholds[r]!;
+      }
     }
   } else
     for (let r: number = 0; r < m; ++r) {
@@ -129,6 +143,10 @@ export function HumanQuadraticSolve(
       const product: number = rho[r]! * value - y[r]!;
       rowRhs[r] = product;
       if (!Number.isFinite(product)) finiteRows = false;
+      if (weight[r]! >= 0) {
+        softUpper[r] = hi[r]! + thresholds[r]!;
+        softLower[r] = lo[r]! - thresholds[r]!;
+      }
     }
   const rhs: Float64Array = memory?.work.transpose ?? new Float64Array(n);
   const xt: Float64Array = memory?.work.curvature ?? new Float64Array(n);
@@ -210,7 +228,7 @@ export function HumanQuadraticSolve(
       else {
         const t: number = thresholds[r]!;
         next =
-          v > u + t ? v - t : v > u ? u : v < l - t ? v + t : v < l ? l : v;
+          v > softUpper[r]! ? v - t : v > u ? u : v < softLower[r]! ? v + t : v < l ? l : v;
       }
       const nextY: number = multiplier + step * (relaxed - next);
       y[r] = nextY;
@@ -261,6 +279,16 @@ export function HumanQuadraticSolve(
     const next: number = Math.min(RHO_MAX, Math.max(RHO_MIN, base * ratio));
     if (next > ADAPT * base || next < base / ADAPT) {
       base = next;
+
+      // A fixed model's baseline always means RHO0, independently of the
+      // preceding solve's last adaptation. Overwrite a separate pair here
+      // so the next solve starts from its unchanged exact initial policy.
+      if (memory !== undefined && rho === memory.rho) {
+        const adapted: NonNullable<Workspace.IMemory["adapted"]> =
+          (memory.adapted ??= { rho: new Float64Array(m), thresholds: new Float64Array(m) });
+        rho = adapted.rho;
+        thresholds = adapted.thresholds;
+      }
       finiteRows = steps(z, y);
       factor = B.factor(s, rho, SIGMA, work);
     }

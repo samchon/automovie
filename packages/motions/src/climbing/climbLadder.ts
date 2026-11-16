@@ -195,6 +195,7 @@ export namespace climbLadder {
       (m.shoulderHeight - 0.5 * m.upperArm) / spacing,
     );
     HumanBound.within("rungs", reach + count, 1, ladder.count, "");
+    const atRung: ReturnType<typeof HumanLadder.prepareRung> = HumanLadder.prepareRung(ladder);
 
     // A foot's placement on a rung: the ball on the rung's top.
     const onRung: Record<"left" | "right", ReturnType<typeof HumanFoot.prepareAt>> = {
@@ -208,7 +209,7 @@ export namespace climbLadder {
       index === 0
         ? flat(side)
         : onRung[side](
-            Vector3.add(rung(ladder, index, lateral(side)), {
+            Vector3.add(atRung(index, lateral(side)), {
               x: 0,
               y: ladder.radius,
               z: 0,
@@ -223,8 +224,8 @@ export namespace climbLadder {
       right: footprints.right.slice(1).map((to: HumanFoot.IPlacement, i: number): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> => AutoMovieMotionHumanLeg.prepareArc(footprints.right[i]!, to, CLEARANCE)),
     };
     const handholds: Record<"left" | "right", IAutoMovieVector3[]> = {
-      left: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => rung(ladder, reach + i, lateral("left"))),
-      right: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => rung(ladder, reach + i, lateral("right"))),
+      left: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => atRung(reach + i, lateral("left"))),
+      right: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => atRung(reach + i, lateral("right"))),
     };
     const direction: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
     const directional: HumanFrame.IPrepared = HumanFrame.prepare(direction);

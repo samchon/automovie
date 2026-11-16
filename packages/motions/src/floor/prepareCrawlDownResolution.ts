@@ -57,6 +57,7 @@ export function prepareCrawlDownResolution(body: IHumanBody): IReading {
     body,
     KNEES,
   );
+
   /** Project and fit each actual candidate before reading its requested frames. */
   const pose: (posture: IHumanPosture) => IAutoMoviePose = (
     posture: IHumanPosture,

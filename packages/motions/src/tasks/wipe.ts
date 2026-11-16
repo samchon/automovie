@@ -23,6 +23,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 
@@ -109,6 +110,14 @@ export namespace wipe {
    * @param cycles The circle count.
    * @param progress The stroke's progress in [0, 1].
    * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the world centre, metre radius, degree heading, cycle count, progress and returned circular world point.
+   * @evidence contracts/development/implementation.md#principled-implementation The original 2*pi*cycles*progress phase gives a local sine/cosine circle, transformed through the supplied horizontal frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared localCircle owner feeds the existing HumanFrame point transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Phase, radius, translated cosine and floating-point grouping are unchanged, without clamping or a sampled path.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant phase and rigid-transform work has no varying population.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The cold public helper and plan's fixed-frame producer use the same localCircle numerical owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh world point without retained state.
    */
   export function circle(
     centre: IAutoMovieVector3,
@@ -117,11 +126,7 @@ export namespace wipe {
     cycles: number,
     progress: number,
   ): IAutoMovieVector3 {
-    const a: number = 2 * Math.PI * cycles * progress;
-    return HumanFrame.point(
-      { origin: centre, yaw },
-      { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) + radius },
-    );
+    return HumanFrame.point({ origin: centre, yaw }, localCircle(radius, cycles, progress));
   }
 
   /**
@@ -130,12 +135,20 @@ export namespace wipe {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the cycle count is not a positive integer, or the patch lies beyond reach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed level patch, circle, hand, phase plan and original whole-circle reach refusal; full default bends remain current while reach-only wrist reads request geometry alone.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the existing standing base, least reachable lean, balance steps, palm circle, aimed travel time and planted arm stroke, using the shared fixed-frame and hand-target geometry owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed circle and palm geometry feed separate actual full targets and point-only reach reads; the original lean/clock/arm composition remains intact.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No circle sample, actual arm bend, balance solve, scan/bisection, reach share, contact or timing is changed; the omitted bend result was discarded by the wrist-only callback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed yaw trigonometry and palm alignment/offsets prepare once for repeated queries. Each lean wrist read omits its previously discarded Bend search; actual arm targets still run every original numerical bend search. Entry FK outputs only the relaxed palm's required frames; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The action fixes body/side/surface/shape, patch centre/normal, heading and explicit forward. Shared localCircle and existing HumanHandTarget owners preserve the arithmetic; changing posture/point and all actual solves remain current.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns constant fixed circle/palm geometry, body metadata and the existing bounded lean steps until release. Every target/wrist is fresh, with no sampled pose, result/time history or external resource.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const side: HumanHand.Side = context.params.hand ?? "right";
     const cycles: number = context.params.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
@@ -147,24 +160,21 @@ export namespace wipe {
     ).point;
     const radius: number = m.forearm / 4;
     const yaw: number = context.entry.posture.yaw;
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    const palm = (
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: centre, yaw });
+    const point: (progress: number) => IAutoMovieVector3 = (progress: number): IAutoMovieVector3 =>
+      frame.point(localCircle(radius, cycles, progress));
+    const forward: IAutoMovieVector3 = frame.direction({ x: 0, y: 0, z: 1 });
+    const targetAt: ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand> =
+      AutoMovieMotionHumanTarget.prepareHand(body, side, { x: 0, y: 1, z: 0 },
+        { surface: "palm", shape: "flat", forward });
+    const wristAt: ReturnType<typeof HumanHandTarget.prepareFrame> =
+      HumanHandTarget.prepareFrame(body, side, { x: 0, y: 1, z: 0 },
+        { surface: "palm", shape: "flat", forward });
+    const palm: (posture: IHumanPosture, progress: number) => AutoMovieMotionHumanArm.ITarget = (
       posture: IHumanPosture,
       progress: number,
     ): AutoMovieMotionHumanArm.ITarget =>
-      AutoMovieMotionHumanTarget.hand(
-        body,
-        posture,
-        side,
-        {
-          point: circle(centre, radius, yaw, cycles, progress),
-          normal: { x: 0, y: 1, z: 0 },
-        },
-        { surface: "palm", shape: "flat", forward },
-      );
+      targetAt(posture, point(progress));
     // The lean into a patch whose far side lies beyond the standing arm.
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
@@ -175,17 +185,8 @@ export namespace wipe {
         standing,
         side,
         share: REACH,
-        wrist: (posture: IHumanPosture, progress: number) => {
-          const goal: AutoMovieMotionHumanArm.ITarget = palm(posture, progress);
-          return HumanHand.place(
-            body,
-            side,
-            goal.surface,
-            goal.point,
-            goal.rotation,
-            goal.shape,
-          ).point;
-        },
+        wrist: (posture: IHumanPosture, progress: number): IAutoMovieVector3 =>
+          wristAt(posture).place(point(progress)).point,
         // The arm on the circle's start, as the stroke lays the palm there.
         arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
           AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
@@ -197,7 +198,7 @@ export namespace wipe {
     const origin: AutoMovieMotionHumanArm.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose),
+        poseBones(body, context.entry.pose, undefined, HumanHand.frameBones(body, side, "palm")),
         { origin: context.entry.posture.root, yaw },
         side,
         "palm",
@@ -237,10 +238,16 @@ export namespace wipe {
                 ? { kind: "prop", subject: context.params.on.subject }
                 : { kind: "ground" },
           },
-          path: (posture: IHumanPosture, _: number, progress: number) =>
+          path: (posture: IHumanPosture, _: number, progress: number): AutoMovieMotionHumanArm.ITarget =>
             palm(posture, progress),
         }),
       ],
     });
   }
+}
+
+/** Original local phase/coordinate arithmetic, shared by cold and fixed-frame circles. */
+function localCircle(radius: number, cycles: number, progress: number): IAutoMovieVector3 {
+  const a: number = 2 * Math.PI * cycles * progress;
+  return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) + radius };
 }

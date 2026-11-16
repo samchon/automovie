@@ -67,13 +67,13 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * @returns Every region and socket.
  * @throws {Error} When a bone or segment a definition needs is missing, or a ray misses its colliders.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame premise, how each kind of surface is placed and its normal read, the measured defect, the cited grip size and the local frame of the result.
- * @evidence contracts/development/implementation.md#principled-implementation Exact ray exits through convex colliders from anatomical stations and directions, each region's normal the exited collider's outward normal there (smoothed across a box's or a hull's edges), and exact collider bounds for the sole, seat and back.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two definition tables, one ray routine and one bounds routine.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone, segment or hit throws rather than inventing a point.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in definitions times colliders per bone. An optional genuine same-profile bounds epoch reuses each segment's six exact neutral extrema from the preceding measurement, omitting duplicate hull-vertex rotations while all rays, normals and local frames are still resolved.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work SurfaceRays owns one unchanged rest-pose bundle; when withSurfaces lends a genuine live profile-bound epoch, only exact segment identities share neutral bounds. Direct calls keep ordinary local preparation and never reuse another invocation's geometry.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh surface records escape; ray/rest readers remain local. WithSurfaces owns the optional neutral epoch and releases it in finally on success or either derivation's failure, without retaining queries, poses or source through returned frames.
+ * @evidence contracts/development/common.md#meaningful-documentation States canonical frame, each surface's point/normal rule, measured defect, grip size and local result frame. Namespace point returns only fresh world metres under an admitted posed bone; place shares that exact expression and additionally rotates the full frame's directions.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact ray exits use anatomical stations/directions and the exited collider's physical normal; sole/seat/back use exact bounds. Point and place share bone.worldPosition plus the bone quaternion's rotation of the local point, with the same arithmetic as original full-frame placement.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Definition tables use one ray and bounds owner. The point helper owns local-to-world point placement, and place delegates that field before reading/rotating its normal and optional forward direction.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone, segment or hit throws rather than inventing a point. Point-only observations omit unused direction work without changing the point expression, admitting another frame or altering complete place outputs; posed input admission remains with callers.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Resolution is linear in definitions times colliders. A genuine same-profile epoch reuses exact neutral bounds instead of duplicate hull rotations. Point-only Hit.nearestRegion, carried placement and coupling consumers require one point rotation/addition without unused normal/forward rotations or a wrapper; full place retains those requested directions.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work SurfaceRays owns one unchanged rest bundle and can share exact segment extrema from preceding measurement through a genuine live profile epoch. Point and place share one numerical expression; every posed call reads current coordinates/rotation without a point or frame-result cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh surface records escape; ray/rest readers remain local and withSurfaces releases its neutral epoch in finally. Point returns one caller-owned vector without retaining inputs; place adds its own fresh wrapper/directions. No posed query history or source reader escapes these numeric outputs.
  */
 export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
@@ -251,9 +251,9 @@ export function resolveAutoMovieHumanoidSurfaces(
 /**
  * Companion types and helpers of {@link resolveAutoMovieHumanoidSurfaces}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame, fresh posed point/full-frame ownership and caller-admitted transforms.
  * @evidence contracts/development/design.md#principled-representation Bone-local points and unit directions keyed by the closed region and socket unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two maps, the posing helper and the tangent offset motion laws read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The two maps, tangent offset and full-frame place serve motion laws. Point supplies only the world position consumed by hit-region search, carried placement and coupling, sharing place's numerical owner without a second frame type.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed unions, not strings.
  */
 export namespace resolveAutoMovieHumanoidSurfaces {
@@ -285,6 +285,17 @@ export namespace resolveAutoMovieHumanoidSurfaces {
   }
 
   /**
+   * Fresh world point, metres, without normal/forward reads or rotations.
+   * Uses place's original local-to-world expression; inputs are admitted.
+   */
+  export function point(
+    frame: IFrame,
+    bone: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">,
+  ): IAutoMovieVector3 {
+    return Vector3.add(bone.worldPosition, Quaternion.rotateVector(bone.worldRotation, frame.point));
+  }
+
+  /**
    * A surface frame's world point and normal under a posed bone.
    *
    * @param frame The bone-local frame.
@@ -300,10 +311,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     forward?: IAutoMovieVector3;
   } {
     return {
-      point: Vector3.add(
-        bone.worldPosition,
-        Quaternion.rotateVector(bone.worldRotation, frame.point),
-      ),
+      point: point(frame, bone),
       normal: Quaternion.rotateVector(bone.worldRotation, frame.normal),
       ...(frame.forward === undefined
         ? {}

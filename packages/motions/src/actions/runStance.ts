@@ -81,11 +81,12 @@ export namespace runStance {
     const ankle: IAutoMovieVector3 = body.rest.get("leftFoot")!;
     const thigh: number = distance(hip, knee);
     const shank: number = distance(knee, ankle);
+    const thighSquared: number = thigh * thigh;
+    const shankSquared: number = shank * shank;
+    const twiceProduct: number = 2 * thigh * shank;
     const leg: (flexion: number) => number = (flexion: number): number =>
       Math.sqrt(
-        thigh * thigh +
-          shank * shank +
-          2 * thigh * shank * Math.cos((flexion * Math.PI) / 180),
+        thighSquared + shankSquared + twiceProduct * Math.cos((flexion * Math.PI) / 180),
       );
     const heel: IAutoMovieVector3 = HumanFoot.offset(body, "left", "heel");
     const mtp: IAutoMovieVector3 = HumanFoot.offset(body, "left", "mtp");
@@ -141,7 +142,7 @@ export namespace runStance {
             -1,
             Math.min(
               1,
-              (d * d - thigh * thigh - shank * shank) / (2 * thigh * shank),
+              (d * d - thighSquared - shankSquared) / twiceProduct,
             ),
           ),
         ) *

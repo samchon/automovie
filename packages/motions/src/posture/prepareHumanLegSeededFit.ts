@@ -16,6 +16,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanLegChain } from "./HumanLegChain";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { poseBones } from "./poseBones";
+import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
@@ -35,9 +36,9 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @evidence contracts/development/implementation.md#principled-implementation One fixed pelvis/hip determines the same hips-only root by hip minus rotated rest-hip offset. Each query still calls HumanLimbFit.remembered with its actual point/bend/rotation/near, preserving that owner's mirror, floor/grid, LRU and disabled-memory behavior.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer owns fixed source/root construction and one operation reader; HumanLimbFit owns every solve/memory query and the supplied existing leg reader owns branch/swivel extraction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No request is replaced by achieved coordinates or a previous seed, no fit/memory policy changes, and no target or callback result is cached by this preparation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed root construction and lazy reader creation occur once for a piece's repeated probes. Each query retains its full actual fit/memory query, ordered FK admission and only the hips/thigh/shank/foot ancestor read; exact unchanged reader dependencies can share completed math. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/pelvis/hip prove source equivalence. The bounded operation reader checks every current pose dependency across actual varying fitted outputs; goal and near inputs remain live per query, and no result crosses another preparation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns one hips-only pose, fixed four-name demand and lazy bounded FK state plus borrowed body/reader callback until the piece releases it. Each actual result/temporary map ends with its query; only swivel/seed data escape, with no target history or handles.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed root construction and lazy reader creation occur once for repeated probes. The actual local reader also lends its exact fixed source to prepareHumanLimbSource, so matching mirror/root-normalized native misses share engine source geometry and rig coefficients. Every query retains its actual memory/fit/search, ordered admission and requested four-frame FK. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/pelvis/hip prove this piece's source scope; the explicit source owner snapshots and matches complete current source scalars before sharing preparation, otherwise ordinary fitting runs. The bounded reader checks current fitted FK dependencies. Every goal, reference, callback and near remains a fresh query input; no target or answer crosses preparations.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns a hips-only pose, four-name demand and lazy FK reader plus its weakly owned bounded source-snapshot/factory pool until release. Goal workspaces and temporary maps end per query; only swivel/seed data escape, with no reader in a plan/body memory result, target history or handle.
  */
 export function prepareHumanLegSeededFit(
   body: IHumanBody,
@@ -51,7 +52,8 @@ export function prepareHumanLegSeededFit(
   rotation: IAutoMovieQuaternion,
   near?: IAutoMovieSwivelNear,
 ) => ReturnType<typeof HumanLegChain.seeded> {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanLimbSource(body, prepareHumanPoseResolution());
   const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
   const hips: IAutoMoviePose = {
     skeleton: body.skeleton.id,

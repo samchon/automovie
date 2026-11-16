@@ -27,8 +27,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry with one goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.6 share toward the knee is provisional, the bend law's brace point.
  * @evidence contracts/development/implementation.md#efficient-algorithms Requests only the braced thigh and knee from canonical resolution/FK. The common resolver retains complete direct-joint admission and falls back to its full fitting path for dependencies its selective contract cannot prove irrelevant.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The body/side fix the requested bones and thigh region once per primitive; each synchronous goal lends one exact FK workspace to its actual selective fit and subsequent bone reading, without sharing answers across seconds.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments, one fixed requested set and surface reference. Each goal's lazy FK workspace releases on return or failure; no time history or posed-result cache is kept.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side fix the thigh region and compile requested bone names once per primitive. Each synchronous goal lends one exact FK workspace to its actual selective fit and subsequent current bone reading, without sharing fitted answers across seconds.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments, one fixed name-demand preparation/set and surface reference. Every goal's dynamic FK workspace and fresh map release on return or failure; no time history or posed-result cache is kept.
  */
 export function braceOnThigh(
   body: IHumanBody,
@@ -40,6 +40,7 @@ export function braceOnThigh(
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
     `${side}UpperLeg`, `${side}LowerLeg`,
   ]);
+  const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
   const region: IHumanBody["surfaces"]["regions"]["thighFrontLeft"] =
     body.surfaces.regions[side === "left" ? "thighFrontLeft" : "thighFrontRight"];
   return AutoMovieMotionHumanArm.carried({
@@ -54,7 +55,7 @@ export function braceOnThigh(
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         body, posture, undefined, {}, resolution, requested,
       ).pose;
-      const bones: ReturnType<typeof poseBones> = poseBones(body, pose, resolution(), requested);
+      const bones: ReturnType<typeof poseBones> = readLeg(pose, resolution());
       const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
       const kneeAt: IAutoMovieVector3 = bones.get(
         `${side}LowerLeg`,

@@ -46,6 +46,7 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param from The arm at the start.
    * @param to The arm at the end.
    * @param source Optional exact FK source borrowed from this same synchronous unchanged-body plan.
+   * @param projection Optional genuine same-body ROM metadata borrowed by the actual raw-base solve.
    * @returns Seconds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the bound, its source and the arcs it reads.
@@ -63,6 +64,7 @@ export namespace AutoMovieMotionHumanArmObservation {
     from: HumanArmClearance.IArm,
     to: HumanArmClearance.IArm,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): number {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
@@ -70,7 +72,7 @@ export namespace AutoMovieMotionHumanArmObservation {
     const base: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
       ...posture,
       limbs,
-    }), undefined, undefined, resolution).pose;
+    }), undefined, undefined, resolution, undefined, projection).pose;
     return reachingPose(body, base, side, from, to, resolution);
   }
 

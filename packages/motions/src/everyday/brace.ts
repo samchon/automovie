@@ -122,8 +122,8 @@ export namespace brace {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, the 10 degree lean, the 0.55 reach share and the 0.4 s step with its 3 cm lift are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation; each posture costs one leg solve, one bone resolve for the hanging palms and a two-hand solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The step, set root and lean are computed once per instance and every posture reads them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, feet, set root and parameters, released with the performance; nothing grows per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The step, set root and lean prepare once per instance. Palm requests bind their unchanged sternum bone-name demand once, while each actual posture still receives canonical selective fitting and full ordered FK admission with its own synchronous workspace.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, feet, set root, parameters and one fixed-name FK preparation until release. Every request releases its dynamic FK workspace and fresh map on return or failure; no queried pose or per-time history is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -336,6 +336,7 @@ export namespace brace {
     };
     const region: IHumanBody["surfaces"]["regions"]["sternum"] = body.surfaces.regions.sternum;
     const sternumBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([region.bone]);
+    const readSternum: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, sternumBones);
     const leftOffsets: Record<"left" | "right", IAutoMovieVector3> = {
       left: Vector3.scale(left, m.shoulderHalfWidth * 0.9),
       right: Vector3.scale(left, -1 * m.shoulderHalfWidth * 0.9),
@@ -352,9 +353,7 @@ export namespace brace {
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         body, posture, undefined, {}, resolution, sternumBones,
       ).pose;
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body, pose, resolution(), sternumBones,
-      );
+      const bones: ReturnType<typeof poseBones> = readSternum(pose, resolution());
       const sternum: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
         region,
         bones.get(region.bone)!,

@@ -148,7 +148,7 @@ export function test_motion_partial_observation_cache(): void {
     plan: (context: IHumanActionContext): IHumanActionPlan => ({
       duration: 1, events: [], contacts: [], channels: ["rightArm"],
       posture: (): IHumanPosture => ({ ...context.entry.posture,
-        joints: { ...context.entry.posture.joints, rightUpperArm: [10, 0, 0] } }),
+        joints: { ...context.entry.posture.joints, rightUpperArm: [10, 0, 0] }, limbs: {} }),
     }),
   };
   observed.demand = selected;

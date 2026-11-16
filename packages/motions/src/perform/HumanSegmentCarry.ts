@@ -16,6 +16,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * The carry of a prop an earlier action left held: the holding arm's place
@@ -37,6 +38,7 @@ export namespace HumanSegmentCarry {
    * @param pose The pose whose chest carries the hands.
    * @param holds The holds to carry.
    * @param resolution Optional exact FK reader or lazy supplier from this same synchronous person's evaluation; never stored in the hold or result.
+   * @param prepared Optional same-body parent preparation, borrowed by the first actual source-pose capture and never retained in h.carry.
    * @returns Each holding arm with its goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States chest-relative capture, displayed arm goals, held records and the optional borrowed FK source and lifetime.
@@ -44,7 +46,7 @@ export namespace HumanSegmentCarry {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An empty-hold return, one current chest read and one ordered map of holding hands keep capture and ordinary FK in private helpers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hold, source pose, capture, hand transform or fit is skipped; standalone calls retain their ordinary fresh-FK path, and the optional source never enters h.carry or a returned goal.
    * @evidence contracts/development/implementation.md#efficient-algorithms For H holds, one demanded current chest FK plus O(H) rigid transforms; each of M uncaptured holds adds its complete source-pose evaluation and demanded chest/hand/elbow FK. Ordered joint admission remains, while unrelated world-bone outputs are omitted. A supplied parent shares exact math; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing h.carry stores each hand's numerical source relation once until forget. An explicit parent may lend the same lazy exact reader to current and captured FK; changed pose/rest/parent scalars miss normally and all source evaluations remain independent.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing h.carry stores each hand's numerical source relation once until forget. An explicit parent lends its same genuine projection and lazy exact reader to complete first source-pose evaluation and current/captured FK; changed pose/rest/parent scalars miss normally and all source poses/fits remain actual independent evaluations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The optional local getter borrows its parent's reader until this synchronous call ends; the parent owns O(K) last successful joint/world snapshots for K visited bone names. Holds retain only existing numerical carry frames/reference until HumanSegment.forget. Returned arrays/tuples/goals and transform vectors are fresh, reference remains borrowed, and none retains the getter or reader.
    */
   export function carries(
@@ -52,6 +54,7 @@ export namespace HumanSegmentCarry {
     pose: IAutoMoviePose,
     holds: readonly HumanSegment.IHeld[],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): ["leftArm" | "rightArm", IHumanPosture.IGoal][] {
     if (holds.length === 0) return [];
     const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
@@ -65,7 +68,7 @@ export namespace HumanSegmentCarry {
       (
         h: HumanSegment.IHeld,
       ): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
-        h.carry ??= capture(person, h, read);
+        h.carry ??= capture(person, h, read, prepared);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
           {
@@ -103,9 +106,10 @@ export namespace HumanSegmentCarry {
     person: HumanSegment.IPerson,
     held: HumanSegment.IHeld,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): HumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
-    const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at);
+    const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at, prepared);
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
       person,
       pose,

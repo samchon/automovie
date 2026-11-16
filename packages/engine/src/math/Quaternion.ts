@@ -5,7 +5,6 @@ import {
 } from "@automovie/interface";
 
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
-import { multiplyQuaternionInto } from "./multiplyQuaternionInto";
 import { quaternionNormalizationDivisor as normalizationDivisor } from "./quaternionNormalizationDivisor";
 import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
 import { readQuaternionAngle } from "./readQuaternionAngle";
@@ -60,7 +59,7 @@ export namespace Quaternion {
    *   so unit inputs give a unit result up to rounding.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The Hamilton product formula, `w = aw·bw − a·b` and `v = aw·bv + bw·av + av × bv`, written out per component; composing rotations by it applies the right operand first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One raw product for joints, drivers, cameras and placements. The internal write-target owner also serves prepared OnBasis's private inner scratch; this public entry supplies a fresh target and adds no normalizing variant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product for every rotation composition, joints, drivers, cameras and placements, without a normalizing variant, because unit inputs already give a unit result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result is not renormalized, so rounding drift stays visible to the callers that normalize at their own boundary rather than being hidden on every product.
    * @evidence contracts/development/common.md#meaningful-documentation States the application order of the operands and how the result's length follows from the inputs'.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Sixteen multiplications and twelve additions in constant time, with no algorithm to choose.
@@ -73,11 +72,12 @@ export namespace Quaternion {
   ) => IAutoMovieQuaternion = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
-  ): IAutoMovieQuaternion => {
-    const target: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 0 };
-    multiplyQuaternionInto(target, a, b);
-    return target;
-  };
+  ): IAutoMovieQuaternion => ({
+    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+  });
 
   /**
    * A unit-length copy of `q`, or the identity when `q` has length zero.

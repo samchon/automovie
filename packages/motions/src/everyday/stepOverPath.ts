@@ -29,36 +29,52 @@ export namespace stepOverPath {
   export interface IPlan {
     /** The performer and its unchanged geometry. */
     body: IHumanBody;
+
     /** The two feet in crossing order. */
     lead: "left" | "right";
+
     /** The foot that follows the lead. */
     trail: "left" | "right";
+
     /** The fixed heading, degrees. */
     yaw: number;
+
     /** Starting ankles, world metres. */
     feet: Record<"left" | "right", IAutoMovieVector3>;
+
     /** The floor frame's origin, world metres. */
     origin: IAutoMovieVector3;
+
     /** The landing's forward local coordinate, metres. */
     landing: number;
+
     /** Each foot's fixed rest lateral coordinate, metres. */
     restX: (side: "left" | "right") => number;
+
     /** Ending ankles, world metres. */
     end: Record<"left" | "right", IAutoMovieVector3>;
+
     /** A flat foot at the given actual ankle, world metres. */
     flat: (side: "left" | "right", ankle: IAutoMovieVector3) => HumanFoot.IPlacement;
+
     /** Total action seconds. */
     duration: number;
+
     /** Toe-off and contact action seconds. */
     windows: Record<"left" | "right", [number, number]>;
+
     /** A foot pitched in degrees about its actual flat MTP contact. */
     heeled: (side: "left" | "right", ankle: IAutoMovieVector3, pitch: number) => HumanFoot.IPlacement;
+
     /** The same bounded minimum-jerk share over a scalar interval. */
     smooth: (x: number, a: number, b: number) => number;
+
     /** The trail heel's rise share at an action second. */
     rising: (seconds: number) => number;
+
     /** The actual placement and bearing state at an action second. */
     footAt: (side: "left" | "right", seconds: number) => { placement: HumanFoot.IPlacement; planted: boolean };
+
     /** Required sole height at an actual world point, metres. */
     needed: (point: IAutoMovieVector3) => number;
   }

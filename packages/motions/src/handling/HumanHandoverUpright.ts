@@ -14,7 +14,7 @@ import { HumanHandover } from "./HumanHandover";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates ordinary full-posture callbacks from handover frames whose direct body/digits and goal geometry are fixed at one sampled second while only hand yaw varies.
  * @evidence contracts/development/design.md#principled-representation World-metre posture/goals and world quaternion attitudes retain canonical types; the existing degree yaw grid and second-based sample/interpolation policy remain HumanHandover's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ordinary serves the existing public callback facade; prepared and posed serve the actual giver/receiver fixed-time frame producers; angle owns the shared original tip metric.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ordinary serves the existing public callback facade; prepared and posed serve the actual giver/receiver fixed-time frame producers; rank serves their actual complete-goal fits and receive's fixed carry-place search; angle owns the shared original tip metric.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No callback is assumed yaw-invariant: the prepared path requires explicit separate fixed geometry and yaw attitude. No pose result, altered sample, tolerance or solver is represented.
  */
 export namespace HumanHandoverUpright {
@@ -79,18 +79,34 @@ export namespace HumanHandoverUpright {
     at: (seconds: number) => IFrame,
     from: number, to: number, ends: readonly [number, number | undefined],
   ): (seconds: number) => number {
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     return chosen((seconds: number): ((yaw: number) => number) => {
       const frame: IFrame = at(seconds);
-      const base: ReturnType<typeof resolveHumanPosture.prepareBase> = resolveHumanPosture.prepareBase(body, frame.posture);
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      return (yaw: number): number => {
-        const current: ReturnType<typeof request> = request(frame, side, yaw);
-        return angle(current.goal.rotation, poseBones(body,
-          base.seeded(current.limbs, undefined, resolution).pose, resolution(), requested,
-        ).get(`${side}Hand`)?.worldRotation);
-      };
+      const fit: ReturnType<typeof rank> = rank(body, side, frame.posture);
+      return (yaw: number): number => fit(goalOf(frame, yaw));
     }, from, to, ends);
+  }
+
+  /**
+   * Rank actual complete hand goals on one unchanged direct body posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/rig/ROM, raw root/orientation/direct joints/digits and all other limb goals for one synchronous search; each complete acting goal is actually fitted and returns the original degree upright-tip metric.
+   * @evidence contracts/development/implementation.md#principled-implementation prepareBase admits fixed direct assembly once; every candidate replaces only the acting arm and runs the original complete coupled, clearance, ROM and digit solve before actual hand FK and angle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed base, other-goal snapshot, exact FK workspace and demanded hand reader serve both sampled yaw selection and receive's pitch/yaw search.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate, goal field, near/base context, original solve, missing-attitude Infinity or tip/tie tolerance is changed; changed fixed inputs require another producer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B+J) fixed assembly and demanded-name binding serve C actual full goal fits; all C solver calls remain and FK emits only the holding hand ancestry. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged fixed-posture/body lifetime proves assembly reuse; complete varying goals and their actual fits/FK/tip are never cached or shared as answers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller owns one fixed base, borrowed immutable other goals and exact reader until release. Each scalar query releases its fresh fit/FK outputs; no pose result, query/time history or external handle escapes.
+   */
+  export function rank(body: IHumanBody, side: HumanHand.Side,
+    posture: IHumanPosture): (goal: IHumanPosture.IGoal) => number {
+    const base: ReturnType<typeof resolveHumanPosture.prepareBase> = resolveHumanPosture.prepareBase(body, posture);
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
+    return (goal: IHumanPosture.IGoal): number => angle(goal.rotation,
+      readHand(base.seeded({ ...limbs, [`${side}Arm`]: goal }, undefined, resolution).pose,
+        resolution()).get(`${side}Hand`)?.worldRotation);
   }
 
   /**
@@ -105,7 +121,8 @@ export namespace HumanHandoverUpright {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh posture/limb/goal wrappers borrowing original immutable frame geometry; no builder, FK reader, queried time or history is retained.
    */
   export function posed(frame: IFrame, side: HumanHand.Side, yaw: number): IHumanPosture {
-    return { ...frame.posture, limbs: request(frame, side, yaw).limbs };
+    return { ...frame.posture,
+      limbs: { ...frame.posture.limbs, [`${side}Arm`]: goalOf(frame, yaw) } };
   }
 
   /**
@@ -126,14 +143,10 @@ export namespace HumanHandoverUpright {
   }
 }
 
-/** Keep rank and display on the same complete acting-arm goal. */
-function request(frame: HumanHandoverUpright.IFrame, side: HumanHand.Side, yaw: number): {
-  goal: IHumanPosture.IGoal;
-  limbs: IHumanPosture["limbs"];
-} {
+/** Preserve the acting goal's original field order for both ranking and display. */
+function goalOf(frame: HumanHandoverUpright.IFrame, yaw: number): IHumanPosture.IGoal {
   const { point, ...rest }: typeof frame.goal = frame.goal;
-  const goal: IHumanPosture.IGoal = { point, rotation: frame.rotation(yaw), ...rest };
-  return { goal, limbs: { ...frame.posture.limbs, [`${side}Arm`]: goal } };
+  return { point, rotation: frame.rotation(yaw), ...rest };
 }
 
 /** Original ordered yaw selection and carried previous-turn preference. */

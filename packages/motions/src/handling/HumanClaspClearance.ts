@@ -41,7 +41,7 @@ export namespace HumanClaspClearance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Reads one unchanged body, displayed bone map and hand and returns their actual world-metre capsule segments.
    * @evidence contracts/development/implementation.md#principled-implementation Retains HumanGrip's canonical power-grip digit order and capsule geometry; each distal endpoint is the original rigidly placed core tip.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The chain owner supplies geometry and this adapter places its three observed segments.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The chain owner supplies geometry and the shared placedDigits adapter places its three observed segments.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing capsule or bone behavior and the existing minimum-radius chain model are unchanged.
    * @evidence contracts/development/implementation.md#efficient-algorithms Five chain readings and fifteen segment placements occur once per candidate rather than once per candidate pair.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged candidate pose/body/side determines these segments; the synchronous pair search releases them before any input can change.
@@ -51,21 +51,50 @@ export namespace HumanClaspClearance {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: HumanHand.Side,
   ): readonly IPhalanx[] {
-    const out: IPhalanx[] = [];
-    for (const digit of HumanGrip.CLOSING.power) {
-      const chain: curlChainUntilContact.IChain = HumanGrip.chain(body, side, digit);
-      chain.bones.forEach((bone: AutoMovieHumanoidBone, index: number): void => {
-        const from: IAutoMovieResolvedBone = bones.get(bone)!;
-        const next: AutoMovieHumanoidBone | undefined = chain.bones[index + 1];
-        out.push({
-          from: from.worldPosition,
-          to: next === undefined ? Vector3.add(from.worldPosition,
-            Quaternion.rotateVector(from.worldRotation, chain.tip)) : bones.get(next)!.worldPosition,
-          radius: chain.radius,
-        });
-      });
-    }
-    return out;
+    return placedDigits(bones, (digit: HumanGrip.Digit): curlChainUntilContact.IChain =>
+      HumanGrip.chain(body, side, digit));
+  }
+
+  /**
+   * Prepare an unchanged body's digit capsules for its actual candidate poses.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/profile and hand for one synchronous pair search; each query returns its current displayed world segments with the original capsule radii.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanGrip.chain still owns capsule selection, distal tip and minimum radius. Each digit is admitted lazily in original power-grip order before its first actual placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A five-entry local chain map supplies the same placedDigits numerical owner used by cold digits calls.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No profile capsule, missing-bone behavior, segment order, radius or contact distance changes; changed body/profile geometry requires another producer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Five actual chain/profile readings serve C candidate maps instead of five readings per candidate; all fifteen current segment placements remain per query. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/profile/side establish chain equivalence; no current bone map, segment result or pair verdict is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases at most five fresh chain/name/tip records with its synchronous search. Fresh segment arrays borrow each actual map's joint positions and retain no producer or body; no global history or handle exists.
+   */
+  export function prepareDigits(body: IHumanBody, side: HumanHand.Side):
+    (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => readonly IPhalanx[] {
+    const chains: Map<HumanGrip.Digit, curlChainUntilContact.IChain> = new Map();
+    const chain: (digit: HumanGrip.Digit) => curlChainUntilContact.IChain = (digit: HumanGrip.Digit): curlChainUntilContact.IChain => {
+      let current: curlChainUntilContact.IChain | undefined = chains.get(digit);
+      if (current === undefined) {
+        current = HumanGrip.chain(body, side, digit);
+        chains.set(digit, current);
+      }
+      return current;
+    };
+    return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): readonly IPhalanx[] =>
+      placedDigits(bones, chain);
+  }
+
+  /**
+   * Bone frames consumed by clasp band, digit, forearm and closure geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Lists one side's upper/lower arm, hand and power-grip digit joints for demanded current FK; ancestors remain the engine's dependency responsibility.
+   * @evidence contracts/development/implementation.md#principled-implementation Upper/lower arm frames determine the original posture band, lower arm supplies forearm clearance, and hand/digit frames place every original closure collider and phalanx.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fresh name set derives digit membership from HumanGrip's existing power-grip owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only unobserved bones, retaining all original clasp geometry and full pose admission before requested FK output.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed eighteen-name assembly has no varying population.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate readbacks and ordered closure use the same required-name owner, without storing any pose or solution.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh name set without retaining body, pose, reader, history or handle.
+   */
+  export function bones(side: HumanHand.Side): ReadonlySet<AutoMovieHumanoidBone> {
+    return new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
+      ...HumanGrip.CLOSING.power.flatMap((digit: HumanGrip.Digit): AutoMovieHumanoidBone[] => HumanGrip.bones(side, digit))]);
   }
 
   /**
@@ -106,4 +135,22 @@ export namespace HumanClaspClearance {
       least = Math.min(least, geometry.segment(phalanx.from, phalanx.to).distance - phalanx.radius);
     return least;
   }
+}
+
+/** Place every original capsule from its current frames, preserving cold admission order. */
+function placedDigits(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  chainAt: (digit: HumanGrip.Digit) => curlChainUntilContact.IChain): readonly HumanClaspClearance.IPhalanx[] {
+  const out: HumanClaspClearance.IPhalanx[] = [];
+  for (const digit of HumanGrip.CLOSING.power) {
+    const chain: curlChainUntilContact.IChain = chainAt(digit);
+    chain.bones.forEach((bone: AutoMovieHumanoidBone, index: number): void => {
+      const from: IAutoMovieResolvedBone = bones.get(bone)!;
+      const next: AutoMovieHumanoidBone | undefined = chain.bones[index + 1];
+      out.push({ from: from.worldPosition,
+        to: next === undefined ? Vector3.add(from.worldPosition,
+          Quaternion.rotateVector(from.worldRotation, chain.tip)) : bones.get(next)!.worldPosition,
+        radius: chain.radius });
+    });
+  }
+  return out;
 }

@@ -102,8 +102,8 @@ export namespace receive {
    * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and constrained grasp/transfer plan, original reaching/take-away transports and actual upright-turn fitting, with the grasp's own reference held through contact.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared plan and actual grip closure precede fixed shape schedules and explicit per-second body/task geometry, leaving only the original carried hand yaw variable.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original decline/withdraw/transfer branches, grip/release events, source grip attitude, reference weights, all nine actual yaw fits and bounds remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet already supplied, entry reads request giver hand and receiver hips/feet/hand only. Each taken-away sample prepares direct body/path/digits once for nine full fits; constant shape schedules omit repeated key-set construction. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed-time geometry justifies preparation while each yaw goal still receives its actual complete coupled solve; rank/display use the same request assembler and all scalar interpolation keeps its original owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet already supplied, entry reads request giver hand and receiver hips/feet/hand only. The fixed carry-place pitch/yaw search shares one direct base and shoulder reading; each taken-away sample prepares direct body/path/digits once for nine full fits. Constant shape schedules omit repeated key-set construction. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed body/posture or fixed-time geometry justifies preparation while every pitch/yaw goal still receives its actual complete coupled solve; rank/display use the same request and tip owners and all scalar interpolation keeps its original owner.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned action retains base/transport/shape geometry, original selected grip/reference and scalar course; entry maps and per-sample base/FK/rank contexts are released with planning, without a pose/time history or handle.
    */
   export function plan(
@@ -211,31 +211,23 @@ export namespace receive {
       held,
       side,
     );
-    let carry: IAutoMovieVector3 = HumanHandover.carried(body, held, side);
+    let carry: IAutoMovieVector3 = shared.receiverFrom.point;
     if (takes) {
+      const carryAt: ReturnType<typeof HumanHandover.prepareCarried> = HumanHandover.prepareCarried(body, held, side);
+      carry = carryAt();
+      const tipped: ReturnType<typeof HumanHandoverUpright.rank> = HumanHandoverUpright.rank(body, side, held);
       let least: number = Infinity;
       for (const pitch of PITCHES) {
-        const place: IAutoMovieVector3 = HumanHandover.carried(
-          body,
-          held,
-          side,
-          pitch,
-        );
+        const place: IAutoMovieVector3 = carryAt(pitch);
         for (const yaw of HumanHandover.YAWS) {
           const tip: number =
-            HumanHandover.tipped(body, side, {
-              ...held,
-              limbs: {
-                ...held.limbs,
-                [side === "left" ? "leftArm" : "rightArm"]: {
-                  point: place,
-                  rotation: Quaternion.multiply(
-                    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-                    shared.receiverShown.rotation,
-                  ),
-                  bend,
-                },
-              },
+            tipped({
+              point: place,
+              rotation: Quaternion.multiply(
+                Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+                shared.receiverShown.rotation,
+              ),
+              bend,
             }) +
             0.1 * pitch;
           if (tip < least - 1e-9) {

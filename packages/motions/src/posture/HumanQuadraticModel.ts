@@ -38,7 +38,7 @@ export namespace HumanQuadraticModel {
      * @evidence contracts/development/implementation.md#clear-and-simple-structure The model owns fixed matrices and disposable storage; this method validates and atomically refreshes changed scalar row inputs, then delegates the sole iteration to HumanQuadraticSolve.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads every current key and compares exact l/u/weight values, preserving signed zeros, hard versus soft semantics and all solver constants; it computes a current step rather than returning an old answer or mutating warm input.
      * @evidence contracts/development/implementation.md#efficient-algorithms Refresh costs O(m), and a finite iteration costs O(n*w+Z+m) for w=band+1 and Z stored coefficients, with the unchanged 4000 guard; exact factor reuse skips its documented assembly/Cholesky work without rescanning fixed input storage.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only immutable matrix preparation, exactly matched factor dependencies and disposable storage. Bound snapshots prove unchanged scaling by Object.is; rho restarts, and current iterates/products/residuals recompute while only discarded candidates may be reset as scratch.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses immutable preparation, exactly matched factors and scratch. Object.is snapshots prove unchanged scalar scaling; fixed P/A/SIGMA need a new initial factor only on a scaled row-class change. Class or weight changes invalidate initial RHO0/threshold vectors, kept distinct from adaptations. Every solve restarts that initial policy and recomputes iterates/products/residuals; only discarded candidates reset.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The model bounds scratch by O(n+m), copied zero-bearing layouts by O(R0+m), and factors by one initial plus three workspace owners with upper/forward layouts; returned x/z/y and diagnostics transfer without retention, and model collection releases its state after success or failure.
      * @evidence contracts/development/common.md#meaningful-documentation Defines fixed snapshot and row-order premises, changing bounds/weights/keys, warm and dual inputs, original-unit output/status ownership, validation failures and bounded model lifetime.
      */
@@ -60,10 +60,10 @@ export namespace HumanQuadraticModel {
    * @throws {RangeError} For malformed original data or noninvertible scaling.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses the same exact-admission and modified Ruiz preparation as one-shot OSQP, then refreshes only positive-scaled bound and penalty data before the unchanged numeric solve.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns fixed-row copying, exact bound snapshots and scratch lifetime; changed intervals validate and scale before atomic replacement, while HumanQuadraticSolve owns ADMM and Preparation owns matrix scaling.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns fixed-row copying, exact bound snapshots and scratch lifetime; changed intervals validate/scale before replacement. Scaled row classes invalidate the initial factor and step baselines, and scaled weights invalidate step baselines; Solve owns ADMM and Preparation owns matrix scaling.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves ordered duplicates, all original zero coefficients, current interval validation and overflow rejection; neither the source object nor a previous answer supplies a later result.
    * @evidence contracts/development/implementation.md#efficient-algorithms One-time preparation has its documented S/R/n/w/Z/m cost, then copies O(R0+m) raw layout for R0 entries belonging to zero-bearing rows; CSR already owns all other coefficients. Each retry refreshes O(m) scalars without another matrix scan or numeric-array allocation for bounds and scratch.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Scaled P/q/A are immutable copied dependencies; current l/u/weight compare by Object.is with admitted snapshots, including signed zeros, so only changed values rescale. Keys always refresh, rho classifications recompute, and returned iterates never become scratch.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Scaled P/q/A are immutable copies; current l/u/weight compare by Object.is with admitted snapshots, including signed zeros, so only changes rescale. Keys always refresh. Changed scaled classes invalidate initial factors; classes or weights invalidate initial step/threshold vectors, kept separate from adaptations so each solve restarts RHO0. Returned iterates never become scratch.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model retains one scaled core, O(R0+m) copied zero-bearing raw rows, O(n+m) scratch and the bounded factor storage documented by Workspace; it retains no source or previous public result, and collection releases ownership.
    * @evidence contracts/development/common.md#meaningful-documentation Defines admission, source-independent numeric snapshots, changing-bound validation, scratch ownership and fresh output lifetime.
    */
@@ -84,7 +84,10 @@ export namespace HumanQuadraticModel {
     const memory: Workspace.IMemory = {
       rho: new Float64Array(s.m),
       thresholds: new Float64Array(s.m),
+      resetSteps: true,
       rowRhs: new Float64Array(s.m),
+      softUpper: new Float64Array(s.m),
+      softLower: new Float64Array(s.m),
       work: Workspace.of(
         new Float64Array(s.n),
         new Float64Array(s.n),
@@ -133,6 +136,17 @@ export namespace HumanQuadraticModel {
             !Number.isFinite(scaledWeight)
           )
             throw new RangeError(`Quadratic row ${r} overflows its scaling`);
+
+          // Initial rho depends on scaled free/equality/interval classes,
+          // not the interval values or penalty. Fixed matrices and SIGMA
+          // stay unchanged; only a changed class invalidates this factor.
+          const changedClass: boolean =
+            (s.lo[r] === -Infinity && s.hi[r] === Infinity) !==
+              (lo === -Infinity && hi === Infinity) ||
+            (s.lo[r] === s.hi[r]) !== (lo === hi);
+          if (changedClass) memory.initialFactor = undefined;
+          if (changedClass || !Object.is(s.weight[r], scaledWeight))
+            memory.resetSteps = true;
           s.lo[r] = lo;
           s.hi[r] = hi;
           s.weight[r] = scaledWeight;

@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -24,10 +25,10 @@ import { crawlFrame } from "./crawlFrame";
  * @evidence contracts/development/common.md#meaningful-documentation States the pitch goal, fixed world-metre geometry, authored input and returned measured bones.
  * @evidence contracts/development/implementation.md#principled-implementation Uses crawlFrame's unchanged pitch bracket and halving count; each predicate compares the same two shoulder heights after placing the root under the fixed hip midpoint.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous exact-FK workspace owns the predicate and the final bone reading, apart from the retained time evaluator.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every trial still resolves the complete authored posture with canonical clamp/digit policies; neither the bracket, predicate nor required height changes.
- * @evidence contracts/development/implementation.md#efficient-algorithms The four measured shoulder/hip names are prepared once; each original trial resolves only their demanded output/ancestry while sharing exact unchanged dependency work across this search, with no speedup claim.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed hip placement, one exact dependency reader and one genuine same-body ROM metadata projector serve this search; every changed authored posture still projects all current joints and reaches canonical resolution.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The FK/name readers and bounded ROM metadata projector end when this synchronous helper returns or throws; only the final fresh map and scalar pitch escape into the crawl plan.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The first trial runs the complete cold canonical solve. Later trials borrow its direct-joint projection only through the canonical owner's private exact raw/rig proof; changed joints or unsupported context retain full resolution, and bracket/predicate/height stay unchanged.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four shoulder/hip names prepare once. An eligible trial pays O(B+J) exact rig/raw proof checks and owned pose copying for B bones/J joints instead of repeated numerical ROM projection, then its actual demanded FK ancestry; every original halving remains and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The crawl varies rigid pitch/root over unchanged direct joint angles with no limb/digit goals. A genuine cold preparation privately verifies every raw/rig prerequisite on each consumer before sharing that placement-independent projection; all changed/unsupported contexts retain canonical fallback.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One issued source preparation, FK/name readers and bounded ROM metadata end with this synchronous search. Current candidates own only weak provenance and do not accumulate; only the final fresh map and scalar pitch escape.
  */
 export function crawlPitch(
   body: IHumanBody,
@@ -43,6 +44,7 @@ export function crawlPitch(
     body,
     MEASURED,
   );
+  let source: resolveHumanPosture.IPrepared | undefined;
   const at: (degrees: number) => ReturnType<typeof poseBones> = (
     degrees: number,
   ): ReturnType<typeof poseBones> => {
@@ -51,18 +53,27 @@ export function crawlPitch(
       ...tilted,
       root: crawlFrame.rootFor(body, tilted, hips),
     };
-    return read(
-      resolveHumanPosture.seeded(
+    let pose: IAutoMoviePose;
+    if (source === undefined) {
+      source = resolveHumanPosture.prepare(
         body,
         posture,
+        resolution,
+        projection,
+      );
+      pose = source.pose;
+    } else {
+      pose = resolveHumanPosture.seeded(
+        body,
+        resolveHumanPosture.carried(source, posture),
         undefined,
         undefined,
         resolution,
         undefined,
         projection,
-      ).pose,
-      resolution(),
-    );
+      ).pose;
+    }
+    return read(pose, resolution());
   };
   const pitch: number = crawlFrame.pitched((degrees: number): boolean => {
     const bones: ReturnType<typeof poseBones> = at(degrees);

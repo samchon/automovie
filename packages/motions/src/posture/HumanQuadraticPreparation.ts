@@ -187,7 +187,7 @@ const INITIALS: WeakMap<Float64Array[], IInitial> = new WeakMap();
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
  *
  * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
- * Builds or reuses proved original CSR/raw snapshots and stable factor/transpose positions, then scales fresh canonical numeric buffers; exact-zero curvature positions avoid unchanged zero work, and P/q norms accumulate at their producer in the original nonzero reduction order.
+ * Builds or reuses proved original CSR/raw snapshots and stable factor/transpose positions, then scales fresh canonical numeric buffers; exact-zero curvature positions avoid unchanged zero work, and P/q norms accumulate at their producer in original nonzero order, with an idempotent repeated diagonal maximum evaluated once.
  * Omits only coefficients equal to zero, retaining original CSR nonzero/duplicate order and empty-row offsets; factor-only positions may sort by column without changing any K-cell accumulation sequence, while transpose positions retain each rhs column's original sequence. No cutoff, merged cancellation or changed scaling constants is used.
  * Compression/snapshots take O(S+R+n*w), transpose positions O(n+Z+m), and unordered factor positions their helper's sorting cost, before ten O(K+Z+m) scaling passes, with K=n for diagonal P, stored positions for sparse P and full band for dense P. Space remains O(S+n*w+Z+n+m), including exact positions and input/final finite admission.
  * Runs on any changed P/q/A dependency; exact groups may share raw data or topology while all current scaling passes run. Final finite scans may share only an exactly equal finished P/A pair and its factor identity; q, D/E/c, inverses and q norms stay current and preserve their original exceptional behavior.
@@ -280,8 +280,6 @@ function create(
   const d: Float64Array = new Float64Array(n).fill(1);
   const e: Float64Array = new Float64Array(m).fill(1);
   let c: number = 1;
-  const limit: (v: number) => number = (v: number): number =>
-    v < MIN_SCALE ? 1 : Math.min(v, MAX_SCALE);
   // These buffers never enter a numeric core. The first fill/set of every
   // pass overwrites them completely, including after a failed preparation.
   const scaling: HumanQuadraticPreparation.IPrepared["scaling"] =
@@ -290,14 +288,16 @@ function create(
       : { dx: new Float64Array(n), curvature: new Float64Array(n) };
   const { dx, curvature }: HumanQuadraticPreparation.IPrepared["scaling"] = scaling;
   for (let pass: number = 0; pass < SCALING; ++pass) {
-    // Infinity norms of the KKT columns determine the variable and row scales.
+    // Infinity norms of the KKT columns determine variable and row scales.
+    // A diagonal has one column target; its symmetric repeated max is idempotent.
     curvature.fill(0);
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
+      curvature[i] = Math.max(curvature[i]!, Math.abs(row[0]!));
       const first: number = pPattern?.start[i] ?? 0;
       const end: number = diagonal ? 1 : pPattern === undefined
         ? row.length : pPattern.start[i + 1]! - first;
-      for (let a: number = 0; a < end; ++a) {
+      for (let a: number = 1; a < end; ++a) {
         const j: number = pPattern?.offsets[first + a] ?? a;
         const v: number = Math.abs(row[j]!);
         curvature[i] = Math.max(curvature[i]!, v);
@@ -320,9 +320,9 @@ function create(
           dx[cols[a]!] = Math.max(dx[cols[a]!]!, v);
         }
       }
-      dr[r] = 1 / Math.sqrt(limit(row));
+      dr[r] = inverseScale(row);
     }
-    for (let i: number = 0; i < n; ++i) dx[i] = 1 / Math.sqrt(limit(dx[i]!));
+    for (let i: number = 0; i < n; ++i) dx[i] = inverseScale(dx[i]!);
 
     // The cost reads these transformed entries; reduce them at their producer.
     curvature.fill(0);
@@ -330,10 +330,13 @@ function create(
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
       const scale: number = dx[i]!;
+      const value: number = row[0]! * scale * dx[i]!;
+      row[0] = value;
+      curvature[i] = Math.max(curvature[i]!, Math.abs(value));
       const first: number = pPattern?.start[i] ?? 0;
       const end: number = diagonal ? 1 : pPattern === undefined
         ? row.length : pPattern.start[i + 1]! - first;
-      for (let a: number = 0; a < end; ++a) {
+      for (let a: number = 1; a < end; ++a) {
         const j: number = pPattern?.offsets[first + a] ?? a;
         const coefficient: number = row[j]! * scale * dx[i + j]!;
         row[j] = coefficient;
@@ -362,7 +365,8 @@ function create(
     let mean: number = 0;
     for (let i: number = 0; i < n; ++i) mean += curvature[i]!;
     mean /= Math.max(1, n);
-    const gamma: number = 1 / limit(Math.max(mean, linear));
+    const norm: number = Math.max(mean, linear);
+    const gamma: number = norm < MIN_SCALE ? 1 : 1 / Math.min(norm, MAX_SCALE);
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
       const first: number = pPattern?.start[i] ?? 0;
@@ -446,6 +450,21 @@ function finite(
     same = false;
   }
   return same;
+}
+
+/**
+ * Return the original reciprocal square root of a bounded Ruiz norm.
+ *
+ * Uses the existing minimum/maximum scale rule; norms below MIN_SCALE and exactly one both produce exactly one in the original formula.
+ * Owns the identical column/row norm transformation for all ten preparation passes; cost equilibration retains its separate reciprocal norm.
+ * Folds only exact unit results, with no approximate comparison or changed threshold; all other values use the original min, square root and division association, including nonfinite propagation.
+ * Takes O(1) time/space and avoids square root/division for exact unit-scale rows/columns, including unchanged unit trust rows.
+ * Reuses the generic norm transformation as one private function, retaining no numeric input or cached result.
+ * Allocates and retains nothing; the current scaling pass owns the returned dimensionless factor.
+ * States the unchanged rule, exact unit cases, arithmetic order and ownership.
+ */
+function inverseScale(norm: number): number {
+  return norm < MIN_SCALE || norm === 1 ? 1 : 1 / Math.sqrt(Math.min(norm, MAX_SCALE));
 }
 
 /** Passes of the Ruiz equilibration (OSQP's default). */

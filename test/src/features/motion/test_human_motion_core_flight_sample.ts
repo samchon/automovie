@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanLimbFitFrame,
   HumanPerformance,
   type HumanSegment,
   type IHumanBody,
@@ -62,8 +63,13 @@ import { qunit } from "../internal/qunit";
  *    a separately labeled stand-only public-context control observes the
  *    original jump parameters' raw and resolved takeoff boundary. It cannot
  *    change acceptance or stand in for the failed instance's actual context.
+ * 6. Public per-body limb-memory snapshots and deltas bracket planning,
+ *    original observations, repeated reads and the later diagnostic. Reads
+ *    occur outside all timed sections; misses mean memory misses, not inner
+ *    IK targets, primitive queries or projector calls. The final control is
+ *    excluded from these original-performance counts.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the unchanged real fixture, physical bounds, observed frame, singularity precondition and separate timing phases.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the unchanged fixture/physical bounds, observed frame, singularity precondition, timing phases and public memory snapshot/delta scopes with explicit limits on their meaning.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the actual public turned performance and reads canonical displayed bones/root and mass-model momentum; ignored rotation, invalid FK, drift, excessive impulse or refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations A requested turn winds 2 pi; projecting the actual long axis in the takeoff frame gives its angle. Undoing that somersault and tilt from the actual lateral axis yields twist. Conservation and the existing impulse ceiling provide momentum expectations without the solver's residual.
  * @evidence contracts/development/testing.md#distinguishing-cases One existing feasible layout case, a full cycle rather than its identity endpoint, distinct-time versus repeated reads, finite/unit poses and zero-safe relative momentum comparison. It makes no claim about every motion or crowd playback.
@@ -76,12 +82,14 @@ export function test_human_motion_core_flight_sample(): void {
   const body: IHumanBody = { ...motionHumanBody("m-average") };
   const bodyMs: number = performance.now() - bodyStart;
   const bodyCpuUs: NodeJS.CpuUsage = process.cpuUsage(bodyCpuStart);
+  const memoryStart: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
   console.log(
     JSON.stringify({
       sample: "canonical-human-flight",
       phase: "planning-start",
       bodyMs,
       bodyCpuUs,
+      limbFitMemory: { snapshot: memoryStart },
     }),
   );
   const planningCpuStart: NodeJS.CpuUsage = process.cpuUsage();
@@ -123,6 +131,7 @@ export function test_human_motion_core_flight_sample(): void {
       sample: "canonical-human-flight", phase: "planning-failed",
       planningMs: performance.now() - planningStart,
       planningCpuUs: process.cpuUsage(planningCpuStart),
+      limbFitMemory: memorySince(body, memoryStart),
       error: error instanceof Error ? error.message : String(error),
     }));
     boundary();
@@ -130,12 +139,14 @@ export function test_human_motion_core_flight_sample(): void {
   }
   const planningMs: number = performance.now() - planningStart;
   const planningCpuUs: NodeJS.CpuUsage = process.cpuUsage(planningCpuStart);
+  const planningMemory: ReturnType<typeof memorySince> = memorySince(body, memoryStart);
   console.log(
     JSON.stringify({
       sample: "canonical-human-flight",
       phase: "planned",
       planningMs,
       planningCpuUs,
+      limbFitMemory: planningMemory,
     }),
   );
   const segment: HumanSegment.ISegment = film.segments("a")[1]!;
@@ -153,6 +164,7 @@ export function test_human_motion_core_flight_sample(): void {
     "a finite flight interval contains the landing observation",
     Number.isFinite(from) && Number.isFinite(to) && to - from > 2e-6,
   );
+  const observationMemoryStart: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
   const observationCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const observationStart: number = performance.now();
   const firstCpuStart: NodeJS.CpuUsage = process.cpuUsage();
@@ -323,16 +335,19 @@ export function test_human_motion_core_flight_sample(): void {
   const observationMs: number = performance.now() - observationStart;
   const observationCpuUs: NodeJS.CpuUsage =
     process.cpuUsage(observationCpuStart);
+  const observationMemory: ReturnType<typeof memorySince> = memorySince(body, observationMemoryStart);
   const repeatedCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const repeatedStart: number = performance.now();
   for (const seconds of times) film.bones("a", seconds);
   const repeatedMs: number = performance.now() - repeatedStart;
   const repeatedCpuUs: NodeJS.CpuUsage = process.cpuUsage(repeatedCpuStart);
+  const repeatedMemory: ReturnType<typeof memorySince> = memorySince(body, observationMemory.snapshot);
   const diagnosticStart: number = performance.now();
   const diagnosticCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const diagnostic: ReturnType<typeof motionHumanFlightDiagnostic> = motionHumanFlightDiagnostic({ body, film, input, segment, model, from, to, delta, observations });
   const diagnosticMs: number = performance.now() - diagnosticStart;
   const diagnosticCpuUs: NodeJS.CpuUsage = process.cpuUsage(diagnosticCpuStart);
+  const diagnosticMemory: ReturnType<typeof memorySince> = memorySince(body, repeatedMemory.snapshot);
   complaints.push(...diagnostic.problems);
   console.log(
     JSON.stringify({
@@ -356,6 +371,11 @@ export function test_human_motion_core_flight_sample(): void {
       captureMs,
       diagnosticMs,
       diagnosticCpuUs,
+      limbFitMemory: {
+        beforePlanning: memoryStart, planning: planningMemory,
+        beforeObservation: observationMemoryStart, observation: observationMemory,
+        repeated: repeatedMemory, diagnostic: diagnosticMemory,
+      },
       from,
       to,
       delta,
@@ -369,4 +389,13 @@ export function test_human_motion_core_flight_sample(): void {
   );
   boundary();
   TestValidator.equals("one actual turned Human flight", complaints, []);
+}
+
+/** Copy actual public counters once after a stopped timing window, without counting inner work. */
+function memorySince(body: IHumanBody, before: HumanLimbFitFrame.IStatistics): {
+  snapshot: HumanLimbFitFrame.IStatistics;
+  delta: HumanLimbFitFrame.IStatistics;
+} {
+  const snapshot: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+  return { snapshot, delta: { hits: snapshot.hits - before.hits, misses: snapshot.misses - before.misses } };
 }

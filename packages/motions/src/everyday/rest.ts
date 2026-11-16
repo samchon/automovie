@@ -28,6 +28,8 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { handGoals } from "./handGoals";
 import { restGoals } from "./restGoals";
 
@@ -84,8 +86,8 @@ import { restGoals } from "./restGoals";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the places, ordered moving sides and each arm's entry angles once; each posture is the base, the moving arm goals and one carry per moving arm.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Per posture: one base posture, one fit per moving arm and its clearance in the carry; a rest without hand goals omits frame transforms and arm preparation, and nothing grows with the duration.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed goals, entry observations, moving-side order and finger-shape entries are prepared once per instance; every posture reads them while retaining fresh interpolated joint triples.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed goals, entry observations, side order and shape entries prepare once. Each actual posture forwards its local/borrowed FK workspace to the complete base and both sequential carries; the first interior carry acquires a genuine ROM projector when none is supplied, shared only across that call's actual fits. Output triples remain fresh.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed instance inputs until release; current FK getters and genuine ROM projectors end with synchronous return/throw and enter no returned posture or retained callback.
  */
 export namespace rest {
   /** The action's name. */
@@ -265,9 +267,12 @@ export namespace rest {
                 ),
             ),
           }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = base.posture(t);
+        const posture: IHumanPosture = base.posture(t, undefined, read, projection);
         if (sides.length === 0)
           return { ...posture, joints: { ...posture.joints } };
         const frame: HumanFrame.IFrame = {
@@ -314,14 +319,21 @@ export namespace rest {
           { ...posture, joints },
           requests,
         );
+        let project: Parameters<IHumanActionPlan["posture"]>[3] = projection;
         for (const [side, s] of shares)
-          if (begin[side] !== undefined)
+          if (begin[side] !== undefined) {
+            if (project === undefined && s > 0 && s < 1)
+              project = prepareHumanPostureProjection(body);
             placed = AutoMovieMotionHumanArm.carry(
               body,
               placed,
               { [side]: begin[side].angles },
               s,
+              undefined,
+              read,
+              project,
             );
+          }
         return placed;
       },
     };

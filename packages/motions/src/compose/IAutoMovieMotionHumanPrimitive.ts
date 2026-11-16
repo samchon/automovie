@@ -99,16 +99,14 @@ export interface IAutoMovieMotionHumanPrimitive {
 export namespace IAutoMovieMotionHumanPrimitive {
   /**
    * Read a prefix at action-local seconds. With `channels`, only those
-   * channels are valid for inspection; omitted channels request them all.
+   * channels are valid; omitted channels request them all. Optional FK/ROM
+   * arguments borrow genuine same-body metadata only for this synchronous query.
    * The returned posture is borrowed and must not be mutated.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States action-local seconds, optional channel demand and borrowed partial result ownership.
-   * @evidence contracts/development/design.md#principled-representation A pure prefix reader accepts seconds and the existing owned posture channels; only requested values may be inspected.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both primitive preparation and writing use this same optional-demand callback.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omission preserves a complete posture read; channel selection does not introduce a second posture representation.
+   * @evidence contracts/development/common.md#meaningful-documentation States action-local seconds, optional channel demand, synchronous FK/ROM loans and borrowed partial result ownership.
+   * @evidence contracts/development/design.md#principled-representation The plan-owned posture signature describes the same seconds/channel/metadata inputs of a prefix observation; only demanded values may be inspected.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Both preparation and writing reuse IHumanActionPlan.posture's existing signature, with no parallel metadata or posture record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omission preserves complete reads and current query loans; explicit changed loans receive a separate query scope rather than certifying another context's result.
    */
-  export type Reader = (
-    seconds: number,
-    channels?: readonly AutoMovieMotionHumanChannel[],
-  ) => IHumanPosture;
+  export type Reader = IHumanActionPlan["posture"];
 }

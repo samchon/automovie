@@ -36,6 +36,8 @@ import { nclose } from "../internal/nclose";
  *    nested10-degree query, including a throwing one, cannot replace its
  *    outer5-degree source. A reader retained after both calls sees the
  *    ordinary15-degree input without either expired projection loan.
+ *    An explicit10-degree loan on an already-read prefix/time uses a fresh
+ *    scope, then restores the default5-degree outer source and its cache.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States analytic channel arithmetic, dependency/active-window semantics, dynamic reads, genuine ROM-source forwarding and success/throw/retained-reader scope lifetimes in five scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Composes actual public primitives and requests selected channels. Owned callback counters distinguish inactive from transitively required writers while hand-derived fields detect false skipped answers; nested and throwing public evaluations check restoration and subsequent recovery.
@@ -243,6 +245,15 @@ export function test_motion_prepared_composition_contracts(): void {
         finally { level--; }
       } else if (innerThrows) throw sentinel;
       retained = before;
+      if (level === 0) {
+        const initial: IHumanPosture = before!(0.25, ["head"]);
+        const explicit: IHumanPosture = before!(0.25, ["head"], undefined, ten);
+        const restored: IHumanPosture = before!(0.375, ["head"]);
+        TestValidator.predicate("an explicit prefix projector isolates the same cached time and restores its enclosing loan",
+          nclose(initial.joints.head![0], 5, 0) && nclose(explicit.joints.head![0], 10, 0) &&
+          nclose(restored.joints.head![0], 5, 0),
+        );
+      }
       const prefix: IHumanPosture = before!(0.25, ["head"]);
       return { ...under, joints: { ...under.joints,
         head: [under.joints.head![0] + prefix.joints.head![0], 0, 0] } };

@@ -34,8 +34,10 @@ import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
  * diag(ρ) A` (the paper's indirect form), factored by a banded Cholesky
  * factorisation (`HumanQuadraticBand`). A warm start carries the iterates of
  * a solve of the same rows with other bounds. `HumanQuadraticPreparation`
- * shares copied numeric preparation and its initial factor only after exact
- * P, q and ordered nonzero A comparisons. prepare additionally snapshots
+ * shares complete numeric preparation only after exact P, q and ordered
+ * nonzero A comparisons. Exactly equal finished scaled P/A pairs can share
+ * their initial factor independently of the current q and unit scales.
+ * prepare additionally snapshots
  * a fixed convexification for bound-only retries and bounded exact factor
  * and scratch reuse; each solve computes its own iterates and resets rho.
  * Costs use w=band+1, S supplied curvature entries, Z stored row entries
@@ -43,7 +45,7 @@ import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the convex objective, hard and soft rows, OSQP stages, band representation, warm iterates and exact numeric preparation sharing.
  * @evidence contracts/development/design.md#principled-representation Groups the convex program, ordered sparse rows and unscaled primal-dual state; their interfaces state numeric and dimensional premises while runtime admission checks finite structure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the existing solver, objective and keyed multipliers used by motion planners; preparation and banded algebra remain internal modules.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the solver, fixed-matrix preparation, objective and keyed multipliers used by motion planners; matrix admission and banded algebra remain internal modules.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the generic numeric program independent of bodies and action names; positive semidefinite curvature remains an explicit caller premise rather than a validated type guarantee.
  */
 export namespace HumanQuadraticProgram {
@@ -180,8 +182,8 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns admitted numeric equivalence, Band owns linear algebra, and the shared HumanQuadraticSolve owns independent iterates, prox steps, termination and unscaling for this one-shot entry and prepared models.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves existing rho, sigma, relaxation, iteration and residual parameters. Nonfinite operands restore original zero terms instead of concealing IEEE-754 failures or rejecting truly empty rows; admitted inputs remain unchanged during the synchronous solve, and Band documents the unchanged diagonal guard.
    * @evidence contracts/development/implementation.md#efficient-algorithms Finite ADMM iterations take O(n*w+Z+m), with at most 4000 iterations; exceptional products may revisit R original row entries. Preparation scans original storage, while initial factors, adaptive refactors and polishing have their documented S-aware costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares exactly matched preparation/initial factor; each ADMM product feeds its prox, consumed rhs/xt/before supply scratch and rho changes recompute soft thresholds. Accepted private polish iterates transfer without copying, and each unscale producer supplies its same finite-result check before the original final rejection phase.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Selected ADMM or accepted-polish iterates transfer independently of scratch/warm/cache data after unscaling. Thresholds, borrowed raw rows and at most R restored exceptional coefficients release with this solve; rejected polish data release too. Preparation separately retains one numeric core/initial factor per live curvature array, never original row loans.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares exactly matched full preparation or finished scaled P/A factor dependencies. Original-order topology positions serve current rhs contributions, each row product feeds its prox, consumed rhs/xt/before supply scratch and rho changes recompute thresholds/products. Accepted polish iterates transfer without copying; each unscale producer checks its final value before the original rejection phase.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Selected ADMM or accepted-polish iterates transfer independently of scratch/warm/cache data after unscaling. Thresholds, borrowed raw rows and at most R restored exceptional coefficients release with this solve, as do rejected polish data. Preparation retains one numeric core per live source curvature array and one initial factor per live immutable scaled P/A pair, never original row loans.
    * @evidence contracts/development/common.md#meaningful-documentation Describes all OSQP stages, warm and keyed-dual inputs, convergence limits, rejection conditions, mutable output ownership and the preparation lifetime.
    */
   export function solve(

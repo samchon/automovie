@@ -247,8 +247,10 @@ export namespace walkSteps {
     const lead: "left" | "right" =
       along("left") < along("right") - 1e-6 ? "left" : "right";
     const half: number = 0.05 * l;
-    const rest: (side: "left" | "right") => number = (side: "left" | "right"): number =>
-      Math.abs(body.rest.get(`${side}Foot`)!.x);
+    const restWidth: Record<"left" | "right", number> = {
+      left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
+    };
+    const rest: (side: "left" | "right") => number = (side: "left" | "right"): number => restWidth[side];
     const T: number = pace.period;
     const swing: number = pace.swing;
     const first: number = WalkPace.FIRST;
@@ -298,11 +300,9 @@ export namespace walkSteps {
         const d: number = place(i + 1);
         if (facing !== undefined)
           return i >= n - 1 ? ending : faced$(path.at(d));
-        return i >= n - 1
-          ? ending
-          : i >= n - 3
-            ? along$(d) + ((ending - along$(d)) * (i - n + 4)) / 3
-            : along$(d);
+        if (i >= n - 1) return ending;
+        const along: number = along$(d);
+        return i >= n - 3 ? along + ((ending - along) * (i - n + 4)) / 3 : along;
       },
     );
     const towards: number[] =
@@ -326,11 +326,13 @@ export namespace walkSteps {
         j % 2 === 1 ? lead : lead === "left" ? "right" : "left";
       const heelStrike: number = first + swing + (j - 1) * T;
       const toeOut: number = side === "left" ? stand.TOE_OUT : -stand.TOE_OUT;
+      const distance: number = place(j);
+      const along: number = facing === undefined ? 0 : along$(distance);
       // Going aside, the feet keep their rest separation and never cross.
       const aside: number =
         facing === undefined
           ? 0
-          : Math.sin(((along$(place(j)) - towardAt(j)) * Math.PI) / 180) ** 2;
+          : Math.sin(((along - towardAt(j)) * Math.PI) / 180) ** 2;
       const lateral: number =
         (side === "left" ? 1 : -1) *
         (j >= n || j <= turning
@@ -338,7 +340,7 @@ export namespace walkSteps {
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
       const point: IAutoMovieVector3 = HumanFrame.point(
-        { origin: path.at(place(j)), yaw: toward },
+        { origin: path.at(distance), yaw: toward },
         { x: lateral, y: m.ankleHeight, z: 0 },
       );
       // A footprint the pelvis leaves behind leans its leg no further than
@@ -377,7 +379,7 @@ export namespace walkSteps {
         push: -walkStepFoot.PUSH,
         // Going more than 120 degrees from its facing, a foot steps backward.
         ...(facing !== undefined &&
-        Math.cos(((along$(place(j)) - toward) * Math.PI) / 180) < -0.5
+        Math.cos(((along - toward) * Math.PI) / 180) < -0.5
           ? { backward: true }
           : {}),
       });

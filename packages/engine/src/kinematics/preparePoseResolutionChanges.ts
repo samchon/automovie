@@ -15,7 +15,7 @@ import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
  * @evidence contracts/development/implementation.md#principled-implementation begin separates query membership, write records actual successful authored conversions in order and complete compares final selected quaternions with the last completed selection. A changed node affects precisely its contiguous DFS subtree; sorted overlapping intervals are applied once. read supplies that completed selection and revision supplies the latest actual affecting change.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns articulation membership and descendant invalidation only. preparePoseResolutionState owns numerical admission and FK, while prepareSkeletonPoseResolution owns actual rooted traversal. No parallel quaternion or hierarchy solver is introduced.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller boolean, pose identity, tolerance, target or sampled answer establishes validity. Every record reaches admission before write, including duplicates and stray names; final equality includes signed zero and absent edits restore the genuine baseline.
- * @evidence contracts/development/implementation.md#efficient-algorithms Per query, admitted reachable records write in constant time. Completion compares current and formerly active names, sorts C actual changes in O(C log C), then revises A affected descendants once in O(A). Unchanged queries revise none; FK can check each requested frame's revision directly instead of walking unchanged ancestors. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Admitted records write in constant time. Completion compares current/former membership, allocates changed indices only on an actual change and sorts only when C exceeds one, O(C log C), then revises A affected descendants once. Unchanged queries allocate no changed list and revise none; requested FK can bypass unchanged ancestors. Runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Static subtree intervals belong to the actual immutable rig. Actual private immutable quaternion identity or exact component equality and complete current membership determine equivalence; duplicate intermediate records never create false final changes. A previous incomplete or failed authored scan cannot become a completed selection, and baseline replacement requires a new workspace.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure owns O(B) current/previous membership, final quaternions and revisions, plus a temporary O(C) changed-index array. It retains only genuine static nodes, immutable baseline/identity operands and current private values, never raw poses, edits, outputs or history; all release with the operation reader.
  */
@@ -43,15 +43,18 @@ export function preparePoseResolutionChanges(
       authored[index] = rotation;
     },
     complete: (): void => {
-      const changed: number[] = [];
-      for (const index of current) select(index, authored[index]!, changed);
+      let changed: number[] | undefined;
+      for (const index of current)
+        if (select(index, authored[index]!)) (changed ??= []).push(index);
       for (const index of active)
-        if (epochs[index] !== generation)
-          select(index, baseline?.[index] ?? identity, changed);
+        if (epochs[index] !== generation && select(index, baseline?.[index] ?? identity))
+          (changed ??= []).push(index);
       const previous: number[] = active;
       active = current;
       current = previous;
-      changed.sort((left: number, right: number): number => left - right);
+      if (changed === undefined) return;
+      if (changed.length > 1)
+        changed.sort((left: number, right: number): number => left - right);
       let covered: number = 0;
       for (const index of changed) {
         if (index < covered) continue;
@@ -66,11 +69,11 @@ export function preparePoseResolutionChanges(
   };
 
   /** Compare only completed final selections, after every authored record admitted. */
-  function select(index: number, rotation: IAutoMovieQuaternion, changed: number[]): void {
+  function select(index: number, rotation: IAutoMovieQuaternion): boolean {
     const previous: IAutoMovieQuaternion = selected[index] ?? baseline?.[index] ?? identity;
-    if (PoseResolutionSnapshot.sameQuaternion(previous, rotation)) return;
+    if (PoseResolutionSnapshot.sameQuaternion(previous, rotation)) return false;
     selected[index] = rotation;
-    changed.push(index);
+    return true;
   }
 }
 
