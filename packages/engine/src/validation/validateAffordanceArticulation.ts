@@ -1,14 +1,14 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
+import { AffordanceArticulation } from "./AffordanceArticulation";
 import { ViolationCollector } from "./ViolationCollector";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
 import { affordanceTravelRange } from "./affordanceTravelRange";
 
 /** The kinds whose travel moves parts and riding affordances. */
-const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set<
-  IAutoMovieAffordance["kind"]
->(["hinge", "slider", "knob", "button", "trigger", "crank", "wheel", "pedal"]);
+const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
+  AffordanceArticulation.KINDS;
 
 /**
  * Admit a model's articulation references: every `parts` id names a part of the model, sits on an articulation kind and is claimed once; every `rides` and every `follows` chain is independently acyclic; and each coupling names another articulation, gives one finite ratio or a table spanning its leader's range, stays within its follower's range, and is one-to-one when marked reversible.

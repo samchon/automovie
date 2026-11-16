@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AffordanceArticulation, Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -14,20 +14,22 @@ import type { IHumanProp } from "./IHumanProp";
 /**
  * The state of the props' articulations over the film: what the acts drive
  * (`IHumanActionPlan.drives`) and what the props run themselves
- * (`IHumanProp.tracks`), as one travel per articulation at each second, and
+ * (`IHumanProp.tracks`), as one input per coupled degree at each second, and
  * a prop's contacts posed at that state.
  *
- * At a second, an articulation's travel is set by the latest drive or track
+ * At a second, a coupled degree of freedom is set by the latest drive or track
  * that has begun: inside its window it gives its own travel, after the window
  * its last travel holds, as a released prop stays where it was released; one
- * nothing has begun to move stays at rest. Two drives of one articulation
+ * nothing has begun to move stays at rest. Its state keeps that writer's own
+ * coordinate, replacing an earlier writer of another coordinate of the same
+ * degree. Two drives of one independent degree of freedom
  * that overlap in time are refused, naming both actions, because no rule
  * says which hand wins. This is the smart-object coupling of Kallmann and
  * Thalmann (1999, Modeling Objects for Interaction Tasks): the object
  * declares how it moves, the act drives it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what sets a travel, what holds after a drive, what is refused and the pattern's source.
- * @evidence contracts/development/design.md#principled-representation One list of timed writers per articulation, read by second; a pose of the prop is its own `articulate` at that state.
+ * @evidence contracts/development/design.md#principled-representation Timed writers name their authored coordinate and its independent degree of freedom; the latest begun writer of each degree supplies one input to the prop's own articulate function.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The state, the posed point, the admission and the writers' list.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A drive never moves the prop's frame; the travel is the act's own function.
  */
@@ -36,6 +38,9 @@ export namespace HumanPerformanceObject {
   export interface IWriter {
     /** The articulation affordance. */
     articulation: string;
+
+    /** The independent degree of freedom this coordinate addresses. */
+    leader: string;
 
     /** Film second it begins. */
     from: number;
@@ -51,9 +56,10 @@ export namespace HumanPerformanceObject {
   }
 
   /**
-   * Every writer of a prop's articulations in film order: each placed action's
-   * drives, clipped to its active span, and the prop's own tracks from their
-   * instants. Kept once the performance is placed.
+   * Every writer of a prop's articulations in film order, with its independent
+   * degree resolved once: each placed action's drives, clipped to its active
+   * span, and the prop's own tracks from their instants. Kept only after all
+   * actions and their final clipped ends have been placed.
    *
    * @param self The performance.
    * @param prop The prop.
@@ -68,6 +74,9 @@ export namespace HumanPerformanceObject {
     );
     if (known !== undefined) return known;
     const out: IWriter[] = [];
+    const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
+      (prop.affordances ?? []).map((a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a]),
+    );
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
         for (const drive of segment.plan.drives ?? []) {
@@ -85,6 +94,7 @@ export namespace HumanPerformanceObject {
           const own: IHumanActionPlan.IDrive = drive;
           out.push({
             articulation: own.articulation,
+            leader: AffordanceArticulation.leader(byId, own.articulation) ?? own.articulation,
             from,
             to,
             travel: (seconds: number): number =>
@@ -96,6 +106,7 @@ export namespace HumanPerformanceObject {
       const from: number = HumanPerformanceLayers.instant(self, track.start);
       out.push({
         articulation: track.articulation,
+        leader: AffordanceArticulation.leader(byId, track.articulation) ?? track.articulation,
         from,
         to: from + (track.duration ?? Infinity),
         travel: (seconds: number): number => track.travel(seconds - from),
@@ -112,8 +123,9 @@ export namespace HumanPerformanceObject {
   }
 
   /**
-   * The travel of every articulation of a prop that something has moved by
-   * a film second; an articulation absent from the record is at rest.
+   * One input per coupled degree of freedom moved by a film second, in its
+   * latest writer's coordinate. A new writer replaces the old coordinate;
+   * after its end its last travel holds. Other degrees start at rest.
    *
    * @param self The performance.
    * @param prop The prop.
@@ -126,10 +138,13 @@ export namespace HumanPerformanceObject {
     seconds: number,
   ): Record<string, number> {
     const out: Record<string, number> = {};
+    const latest: Map<string, IWriter> = new Map();
     for (const w of writers(self, prop)) {
       if (w.from > seconds) break;
-      out[w.articulation] = w.travel(Math.min(seconds, w.to));
+      latest.set(w.leader, w);
     }
+    for (const w of latest.values())
+      out[w.articulation] = w.travel(Math.min(seconds, w.to));
     return out;
   }
 
@@ -199,8 +214,8 @@ export namespace HumanPerformanceObject {
   }
 
   /**
-   * Admit the placed performance's drives: two drives of one articulation of
-   * one prop that overlap in time are refused, naming both actions, and a
+   * Admit the placed performance's drives: two drives of one independent degree
+   * of freedom of one prop that overlap in time are refused, naming both actions, and a
    * drive whose travel leaves its articulation's range is refused where the
    * prop poses it, with the action and the second.
    *
@@ -217,13 +232,13 @@ export namespace HumanPerformanceObject {
         for (let j: number = i + 1; j < driven.length; j++) {
           const a: IWriter = driven[i]!;
           const b: IWriter = driven[j]!;
-          if (a.articulation !== b.articulation || b.from >= a.to) continue;
+          if (a.leader !== b.leader || b.from >= a.to) continue;
           throw new HumanRefusal({
             kind: "cut",
             performer: b.source!.subject,
             act: b.source!.name,
             axis: "drives",
-            value: `${prop.subject}.${a.articulation}`,
+            value: `${prop.subject}.${a.leader}`,
             feasible: {
               kind: "range",
               minimum: Math.ceil(a.to * 1000) / 1000,

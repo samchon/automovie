@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieAffordanceKind,
   AutoMovieMotionTarget,
@@ -24,7 +24,8 @@ import type { operate } from "./operate";
  * however far up its chain (a door's lever on its latch on its hinge, a
  * drawer's pull on its slider, `IAutoMovieAffordance.rides`). The
  * stroke moves that articulation from where the performance has it at the
- * operation's start by the mechanism's amount, in the articulation's own
+ * operation's start by the mechanism's amount, converting a prior writer's
+ * coordinate of that degree through the engine's articulation map, in the articulation's own
  * unit and sign: degrees for a hinge's swing or a knob's turn, metres for a
  * slider's or a button's travel. The hand's goal at a progress is the
  * contact of the prop posed at that travel, so the hand cannot drift from
@@ -159,21 +160,34 @@ export namespace operateDrive {
     // one of the mechanism's kinds up the chain it rides, so a door's lever
     // on its latch on its hinge swings the hinge and turns the latch.
     const kinds: ReadonlySet<AutoMovieAffordanceKind> = KINDS[kind];
-    const of = (id: string): IAutoMovieAffordance | undefined =>
-      (held.prop.affordances ?? []).find(
-        (a: IAutoMovieAffordance): boolean => a.id === id,
-      );
+    const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
+      (held.prop.affordances ?? []).map((a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a]),
+    );
     let link: IAutoMovieAffordance | undefined = contact;
     const seen: Set<string> = new Set();
     while (link !== undefined && !kinds.has(link.kind) && !seen.has(link.id)) {
       seen.add(link.id);
-      link = link.rides === undefined ? undefined : of(link.rides);
+      link = link.rides === undefined ? undefined : byId.get(link.rides);
     }
     if (link === undefined || !kinds.has(link.kind)) return undefined;
     const articulation: string = link.id;
     const before: Readonly<Record<string, number>> =
       held.state?.(context.start) ?? {};
-    const base: number = before[articulation] ?? 0;
+    const base: number | null = AffordanceArticulation.travel(byId, before, articulation);
+    if (base === null)
+      throw new HumanRefusal({
+        kind: "parameter", axis: "mechanism", value: articulation,
+        reason: `the current state of "${at.subject}" does not determine a valid travel of "${articulation}"`,
+        fix: "give one valid input per coupled degree of freedom in the prop's current state",
+      });
+    const degree: string = AffordanceArticulation.leader(byId, articulation) ?? articulation;
+
+    // A prior writer may name a reversible follower of this same degree.
+    // Keep other degrees, replacing this one in the operation's coordinate.
+    const other: Readonly<Record<string, number>> = Object.fromEntries(
+      Object.entries(before).filter(([id]: [string, number]): boolean =>
+        (AffordanceArticulation.leader(byId, id) ?? id) !== degree),
+    );
     const frame: IHumanProp.IFrame = held.frame(context.start);
 
     // A hinge's own line, read off the prop posed where the stroke starts.
@@ -222,7 +236,7 @@ export namespace operateDrive {
         const shown: IHumanProp.IFrame =
           seconds === undefined ? frame : held.frame(seconds);
         const posed: IHumanProp.IPosed = articulate({
-          ...before,
+          ...other,
           [articulation]: base + amount * progress,
         });
         const moved: IAutoMovieAffordance = posed.affordances.find(

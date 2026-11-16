@@ -1,3 +1,4 @@
+export * from "./AffordanceArticulation";
 export * from "./AutoMovieTextureMediaType";
 export * from "./IAutoMovieBalanceSupportWindow";
 export * from "./IAutoMovieBodyCollisionResult";

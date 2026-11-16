@@ -1,4 +1,5 @@
 import {
+  AffordanceArticulation,
   Vector3,
   affordanceFollowedTravel,
   affordanceTravelRange,
@@ -29,18 +30,8 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  */
 export namespace ArchetypeArticulation {
   /** The kinds whose travel moves parts and carried affordances. */
-  export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set<
-    IAutoMovieAffordance["kind"]
-  >([
-    "hinge",
-    "slider",
-    "knob",
-    "button",
-    "trigger",
-    "crank",
-    "wheel",
-    "pedal",
-  ]);
+  export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> =
+    AffordanceArticulation.KINDS;
 
   /**
    * A model's moving data: its parts and its affordances, both in the model's space.

@@ -149,10 +149,11 @@ export class HumanPerformance {
   }
 
   /**
-   * The travel of every articulation of a prop that an act or the prop's own
-   * track has moved by a film second (`HumanPerformanceObject.state`): the
-   * latest drive or track begun sets it, and after it ends its last travel
-   * holds. An articulation absent from the record is at rest.
+   * One input per coupled degree of freedom a prop's acts or tracks have
+   * moved by a film second (`HumanPerformanceObject.state`), in the latest
+   * begun writer's coordinate. A later writer of another coordinate of the
+   * same degree replaces the old one; after its end its last travel holds.
+   * A degree absent from the record starts at its leader's zero.
    *
    * @param subject The prop.
    * @param seconds Film seconds.
