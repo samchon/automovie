@@ -13,9 +13,58 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * `AutoMovieHumanF1.create()` alone, the reference mesh is loaded only to be
  * drawn in the neighbouring frame under the same camera, light and material.
  */
-namespace FamilyConicFigure {
+export namespace FamilyConicFigure {
+  /**
+   * The close frames' zones that need no reference joint, in the order the figure's run draws them, metres: each a predicate on the
+   * reference's points, whose inside points frame the zone's camera (`NodeCanvasCamera.fit`). Another tool that draws its own figure under
+   * the same cameras reads them here (`FamilyConicTrunkLaw`'s whole-figure cases), so its frames stand beside this run's.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each entry is (a zone's name and its predicate on reference points in metres), the order and the reader that shares them.
+   * @evidence contracts/development/implementation.md#principled-implementation Each predicate is the box or slab the zone's close frames were drawn from, unchanged from the run's own list; a camera fitted to the same points draws the same frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One list serves this run and its readers, so a zone exists once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No zone is reshaped for a reader; the joint-framed zones stay in the run, which has the reference's joints.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each predicate is a constant number of comparisons per point.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The list is built once at load and read by every caller.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The list holds only its closures, which capture nothing.
+   */
+  export const ZONES: readonly [string, (p: N.Point) => boolean][] = [
+    ["head", (p: N.Point): boolean => p[1] > 1.45],
+    ["hand", (p: N.Point): boolean => p[2] > 0.38 && p[1] > 0.84 && p[1] < 1.04],
+    ["foot", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.13],
+    ["shoulder", (p: N.Point): boolean => p[2] > 0.06 && p[1] > 1.2 && p[1] < 1.45],
+    ["shoulder.twin", (p: N.Point): boolean => p[2] < -0.06 && p[1] > 1.2 && p[1] < 1.45],
+    ["ear", (p: N.Point): boolean => p[2] > 0.07 && p[1] > 1.535 && p[1] < 1.61 && p[0] > -0.02 && p[0] < 0.035],
+    ["neck", (p: N.Point): boolean => p[1] > 1.42 && p[1] < 1.53 && Math.abs(p[2]) < 0.09],
+    ["hip", (p: N.Point): boolean => p[1] > 0.72 && p[1] < 0.98 && Math.abs(p[2]) < 0.22],
+    ["chest", (p: N.Point): boolean => p[1] > 1.14 && p[1] < 1.42 && Math.abs(p[2]) < 0.2],
+    ["knee", (p: N.Point): boolean => p[2] > 0 && p[1] > 0.38 && p[1] < 0.6],
+    ["eyes", (p: N.Point): boolean => p[0] > 0.08 && p[1] > 1.565 && p[1] < 1.62 && Math.abs(p[2]) < 0.06],
+    ["mouth", (p: N.Point): boolean => p[0] > 0.09 && p[1] > 1.5 && p[1] < 1.55 && Math.abs(p[2]) < 0.035],
+    // The nose's base: its wings, the alar grooves and the nostrils, with a view from below, which the face's zones lack.
+    ["nose", (p: N.Point): boolean => p[0] > 0.105 && p[1] > 1.538 && p[1] < 1.568 && Math.abs(p[2]) < 0.024],
+    ["fold", (p: N.Point): boolean => p[1] > 1.19 && p[1] < 1.27 && p[2] > 0 && p[2] < 0.13 && p[0] > 0],
+    ["toes", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.05 && p[0] > 0.16],
+  ];
+
+  /**
+   * The views a zone's close frames take, by its name: the shoulders front, back, their own side and from above; the nose also from below;
+   * the armpit and the hand from five sides; the elbow from four; the hand's close zones from their own; every other zone front, left and
+   * from above.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each zone's views and the default.
+   * @evidence contracts/development/implementation.md#principled-implementation The same table the run's close frames take, so a reader's frames match its views.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table for this run and its readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown zone takes the default views rather than a guessed set.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A constant number of name comparisons.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Nothing is cached; each call returns a fresh list.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned list is the caller's.
+   */
+  export function views(zone: string): string[] {
+    return zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : zone === "nose" ? ["front", "left", "high-oblique", "low-oblique"] : zone === "armpit" || zone === "hand" ? ["front", "back", "left", "high-oblique", "low-oblique"] : zone === "elbow" ? ["front", "back", "left", "high-oblique"] : zone === "hand.web" ? ["front", "high-oblique", "left"] : zone === "hand.dorsum" ? ["left", "back", "high-oblique"] : zone === "hand.roots" ? ["left", "high-oblique", "low-oblique", "front"] : ["front", "left", "high-oblique"];
+  }
+
   /** Render the comparison frames and write their receipt. */
-  export async function main(): Promise<void> {
+  async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
     const out: string = path.join(root, "test/.shots/family-conic-figure", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
@@ -90,22 +139,7 @@ namespace FamilyConicFigure {
     };
     // Close frames: the same pair framed on the reference's points inside one zone of the figure, metres.
     const zones: [string, (p: N.Point) => boolean][] = [
-      ["head", (p: N.Point): boolean => p[1] > 1.45],
-      ["hand", (p: N.Point): boolean => p[2] > 0.38 && p[1] > 0.84 && p[1] < 1.04],
-      ["foot", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.13],
-      ["shoulder", (p: N.Point): boolean => p[2] > 0.06 && p[1] > 1.2 && p[1] < 1.45],
-      ["shoulder.twin", (p: N.Point): boolean => p[2] < -0.06 && p[1] > 1.2 && p[1] < 1.45],
-      ["ear", (p: N.Point): boolean => p[2] > 0.07 && p[1] > 1.535 && p[1] < 1.61 && p[0] > -0.02 && p[0] < 0.035],
-      ["neck", (p: N.Point): boolean => p[1] > 1.42 && p[1] < 1.53 && Math.abs(p[2]) < 0.09],
-      ["hip", (p: N.Point): boolean => p[1] > 0.72 && p[1] < 0.98 && Math.abs(p[2]) < 0.22],
-      ["chest", (p: N.Point): boolean => p[1] > 1.14 && p[1] < 1.42 && Math.abs(p[2]) < 0.2],
-      ["knee", (p: N.Point): boolean => p[2] > 0 && p[1] > 0.38 && p[1] < 0.6],
-      ["eyes", (p: N.Point): boolean => p[0] > 0.08 && p[1] > 1.565 && p[1] < 1.62 && Math.abs(p[2]) < 0.06],
-      ["mouth", (p: N.Point): boolean => p[0] > 0.09 && p[1] > 1.5 && p[1] < 1.55 && Math.abs(p[2]) < 0.035],
-      // The nose's base: its wings, the alar grooves and the nostrils, with a view from below, which the face's zones lack.
-      ["nose", (p: N.Point): boolean => p[0] > 0.105 && p[1] > 1.538 && p[1] < 1.568 && Math.abs(p[2]) < 0.024],
-      ["fold",(p: N.Point): boolean => p[1] > 1.19 && p[1] < 1.27 && p[2] > 0 && p[2] < 0.13 && p[0] > 0],
-      ["toes", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.05 && p[0] > 0.16],
+      ...ZONES,
       // The armpit, within 110 mm of the +Z shoulder joint, and the elbow, within 70 mm of the +Z elbow joint, with views from behind and
       // below, which the armscye's folds and the cubital fossa need.
       ["armpit", near("upperarm_l", 0.11)],
@@ -117,8 +151,6 @@ namespace FamilyConicFigure {
       ["hand.dorsum", between("middle_01_l", "ring_01_l", 0.045)],
       ["hand.roots", between("middle_01_l", "ring_01_l", 0.032)],
     ];
-    const views = (zone: string): string[] =>
-      zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : zone === "nose" ? ["front", "left", "high-oblique", "low-oblique"] : zone === "armpit" || zone === "hand" ? ["front", "back", "left", "high-oblique", "low-oblique"] : zone === "elbow" ? ["front", "back", "left", "high-oblique"] : zone === "hand.web" ? ["front", "high-oblique", "left"] : zone === "hand.dorsum" ? ["left", "back", "high-oblique"] : zone === "hand.roots" ? ["left", "high-oblique", "low-oblique", "front"] : ["front", "left", "high-oblique"];
     // `--zones=<zone,...>`: only those close frames.
     const only: string[] = (process.argv.find((arg: string): boolean => arg.startsWith("--zones="))?.slice("--zones=".length) ?? "").split(",").filter((name: string): boolean => name.length > 0);
     for (const [zone, inside] of zones) {
@@ -138,8 +170,11 @@ namespace FamilyConicFigure {
     await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify(receipt, null, 2));
     process.stdout.write(JSON.stringify({ out, generationMs: receipt.generationMs, pieces: pieces.length, faults }) + "\n");
   }
+
+  // Run only as its own entry: the trunk law imports its zones and views.
+  if (/FamilyConicFigure\.(c?js|ts)$/.test(process.argv[1] ?? ""))
+    void main().catch((error: unknown): void => {
+      process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
+      process.exitCode = 1;
+    });
 }
-void FamilyConicFigure.main().catch((error: unknown): void => {
-  process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
-  process.exitCode = 1;
-});

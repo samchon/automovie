@@ -64,7 +64,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  * Usage, from `test/`: `pnpm conic:build`, then `node .shots/esbuild/FamilyConicLimbLaw.cjs`. It writes `law.txt`, `law.json` and the
  * frames under `test/.shots/family-conic-limb-law/<time>/`.
  */
-namespace FamilyConicLimbLaw {
+export namespace FamilyConicLimbLaw {
   type V3 = [number, number, number];
   type Family = H.IFamily;
   type Chain = NonNullable<AutoMovieViewLoft.IResult["chain"]>;
@@ -289,10 +289,15 @@ namespace FamilyConicLimbLaw {
     return out;
   }
 
-  /** The person's fields for a limb: its segments' lengths as scales of f1's, and each site's depths as ratios to f1's. */
+  /**
+   * The person's fields for a limb: its segments' lengths as scales of f1's, each site's depths as ratios to f1's, and the depth ratio the
+   * held end takes, one for every reach direction or one by direction (`+u`, `+v`, `-u`, `-v`; the trunk's at the limb's connection,
+   * `FamilyConicTrunkLaw`; absent, 1, the stored shoulder or hip).
+   */
   interface IFields {
     lengths: Record<string, number>;
     depths: Record<string, Record<string, number>>;
+    held?: number | Record<string, number>;
   }
 
   /**
@@ -331,31 +336,57 @@ namespace FamilyConicLimbLaw {
   }
 
   /**
-   * The depth profile of one reach direction at a person's fields, with its first and second derivatives in station: through 1 at the held
-   * seam (or the hip) and every site's ratio, by the quintic smoothstep between consecutive anchors (`linear`: straight), held at the last
-   * site's ratio past it and at 1 before the first anchor.
+   * The depth profile of one reach direction at a person's fields, with its first and second derivatives in station: through the held
+   * end's ratio (`IFields.held`, 1 when absent) at the held seam (or the hip) and every site's ratio, by the quintic smoothstep between
+   * consecutive anchors (`linear`: straight), held at the last site's ratio past it and at the held end's before the first anchor.
    */
   function depthProfile(limb: ILimb, fields: IFields, f1Sites: ISite[], direction: string, linear: boolean = false, spline: boolean = false): (s: number) => [number, number, number] {
-    const anchors: [number, number][] = [[limb.held, 1] as [number, number], ...f1Sites.filter((x: ISite): boolean => x.station !== null).map((x: ISite): [number, number] => [x.station!, fields.depths[x.name]?.[direction] ?? 1])].sort((a, b): number => a[0] - b[0]);
+    const held: number = typeof fields.held === "number" ? fields.held : (fields.held?.[direction] ?? 1);
+    const anchors: [number, number][] = [[limb.held, held] as [number, number], ...f1Sites.filter((x: ISite): boolean => x.station !== null).map((x: ISite): [number, number] => [x.station!, fields.depths[x.name]?.[direction] ?? 1])].sort((a, b): number => a[0] - b[0]);
     if (spline) {
       const through: (s: number) => [number, number, number] = naturalCubic(anchors.map((a): number => a[0]), anchors.map((a): number => a[1]));
-      return (s: number): [number, number, number] => (s <= anchors[0]![0] ? [1, 0, 0] : through(s));
+      return (s: number): [number, number, number] => (s <= anchors[0]![0] ? [held, 0, 0] : through(s));
     }
+    return throughAnchors(anchors, linear);
+  }
+
+  /**
+   * A depth profile through anchors `[station, ratio]` in station order, with its first and second derivatives in station: the quintic
+   * smoothstep between consecutive anchors, flat at each (`linear`: straight), the first anchor's ratio before it and the last's past it.
+   * The limb law's own profile (`depthProfile`), whose held end the trunk law sets (`limbAt`); the trunk law's breast mound integrates the
+   * same smoothstep in closed form for its projection (`FamilyConicTrunkLaw`'s `breastMound`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the anchors' order and units, the curve between them, its value outside them and the three returned orders (ratio, per mm, per mm squared).
+   * @evidence contracts/development/implementation.md#principled-implementation Perlin's quintic smoothstep has zero first and second derivatives at both ends, so a run of anchors is C2 and a held stretch meets a scaled one without a crease (construction.md, Form); the derivatives are the polynomial's own.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One profile serves every reach line of the limb law, each from its own held ratio, so the curve exists once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamp or polyline corner stands in for the smoothstep except under the explicit `linear` flag of the first run; an empty anchor list throws rather than reading as a stand-in ratio; anchors out of order are the caller's error, not repaired.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each reading scans the anchors once, linear in their count (a handful).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The anchors are captured once by the returned reader; nothing else is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds only the anchors array it was given.
+   */
+  export function throughAnchors(anchors: readonly [number, number][], linear: boolean = false): (s: number) => [number, number, number] {
     return (s: number): [number, number, number] => {
-      if (s <= anchors[0]![0]) return [1, 0, 0];
-      for (let k: number = 1; k < anchors.length; ++k)
-        if (s <= anchors[k]![0]) {
-          const L: number = anchors[k]![0] - anchors[k - 1]![0];
-          const x: number = (s - anchors[k - 1]![0]) / L;
-          const d: number = anchors[k]![1] - anchors[k - 1]![1];
-          if (linear) return [anchors[k - 1]![1] + x * d, d / L, 0];
-          return [anchors[k - 1]![1] + smooth(x) * d, (30 * x * x * (1 - x) * (1 - x) * d) / L, (60 * x * (1 - x) * (1 - 2 * x) * d) / (L * L)];
-        }
-      return [anchors.at(-1)![1], 0, 0];
+      const first: [number, number] | undefined = anchors[0];
+      const last: [number, number] | undefined = anchors[anchors.length - 1];
+      if (first === undefined || last === undefined) throw new Error("throughAnchors: a profile needs at least one anchor");
+      if (s <= first[0]) return [first[1], 0, 0];
+      for (let k: number = 1; k < anchors.length; ++k) {
+        const [a, b] = [anchors[k - 1], anchors[k]];
+        if (a === undefined || b === undefined || s > b[0]) continue;
+        const L: number = b[0] - a[0];
+        const x: number = (s - a[0]) / L;
+        const d: number = b[1] - a[1];
+        if (linear) return [a[1] + x * d, d / L, 0];
+        return [a[1] + smooth(x) * d, (30 * x * x * (1 - x) * (1 - x) * d) / L, (60 * x * (1 - x) * (1 - 2 * x) * d) / (L * L)];
+      }
+      return [last[1], 0, 0];
     };
   }
 
-  /** The law: a limb's family at a person's fields. `linear` draws the depth profile straight between anchors (the first run's profile). */
+  /**
+   * The law: a limb's family at a person's fields. `linear` draws the depth profile straight between anchors (the first run's profile).
+   * The held stretch keeps its stations and takes the held end's ratio (`IFields.held`), so at 1 it is the stored wall.
+   */
   function law(limb: ILimb, fields: IFields, f1Sites: ISite[], linear: boolean = false, spline: boolean = false): Family {
     const family: Family = limb.family;
     const J: number[] = joints(family);
@@ -366,7 +397,6 @@ namespace FamilyConicLimbLaw {
     const ratio = (direction: string, s: number): number => depthProfile(limb, fields, f1Sites, direction, linear, spline)(s)[0];
     const values: number[][] = family.values.map((field: number[]): number[] => [...field]);
     family.knots.forEach((s: number, m: number): void => {
-      if (s < limb.held) return;
       for (const r of reaches(family.layout)) {
         values[r.field]![m] = family.values[r.field]![m]! * ratio(r.direction, s);
         values[r.offset]![m] = family.values[r.offset]![m]! * ((ratio(r.across[0], s) + ratio(r.across[1], s)) / 2);
@@ -379,6 +409,69 @@ namespace FamilyConicLimbLaw {
       values,
       ...(family.tips === undefined ? {} : { tips: family.tips.map((t) => (t === null ? null : { ...t, from: map(t.from), tip: map(t.tip) })) as [H.ITip | null, H.ITip | null] }),
     };
+  }
+
+  /**
+   * A limb by the law at f1's lengths and sites with its held end at depth ratios by reach direction (`IFields.held`), for the trunk law,
+   * which reads them from the limb's connection (the armscye's loop for the arm, the crotch split's seam for the leg); without its nets,
+   * as every family of this law; at ratios of 1, the stored limb's fields. `depths` gives sites their depth ratios in every reach direction
+   * (`depthsFrom`, the trunk's population relation), a site it leaves out at 1.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the limb, the held ratios by reach direction, the caller and what the returned family is.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the limb law (`law`) with no length or site change and `IFields.held` by direction, so each reach line's depth profile starts at its own held ratio.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call into the law for either limb; the profile and the wall code stay single.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cast and no assertion; an unknown limb throws rather than returning a stand-in.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads the limb's sites (girth scans along its course) and builds one family, linear in its knots and scanned stations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Nothing is cached: each case passes its own ratios.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds no handle or state; the returned family is the caller's.
+   */
+  export function limbAt(name: "arm" | "leg", held: Record<string, number>, depths: Record<string, number> = {}): H.IFamily {
+    const limb: ILimb | undefined = limbs().find((x: ILimb): boolean => x.name === name);
+    if (limb === undefined) throw new Error(`limbAt: no ${name}`);
+    const all = (k: number): Record<string, number> => ({ "+u": k, "+v": k, "-u": k, "-v": k });
+    return law(limb, { lengths: {}, depths: Object.fromEntries(Object.entries(depths).map(([site, k]: [string, number]): [string, Record<string, number>] => [site, all(k)])), held }, sites(limb));
+  }
+
+  /**
+   * A limb's held stretch, mm of its course: from its held end (the shoulder's held seam, or the leg's first knot) to its first site, where
+   * the limb's own law takes over by the profile's quintic smoothstep (`depthProfile`); the trunk law fades its connection's carry over it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two stations, their units and the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation The same two anchors the depth profile starts from, so the carry and the law hand over where the profile does.
+   */
+  export function heldStretch(name: "arm" | "leg"): [number, number] {
+    const limb: ILimb | undefined = limbs().find((x: ILimb): boolean => x.name === name);
+    if (limb === undefined) throw new Error(`heldStretch: no ${name}`);
+    const first: number | undefined = sites(limb).flatMap((x: ISite): number[] => (x.station === null ? [] : [x.station])).sort((a: number, b: number): number => a - b)[0];
+    if (first === undefined) throw new Error(`heldStretch: the ${name} has no site`);
+    return [Math.max(limb.held, limb.family.knots[0]!), first];
+  }
+
+  /**
+   * A limb-layout family with every reach field at a knot times its direction's ratio there and every offset field times the mean of the two
+   * reaches' ratios across it (the law's own section map, `law`), its course, knots and nets as given: the trunk law's breast takes its
+   * root's ratios by direction over its whole wall this way.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which fields scale by which ratio and what stays.
+   * @evidence contracts/development/implementation.md#principled-implementation The same per-direction map the law applies to a limb's knots (`reaches`): a reach along its direction, an offset by the mean of the reaches across it, so each section is scaled per side by an axis-aligned map.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One function for any limb-layout family; the layout's reach fields are read from `reaches`, not copied.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A layout that is not a limb's four guides throws in `reaches`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the knots times the four reaches.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Copies the value arrays once; nothing is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned family and its arrays are the caller's.
+   */
+  export function scaledAt(family: H.IFamily, ratio: (direction: string, s: number) => number): H.IFamily {
+    const values: number[][] = family.values.map((field: number[]): number[] => [...field]);
+    family.knots.forEach((s: number, m: number): void => {
+      for (const r of reaches(family.layout)) {
+        const [reach, offset] = [values[r.field], values[r.offset]];
+        const [storedReach, storedOffset] = [family.values[r.field]?.[m], family.values[r.offset]?.[m]];
+        if (reach === undefined || offset === undefined || storedReach === undefined || storedOffset === undefined) throw new Error(`scaledAt: ${family.name} has no field at knot ${m}`);
+        reach[m] = storedReach * ratio(r.direction, s);
+        offset[m] = storedOffset * ((ratio(r.across[0], s) + ratio(r.across[1], s)) / 2);
+      }
+    });
+    return { ...family, values };
   }
 
   /** An inflection of a reach line: its station carried to f1's course. */
@@ -850,6 +943,84 @@ namespace FamilyConicLimbLaw {
     calf: { mean: 373.3, sd: 28.5, measure: "calf", neighbours: ["knee", "ankle"] },
     ankle: { mean: 215.7, sd: 14.9, measure: null, neighbours: ["calf"] },
   };
+
+  /**
+   * Each limb site's population relation to the trunk's girth sites: the regression of the site's standardized girth on the trunk sites'
+   * standardized girths, `E[z_site | z_trunk] = beta . z_trunk` with `beta = R_trunk^-1 r_site,trunk`, from the population constants'
+   * women's means, SDs and correlations (ANSUR 1988 women, Gordon et al. 1989, `HumanPopulationSurvey.ts`, read by `surveyTables`).
+   */
+  export interface IRelations {
+    /** The trunk's girth sites by name (`hip`, `waist`, `under-bust`, `bust`, `neck`) with the survey measure and CV each stands for. */
+    trunk: { site: string; measure: string; cv: number }[];
+
+    /** Each limb site with a survey measure: its measure, its CV and its coefficients over `trunk`, in that order. */
+    sites: { site: string; measure: string; cv: number; beta: number[] }[];
+  }
+
+  /**
+   * The limb sites' population relations to the trunk (`IRelations`). The trunk's sites stand for the survey's buttock (the hip), omphalion
+   * waist (the waist), under-bust, chest (the bust, at the bust point) and neck circumferences; each limb site for its measure in
+   * `SITE_GIRTHS` (the upper arm biceps flexed, the forearm flexed, the elbow, the wrist, the thigh, the knee, the calf); the ankle has no
+   * survey measure and no relation.
+   *
+   * @param root The repository root, where the population constants are tracked.
+   * @evidence contracts/development/implementation.md#principled-implementation The conditional expectation of a normal variable given others is the regression on them, `R^-1 r`, from the survey's own correlations.
+   * @evidence contracts/development/common.md#meaningful-documentation Names every measure each site stands for and the source.
+   */
+  export async function relations(root: string): Promise<IRelations> {
+    const tables = await surveyTables(root);
+    const index = (measure: string): number => {
+      const i: number = tables.names.indexOf(measure);
+      if (i < 0) throw new Error(`relations: the survey has no ${measure}`);
+      return i;
+    };
+    const cv = (measure: string): number => tables.sd[0]![index(measure)]! / tables.mean[0]![index(measure)]!;
+    const rho = (a: string, b: string): number => {
+      if (a === b) return 1;
+      const [i, j]: number[] = [index(a), index(b)].sort((x: number, y: number): number => y - x);
+      const r: number | undefined = tables.r[0]?.[i! - 1]?.[j!];
+      if (r === undefined) throw new Error(`relations: no correlation of ${a} with ${b}`);
+      return r;
+    };
+    const trunk = [["hip", "buttock"], ["waist", "omphalionWaist"], ["under-bust", "underbust"], ["bust", "chest"], ["neck", "neck"]].map(([site, measure]): { site: string; measure: string; cv: number } => ({ site: site!, measure: measure!, cv: cv(measure!) }));
+    // R beta = r by Gauss-Jordan elimination with partial pivoting.
+    const solve = (A: number[][], b: number[]): number[] => {
+      const n: number = b.length;
+      const M: number[][] = A.map((row: number[], i: number): number[] => [...row, b[i]!]);
+      for (let c: number = 0; c < n; ++c) {
+        let p: number = c;
+        for (let r: number = c + 1; r < n; ++r) if (Math.abs(M[r]![c]!) > Math.abs(M[p]![c]!)) p = r;
+        [M[c], M[p]] = [M[p]!, M[c]!];
+        for (let r: number = 0; r < n; ++r) {
+          if (r === c) continue;
+          const f: number = M[r]![c]! / M[c]![c]!;
+          for (let k: number = c; k <= n; ++k) M[r]![k] = M[r]![k]! - f * M[c]![k]!;
+        }
+      }
+      return M.map((row: number[], i: number): number => row[n]! / row[i]!);
+    };
+    const R: number[][] = trunk.map((a): number[] => trunk.map((b): number => rho(a.measure, b.measure)));
+    const sites = Object.entries(SITE_GIRTHS).flatMap(([site, g]): IRelations["sites"] => (g.measure === null ? [] : [{ site, measure: g.measure, cv: cv(g.measure), beta: solve(R, trunk.map((t): number => rho(g.measure!, t.measure))) }]));
+    return { trunk, sites };
+  }
+
+  /**
+   * Each limb site's depth ratio, the conditional expectation from the trunk's given site ratios (`relations`): `1 + CV_site beta . z`,
+   * `z` each trunk site's `(ratio - 1) / CV`. At f1's trunk every `z` is 0 and every site's ratio exactly 1.
+   *
+   * @param of The relations.
+   * @param trunk The trunk sites' depth ratios by name.
+   * @evidence contracts/development/implementation.md#principled-implementation A missing field takes its population relation (construction.md, Inputs), the regression's expectation, not 1.
+   * @evidence contracts/development/common.md#meaningful-documentation States the formula, its inputs and its value at f1.
+   */
+  export function depthsFrom(of: IRelations, trunk: Record<string, number>): Record<string, number> {
+    const z: number[] = of.trunk.map((t): number => {
+      const ratio: number | undefined = trunk[t.site];
+      if (ratio === undefined) throw new Error(`depthsFrom: no ratio for the trunk's ${t.site}`);
+      return (ratio - 1) / t.cv;
+    });
+    return Object.fromEntries(of.sites.map((s): [string, number] => [s.site, 1 + s.cv * s.beta.reduce((sum: number, b: number, i: number): number => sum + b * z[i]!, 0)]));
+  }
 
   /** The normal deviate of the 5th and 95th percentiles, the population ends the lengths take (`LENGTH_ENDS`). */
   const END_DEVIATE: number = 1.645;
@@ -2592,7 +2763,8 @@ namespace FamilyConicLimbLaw {
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 
-  export async function main(): Promise<void> {
+  /** Runs the command its first argument names (`survey`, `population`, `profiles`, `lobes`, `extremities`, the extremities' premises and acceptance), else the law's run. */
+  async function main(): Promise<void> {
     if (process.argv[2] === "extremity-acceptance") return extremityAcceptance();
     if (process.argv[2] === "extremity-premises") return extremityPremises();
     if (process.argv[2] === "extremities") return extremities();
@@ -2679,9 +2851,11 @@ namespace FamilyConicLimbLaw {
     await fs.writeFile(path.join(out, "law.json"), JSON.stringify({ ...report, frames }, null, 2));
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
-}
 
-void FamilyConicLimbLaw.main().catch((error: unknown): void => {
-  process.stderr.write((error instanceof Error ? (error.stack ?? error.message) : String(error)) + "\n");
-  process.exitCode = 1;
-});
+  // Run only as its own entry: the trunk law imports this one for `limbAt` and `scaledAt`.
+  if (/FamilyConicLimbLaw\.(c?js|ts)$/.test(process.argv[1] ?? ""))
+    void main().catch((error: unknown): void => {
+      process.stderr.write((error instanceof Error ? (error.stack ?? error.message) : String(error)) + "\n");
+      process.exitCode = 1;
+    });
+}

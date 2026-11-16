@@ -1,5 +1,5 @@
 import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieViewLoft, type IAutoMovieViewPart } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1 } from "@automovie/human";
 import type { AutoMovieConstructionNode } from "@automovie/interface";
 
 /**
@@ -12,6 +12,7 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * 4. Each arm continues into its own side's hand at the wrist, the arm's top end onto the hand's bottom end. A hand's split takes its own side's hand's end and the four fingers from the little one, a foot's its leg's end and the five toes from the little one, in that order. A thumb is merged onto its own hand before that arm is attached: its host face is the hand of its own side and its host subtree holds no trunk. An ear's plate is merged onto the head alone: seeded on the trunk, with the trunk under its host. Its helix is merged onto its own side's plate right after that, since it runs down its crus into the head, and its antihelix right after the helix, since it ends inside the helix's tube. A nostril is cut from the whole head: its cut is seeded on the nose and its host subtree holds the trunk. An ear's bowl (the concha) is cut from the head after its plate is merged: seeded on the trunk, its own side's plate merge under its host. An armpit's slit is cut from its own arm's band after that arm's port: seeded on the band, the port under its host.
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  * 6. Rings round a turn stand no farther apart on the skin than the layers: on the arm, the hand and the leg, between neighbouring stations before the closed end, no ring point moves more than the declared 4 mm (5 % allowed for the part's own interpolation) by the course frame's sweep. Round the shoulder the deltoid's cap moved 7 to 10 mm between layers 4 mm apart and showed every ring as a stripe.
+ * 7. Seams stand on shares of their chords: f1's measured chords equal the stored ones (`CROTCH_CHORD_M`, `FAN_CHORDS_M`) exactly, on f1 the crotch's seam and each +Z fan's seams are the stored ones bit for bit, and on a trunk whose every millimetre (the wall's fields and its nets' heights) is 0.88 of f1's, the crotch's knots all scale by one factor, its chord's, near 0.88. On a trunk shrunk at every site's 5th the stored millimetres stood past the chord and the legs were refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye` and `mammary` and walks the tree they return.
  * @evidence contracts/development/testing.md#independent-expectations The counts are the body's own: two legs, two arms each continued by a hand, two ears with a plate, a helix, an antihelix and a bowl each, two armpit slits, two breasts, five fingers and five toes a side; mirror symmetry of the reference is a property of f1, not of this code.
@@ -156,6 +157,41 @@ export function test_human_f1_construction(): void {
     }
     if (worst[0] > 4 * 1.05) failures.push(`a ring point of the ${name} moves ${worst[0].toFixed(2)} mm by the course's sweep after station ${worst[1].toFixed(1)}, more than the 4 mm layers`);
   }
+
+  // 7. Seams on shares of their chords. On f1 every seam stands as stored, bit for bit: the crotch's and each +Z fan's.
+  const same = (a: readonly [number, number][] | undefined, b: readonly [number, number][]): boolean => a !== undefined && a.length === b.length && a.every(([x, y]: [number, number], i: number): boolean => x === b[i]![0] && y === b[i]![1]);
+  const crotch = nodes.find((node: AutoMovieConstructionNode): boolean => node.type === "split" && node.name === "crotch");
+  if (crotch?.type !== "split" || !same(crotch.profile?.knots, AutoMovieHumanF1.CROTCH.knots)) failures.push("the crotch's seam on f1 is not the stored one bit for bit");
+  // The stored chords are f1's measured ones exactly, so a constant and its measure cannot drift apart.
+  const reference: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+  const measured: number = AutoMovieHumanF1.crotchChord(reference.body.trunk);
+  if (measured !== AutoMovieHumanF1.CROTCH_CHORD_M) failures.push(`f1's crotch chord measures ${measured} m, stored ${AutoMovieHumanF1.CROTCH_CHORD_M}`);
+  for (const which of ["arm", "leg"] as const) {
+    const chords: number[] = AutoMovieHumanF1.fanChords(which, reference);
+    const stored: readonly number[] = AutoMovieHumanF1.FAN_CHORDS_M[which];
+    if (chords.length !== stored.length || chords.some((c: number, j: number): boolean => c !== stored[j])) failures.push(`f1's ${which} fan chords measure ${chords.join(", ")} m, stored ${stored.join(", ")}`);
+  }
+  for (const which of ["arm", "leg"] as const) {
+    const name: string = "fan." + (which === "arm" ? AutoMovieHumanF1.BODY.hand.name : AutoMovieHumanF1.BODY.leg.name);
+    const fan = nodes.find((node: AutoMovieConstructionNode): boolean => node.type === "split" && node.name === name);
+    const seams: ([number, number][] | undefined)[] = fan?.type === "split" ? [fan.profile?.knots, ...(fan.outer ?? []).map((seam): [number, number][] | undefined => seam.profile?.knots)] : [];
+    const webs: [number, number][][] = AutoMovieHumanF1.FANS[which].webs;
+    if (seams.length !== webs.length || seams.some((knots: [number, number][] | undefined, j: number): boolean => !same(knots, webs[j]!))) failures.push(`${name}'s seams on f1 are not the stored ones bit for bit`);
+  }
+  // On a trunk whose every millimetre is 0.88 of f1's, the crotch's end chord is 0.88 of f1's, and the seam keeps its shares of it: every
+  // knot scales by one factor, the chord's.
+  const units: AutoMovieHumanConicSection.Unit[] = AutoMovieHumanConicSection.units(AutoMovieHumanF1.BODY.trunk.layout);
+  const shrunk: AutoMovieHumanConicLoft.IFamily = {
+    ...AutoMovieHumanF1.BODY.trunk,
+    values: AutoMovieHumanF1.BODY.trunk.values.map((field: number[], i: number): number[] => (units[i] === "mm" ? field.map((v: number): number => v * 0.88) : field)),
+    ...(AutoMovieHumanF1.BODY.trunk.reliefs === undefined ? {} : { reliefs: AutoMovieHumanF1.BODY.trunk.reliefs.map((net) => ({ ...net, heights: net.heights.map((h: number): number => h * 0.88) })) }),
+  };
+  const factors: number[] = AutoMovieHumanF1.crotchProfile(shrunk).knots.flatMap(([along, depth]: [number, number], i: number): number[] => {
+    const [a, d]: [number, number] = AutoMovieHumanF1.CROTCH.knots[i]!;
+    return [along / a, ...(d === 0 ? [] : [depth / d])];
+  });
+  const k: number = factors[0]!;
+  if (!(k > 0.86 && k < 0.9) || factors.some((f: number): boolean => Math.abs(f - k) > 1e-12)) failures.push(`the crotch's seam on a trunk at 0.88 scales its knots by ${factors.map((f: number): string => f.toFixed(4)).join(", ")}, not by its chord's one factor near 0.88`);
 
   if (failures.length > 0) throw new Error("human f1 construction:\n" + failures.join("\n"));
 }
