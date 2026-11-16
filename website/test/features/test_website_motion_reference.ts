@@ -5,6 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { MotionUsage } from "../../src/motions/MotionUsage";
 import { MotionReference } from "../../src/motions/package/MotionReference";
 import type { IMotionReference } from "../../src/motions/structures/IMotionReference";
+import { PlaygroundAddress } from "../../src/playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../src/scenes/SCENES";
 import { SceneStatus } from "../../src/scenes/package/SceneStatus";
@@ -16,7 +17,8 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * Scenarios:
  * 1. The actions are the keys of `HUMAN_ACTIONS`, in the package's order, and each action and row with a schema in `HUMAN_LEXICON_SCHEMAS` lists that schema's parameters, so the actions' parameters show too.
  * 2. Every row of the installed `HUMAN_LEXICON` is on exactly one family page.
- * 3. For every action and row, the scenes listed are exactly the listed scenes whose composition names it. A trial alone is offered only when the first listed scene names it as a performer's action whose parameters hold every required one and name no one of that scene, and it performs exactly those parameters after a standing start; any other trial opens the first listed scene whose status is `plays`, never one that is refused, waits or is planned; and there is no trial only when no listed scene plays.
+ * 3. For every action and row, the scenes listed are exactly the listed scenes whose composition names it. A trial alone needs complete independent parameters and no authored forces in its first scene; other trials preserve the first playing scene's entire context and round trip through its address.
+ * 4. At least one first use has empty parameters, no required schema parameter and authored forces. It must keep its full scene rather than silently turn a force-driven action into its zero-input solo.
  */
 export function test_website_motion_reference(): void {
   const reference: IMotionReference = MotionReference.read();
@@ -86,6 +88,7 @@ export function test_website_motion_reference(): void {
     ),
   ];
   const findings: string[] = [];
+  let forceOnlyContexts: number = 0;
   for (const entry of entries) {
     const name: string = entry.name;
     const expected: string[] = SCENES.filter(
@@ -106,6 +109,18 @@ export function test_website_motion_reference(): void {
       findings.push(
         `${name}: lists ${found.join(", ")} for ${expected.join(", ")}`,
       );
+    const first: IScene | undefined = SCENES.find(
+      (scene: IScene): boolean => scene.id === found[0],
+    );
+    const firstUse: IPlaygroundComposition.IAction | undefined =
+      first === undefined ? undefined : firstAction(first, name);
+    if (
+      (first?.composition?.forces?.length ?? 0) !== 0 &&
+      firstUse !== undefined &&
+      Object.keys(firstUse.params).length === 0 &&
+      (entry.parameters ?? []).every((parameter: IMotionReference.IParameter): boolean => !parameter.required)
+    )
+      forceOnlyContexts++;
     const trial: MotionUsage.ITrial | null = MotionUsage.trial(
       name,
       entry.parameters,
@@ -119,9 +134,6 @@ export function test_website_motion_reference(): void {
         findings.push(`${name}: no trial, though ${playing.id} plays`);
     } else if (trial.label === "Try it alone") {
       // The solo performs the first listed scene's own first use of the name.
-      const first: IScene | undefined = SCENES.find(
-        (scene: IScene): boolean => scene.id === found[0],
-      );
       const use: IPlaygroundComposition.IAction | undefined =
         first === undefined ? undefined : firstAction(first, name);
       const solo: IPlaygroundComposition.IAction =
@@ -138,6 +150,8 @@ export function test_website_motion_reference(): void {
         findings.push(
           `${name}: tried alone, though ${first.id} names it only as a mutual action`,
         );
+      if ((first?.composition?.forces?.length ?? 0) !== 0)
+        findings.push(`${name}: the solo drops its first scene's authored forces`);
       if (JSON.stringify(solo.params) !== JSON.stringify(use?.params ?? {}))
         findings.push(`${name}: the solo's parameters are not its first use's`);
       if (missing.length !== 0)
@@ -159,9 +173,22 @@ export function test_website_motion_reference(): void {
           JSON.stringify(playing.composition!.performers)
       )
         findings.push(`${name}: the trial is not its first playing scene`);
+      if (playing?.composition !== undefined && playing.composition !== null) {
+        TestValidator.equals(
+          `${name}: the trial preserves the full playing scene context`,
+          { ...trial.composition, version: playing.composition.version },
+          playing.composition,
+        );
+        TestValidator.equals(
+          `${name}: the full scene trial survives its actual address`,
+          PlaygroundAddress.decode(PlaygroundAddress.encode(trial.composition)),
+          trial.composition,
+        );
+      }
     }
   }
   TestValidator.equals("each name's scenes", findings, []);
+  TestValidator.predicate("a force-only first use distinguishes context from solo parameters", forceOnlyContexts > 0);
 }
 
 /** A scene's first performer action of a name, overlays included, in the order its chains are written; undefined when only a mutual action names it. */
