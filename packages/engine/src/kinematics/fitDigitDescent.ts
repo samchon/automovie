@@ -36,14 +36,14 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
  * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) with a projected Newton active set (Bertsekas 1982) and Levenberg-Marquardt damping (Madsen, Nielsen and Tingleff 2004).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop: Jacobians, active set, primary step, null-space secondary step, acceptance.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the primary is never traded for the secondary, and the descent stops at the resolution.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two residual evaluations per variable per Jacobian and two small dense solves per step, the variables at most a digit's nine.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the caller keeps the result.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Both task Jacobians share each central-difference probe pair; the same primary Gram matrix serves damping and the null space. All reduction orders and small dense solves remain unchanged.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure residuals with fixed dimensions are read together at the exact same candidate; no result or workspace is shared across descents.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
   const { primary, secondary, project, step }: fitDigitDescent.IProps = props;
   const n: number = props.start.length;
-  const jacobian = (
+  const jacobian: (f: (x: readonly number[]) => number[], x: readonly number[]) => number[][] = (
     f: (x: readonly number[]) => number[],
     x: readonly number[],
   ): number[][] => {
@@ -60,9 +60,9 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       columns.map((c: number[]): number => c[k]!),
     );
   };
-  const squared = (r: readonly number[]): number =>
+  const squared: (r: readonly number[]) => number = (r: readonly number[]): number =>
     r.reduce((sum: number, v: number): number => sum + v * v, 0);
-  const gram = (
+  const gram: (J: readonly (readonly number[])[], at: readonly number[]) => number[][] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
   ): number[][] =>
@@ -74,7 +74,7 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
         ),
       ),
     );
-  const times = (
+  const times: (J: readonly (readonly number[])[], at: readonly number[], r: readonly number[]) => number[] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
     r: readonly number[],
@@ -86,7 +86,7 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
         0,
       ),
     );
-  const damped = (A: number[][], mu: number): number[][] =>
+  const damped: (A: number[][], mu: number) => number[][] = (A: number[][], mu: number): number[][] =>
     A.map((row: number[], i: number): number[] =>
       row.map((v: number, j: number): number => (i === j ? v + mu : v)),
     );
@@ -94,8 +94,11 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
   let x: number[] = project(props.start);
   let r1: number[] = primary(x);
   let r2: number[] = secondary(x);
-  let J1: number[][] = jacobian(primary, x);
-  let J2: number[][] = r2.length === 0 ? [] : jacobian(secondary, x);
+  const together: (at: readonly number[]) => number[] = (at: readonly number[]): number[] =>
+    r2.length === 0 ? primary(at) : [...primary(at), ...secondary(at)];
+  let J: number[][] = jacobian(together, x);
+  let J1: number[][] = J.slice(0, r1.length);
+  let J2: number[][] = J.slice(r1.length);
   const all: number[] = Array.from(
     { length: n },
     (_: unknown, i: number): number => i,
@@ -129,7 +132,8 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     if (free.length === 0) break;
 
     // The primary's damped step and its damped null space.
-    const A1: number[][] = damped(gram(J1, free), mu);
+    const G: number[][] = gram(J1, free);
+    const A1: number[][] = damped(G, mu);
     const h1: number[] | null = AutoMovieSolidVector.solve(
       A1,
       times(J1, free, r1).map((v: number): number => -v),
@@ -137,7 +141,6 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     if (h1 === null) break;
     let h: number[] = h1;
     if (J2.length !== 0) {
-      const G: number[][] = gram(J1, free);
       const P: (number[] | null)[] = free.map(
         (_c: number, c: number): number[] | null =>
           AutoMovieSolidVector.solve(
@@ -203,8 +206,9 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       x = trial;
       r1 = t1;
       r2 = t2;
-      J1 = jacobian(primary, x);
-      J2 = r2.length === 0 ? [] : jacobian(secondary, x);
+      J = jacobian(together, x);
+      J1 = J.slice(0, r1.length);
+      J2 = J.slice(r1.length);
       mu /= 3;
       nu = 2;
     } else {
@@ -229,10 +233,10 @@ export namespace fitDigitDescent {
     /** The start, the variables' values. */
     start: readonly number[];
 
-    /** The primary residual, metres. */
+    /** The pure primary residual, metres, with a fixed dimension. */
     primary: (x: readonly number[]) => number[];
 
-    /** The secondary residual, metres; empty when there is none. */
+    /** The pure secondary residual, metres, with a fixed dimension; empty when there is none. */
     secondary: (x: readonly number[]) => number[];
 
     /** The variables projected into their range. */

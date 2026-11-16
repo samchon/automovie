@@ -1,172 +1,127 @@
-import type { HumanQuadraticProgram } from "./HumanQuadraticProgram";
+import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
+import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
+import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
+import { HumanQuadraticResiduals } from "./HumanQuadraticResiduals";
+import { HumanQuadraticRow } from "./HumanQuadraticRow";
+import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
+import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
 /**
  * The linear algebra of `HumanQuadraticProgram`'s OSQP solve on a banded
- * problem: its modified Ruiz equilibration, the banded reduced KKT system and
+ * problem: the banded reduced KKT system and
  * its Cholesky factor, the unscaled residuals, the primal infeasibility
  * certificate and the polishing solve on the active set (Stellato et al.
  * 2020, Math Program Comput 12:637, sections 3.4, 4 and 5.1).
+ * Costs use w=band+1, S supplied curvature entries, Z stored row entries
+ * and m rows; a row r stores k_r entries.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the banded OSQP algebra, scaled input contract, residuals, infeasibility certificate and active-set polish.
+ * @evidence contracts/development/design.md#principled-representation Groups scaled quadratic data and residual diagnostics for the reduced OSQP systems; finite admitted data and convex curvature are supplied by the solver and its callers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes only algebra consumed by HumanQuadraticProgram and its numeric preparation; no action vocabulary or external solver interface is added.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps generic band and sparse-row data, including duplicates and empty rows; the existing Cholesky diagonal floor is a stated numerical guard rather than a convexity validator.
  */
 export namespace HumanQuadraticBand {
-  /** The problem equilibrated: `P̄ = c D P D`, `q̄ = c D q`, `Ā = E A D`, `l̄ = E l`, `ū = E u`, a soft row's weight `c w / E`. */
+  /**
+   * Equilibrated data: `P̄ = c D P D`, `q̄ = c D q`, `Ā = E A D`,
+   * `l̄ = E l`, `ū = E u`, and soft weight `c w / E`.
+   *
+   * @evidence contracts/development/design.md#principled-representation Stores an upper-band symmetric P, ordered CSR rows and positive D/E/c transformations; Preparation admits finite matrices and preserves absent infinite bounds, while types alone cannot enforce dimensions or convexity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies matrices, intervals, penalties, scales and diagonal metadata to the existing readers; a fresh solve additionally borrows original rows and owns lazy exceptional restoration, excluded from the retained numeric core.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains generic dimensions/duplicates without a body category; -1 remains the hard-row sentinel. Numeric core arrays and solve-local original rows stay unchanged, and exceptional products restore actual zeros instead of suppressing nonfinite propagation.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the scaling equations, compression offsets, hard-weight sentinel and the purpose of each numeric member.
+   */
   export interface IScaled {
     /** The variables. */
     n: number;
+
     /** The rows. */
     m: number;
+
     /** The half-bandwidth. */
     band: number;
-    /** The scaled curvature's band. */
+
+    /** The scaled curvature's in-range upper band, without unused trailing padding. */
     p: Float64Array[];
+
+    /** Admitted canonical P is exactly diagonal; finite positive Ruiz factors preserve its off-diagonal signed zeros, and factors still use the full band. */
+    diagonal: boolean;
+
     /** The scaled linear term. */
     q: Float64Array;
+
     /** Each row's first entry, compressed; `start[m]` is the entries' count. */
     start: Int32Array;
+
     /** Each entry's variable. */
     cols: Int32Array;
+
     /** Each entry's scaled coefficient. */
     vals: Float64Array;
+
+    /** One when a row's retained column indices are nondecreasing; duplicate columns stay in their original order. */
+    ordered: Uint8Array;
+
+    /** Original admitted rows, borrowed unchanged only for this fresh solve wrapper's exceptional zero-product restoration; excluded from retained preparation. */
+    raw: readonly Q.IRow[];
+
+    /** Lazily restored exceptional rows for this solve only; at most the original row storage and never part of the prepared core or returned iterates. */
+    restored?: Map<number, Pick<Q.IRow, "index" | "coef">>;
+
     /** Each row's scaled lower end. */
     lo: Float64Array;
+
     /** Each row's scaled upper end. */
     hi: Float64Array;
+
     /** Each soft row's scaled weight; -1 for a hard row. */
     weight: Float64Array;
+
     /** The variables' scaling `D`. */
     d: Float64Array;
+
     /** The rows' scaling `E`. */
     e: Float64Array;
+
     /** The cost's scaling. */
     c: number;
-  }
 
-  /** The residuals of an iterate: unscaled with their scales, for the termination test, and scaled with theirs, for the step size. */
-  export interface IResiduals {
-    /** The unscaled primal residual `‖Ax - z‖∞`. */
-    primal: number;
-    /** Its scale, `max(‖Ax‖∞, ‖z‖∞)`. */
-    primalScale: number;
-    /** The unscaled dual residual `‖Px + q + Aᵀy‖∞`. */
-    dual: number;
-    /** Its scale, `max(‖Px‖∞, ‖Aᵀy‖∞, ‖q‖∞)`. */
-    dualScale: number;
-    /** The scaled primal residual. */
-    scaledPrimal: number;
-    /** Its scale. */
-    scaledPrimalScale: number;
-    /** The scaled dual residual. */
-    scaledDual: number;
-    /** Its scale. */
-    scaledDualScale: number;
+    /** Each unchanged 1/(c*d[i]) for residual unit reversal; residual admission retains the original nonfinite-result handling. */
+    unscale: Float64Array;
   }
 
   /**
-   * The problem compressed and equilibrated by the modified Ruiz scaling of
-   * the KKT matrix `[P Aᵀ; A 0]` (section 5.1, algorithm 2): `SCALING`
-   * passes, each scaling every column of the KKT matrix by the inverse
-   * square root of its infinity norm, then the cost by the inverse of the
-   * larger of the curvature's mean column norm and the linear term's norm,
-   * each norm held within `[MIN_SCALE, MAX_SCALE]`.
+   * Infinity-norm residuals and their normalization scales, in both original
+   * and equilibrated units. The solver rejects nonfinite iteration values.
    *
-   * @param problem The problem.
-   * @returns The scaled problem.
+   * @evidence contracts/development/design.md#principled-representation Separates original-unit primal/dual residuals from scaled ones and records each normalization magnitude; numeric finiteness remains a runtime solver check.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains the eight values the existing termination, polishing acceptance and adaptive-rho decisions read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the same infinity norms for all dimensions and actions without invented physical tolerances or fixture-specific fields.
+   * @evidence contracts/development/common.md#meaningful-documentation States every residual equation, its units and normalization, and which solver decision consumes it.
    */
-  export function scaled(problem: HumanQuadraticProgram.IProblem): IScaled {
-    const n: number = problem.n;
-    const band: number = problem.band;
-    const rows = problem.rows;
-    const m: number = rows.length;
-    let nnz: number = 0;
-    for (const row of rows) nnz += row.index.length;
-    const start: Int32Array = new Int32Array(m + 1);
-    const cols: Int32Array = new Int32Array(nnz);
-    const vals: Float64Array = new Float64Array(nnz);
-    let at: number = 0;
-    rows.forEach((row, r: number): void => {
-      start[r] = at;
-      for (let a: number = 0; a < row.index.length; ++a) {
-        cols[at] = row.index[a]!;
-        vals[at] = row.coef[a]!;
-        ++at;
-      }
-    });
-    start[m] = at;
-    const p: Float64Array[] = problem.p.map(
-      (row: Float64Array): Float64Array => Float64Array.from(row),
-    );
-    const q: Float64Array = Float64Array.from(problem.q);
-    const d: Float64Array = new Float64Array(n).fill(1);
-    const e: Float64Array = new Float64Array(m).fill(1);
-    let c: number = 1;
-    const limit = (v: number): number =>
-      v < MIN_SCALE ? 1 : Math.min(v, MAX_SCALE);
-    const dx: Float64Array = new Float64Array(n);
-    const dr: Float64Array = new Float64Array(m);
-    const curvature: Float64Array = new Float64Array(n);
-    for (let pass: number = 0; pass < SCALING; ++pass) {
-      // The KKT matrix's column norms: the curvature's and the rows' for a
-      // variable, the row's own for a row.
-      curvature.fill(0);
-      for (let i: number = 0; i < n; ++i)
-        for (let j: number = 0; j <= band && i + j < n; ++j) {
-          const v: number = Math.abs(p[i]![j]!);
-          curvature[i] = Math.max(curvature[i]!, v);
-          curvature[i + j] = Math.max(curvature[i + j]!, v);
-        }
-      dx.set(curvature);
-      for (let r: number = 0; r < m; ++r) {
-        let row: number = 0;
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a) {
-          const v: number = Math.abs(vals[a]!);
-          row = Math.max(row, v);
-          dx[cols[a]!] = Math.max(dx[cols[a]!]!, v);
-        }
-        dr[r] = 1 / Math.sqrt(limit(row));
-      }
-      for (let i: number = 0; i < n; ++i) dx[i] = 1 / Math.sqrt(limit(dx[i]!));
-      for (let i: number = 0; i < n; ++i) {
-        for (let j: number = 0; j <= band && i + j < n; ++j)
-          p[i]![j] = p[i]![j]! * dx[i]! * dx[i + j]!;
-        q[i] = q[i]! * dx[i]!;
-        d[i] = d[i]! * dx[i]!;
-      }
-      for (let r: number = 0; r < m; ++r) {
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
-          vals[a] = vals[a]! * dr[r]! * dx[cols[a]!]!;
-        e[r] = e[r]! * dr[r]!;
-      }
-      // The cost scaled by the larger of its curvature's mean column norm
-      // and its linear term's norm.
-      curvature.fill(0);
-      for (let i: number = 0; i < n; ++i)
-        for (let j: number = 0; j <= band && i + j < n; ++j) {
-          const v: number = Math.abs(p[i]![j]!);
-          curvature[i] = Math.max(curvature[i]!, v);
-          curvature[i + j] = Math.max(curvature[i + j]!, v);
-        }
-      let mean: number = 0;
-      for (let i: number = 0; i < n; ++i) mean += curvature[i]!;
-      mean /= Math.max(1, n);
-      let linear: number = 0;
-      for (let i: number = 0; i < n; ++i)
-        linear = Math.max(linear, Math.abs(q[i]!));
-      const gamma: number = 1 / limit(Math.max(mean, linear));
-      for (let i: number = 0; i < n; ++i) {
-        for (let j: number = 0; j <= band && i + j < n; ++j)
-          p[i]![j] = p[i]![j]! * gamma;
-        q[i] = q[i]! * gamma;
-      }
-      c *= gamma;
-    }
-    const lo: Float64Array = new Float64Array(m);
-    const hi: Float64Array = new Float64Array(m);
-    const weight: Float64Array = new Float64Array(m);
-    rows.forEach((row, r: number): void => {
-      lo[r] = row.l * e[r]!;
-      hi[r] = row.u * e[r]!;
-      weight[r] = row.weight === undefined ? -1 : (c * row.weight) / e[r]!;
-    });
-    return { n, m, band, p, q, start, cols, vals, lo, hi, weight, d, e, c };
+  export interface IResiduals {
+    /** The unscaled primal residual `‖Ax - z‖∞`. */
+    primal: number;
+
+    /** Its scale, `max(‖Ax‖∞, ‖z‖∞)`. */
+    primalScale: number;
+
+    /** The unscaled dual residual `‖Px + q + Aᵀy‖∞`. */
+    dual: number;
+
+    /** Its scale, `max(‖Px‖∞, ‖Aᵀy‖∞, ‖q‖∞)`. */
+    dualScale: number;
+
+    /** The scaled primal residual. */
+    scaledPrimal: number;
+
+    /** Its scale. */
+    scaledPrimalScale: number;
+
+    /** The scaled dual residual. */
+    scaledDual: number;
+
+    /** Its scale. */
+    scaledDualScale: number;
   }
 
   /**
@@ -175,50 +130,56 @@ export namespace HumanQuadraticBand {
    * @param s The scaled problem.
    * @param rho Each row's step size.
    * @param sigma The proximal term.
-   * @returns The factor.
+   * @param work Optional mutable owner for adaptive factorizations; absent for the independently cached initial factor.
+   * @returns Upper U of K=UᵀU; with work it is overwritten by that solve's next factorization.
    * @throws {Error} When a row couples variables beyond the band.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Forms the cited indirect OSQP reduced system and banded Cholesky factor; convex P and positive rho/sigma are caller premises, with the existing diagonal guard documented by HumanQuadraticCholesky.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resets canonical upper storage, adds the proximal diagonal and row products, then overwrites that system with U through one Cholesky helper.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all row contributions, including duplicate indices, and the band-coupling rejection; no threshold or physical tolerance changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Assembly takes O(n*w+sum(k_r*k_r)) and Cholesky O(n*w*w); canonical bands need O(n*w) storage and repeated solve-local factorizations allocate no matrix arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation may retain an independent initial factor; adaptive calls reuse only owned matrix storage and reset every P entry before recomputing the current rho-weighted system.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Calls without work own a fresh in-place factor; calls with work overwrite one solve-owned band, which never aliases the prepared initial factor or returned iterates.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the matrix equation, parameter roles, band failure and convex-data premise.
    */
   export function factor(
     s: IScaled,
     rho: Float64Array,
     sigma: number,
+    work?: Work.IWork,
   ): Float64Array[] {
-    const k: Float64Array[] = s.p.map(
-      (row: Float64Array): Float64Array => Float64Array.from(row),
-    );
-    for (let i: number = 0; i < s.n; ++i) k[i]![0] = k[i]![0]! + sigma;
-    for (let r: number = 0; r < s.m; ++r) add(s, k, r, rho[r]!);
-    return cholesky(k, s.n, s.band);
+    const matrices: Work.IFactor = Work.system(s, sigma, work);
+    const k: Float64Array[] = matrices.system;
+    for (let r: number = 0; r < s.m; ++r)
+      HumanQuadraticRow(s, k, r, rho[r]!);
+    return HumanQuadraticCholesky(k, s.n, s.band);
   }
 
   /**
-   * Solve `L Lᵀ x = b` into `x`.
+   * Solve `Uᵀ U x = b` into `x`, using the in-place upper factor.
    *
-   * @param l The factor.
+   * @param u Canonical upper factor, each row storing min(band+1,n-i) entries.
    * @param n The size.
    * @param band The half-bandwidth.
    * @param b The right-hand side.
    * @param x The solution.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Uses forward and backward triangular substitution for the supplied finite nonsingular Cholesky factor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the original two band-limited sweeps to HumanQuadraticSubstitute, shared with active polishing, into the caller's destination in the same scalar order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solves every in-band contribution without dropping coefficients or changing precision thresholds; valid dimensions and factor remain internal caller premises.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(n*w) time, including diagonal systems, and O(1) auxiliary storage beyond the supplied destination.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads an unchanged factor across right-hand sides; upper row lengths encode the backward bound and each stored U(t,i) is the original L(i,t) value.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays and retains nothing; only the caller-owned output x is changed.
+   * @evidence contracts/development/common.md#meaningful-documentation States the factored equation, band layout, input-factor premise and destination mutation.
    */
   export function substitute(
-    l: Float64Array[],
+    u: Float64Array[],
     n: number,
     band: number,
     b: Float64Array,
     x: Float64Array,
   ): void {
-    for (let i: number = 0; i < n; ++i) {
-      let v: number = b[i]!;
-      for (let t: number = Math.max(0, i - band); t < i; ++t)
-        v -= l[i]![i - t]! * x[t]!;
-      x[i] = v / l[i]![0]!;
-    }
-    for (let i: number = n - 1; i >= 0; --i) {
-      let v: number = x[i]!;
-      for (let t: number = i + 1; t <= Math.min(n - 1, i + band); ++t)
-        v -= l[t]![t - i]! * x[t]!;
-      x[i] = v / l[i]![0]!;
-    }
+    HumanQuadraticSubstitute(u, n, band, b, x);
   }
 
   /**
@@ -231,65 +192,27 @@ export namespace HumanQuadraticBand {
    * @param x The scaled variables.
    * @param z The scaled row values.
    * @param y The scaled multipliers.
-   * @returns The residuals.
+   * @param work Disposable solve-local products and diagnostic record.
+   * @param known Optional completed Ax and A-transpose-y from the immediate polish producer; x, y and A must be unchanged.
+   * @returns Borrowed residuals, overwritten by the next residual check.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the cited primal Ax-z and dual Px+q+A-transpose-y infinity norms and reverses D/E/c scaling for the original-unit termination check.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the complete ordered products and norm measurement to HumanQuadraticResiduals, separating diagnostics from factorization and active polishing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every stored contribution and its ordered accumulation in computed or producer-supplied products; all original unscaled/scaled infinity norms and tolerances remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(Z+m+n*w); supplied products take O(m+n*w), and exact diagonal finite-x curvature replaces n*w by n. Exceptional products may visit R original entries and acquire solve-local restored rows; normal checks allocate no numeric arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the prepared unchanged 1/(c*d[i]) values; normal checks rebuild all products and only the immediate post-polish reader reuses completed Ax and A-transpose-y for unchanged x/y/A, while Px and every residual norm are still evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Products and borrowed diagnostics belong to the solve workspace; the solver copies accepted scalar diagnostics before another check may overwrite them.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines both residual equations, the unit reversal and the normalization values used by termination and rho adaptation.
    */
   export function residuals(
     s: IScaled,
     x: Float64Array,
     z: Float64Array,
     y: Float64Array,
+    work: Work.IWork,
+    known?: Pick<Work.IWork, "rows" | "transpose">,
   ): IResiduals {
-    const out: IResiduals = {
-      primal: 0,
-      primalScale: 0,
-      dual: 0,
-      dualScale: 0,
-      scaledPrimal: 0,
-      scaledPrimalScale: 0,
-      scaledDual: 0,
-      scaledDualScale: 0,
-    };
-    const aty: Float64Array = new Float64Array(s.n);
-    for (let r: number = 0; r < s.m; ++r) {
-      let ax: number = 0;
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
-        ax += s.vals[a]! * x[s.cols[a]!]!;
-        aty[s.cols[a]!] = aty[s.cols[a]!]! + s.vals[a]! * y[r]!;
-      }
-      const e: number = s.e[r]!;
-      out.scaledPrimal = Math.max(out.scaledPrimal, Math.abs(ax - z[r]!));
-      out.scaledPrimalScale = Math.max(
-        out.scaledPrimalScale,
-        Math.abs(ax),
-        Math.abs(z[r]!),
-      );
-      out.primal = Math.max(out.primal, Math.abs((ax - z[r]!) / e));
-      out.primalScale = Math.max(
-        out.primalScale,
-        Math.abs(ax / e),
-        Math.abs(z[r]! / e),
-      );
-    }
-    const px: Float64Array = curvature(s, x);
-    for (let i: number = 0; i < s.n; ++i) {
-      const unscale: number = 1 / (s.c * s.d[i]!);
-      const r: number = px[i]! + s.q[i]! + aty[i]!;
-      out.scaledDual = Math.max(out.scaledDual, Math.abs(r));
-      out.scaledDualScale = Math.max(
-        out.scaledDualScale,
-        Math.abs(px[i]!),
-        Math.abs(aty[i]!),
-        Math.abs(s.q[i]!),
-      );
-      out.dual = Math.max(out.dual, Math.abs(r * unscale));
-      out.dualScale = Math.max(
-        out.dualScale,
-        Math.abs(px[i]! * unscale),
-        Math.abs(aty[i]! * unscale),
-        Math.abs(s.q[i]! * unscale),
-      );
-    }
-    return out;
+    return HumanQuadraticResiduals(s, x, z, y, work, known);
   }
 
   /**
@@ -300,21 +223,34 @@ export namespace HumanQuadraticBand {
    *
    * @param s The scaled problem.
    * @param y The scaled multipliers.
-   * @param before Their values one iteration before.
+   * @param before Their values one iteration before, consumed as delta-y scratch; the next ADMM iteration overwrites them.
    * @param epsilon The certificate's tolerance.
+   * @param work Disposable solve-local transpose product.
    * @returns Whether the rows are certified infeasible.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Tests the cited primal-infeasibility certificate on original-unit hard-row multiplier changes, with the support function of each possibly unbounded interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the hard-row delta and its support, rejects a missing separating direction, then checks its transpose product norm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Excludes soft rows because their penalties permit interval violations; keeps the existing epsilon and honest infinite-bound support behavior.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(m+Z+n) without new vectors, reusing before and transpose; exceptional multiplier changes may restore and visit R original row entries through the solve-local owner.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes the certificate from current iterates and intervals; before is disposable after this check and the next ADMM prox overwrites every entry before it is read again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes only solve-local before and transpose scratch, zeroes soft-row deltas and returns a boolean without retaining data.
+   * @evidence contracts/development/common.md#meaningful-documentation States the certificate inequalities, original units, soft-row exclusion and behavior for absent bounds or a zero direction.
    */
   export function infeasible(
     s: IScaled,
     y: Float64Array,
     before: Float64Array,
     epsilon: number,
+    work: Work.IWork,
   ): boolean {
-    const delta: Float64Array = new Float64Array(s.m);
+    const delta: Float64Array = before;
     let size: number = 0;
     let support: number = 0;
     for (let r: number = 0; r < s.m; ++r) {
-      if (s.weight[r]! >= 0) continue;
+      if (s.weight[r]! >= 0) {
+        delta[r] = 0;
+        continue;
+      }
       const v: number = (s.e[r]! * (y[r]! - before[r]!)) / s.c;
       delta[r] = v;
       size = Math.max(size, Math.abs(v));
@@ -325,10 +261,24 @@ export namespace HumanQuadraticBand {
     }
     if (!(size > 0) || !(support < -epsilon * size)) return false;
     // Aᵀδy unscaled: D⁻¹ Āᵀ E⁻¹ δy.
-    const aty: Float64Array = new Float64Array(s.n);
-    for (let r: number = 0; r < s.m; ++r)
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-        aty[s.cols[a]!] = aty[s.cols[a]!]! + (s.vals[a]! * delta[r]!) / s.e[r]!;
+    const aty: Float64Array = work.transpose;
+    aty.fill(0);
+    for (let r: number = 0; r < s.m; ++r) {
+      const change: number = delta[r]!;
+      const scale: number = s.e[r]!;
+      if (Number.isFinite(change)) {
+        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
+          const index: number = s.cols[a]!;
+          aty[index] = aty[index]! + (s.vals[a]! * change) / scale;
+        }
+      } else {
+        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+        for (let a: number = 0; a < row.index.length; ++a) {
+          const index: number = row.index[a]!;
+          aty[index] = aty[index]! + (row.coef[a]! * change) / scale;
+        }
+      }
+    }
     let norm: number = 0;
     for (let i: number = 0; i < s.n; ++i)
       norm = Math.max(norm, Math.abs(aty[i]! / s.d[i]!));
@@ -349,7 +299,16 @@ export namespace HumanQuadraticBand {
    * @param y The scaled multipliers.
    * @param delta The regularisation.
    * @param refine The refinement steps.
-   * @returns The polished iterates, scaled.
+   * @param work Disposable ADMM buffers after that phase has ended.
+   * @returns Scaled candidate iterates and borrowed products for their immediate residual admission before x, y or A changes.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the cited active-set regularized KKT solve and iterative refinement; the outer solver accepts its result only when the original residual checks permit it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects bound rows and fixed soft multipliers, factors their reduced system once, then shares its factor and overwrite buffers across the initial solve and refinement passes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps existing delta, active-row rules and refinement count; the Cholesky diagonal guard is retained and a polish is not itself a success certificate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Finite assembly takes O(n*w+sum(active k_r*k_r)), factorization O(n*w*w), and each refinement O(n*w+Z+m), with O(n*w+n+m) work storage; exceptional products may additionally restore/visit R original entries, while exact diagonal finite-x curvature takes O(n).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rebuilds the active system and shares its refinement factor; active multipliers accumulate in final coordinates, consumed before holds residuals, and final x/y share one ordered Ax/A-transpose-y pass. Only nonfinite operands request original zero terms from the same solve's restoration owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate x/z and the local multiplier vector are independent of scratch; consumed before first holds active constraint residuals and then final Ax, while the cost-rhs buffer holds final A-transpose-y only after its refinement use ends; neither buffer escapes in public state.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes hard and soft active rows, regularized reduction, iterative refinement, scaled outputs and outer acceptance ownership.
    */
   export function polish(
     s: IScaled,
@@ -357,7 +316,13 @@ export namespace HumanQuadraticBand {
     y: Float64Array,
     delta: number,
     refine: number,
-  ): { x: Float64Array; z: Float64Array; y: Float64Array } {
+    work: Work.IWork,
+  ): {
+    x: Float64Array;
+    z: Float64Array;
+    y: Float64Array;
+    products: Pick<Work.IWork, "rows" | "transpose">;
+  } {
     const active: number[] = [];
     const bound: number[] = [];
     const fixed: Float64Array = new Float64Array(s.m);
@@ -374,129 +339,128 @@ export namespace HumanQuadraticBand {
           bound.push(u);
         }
       } else if (z[r]! > l && z[r]! < u) continue;
-      else if (Math.abs(y[r]!) < w && [l, u].includes(z[r]!)) {
+      else if (Math.abs(y[r]!) < w && (z[r] === l || z[r] === u)) {
         active.push(r);
         bound.push(z[r]!);
       } else fixed[r] = Math.sign(y[r]!) * w;
     }
+
     // The reduced system P̄ + δI + Σ āᵢ āᵢᵀ / δ over the active rows.
-    const k: Float64Array[] = s.p.map(
-      (row: Float64Array): Float64Array => Float64Array.from(row),
-    );
-    for (let i: number = 0; i < s.n; ++i) k[i]![0] = k[i]![0]! + delta;
-    for (const r of active) add(s, k, r, 1 / delta);
-    const l: Float64Array[] = cholesky(k, s.n, s.band);
+    const matrices: Work.IFactor = Work.system(s, delta, work);
+    const k: Float64Array[] = matrices.system;
+    const rowWeight: number = 1 / delta;
+    for (const r of active) HumanQuadraticRow(s, k, r, rowWeight);
+    const upper: Float64Array[] = HumanQuadraticCholesky(k, s.n, s.band);
+
+    /** Keep the original subtraction order in both fixed-row right-hand sides, restoring exceptional zero products only when needed. */
+    const subtract: (out: Float64Array, r: number, multiplier: number) => void = (
+      out: Float64Array,
+      r: number,
+      multiplier: number,
+    ): void => {
+      if (Number.isFinite(multiplier)) {
+        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
+          out[s.cols[a]!] = out[s.cols[a]!]! - s.vals[a]! * multiplier;
+      } else {
+        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+        for (let a: number = 0; a < row.index.length; ++a)
+          out[row.index[a]!] = out[row.index[a]!]! - row.coef[a]! * multiplier;
+      }
+    };
+
     // The right-hand side: -q̄ less the fixed multipliers' rows.
-    const rhs: Float64Array = new Float64Array(s.n);
+    const rhs: Float64Array = work.transpose;
     for (let i: number = 0; i < s.n; ++i) rhs[i] = -s.q[i]!;
     for (let r: number = 0; r < s.m; ++r)
-      if (fixed[r] !== 0)
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          rhs[s.cols[a]!] = rhs[s.cols[a]!]! - s.vals[a]! * fixed[r]!;
-    const dot = (r: number, v: Float64Array): number => {
+      if (fixed[r] !== 0) subtract(rhs, r, fixed[r]!);
+    const dot: (r: number, v: Float64Array, finite: boolean) => number = (
+      r: number,
+      v: Float64Array,
+      finite: boolean,
+    ): number => {
       let out: number = 0;
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
+      if (!finite) {
+        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+        for (let a: number = 0; a < row.index.length; ++a)
+          out += row.coef[a]! * v[row.index[a]!]!;
+        return out;
+      }
+      const end: number = s.start[r + 1]!;
+      for (let a: number = s.start[r]!; a < end; ++a)
         out += s.vals[a]! * v[s.cols[a]!]!;
       return out;
     };
+
     // The regularised KKT system [P̄ + δI, Āᵀ; Ā, -δI] [Δx; Δy] = [r₁; r₂],
     // reduced: Δy = (Ā Δx - r₂) / δ.
     const xs: Float64Array = new Float64Array(s.n);
-    const ys: Float64Array = new Float64Array(active.length);
-    const step = (r1: Float64Array, r2: Float64Array): void => {
-      const b: Float64Array = Float64Array.from(r1);
+    let finiteXS: boolean = true;
+    const b: Float64Array = Float64Array.from(rhs);
+    const r2: Float64Array = work.rows;
+    for (let j: number = 0; j < bound.length; ++j) r2[j] = bound[j]!;
+    const dx: Float64Array = work.curvature;
+    const step: () => void = (): void => {
       active.forEach((r: number, j: number): void => {
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          b[s.cols[a]!] = b[s.cols[a]!]! + (s.vals[a]! * r2[j]!) / delta;
+        const residual: number = r2[j]!;
+        if (Number.isFinite(residual)) {
+          for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
+            b[s.cols[a]!] = b[s.cols[a]!]! + (s.vals[a]! * residual) / delta;
+        } else {
+          const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+          for (let a: number = 0; a < row.index.length; ++a)
+            b[row.index[a]!] = b[row.index[a]!]! + (row.coef[a]! * residual) / delta;
+        }
       });
-      const dx: Float64Array = new Float64Array(s.n);
-      substitute(l, s.n, s.band, b, dx);
-      for (let i: number = 0; i < s.n; ++i) xs[i] = xs[i]! + dx[i]!;
+      HumanQuadraticSubstitute(upper, s.n, s.band, b, dx);
+      let finiteDirection: boolean = true;
+      for (let i: number = 0; i < s.n; ++i) {
+        if (!Number.isFinite(dx[i]!)) finiteDirection = false;
+        xs[i] = xs[i]! + dx[i]!;
+        if (!Number.isFinite(xs[i]!)) finiteXS = false;
+      }
       active.forEach((r: number, j: number): void => {
-        ys[j] = ys[j]! + (dot(r, dx) - r2[j]!) / delta;
+        fixed[r] = fixed[r]! + (dot(r, dx, finiteDirection) - r2[j]!) / delta;
       });
     };
-    step(rhs, Float64Array.from(bound));
+    step();
+
     // Iterative refinement toward the unregularised system.
     for (let pass: number = 0; pass < refine; ++pass) {
-      const px: Float64Array = curvature(s, xs);
-      const r1: Float64Array = new Float64Array(s.n);
-      for (let i: number = 0; i < s.n; ++i) r1[i] = rhs[i]! - px[i]!;
-      active.forEach((r: number, j: number): void => {
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          r1[s.cols[a]!] = r1[s.cols[a]!]! - s.vals[a]! * ys[j]!;
+      Work.curvature(s, xs, dx);
+      for (let i: number = 0; i < s.n; ++i) b[i] = rhs[i]! - dx[i]!;
+      active.forEach((r: number): void => {
+        subtract(b, r, fixed[r]!);
       });
-      const r2: Float64Array = Float64Array.from(
-        active,
-        (r: number, j: number): number => bound[j]! - dot(r, xs),
-      );
-      step(r1, r2);
+      active.forEach((r: number, j: number): void => {
+        r2[j] = bound[j]! - dot(r, xs, finiteXS);
+      });
+      step();
     }
     const zs: Float64Array = new Float64Array(s.m);
-    const yo: Float64Array = Float64Array.from(fixed);
+    const aty: Float64Array = work.transpose;
+    aty.fill(0);
     for (let r: number = 0; r < s.m; ++r) {
-      const v: number = dot(r, xs);
+      let v: number = 0;
+      const multiplier: number = fixed[r]!;
+      if (finiteXS && Number.isFinite(multiplier)) {
+        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
+          const index: number = s.cols[a]!;
+          const coefficient: number = s.vals[a]!;
+          v += coefficient * xs[index]!;
+          aty[index] = aty[index]! + coefficient * multiplier;
+        }
+      } else {
+        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+        for (let a: number = 0; a < row.index.length; ++a) {
+          const index: number = row.index[a]!;
+          const coefficient: number = row.coef[a]!;
+          v += coefficient * xs[index]!;
+          aty[index] = aty[index]! + coefficient * multiplier;
+        }
+      }
+      work.rows[r] = v;
       zs[r] = s.weight[r]! < 0 ? Math.min(s.hi[r]!, Math.max(s.lo[r]!, v)) : v;
     }
-    active.forEach((r: number, j: number): void => {
-      yo[r] = ys[j]!;
-    });
-    return { x: xs, z: zs, y: yo };
+    return { x: xs, z: zs, y: fixed, products: work };
   }
-}
-
-/** Passes of the Ruiz equilibration (OSQP's default). */
-const SCALING: number = 10;
-
-/** The range a norm is held within before it scales (OSQP's bounds). */
-const MIN_SCALE: number = 1e-4;
-const MAX_SCALE: number = 1e4;
-
-/** Add `w ā āᵀ` of a row to a banded system. */
-function add(
-  s: HumanQuadraticBand.IScaled,
-  k: Float64Array[],
-  r: number,
-  w: number,
-): void {
-  for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-    for (let b: number = s.start[r]!; b < s.start[r + 1]!; ++b) {
-      const i: number = s.cols[a]!;
-      const j: number = s.cols[b]!;
-      if (j < i) continue;
-      if (j - i > s.band)
-        throw new Error("A row couples variables beyond the band");
-      k[i]![j - i] = k[i]![j - i]! + w * s.vals[a]! * s.vals[b]!;
-    }
-}
-
-/** P̄ x for the banded scaled curvature. */
-function curvature(
-  s: HumanQuadraticBand.IScaled,
-  x: Float64Array,
-): Float64Array {
-  const out: Float64Array = new Float64Array(s.n);
-  for (let i: number = 0; i < s.n; ++i) {
-    out[i] = out[i]! + s.p[i]![0]! * x[i]!;
-    for (let j: number = 1; j <= s.band && i + j < s.n; ++j) {
-      out[i] = out[i]! + s.p[i]![j]! * x[i + j]!;
-      out[i + j] = out[i + j]! + s.p[i]![j]! * x[i]!;
-    }
-  }
-  return out;
-}
-
-/** A banded Cholesky factor L (lower), stored as `l[i][j]` = L(i, i - j). */
-function cholesky(k: Float64Array[], n: number, band: number): Float64Array[] {
-  const l: Float64Array[] = [];
-  for (let i: number = 0; i < n; ++i) l.push(new Float64Array(band + 1));
-  for (let i: number = 0; i < n; ++i)
-    for (let j: number = Math.max(0, i - band); j <= i; ++j) {
-      let v: number = k[j]![i - j]!;
-      for (let t: number = Math.max(0, i - band); t < j; ++t)
-        v -= l[i]![i - t]! * l[j]![j - t]!;
-      if (i === j) l[i]![0] = Math.sqrt(Math.max(v, 1e-300));
-      else l[i]![i - j] = v / l[j]![0]!;
-    }
-  return l;
 }

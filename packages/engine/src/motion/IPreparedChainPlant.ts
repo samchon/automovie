@@ -6,14 +6,14 @@ import type { Quaternion } from "../math/Quaternion";
 import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 
 /**
- * Pose-invariant chain frames and effective clinical domains prepared for one target.
+ * Pose-invariant chain frames and effective clinical domains prepared for one unchanged source pose.
  * The solver and residual reader share these same rest transforms and constraints;
  * offsets and endpoints use the resolved model metre frame.
  *
- * @evidence contracts/development/design.md#principled-representation Captures articulation-free chain frames under the current parent pose plus root/mid effective clinical domains; local offsets and relative lower rotation let each clamped candidate's effector be resolved by two compositions.
+ * @evidence contracts/development/design.md#principled-representation Captures articulation-free chain frames under the current parent pose plus root/mid effective clinical domains; local offsets and relative lower/effector rotations reconstruct candidate points and orientations including unchanged intermediate bones.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Separates pose-invariant preparation from candidate-specific target/bend choice so the inverse solve and residual scorer consume identical frames and constraints.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Domains come from the actual skeleton and shared defaults; this record has no alternate rig limits or copied measurement that overrides solved FK.
- * @evidence contracts/development/common.md#meaningful-documentation Describes articulation removal, current parent pose, model-metre coordinates, local offsets and the relative lower orientation required to reconstruct a candidate.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes articulation removal, current parent pose, model-metre coordinates, local offsets and relative lower/effector orientation required to reconstruct a candidate.
  */
 export interface IPreparedChainPlant {
   /** Ordered root, mid and effector identities from the caller's chain. */
@@ -45,4 +45,7 @@ export interface IPreparedChainPlant {
 
   /** Mid-to-effector offset in the mid's local frame, metres. */
   effectorOffset: IAutoMovieVector3;
+
+  /** Mid-to-effector frame rotation with the effector's own articulation removed; unchanged intermediate bones retain the input pose. */
+  effectorBaseRotation: ReturnType<typeof Quaternion.identity>;
 }

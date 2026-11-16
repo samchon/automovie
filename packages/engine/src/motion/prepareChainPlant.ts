@@ -1,5 +1,4 @@
 import {
-  AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -7,37 +6,40 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
+import type { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { getConstraint } from "../rom/getConstraint";
 import { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { IPreparedChainPlant } from "./IPreparedChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
+import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
 
 /**
- * Prepare articulation-free frames and effective domains for one reachable descendant two-bone chain in the current pose's resolved model-metre frame. Missing bones or invalid ancestry return null; supplied topology and clinical mappings must match the unchanged skeleton.
+ * Prepare articulation-free frames and effective domains for one reachable descendant two-bone chain in the current pose's resolved model-metre frame. Missing bones or invalid ancestry return null; supplied topology and clinical mappings must match the unchanged skeleton. An optional resolution reader shares only exact completed FK work within the same synchronous fit.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Removes only upper/lower articulation before FK, preserving current parent pose; strict descendant checks allow fixed intermediate bones, and relative rotations/local offsets recover the same chain for candidate FK under actual effective ROM.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns pose-invariant geometry used by both solvePreparedChainPlant and resolvePreparedChainEffector, while target/bend choice belongs to each candidate input.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns pose-invariant geometry used by the inverse solve, candidate point reader and final chain-frame reader, while target/bend choice belongs to each candidate input.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unresolved or branched pseudo-chains return null rather than treating same-named bones as adjacent; domains come from getConstraint on the actual rig, and no alternate geometric proxy replaces its offsets.
  * @evidence contracts/development/common.md#meaningful-documentation States articulation removal, model frame, topology/mapping premises, descendant-chain admission and null meaning.
  * @evidence contracts/development/implementation.md#efficient-algorithms One FK and two skeleton-domain scans plus bounded descendant tree walks are linear in rig/joint population; returned preparation has a fixed number of vectors/frames/domains.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared record is reused for every candidate of the same parent pose/chain; a changed pose or semantic mapping requires new preparation rather than a name-only cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned fields borrow chain and resolved records and own derived offsets; temporary zeroed joints/FK map are released after return/null, with no resource handles.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared record serves every candidate of the same source/chain. A supplied operation reader reuses exact unchanged joint/parent/rest dependencies from another related full pose while still visiting all zeroed-pose records in order; changed source geometry or mappings require new chain preparation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned fields borrow chain and resolved records and own derived offsets/relative rotations; temporary zeroed joints/FK map are released after return/null, with no resource handles.
  */
 export const prepareChainPlant: (
   props: Pick<
     IFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
+  resolution?: ReturnType<typeof preparePoseResolution>,
 ) => IPreparedChainPlant | null = (
   props: Pick<
     IFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
+  resolution?: ReturnType<typeof preparePoseResolution>,
 ): IPreparedChainPlant | null => {
   const { chain }: typeof props = props;
   // The limb at rest under the current parent pose: zero its own articulation
@@ -56,6 +58,7 @@ export const prepareChainPlant: (
     props.topology,
     props.jointAxes,
     props.restFrames,
+    resolution,
   );
   const upper: IAutoMovieResolvedBone | undefined = map.get(chain.upper);
   const lower: IAutoMovieResolvedBone | undefined = map.get(chain.lower);
@@ -63,8 +66,16 @@ export const prepareChainPlant: (
   if (upper === undefined || lower === undefined || effector === undefined)
     return null;
   if (
-    isDescendant(props.topology, chain.upper, chain.lower) === false ||
-    isDescendant(props.topology, chain.lower, chain.effector) === false
+    resolveChainEffectorBaseRotation.isDescendant(
+      props.topology,
+      chain.upper,
+      chain.lower,
+    ) === false ||
+    resolveChainEffectorBaseRotation.isDescendant(
+      props.topology,
+      chain.lower,
+      chain.effector,
+    ) === false
   )
     return null;
 
@@ -74,6 +85,17 @@ export const prepareChainPlant: (
   const lowerInverse: IAutoMovieQuaternion = Quaternion.inverse(
     lower.worldRotation,
   );
+
+  // The same fixed-frame recovery serves readers that already resolved the
+  // authored pose, so standalone FK admission need not be reordered.
+  const effectorBaseRotation: IAutoMovieQuaternion =
+    resolveChainEffectorBaseRotation.fromPrepared(
+      props,
+      lower,
+      effector,
+      lowerInverse,
+      resolution,
+    );
   return {
     chain,
     upper,
@@ -113,21 +135,6 @@ export const prepareChainPlant: (
       lowerInverse,
       Vector3.subtract(effector.worldPosition, lower.worldPosition),
     ),
+    effectorBaseRotation,
   };
 };
-
-/** Whether a reachable bone sits strictly below another in the rig tree. */
-const isDescendant: (
-  topology: IAutoMovieSkeletonTopology,
-  ancestor: AutoMovieHumanoidBone,
-  descendant: AutoMovieHumanoidBone,
-) => boolean = (
-  topology: IAutoMovieSkeletonTopology,
-  ancestor: AutoMovieHumanoidBone,
-  descendant: AutoMovieHumanoidBone,
-): boolean =>
-  (topology.childrenByParent.get(ancestor) ?? []).some(
-    (child: IAutoMovieBone): boolean =>
-      child.bone === descendant ||
-      isDescendant(topology, child.bone, descendant),
-  );

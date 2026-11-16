@@ -1,6 +1,6 @@
 // Open the built site in a headless browser and check that its pages run.
 //
-//   pnpm run smoke [--shots]
+//   pnpm run smoke [--shots] [--case "exact case name"]
 //
 // The type check and the Node tests cannot see what only the browser bundle
 // does, such as a package source the bundler compiled wrongly. This serves
@@ -18,14 +18,17 @@ import path from "node:path";
 import {
   type Browser,
   type BrowserContext,
+  type ConsoleMessage,
   type Locator,
   type Page,
+  type Request,
   chromium,
 } from "playwright-core";
 
 import { SCENES } from "../src/scenes/SCENES";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
+import { observeSmokePage } from "./observeSmokePage";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -285,7 +288,36 @@ const COUNTERS: string = `
   };
 `;
 
-const main = async (): Promise<void> => {
+/**
+ * Select one exact case name when requested; otherwise keep the full list.
+ * Parse before starting a server or browser so a miss cannot run another
+ * case or silently turn a diagnostic request into the default full suite.
+ */
+function selectedCases(): readonly ICase[] {
+  let selected: ICase | undefined;
+  for (let index: number = 2; index < process.argv.length; index++) {
+    const argument: string = process.argv[index]!;
+    if (argument !== "--case" && !argument.startsWith("--case=")) continue;
+    if (selected !== undefined) throw new Error("--case may be supplied only once");
+    const name: string | undefined = argument === "--case"
+      ? process.argv[++index]
+      : argument.slice("--case=".length);
+    if (name === undefined || name.length === 0)
+      throw new Error("--case requires one exact case name");
+    selected = CASES.find((each: ICase): boolean => each.name === name);
+    if (selected === undefined)
+      throw new Error(`No smoke case has the exact name ${JSON.stringify(name)}`);
+  }
+  return selected === undefined ? CASES : [selected];
+}
+
+const main: () => Promise<void> = async (): Promise<void> => {
+  const selected: readonly ICase[] = selectedCases();
+  console.log(JSON.stringify({
+    event: "smoke-selection",
+    cases: selected.map((each: ICase): string => each.name),
+    computeLimitMs: COMPUTE_LIMIT,
+  }));
   const served: { server: http.Server; address: string } = await serveExport(0);
   const browser: Browser = await chromium.launch({
     headless: true,
@@ -295,7 +327,7 @@ const main = async (): Promise<void> => {
   });
   const failures: string[] = [];
   try {
-    for (const each of CASES) {
+    for (const each of selected) {
       const context: BrowserContext = await browser.newContext({
         reducedMotion: each.reduced === true ? "reduce" : "no-preference",
         viewport: { width: 1440, height: 900 },
@@ -303,14 +335,14 @@ const main = async (): Promise<void> => {
       await context.addInitScript(COUNTERS);
       const page: Page = await context.newPage();
       const problems: string[] = [];
-      page.on("console", (message): void => {
+      page.on("console", (message: ConsoleMessage): void => {
         if (message.type() === "error")
           problems.push(`console: ${message.text()}`);
       });
       page.on("pageerror", (error: Error): void => {
         problems.push(`error: ${error.message}`);
       });
-      page.on("requestfailed", (request): void => {
+      page.on("requestfailed", (request: Request): void => {
         problems.push(`failed request: ${request.url()}`);
       });
       const opened: number = Date.now();
@@ -382,6 +414,22 @@ const main = async (): Promise<void> => {
         console.log(`  ${problem}`);
         failures.push(`${each.name}: ${problem}`);
       }
+      if (problems.length !== 0)
+        try {
+          console.log(JSON.stringify({
+            event: "smoke-failure-observation",
+            case: each.name,
+            elapsedSeconds: (Date.now() - opened) / 1000,
+            snapshot: await observeSmokePage(page),
+          }));
+        } catch (error) {
+          // Observation cannot replace or suppress the failed checks.
+          console.log(JSON.stringify({
+            event: "smoke-observation-error",
+            case: each.name,
+            message: error instanceof Error ? error.message : String(error),
+          }));
+        }
       await context.close();
     }
   } finally {

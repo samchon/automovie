@@ -19,6 +19,8 @@ import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import { fitHingedRotationError } from "./fitHingedRotationError";
+import { posedHingeSwing } from "./posedHingeSwing";
+import type { prepareChainFit } from "./prepareChainFit";
 import type { prepareChainPlant } from "./prepareChainPlant";
 
 /**
@@ -29,7 +31,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * requested effector rotation's error in degrees (when one is requested),
  * plus two degrees per unit of the mid joint's swing away from the bend
  * hint's side of the root-to-target axis (`1 - cos`; without a hint, the side
- * the posed hinge already bends toward, see `posedSwing`), plus, when the
+ * the posed hinge already bends toward, see `posedHingeSwing`), plus, when the
  * request carries a
  * `referencePose` (a grid-free reference such as the solution at a contact
  * event, never the previous frame, so a pose stays a pure function of time),
@@ -60,28 +62,30 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @param prepared The chain's preparation.
  * @param axes The mid bone's axes; its flexion is the hinge.
  * @param rotation A requested effector rotation, ranked before the hint's side when given.
+ * @param rig Optional lazy rig of the same unchanged source workspace; source-only basis, reference, hinge range and posed swing may be shared, while every candidate score and callback remains target-local.
  * @returns The candidate, or null for a degenerate chain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the overshoot-then-continuous-cost ranking with its terms and weights, the continuity premise and the frames of every input.
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation; swivels the root's three-angle box or swing-twist range certainly refuses are not scored (`boxExcludedSwivels`), with the full sweep's answer.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input, called once per fit.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms hingedArmArticulation supplies at most 720 coarse swivel samples plus its bounded per-minimum refinements, or only the continued seed's refinement. Each score reads the root angles and overshoot; a rotation's exact error is evaluated lazily when the comparison bound needs it. That read uses fitHingedRotationError's at most five distal projector queries plus one final query: at most six queries of nineteen actual joint scores each for an eligible box, or its retained four-sweep, forty-step-per-axis fallback of at most 528 recompositions per query. The shared lower quaternion reuses its angles, overshoot, effort and reference turn per branch. Certified refused swivels remain pruned; caller obstruction/strain work remains additional, and no runtime speedup is measured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
 export function fitHingedChainCandidate(
   props: IFitChainToTargetProps,
   prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
   axes: IAutoMovieJointAxes,
   rotation?: IAutoMovieQuaternion,
+  rig?: prepareChainFit.IRig,
 ): IAutoMovieSolvedChainPlant | null {
   const turn:
-    | ((upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number)
+    | ((upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion, preparedAbove?: IAutoMovieQuaternion) => number)
     | null =
     rotation === undefined
       ? null
-      : fitHingedRotationError(props, prepared, axes, rotation);
+      : fitHingedRotationError(props, prepared, axes, rotation, rig);
   const root: IAutoMovieVector3 = prepared.upper.worldPosition;
   const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
   if (Vector3.length(reach) < 1e-9) return null;
@@ -91,21 +95,29 @@ export function fitHingedChainCandidate(
     return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
   };
   const hint: IAutoMovieVector3 = across(
-    props.bend ?? Vector3.subtract(root, posedSwing(props, prepared, axes)),
+    props.bend ??
+      Vector3.subtract(
+        root,
+        rig === undefined
+          ? posedHingeSwing(props, prepared, axes)
+          : rig.posedSwing(
+              (): IAutoMovieVector3 => posedHingeSwing(props, prepared, axes),
+            ),
+      ),
   );
   const side: IAutoMovieVector3 | null =
     Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
   // Each basis is admitted and normalized once for the whole sweep; the
   // candidates differ only in their rotation.
-  const upperBasis: IAutoMovieJointAxes = basisOf(
-    props.jointAxes?.[props.chain.upper],
-  );
-  const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
-  const joints = (
+  const upperBasis: IAutoMovieJointAxes =
+    rig?.basis(props.chain.upper, "decomposeJointRotation axes") ??
+    basisOf(props.jointAxes?.[props.chain.upper]);
+  const lowerBasis: IAutoMovieJointAxes =
+    rig?.basis(props.chain.lower, "decomposeJointRotation axes") ??
+    basisOf(axes);
+  const upperOf = (
     upper: IAutoMovieQuaternion,
-    lower: IAutoMovieQuaternion,
-  ): [IAutoMovieJointPose, IAutoMovieJointPose] => [
-    {
+  ): IAutoMovieJointPose => ({
       bone: props.chain.upper,
       ...decomposeJointRotationOnBasis(
         upper,
@@ -113,9 +125,7 @@ export function fitHingedChainCandidate(
         props.restFrames?.[props.chain.upper],
         prepared.upperDomain,
       ),
-    },
-    midOf(lower).joint,
-  ];
+  });
   const previous = (bone: string): IAutoMovieQuaternion | null => {
     const joint: IAutoMovieJointPose | undefined =
       props.referencePose?.joints.find(
@@ -134,18 +144,22 @@ export function fitHingedChainCandidate(
         );
   };
   const before: [IAutoMovieQuaternion | null, IAutoMovieQuaternion | null] = [
-    previous(props.chain.upper),
-    previous(props.chain.lower),
+    rig === undefined
+      ? previous(props.chain.upper)
+      : rig.reference(props.chain.upper),
+    rig === undefined
+      ? previous(props.chain.lower)
+      : rig.reference(props.chain.lower),
   ];
-  const anchor: number = props.referenceWeight ?? 1;
-  if (!Number.isFinite(anchor) || anchor < 0)
+  const anchor: number = rig?.referenceWeight() ?? props.referenceWeight ?? 1;
+  if (rig === undefined && (!Number.isFinite(anchor) || anchor < 0))
     throw new Error(
       `fitChainToTarget referenceWeight must be finite and non-negative, but was ${anchor}`,
     );
   const apart = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
-  ): number => (b === null ? 0 : (Quaternion.angle(a, b) * 180) / Math.PI);
+  ): number => (b === null ? 0 : (Quaternion.angle(Quaternion.normalize(a), b) * 180) / Math.PI);
   // A sweep's candidates on one bend branch share one mid rotation, the
   // same record, and differ only in the swivel of the root. What depends on
   // the mid rotation alone is read once per record: the same values, read
@@ -171,31 +185,32 @@ export function fitHingedChainCandidate(
         abduction: joint.abduction ?? 0,
         twist: joint.twist ?? 0,
       }),
-      turned: apart(Quaternion.normalize(lower), before[1]),
+      turned: apart(lower, before[1]),
     };
     return mid;
   };
-  const range: { min: number; max: number } | null = hingeRange(
-    props,
-    prepared,
-    axes,
-    lowerBasis,
-  );
+  const range: { min: number; max: number } | null =
+    rig === undefined
+      ? hingeRange(props, prepared, axes, lowerBasis)
+      : rig.hingeRange((): { min: number; max: number } | null =>
+          hingeRange(props, prepared, axes, lowerBasis),
+        );
   // What a candidate reads besides the hint's side: its root's angles, its
   // mid joint's place, its overshoot, effort and turn from the reference.
   const reading = (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IReading => {
-    const [u] = joints(upper, lower);
+    const u: IAutoMovieJointPose = upperOf(upper);
+    const known: IMid = midOf(lower);
     const turnedUpper: IAutoMovieQuaternion = Quaternion.multiply(
       prepared.upper.worldRotation,
       upper,
     );
-    const lowerWorld: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(turnedUpper, prepared.lowerRotation),
-      lower,
+    const above: IAutoMovieQuaternion = Quaternion.multiply(
+      turnedUpper, prepared.lowerRotation,
     );
+    const lowerWorld: IAutoMovieQuaternion = Quaternion.multiply(above, lower);
     const mid: IAutoMovieVector3 = Vector3.add(
       root,
       Quaternion.rotateVector(turnedUpper, prepared.lowerOffset),
@@ -210,9 +225,9 @@ export function fitHingedChainCandidate(
               Quaternion.rotateVector(lowerWorld, prepared.effectorOffset),
             ),
           );
-    const known: IMid = midOf(lower);
     return {
       mid,
+      above,
       lowerWorld,
       effort:
         clinicalDeviation({
@@ -225,7 +240,7 @@ export function fitHingedChainCandidate(
         known.overshoot +
         blocked,
       turned:
-        anchor * (apart(Quaternion.normalize(upper), before[0]) + known.turned),
+        anchor * (apart(upper, before[0]) + known.turned),
     };
   };
   // With a strain the swivels are ranked by task priority (Siciliano and
@@ -275,7 +290,7 @@ export function fitHingedChainCandidate(
         exact?: () => number;
         tiebreak?: () => number;
       } => {
-        const { mid, lowerWorld, effort, overshoot, turned }: IReading =
+        const { mid, above, lowerWorld, effort, overshoot, turned }: IReading =
           reading(upper, lower);
         if (strain !== undefined)
           return {
@@ -283,7 +298,7 @@ export function fitHingedChainCandidate(
             deviation: 0,
             ...(turn === null
               ? {}
-              : { exact: (): number => turn(upper, lower) }),
+              : { exact: (): number => turn(upper, lower, above) }),
             // A reference pose keeps its side through a stroke, so its turn
             // decides before the strain; without one the strain decides.
             tiebreak: (): number =>
@@ -314,12 +329,13 @@ export function fitHingedChainCandidate(
           overshoot,
           deviation: 0 + 2 * away + turned + 1e-9 * effort,
           exact: (): number =>
-            turn(upper, lower) + 2 * away + turned + 1e-9 * effort,
+            turn(upper, lower, above) + 2 * away + turned + 1e-9 * effort,
         };
       },
     });
   if (solved === null) return null;
-  const [upper, lower] = joints(solved.upper, solved.lower);
+  const upper: IAutoMovieJointPose = upperOf(solved.upper);
+  const lower: IAutoMovieJointPose = midOf(solved.lower).joint;
   return {
     hinge: prepared.hinge,
     upper,
@@ -383,79 +399,6 @@ function hingeRange(
   };
 }
 
-/**
- * Which way the end of the chain swings when its posed hinge flexes one more
- * degree, as a world vector: the side a hinged chain keeps when the request
- * names no bend hint. The mid joint lies opposite the swing across the
- * root-to-end line, so `root - swing` is the hint point.
- *
- * Without a pole, analytic two-bone IK keeps the chain's current bend plane
- * (Unity's TwoBoneIKConstraint without a hint, Maya's ikRPsolver with a zero
- * pole vector), because the pose being fitted already says how the limb is
- * turned. World-down, the textbook arm default, fails for a standing leg: it
- * lies almost along the hip-to-ankle axis, so its component across that axis
- * is tiny, turns with every millimetre the foot moves and flips the knee
- * between frames, which a planted walk on a slope showed as a 1066 degree per
- * second thigh twist. The posed hinge instead gives a definite side even for
- * a straight limb, since flexion always swings the end about the hinge's own
- * axis, and it moves only as continuously as the authored pose does.
- *
- * Reading the swing numerically (forward kinematics at the posed flexion and
- * one degree more) needs no sign convention for the hinge axis, which differs
- * between an elbow and a knee and between rigs.
- *
- * @param props The fit request; its pose supplies the posed root and mid joints, rest when absent.
- * @param prepared The chain's preparation.
- * @param axes The mid bone's axes; its flexion is the hinge.
- * @returns The end's displacement, model metres.
- */
-function posedSwing(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
-  axes: IAutoMovieJointAxes,
-): IAutoMovieVector3 {
-  const posed = (bone: IAutoMovieJointPose["bone"]): IAutoMovieJointPose =>
-    props.pose.joints.find(
-      (j: IAutoMovieJointPose): boolean => j.bone === bone,
-    ) ?? {
-      bone,
-      flexion: 0,
-      abduction: 0,
-      twist: 0,
-    };
-  const upperJoint: IAutoMovieJointPose = posed(props.chain.upper);
-  const lowerJoint: IAutoMovieJointPose = posed(props.chain.lower);
-  const above: IAutoMovieQuaternion = Quaternion.multiply(
-    prepared.upper.worldRotation,
-    jointToQuaternion(
-      upperJoint,
-      props.jointAxes?.[props.chain.upper],
-      props.restFrames?.[props.chain.upper],
-    ),
-  );
-  const mid: IAutoMovieVector3 = Vector3.add(
-    prepared.upper.worldPosition,
-    Quaternion.rotateVector(above, prepared.lowerOffset),
-  );
-  const end = (flexion: number): IAutoMovieVector3 =>
-    Vector3.add(
-      mid,
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          Quaternion.multiply(above, prepared.lowerRotation),
-          jointToQuaternion(
-            { ...lowerJoint, flexion },
-            axes,
-            props.restFrames?.[props.chain.lower],
-          ),
-        ),
-        prepared.effectorOffset,
-      ),
-    );
-  const flexion: number = lowerJoint.flexion ?? 0;
-  return Vector3.subtract(end(flexion + 1), end(flexion));
-}
-
 /** The mid joint's distance from the line to the target, metres, from which the bend hint's side weighs in full (provisional: a millimetre, past any rounding of a limb's joints and short of any bend one sees). */
 const SIDED: number = 1e-3;
 
@@ -477,8 +420,11 @@ interface IMid {
   turned: number;
 }
 
-/** What a candidate reads besides the hint's side, read once per candidate of a fit with a strain. */
+/** What each candidate reads besides the hint's side, shared with its lazy exact score. */
 interface IReading {
+  /** Completed world frame preceding the lower articulation, for this exact upper candidate. */
+  above: IAutoMovieQuaternion;
+
   /** The mid joint's place, world metres. */
   mid: IAutoMovieVector3;
 

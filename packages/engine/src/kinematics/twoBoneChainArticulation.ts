@@ -36,22 +36,86 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *
  * Returns `null` for a degenerate chain: a segment shorter than `1e-6`, or a
  * target within `1e-6` of the root.
+ * Inputs remain unchanged during one call; explicit preparation additionally
+ * keeps source frames fixed across targets and a target fixed across normals.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Places the mid joint by the law-of-cosines lift in a chosen plane, then lowers each world delta into its bone's local frame by conjugation with the rest world rotation; the premises are a resolved chain whose rest frames match the bones' current world frames and unit rotations, and the stated limitation is that without `bendNormal` the plane is a world-down heuristic that suits a knee but not every joint.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry for `solvePreparedChainPlant`, which owns the chain choice, bend-normal search and clinical decomposition; the triangle angles come from the shared `solveTwoBoneIK`.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Private source geometry, target geometry and candidate evaluation are the shared owners used by this direct entry and explicit scoped preparation; solvePreparedChainPlant keeps clinical decomposition and solveTwoBoneIK keeps the triangle law.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb or rig is special-cased; the vertical-axis fallback plane is a stated degeneracy rule, and an unreachable target is extended onto the shell rather than reported as reached.
  * @evidence contracts/development/common.md#meaningful-documentation States what is measured from the chain, how the bend plane is chosen including both fallbacks, how deltas become bone-local, the unreachable behavior, the free-swing caveat and the hinge alternative, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: a few vector differences, one `solveTwoBoneIK`, two `aimRotation` calls and a handful of quaternion products.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: vector differences, one solveTwoBoneIK, two aimRotation calls and quaternion products, plus two fixed-size private geometry records in the direct path. Explicit preparation shares source work across targets and target work across normal candidates; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The direct entry derives its actual source and target each call; prepare can share the same source geometry across targets and the same target geometry across bend normals while computing every requested articulation independently.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Private fixed-size source/target records end with this direct call; only fresh upper/lower quaternions escape, with no input reference or handle retained.
  */
-export const twoBoneChainArticulation: (props: {
-  upper: IAutoMovieChainBone;
-  lower: IAutoMovieChainBone;
-  end: IAutoMovieVector3;
-  target: IAutoMovieVector3;
-  bendNormal?: IAutoMovieVector3 | undefined;
-}) => IAutoMovieTwoBoneArticulation | null = (props: {
+export function twoBoneChainArticulation(
+  props: IProps,
+): IAutoMovieTwoBoneArticulation | null {
+  const source: ISource | null = readSource(props);
+  if (source === null) return null;
+  const target: ITarget | null = readTarget(source, props);
+  return target === null ? null : evaluate(source, target, props.bendNormal);
+}
+
+/**
+ * Exact source and target geometry shared within one unchanged chain fit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates fixed resolved chain geometry, each target's reach triangle and each bend normal's actual articulation, with explicit unchanged-input and release boundaries.
+ * @evidence contracts/development/design.md#principled-representation Chain lengths/rest directions depend only on the resolved source, and target axis/lift depend only on that source and target; distinct bend normals share these exact geometric quantities while preserving the original candidate formulas.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves prepareChainFit and the bend search through one source reader and one current target reader; no result population, solver policy or arbitrary numerical callback is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Source/target degeneracies and scalar admission retain their original stages, fixed frame inverses remain lazy at their original first use, and every solve computes a fresh articulation with unchanged default-plane/sign/fallback rules.
+ */
+export namespace twoBoneChainArticulation {
+  /** Fixed source geometry, valid only while its resolved frames and end point remain unchanged. */
+  export interface IPrepared {
+    /** Prepare the actual target triangle, or null at the original root-distance gate; release it after that target's bend search. */
+    target(point: IAutoMovieVector3): IPreparedTarget | null;
+  }
+
+  /** One unchanged target's geometry; no candidate articulation is retained. */
+  export interface IPreparedTarget {
+    /** Compute this bend normal's actual upper/lower deltas, with fresh quaternion outputs. */
+    solve(bendNormal?: IAutoMovieVector3): IAutoMovieTwoBoneArticulation;
+  }
+
+  /**
+   * Prepare fixed lengths and rest directions at the first actual geometric
+   * solve. The source frames/end must stay unchanged until caller release.
+   * Each target prepares its own reach axis and law-of-cosines lift; a root
+   * target returns null before scalar triangle admission, as in the direct
+   * entry. Source frame inverses/local fore direction are lazy at their
+   * original first-use sites and shared only after successful computation.
+   * All candidate orientations and clinical decomposition remain actual.
+   *
+   * Preparation and each new target take constant arithmetic and fixed-size
+   * records. A target's repeated solves omit only identical completed geometry;
+   * every normal still runs the original plane, aim and quaternion formulas.
+   * The caller owns one source reader for a chain operation and each target
+   * reader for that target's search, releasing both on completion or failure.
+   * No target history, candidate result, global cache or callback is retained.
+   */
+  export function prepare(
+    props: Pick<IProps, "upper" | "lower" | "end">,
+  ): IPrepared | null {
+    const source: ISource | null = readSource(props);
+    if (source === null) return null;
+    return {
+      target: (point: IAutoMovieVector3): IPreparedTarget | null => {
+        const target: ITarget | null = readTarget(source, { target: point });
+        return target === null
+          ? null
+          : {
+              solve: (
+                bendNormal?: IAutoMovieVector3,
+              ): IAutoMovieTwoBoneArticulation =>
+                evaluate(source, target, bendNormal),
+            };
+      },
+    };
+  }
+}
+
+/** Direct source/target inputs in resolved world coordinates. */
+interface IProps {
   /** Resolved chain-root bone (hip or shoulder) in world space. */
   upper: IAutoMovieChainBone;
 
@@ -72,12 +136,59 @@ export const twoBoneChainArticulation: (props: {
    * bend branches.
    */
   bendNormal?: IAutoMovieVector3;
-}): IAutoMovieTwoBoneArticulation | null => {
+}
+
+/** One fixed source, with inverses first completed at their original evaluation sites. */
+interface ISource {
+  /** Original frame owner, retaining each late world-rotation read at its original site. */
+  frames: Pick<IProps, "upper" | "lower" | "end">;
+
+  /** Source root point in world metres. */
+  root: IAutoMovieVector3;
+
+  /** Actual root-to-mid segment length. */
+  l1: number;
+
+  /** Actual mid-to-end segment length. */
+  l2: number;
+
+  /** Original normalized upper-segment direction. */
+  restUpperDir: IAutoMovieVector3;
+
+  /** Original normalized fore-segment direction. */
+  restForeDir: IAutoMovieVector3;
+
+  /** Exact normalized inverse, admitted only after the first upper aim. */
+  upperInverse?: IAutoMovieQuaternion;
+
+  /** Exact normalized inverse, admitted at the first lower evaluation. */
+  lowerInverse?: IAutoMovieQuaternion;
+
+  /** Fixed fore direction lowered through that same completed inverse. */
+  localFore?: IAutoMovieVector3;
+}
+
+/** One fixed target's triangle data, before selecting any bend normal. */
+interface ITarget {
+  /** Original point owner, retaining the second target read at the candidate's fore-direction stage. */
+  goal: Pick<IProps, "target">;
+
+  /** Original normalized source-root-to-target direction. */
+  axis: IAutoMovieVector3;
+
+  /** Original solveTwoBoneIK lift, degrees. */
+  lift: number;
+}
+
+/** Keep length degeneracy before rest directions or any target read, as in the direct solve. */
+function readSource(
+  props: Pick<IProps, "upper" | "lower" | "end">,
+): ISource | null {
   const root: IAutoMovieVector3 = props.upper.worldPosition;
   const mid: IAutoMovieVector3 = props.lower.worldPosition;
 
-  const l1: number = Vector3.length(Vector3.subtract(mid, root));
-  const l2: number = Vector3.length(Vector3.subtract(props.end, mid));
+  const l1: number = Vector3.distance(mid, root);
+  const l2: number = Vector3.distance(props.end, mid);
   if (l1 < 1e-6 || l2 < 1e-6) return null;
   const restUpperDir: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(mid, root),
@@ -85,56 +196,79 @@ export const twoBoneChainArticulation: (props: {
   const restForeDir: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(props.end, mid),
   );
+  return {
+    frames: props,
+    root,
+    l1,
+    l2,
+    restUpperDir,
+    restForeDir,
+  };
+}
 
-  const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
+/** Keep root-distance degeneracy before the scalar solver's length/distance validation. */
+function readTarget(
+  source: ISource,
+  goal: Pick<IProps, "target">,
+): ITarget | null {
+  const reach: IAutoMovieVector3 = Vector3.subtract(goal.target, source.root);
   const dist: number = Vector3.length(reach);
   if (dist < 1e-6) return null;
   const axis: IAutoMovieVector3 = Vector3.normalize(reach);
 
-  const lift: number = solveTwoBoneIK(l1, l2, dist).lift;
+  const lift: number = solveTwoBoneIK(source.l1, source.l2, dist).lift;
+  return { goal, axis, lift };
+}
+
+/** Compute one actual candidate using the same original expression grouping and admission order. */
+function evaluate(
+  source: ISource,
+  target: ITarget,
+  bendNormal?: IAutoMovieVector3,
+): IAutoMovieTwoBoneArticulation {
+  const axis: IAutoMovieVector3 = target.axis;
 
   // Bend plane: the caller's explicit normal when it has one, else normal ⟂
   // (reach axis, world-down pole). The upper segment lifts by `lift` off the
   // axis in this plane, displacing the mid joint toward the pole.
-  let normal: IAutoMovieVector3 = props.bendNormal ?? Vector3.cross(axis, POLE);
+  let normal: IAutoMovieVector3 = bendNormal ?? Vector3.cross(axis, POLE);
   if (Vector3.length(normal) < 1e-6)
     normal = Vector3.cross(axis, POLE_FALLBACK);
   normal = Vector3.normalize(normal);
 
   const upperDir: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(normal, lift),
+    Quaternion.fromAxisAngle(normal, target.lift),
     axis,
   );
   const midJoint: IAutoMovieVector3 = Vector3.add(
-    root,
-    Vector3.scale(upperDir, l1),
+    source.root,
+    Vector3.scale(upperDir, source.l1),
   );
   const foreDir: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(props.target, midJoint),
+    Vector3.subtract(target.goal.target, midJoint),
   );
 
   // Root joint: world delta taking the rest upper dir onto upperDir, lowered
   // into the bone-local articulation (restWorld⁻¹ · Δ · restWorld).
-  const rsu: IAutoMovieQuaternion = props.upper.worldRotation;
-  const du: IAutoMovieQuaternion = aimRotation(restUpperDir, upperDir);
+  const rsu: IAutoMovieQuaternion = source.frames.upper.worldRotation;
+  const du: IAutoMovieQuaternion = aimRotation(source.restUpperDir, upperDir);
+  source.upperInverse ??= Quaternion.inverse(rsu);
   const upper: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(rsu),
+    source.upperInverse,
     Quaternion.multiply(du, rsu),
   );
 
   // Mid joint: worldRot(L) = du · Rsl · articL, so the fore segment's local
   // axis (Rsl⁻¹ · restForeDir) must rotate onto (Rsl⁻¹ · du⁻¹ · foreDir).
-  const rsl: IAutoMovieQuaternion = props.lower.worldRotation;
-  const rslInv: IAutoMovieQuaternion = Quaternion.inverse(rsl);
-  const localFore: IAutoMovieVector3 = Quaternion.rotateVector(
-    rslInv,
-    restForeDir,
-  );
+  const rsl: IAutoMovieQuaternion = source.frames.lower.worldRotation;
+  source.lowerInverse ??= Quaternion.inverse(rsl);
+  const rslInv: IAutoMovieQuaternion = source.lowerInverse;
+  source.localFore ??= Quaternion.rotateVector(rslInv, source.restForeDir);
   const localGoal: IAutoMovieVector3 = Quaternion.rotateVector(
     rslInv,
     Quaternion.rotateVector(Quaternion.inverse(du), foreDir),
   );
-  const lower: IAutoMovieQuaternion = aimRotation(localFore, localGoal);
+  const lower: IAutoMovieQuaternion = aimRotation(source.localFore, localGoal);
 
   return { upper, lower };
-};
+}
