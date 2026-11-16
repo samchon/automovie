@@ -240,9 +240,15 @@ export namespace climbStairs {
     const profile: (z: number) => number =
       climbStairsProfile(stairs, EDGE - 0.003, CLEARANCE);
     const required: (side: "left" | "right") => (z: number) => number =
-      (side: "left" | "right") =>
-      (z: number): number =>
-        Math.max(...sole(side).map((s: AutoMovieMotionHumanClearance.IPoint): number => profile(z + s.z) - s.y));
+      (side: "left" | "right"): ((z: number) => number) => {
+        const points: readonly AutoMovieMotionHumanClearance.IPoint[] = sole(side);
+        return (z: number): number => {
+          let height: number = -Infinity;
+          for (const point of points)
+            height = Math.max(height, profile(z + point.z) - point.y);
+          return height;
+        };
+      };
 
     // The step schedule: which foot goes to which tread, in order.
     const steps: { side: "left" | "right"; level: number }[] = [];
@@ -393,6 +399,7 @@ export namespace climbStairs {
     };
     const climb: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
+      reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {

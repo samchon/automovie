@@ -46,13 +46,25 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  * round with the body and are not lifted over the sill, and the door's leaf
  * is taken as open.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry's phases, its source, how the duck is solved, the refusals and what the first pass leaves out.
+ * Each sampled headroom search owns a lazy exact-FK workspace across that
+ * sample's flexion bisection. The workspace and posed readings end with the
+ * search; refusal diagnostics reuse its measured maximum-duck excess.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search, refusals and first-pass limits, together with synchronous sample-workspace lifetime and exact diagnostic reuse without a measured speedup claim.
  * @evidence contracts/development/design.md#principled-representation A law record over `sit`: the seat and the opening are the affordances the car declares (`HumanObject.seat`, `HumanObstacle.apertures`).
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No car is special-cased; the headroom is the opening's own and the duck is solved against it for each body.
  */
 export namespace HumanTravelCar {
-  /** Parameters of getting in. */
+  /**
+   * The existing seat and doorway affordances used by the entry, together
+   * with an optional seated hold forwarded to the sitting law.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members identify the owning seat/aperture geometry and the optional hold in seconds; the namespace states entry behavior and refusals.
+   * @evidence contracts/development/design.md#principled-representation Reuses seated.ISeat and HumanObstacle.IAperture for their existing world geometry, plus optional seconds forwarded to sit rather than a second timing representation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exactly the three inputs getIn.plan reads; seat placement and aperture geometry retain their existing owners and runtime admission.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No car, body dimensions or inferred doorway are embedded; the existing sitting and headroom checks own validity and the optional hold keeps sit's default.
+   */
   export interface IParams {
     /** The seat sat on, as `HumanObject.seat` reads it from the car. */
     seat: seated.ISeat;
@@ -60,7 +72,7 @@ export namespace HumanTravelCar {
     /** The door's opening, as `HumanObstacle.apertures` reads it from the car. */
     through: HumanObstacle.IAperture;
 
-    /** Seconds of the sitting down; `sit`'s own when absent. */
+    /** Seated hold forwarded to sit, seconds; sit's own when absent. */
     seconds?: number;
   }
 
@@ -87,8 +99,6 @@ export namespace HumanTravelCar {
    * exact-FK workspace across its unchanged flexion bisection; neither that
    * reader nor a posed result enters the returned time evaluator. Refusal
    * diagnostics reuse the measured excess of the same maximum-duck trial.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace states the motion and refusals; this law states the synchronous sample workspace and diagnostic reuse, with all posture solves and bisection steps preserved and speedup unmeasured.
    */
   export const getIn: IHumanActionLaw<IParams> = {
     name: "getIn",
@@ -248,7 +258,16 @@ export namespace HumanTravelCar {
         for (let i: number = lo; i < needs.length; i++) {
           const need: { at: number; degrees: number } = needs[i]!;
           if (need.at - t > radius) break;
-          most = Math.max(most, need.degrees * minimumJerk(Math.min(1, Math.max(0, (LEAD + spacing - Math.abs(t - need.at)) / LEAD))).s);
+          most = Math.max(
+            most,
+            need.degrees *
+              minimumJerk(
+                Math.min(
+                  1,
+                  Math.max(0, (LEAD + spacing - Math.abs(t - need.at)) / LEAD),
+                ),
+              ).s,
+          );
         }
         return most;
       };

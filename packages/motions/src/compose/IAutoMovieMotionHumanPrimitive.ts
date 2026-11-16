@@ -14,7 +14,7 @@ import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel"
  * written before it produced, and keeps only the claimed channels of what it
  * returns ({@link AutoMovieMotionHumanChannel.merge}).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a primitive is, what it is built against, what posture it is given and what of its result is kept.
+ * @evidence contracts/development/common.md#meaningful-documentation States primitive input/output ownership and the companion Reader's action-local seconds, optional channel demand and borrowed partial-result boundary.
  * @evidence contracts/development/design.md#principled-representation A part's movement is a function from the posture so far and the time to a posture, over a span and on declared channels; an action is such functions side by side.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The claim, optional input dependencies, span, writer and optional planning, contacts and weapons serve the composer; omitted dependencies preserve complete input reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the plan's contact-window and weapon types; the two optional members are absent for a primitive that makes neither.
@@ -92,10 +92,9 @@ export interface IAutoMovieMotionHumanPrimitive {
 /**
  * Dependency-aware readers of the posture preceding a primitive.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the optional channel demand and the borrowed partial-posture boundary.
- * @evidence contracts/development/design.md#principled-representation A film-local second and posture channels identify the prefix values a consumer actually reads; omitted channels request the whole posture.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The reader is shared by preparation and writing so both propagate dependencies through the composer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture and channel owners; a requested subset restricts readable values rather than pretending unrequested values are current.
+ * A Reader's action-local second and optional channel set identify the
+ * prefix values its consumer may inspect. Omission requests the whole
+ * posture; preparation and writing share this same borrowed-result rule.
  */
 export namespace IAutoMovieMotionHumanPrimitive {
   /**

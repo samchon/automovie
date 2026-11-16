@@ -44,19 +44,27 @@ import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
  * the original's bones. Digit goals are fitted after every limb, each
  * digit reaching from the hand its arm placed (`HumanDigitFit`).
  *
+ * The seeded companion may restrict an explicit observation to requested
+ * bone frames. Unsupported dependencies keep ordinary complete fitting.
+ * prepare records an actual cold source for checked raw translation;
+ * translated/carried retain its original demands, and rebased transfers
+ * provenance whose free-leg dependencies are rechecked after current joint
+ * clamping. prepareBase instead snapshots a search's fixed direct posture
+ * and actually fits every varying complete goal request on fresh copies.
+ *
  * @param body The performer's body.
  * @param posture The posture.
  * @param base A pose whose joints replace clinical zero for unset bones, such
  *   as a transition's displayed pose; its root is ignored.
  * @returns The canonical pose.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the order, the default for unset bones, the IK owner and where the clamp runs.
- * @evidence contracts/development/implementation.md#principled-implementation Root, then forward joints clamped to their range, then two-bone IK per limb with a pole hint (the engine's fitChainToTarget, range-clamped itself): the standard procedural order where IK runs last, on the already posed parents.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose assembly, one clamp, one fit per goal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is set past the rig's range; an unreachable goal leaves the limb extended toward it, reported by the audits.
- * @evidence contracts/development/implementation.md#efficient-algorithms Joint assembly/clamping and full FK scans scale with rig/joints; each limb retains its search and coupled arms their optimizer. One lazy person-evaluation reader shares identical completed FK math across limbs and digits, while every target/search still runs. The scoped getter adds constant setup and no reader is created without FK; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body topology and the existing mirror/floor/grid limb memory retain their current policies. refitHumanPosture shares only exact scalar FK prerequisites within this synchronous person's invocation; distinct goals, incoming poses and cold/near solves remain independent.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A seeded-owned reader ends when limb/digit fitting returns or throws; an explicit borrowed reader remains with its synchronous parent. Results and body memory contain neither getter nor reader. Existing memory retains at most 4096 entries per weak body, with pose/goal-dependent byte size; no global context or handle is added.
+ * @evidence contracts/development/common.md#meaningful-documentation States canonical defaults, root/ROM/limb/digit order, observational-frame limits, actual cold preparation, raw-demand transport, per-leg validation and fixed-base candidate ownership; companion docs give each coordinate, seed, attachment and fallback convention.
+ * @evidence contracts/development/implementation.md#principled-implementation Ordinary resolution clamps direct joints before the original range-clamped pole-hint IK. Prepared translation is equivariant only after exact raw/root/chain/ancestor and live rig/ROM checks; rebased provenance alone proves no result. A fixed-base operation projects fixed direct inputs once while every varying complete limb/digit request still solves normally.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure assembleHumanPosture owns assembly/admission, refitHumanPosture and HumanDigitFit own actual solves, selectors own proven observational omissions, HumanPosturePreparation owns private issued proof, and prepareHumanPostureBase owns fixed search snapshots; the companion methods delegate to those owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public resolved flag, achieved-target substitution, relaxed ROM/acceptance or prior-time result is accepted. Original raw goals remain auditable; unsupported/changed dependencies, base and near context retain their original solve. Weak issued provenance and independently mutable result copies prevent forged or changed public outputs from certifying another request.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary work scales with rig/joints and actual selected search sizes. Explicit observations omit only proven irrelevant fits; checked source transport replaces a duplicate eligible solve with linear scalar checking/copying, and fixed-base search removes repeated assembly/projection while preserving live memory reads. Every retained target/search remains actual and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-operation FK readers share exact scalar prerequisites. Whole-source and individual free-leg reuse require issued provenance plus current raw/ancestor/rig/table equivalence; fixed-base preparation requires unchanged fixed coordinates/body and actual complete varying goals. Existing mirror/floor/grid memory policy remains unchanged, and copies or mismatches fall back normally.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation-owned FK ends on return/throw and borrowed readers remain with their synchronous parent. Issued preparation and transported raw objects weakly own bounded source/signature/seeded data; fixed-base workspaces own fixed snapshots until search release. Results own fresh mutable data, body fit memory remains4096 entries per weak body, and no reader, query history or handle enters those entries.
  */
 export function resolveHumanPosture(
   body: IHumanBody,
@@ -71,9 +79,9 @@ export function resolveHumanPosture(
  * Companion helpers of {@link resolveHumanPosture}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Companion members state heading order, lowering/leg units, reference angles, attachment rules and pose/seed/value meanings.
- * @evidence contracts/development/design.md#principled-representation A resolved canonical pose plus per-limb continuation metadata is separate from source posture authoring; shared refit and heading helpers preserve the same coordinate conventions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Existing resolution, refit, single-limb, reference and heading operations serve the motion grammar; the extracted refit owner holds operation-local FK sharing without a parallel solver.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No named production, altered target or approximate new key is introduced. A reader may be lent only by an explicit synchronous parent evaluation; independent evaluations keep separate scopes and every solve retains its existing constraints and memory policy.
+ * @evidence contracts/development/design.md#principled-representation Raw authoring demands remain separate from canonical pose/per-limb continuation metadata. IPrepared aliases an independently owned pose observation whose private issued source records exact translation proof; unsupported states remain ordinary postures rather than public resolved flags.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Resolution/refit/reference/heading helpers serve the grammar; prepare/translated/carried/rebased serve actual COM/display and composition consumers, while prepareBase serves complete-goal candidate searches. Their specialized owners hold proof, fixed snapshots and original solvers once.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A forged/copied preparation has no private issued source; changed solver dependencies cannot self-certify. No production name, altered target, approximate new key or parallel solver is introduced, and every retained solve preserves its original constraints and memory policy.
  */
 export namespace resolveHumanPosture {
   /** The least knee flexion of a planted leg, degrees: the knee's greatest extension in stance, about 5 degrees at initial contact and through terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and Pathological Function, ch. 7; provisional, read through secondary summaries, the primary not read). Every planted leg's lowering (`lower`) and every stance course (`walkStanceCourse`) keeps it. */
@@ -151,10 +159,10 @@ export namespace resolveHumanPosture {
    * An issued preparation's independent canonical pose observation. Only
    * prepare creates private raw/rig evidence; public shape alone proves none.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States independent pose ownership and private evidence provenance.
-   * @evidence contracts/development/design.md#principled-representation Aliases the owner of one actual cold solve, separate from raw authoring goals and opaque transport proof.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The jump COM producer reads pose and passes the issued wrapper to translated/carried.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A forged or copied wrapper has no private source entry and cannot certify a solution.
+   * States independent pose ownership and private evidence provenance.
+   * Aliases the owner of one actual cold solve, separate from raw authoring goals and opaque transport proof.
+   * The jump COM producer reads pose and passes the issued wrapper to translated/carried.
+   * A forged or copied wrapper has no private source entry and cannot certify a solution.
    */
   export type IPrepared = HumanPosturePreparation.IPrepared;
 
@@ -162,13 +170,13 @@ export namespace resolveHumanPosture {
    * Resolve one raw source cold and issue checked translation preparation.
    * The original raw goals remain private source data, not achieved targets.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the actual cold source, original demands and independent public pose.
-   * @evidence contracts/development/implementation.md#principled-implementation HumanPosturePreparation runs ordinary seeded resolution on an unissued source copy before recording strict raw/rig evidence for free world-leg translation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner handles private evidence while seeded retains clamping, fitting and fallback.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller result or resolved flag is accepted; unsupported context remains ineligible for reuse.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds source/result copying and a rig signature to one ordinary solve, allowing its demonstrated COM/display consumer to avoid duplicate fitting without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the same issued source and checked unchanged cold dependencies can lend its solution through translated/carried.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The issued wrapper and weakly associated carried postures own bounded private source/result data until release; no FK reader, time history or external resource is retained.
+   * Defines the actual cold source, original demands and independent public pose.
+   * HumanPosturePreparation runs ordinary seeded resolution on an unissued source copy before recording strict raw/rig evidence for free world-leg translation.
+   * One owner handles private evidence while seeded retains clamping, fitting and fallback.
+   * No caller result or resolved flag is accepted; unsupported context remains ineligible for reuse.
+   * Adds source/result copying and a rig signature to one ordinary solve, allowing its demonstrated COM/display consumer to avoid duplicate fitting without a measured speedup claim.
+   * Only the same issued source and checked unchanged cold dependencies can lend its solution through translated/carried.
+   * The issued wrapper and weakly associated carried postures own bounded private source/result data until release; no FK reader, time history or external resource is retained.
    */
   export function prepare(body: IHumanBody, posture: IHumanPosture): IPrepared {
     return HumanPosturePreparation.prepare(body, posture);
@@ -178,13 +186,13 @@ export namespace resolveHumanPosture {
    * Prepare fixed direct coordinates for one complete-goal candidate search.
    * The body/rig/clinical tables remain unchanged through the operation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed direct coordinates, complete varying goals, unchanged-body scope and actual seeded outputs.
-   * @evidence contracts/development/implementation.md#principled-implementation The owner assembles/clamps the fixed direct pose once, then actually turns and fits every complete candidate's limb/digit demands on a fresh copy.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade delegates fixed snapshots to prepareHumanPostureBase while ordinary assembly/refit/digit owners remain shared.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No numerical candidate, seed or goal is cached or omitted; changed fixed coordinates or body context require a new operation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Removes repeated B-bone assembly/clamping across K same-base candidates, retaining O(B) fresh copying and all actual fitting per candidate without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed-source preparation proves direct-coordinate equivalence while varying goals/near seeds still execute through original solvers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns bounded fixed snapshots until completion or failure, and every mutable returned pose is independent of its protected base and later results.
+   * States fixed direct coordinates, complete varying goals, unchanged-body scope and actual seeded outputs.
+   * The owner assembles/clamps the fixed direct pose once, then actually turns and fits every complete candidate's limb/digit demands on a fresh copy.
+   * One facade delegates fixed snapshots to prepareHumanPostureBase while ordinary assembly/refit/digit owners remain shared.
+   * No numerical candidate, seed or goal is cached or omitted; changed fixed coordinates or body context require a new operation.
+   * Removes repeated B-bone assembly/clamping across K same-base candidates, retaining O(B) fresh copying and all actual fitting per candidate without a measured speedup claim.
+   * Explicit fixed-source preparation proves direct-coordinate equivalence while varying goals/near seeds still execute through original solvers.
+   * The search owns bounded fixed snapshots until completion or failure, and every mutable returned pose is independent of its protected base and later results.
    */
   export function prepareBase(body: IHumanBody, posture: IHumanPosture, base?: IAutoMoviePose): ReturnType<typeof prepareHumanPostureBase> {
     return prepareHumanPostureBase(body, posture, base);
@@ -195,13 +203,13 @@ export namespace resolveHumanPosture {
    * eligible exact candidate carries private evidence for seeded; changed
    * context and copied postures resolve normally.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States world-metre root translation, raw-demand preservation and ordinary fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates source-plus-displacement translation of original world goals to the checked preparation owner; attached/local demands keep their frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation preserves a single raw translation and evidence owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Achieved limb points never replace asked goals and no plants, contacts, constraints or audits are removed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Copies raw source data and translates its fixed goal population without running a fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact issued source evidence can be attached; seeded still checks current body/rig/raw scalar equivalence and absent base/near context.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fresh raw posture owns its data and weak evidence retains the bounded source only for its lifetime, without readers or a global result history.
+   * States world-metre root translation, raw-demand preservation and ordinary fallback.
+   * Delegates source-plus-displacement translation of original world goals to the checked preparation owner; attached/local demands keep their frame.
+   * One delegation preserves a single raw translation and evidence owner.
+   * Achieved limb points never replace asked goals and no plants, contacts, constraints or audits are removed.
+   * Copies raw source data and translates its fixed goal population without running a fit.
+   * Only exact issued source evidence can be attached; seeded still checks current body/rig/raw scalar equivalence and absent base/near context.
+   * The fresh raw posture owns its data and weak evidence retains the bounded source only for its lifetime, without readers or a global result history.
    */
   export function translated(prepared: IPrepared, root: IAutoMovieVector3): IHumanPosture {
     return HumanPosturePreparation.translated(prepared, root);
@@ -211,13 +219,13 @@ export namespace resolveHumanPosture {
    * Check an explicitly supplied raw translation against an issued source.
    * A mismatch remains an ordinary posture with its original demands.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States exact source check and raw mismatch behavior.
-   * @evidence contracts/development/implementation.md#principled-implementation The owner compares supported raw scalar data with its authoritative translation before attaching private evidence.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation keeps proof ownership separate from the numerical resolver.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, public resolved marker or target change can certify equivalence.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Performs linear raw-data comparison without FK or solving; body/rig validation remains at consumption.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only a candidate exactly derived from the same source receives evidence; copies and changed solver context retain normal resolution.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the supplied raw object and associates only weak, bounded source evidence; no resource handle or query history is acquired.
+   * States exact source check and raw mismatch behavior.
+   * The owner compares supported raw scalar data with its authoritative translation before attaching private evidence.
+   * One delegation keeps proof ownership separate from the numerical resolver.
+   * No tolerance, public resolved marker or target change can certify equivalence.
+   * Performs linear raw-data comparison without FK or solving; body/rig validation remains at consumption.
+   * Only a candidate exactly derived from the same source receives evidence; copies and changed solver context retain normal resolution.
+   * Returns the supplied raw object and associates only weak, bounded source evidence; no resource handle or query history is acquired.
    */
   export function carried(prepared: IPrepared, posture: IHumanPosture): IHumanPosture {
     return HumanPosturePreparation.carried(prepared, posture);
@@ -228,13 +236,13 @@ export namespace resolveHumanPosture {
    * This proves no whole pose; seeded first clamps the current request and
    * independently checks each source free leg's exact current dependencies.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States issued-source provenance, explicit composition and post-clamp per-leg validation.
-   * @evidence contracts/development/implementation.md#principled-implementation Unrelated arm edits need not change a free leg, but actual chain/ancestor inputs, raw goals, orientation and live rig must still match before its source result applies.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private-owner delegation transfers provenance; the consumer alone checks equivalence and original refit handles all remaining complete goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary sources transfer nothing, no public resolved marker is accepted and every current direct joint is clamped before any leg reuse.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Transfers one weak source reference in constant work, with exact scalar checks deferred to actual consumption.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Source identity proves only issued provenance; changed parent/leg/goal/body/ROM or unsupported base/near/rotation/digit context retains its ordinary solve.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak raw candidate entry borrows bounded source data, retaining no intermediate compositions, numerical history or FK reader.
+   * States issued-source provenance, explicit composition and post-clamp per-leg validation.
+   * Unrelated arm edits need not change a free leg, but actual chain/ancestor inputs, raw goals, orientation and live rig must still match before its source result applies.
+   * One private-owner delegation transfers provenance; the consumer alone checks equivalence and original refit handles all remaining complete goals.
+   * Ordinary sources transfer nothing, no public resolved marker is accepted and every current direct joint is clamped before any leg reuse.
+   * Transfers one weak source reference in constant work, with exact scalar checks deferred to actual consumption.
+   * Source identity proves only issued provenance; changed parent/leg/goal/body/ROM or unsupported base/near/rotation/digit context retains its ordinary solve.
+   * One weak raw candidate entry borrows bounded source data, retaining no intermediate compositions, numerical history or FK reader.
    */
   export function rebased(from: IHumanPosture, to: IHumanPosture): IHumanPosture {
     return HumanPosturePreparation.rebased(from, to);
@@ -341,13 +349,14 @@ export namespace resolveHumanPosture {
     };
   }
 
-  /** The posture's root lowered so every planted leg keeps at least `knee` degrees of knee flexion, `KNEE` when absent ({@link lowerHumanPosture}). */
+  /** The posture's root lowered so every planted leg keeps at least knee degrees of knee flexion, KNEE when absent; an optional same-operation FK supplier is borrowed only by the actual hip reading. */
   export function lower(
     body: IHumanBody,
     posture: IHumanPosture,
     knee: number = KNEE,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IHumanPosture {
-    return lowerHumanPosture(body, posture, knee);
+    return lowerHumanPosture(body, posture, knee, resolution);
   }
 
   /** The lowering one leg asks of the root, metres; `-Infinity` beyond the leg's reach ({@link lowerHumanPosture.short}). */

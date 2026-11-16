@@ -64,7 +64,10 @@ export namespace standFeet {
     offset: IAutoMovieVector3;
 
     /** Write the already read feet, optionally moved by the current support. */
-    write(posture: IHumanPosture, carry?: HumanSupportCarry.ICarry): IHumanPosture;
+    write(
+      posture: IHumanPosture,
+      carry?: HumanSupportCarry.ICarry,
+    ): IHumanPosture;
   }
 
   /**
@@ -110,7 +113,11 @@ export namespace standFeet {
     for (const side of sides)
       if (entry.feet[side].planted)
         for (const socket of ["heel", "ball", "toe"] as const)
-          requested.add(body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`].bone);
+          requested.add(
+            body.surfaces.sockets[
+              `${socket}${side === "left" ? "Left" : "Right"}`
+            ].bone,
+          );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       entry.pose,
@@ -120,8 +127,11 @@ export namespace standFeet {
     const planted: ("left" | "right")[] = sides.filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
-    const socketsBySide: Partial<Record<"left" | "right", HumanFoot.ISocket[]>> = {};
-    for (const side of planted) socketsBySide[side] = HumanFoot.sockets(body, bones, side);
+    const socketsBySide: Partial<
+      Record<"left" | "right", HumanFoot.ISocket[]>
+    > = {};
+    for (const side of planted)
+      socketsBySide[side] = HumanFoot.sockets(body, bones, side);
     const floor: number =
       planted.length === 0
         ? 0
@@ -194,9 +204,14 @@ export namespace standFeet {
         p.at(1).ankle,
       ]),
     ) as ICourse["flat"];
-    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw,
+    );
     const sample = (share: number): ISample => {
-      const placed: HumanFoot.IPlacement[] = plans.map((p: IPlan): HumanFoot.IPlacement => p.at(share));
+      const placed: HumanFoot.IPlacement[] = plans.map(
+        (p: IPlan): HumanFoot.IPlacement => p.at(share),
+      );
       return {
         offset: Vector3.scale(
           plans.reduce(
@@ -209,40 +224,49 @@ export namespace standFeet {
           ),
           0.5,
         ),
-      write: (
-        posture: IHumanPosture,
-        carry?: HumanSupportCarry.ICarry,
-      ): IHumanPosture => {
-        const feet: ICourse["flat"] = Object.fromEntries(
-          plans.map((p: IPlan, i: number): [IPlan["side"], IAutoMovieVector3] => [
-            p.side,
-            carry?.point(placed[i]!.ankle) ?? placed[i]!.ankle,
-          ]),
-        ) as ICourse["flat"];
-        const limbs: IHumanPosture["limbs"] = posture.yaw === yaw ? legged(posture.root, feet) : stand.legs(body, posture.root, posture.yaw, feet);
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
-        for (let i: number = 0; i < plans.length; i++) {
-          const p: IPlan = plans[i]!;
-          const goal: IHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
-          limbs[`${p.side}Leg`] = {
-            ...goal,
-            rotation:
-              carry === undefined
-                ? placed[i]!.rotation
-                : Quaternion.multiply(carry.turn, placed[i]!.rotation),
-            contact: p.contact(share),
-          };
-          joints[`${p.side}Toes`] = [p.toes(share), 0, 0];
-        }
-        return { ...posture, joints, limbs: { ...posture.limbs, ...limbs } };
-      },
+        write: (
+          posture: IHumanPosture,
+          carry?: HumanSupportCarry.ICarry,
+        ): IHumanPosture => {
+          const feet: ICourse["flat"] = Object.fromEntries(
+            plans.map(
+              (p: IPlan, i: number): [IPlan["side"], IAutoMovieVector3] => [
+                p.side,
+                carry?.point(placed[i]!.ankle) ?? placed[i]!.ankle,
+              ],
+            ),
+          ) as ICourse["flat"];
+          const limbs: IHumanPosture["limbs"] =
+            posture.yaw === yaw
+              ? legged(posture.root, feet)
+              : stand.legs(body, posture.root, posture.yaw, feet);
+          const joints: IHumanPosture["joints"] = { ...posture.joints };
+          for (let i: number = 0; i < plans.length; i++) {
+            const p: IPlan = plans[i]!;
+            const goal: IHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
+            limbs[`${p.side}Leg`] = {
+              ...goal,
+              rotation:
+                carry === undefined
+                  ? placed[i]!.rotation
+                  : Quaternion.multiply(carry.turn, placed[i]!.rotation),
+              contact: p.contact(share),
+            };
+            joints[`${p.side}Toes`] = [p.toes(share), 0, 0];
+          }
+          return { ...posture, joints, limbs: { ...posture.limbs, ...limbs } };
+        },
       };
     };
     return {
       flat,
       sample,
       offset: (share: number): IAutoMovieVector3 => sample(share).offset,
-      write: (posture: IHumanPosture, share: number, carry?: HumanSupportCarry.ICarry): IHumanPosture => sample(share).write(posture, carry),
+      write: (
+        posture: IHumanPosture,
+        share: number,
+        carry?: HumanSupportCarry.ICarry,
+      ): IHumanPosture => sample(share).write(posture, carry),
     };
   }
 }

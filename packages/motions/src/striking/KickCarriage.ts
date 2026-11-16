@@ -73,6 +73,7 @@ export namespace KickCarriage {
    * @param carriage The carriage shown in full between the chamber key and the contact.
    * @param seconds Seconds since the kick's start: the clock of the support foot's step.
    * @param turning The second the turn, tilt and travel are read at; `seconds` when absent.
+   * @param resolution Optional exact FK workspace borrowed from this synchronous person's evaluation.
    * @returns The posture, lowered until the planted support leg reaches its foot; the kicking leg holds its entry foot, unplanted.
    */
   export function posture(
@@ -80,7 +81,9 @@ export namespace KickCarriage {
     carriage: IKickGeometry.ICarriage,
     seconds: number,
     turning: number = seconds,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IHumanPosture {
+    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const { body, entry, feet, side, line, timing } = props;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -132,7 +135,7 @@ export namespace KickCarriage {
     const tilted: IHumanPosture =
       carriage.lean * w === 0
         ? flat
-        : tilt(body, flat, support, Vector3.cross(line, up), carriage.lean * w);
+        : tilt(body, flat, support, Vector3.cross(line, up), carriage.lean * w, read);
     return resolveHumanPosture.lower(
       body,
       {
@@ -146,6 +149,7 @@ export namespace KickCarriage {
         ),
       },
       5,
+      read,
     );
   }
 
@@ -180,9 +184,8 @@ export namespace KickCarriage {
     support: "left" | "right",
     axis: IAutoMovieVector3,
     degrees: number,
+    resolution: ReturnType<typeof prepareHumanPoseResolution>,
   ): IHumanPosture {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle(axis, degrees),

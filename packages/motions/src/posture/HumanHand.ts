@@ -1,10 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -16,6 +10,9 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHandDirection } from "./HumanHandDirection";
 import { HumanHandShape } from "./HumanHandShape";
+import { alignHumanHandSurface } from "./alignHumanHandSurface";
+import { placeHumanHandSurface } from "./placeHumanHandSurface";
+import { readHumanHandFrame } from "./readHumanHandFrame";
 
 /**
  * A hand brought to a target: which wrist point and hand rotation put a
@@ -291,25 +288,11 @@ export namespace HumanHand {
     rest: Pick<IFrame, "normal" | "forward">,
     world: Pick<IFrame, "normal" | "forward">,
   ): IAutoMovieQuaternion {
-    const basis = (
-      frame: Pick<IFrame, "normal" | "forward">,
-    ): IAutoMovieQuaternion => {
-      const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
-      const across: IAutoMovieVector3 = Vector3.subtract(
-        frame.forward,
-        Vector3.scale(n, Vector3.dot(frame.forward, n)),
-      );
-      if (Vector3.length(across) < 1e-9)
-        throw new Error(
-          "A forward direction must not be parallel to its normal",
-        );
-      const f: IAutoMovieVector3 = Vector3.normalize(across);
-      return quaternionFromAutoMovieBasis(n, f, Vector3.cross(n, f));
-    };
-    return Quaternion.normalize(
-      Quaternion.multiply(basis(world), Quaternion.inverse(basis(rest))),
-    );
+    return alignHumanHandSurface(rest, world);
   }
+
+  /** Fixed-rest alignment owned by alignHumanHandSurface.prepare, with world-first admission on every actual read. */
+  export const prepareAlignment: typeof alignHumanHandSurface.prepare = alignHumanHandSurface.prepare;
 
   /**
    * The hand's world rotation from its rest for an anatomical orientation:
@@ -432,10 +415,7 @@ export namespace HumanHand {
     form: Shape = "relaxed",
   ): IWrist {
     const local: IFrame = offset(body, side, surface, form);
-    return {
-      point: Vector3.subtract(at, Quaternion.rotateVector(turn, local.point)),
-      rotation: turn,
-    };
+    return placeHumanHandSurface(local.point, at, turn);
   }
 
   /**
@@ -485,31 +465,12 @@ export namespace HumanHand {
     surface: Surface,
     form: Shape = "relaxed",
   ): IFrame {
-    const hand = bones.get(`${side}Hand`)!;
-    const local: IFrame = offset(body, side, surface, form);
-    const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(hand.worldRotation, v);
-    if (!digital(surface))
-      return {
-        point: Vector3.add(hand.worldPosition, turn(local.point)),
-        normal: turn(local.normal),
-        forward: turn(local.forward),
-      };
+    return readHumanHandFrame(body, bones, side, surface,
+      (): IFrame => offset(body, side, surface, form), digital(surface));
+  }
 
-    // A digit's tip or pad rides its distal phalanx, so read it from that
-    // bone.
-    const region =
-      body.surfaces.regions[
-        `${surface}${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
-      ];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
-      region,
-      bones.get(region.bone)!,
-    );
-    return {
-      point: placed.point,
-      normal: placed.normal,
-      forward: turn(local.forward),
-    };
+  /** Actual hand and body-declared digit-region bones consumed by frame, including custom/fallback region metadata. */
+  export function frameBones(body: IHumanBody, side: Side, surface: Surface): ReadonlySet<AutoMovieHumanoidBone> {
+    return readHumanHandFrame.bones(body, side, surface, digital(surface));
   }
 }

@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAu
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearing } from "./HumanArmClearing";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
+import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmSwing } from "./HumanArmSwing";
 import { HumanColliders } from "./HumanColliders";
 import type { IHumanPosture } from "./IHumanPosture";
@@ -67,7 +68,7 @@ export namespace HumanArmClearance {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): HumanColliders.IPlaced[] {
     return HumanColliders.placed(body, bones).filter(
-      (segment: HumanColliders.IPlaced): boolean => TRUNK.has(segment.bone),
+      (segment: HumanColliders.IPlaced): boolean => HumanArmObstacleBones.TRUNK.has(segment.bone),
     );
   }
 
@@ -86,7 +87,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement when needed, followed by the same selection filter.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shanks and feet are left out: a forearm reaches them only with the hand, which the taper leaves to its goal; an arm not yet placed is left out, since where it will be is not known.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the profile's segments.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame builder supplies its existing exact same-evaluation collider placement, so obstacle selection and probe construction share one placement without duplicating policy. Empty arm membership uses a private fixed empty set; nonempty labels are still built from the supplied arms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame builder can supply its exact same-evaluation placement, while four fixed HumanArmObstacleBones subsets share canonical membership with scoped source FK; actual profile geometry and original placement order remain current.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh filtered array borrowing its actual placed segments; stores no placement, pose or body beyond the call.
    */
   export function obstacles(
@@ -95,19 +96,9 @@ export namespace HumanArmClearance {
     arms: readonly ("left" | "right")[] = [],
     placed?: readonly HumanColliders.IPlaced[],
   ): HumanColliders.IPlaced[] {
-    const limbs: ReadonlySet<AutoMovieHumanoidBone> =
-      arms.length === 0 ? NO_ARM_BONES : new Set<AutoMovieHumanoidBone>(
-        arms.flatMap((arm: "left" | "right"): AutoMovieHumanoidBone[] => [
-          `${arm}UpperArm`,
-          `${arm}LowerArm`,
-          `${arm}Hand`,
-        ]),
-      );
+    const limbs: ReadonlySet<AutoMovieHumanoidBone> = HumanArmObstacleBones(arms);
     return (placed ?? HumanColliders.placed(body, bones)).filter(
       (segment: HumanColliders.IPlaced): boolean =>
-        TRUNK.has(segment.bone) ||
-        segment.bone === "leftUpperLeg" ||
-        segment.bone === "rightUpperLeg" ||
         limbs.has(segment.bone),
     );
   }
@@ -461,19 +452,6 @@ export namespace HumanArmClearance {
   }
 }
 
-/** The bones whose colliders a forearm may not enter. */
-const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "hips",
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-  ]);
-
 /** No baseline: every reading of an arm's room counts from zero. */
 const NONE: HumanArmClearance.IBaseline = { forearm: 0, segments: 0 };
 
-/** Fixed empty arm membership; obstacle selection never exposes or mutates it. */
-const NO_ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set();

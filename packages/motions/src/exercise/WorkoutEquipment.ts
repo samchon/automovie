@@ -122,7 +122,12 @@ export namespace WorkoutEquipment {
     support: number | undefined,
   ): ExerciseKey.IKey[] => {
     const lying: IHumanPosture = flat(body);
-    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, lying, undefined, new Set<AutoMovieHumanoidBone>([...BACK, ...HIPS]));
+    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
+      body,
+      lying,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([...BACK, ...HIPS]),
+    );
     const pivot: IAutoMovieVector3 = ExerciseKey.mean(body, lying, BACK, bones);
     const hip: IAutoMovieVector3 = ExerciseKey.mean(body, lying, HIPS, bones);
     const along: number = Math.abs(hip.z - pivot.z);

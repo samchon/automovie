@@ -13,6 +13,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 
 /**
  * What an arm primitive is given: a hand surface's target, the origin the
@@ -258,6 +259,43 @@ export namespace AutoMovieMotionHumanArmTarget {
       rotation: wrist.rotation,
       bend: target.bend,
       ...(Vector3.length(contact) < 1e-9 ? {} : { contact }),
+    };
+  }
+
+  /**
+   * Prepare a fixed hand surface, shape, rotation and bend for varying points.
+   * The body's geometry stays unchanged for this reader's lifetime; changed
+   * hand geometry or fixed values require new preparation.
+   *
+   * @param body The body that supplies the actual hand surface offset once.
+   * @param side The fixed acting arm.
+   * @param target Fixed world rotation/bend and local surface/shape, without the varying surface point or curl.
+   * @returns Fresh original wrist/contact goals for each actual world surface point in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed geometry, varying world point, unchanged-body premise and fresh goal payload ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanHand.offset supplies the same local surface point as cold goal; the common wrist-placement owner rotates it by the same fixed hand quaternion and subtracts it from every actual target. The original contact-length comparison decides whether contact is emitted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset lookup, one prepared wrist placement and copied bend/contact scalars feed the same goal fields without owning hand geometry or IK.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same surface/shape geometry, unnormalized rotation policy, contact offset and 1e-9-metre zero-contact rule remain. No world point, goal or fit answer is sampled or cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Surface geometry and its quaternion-vector rotation run once rather than twice and once per each of Q cold goals; every actual query still constructs fresh point, rotation, bend and optional contact payloads. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The consumer explicitly fixes body/side/surface/shape/rotation/bend; numeric snapshots isolate caller and returned-output edits. A changed fixed dependency requires a new producer, while each point remains a current input.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns constant-size private rotated-offset, quaternion, bend and optional contact scalars until release. No body, target input object, query history or external handle is retained after preparation.
+   */
+  export function prepareGoal(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    target: Omit<ITarget, "point" | "curl">,
+  ): (point: IAutoMovieVector3) => IHumanPosture.IGoal {
+    const contact: IAutoMovieVector3 = { ...HumanHand.offset(
+      body, side, target.surface, target.shape,
+    ).point };
+    const place: (point: IAutoMovieVector3) => HumanHand.IWrist =
+      placeHumanHandSurface.prepare(contact, target.rotation);
+    const bend: IAutoMovieVector3 = { ...target.bend };
+    const hasContact: boolean = !(Vector3.length(contact) < 1e-9);
+    return (point: IAutoMovieVector3): IHumanPosture.IGoal => {
+      const wrist: HumanHand.IWrist = place(point);
+      return { point: wrist.point, rotation: wrist.rotation, bend: { ...bend },
+        ...(hasContact ? { contact: { ...contact } } : {}) };
     };
   }
 }

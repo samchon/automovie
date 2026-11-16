@@ -40,11 +40,17 @@ import { vclose } from "../internal/vclose";
  * 5. A fixed-source pose reader snapshots baseline joints/root once. Ordered
  *    current edits can change a parent, while an omitted edit restores the
  *    baseline; an overwritten invalid edit still refuses even at empty demand.
+ * 6. A prepared bone demand and fixed pose's bound demand copy membership.
+ *    Later source-set edits affect ordinary live queries and explicit query
+ *    overrides while leaving both bound demand readers unchanged.
+ * 7. A null clinical coordinate cannot certify its unused malformed affine
+ *    frame. Its first nonnull use still refuses before a later nonfinite
+ *    coordinate, and failed admission leaves null-axis recovery valid.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States static-rig and fixed-pose snapshot ownership, metre coordinates, ordered current-joint/edit admission, requested ancestor closure and fresh result ownership in five scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States static-rig/fixed-pose snapshots, metre coordinates, ordered admission including null-frame first use, demanded ancestors, bound/live membership and fresh ownership in seven scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared and raw requested FK with changing pose/root/static inputs and demand sets. Actual returned coordinates detect stale transforms; an owned rest getter observes snapshot isolation, and an owned raw-operation reader observes ordered admission and demanded compositions without replacing a library function.
  * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps plus X to minus Z; literal rest offsets sum to left-hand (0.75,1.4,0) and right-lower-arm (-0.5,1.4,0). Requested hand ancestry follows the explicitly authored parent graph. These are geometric and dependency expectations, not cold/prepared parity or output snapshots.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers rest, nonidentity ancestor, changed root and one arm, static input mutation versus fresh preparation, empty/single/two-branch demand, duplicate and stray authored joints, nonfinite admission, output mutation and separate operation lifetimes. Unreachable topology and general inverse kinematics remain separately owned.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rest/rotated ancestors, root/arm edits, rig and pose snapshots, fixed-edit restoration, bound/live demand mutation, empty/single/two-branch demand, duplicate/stray admission, output mutation and independent lifetimes. Unreachable topology/general IK remain separately owned.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns all skeletons, poses, demand sets and the observational reader. It invokes no host, viewer, capture, compiler or foreign function replacement; the structural count measures requested bone composition calls rather than hidden floating-point operations.
  */
 export function test_kinematics_prepared_pose_contracts(): void {
@@ -232,6 +238,45 @@ export function test_kinematics_prepared_pose_contracts(): void {
   check("failed edit cannot poison fixed baseline recovery", fixed.resolve(
     [], new Set(["leftHand"]),
   ), "leftHand", { x: 1, y: 3.4, z: 2.25 });
+
+  const demanded: Set<AutoMovieHumanoidBone> = new Set(["leftHand"]);
+  const bound: ReturnType<typeof prepared.prepareBones> = prepared.prepareBones(demanded);
+  const fixedDemand: ReturnType<typeof prepared.preparePose> = prepared.preparePose(
+    makePose([joint("chest", { twist: 90 })]), demanded,
+  );
+  demanded.clear();
+  demanded.add("rightLowerArm");
+  TestValidator.equals("prepared demand owns original membership", bound.resolve(makePose([])).map(
+    (value: IAutoMovieResolvedBone): AutoMovieHumanoidBone => value.bone,
+  ), ["leftHand"]);
+  TestValidator.equals("ordinary demand reads current membership", prepared.resolve(makePose([]), undefined, demanded).map(
+    (value: IAutoMovieResolvedBone): AutoMovieHumanoidBone => value.bone,
+  ), ["rightLowerArm"]);
+  check("fixed pose bound demand keeps its original requested hand", fixedDemand.resolve([]),
+    "leftHand", { x: 0, y: 1.4, z: -0.75 },
+  );
+  check("an explicit fixed-pose demand override stays live", fixedDemand.resolve([], demanded),
+    "rightLowerArm", { x: 0, y: 1.4, z: 0.5 },
+  );
+
+  const nullable: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(
+    createSkeleton(), {}, { chest: { flexion: { sign: 1, neutral: NaN } } },
+  );
+  const nullOperation: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+  nullable.resolve(makePose([joint("chest", { flexion: null, abduction: 0 })]), nullOperation, new Set());
+  TestValidator.predicate("null history cannot certify the first actual malformed affine-frame use",
+    throwsError((): IAutoMovieResolvedBone[] => nullable.resolve(makePose([
+      joint("chest", { flexion: 0, abduction: NaN }),
+    ]), nullOperation, new Set()), "rest frame neutral"),
+  );
+  TestValidator.predicate("an unused bad frame leaves the later actual coordinate's own refusal",
+    throwsError((): IAutoMovieResolvedBone[] => nullable.resolve(makePose([
+      joint("chest", { flexion: null, abduction: NaN }),
+    ]), nullOperation, new Set()), "jointToQuaternion abduction"),
+  );
+  TestValidator.equals("failed frame admission preserves valid null-coordinate recovery",
+    nullable.resolve(makePose([joint("chest", { flexion: null, abduction: 0 })]), nullOperation, new Set()), [],
+  );
 }
 
 /** Check hand-derived world positions and finite unit world rotations. */

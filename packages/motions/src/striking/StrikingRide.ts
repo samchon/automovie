@@ -67,6 +67,14 @@ export namespace StrikingRide {
      * The person the weapon met, read at call time.
      *
      * @returns Their body and bone query.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the call-time met performer whose body and exact-time bone reader determine the contacted surface.
+     * @evidence contracts/development/implementation.md#principled-implementation The supplied strike-law closure resolves the actual stopped-against participant through its action context; create calls it for stop contact and each newly demanded frame node.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Participant resolution stays with the law/context, while create owns the contact and ascending frame-grid evaluation.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the named partner and their real pose reader rather than substituting entry bones or a frozen actor; the original lagged-time cycle rule remains.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each invocation pays its context's participant lookup; requested bone ancestry is evaluated only when create subsequently asks for a frame.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The enclosing ride captures its stop/participant identity but calls this reader at actual use time; it does not keep a stale displayed pose or share another actor's result.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride retains the closure for its lifetime, while each returned performer reference is borrowed during contact/grid evaluation; new resources and participant histories are not acquired.
      */
     other(): IHumanActionContext.IPerformer;
 
@@ -78,6 +86,14 @@ export namespace StrikingRide {
      *
      * @param seconds Film seconds; read at the stop only.
      * @returns World metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the law's uncarried world-metre goal at the exact film-time stop, the reference for later withdrawal.
+     * @evidence contracts/development/implementation.md#principled-implementation The supplied punch/kick/knee reader evaluates its actual free-course goal at stop; create subtracts this reference from the current goal along the measured contact normal.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns free-course geometry, and create lazily reads one held reference before the first effective carry computation.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original law's goal and exact stop, without replacing hand/foot contact, extending dwell or scripting a partner displacement.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One demanded free-course goal read per fixed ride; subsequent carry calls pay only relative vector arithmetic against the held reference.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work create retains this exact fixed-stop goal only under the ride's unchanged law/stop contract; settle or changed stop replaces the ride and its reference.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one held vector and the callback live with the ride, ending on ride/plan release; no sampled-time goal history grows.
      */
     goal(seconds: number): IAutoMovieVector3;
 
@@ -86,6 +102,14 @@ export namespace StrikingRide {
      *
      * @param seconds Film seconds, at or before the stop.
      * @returns The axis ends, world metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the actual stopped weapon axis in world metres at the stop or an earlier film second.
+     * @evidence contracts/development/implementation.md#principled-implementation Strike-law producers derive both endpoints from their own shown bone frames; create uses the exact stop axis for the body's signed-distance gradient and nearest axis point.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The law supplies limb geometry once, and create shares that pair across the fixed contact's probes and met-bone selection.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the actual limb at the stop with the original six normal probes, nine axis points and gradient threshold; no proxy axis or altered contact tolerance is supplied.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One axis producer call per lazy stop-contact construction; pose/FK cost remains with its law, while all contact probes share the completed endpoint pair.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only probes at this exact body/axis/stop contact reuse endpoints; later grid frames still read the partner's actual lagged seconds and no axis-time cache is built.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary endpoints end with contact construction; the ride retains only the selected contact point/normal and met-bone metadata until release.
      */
     axis(seconds: number): readonly [IAutoMovieVector3, IAutoMovieVector3];
   }
@@ -106,6 +130,14 @@ export namespace StrikingRide {
      * @param limb The stopped limb.
      * @param seconds Film seconds.
      * @returns The posture, unchanged until two grid steps past the stop.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the posture/limb/film-second inputs, initial identity period and one-sided carried point/bend output.
+     * @evidence contracts/development/implementation.md#principled-implementation create interpolates the met segment's rigid motion on its original two-step-lagged grid, then shifts point and bend by max(0, surface advance minus own withdrawal) along the contact normal.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Early unchanged cases precede lazy contact construction, ascending frame reads and one fresh limb-goal replacement.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves on-bound goals, zero-gradient identity, grid step, lag, outward-only correction and cycle refusal; no contact outcome or goal constraint is relaxed.
+     * @evidence contracts/development/implementation.md#efficient-algorithms A call appends only missing ascending grid nodes, each requesting the selected met bone's actual pose ancestry; interpolation and shift cost are constant once nodes exist. Unsupported pose coupling keeps its complete fallback.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only this ride's fixed contact/held goal and original ascending frame grid; each new node is evaluated at its actual film second under the lag rule and a changed stop gets a new ride.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride owns at most floor((last requested second-stop)/STEP)+2 frames plus one contact and held goal; finite action clocks bound callers and settle/stop replacement or plan release drops the owner.
      */
     carry(
       posture: IHumanPosture,

@@ -82,7 +82,17 @@ export namespace crawlFeet {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body and standing placement, heading and lift establish the invariant geometry; progress queries retain no prior progress or current placement.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owning plan retains its standing foot, first pivot, scalar limits and at most one second pivot until release; no pose, solver reader or history is cached.
    */
-  export function prepareRoll(body: IHumanBody, side: "left" | "right", standing: HumanFoot.IPlacement, heading: number, lift: number): (share: number) => { placement: HumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } {
+  export function prepareRoll(
+    body: IHumanBody,
+    side: "left" | "right",
+    standing: HumanFoot.IPlacement,
+    heading: number,
+    lift: number,
+  ): (share: number) => {
+    placement: HumanFoot.IPlacement;
+    toes: number;
+    mtp: IAutoMovieVector3;
+  } {
     const from: number = HumanFoot.heading(standing.rotation);
     const extension: number = Math.min(
       lift,
@@ -114,10 +124,22 @@ export namespace crawlFeet {
       };
     };
     let tip: IAutoMovieVector3 | undefined;
-    return (share: number): { placement: HumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } => {
+    return (
+      share: number,
+    ): {
+      placement: HumanFoot.IPlacement;
+      toes: number;
+      mtp: IAutoMovieVector3;
+    } => {
       const q: number = lift * share;
       if (q <= extension) return about("mtp", mtp, q, q);
-      tip ??= HumanFoot.point(body, side, "toe", about("mtp", mtp, extension, extension).placement, extension);
+      tip ??= HumanFoot.point(
+        body,
+        side,
+        "toe",
+        about("mtp", mtp, extension, extension).placement,
+        extension,
+      );
       return about("toe", tip, q, extension);
     };
   }

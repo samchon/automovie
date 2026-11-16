@@ -68,11 +68,19 @@ export namespace staggerKnots {
    * The centre of mass's shift per sine of the trunk's tilt about the hips,
    * on the entry's feet: the posture tilted `REFERENCE` degrees in pitch and
    * in roll (`AutoMovieMotionHumanLean.pivot`) and its centre of mass read
-   * (`HumanBalance.support`).
+   * (`HumanBalance.centre`).
    *
    * @param body The body.
    * @param entry The posture the push meets.
    * @returns The horizontal shift per sine of the pitch and of the roll, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the unchanged entry feet, REFERENCE tilt, sine normalization and horizontal world-metre result.
+   * @evidence contracts/development/implementation.md#principled-implementation Measures the original whole-body centre on the entry's standing legs, tilts about the hips on each trunk axis, applies original leg lowering and divides each centre displacement by sin(REFERENCE).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing reference and one shared axis-trial reader produce the two actual bending vectors.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original body, entry, pivot, lowering and reference angle; no fitted body proxy or sampled trajectory replaces the mass reading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three original centre readings and two lowered trial postures per preparation; callers explicitly share this invariant within their unchanged-entry operation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the common balance and lowering owners, with no global body/entry result cache; a parent may borrow the actual completed result only under the same unchanged body and entry.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh shift vectors and retains no reader, posture or history after return.
    */
   export function bending(
     body: IHumanActionContext["body"],
@@ -85,10 +93,10 @@ export namespace staggerKnots {
         ...StrikingStance.legs(body, StrikingTarget.feet(entry)),
       },
     };
-    const upright: IAutoMovieVector3 = HumanBalance.support(
+    const upright: IAutoMovieVector3 = HumanBalance.centre(
       body,
       standing,
-    ).centre;
+    );
     const sine: number = Math.sin((staggerBounds.REFERENCE * Math.PI) / 180);
     const shift: (more: walkStanceCourse.ITrunk) => IAutoMovieVector3 = (more: {
       pitch: number;
@@ -99,10 +107,10 @@ export namespace staggerKnots {
         standing,
         more,
       );
-      const centre: IAutoMovieVector3 = HumanBalance.support(body, {
+      const centre: IAutoMovieVector3 = HumanBalance.centre(body, {
         ...tilted,
         root: resolveHumanPosture.lower(body, tilted).root,
-      }).centre;
+      });
       return {
         x: (centre.x - upright.x) / sine,
         y: 0,
@@ -128,6 +136,14 @@ export namespace staggerKnots {
    * @param travel The centre of mass's travel from the entry's, world metres.
    * @param feet Each foot as scheduled then.
    * @returns The upright root and the pelvis under a trunk's tilt, and the pelvis's heading.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States centre-travel compensation, pre-drop root, trunk-dependent pelvis and fixed knot yaw.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original root formula, stance-directed upright pelvis and hips-pivot rigid tilt; moving hip x/z preserves hip+at-base arithmetic before the same tilt operation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Root arithmetic, one upright pelvis and fixed-heading tilt preparation precede the two varying-trunk readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps entry clinical hips, actual feet, body rest hip and every original translation/rotation grouping without changing support or centre goals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original upright pelvis preparation per knot; each requested trunk tilt uses constant work with precomputed upright inverse and rest offset.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned readers share only this knot's fixed body/entry/bending/travel/feet and upright heading; each varying trunk still produces its actual root/pelvis.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A knot owns fixed frame data and one tilt reader until its stance problem/course is released; no time-query or pose history grows.
    */
   export function frame(
     body: IHumanActionContext["body"],
@@ -181,6 +197,14 @@ export namespace staggerKnots {
    * @param heading The foot's heading, degrees.
    * @param prepared Optional fixed point reader prepared from this body's same-side rest knee at this exact yaw.
    * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world root/knee hint, degree headings and the optional exact fixed-source knee transform.
+   * @evidence contracts/development/implementation.md#principled-implementation Places the body's rest lower-leg joint under the supplied root/yaw, then adds unit forward under the actual foot heading, preserving the original two horizontal-frame transforms.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The optional prepared first transform serves repeated fixed knot/side probes; the varying foot-heading transform remains unchanged.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the body's same-side knee offset and original unit-forward hint; prepared source products retain exact original arithmetic grouping.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant point work; a supplied fixed-source reader avoids the same yaw trigonometry/rest lookup/products across nearby leg-fit probes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit reader belongs to this same body's rest knee, side and exact yaw; changing any source requires another preparation and every root/foot heading is evaluated directly.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh hint vector and retains neither the optional reader nor any queried root.
    */
   export function kneePole(
     body: IHumanActionContext["body"],
@@ -208,6 +232,14 @@ export namespace staggerKnots {
    *
    * @param body The body.
    * @returns The share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the initial rise as a share of swing from the original contact-height and lift policy.
+   * @evidence contracts/development/implementation.md#principled-implementation Inverts sin^2(pi*u) at the unchanged audit contact height over LIFT*hipHeight, as the walking-foot rise law requires.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One explicit inverse-height expression owns the same rise share for knot scheduling and displayed feet.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original height, LIFT and body measure without clipping or tuning; the valid body/rise domain remains the caller's premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work, prepared once by each owning schedule/feet object.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both knot planning and displayed foot motion call this same original formula.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no body or sample.
    */
   export function risingOf(body: IHumanActionContext["body"]): number {
     return (
@@ -331,6 +363,12 @@ export namespace staggerKnots {
     return knots;
   }
 
-/** A recovery's stance-course knot with the frame its pelvis stands in (`of`). */
+  /** A recovery's stance-course knot with its original pelvis frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Extends the shared knot with root/pelvis readers and the fixed world yaw from frame.
+   * @evidence contracts/development/design.md#principled-representation Reuses the original stance knot's clock/supports and intersects its actual frame rather than duplicating those fields.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Sequential recovery needs the frame root and yaw for actual knee hints; the inherited model reads its pelvis and support data.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no body-specific pose or sampled result to the shared knot representation.
+   */
   export type IKnot = walkStanceCourse.IKnot & { frame: ReturnType<typeof frame> };
 }

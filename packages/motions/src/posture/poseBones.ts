@@ -19,6 +19,8 @@ import type { IHumanBody } from "../body/IHumanBody";
  * receives full ordered joint admission; a requested set computes only its
  * ancestor closure and returns only those reachable bones. A supplied
  * operation reader shares exact unchanged dependency work with fresh outputs.
+ * The prepare companion binds this same body to a snapshot of requested names
+ * once, then returns the same fresh map representation for changing poses.
  *
  * @param body The body and its topology for the same, unchanged skeleton.
  * @param pose The pose.
@@ -26,13 +28,13 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @param requested Optional output bone set; omitted, all reachable bones are returned in parent-first order.
  * @returns Resolved bones by rig bone.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the displayed reading, canonical mappings and the body's unchanged-skeleton topology premise.
+ * @evidence contracts/development/common.md#meaningful-documentation States displayed canonical frames, unchanged body inputs, ordinary live versus prepared fixed name demand, complete pose admission and fresh map/transform ownership; the prepare companion's plain docs give bound-reader scope and release.
  * @evidence contracts/development/implementation.md#principled-implementation The engine's prepared parent-first FK uses the canonical humanoid axes/rest-frame snapshot createHumanBody owns, retaining the ordinary quaternion grouping and every authored angle's admission while computing demanded ancestry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The body's prepareSkeletonPoseResolution result owns static prerequisites and dependency updates; this adapter only indexes its fresh requested outputs by bone.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cast, assertion or tolerance; the axes and rest frames are the engine's canonical tables.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every authored record remains O(J); K requested indices are sorted and their D ancestors visited before K fresh map entries are inserted. Omitted demand visits all B bones. Static rig admission is paid once, unchanged dependency math is shared only within a supplied operation, and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's immutable canonical rig snapshot fixes rest/axes/frames/topology. An optional operation reader keys private exact clinical/ancestor/root dependency rows; changing or removed joints and root edits invalidate affected frames independently of pose identity or demand order.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map and nested bone transforms; a borrowed resolution reader keeps its private snapshots only until the synchronous motion evaluation releases it. This adapter stores no global state or handle.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The body's genuine prepareSkeletonPoseResolution result owns static prerequisites/dependency updates. Ordinary reads and the prepare companion both index fresh engine outputs through byName; prepare delegates actual fixed-name preparation to that same producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canonical axes/frames are unchanged, every query admits current authored records and no external numeric demand list, body override, resolved flag, pose or target answer bypasses the engine. No cast, tolerance or query-result cache is introduced.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary calls admit J joints, sort K names, check D ancestors and insert K fresh map entries; omitted demand visits B bones. prepare pays name lookup/sorting once, retaining ordinary admission/FK/copy costs per query. Static rig admission is paid once and runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable body rig fixes rest/axes/frames/topology. prepare additionally snapshots actual name membership and binds the same body without retaining the source set. Optional operation identity scopes exact shared dynamic rows; current/removed joints and roots still invalidate actual dependencies independently of pose identity or demand order.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps/nested transforms are fresh caller-owned values. A prepared closure retains only its bounded name demand and body-rig reference until caller release; dynamic rows remain under weak operation keys and end with those readers. Neither path retains a pose, query-result history, handle or task.
  */
 export function poseBones(
   body: IHumanBody,
@@ -57,13 +59,12 @@ export namespace poseBones {
    * Later edits to that set do not change the captured demand. Every query
    * still admits all current authored records and returns a fresh map/frames.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines captured membership, fixed body, complete pose admission and fresh map/transform ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's actual immutable rig snapshots reachable names/order, then resolves each current pose through its ordinary exact parent-first FK.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates fixed-demand preparation to the engine producer and indexes fresh outputs through the same local adapter as ordinary poseBones.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No external index list, pose, target, admission flag or body override enters the returned reader; all authored query joints remain admitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms K-name lookup/sorting is paid once. Each query admits J current joints, checks D demanded ancestors and creates K fresh map entries without rebuilding demand; runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The captured body rig and copied name membership establish static equivalence; optional operation-reader identity scopes exact dynamic reuse, while current pose scalars still invalidate changed dependencies.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one bounded demand snapshot and borrows the body rig until caller release. Dynamic rows use weak operation keys; no pose, result history, handle or task is retained.
+   * The body's actual producer snapshots reachable names/order in O(K log K);
+   * byName indexes each query's ordinary sparse FK into fresh map/frames.
+   * Every current joint remains admitted and no external index list, resolved
+   * flag, alternate body or target answer is accepted. Optional same-operation
+   * readers share only exact current dependencies. Release the bounded demand
+   * closure with its caller; no pose, source set or query history is retained.
    */
   export function prepare(
     body: IHumanBody,

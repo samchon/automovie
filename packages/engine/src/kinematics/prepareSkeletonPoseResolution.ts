@@ -33,14 +33,18 @@ type IConvention = preparePoseResolutionState.IConvention;
  * Omission returns all reachable bones. Root and rest scale remain ignored.
  * Root placement keeps the ordinary parent-first arithmetic; root-null reads
  * reuse the independent root-relative frames. Every output is fresh plain data.
+ * prepareBones snapshots fixed output membership/order once. preparePose
+ * actually admits a fixed source/root once, then accepts complete appended
+ * edit lists; absent edits restore that source. Neither companion stores a
+ * pose identity, target answer or query-result history.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines explicit snapshot ownership/invalidation, ordered joint admission, requested-output membership/order, ignored scale, unchanged parent-first arithmetic and fresh output ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines static snapshot invalidation, complete-pose and fixed-source admission, fixed-demand membership, ignored scale, parent-first arithmetic and fresh output ownership. IRig and IBoneDemand member prose below states exact source/operation scopes, units, defaults, costs and release boundaries.
  * @evidence contracts/development/implementation.md#principled-implementation Immutable rest frames define a rooted FK graph. Exact joint values and parent revisions determine local/root-relative frames; a separate exact root tuple determines placed frames using the same Hamilton products and parent-rotated offsets as resolvePose. A basis is normalized once on its first authored use; affine frames retain the existing null-angle and per-axis admission rules.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns static snapshots, the merged raw-axis table shared with IK and sparse dependency state. PoseResolutionSnapshot owns copies and resolvePreparedPoseFrame owns private composition reuse; existing admission/math owners retain their formulas. No target or fit policy is owned here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose identity, timestamp, tolerance or result flag certifies equivalence. All authored records retain finite-angle admission and last-record precedence, missing articulation is identity, and unreachable requested bones remain absent. Raw resolvePose retains its live-input behavior.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is O(B+A+F). A call admits O(J) records, sorts K requested reachable indices in O(K log K), visits only their D ancestors, and copies K outputs; omitted demand visits B bones. Only changed articulation/ancestor/root dependencies compose transforms, while unchanged root-relative frames survive root changes. Runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Static values are producer-owned snapshots. Per-operation rows compare actual clinical scalars, selected articulation and ancestor revisions; removed joints use the current invocation's absence. Placed rows additionally depend on all seven current root scalars, keeping ancestor changes and root edits visible without retaining input pose identity.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rig owns O(B+A+F) immutable data and a weak map keyed by explicitly supplied live operation readers. Each live reader owns at most O(U+B) joint/frame rows for this rig; an omitted reader uses unretained call-local rows. No authored pose, result, time history, task or handle is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Static preparation is O(B+A+F). Ordinary reads admit J records, sort K names and check D ancestors/copy K outputs. prepareBones pays sorting once and shares operation rows; preparePose pays O(J+B) baseline admission/snapshot work once, then only E query edits and demanded ancestry, optionally binding demand. Only changed dependencies compose; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Static values are owned snapshots. Normal and bound-demand reads share exact dynamic rows under one operation key. Fixed-source production actually admits all baseline records/root once, optionally sharing completed joint conversion from that same operation, then keeps independent overlay state. Missing edits restore baseline and all changed clinical/ancestor/root dependencies remain visible.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rig owns O(B+A+F) static data and weak operation-reader entries of O(U+B) current rows each. Bound demands own K indices and retain no operation or pose. Fixed-source workspaces own O(B+U) baseline/overlay rows until caller release. No authored pose, result/time history, task or handle is retained.
  */
 export function prepareSkeletonPoseResolution(
   skeleton: IAutoMovieSkeleton,
@@ -98,8 +102,10 @@ export function prepareSkeletonPoseResolution(
     )));
   return {
     jointAxes: preparedAxes,
-    preparePose: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader =>
-      preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, pose, requested),
+    preparePose: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IOverlayReader =>
+      operation === undefined
+        ? preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, pose, requested)
+        : readerOf(operation).preparePose(pose, requested),
     prepareBones: (requested: ReadonlySet<AutoMovieHumanoidBone>): prepareSkeletonPoseResolution.IBoneDemand => {
       const read: ReturnType<typeof preparePoseResolutionState.prepareDemand> =
         preparePoseResolutionState.prepareDemand(indices, nodes.length, requested);
@@ -130,31 +136,51 @@ export function prepareSkeletonPoseResolution(
 /**
  * Explicit immutable rig snapshot and its fresh-output demand resolver.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States snapshot lifetime, operation-reader ownership and requested reachable output semantics on the single resolver member.
- * @evidence contracts/development/design.md#principled-representation One prepared rig resolves clinical degree poses into model-metre frames; optional demand selects output membership without weakening authored admission, while a caller-owned reader identifies only dynamic-work lifetime.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Body/chain FK reads resolve and IK reuses the exact merged raw-axis snapshot through jointAxes. Dynamic revisions, mutable frame rows and target answers remain private.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No trusted boolean or user-constructible admitted rest record bypasses raw validation. This producer alone supplies snapshot behavior; results are fresh and omitted operations retain no dynamic history.
+ * @evidence contracts/development/common.md#meaningful-documentation States static snapshot lifetime, operation ownership, current complete-pose resolution and fixed-demand/source companion semantics.
+ * @evidence contracts/development/design.md#principled-representation IRig couples an immutable rooted rest graph and raw clinical axis/frame snapshot to complete-pose, fixed-source and fixed-demand operations. IBoneDemand fixes reachable output membership/order, while poses retain clinical degrees and model-metre root placement. The producer/runtime owners retain axis, angle and graph admission; no type claims finiteness by itself.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Body/chain consumers use resolve and jointAxes, repeated flight mass reads prepareBones/IBoneDemand.resolve, and actual digit probes preparePose/IOverlayReader.resolve. Existing interface/ROM types own quantities; numeric indices, dynamic rows, revisions and target answers remain private.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene, fixed body subset, editable whitelist, trusted boolean or user-constructible admitted-rest record replaces actual admission. The genuine producer snapshots its inputs; every ordinary pose or overlay query retains its stated validation and every public transform is fresh.
  */
 export namespace prepareSkeletonPoseResolution {
   /**
    * Immutable prepared FK, independent of later source rig or table edits.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the snapshot and resolve member's optional operation lifetime and requested output population.
-   * @evidence contracts/development/design.md#principled-representation A fixed rest graph and clinical convention map clinical degrees to model-metre frames; optional demand selects reachable outputs, while every authored record remains admitted.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The body and chain consumers use resolve; prepareChainFit reuses the immutable raw-axis table instead of merging the skeleton again. Internal revisions, mutable rows and target answers remain private.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No admission boolean, cast or fixture-specific bone set is exposed. Only the producer supplies the immutable data and every result owns fresh transform records.
+   * Complete poses use current clinical degrees/root placement; fixed-source
+   * queries append complete edits to an actually admitted source. Fixed demand
+   * selects reachable outputs without exposing numeric indices or state rows.
    */
   export interface IRig {
-    /** Admit/snapshot a fixed source once; each query supplies its complete appended edits, with fresh requested output. Release the workspace when that source operation ends. */
-    preparePose(source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader;
+    /**
+     * Admit/snapshot a fixed source/root, optionally binding names and borrowing
+     * exact completed conversion from this same operation. Ordered admission
+     * and the shared sparse FK produce baseline-plus-complete-edit queries;
+     * no source record or external resolved flag is presumed valid.
+     * O(J+B) setup precedes E-edit/demanded-ancestry queries with fresh output.
+     * Independent O(B+U) overlay rows end with this source operation; source
+     * edits require a new workspace and no source pose/result history is kept.
+     */
+    preparePose(source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IOverlayReader;
 
-    /** Snapshot requested membership/order once, then resolve changing complete poses through operation-owned rows without repeating demand preparation. */
+    /**
+     * Snapshot reachable requested names/order once, in O(K log K), using this
+     * actual immutable rig. Each resulting query still admits the complete
+     * pose and follows ordinary sparse FK, sharing its exact operation rows.
+     * Only K indices are retained until demand release; no external numeric
+     * list, admission flag, pose or target answer is retained or accepted.
+     */
     prepareBones(requested: ReadonlySet<AutoMovieHumanoidBone>): IBoneDemand;
 
     /** Immutable merged raw-axis snapshot for the same rig's IK; normalization remains lazy at each original use site. */
     readonly jointAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 
-    /** Resolve all or only requested reachable bones, borrowing an operation reader's lifetime for exact computation reuse; every authored record is still admitted in order. */
+    /**
+     * Admit all current pose records in order, then return fresh requested
+     * reachable model-metre frames, all when names are absent. Shared sparse
+     * FK keeps ordinary quaternion grouping and exact scalar invalidation;
+     * no time/target result substitutes for current admission.
+     * O(J+D+K) work plus live-name sorting uses O(B+U) operation rows only when
+     * a reader is lent; absent supply uses call-local rows released on return.
+     */
     resolve(
       pose: IAutoMoviePose,
       operation?: ReturnType<typeof preparePoseResolution>,
@@ -165,13 +191,17 @@ export namespace prepareSkeletonPoseResolution {
   /**
    * A genuine immutable rig's fixed requested-bone snapshot.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States captured rig/name membership and fresh complete-pose query outputs with optional operation ownership.
-   * @evidence contracts/development/design.md#principled-representation Immutable rooted indices fix output membership/order while each complete pose supplies current clinical/root values in model metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface poseBones.prepare needs only resolve; names, numeric indices and internal state stay private.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The actual rig producer derives the demand from a supplied name set; no external numeric indices, pose-admission flag or cached target answer is exposed.
+   * Actual rig name lookup fixes reachable output membership/order. Queries
+   * supply complete current poses; numeric indices and state stay private.
    */
   export interface IBoneDemand {
-    /** Admit the current complete pose and return fresh captured requested transforms; optional reader identity scopes exact dynamic reuse. */
+    /**
+     * Admit the current complete pose and return fresh captured model-metre
+     * frames through the same sparse FK, without re-sorting names. Exact
+     * scalar/ancestor/root dependencies share the lent operation's rows;
+     * no pose identity or answer is cached. O(J+D+K) query work keeps O(B+U)
+     * rows only for that reader lifetime, or call-local rows without supply.
+     */
     resolve(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[];
   }
 }

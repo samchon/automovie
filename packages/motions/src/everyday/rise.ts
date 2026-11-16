@@ -19,6 +19,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
+import { prepareRiseFeet } from "./prepareRiseFeet";
 import { seated } from "./seated";
 
 /**
@@ -159,7 +160,10 @@ export namespace rise {
       (1 + 0.6 * (1 - r)) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
-    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw,
+    );
     const rests: HumanBase.ISeat["armrests"] =
       context.entry.base.kind === "seated"
         ? context.entry.base.seat?.armrests
@@ -171,7 +175,8 @@ export namespace rise {
       yaw,
     );
     const relaxed: IHumanPosture["joints"] = {
-      ...stand.relaxed(body), ...standUpright.of(body).joints,
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
     };
 
     // Shallow sitting first: the pelvis edges forward on the seat until the
@@ -250,11 +255,27 @@ export namespace rise {
     const flex: number = 0.5 * rising;
     const pitchAt = (t: number, peak: number): number =>
       pitch0 + (peak - pitch0) * minimumJerk(t / flex).s;
-    const level: IAutoMovieVector3 = seated.root(body, begin, { yaw, pitch: 0, roll: 0 });
-    const seatedAt: (peak: number, feetAt: Record<"left" | "right", IAutoMovieVector3>, limit: number) => (t: number) => IHumanPosture =
-      (peak: number, feetAt: Record<"left" | "right", IAutoMovieVector3>, limit: number): (t: number) => IHumanPosture =>
+    const level: IAutoMovieVector3 = seated.root(body, begin, {
+      yaw,
+      pitch: 0,
+      roll: 0,
+    });
+    const seatedAt: (
+      peak: number,
+      feetAt: Record<"left" | "right", IAutoMovieVector3>,
+      limit: number,
+    ) => (t: number) => IHumanPosture =
+      (
+        peak: number,
+        feetAt: Record<"left" | "right", IAutoMovieVector3>,
+        limit: number,
+      ): ((t: number) => IHumanPosture) =>
       (t: number): IHumanPosture => {
-        const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(relaxed, pitchAt(t, peak), limit);
+        const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+          relaxed,
+          pitchAt(t, peak),
+          limit,
+        );
         const root: IAutoMovieVector3 = seated.root(body, begin, {
           yaw,
           pitch: tilt.pitch,
@@ -281,7 +302,11 @@ export namespace rise {
         peak <= 70 + 1e-9 && off === undefined;
         peak += 5
       ) {
-        const candidate: (t: number) => IHumanPosture = seatedAt(peak, drawn, limit);
+        const candidate: (t: number) => IHumanPosture = seatedAt(
+          peak,
+          drawn,
+          limit,
+        );
         for (
           let t: number = 0.4 * rising;
           t <= 0.45 * rising + 1e-9;
@@ -315,39 +340,14 @@ export namespace rise {
       clock += DRAW;
     }
     const prepared: number = clock;
-    const footAt = (
-      side: "left" | "right",
-      t: number,
-    ): { ankle: IAutoMovieVector3; planted: boolean } => {
-      const swing: [number, number] | undefined = swings[side];
-      if (swing === undefined || t <= swing[0])
-        return { ankle: feet[side], planted: true };
-      if (t >= swing[1]) return { ankle: drawn[side], planted: true };
-      const u: number = (t - swing[0]) / DRAW;
-      const ankle: IAutoMovieVector3 = Vector3.lerp(
-        feet[side],
-        drawn[side],
-        minimumJerk(u).s,
-      );
-      return {
-        ankle: { ...ankle, y: ankle.y + LIFT * Math.sin(Math.PI * u) },
-        planted: false,
-      };
-    };
-    const legsAt = (
-      root: IAutoMovieVector3,
-      t: number,
-    ): IHumanPosture["limbs"] => {
-      const placed: Record<"left" | "right", ReturnType<typeof footAt>> = { left: footAt("left", t), right: footAt("right", t) };
-      const legs: IHumanPosture["limbs"] = legged(root, { left: placed.left.ankle, right: placed.right.ankle });
-      for (const side of ["left", "right"] as const) {
-        const limb: "leftLeg" | "rightLeg" =
-          side === "left" ? "leftLeg" : "rightLeg";
-        if (!placed[side].planted)
-          legs[limb] = { ...legs[limb]!, planted: false };
-      }
-      return legs;
-    };
+    const legsAt: ReturnType<typeof prepareRiseFeet> = prepareRiseFeet({
+      feet,
+      drawn,
+      swings,
+      draw: DRAW,
+      lift: LIFT,
+      legged,
+    });
 
     // The standing posture the rise ends in: the stand law's pelvis over the drawn feet.
     const standRoot: IAutoMovieVector3 = stand.root(body, drawn, yaw);

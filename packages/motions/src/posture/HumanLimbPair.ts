@@ -23,6 +23,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanLimbFit } from "./HumanLimbFit";
 import type { IHumanPosture } from "./IHumanPosture";
+import { compareHumanLimbPair } from "./compareHumanLimbPair";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
@@ -94,41 +95,9 @@ export namespace HumanLimbPair {
       left: HumanLimbFit.reflected(goals.right),
       right: HumanLimbFit.reflected(goals.left),
     };
-    // The inputs serialised by content, each joint under its bone's name in
-    // name order, so the mirror's exchange of the sides' names reorders
-    // nothing.
-    const key: (
-      p: IAutoMoviePose,
-      g: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
-    ) => string = (
-      p: IAutoMoviePose,
-      g: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
-    ): string =>
-      JSON.stringify([
-        p.root,
-        [...p.joints]
-          .sort((x: IAutoMovieJointPose, y: IAutoMovieJointPose): number =>
-            x.bone < y.bone ? -1 : x.bone > y.bone ? 1 : 0,
-          )
-          .map(
-            (
-              j: IAutoMovieJointPose,
-            ): [
-              AutoMovieHumanoidBone,
-              number | null,
-              number | null,
-              number | null,
-            ] => [
-              j.bone,
-              j.flexion ?? null,
-              j.abduction ?? null,
-              j.twist ?? null,
-            ],
-          ),
-        g.left,
-        g.right,
-      ]);
-    if (key(pose, goals) <= key(mirrored, image))
+    // Compare the same ordered JSON components, stopping at the first
+    // unequal root/joint/goal rather than serializing the remaining suffix.
+    if (compareHumanLimbPair(pose, goals, mirrored, image) <= 0)
       return solved(body, pose, goals, near, readResolution);
     // The image's left arm is this pose's right arm, solved alike.
     const out: IFitted = solved(
@@ -183,7 +152,12 @@ function solved(
     AutoMovieHumanoidBone,
     IAutoMovieResolvedBone
   > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    authoredBones ??= poseBones(body, pose, resolution());
+    if (authoredBones === undefined) {
+      const requested: Set<AutoMovieHumanoidBone> = new Set();
+      if (goals.left.on !== undefined) requested.add(goals.left.on);
+      if (goals.right.on !== undefined) requested.add(goals.right.on);
+      authoredBones = poseBones(body, pose, resolution(), requested);
+    }
     return authoredBones;
   };
   const world: (limb: "leftArm" | "rightArm") => IHumanPosture.IGoal = (
@@ -260,6 +234,7 @@ function solved(
     body,
     both,
     resolution(),
+    ARM_BONES,
   );
   const meets: (side: "left" | "right") => boolean = (
     side: "left" | "right",
@@ -357,3 +332,8 @@ function solved(
   });
   return { pose: out, seeds, values: { left: undefined, right: undefined } };
 }
+
+/** Only the two actual arm chains feed the independent-fit mutual-clearance check. */
+const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand",
+]);

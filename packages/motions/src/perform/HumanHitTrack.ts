@@ -30,7 +30,7 @@ import type { HumanPerformanceState } from "./HumanPerformanceState";
  * flights and the blasts are the hit record's own. Once everything is
  * placed the record's resolved hits are read instead.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the track's name, its instants, when it is read, what it reads while placing and after.
+ * @evidence contracts/development/common.md#meaningful-documentation States track naming and provisional/committed sources; EVENT is the hit instant label and PREFIX is hit:, the routing prefix recognized by instants.
  * @evidence contracts/development/design.md#principled-representation A track of the schedule's own named instants, so a hit is addressed exactly as a cue is.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The hit's address, the track's name and its instants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hits are the record's; the provisional sweep uses the one contact resolver.
@@ -57,15 +57,13 @@ export namespace HumanHitTrack {
 
   /**
    * The instant name of every hit on a track.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the common event label used by hit-track cues.
+
    */
   export const EVENT: string = "hit";
 
   /**
    * The prefix of a hit track's name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the routing prefix recognized by instants.
+
    */
   export const PREFIX: string = "hit:";
 

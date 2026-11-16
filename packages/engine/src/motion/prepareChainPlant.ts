@@ -56,12 +56,11 @@ export const prepareChainPlant: (
         j.bone !== chain.upper && j.bone !== chain.lower,
     ),
   };
-  const requested: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set([chain.upper, chain.lower, chain.effector]);
   const map: ReturnType<typeof resolveBoneMap> = poseResolution === undefined
     ? resolveBoneMap(props.skeleton, zeroed, props.topology, props.jointAxes,
         props.restFrames, resolution)
-    : new Map(poseResolution.resolve(zeroed, resolution, requested).map(
+    : new Map(poseResolution.resolve(zeroed, resolution,
+        new Set([chain.upper, chain.lower, chain.effector])).map(
         (bone: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] =>
           [bone.bone, bone],
       ));

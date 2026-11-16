@@ -18,7 +18,7 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * @returns World centre/feet, unit floor axes, sole spans in metres and per-side relative outlines with exact placement snapshots.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed complete-entry/body premises, world-metre centre/placements, unit axes and operation lifetime.
- * @evidence contracts/development/implementation.md#principled-implementation Runs the original HumanBalance.support centre, entry-yaw axes, StrikingTarget.feet and HumanFoot.sole readings; sole spans retain max/min of the original ankle-relative dot products and relative outlines retain the original x/z centre subtraction.
+ * @evidence contracts/development/implementation.md#principled-implementation Runs HumanBalance.centre's original canonical mass reading, entry-yaw axes, StrikingTarget.feet and HumanFoot.sole readings; sole spans retain max/min of the original ankle-relative dot products and relative outlines retain the original x/z centre subtraction.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One producer owns entry-only facts while StaggerPendulum continues to own speed/push-dependent dynamic state and actual phase integration.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the actual complete entry instead of a rounded key or fitted result; no mass, support, goal, speed or law threshold changes.
  * @evidence contracts/development/implementation.md#efficient-algorithms One original entry support resolution and two sole constructions serve all queried speeds; O(v) extent/projection work uses the same v foot points and only the relative arrays survive preparation.
@@ -40,7 +40,7 @@ export function prepareStaggerPendulumEntry(
     relative: IAutoMovieVector3[];
   }>;
 } {
-  const centre: IAutoMovieVector3 = HumanBalance.support(body, entry.posture).centre;
+  const centre: IAutoMovieVector3 = HumanBalance.centre(body, entry.posture);
   const forward: IAutoMovieVector3 = HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
     { x: 0, y: 0, z: 1 },

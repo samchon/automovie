@@ -29,8 +29,10 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * Prepare the unchanged dependencies of several target fits for one chain.
  * The caller owns the lifetime and keeps the rig, source/reference poses,
  * topology, clinical tables and callbacks unchanged until the fits finish.
- * An optional authored reader must return full FK of that exact source pose
- * with the same rig/mappings; it is read only at the original lazy FK site.
+ * An optional authored reader must include this chain's effector FK from the
+ * exact source pose and rig/mappings; callers may include other frames they
+ * need. Every source joint must still receive ordered admission. The reader
+ * is invoked only at the original lazy authored-FK site.
  * A supplied resolution reader is owned by this same synchronous operation,
  * allowing source, zeroed and reference FK to share exact completed math.
  * A supplied poseResolution must be the immutable snapshot of this exact rig,

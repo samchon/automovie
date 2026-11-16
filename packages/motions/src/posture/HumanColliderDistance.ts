@@ -15,13 +15,13 @@ import type { HumanColliders } from "./HumanColliders";
  * shapes unable to improve it. Optional scratch belongs to this unchanged
  * placement's synchronous query operation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines signs, world metres, strict first winner, conservative screening and placement ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines signs, world metres, strict first winner, conservative screening, unchanged placement and the prepared segment/taper reader's operation-owned lifetime.
  * @evidence contracts/development/implementation.md#principled-implementation Reduces actual engine signed shape distances, less the supplied segment taper; a containing sphere provides a lower bound and retains the original greater-or-equal rejection.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This is the single moved distanceOn traversal behind the existing HumanColliders facades; shape bounds and exact proximity mathematics retain their owners.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The single ordered reducer serves cold calls and prepare's closure; that closure owns only world-sphere and opaque shape-reader scratch, while bounds and exact proximity mathematics retain their owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps shape order, strict minima, taper arithmetic and empty-body refusal; a screen never substitutes for an actual winning distance.
  * @evidence contracts/development/implementation.md#efficient-algorithms Scans F ordered shapes and pays exact query cost only where original screens permit; prepared operations compute at most F world spheres and opaque engine readers, without a measured speedup claim.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Optional bounds/readers are valid only for this exact unchanged ordered placement; every segment and taper still runs its actual query and comparison.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function borrows placement/scratch and retains none; one-off temporary bounds end with return and prepared scratch lifetime belongs to the explicit prepare closure.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain no placement/scratch; an explicit synchronous prepared operation owns one closure, its borrowed unchanged placement and at most F lazy world spheres/shape readers until release or throw. No queried point, result, global map, task or handle is retained.
  */
 export function HumanColliderDistance(
   placements: readonly HumanColliders.IPlaced[],
@@ -82,13 +82,13 @@ export namespace HumanColliderDistance {
    * Query varying segments during one unchanged placement operation. World
    * spheres and opaque shape readers are prepared lazily at original use sites.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States varying world segments, fixed geometry, lazy preparation and operation release.
-   * @evidence contracts/development/implementation.md#principled-implementation A shape's world sphere and local query frame depend only on its unchanged placement, so the existing ordered reducer can share them across actual segment queries.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns bounds/readers and delegates all numeric query policy to HumanColliderDistance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new segment/taper runs original proximity math and first-minimum rules; no distance, query point or verdict is stored.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most F world spheres and F fixed shape readers are prepared across K queries on F shapes, while screening and exact query costs remain per segment.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps actual ordered placement, shape definitions and transforms unchanged through this synchronous operation; changed geometry requires another reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns one closure, borrowed placement and at most F spheres/readers until return or throw; no global map, point/result history, task or handle is added.
+   * States varying world segments, fixed geometry, lazy preparation and operation release.
+   * A shape's world sphere and local query frame depend only on its unchanged placement, so the existing ordered reducer can share them across actual segment queries.
+   * One closure owns bounds/readers and delegates all numeric query policy to HumanColliderDistance.
+   * Every new segment/taper runs original proximity math and first-minimum rules; no distance, query point or verdict is stored.
+   * At most F world spheres and F fixed shape readers are prepared across K queries on F shapes, while screening and exact query costs remain per segment.
+   * The caller keeps actual ordered placement, shape definitions and transforms unchanged through this synchronous operation; changed geometry requires another reader.
+   * The operation owns one closure, borrowed placement and at most F spheres/readers until return or throw; no global map, point/result history, task or handle is added.
    */
   export function prepare(
     placements: readonly HumanColliders.IPlaced[],

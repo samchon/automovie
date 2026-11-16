@@ -59,7 +59,7 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @returns The flight's orientation, read by time.
  * @throws {Error} For an invalid failure scope or error budget, a refused trajectory interval or step, or a shape/history reduction failure.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the conservation law, the decomposition into root and relative motion with its sources, where each term comes from, the frames, what is not integrated and why the result is translation and heading invariant.
+ * @evidence contracts/development/common.md#meaningful-documentation States conservation, root/relative decomposition, sources, frames and translation/heading invariance. Namespace history documents pure root-frame bones, the unchanged millisecond central difference and quadratic boundary correction, exact I/h memo, four numeric nodes and separate raw/prepared-model lifetime; rate reads root-frame angular velocity and ICachedHistory.clear releases all transient numeric preparation.
  * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia; the inverse is applied through its principal frame, exact for a symmetric positive-definite tensor. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. An explicitly requested dense momentum defect reconstructs R(I omega+h), retaining actual inertia anisotropy and cancellation instead of inferring a physical budget from the local orientation error.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give. Only this operation's matching symbol scope permits enriching a numeric failure; foreign history errors retain their identity, message and metadata, even when they have the same error class.
@@ -345,13 +345,13 @@ export namespace integrateAirborneRotation {
    * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
    * @returns The history.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, millisecond central difference, unchanged boundary correction, exact-time memo and separate prepared-model ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation AirborneShapeHistory reduces the same physical tensor and two-pose momentum with the unchanged stencil and quadratic boundary correction; only I and h enter the flight ODE.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The public history entry selects the established DELTA and delegates memo, stencil and model reduction to one history owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact query reads its actual pure shape; no time grid, shape interpolation, stencil reduction or tolerance change is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A new query needs at most four posed nodes and O(S) mass work. A bounded exact-node hit avoids its shape/IK/FK read, and a prepared model reuses unchanged intrinsic transforms and quaternion differences. Every new/evicted time and every current orbital term and tensor sum remains evaluated.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under one unchanged model, pure shape and span identifies equivalent I/h and numeric mass parts. Four recent exact nodes share overlapping stencils and fixed boundary moments are separately shared; no time is rounded. A prepared token supplies both model reducers without unrelated-model pairing.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns O(N) numeric I/h instants, at most two boundary moments and four O(S) numeric mass-part reductions. clear explicitly releases all and unregisters lazy inverse records; raw bone maps and full canonical poses are never retained. An optional prepared model is borrowed and its caller separately releases its O(S) state.
+   * States root-frame shape, millisecond central difference, unchanged boundary correction, exact-time memo and separate prepared-model ownership.
+   * AirborneShapeHistory reduces the same physical tensor and two-pose momentum with the unchanged stencil and quadratic boundary correction; only I and h enter the flight ODE.
+   * The public history entry selects the established DELTA and delegates memo, stencil and model reduction to one history owner.
+   * Every new exact query reads its actual pure shape; no time grid, shape interpolation, stencil reduction or tolerance change is introduced.
+   * A new query needs at most four posed nodes and O(S) mass work. A bounded exact-node hit avoids its shape/IK/FK read, and a prepared model reuses unchanged intrinsic transforms and quaternion differences. Every new/evicted time and every current orbital term and tensor sum remains evaluated.
+   * Exact time under one unchanged model, pure shape and span identifies equivalent I/h and numeric mass parts. Four recent exact nodes share overlapping stencils and fixed boundary moments are separately shared; no time is rounded. A prepared token supplies both model reducers without unrelated-model pairing.
+   * The history owns O(N) numeric I/h instants, at most two boundary moments and four O(S) numeric mass-part reductions. clear explicitly releases all and unregisters lazy inverse records; raw bone maps and full canonical poses are never retained. An optional prepared model is borrowed and its caller separately releases its O(S) state.
    */
   export function history(
     model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -400,4 +400,5 @@ function inverse(
   local.z /= frame.moments.z;
   return Quaternion.rotateVector(frame.rotation, local);
 }
+
 

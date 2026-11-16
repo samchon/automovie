@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -11,6 +11,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
 import { StrikingHeld } from "./StrikingHeld";
@@ -184,7 +185,8 @@ export namespace StrikingBlade {
   }
 
   /**
-   * Plan a stroke.   *
+   * Plan a stroke.
+   *
    * @param context The action's context.
    * @param stroke The stroke.
    * @returns The plan, whose decisive instant is `stroke`.
@@ -193,9 +195,9 @@ export namespace StrikingBlade {
    * @evidence contracts/development/implementation.md#principled-implementation The tool's pose is the path read at `AutoMovieMotionClock.through`, which passes the decisive pose at speed (a strike delivers its speed at its end, Putnam 1993), blended from and to the entry hold on the clock's minimum-jerk envelope (Flash and Hogan 1985); the body is decided first, from the advance alone, and both arms are fitted on it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The base, then the tool's frame at a second, then the two arm goals written on the base's posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow hint is the arm's least-strain place with the hanging arm as its named fallback; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One elbow search per arm per evaluated posture, the cost of every shipped arm goal.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each posture is computed from the plan's constants; nothing is memoised.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke and the entry state only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy decisive-pose fit establishes the existing arm reference. Each time read computes its actual base/path/goals and at most one demanded shoulder/chest trunk map shared by frame carrying and elbow carrying; final physical limb fits remain with the displayed evaluator. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint and fixed hand-angle ownership stays per plan; one explicit posture invocation shares only its exact current body's trunk between its two readers, and decisive-pose fit/read-back may share equal scalar FK prerequisites synchronously.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing stroke/base/entry and fixed hand/reference data; each current trunk map and decisive FK reader ends on return or throw, with no time-history cache or retained evaluation scope.
    */
   export function plan(
     context: IHumanActionContext,
@@ -205,6 +207,9 @@ export namespace StrikingBlade {
     const body: IHumanBody = context.body;
     const duration: number = clock.duration;
     const other: HumanHand.Side = tool.side === "left" ? "right" : "left";
+    const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["chest", `${tool.side}UpperArm`]);
+    const handBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}Hand`]);
+    const elbowBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}LowerArm`]);
     const base: IHumanActionPlan = StrikingAdvance.base(context, stroke);
 
     // The hand as displayed at the entry, kept relative to the root so it
@@ -212,6 +217,8 @@ export namespace StrikingBlade {
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      handBones,
     );
     const held: StrikingHeld.IHandFrame = {
       point: Vector3.subtract(
@@ -224,14 +231,15 @@ export namespace StrikingBlade {
       tool.prop === undefined
         ? HumanHand.shape(tool.side, "fist")
         : (StrikingHeld.holds(context, tool)[0]?.fingers ?? {});
+    const supportingFingers: IHumanPosture["joints"] = stroke.support === null ? {} : HumanHand.shape(other, "fist");
 
     // How far the tool is from the entry hold to its path, in [0, 1].
     const present = (seconds: number): number =>
       stroke.stay
         ? clock.progress("start", "ready", seconds)
         : clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-    const shoulderOf = (posture: IHumanPosture): IAutoMovieVector3 =>
-      HumanTrunk.resolve(body, posture).get(`${tool.side}UpperArm`)!
+    const shoulderOf = (posture: IHumanPosture, read?: () => ReturnType<typeof HumanTrunk.resolve>): IAutoMovieVector3 =>
+      (read?.() ?? HumanTrunk.resolve(body, posture, undefined, undefined, trunkBones)).get(`${tool.side}UpperArm`)!
         .worldPosition;
 
     // The holding shoulder where the stroke starts and where it lands.
@@ -244,6 +252,7 @@ export namespace StrikingBlade {
     const frame = (
       posture: IHumanPosture,
       seconds: number,
+      read?: () => ReturnType<typeof HumanTrunk.resolve>,
     ): StrikingHeld.IHandFrame => {
       const progress: number =
         stroke.stop *
@@ -270,7 +279,7 @@ export namespace StrikingBlade {
               point: Vector3.add(
                 sought.point,
                 Vector3.subtract(
-                  shoulderOf(posture),
+                  shoulderOf(posture, read),
                   Vector3.lerp(
                     borne()[0],
                     borne()[1],
@@ -301,11 +310,12 @@ export namespace StrikingBlade {
     // swapped the arm's configuration by itself.
     let anchored: IHumanPosture.IReference | undefined;
     let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const carried = (posture: IHumanPosture): IAutoMovieVector3 => {
+    const carried = (posture: IHumanPosture, read?: () => ReturnType<typeof HumanTrunk.resolve>): IAutoMovieVector3 => {
       reference();
-      const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+      const bones: ReturnType<typeof HumanTrunk.resolve> = read?.() ?? HumanTrunk.resolve(
         body,
         posture,
+        undefined, undefined, trunkBones,
       );
       return Vector3.add(
         bones.get(`${tool.side}UpperArm`)!.worldPosition,
@@ -326,6 +336,7 @@ export namespace StrikingBlade {
         const at: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
           body,
           context.entry.posture,
+          undefined, undefined, trunkBones,
         );
         hint = Quaternion.rotateVector(
           Quaternion.inverse(at.get("chest")!.worldRotation),
@@ -358,7 +369,8 @@ export namespace StrikingBlade {
       // The arm at the decisive pose, its elbow left to the body
       // (`StrikingHeld.goal`): the elbow it takes there is the hint carried
       // on the chest, and its solution the stroke's reference.
-      const posed: IAutoMoviePose = resolveHumanPosture(body, {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const posed: IAutoMoviePose = resolveHumanPosture.seeded(body, {
         ...stood,
         limbs: {
           ...stood.limbs,
@@ -367,13 +379,14 @@ export namespace StrikingBlade {
             bend: AutoMovieMotionHumanBend.hang(body, stood, tool.side),
           },
         },
-      });
-      const elbow: IAutoMovieVector3 = poseBones(body, posed).get(
+      }, undefined, {}, resolution).pose;
+      const elbow: IAutoMovieVector3 = poseBones(body, posed, resolution(), elbowBones).get(
         `${tool.side}LowerArm`,
       )!.worldPosition;
       const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
         body,
         stood,
+        undefined, resolution, trunkBones,
       );
       hint = Quaternion.rotateVector(
         Quaternion.inverse(bones.get("chest")!.worldRotation),
@@ -399,7 +412,10 @@ export namespace StrikingBlade {
           base.posture(t),
           (stroke.turn ?? 0) * present(t),
         );
-        const at: StrikingHeld.IHandFrame = frame(posture, t);
+        let trunk: ReturnType<typeof HumanTrunk.resolve> | undefined;
+        const read: () => ReturnType<typeof HumanTrunk.resolve> = (): ReturnType<typeof HumanTrunk.resolve> =>
+          (trunk ??= HumanTrunk.resolve(body, posture, undefined, undefined, trunkBones));
+        const at: StrikingHeld.IHandFrame = frame(posture, t, read);
         const first: IHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,
@@ -411,7 +427,7 @@ export namespace StrikingBlade {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...first,
-            bend: carried(posture),
+            bend: carried(posture, read),
             reference: { ...reference(), weight: present(t) },
           },
         };
@@ -429,7 +445,7 @@ export namespace StrikingBlade {
           joints: {
             ...posture.joints,
             ...fingers,
-            ...(stroke.support === null ? {} : HumanHand.shape(other, "fist")),
+            ...supportingFingers,
           },
           limbs,
         };

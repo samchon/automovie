@@ -156,7 +156,17 @@ export namespace hingedArmSwivel {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Every target computes its actual roots and every branch computes its actual aim; no candidate, target history, callback result or approximate key is retained.
    */
   export interface IPrepared {
-    /** Borrow one unchanged model-frame point and optional hinge range for this target's search. */
+    /**
+     * Borrow one unchanged model-metre point and optional radian hinge range.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines point/range units, unchanged target scope and target-reader ownership.
+     * @evidence contracts/development/implementation.md#principled-implementation prepare's target factory combines the same fixed source with this actual target/range, preserving all later root, shell and aim formulas.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction creates branch/pose readers over one target request; source geometry remains with the existing shared preparation.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No solve, admission, clamping, score or reached-point substitution runs at construction; only the supplied actual target is borrowed.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant-size request/state and two closures are allocated; numeric work remains lazy at the original reader sites.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Both readers share this unchanged point/range and one lowered goal, and borrow only the matching source's fixed geometry/inverse.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one request, optional lowered goal and two readers until this target search ends; no target population, handles or tasks are stored.
+     */
     target(point: IAutoMovieVector3, range?: IChain["range"]): IPreparedTarget;
   }
 
@@ -169,10 +179,30 @@ export namespace hingedArmSwivel {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Degenerate branches return null under the same thresholds; the poser does not clamp, score or change a requested target.
    */
   export interface IPreparedTarget {
-    /** Actual hinge roots in direct branch order, or null at the same degeneracy gates. */
+    /**
+     * Actual hinge roots in direct order, or null at the same degeneracy gates.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines ordered radian roots, actual model-metre shortfalls and null meaning through IStop and the source's original degeneracy contract.
+     * @evidence contracts/development/implementation.md#principled-implementation branchStops uses the same exact source span sinusoid, actual root-target distance, arccos root order and range wrapping/shell formula as direct branches.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The reader delegates to the common branchStops owner; source coefficient preparation and per-target roots remain separate.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps segment/root/hinge/span gates, original target and legal range stops, without cached branches, altered thresholds or clamped-success claims.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant root/range work returns at most two fresh stops; source coefficients and successful length/hinge preparation are shared rather than recomputed.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The source remains unchanged, so only its coefficients/length gate are reused; every call recomputes this target's distance, roots and shortfalls.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh stop records belong to the caller and no branch result is stored in the target reader; borrowed source/request state ends with caller release.
+     */
     branches(): IStop[] | null;
 
-    /** Actual branch articulation for a swivel, degrees, without any rig policy. */
+    /**
+     * Build one actual branch's poser for a swivel in degrees, without rig policy.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines radian hinge input, degree swivel input and bone-local upper/lower output; the returned poser owns one fixed lower rotation reused within that branch and fresh upper rotations.
+     * @evidence contracts/development/implementation.md#principled-implementation poseBranch and aimed turn about the actual hinge, aim the branch's root-to-end direction at the actual target, then apply its position-preserving swivel.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The same branch poser/aim owners serve direct and prepared entries; this reader supplies only the matching source/target metadata.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No branch angle, target, quaternion or ROM policy is approximated, replaced or remembered from a previous request.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant branch direction/aim work precedes constant per-swivel axis-angle/product work; exact source inverse and this target's lowered goal avoid repeated fixed preparation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged source inverse/normalized hinge and this unchanged target's lowered goal are shared; every branch aim and requested swivel is actual.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned branch closure owns its lower rotation, line and aim until caller release, with no score/target history or handles; callers keep its borrowed lower record unchanged during use.
+     */
     pose(theta: number): ReturnType<typeof hingedArmSwivel.pose>;
   }
 
@@ -220,7 +250,7 @@ export namespace hingedArmSwivel {
     target?: ITargetPreparation,
   ): ReturnType<typeof hingedArmSwivel.pose> {
     const { lower, line, aim }: ReturnType<typeof aimed> = aimed(chain, theta, source, target);
-    return (swivel: number) => ({
+    return (swivel: number): ReturnType<ReturnType<typeof hingedArmSwivel.pose>> => ({
       upper: Quaternion.multiply(aim, Quaternion.fromAxisAngle(line, swivel)),
       lower,
     });

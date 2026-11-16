@@ -336,6 +336,13 @@ export namespace brace {
     };
     const region: IHumanBody["surfaces"]["regions"]["sternum"] = body.surfaces.regions.sternum;
     const sternumBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([region.bone]);
+    const leftOffsets: Record<"left" | "right", IAutoMovieVector3> = {
+      left: Vector3.scale(left, m.shoulderHalfWidth * 0.9),
+      right: Vector3.scale(left, -1 * m.shoulderHalfWidth * 0.9),
+    };
+    const aheadOffset: IAutoMovieVector3 = Vector3.add(Vector3.scale(toward, reach), {
+      x: 0, y: catching ? -0.1 * m.stature : 0, z: 0,
+    });
     const requests: (posture: IHumanPosture) => AutoMovieMotionHumanArm.ISided[] = (
       posture: IHumanPosture,
     ): AutoMovieMotionHumanArm.ISided[] => {
@@ -360,16 +367,9 @@ export namespace brace {
           point: Vector3.add(
             Vector3.add(
               sternum,
-              Vector3.scale(
-                left,
-                (side === "left" ? 1 : -1) * m.shoulderHalfWidth * 0.9,
-              ),
+              leftOffsets[side],
             ),
-            Vector3.add(Vector3.scale(toward, reach), {
-              x: 0,
-              y: catching ? -0.1 * m.stature : 0,
-              z: 0,
-            }),
+            aheadOffset,
           ),
           rotation: rotations[side],
           bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
@@ -381,6 +381,8 @@ export namespace brace {
         left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
       };
+    const envelope: (at: number) => number = (at: number): number =>
+      minimumJerk(Math.min(1, Math.max(0, at) / SET)).s;
     const arms: Map<"left" | "right", HumanArmTrajectory.Trajectory> =
       gestureHands.planned(
         body,
@@ -393,10 +395,10 @@ export namespace brace {
           return {
             posture,
             requests: requests(posture),
-            envelope: minimumJerk(Math.min(1, Math.max(0, at) / SET)).s,
+            envelope: envelope(at),
           };
         },
-        (at: number): number => minimumJerk(Math.min(1, Math.max(0, at) / SET)).s,
+        envelope,
       );
 
     const contacts: IHumanContactWindow[] = [

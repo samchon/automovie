@@ -22,13 +22,13 @@ import { Vector3 } from "../math/Vector3";
  *   radii about that mean of a sphere containing the hull and of one inside
  *   it, and how deep any input point lies below the surface.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a face is, how coplanar points are gathered, the loop order, the degenerate case and the per-array memo with its no-mutation premise.
- * @evidence contracts/development/implementation.md#principled-implementation The definition of a hull face applied directly: a supporting plane through three non-collinear points with every other point behind it (de Berg et al., Computational Geometry, chapter 11), and Andrew's monotone chain for the loop of each face.
+ * @evidence contracts/development/common.md#meaningful-documentation States supporting faces, coplanar membership, outward loop order, degenerate behavior and immutable-source memo. Namespace mirrorX produces fresh reflected points with lazy provenance; their first topology read validates actual coordinates, preserves face order/tolerance and reruns planarLoop, while an edited output receives an ordinary supporting-plane search.
+ * @evidence contracts/development/implementation.md#principled-implementation Ordinary geometry uses supporting planes through non-collinear triples with every point behind them (de Berg et al., Computational Geometry, chapter 11), then Andrew's monotone-chain loops. An issued X reflection first reconfirms every actual coordinate before applying the exact support-plane isometry and the same planar loop/summary owners.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of hull topology: the nearest-point query, bounds, mass, erosion, validation and the native mapping all read these faces instead of deriving their own.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is 1e-9 of the point set's extent, a relative floor above double rounding of the plane products and far below any modelled dimension; the non-null assertions index arrays by indices the loops themselves bound.
- * @evidence contracts/development/implementation.md#efficient-algorithms Triples of points against all points is cubic to quartic in the point count, taken once per array for the few dozen points of a body module; triples already covered by a found face are skipped, and every later call is a map lookup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The faces of one `points` array are computed once and shared by every consumer through the module's `WeakMap`.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The `WeakMap` holds one result per live `points` array and releases it when the array is collected, so retention is bounded by the shapes the caller still holds.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1e-9 extent-relative tolerance and all plane/member tests remain. Extent keeps diagonal nonfinite propagation and omits only symmetric reverse distances. A candidate stops only once monotone front/back evidence proves it cannot support any hull; reflected geometry must pass exact coordinate checks before planes are derived, without a caller-supplied cached-hull flag.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary supporting triples remain cubic to quartic in V points, once per array. Extent uses diagonal plus unordered distances without displacement records; direct covered loops omit callbacks and store only sets capable of covering a future triple. Interior planes stop after both sides are proved. Validated reflection uses O(V) checks and O(F V log V) planar ordering instead of another triple search; later reads are weak lookups.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each points array shares one completed hull through the existing weak map. Only mirrorX-issued provenance plus exact actual-coordinate checks can derive an isometric source hull; edited fresh points revert to ordinary search without trusting a caller-supplied hull.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak completed cache owns one hull per live points array. A second weak entry borrows source points until a fresh reflection's first attempted topology read, releasing provenance in finally on success, edited-output fallback or failure. No query geometry or body history is retained.
  */
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
@@ -37,22 +37,28 @@ export function physicalHullFaces(
   if (cached !== undefined) return cached;
   const original: readonly IAutoMovieVector3[] | undefined = REFLECTIONS.get(points);
   if (original !== undefined) {
-    if (isMirrorX(points, original)) {
-      const hull: physicalHullFaces.IHull = reflectedHull(points, physicalHullFaces(original));
-      HULLS.set(points, hull);
+    try {
+      if (isMirrorX(points, original)) {
+        const hull: physicalHullFaces.IHull = reflectedHull(points, physicalHullFaces(original));
+        HULLS.set(points, hull);
+        return hull;
+      }
+    } finally {
       REFLECTIONS.delete(points);
-      return hull;
     }
 
     // A caller may edit its fresh points before their first topology read.
     // Such geometry needs its own actual supporting-plane search.
-    REFLECTIONS.delete(points);
   }
   const count: number = points.length;
   let extent: number = 0;
-  for (const p of points)
-    for (const q of points)
-      extent = Math.max(extent, Vector3.length(Vector3.subtract(p, q)));
+  for (let i: number = 0; i < count; i++) {
+    // Preserve diagonal non-finite propagation while omitting only the
+    // duplicate reverse direction of each off-diagonal distance.
+    extent = Math.max(extent, Vector3.distance(points[i]!, points[i]!));
+    for (let j: number = i + 1; j < count; j++)
+      extent = Math.max(extent, Vector3.distance(points[i]!, points[j]!));
+  }
   const tolerance: number = 1e-9 * extent;
   const faces: physicalHullFaces.IFace[] = [];
   const members: boolean[][] = [];
@@ -60,13 +66,13 @@ export function physicalHullFaces(
   for (let i: number = 0; i < count; i++)
     for (let j: number = i + 1; j < count; j++)
       for (let k: number = j + 1; k < count; k++) {
-        if (
-          members.some(
-            (member: boolean[]): boolean =>
-              member[i]! && member[j]! && member[k]!,
-          )
-        )
-          continue;
+        let covered: boolean = false;
+        for (const member of members)
+          if (member[i]! && member[j]! && member[k]!) {
+            covered = true;
+            break;
+          }
+        if (covered) continue;
         const raw: IAutoMovieVector3 = Vector3.cross(
           Vector3.subtract(points[j]!, points[i]!),
           Vector3.subtract(points[k]!, points[i]!),
@@ -82,6 +88,10 @@ export function physicalHullFaces(
           const d: number = Vector3.dot(normal, p) - offset;
           if (d > tolerance) front = true;
           else if (d < -tolerance) back = true;
+
+          // Once both half-spaces contain a point, no later point can make
+          // this plane supporting. The two flags are monotone evidence.
+          if (front && back) break;
         }
         // Points on both sides: an interior plane. Points on neither: the
         // whole set is flat and encloses no volume.
@@ -90,13 +100,23 @@ export function physicalHullFaces(
           normal = Vector3.scale(normal, -1);
           offset = -offset;
         }
+        let extendsTriple: boolean = false;
         const member: boolean[] = points.map(
-          (p: IAutoMovieVector3): boolean =>
-            Vector3.dot(normal, p) - offset >= -tolerance,
+          (p: IAutoMovieVector3, index: number): boolean => {
+            const included: boolean = Vector3.dot(normal, p) - offset >= -tolerance;
+            if (included && index !== i && index !== j && index !== k)
+              extendsTriple = true;
+            return included;
+          },
         );
         const loop: number[] = planarLoop(points, member, normal);
         for (const index of loop) used[index] = true;
-        members.push(member);
+
+        // A membership set containing exactly this already visited triple
+        // cannot cover any later i<j<k. Keep every other set, including a
+        // numeric case where the plane omitted one of its original indices.
+        if (extendsTriple || !member[i] || !member[j] || !member[k])
+          members.push(member);
         faces.push({
           normal,
           offset,
@@ -176,8 +196,8 @@ const planarLoop = (
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the two records the hull owner returns; each member states its frame, unit and orientation.
  * @evidence contracts/development/design.md#principled-representation A convex polytope as its supporting half-spaces with their boundary loops, the form every distance, clipping and integration consumer needs; no optional member.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `physicalHullFaces`; each member is read by a hull consumer in this package (nearest query, bounds, mass, erosion, validation).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast; it repeats no type another owner declares.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The face/hull records serve nearest, bounds, mass, erosion and validation. MirrorX serves actual collider reflection by returning only fresh point geometry; pending source provenance and the eventual completed hull stay with this owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No any, unknown, cast or duplicated hull type is introduced. MirrorX accepts no external derived hull or supplied reflected coordinates; private provenance plus first-use exact coordinates establish the isometry, and changed geometry uses ordinary search.
  */
 export namespace physicalHullFaces {
   /**
@@ -191,13 +211,13 @@ export namespace physicalHullFaces {
    * to the fresh points instead receive their own ordinary face search.
    * Input points keep the hull owner's existing no-mutation-after-use premise.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States X reflection, fresh ownership, lazy first-read validation, edited-output fallback, supporting-plane identity, winding and source stability.
-   * @evidence contracts/development/implementation.md#principled-implementation An orthogonal reflection preserves support-plane membership, point distances and convex hull incidence. Reflecting each normal with the same M keeps it outward; rerunning the existing planarLoop on those actual coordinates handles orientation reversal without a caller-authored face list.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer only constructs points and registers their source. The first physicalHullFaces read validates the reflection, then shares source planes, planarLoop and the common hull summary; edited geometry keeps the ordinary supporting-plane path.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unchecked reflected array or cached-hull flag is accepted. Every actual output coordinate must still equal its exact source reflection before reuse; each reflected face membership and loop uses the unchanged extent-relative tolerance, without omitted geometry or admission.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Construction costs O(V) and performs no topology work. The first actual hull read validates O(V) coordinates, then costs O(F V log V) planar ordering and O(F V) summary work instead of another cubic-to-quartic supporting-triple search. The original source search still runs once if needed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer constructs all reflected coordinates, and first-use Object.is checks reconfirm the exact isometry against source geometry before deriving its planes. HumanColliderPlacement consumes the fresh points; ordinary hull readers then share the existing registered result. Changed fresh geometry runs a genuine independent search.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak fresh-points registration borrows its source until the first topology read completes or detects an edit, then releases that provenance. The existing weak cache owns the resulting numeric hull. Source/reflected vectors do not alias, and local membership/index arrays release on return or throw.
+   * States X reflection, fresh ownership, lazy first-read validation, edited-output fallback, supporting-plane identity, winding and source stability.
+   * An orthogonal reflection preserves support-plane membership, point distances and convex hull incidence. Reflecting each normal with the same M keeps it outward; rerunning the existing planarLoop on those actual coordinates handles orientation reversal without a caller-authored face list.
+   * This producer only constructs points and registers their source. The first physicalHullFaces read validates the reflection, then shares source planes, planarLoop and the common hull summary; edited geometry keeps the ordinary supporting-plane path.
+   * No unchecked reflected array or cached-hull flag is accepted. Every actual output coordinate must still equal its exact source reflection before reuse; each reflected face membership and loop uses the unchanged extent-relative tolerance, without omitted geometry or admission.
+   * Construction costs O(V) and performs no topology work. The first actual hull read validates O(V) coordinates, then costs O(F V log V) planar ordering and O(F V) summary work instead of another cubic-to-quartic supporting-triple search. The original source search still runs once if needed.
+   * The producer constructs all reflected coordinates, and first-use Object.is checks reconfirm the exact isometry against source geometry before deriving its planes. HumanColliderPlacement consumes the fresh points; ordinary hull readers then share the existing registered result. Changed fresh geometry runs a genuine independent search.
+   * A weak fresh-points registration borrows its source only until the first attempted topology read, then releases provenance in finally on success, edit detection or failure. The existing weak cache owns the resulting numeric hull. Source/reflected vectors do not alias, and local membership/index arrays release on return or throw.
    */
   export function mirrorX(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
     const reflected: IAutoMovieVector3[] = points.map(
@@ -290,4 +310,5 @@ function summarize(
   };
   return hull;
 }
+
 

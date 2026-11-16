@@ -31,14 +31,35 @@ export function prepareKneelFoot(
   from: kneelKeys.IFoot,
   to: kneelKeys.IFoot,
   clearance: number,
-): (share: number) => { placement: HumanFoot.IPlacement; planted: boolean; toes: number } {
-  const moves: boolean = Vector3.length(Vector3.subtract(from.at, to.at)) > 1e-4;
-  const pivot: (foot: kneelKeys.IFoot) => HumanFoot.IPlacement = (foot: kneelKeys.IFoot): HumanFoot.IPlacement => HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch);
-  const endpoints: readonly [HumanFoot.IPlacement, HumanFoot.IPlacement] | undefined = moves ? [pivot(from), pivot(to)] : undefined;
-  return (share: number): { placement: HumanFoot.IPlacement; planted: boolean; toes: number } => ({
-    placement: endpoints === undefined
-      ? pivot({ ...from, pitch: from.pitch + (to.pitch - from.pitch) * share })
-      : AutoMovieMotionHumanLeg.arc(endpoints[0], endpoints[1], clearance, share),
+): (share: number) => {
+  placement: HumanFoot.IPlacement;
+  planted: boolean;
+  toes: number;
+} {
+  const moves: boolean =
+    Vector3.length(Vector3.subtract(from.at, to.at)) > 1e-4;
+  const pivot: (foot: kneelKeys.IFoot) => HumanFoot.IPlacement = (
+    foot: kneelKeys.IFoot,
+  ): HumanFoot.IPlacement =>
+    HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch);
+  const endpoints:
+    | readonly [HumanFoot.IPlacement, HumanFoot.IPlacement]
+    | undefined = moves ? [pivot(from), pivot(to)] : undefined;
+  return (
+    share: number,
+  ): { placement: HumanFoot.IPlacement; planted: boolean; toes: number } => ({
+    placement:
+      endpoints === undefined
+        ? pivot({
+            ...from,
+            pitch: from.pitch + (to.pitch - from.pitch) * share,
+          })
+        : AutoMovieMotionHumanLeg.arc(
+            endpoints[0],
+            endpoints[1],
+            clearance,
+            share,
+          ),
     planted: !moves || share <= 0 || share >= 1,
     toes: from.toes + (to.toes - from.toes) * share,
   });

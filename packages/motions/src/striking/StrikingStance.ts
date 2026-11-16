@@ -8,7 +8,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "./StrikingBody";
+import { StrikingGuard } from "./StrikingGuard";
 import { StrikingReach } from "./StrikingReach";
 
 /**
@@ -232,6 +234,7 @@ export namespace StrikingStance {
    * @param stance The stance.
    * @param drop How far each glove sags below its guard, metres.
    * @param posed The same body's trunk bones on this exact posture, borrowed within the current synchronous evaluation.
+   * @param resolution Optional exact FK reader borrowed from the same synchronous person evaluation.
    * @returns The two arm goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each glove's place, the fists' orientation, the elbows and that the guard follows the posture's head.
@@ -248,87 +251,9 @@ export namespace StrikingStance {
     stance: Pick<IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
     posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      posed ?? StrikingBody.trunk(body, posture);
-    const m: IHumanBody["measure"] = body.measure;
-    const chin: IAutoMovieVector3 = StrikingBody.region(
-      body,
-      bones,
-      "chin",
-    ).point;
-    const forward: IAutoMovieVector3 = horizontal(
-      StrikingBody.region(body, bones, "face").normal,
-    );
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
-    for (const side of ["left", "right"] as const) {
-      const lead: boolean = side === stance.lead;
-      const jaw = StrikingBody.region(
-        body,
-        bones,
-        side === "left" ? "jawLeft" : "jawRight",
-      );
-      const outward: IAutoMovieVector3 = horizontal(jaw.normal);
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm` as AutoMovieHumanoidBone,
-      )!.worldPosition;
-      // How far this shoulder is drawn back behind the middle of the two
-      // along the face's forward: the head stays on the opponent while the
-      // trunk turns into a strike, so the shoulder of the other arm goes
-      // back under a still head.
-      const withdrawn: number = Math.max(
-        0,
-        0.5 *
-          Vector3.dot(
-            Vector3.subtract(
-              bones.get(
-                `${side === "left" ? "right" : "left"}UpperArm` as AutoMovieHumanoidBone,
-              )!.worldPosition,
-              shoulder,
-            ),
-            forward,
-          ),
-      );
-      // The rear fist a quarter forearm in front of the jaw and the lead fist
-      // most of a forearm ahead of the cheek: closer, the elbow would have to
-      // fold past its range to keep down by the ribs. The lead fist comes
-      // back to the face with its shoulder, as far as the rear fist's
-      // distance: left where it was, it would lie across the chest from a
-      // shoulder drawn back, at the edge of that shoulder's range.
-      const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
-      const fistAt: IAutoMovieVector3 = lead
-        ? Vector3.add(
-            Vector3.add(
-              { ...jaw.point, y: chin.y },
-              Vector3.scale(forward, Math.max(near, m.forearm - withdrawn)),
-            ),
-            Vector3.scale(outward, -0.5 * m.forearmRadius),
-          )
-        : Vector3.add(
-            Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)),
-            Vector3.scale(forward, near),
-          );
-      const sag: IAutoMovieVector3 = {
-        ...fistAt,
-        y: fistAt.y - (drop[side] ?? 0),
-      };
-      const bend: IAutoMovieVector3 = Vector3.add(
-        shoulder,
-        Vector3.add(
-          Vector3.scale(up, -0.8 * m.upperArm),
-          Vector3.scale(forward, 0.5 * m.upperArm),
-        ),
-      );
-
-      out[side === "left" ? "leftArm" : "rightArm"] = glove(
-        body,
-        side,
-        sag,
-        bend,
-      );
-    }
-    return out;
+    return StrikingGuard(body, posture, stance, drop, posed, resolution);
   }
 
   /**
@@ -492,8 +417,3 @@ export namespace StrikingStance {
   }
 }
 
-/** A direction's horizontal part, normalised; forward (+Z) when vertical. */
-function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
-  const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
-  return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };
-}

@@ -56,27 +56,15 @@ export namespace staggerRecover {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
    * @evidence contracts/development/design.md#principled-representation The steps, the courses of the centre of mass, the centre of pressure and the extrapolated centre of mass along the push and the instant it settles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The plan's seven original members and optional paired reading, consumed by stance-knot construction without changing the individual course readers.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Inherits the single shared ICourses callable contract and adds steps, caught point, settled time and optional judged stances; planning, knot construction and displayed feet read these existing values.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The courses are functions of the seconds, not tables.
    */
-  export interface IRecovery {
+  export interface IRecovery extends ICourses {
     /** The steps, in order. */
     steps: IStep[];
 
     /** The extrapolated centre of mass caught by the last step, from the entry's centre of mass over the floor, world metres. */
     caught: IAutoMovieVector3;
-
-    /** The centre of mass's travel over the floor from the entry's at a second since the action's start, world metres. */
-    course: (seconds: number) => IAutoMovieVector3;
-
-    /** The centre of pressure the pendulum stands on at a second since the action's start, on the floor, world metres. */
-    pressure: (seconds: number) => IAutoMovieVector3;
-
-    /** The extrapolated centre of mass at a second since the action's start, on the floor, world metres. */
-    extrapolated: (seconds: number) => IAutoMovieVector3;
-
-    /** Optional same-instant course sample, avoiding repeated phase lookup in stance-knot construction. */
-    sample?: ICourses["sample"];
 
     /** When the centre of mass has come to rest, seconds since the action's start. */
     settled: number;
@@ -85,7 +73,13 @@ export namespace staggerRecover {
     stances?: walkStanceCourse.ICourse;
   }
 
-  /** A span: its start, its held centre of pressure, and the travel and velocity it started from. */
+  /** A span's start, held centre of pressure and initial travel/velocity.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States action-local start seconds, entry-relative world-metre pressure/travel and world-metre-per-second velocity.
+   * @evidence contracts/development/design.md#principled-representation A held-pressure inverted-pendulum interval is fully specified by these four initial conditions, with frequency owned by its pendulum.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Actual integration writes each field and individual/paired course readers consume every one.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores the actual integrated interval's initial state, without a sampled pose, inferred pressure or quantized time key.
+   */
   export interface IPhase {
     /** Its start, seconds since the push. */
     from: number;
@@ -100,7 +94,13 @@ export namespace staggerRecover {
     v: IAutoMovieVector3;
   }
 
-  /** The state a `snapshot` keeps. */
+  /** The original prefix state snapshot/restore transfers between foot orders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members identify placed feet, actual phase/step records, entry-relative travel/velocity and action-local seconds.
+   * @evidence contracts/development/design.md#principled-representation These six fields are the complete changing pendulum state; fixed body/entry/push/speed remain with the owning search.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Snapshot and restore share these same fields, and recovery retains only prefixes consumed by later foot orders.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds actual dynamic records rather than fitted playback data; callers preserve the original immutable nested records while collection wrappers are copied.
+   */
   export interface IState {
     /** The feet. */
     feet: Record<"left" | "right", HumanFoot.IPlacement>;
@@ -147,16 +147,52 @@ export namespace staggerRecover {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing paired reader falls back to the existing readers; no phase is approximated or cached by time.
    */
   export interface ICourses {
-    /** The centre of mass's travel from the entry's. */
+    /** The centre of mass's travel from the entry's.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Reads seconds since the push and returns the current horizontal entry-relative centre travel in world metres.
+     * @evidence contracts/development/implementation.md#principled-implementation Producers use the original held-pressure closed-form pendulum before the settling tail and the original adjacent-sample linear interpolation during settling.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The pendulum and settling owners retain their existing formulas behind this one shared course contract.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original phase selection, duplicate-start behavior, clamped endpoints and tail interpolation without resampling or changing trajectories.
+     * @evidence contracts/development/implementation.md#efficient-algorithms A pendulum read scans P retained phases once; a settling read indexes two original tail points in constant time.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work A paired sample may share this exact time's phase/interval selection; independent calls read the original retained phase/tail data afresh.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader borrows actual phase/tail arrays for the owning recovery lifetime and returns a fresh vector without retaining queried times.
+     */
     course: (seconds: number) => IAutoMovieVector3;
 
-    /** The centre of pressure on the floor, world. */
+    /** The centre of pressure on the floor, world metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Reads action-local seconds and returns the current supported pressure in world-floor coordinates.
+     * @evidence contracts/development/implementation.md#principled-implementation Uses the original selected phase's held pressure before settling and original held millisecond pressure sample during the settling tail, translated by entry centre and flattened.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Phase selection and tail indexing remain with their respective existing course producers.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps exact phase/tail selection, floor projection and all original support pressure samples without a changed bound.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(P) phase lookup before settling or O(1) tail lookup afterward, with one fixed-size output.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Paired reads share the same current-time selection; no pressure result is reused at a different time or phase.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only original recovery-owned phase/tail data and returns a fresh vector with no query history or external handle.
+     */
     pressure: (seconds: number) => IAutoMovieVector3;
 
-    /** The extrapolated centre of mass on the floor, world. */
+    /** The extrapolated centre of mass on the floor, world metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Reads action-local seconds and returns the original capture point in world-floor coordinates.
+     * @evidence contracts/development/implementation.md#principled-implementation Uses xi-p growing as exp(omega*t) on the selected held-pressure phase, or the original settling tail's adjacent xi interpolation, then applies entry-centre translation and floor projection.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The same original pendulum/tail owners compute capture points independently of merit or posture fitting.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps actual initial travel/velocity, frequency, all tail samples and endpoint clamps without a fitted capture path.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(P) phase lookup or constant two-point tail interpolation, with constant vector result size.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit paired sample can share phase/interval selection at this exact time; the current extrapolated value is still computed from original physical data.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Original phase/tail arrays live with the recovery; each output is fresh and no sampled-time cache is retained.
+     */
     extrapolated: (seconds: number) => IAutoMovieVector3;
 
-    /** Read travel and pressure together, and extrapolated centre only when requested, at the same second. */
+    /** Read travel/pressure and requested extrapolation at the same second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation All values use the same action-local second and world/entry-relative frames of the individual readers; extrapolated=true requests the capture point too.
+     * @evidence contracts/development/implementation.md#principled-implementation Shares one original phase selection for the exact same-time physical formulas and otherwise delegates to the unchanged individual settling readers.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure This optional producer groups values already needed together by stance-knot construction, while the three original readers remain the common owners.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not skip requested values, approximate a phase, alter duplicate-start behavior or compute unrequested extrapolation.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Replaces two or three identical phase scans with one before settling; the tail retains the original constant-time indexing/formulas.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this synchronous query's identical phase and clock are shared; distinct times and recovery instances have no shared result cache.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh constant-size reading under original recovery-array ownership and retains no queried time or result.
+     */
     sample?: (seconds: number, extrapolated: boolean) => IReading;
   }
 

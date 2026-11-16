@@ -12,15 +12,14 @@ import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
  * @param k Owned upper-band system, distinct from the read-only scaled matrices.
  * @param r Row index in the scaled problem.
  * @param w Current rho or polishing row weight, multiplied on the left.
- * @throws {Error} When a retained row couples variables beyond the band.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Accumulates the symmetric weighted row outer product in the stored upper band, including all cross products of duplicate variable indices.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the weighted outer-product kernel shared by Band.factor and Band.polish, while Preparation owns original-input admission and CSR metadata.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves accumulation order, (w*coef[a])*coef[b] association, band rejection and unsorted fallback. Finite positive w comes from admitted rho or inverse delta; when its first product overflows, original zero b terms are restored to preserve actual nonfinite propagation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves accumulation order, (w*coef[a])*coef[b] association and unsorted fallback; Admission already checks every original index and span, so assembly does not repeat band admission per pair. Overflowing first products restore original zero b terms rather than hiding nonfinite propagation.
  * @evidence contracts/development/implementation.md#efficient-algorithms Finite rows take O(k squared) time and O(1) auxiliary storage for k CSR entries; ordered rows skip only lower-triangle continues. An overflowing weighted product scans its H original b entries and may acquire one O(H) restored row, bounded by O(H squared) work overall.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Hoists CSR bounds and uses exact singleton/ordering metadata while rebuilding every current weighted product; exceptional original coefficients share only the owning unchanged raw layout, never a product from another weight or solve.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Normal calls allocate nothing and mutate only the owned system; exceptional restoration belongs to its one-shot wrapper or fixed-model owner, without entering prepared core, body state or public iterates.
- * @evidence contracts/development/common.md#meaningful-documentation Defines the two actual system consumers, weighted product, duplicate ordering, fast-path invariant and band failure.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines both actual system consumers, weighted product, duplicate ordering, admitted-band premise and exact singleton/ordered paths.
  */
 export function HumanQuadraticRow(
   s: B.IScaled,
@@ -51,20 +50,22 @@ export function HumanQuadraticRow(
         const j: number = original.index[b]!;
         if (j < i) continue;
         const offset: number = j - i;
-        if (offset > s.band)
-          throw new Error("A row couples variables beyond the band");
         row[offset] = row[offset]! + weighted * original.coef[b]!;
       }
       continue;
     }
-    if (ordered) while (s.cols[first]! < i) ++first;
-    for (let b: number = first; b < end; ++b) {
-      const j: number = s.cols[b]!;
-      if (j < i) continue;
-      const offset: number = j - i;
-      if (offset > s.band)
-        throw new Error("A row couples variables beyond the band");
-      row[offset] = row[offset]! + weighted * s.vals[b]!;
-    }
+    if (ordered) {
+      while (s.cols[first]! < i) ++first;
+      for (let b: number = first; b < end; ++b) {
+        const offset: number = s.cols[b]! - i;
+        row[offset] = row[offset]! + weighted * s.vals[b]!;
+      }
+    } else
+      for (let b: number = first; b < end; ++b) {
+        const j: number = s.cols[b]!;
+        if (j < i) continue;
+        const offset: number = j - i;
+        row[offset] = row[offset]! + weighted * s.vals[b]!;
+      }
   }
 }

@@ -4,10 +4,10 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "../striking/StrikingBody";
-import type { StrikingContact } from "../striking/StrikingContact";
 
 /**
  * The existing knockdown fold and its body's floor fit. The law owns the
@@ -118,14 +118,14 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#principled-implementation Resolve the folded trunk at root zero facing +Z, negate its lowest collider bound and read the original ankle mean and hip Z.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk/collider reading and three measures.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same full trunk solve and physicalShapeBounds determine the floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and colliders, unchanged from the law's original measurement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones, profile segments and shapes; nested shape reduction avoids flattened per-shape wrappers and their map arrays while retaining every actual bound. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes the same folded record the law writes instead of recomputing its phase.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the fold nor the fresh resolved geometry.
    */
   export function measure(body: IHumanBody, folded: IFold): IMeasure {
-    const { bones, colliders } = shapes(body, folded);
+    const { bones, placements }: ReturnType<typeof shapes> = shapes(body, folded);
     return {
-      floor: -selectedLowest(colliders, (): boolean => true),
+      floor: -selectedLowest(placements, ALL),
       ankle:
         (bones.get("leftFoot")!.worldPosition.z +
           bones.get("rightFoot")!.worldPosition.z) /
@@ -145,25 +145,25 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#principled-implementation Preserves the original range brackets, endpoint tests, collider predicates, knee/arm/elbow order and sixteen bisections; a range end reached first stays at that end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One gap reader and one unchanged bracket solver serve the three angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every trial still resolves its actual posture and collider bounds; no goal, trial or fit result is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen gap evaluations per angle; one operation-local exact FK reader avoids only unchanged bone computation, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen gap evaluations per angle remain. One exact FK reader avoids unchanged bone computation, while nested segment/shape traversal removes flattened wrappers and tests each segment's part predicate once; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing trunk adapter receives the same synchronous fit's lazy reader for all trials and guards exact scalar dependencies.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader and trial geometry are released at synchronous return or throw; the result retains only three angles and no reader enters the plan.
    */
   export function fit(body: IHumanBody, landed: number): IFit {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const gap = (
+    const gap: (fitted: IFit, back: number, part: (bone: string) => boolean, support: (bone: string) => boolean) => number = (
       fitted: IFit,
       back: number,
       part: (bone: string) => boolean,
       support: (bone: string) => boolean,
     ): number => {
-      const { colliders } = shapes(body, fold(fitted, 1, back), resolution);
-      return selectedLowest(colliders, part) - selectedLowest(colliders, support);
+      const { placements }: ReturnType<typeof shapes> = shapes(body, fold(fitted, 1, back), resolution);
+      return selectedLowest(placements, part) - selectedLowest(placements, support);
     };
 
     // Positive at above, falling toward below, as in the original fit.
-    const solve = (
+    const solve: (above: number, below: number, of: (value: number) => number) => number = (
       above: number,
       below: number,
       of: (value: number) => number,
@@ -210,15 +210,15 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#principled-implementation The original full trunk resolution at root Y zero followed by the negated minimum physicalShapeBounds height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the trunk and reduce its collider bounds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No collider, posture solve or floor condition is removed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and a linear collider pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates collider reduction to lowest, shared with gymnastic COM/floor preparation. The optional parent reader shares only exactly unchanged FK dependencies across actual floor postures, without reusing a floor verdict.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Full canonical trunk admission/digit work remains, with final FK restricted to observed collider bone ancestry and the same linear collider reduction. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Collider placement supplies its actual unchanged-body bone demand; lowest owns the shared exact reduction. An optional parent reader shares only unchanged FK dependencies across actual floor postures, without reusing a floor verdict.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows an optional operation reader/supplier only through return or throw; neither it nor resolved geometry is retained here.
    */
   export function rest(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): number {
     const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, {
       ...posture,
       root: { ...posture.root, y: 0 },
-    }, resolution);
+    }, resolution, HumanColliders.bones(body));
     return -lowest(body, bones);
   }
 
@@ -230,21 +230,18 @@ export namespace KnockdownFloor {
    * @returns The lowest collider bound, world metres; Infinity for no colliders.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States canonical bone provenance, required collider coverage, world units and the empty reduction.
-   * @evidence contracts/development/implementation.md#principled-implementation Reduces physicalShapeBounds minimum Y over the same ordered StrikingBody collider list used by floor rest, preserving the actual shapes and transforms.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider reader and one scalar minimum keep floor-bound policy in this owner while allowing a real COM consumer to share the same bones.
+   * @evidence contracts/development/implementation.md#principled-implementation Reduces physicalShapeBounds.lowest over the same ordered HumanColliders placements/shapes used by the full bounds path; its engine owner preserves original minimum-Y formulas and frame composition for every actual transform and shape.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement reader and the shared selectedLowest reduction keep floor-bound policy here while the real COM consumer shares its same bones.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No collider, bound, contact tolerance or posture goal changes; the supplied map is geometry, not a cached floor verdict.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(C) pass over C collision shapes, without another posture resolution or FK; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S+C) placement/shape traversal plus each hull's original vertex count avoids flattened wrappers/map arrays and unused bounds axes/maxima, without another canonical solve/FK or removed vertex; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Floor rest and joint-only gymnastic COM/floor preparation consume the same exact reduction. The caller establishes the current body's canonical bone map rather than relying on an identity cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the body, map nor temporary collider list after return or throw.
    */
   export function lowest(
     body: IHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    let low: number = Infinity;
-    for (const c of StrikingBody.colliders(body, bones))
-      low = Math.min(low, physicalShapeBounds(c.pose, c.shape).min.y);
-    return low;
+    return selectedLowest(HumanColliders.placed(body, bones), ALL);
   }
 
   /** The body's shapes in a fold, root zero facing +Z, borrowing only this fit's reader. */
@@ -254,7 +251,7 @@ export namespace KnockdownFloor {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): {
     bones: ReturnType<typeof StrikingBody.trunk>;
-    colliders: StrikingContact.ICollider[];
+    placements: HumanColliders.IPlaced[];
   } {
     const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
       body,
@@ -268,36 +265,41 @@ export namespace KnockdownFloor {
       },
       resolution,
     );
-    return { bones, colliders: StrikingBody.colliders(body, bones) };
+    return { bones, placements: HumanColliders.placed(body, bones) };
   }
 
   /** The lowest exact collider bound whose bone matches. */
   function selectedLowest(
-    colliders: readonly StrikingContact.ICollider[],
+    placements: readonly HumanColliders.IPlaced[],
     of: (bone: string) => boolean,
   ): number {
     let low: number = Infinity;
-    for (const c of colliders)
-      if (of(c.name)) low = Math.min(low, physicalShapeBounds(c.pose, c.shape).min.y);
+    for (const segment of placements)
+      if (of(segment.bone))
+        for (const shape of segment.shapes)
+          low = Math.min(low, physicalShapeBounds.lowest(segment.pose, shape));
     return low;
   }
 
+  /** Every profile segment contributes to ordinary floor rest. */
+  const ALL: (bone: string) => boolean = (): boolean => true;
+
   /** The seat's pelvis and thigh shapes. */
-  const SEAT = (bone: string): boolean =>
+  const SEAT: (bone: string) => boolean = (bone: string): boolean =>
     bone === "hips" || bone.endsWith("UpperLeg");
 
   /** Shapes below the knee. */
-  const SHANK = (bone: string): boolean => /(LowerLeg|Foot|Toes)$/.test(bone);
+  const SHANK: (bone: string) => boolean = (bone: string): boolean => /(LowerLeg|Foot|Toes)$/.test(bone);
 
   /** Upper-arm shapes. */
-  const UPPER_ARM = (bone: string): boolean => bone.endsWith("UpperArm");
+  const UPPER_ARM: (bone: string) => boolean = (bone: string): boolean => bone.endsWith("UpperArm");
 
   /** Shapes below the elbow. */
-  const FOREARM = (bone: string): boolean =>
+  const FOREARM: (bone: string) => boolean = (bone: string): boolean =>
     /(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(bone);
 
   /** All shapes outside the arms. */
-  const BODY = (bone: string): boolean => !UPPER_ARM(bone) && !FOREARM(bone);
+  const BODY: (bone: string) => boolean = (bone: string): boolean => !UPPER_ARM(bone) && !FOREARM(bone);
 
   /** The law's unchanged provisional clinical angle levels, degrees. */
   const ANGLES: Record<

@@ -1,3 +1,4 @@
+import { HumanQuadraticAdmission } from "./HumanQuadraticAdmission";
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
@@ -38,7 +39,7 @@ export namespace HumanQuadraticPreparation {
    */
   export function scaled(problem: Q.IProblem): B.IScaled {
     let prepared: IPrepared | undefined = PREPARATIONS.get(problem.p);
-    const admitted: { entries: number; same: boolean } = admit(
+    const admitted: { entries: number; same: boolean } = HumanQuadraticAdmission(
       problem,
       prepared,
     );
@@ -112,6 +113,28 @@ export namespace HumanQuadraticPreparation {
     INITIALS.set(s.p, { rho: Float64Array.from(rho), sigma, factor: out });
     return out;
   }
+
+  /**
+   * Copied dependencies and current immutable preparation for one weak owner.
+   *
+   * @evidence contracts/development/design.md#principled-representation Stores admitted original-unit P/q and ordered nonzero A snapshots beside their equilibrated core, allowing exact dependency comparison while the owning factory enforces compatible dimensions and finite storage.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies Preparation's retained matrices and the Admission helper's copied dependencies through one internal type; initial factors retain separate scaled-core ownership and public solver state is unchanged.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds no original problem, body, plan or result reference; copied dependencies prove equivalence rather than trusting mutable source identity or an approximate numeric key.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the copied raw snapshots, their ordered CSR correspondence, internal admission consumer and separate factor lifetime.
+   */
+  export interface IPrepared {
+    /** Original curvature, including its supplied row lengths. */
+    p: Float64Array[];
+
+    /** Original linear term, since it controls cost equilibration. */
+    q: Float64Array;
+
+    /** Original ordered nonzero coefficients, parallel to core.cols. */
+    vals: Float64Array;
+
+    /** Equilibrated matrices, compression and scales. */
+    core: ICore;
+  }
 }
 
 /**
@@ -123,28 +146,6 @@ export namespace HumanQuadraticPreparation {
  * Names the shared numeric core and why intervals, weights and original-input loans are excluded.
  */
 type ICore = Omit<B.IScaled, "lo" | "hi" | "weight" | "raw" | "restored">;
-
-/**
- * Copied dependencies and current immutable preparation for one weak owner.
- *
- * Stores original P/q and ordered nonzero coefficients to prove equivalence with a scaled core; array dimensions and finite values are admitted before creation.
- * Contains only copied numeric dependencies and the algebra core consumed by scaling; initial factors have separate weak scaled-core ownership.
- * Holds no original problem, body, plan or result references and does not treat mutable input identity as proof.
- * Describes original snapshots, their relation to CSR columns and separate factor ownership.
- */
-interface IPrepared {
-  /** Original curvature, including its supplied row lengths. */
-  p: Float64Array[];
-
-  /** Original linear term, since it controls cost equilibration. */
-  q: Float64Array;
-
-  /** Original ordered nonzero coefficients, parallel to core.cols. */
-  vals: Float64Array;
-
-  /** Equilibrated matrices, compression and scales. */
-  core: ICore;
-}
 
 /**
  * Initial factor dependencies; rho is copied before the solve adapts its vector.
@@ -166,116 +167,10 @@ interface IInitial {
 }
 
 /** One numeric preparation per live curvature-array owner; values retain no problem or body. */
-const PREPARATIONS: WeakMap<Float64Array[], IPrepared> = new WeakMap();
+const PREPARATIONS: WeakMap<Float64Array[], HumanQuadraticPreparation.IPrepared> = new WeakMap();
 
 /** One immutable initial factor per live scaled numeric core, including fixed models whose mutable source has been released. */
 const INITIALS: WeakMap<Float64Array[], IInitial> = new WeakMap();
-
-/** Maximum entry count and column index representable by the signed Int32 CSR arrays. */
-const MAX_CSR: number = 0x7fffffff;
-
-/**
- * Validate all original entries and compare copied dependencies in one scan.
- *
- * Checks the finite convex-program storage contract before zero omission, then compares exact copied P/q and ordered nonzero A; positive semidefiniteness remains the documented caller premise.
- * Combines admission and comparison so changed data never skip validation and matching data need no second full traversal.
- * Checks zero-coefficient indices and original spans, sparse row holes and every supplied matrix entry; preserves unsorted duplicates and rejects Int32 overflow rather than truncating it.
- * Takes O(S+n+R+m) time with scalar auxiliary storage, validating supplied curvature padding and original zero entries as well as stored contributions.
- * Returns a match only after dimensions and every numerical dependency compare exactly; bounds and weights are validated but remain independently refreshed inputs.
- * Allocates only the fixed-size admission result and retains neither the original problem nor the candidate beyond the call.
- * Defines whole-input admission, exact comparison, original zero-entry validation and the nonzero count result.
- */
-function admit(
-  problem: Q.IProblem,
-  prepared: IPrepared | undefined,
-): { entries: number; same: boolean } {
-  const { n, band, p, q, rows }: Q.IProblem = problem;
-  if (
-    !Number.isSafeInteger(n) ||
-    n < 0 ||
-    !Number.isSafeInteger(band) ||
-    band < 0 ||
-    p.length !== n ||
-    q.length !== n ||
-    rows.length > MAX_CSR
-  )
-    throw new RangeError("Malformed quadratic dimensions");
-  let same: boolean =
-    prepared !== undefined &&
-    prepared.core.n === n &&
-    prepared.core.band === band &&
-    prepared.core.m === rows.length;
-  for (let i: number = 0; i < n; ++i) {
-    const row: Float64Array | undefined = p[i];
-    const previous: Float64Array | undefined = prepared?.p[i];
-    if (row === undefined || row.length < Math.min(band + 1, n - i))
-      throw new RangeError(`Malformed quadratic curvature row ${i}`);
-    if (!Number.isFinite(q[i]!))
-      throw new RangeError(`Quadratic linear term entry ${i} must be finite`);
-    if (!Object.is(q[i], prepared?.q[i]) || row.length !== previous?.length)
-      same = false;
-    for (let j: number = 0; j < row.length; ++j) {
-      if (!Number.isFinite(row[j]!))
-        throw new RangeError(
-          `Quadratic curvature row ${i} entry ${j} must be finite`,
-        );
-      if (same && !Object.is(row[j], previous![j])) same = false;
-    }
-  }
-  let entries: number = 0;
-  for (let r: number = 0; r < rows.length; ++r) {
-    const row: Q.IRow | undefined = rows[r];
-    if (
-      row === undefined ||
-      row.index.length !== row.coef.length ||
-      !(Number.isFinite(row.l) || row.l === -Infinity) ||
-      !(Number.isFinite(row.u) || row.u === Infinity) ||
-      row.l > row.u ||
-      (row.weight !== undefined &&
-        (!Number.isFinite(row.weight) || row.weight < 0))
-    )
-      throw new RangeError(`Malformed quadratic row ${r}`);
-    let first: number = Infinity;
-    let last: number = -Infinity;
-    let at: number = prepared?.core.start[r] ?? 0;
-    const end: number = prepared?.core.start[r + 1] ?? 0;
-    for (let a: number = 0; a < row.index.length; ++a) {
-      const index: number = row.index[a]!;
-      const coef: number = row.coef[a]!;
-      if (
-        !Number.isInteger(index) ||
-        index < 0 ||
-        index >= n ||
-        index > MAX_CSR ||
-        !Number.isFinite(coef)
-      )
-        throw new RangeError(`Malformed quadratic row ${r} entry ${a}`);
-      first = Math.min(first, index);
-      last = Math.max(last, index);
-      if (coef !== 0) {
-        ++entries;
-        if (
-          same &&
-          (at >= end ||
-            index !== prepared!.core.cols[at] ||
-            !Object.is(coef, prepared!.vals[at]))
-        )
-          same = false;
-        ++at;
-      }
-    }
-    if (at !== end) same = false;
-
-    // Preserve the original band contract even when a distant entry is zero.
-    if (last - first > band)
-      throw new RangeError(
-        `Quadratic row ${r} couples variables beyond the band`,
-      );
-  }
-  if (entries > MAX_CSR)
-    throw new RangeError("Quadratic rows exceed Int32 storage");
-  return { entries, same };
-}
 
 /**
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
@@ -292,7 +187,7 @@ function create(
   problem: Q.IProblem,
   entries: number,
   dr: Float64Array,
-): IPrepared {
+): HumanQuadraticPreparation.IPrepared {
   const { n, band, rows }: Q.IProblem = problem;
   const m: number = rows.length;
   const start: Int32Array = new Int32Array(m + 1);
@@ -326,25 +221,32 @@ function create(
   );
   let diagonal: boolean = true;
   let sparse: boolean = false;
+  let positions: number = n;
   for (const row of p) {
     for (let j: number = 1; j < row.length; ++j)
       if (row[j] === 0) sparse = true;
-      else diagonal = false;
+      else {
+        diagonal = false;
+        ++positions;
+      }
   }
-  let pOffsets: (readonly number[])[] | undefined;
+  let pPattern: B.IScaled["pPattern"];
 
   // Finite positive Ruiz multipliers preserve every original signed zero;
   // retain all originally nonzero positions even when scaling underflows.
   if (!diagonal && sparse) {
-    pOffsets = new Array(n);
-    const diagonalPositions: readonly number[] = [0];
+    const pStart: Float64Array = new Float64Array(n + 1);
+    const pOffsets: Float64Array = new Float64Array(positions);
+    let cursor: number = 0;
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      let offsets: number[] | undefined;
+      pStart[i] = cursor;
+      pOffsets[cursor++] = 0;
       for (let j: number = 1; j < row.length; ++j)
-        if (row[j] !== 0) (offsets ??= [0]).push(j);
-      pOffsets[i] = offsets ?? diagonalPositions;
+        if (row[j] !== 0) pOffsets[cursor++] = j;
     }
+    pStart[n] = cursor;
+    pPattern = { start: pStart, offsets: pOffsets };
   }
   const q: Float64Array = Float64Array.from(originalQ);
   const vals: Float64Array = Float64Array.from(original);
@@ -360,10 +262,11 @@ function create(
     curvature.fill(0);
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      const positions: readonly number[] | undefined = pOffsets?.[i];
-      const end: number = diagonal ? 1 : (positions?.length ?? row.length);
+      const first: number = pPattern?.start[i] ?? 0;
+      const end: number = diagonal ? 1 : pPattern === undefined
+        ? row.length : pPattern.start[i + 1]! - first;
       for (let a: number = 0; a < end; ++a) {
-        const j: number = positions?.[a] ?? a;
+        const j: number = pPattern?.offsets[first + a] ?? a;
         const v: number = Math.abs(row[j]!);
         curvature[i] = Math.max(curvature[i]!, v);
         curvature[i + j] = Math.max(curvature[i + j]!, v);
@@ -372,10 +275,18 @@ function create(
     dx.set(curvature);
     for (let r: number = 0; r < m; ++r) {
       let row: number = 0;
-      for (let a: number = start[r]!; a < start[r + 1]!; ++a) {
-        const v: number = Math.abs(vals[a]!);
-        row = Math.max(row, v);
-        dx[cols[a]!] = Math.max(dx[cols[a]!]!, v);
+      const single: number = singleton[r]!;
+      if (single >= 0) {
+        const v: number = Math.abs(vals[single]!);
+        row = Math.max(0, v);
+        dx[cols[single]!] = Math.max(dx[cols[single]!]!, v);
+      } else {
+        const end: number = start[r + 1]!;
+        for (let a: number = start[r]!; a < end; ++a) {
+          const v: number = Math.abs(vals[a]!);
+          row = Math.max(row, v);
+          dx[cols[a]!] = Math.max(dx[cols[a]!]!, v);
+        }
       }
       dr[r] = 1 / Math.sqrt(limit(row));
     }
@@ -387,10 +298,11 @@ function create(
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
       const scale: number = dx[i]!;
-      const positions: readonly number[] | undefined = pOffsets?.[i];
-      const end: number = diagonal ? 1 : (positions?.length ?? row.length);
+      const first: number = pPattern?.start[i] ?? 0;
+      const end: number = diagonal ? 1 : pPattern === undefined
+        ? row.length : pPattern.start[i + 1]! - first;
       for (let a: number = 0; a < end; ++a) {
-        const j: number = positions?.[a] ?? a;
+        const j: number = pPattern?.offsets[first + a] ?? a;
         const coefficient: number = row[j]! * scale * dx[i + j]!;
         row[j] = coefficient;
         const magnitude: number = Math.abs(coefficient);
@@ -402,9 +314,16 @@ function create(
       linear = Math.max(linear, Math.abs(q[i]!));
     }
     for (let r: number = 0; r < m; ++r) {
-      for (let a: number = start[r]!; a < start[r + 1]!; ++a)
-        vals[a] = vals[a]! * dr[r]! * dx[cols[a]!]!;
-      e[r] = e[r]! * dr[r]!;
+      const scale: number = dr[r]!;
+      const single: number = singleton[r]!;
+      if (single >= 0)
+        vals[single] = vals[single]! * scale * dx[cols[single]!]!;
+      else {
+        const end: number = start[r + 1]!;
+        for (let a: number = start[r]!; a < end; ++a)
+          vals[a] = vals[a]! * scale * dx[cols[a]!]!;
+      }
+      e[r] = e[r]! * scale;
     }
 
     // Cost equilibration depends on q as well as the scaled curvature.
@@ -414,10 +333,11 @@ function create(
     const gamma: number = 1 / limit(Math.max(mean, linear));
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      const positions: readonly number[] | undefined = pOffsets?.[i];
-      const end: number = diagonal ? 1 : (positions?.length ?? row.length);
+      const first: number = pPattern?.start[i] ?? 0;
+      const end: number = diagonal ? 1 : pPattern === undefined
+        ? row.length : pPattern.start[i + 1]! - first;
       for (let a: number = 0; a < end; ++a) {
-        const j: number = positions?.[a] ?? a;
+        const j: number = pPattern?.offsets[first + a] ?? a;
         row[j] = row[j]! * gamma;
       }
       q[i] = q[i]! * gamma;
@@ -448,7 +368,10 @@ function create(
     p: originalP,
     q: originalQ,
     vals: original,
-    core: { n, m, band, p, diagonal, pOffsets, q, qNorm, unscaledQNorm, start, cols, vals, ordered, singleton, d, e, c, unscale },
+    core: {
+      n, m, band, p, diagonal, pPattern, q, qNorm, unscaledQNorm,
+      start, cols, vals, ordered, singleton, d, e, c, unscale,
+    },
   };
 }
 
@@ -475,3 +398,4 @@ const SCALING: number = 10;
 /** The range a norm is held within before it scales (OSQP's bounds). */
 const MIN_SCALE: number = 1e-4;
 const MAX_SCALE: number = 1e4;
+

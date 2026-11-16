@@ -23,13 +23,13 @@ import type { combinePhysicalMassProperties } from "./combinePhysicalMassPropert
  * @param about The point the tensor is taken about, in the common frame.
  * @returns The symmetric tensor, three rows of three, in the parts' mass and length units (kg m² for SI parts).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two terms of the sum, the frame, the units, the zero-moment part and who admits the inputs.
+ * @evidence contracts/development/common.md#meaningful-documentation States both tensor terms, common frame, SI units, zero-moment parts and caller admission. Namespace prepare returns a callable assembly reader with spin for an actual indexed part; both return fresh values, reject invalid spin indices, compare exact copied intrinsic inputs and release with the owning physical operation.
  * @evidence contracts/development/implementation.md#principled-implementation The rotation of a principal tensor into another frame, `R diag(I) R^T`, written as the sum over the principal axes `a_k` of `I_k a_k a_kᵀ`, and the parallel-axis (Huygens-Steiner) theorem for the shift of each part's mass to the point; both are exact, so the sum is the rigid assembly's tensor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar component kernel serves both assembly and a single part's spin. Three principal-axis rotations feed nine explicit entries; one consumer per part accumulates them into the result without nested callbacks or dynamic coordinate keys.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No input is clamped or skipped: a non-finite input yields a non-finite tensor that the caller's admission refuses.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts: three axis rotations, nine shared moment-times-row products and nine entries per part. Scalar displacement coordinates need no vector record, and their norm is computed once; the row/column products and segment accumulation retain their original arithmetic association, including independently evaluating both off-diagonal orders. Spin consumes the same scalar entries without a one-element part array, copied part or tensor rows. Private consumers receive their tensor or velocity explicitly, avoiding one closure per assembly or spin.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one part, each moment-times-axis-row product serves all three columns and the squared displacement serves all three diagonal shifts. Assembly and spin share that component kernel, three immutable unit directions and their stateless consumers. Inputs are read anew on every call, so mutable caller records require no retained cache or invalidation.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no caller data; the returned rows are fresh and explicit consumer contexts are borrowed only during synchronous component evaluation. Only three fixed unit-direction records and stateless functions live for the module lifetime.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct assembly/spin share the scalar kernel, immutable axes and consumers. Prepare separately caches each part index's nine intrinsic entries only after Object.is matches three copied moments and four quaternion coordinates, with independent assembly/spin slots. Current mass/centre/reference shifts, velocity products and model-order sums always run; changed coordinates recompute without a target/time/identity key.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct calls retain no caller data and return fresh rows/vectors. A prepared reader owns at most one seven-scalar key plus nine intrinsic entries per current part for each of assembly and spin; either use truncates both populations when its part array shrinks. The mass-model/interval owner releases the closure with its operation, and no part, pose, query point or result history is held.
  */
 export function physicalInertiaTensor(
   parts: readonly combinePhysicalMassProperties.IPart[],
@@ -49,19 +49,19 @@ export function physicalInertiaTensor(
  * Scalar consumers of the same rotated principal tensor.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The spin member states the principal rotation, angular velocity, frame, units and preserved non-finite propagation.
- * @evidence contracts/development/design.md#principled-representation Spin returns the intrinsic angular momentum I omega of one rigid part in the same frame as its principal rotation and angular velocity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The momentum reduction consumes spin at each segment's interpolated principal frame without allocating a copied part or tensor merely to multiply it once.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the assembly function's scalar component kernel instead of introducing another tensor rotation, a different dot association or a normalized-input shortcut.
+ * @evidence contracts/development/design.md#principled-representation Spin is intrinsic momentum I omega in the principal rotation/velocity's common frame. IPrepared couples the same current assembly operation with an indexed spin method; its private snapshots represent intrinsic moment/quaternion prerequisites, not physical query answers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Momentum consumes direct spin and its prepared interval reader consumes IPrepared.spin; the mass token consumes prepared assembly. Separate exact assembly/spin slots serve these real consumers without invalidating each other's fixed frame metadata.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No exposed cached tensor, body identity, target or time grid is introduced. Direct scalar and prepared intrinsic expressions preserve independent off-diagonal rounding, current parallel-axis terms and the original dot association without a unit-input shortcut.
  */
 export namespace physicalInertiaTensor {
   /**
    * One operation's exact intrinsic-tensor readers for assembly and spin.
    * Both read actual current parts and return fresh numeric results.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States operation lifetime, current input reads and fresh results; spin documents its ordered array index.
-   * @evidence contracts/development/design.md#principled-representation Assembly returns the common-frame SI tensor and spin its product with angular velocity; private intrinsic snapshots contain only moment/quaternion prerequisites.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The mass-model token consumes assembly and its interval reader consumes spin; each has separate exact last-frame slots so the two uses do not invalidate each other's prerequisites.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No body identity, target, time grid or exposed mutable cached tensor enters the surface; every input remains with the physical owner.
+   * States operation lifetime, current input reads and fresh results; spin documents its ordered array index.
+   * Assembly returns the common-frame SI tensor and spin its product with angular velocity; private intrinsic snapshots contain only moment/quaternion prerequisites.
+   * The mass-model token consumes assembly and its interval reader consumes spin; each has separate exact last-frame slots so the two uses do not invalidate each other's prerequisites.
+   * No body identity, target, time grid or exposed mutable cached tensor enters the surface; every input remains with the physical owner.
    */
   export type IPrepared = ((
     parts: readonly combinePhysicalMassProperties.IPart[],
@@ -84,13 +84,13 @@ export namespace physicalInertiaTensor {
    * the parallel-axis term and part-order accumulation run on every call.
    * Release the reader with its physical planning operation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States cached intrinsic inputs, current shift inputs, exact numeric keys and operation ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation R diag(I) R transpose is independent of both part centre and reference point; caching its nine scalar entries preserves the original axis-product association before the unchanged parallel-axis addition.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One last rotated tensor per ordered part feeds the same nine-entry accumulation; the ordinary tensor and spin paths retain their allocation-free scalar component kernel.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every changed inertia or quaternion coordinate recomputes its actual tensor, and every mass/centre/reference shift remains evaluated. No normalized-input shortcut, symmetric-entry copy, time key or tolerance is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(P) comparisons, shifts and ordered sums for P parts, with three axis rotations and nine row products only at changed intrinsic frames. Each call returns three fresh rows; retained scalar snapshots are O(P).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Object.is compares copied three-moment and four-quaternion coordinates at the same ordered part index, including signed zero and caller mutations. Mass and translation do not invalidate an intrinsic tensor because they do not enter it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one assembly slot and one spin slot per current part index, each holding a seven-scalar key and nine tensor entries; either reader truncates both populations when its parts array shrinks. No part, pose or result array is retained, and the enclosing mass-model owner drops the reader on release.
+   * States cached intrinsic inputs, current shift inputs, exact numeric keys and operation ownership.
+   * R diag(I) R transpose is independent of both part centre and reference point; caching its nine scalar entries preserves the original axis-product association before the unchanged parallel-axis addition.
+   * One last rotated tensor per ordered part feeds the same nine-entry accumulation; the ordinary tensor and spin paths retain their allocation-free scalar component kernel.
+   * Every changed inertia or quaternion coordinate recomputes its actual tensor, and every mass/centre/reference shift remains evaluated. No normalized-input shortcut, symmetric-entry copy, time key or tolerance is introduced.
+   * O(P) comparisons, shifts and ordered sums for P parts, with three axis rotations and nine row products only at changed intrinsic frames. Each call returns three fresh rows; retained scalar snapshots are O(P).
+   * Object.is compares copied three-moment and four-quaternion coordinates at the same ordered part index, including signed zero and caller mutations. Mass and translation do not invalidate an intrinsic tensor because they do not enter it.
+   * The caller owns one assembly slot and one spin slot per current part index, each holding a seven-scalar key and nine tensor entries; either reader truncates both populations when its parts array shrinks. No part, pose or result array is retained, and the enclosing mass-model owner drops the reader on release.
    */
   export function prepare(): IPrepared {
     const entries: (IRotated | undefined)[] = [];
@@ -358,3 +358,4 @@ function components<T, Context>(
     0 + az * a.z + bz * b.z + cz * c.z + part.mass * (squared - z * z),
   );
 }
+

@@ -444,12 +444,31 @@ export namespace AutoMovieMotionHumanBendSearch {
       side: AutoMovieMotionHumanBend.Side,
     ) => IAutoMovieVector3,
   ): ICandidate | string {
+    return prepare(props, hang)(props, rank);
+  }
+
+  /**
+   * Prepare one unchanged body's trunk/side for actual differently ranked sweeps.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body, root/heading and side while each query supplies its world-metre wrist, optional rest-relative rotation and original candidate ranking.
+   * @evidence contracts/development/implementation.md#principled-implementation The same prepared arm chain, original colliders and neutral angles are independent of target/ranking; every call retains the original reach refusal and best sweep.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed chain/neutral preparation precedes the original actual target admission and ranked numerical owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep, candidate, overshoot, score, legality bound or refinement is omitted or reused as a result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain FK/preparation serves Q original target/rank sweeps; all of each actual sweep's numerical work remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller-owned unchanged body/posture/root/heading/side and scoring context establish equivalent geometry; differing wrists, rotations and ranks still execute independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one chain/collider record and neutral angles until release; no FK reader, target result, sampled pose or global history is retained.
+   */
+  export function prepare(
+    props: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    hang: Parameters<typeof search>[2],
+  ): (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]) => ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
     const neutral: IAngles | null = neutralOf(props.body, props.side, hang);
+    return (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]): ICandidate | string => {
     if (chain === null || neutral === null) return "the rig has no arm chain";
     const distance: number = Vector3.length(
-      Vector3.subtract(props.point, chain.shoulder),
+      Vector3.subtract(goal.point, chain.shoulder),
     );
     if (distance > chain.span)
       return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
@@ -458,11 +477,12 @@ export namespace AutoMovieMotionHumanBendSearch {
         chain,
         props.body,
         props.side,
-        props.point,
-        props.rotation,
+        goal.point,
+        goal.rotation,
         neutral,
         rank(chain),
       ) ?? "the arm chain is degenerate"
     );
+    };
   }
 }

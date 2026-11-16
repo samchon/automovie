@@ -39,6 +39,12 @@ import { staggerSwingBow } from "./staggerSwingBow";
  * @evidence contracts/development/design.md#principled-representation One plan's feet with the memoised stance ends and swing bows they share.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The readings the plan's leg row writes from.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The clearance, the lift and the knot rate are `staggerBounds`'; the bow is bisected against the tangle audit's own bound.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the original judged Hof recovery course, hips-pivot trunk compensation, held foot rockers, walking swing and sampled tangle-bound bow bisection; all methods keep the existing world-metre/degree/action-second conventions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This plan-owned object schedules feet and owns fixed endpoint/swing/bow preparation; walkReachHeld, walkFoot, walkReach and staggerSwingBow retain the actual physical transform, reach and clearance computations.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original step interval, contact height, lift, knot sample, reach pass and millimetre bow bisection. Endpoint keys are only the immutable plan's declared step endpoints; no arbitrary-time posed result or relaxed bound is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Queries scan S fixed recovery steps, interpolate one course and settle/reach the actual feet. A step's first bow query keeps its original K-instant two-sided fit search; prepared body/endpoint geometry and its completed bow avoid only equivalent repeated work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, complete entry, judged course and immutable recovery steps define one instance's context. Side/declared endpoint identifies settled ends, and exact step identity identifies its fixed swing reader and actual completed bow; each current time/bow still produces fresh motion samples.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains two body-only reach readers, at most two settled ends and one swing/bow record per step, O(S) for S recovery steps; temporary bow observations release after the search, and all retained preparations release with the plan without external handles.
  */
 export class StaggerFeet {
   /** The feet as the entry stands them. */
@@ -72,21 +78,18 @@ export class StaggerFeet {
   /** The trunk's shift of the centre of mass per sine of its tilt. */
   private readonly bend: Record<"pitch" | "roll", IAutoMovieVector3>;
 
+  /** Each side's body-only swing range and floor-clearance prerequisites. */
+  private readonly swingReaches: Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>;
+
   /**
-   * The feet of one plan.
+   * Keep one plan's immutable body, entry, judged course and recovery steps.
+   * Body-only reach readers are prepared now; endpoint, swing and bow work
+   * remains lazy and bounded by the plan's declared steps.
    *
    * @param body The body.
    * @param entry The context's entry.
    * @param recovery The judged recovery.
    * @param bend The trunk's shift of the centre of mass per sine of its tilt.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines one judged recovery's body, entry feet, bending and swing-rise share.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the original entry foot placements and contact-height-derived rise share for the same fixed recovery course.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One plan-owned object holds fixed recovery geometry and bounded per-step preparation maps.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original course, entry posture and measured rise formula remain authoritative.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant constructor work; endpoint settlement and bow fitting remain lazy until a step is queried.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, entry and immutable recovery steps define equivalence for each endpoint/swing/bow preparation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan retains this object; at most two endpoint records and one swing/bow record per recovery step grow lazily and release with the plan.
    */
   public constructor(
     body: IHumanActionContext["body"],
@@ -100,6 +103,10 @@ export class StaggerFeet {
     this.posture = entry.posture;
     this.entered = StrikingTarget.feet(entry);
     this.rising = staggerKnots.risingOf(body);
+    this.swingReaches = {
+      left: walkReach.prepareSwing(body, "left"),
+      right: walkReach.prepareSwing(body, "right"),
+    };
   }
 
   /** The judged course.
@@ -231,9 +238,7 @@ export class StaggerFeet {
     };
     for (const side of ["left", "right"] as const)
       if (feet[side].swing !== undefined)
-        reached[side] = walkReach.swing(
-          this.body,
-          side,
+        reached[side] = this.swingReaches[side](
           settled,
           feet[side],
           this.swinging(side, seconds),
@@ -241,15 +246,10 @@ export class StaggerFeet {
     return { feet, settled, reached, reading };
   }
 
-  /** A fixed recovery endpoint's settled foot, indexed by its side and second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Only the owning immutable step's start/landing seconds are supplied, under this same body/recovery/course.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original standing schedule and held-course settlement at the exact endpoint.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One endpoint key guards one original settlement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reuses the actual settled endpoint without changing its pose, sample time or course.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup; each distinct queried step endpoint performs settlement once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private caller supplies only fixed endpoints of this instance's immutable recovery, so side/time plus the owning instance fix every dependency.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most two endpoint records per recovery step are retained in this plan-owned map, released with the instance.
+  /**
+   * Settle a declared step endpoint once under this instance's fixed course.
+   * Only immutable step start/landing seconds form these side/second keys;
+   * later current-time queries borrow the actual completed endpoint.
    */
   private end(side: "left" | "right", seconds: number): walkFoot.IEnd {
     const key: string = `${side}:${seconds}`;
@@ -261,15 +261,9 @@ export class StaggerFeet {
     return out;
   }
 
-  /** The current open swing interval's linear share for one foot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Uses action-local seconds and returns zero when this side has no open swing.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the first matching original step and its normalized elapsed-time expression.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered step scan returns the matching share or original zero default.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original strict endpoints and order, without rounding time or extending a swing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(s) scans and constant scalar storage for s steps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads fixed step windows while every queried second is evaluated directly.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores no time or share history.
+  /**
+   * The first matching open swing's exact linear share at action-local
+   * seconds, retaining the original strict endpoints and zero default.
    */
   private swinging(side: "left" | "right", seconds: number): number {
     for (const step of this.recovery.steps)
@@ -279,19 +273,11 @@ export class StaggerFeet {
   }
 
   /**
-   * A step's swinging foot at a second of its swing, its path bowed across
-   * its travel by `bow` metres on a bump at rest at both ends. The foot
-   * first rises clear of the floor, by the least toe clearance of walking,
-   * over the share of the swing a walking foot takes to set down from that
-   * height, then swings from there.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines same-step seconds, signed lateral bow metres, rise share and exact endpoint-rest bump.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves original minimum-jerk initial clearance, walking-foot swing and 16*share^2*(1-share)^2 lateral bow along the original perpendicular direction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed endpoint/normal data come from swingOf; this reader computes only the current rise, swing share and bow displacement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains all original lift, clearance, rise/terminal timing and pelvis swing claims without resampling.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant current-share work after one fixed reader preparation per step; repeated endpoint angle decomposition and normal construction are avoided.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares only fixed immutable step/body/course endpoints and the original normal; current seconds and bow still produce a fresh foot placement.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned sample belongs to its caller; no per-second or per-bow sample cache is retained.
+   * Read a step's original raised-start walking swing at action-local
+   * seconds and signed lateral bow metres. The foot rises by CLEARANCE over
+   * the original rising share, then follows the prepared swing and
+   * 16*share^2*(1-share)^2 lateral bump, resting at both endpoints.
+   * Fixed endpoint/normal preparation is shared; each sample is fresh.
    */
   private swungAt(
     step: staggerRecover.IStep,
@@ -332,15 +318,11 @@ export class StaggerFeet {
     };
   }
 
-  /** Fixed endpoint geometry shared by every query and bow trial of a step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns this step's original settled start, lateral unit normal and prepared raised-foot swing reader.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original raised start, settled landing, fixed zero velocity, LIFT and remaining swing duration with the exact original travel-normal/heading fallback formula.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One step-identity lookup guards fixed endpoint and walking-foot preparation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the 1e-9 travel-size branch, original rise split and actual endpoints without a changed path or target.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup once per step and constant map lookup afterward; endpoint geometry, direction and swing angle terms are not rebuilt per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable recovery step identity under this fixed body/course instance determines every prepared input; the reader never retains time-query answers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fixed record/reader per queried recovery step is retained until this plan-owned instance is released.
+  /**
+   * Prepare one immutable step's settled endpoints, raised-start walking
+   * swing and lateral normal under this instance's fixed body/course.
+   * The original 1e-9 travel-size test retains its heading fallback, and
+   * the prepared reader computes each queried share without sample history.
    */
   private swingOf(step: staggerRecover.IStep): {
     from: walkFoot.IEnd;
@@ -382,20 +364,11 @@ export class StaggerFeet {
   }
 
   /**
-   * A swing that passes the standing leg goes around it: its path bows
-   * across its travel, to whichever side asks less, by the least that keeps
-   * the swinging leg clear of the standing one as the tangle audit reads
-   * them (`walkLegClearance`), read at the stance course's knots (`KNOTS`)
-   * through the swing and bisected to a millimetre; a swing already clear
-   * keeps its path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States original sample rate, millimetre bisection and memoized per-step signed bow.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the original strictly interior knot instants and their unbowed settlements, then delegates the unchanged two-sided tangle-bound search to staggerSwingBow.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Per-step ownership stays here while the fixed-observation clearance search has one source owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains all original instants, endpoint exclusion, zero-bow frame and winning scalar without reducing fitting or clearance checks.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Observations are settled once per step; the original sampled bisection cost is paid only on the first query of that immutable step.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Step identity plus this instance's fixed body, entry, course and endpoints determines the completed bow search; no changing time query forms a key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary observations/search readers release on return or failure, and one scalar per queried step remains until the plan releases this instance.
+   * Find and retain one immutable step's original clearance bow. All
+   * strictly interior KNOTS-rate observations are settled at zero bow, then
+   * staggerSwingBow runs the actual two-sided leg-fit/tangle search to its
+   * original millimetre bisection bound. Temporary observations release
+   * after the search; only the actual signed result remains for that step.
    */
   private bowOf(step: staggerRecover.IStep): number {
     const known: number | undefined = this.bows.get(step);

@@ -15,7 +15,7 @@ import type {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines canonical left/up/forward coordinates, world-metre origin and degree heading, including a prepared immutable frame for repeated conversions.
  * @evidence contracts/development/design.md#principled-representation Represents one horizontal rigid transform using the existing vector/quaternion types and explicit degree heading.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Existing point/local/direction-heading helpers serve motion laws; prepare binds the same scalar transform for actual typing and crossed-arm search consumers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Existing point/local/direction-heading helpers serve motion laws; prepare binds repeated typing/crossed-arm transforms, and preparePoint binds a fixed knee offset under each recovery knot's yaw for actual leg-fit probes.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Introduces no second coordinate convention, body dimensions, pose result, contact tolerance or scene-specific branch.
  */
 export namespace HumanFrame {

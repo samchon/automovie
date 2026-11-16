@@ -20,7 +20,7 @@ import { HumanSegment } from "./HumanSegment";
  * an action takes over or ends, and the contacts between people resolved
  * into the stops and reactions of those they land on.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the two things the functions resolve.
+ * @evidence contracts/development/common.md#meaningful-documentation States hold and contact resolution; STEP is 1/120 second, so limbs moving a few metres per second travel a few centimetres between the original scan samples.
  * @evidence contracts/development/design.md#principled-representation Contacts are resolved on the whole placed performance by the engine's contact events, and applied as stops on the plans.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The contact resolution and the hold bookkeeping (#3399).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand that holds a prop and is driven elsewhere is refused.
@@ -28,8 +28,7 @@ import { HumanSegment } from "./HumanSegment";
 export namespace HumanPerformanceContacts {
   /**
    * The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the seconds unit, sample spacing and its physical interpretation.
+
    */
   export const STEP: number = 1 / 120;
 

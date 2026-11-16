@@ -227,6 +227,8 @@ export namespace HumanHandover {
       input.receiver.body,
       receiver,
     );
+    const place: ReturnType<typeof HumanGrasp.prepareHand> =
+      HumanGrasp.prepareHand(input.receiver.body, input.receiver.side);
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       input.receiver.body,
       standing,
@@ -237,11 +239,7 @@ export namespace HumanHandover {
         input.receiver.side,
       ),
       (turn: number): HumanHand.IWrist =>
-        HumanGrasp.hand(
-          input.receiver.body,
-          input.receiver.side,
-          HumanGrasp.around(authored, turn),
-        ),
+        place(HumanGrasp.around(authored, turn)),
       [0],
       (wrist: HumanHand.IWrist): HumanGrasp.IKey[] => [
         {

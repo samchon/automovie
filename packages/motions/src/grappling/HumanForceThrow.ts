@@ -83,6 +83,14 @@ export namespace HumanForceThrow {
      *
      * @param seconds Seconds since the action's start.
      * @returns The posture.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines action-relative seconds and the pre-break yielding posture; HumanForceResponse's producer holds its clock at the broken-base instant.
+     * @evidence contracts/development/implementation.md#principled-implementation The supplied response producer applies the inverted-pendulum offset and the body's measured along/across tip geometry to the underlying yielded posture at min(seconds, broken).
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure HumanForceResponse owns the yielding law; the throw delegates its pre-break branch to this reader before taking over rigid swing and flight.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original force, base-break time, body geometry and underlying posture remain authoritative; no fitted pose or scripted yield replaces them.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each read pays the underlying plan posture and constant pendulum/vector work; fixed force, frequency, entry geometry and sensitivity scalars are prepared by the response once.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the response's actual yielded plan and fixed physical inputs while recomputing every requested second; no posture answer is retained by the throw.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The throw plan retains this callback and its response scalars for its lifetime. Each call returns a fresh transformed posture and acquires no task, handle or time history.
      */
     yieldAt(seconds: number): IHumanPosture;
 
@@ -92,6 +100,14 @@ export namespace HumanForceThrow {
      * @param part The foot.
      * @param to The share it ends at.
      * @returns The window.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines foot identity and normalized end share; HumanForceResponse supplies a ground plant starting at share zero.
+     * @evidence contracts/development/implementation.md#principled-implementation The response producer declares the named foot planted on ground from zero through the supplied broken/duration share, preserving support until the base breaks.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One record constructor serves both feet; HumanForceThrow supplies each foot and the same physical phase boundary.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the exact requested foot and share without widening support, changing phase timing or claiming that a later airborne foot remains planted.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and one fresh contact-window record per foot, called twice during throw construction.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the existing window-construction policy only; separate fresh records keep the two feet and their ownership independent.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned throw plan owns its two contact records for its lifetime; the constructor retains no output, history or external resource.
      */
     plant(part: "leftFoot" | "rightFoot", to: number): IHumanContactWindow;
   }

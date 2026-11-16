@@ -53,15 +53,16 @@ export namespace StrikingRoll {
    * @param back The point of the tool the pose keeps, metres behind its working point.
    * @param posture The body as it stands at the decisive instant.
    * @param resolution Optional exact FK workspace borrowed from this synchronous tool-pose search.
+   * @param prepared Optional lazy direct-pose preparation owned by a search whose body, root, joints and digits stay fixed; every complete candidate goal still resolves.
    * @returns The greater of the kept point's and the working point's displacement, metres; a pose that keeps the working point itself reads the line at the tool's own length in place of the kept point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, on which body and what is measured.
    * @evidence contracts/development/implementation.md#principled-implementation The plan's own goal for the pose is resolved by the posture resolver, the fitted hand's grip frame is read by forward kinematics, and the tool's two points are carried by it: the displacement a viewer would see.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal, one resolution, one read-back.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted; when the kept point is the working point, the line is read at the tool's length, so the count holds there too.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original elbow search and whole-posture resolution followed by demanded hand FK; a supplied search reader shares only equal scalar prerequisites, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A parent's explicit exact FK reader serves actual candidate solves and hand read-back in this same synchronous search; every goal and physical fit remains independent.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows an optional parent's reader only until return or throw; only the scalar miss escapes, without pose/frame history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original elbow search and whole-posture fit followed by demanded hand FK. Fixed-posture search preparation admits/clamps direct joints once across K actual candidates, retaining fresh pose copies, all limb/digit fits and scalar FK dependencies; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit parent FK supplier shares exact prerequisites only within this synchronous search. A prepared base is admitted only for one unchanged body/root/direct-joint/digit source; each complete varying limb-goal set, rival clearance and physical fit still executes, while callback-varying postures use ordinary seeded resolution.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows optional reader/direct-pose preparation only until return or throw; the enclosing synchronous search releases fixed snapshots and each independent pose/map, while only the scalar miss escapes.
    */
   export function miss(
     context: Pick<IHumanActionContext, "body">,
@@ -70,6 +71,7 @@ export namespace StrikingRoll {
     back: number,
     posture: IHumanPosture,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    prepared?: () => ReturnType<typeof resolveHumanPosture.prepareBase>,
   ): number {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       resolution ?? prepareHumanPoseResolution();
@@ -80,27 +82,19 @@ export namespace StrikingRoll {
       back,
       { x: 0, y: 0, z: 0 },
     );
+    const limbs: IHumanPosture["limbs"] = {
+      ...posture.limbs,
+      [`${tool.side}Arm`]: {
+        ...goal,
+        // The hanging arm remains the named fallback for an unconstrained elbow.
+        bend: AutoMovieMotionHumanBend.hang(context.body, posture, tool.side),
+      },
+    };
+    const fittedPose: ReturnType<typeof resolveHumanPosture.seeded> = prepared === undefined
+      ? resolveHumanPosture.seeded(context.body, { ...posture, limbs }, undefined, {}, read)
+      : prepared().seeded(limbs, {}, read);
     const bones: ReturnType<typeof poseBones> = poseBones(
-      context.body,
-      resolveHumanPosture.seeded(context.body, {
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          [`${tool.side}Arm`]: {
-            ...goal,
-
-            // The goal leaves the elbow to the body (`StrikingHeld.goal`);
-            // the hanging arm's place serves where nothing is legal.
-            bend: AutoMovieMotionHumanBend.hang(
-              context.body,
-              posture,
-              tool.side,
-            ),
-          },
-        },
-      }, undefined, {}, read).pose,
-      read(),
-      HANDS[tool.side],
+      context.body, fittedPose.pose, read(), HANDS[tool.side],
     );
     const fitted: StrikingHeld.IHandFrame = {
       point: HumanHand.frame(context.body, bones, tool.side, "grip").point,
@@ -288,6 +282,10 @@ export namespace StrikingRoll {
   ): StrikingHeld.IHandFrame {
     const { frame, tried, freedoms, back, posture } = props;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    let fixed: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
+    const prepared: (() => ReturnType<typeof resolveHumanPosture.prepareBase>) | undefined =
+      typeof posture === "function" ? undefined : (): ReturnType<typeof resolveHumanPosture.prepareBase> =>
+        (fixed ??= resolveHumanPosture.prepareBase(context.body, posture));
     return frame(
       HumanFreedomChoice.chosen({
         tried,
@@ -303,6 +301,7 @@ export namespace StrikingRoll {
                 back,
                 typeof posture === "function" ? posture(posed) : posture,
                 resolution,
+                prepared,
               ),
             ];
           } catch (error) {
@@ -363,12 +362,15 @@ export namespace StrikingRoll {
     posture: IHumanPosture,
   ): StrikingHeld.IHandFrame {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    let fixed: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
+    const prepared = (): ReturnType<typeof resolveHumanPosture.prepareBase> =>
+      (fixed ??= resolveHumanPosture.prepareBase(context.body, posture));
     let chosen: StrikingHeld.IHandFrame | undefined;
     let least: number = Infinity;
     for (const candidate of candidates) {
       if (least <= HumanFreedomChoice.EXACT) break;
       const frame: StrikingHeld.IHandFrame = candidate();
-      const missed: number = miss(context, tool, frame, back, posture, resolution);
+      const missed: number = miss(context, tool, frame, back, posture, resolution, prepared);
       if (missed < least - HumanFreedomChoice.EXACT) {
         least = missed;
         chosen = frame;

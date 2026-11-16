@@ -294,45 +294,65 @@ export namespace floorEntry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed endpoints' hip places, yaw difference, joint pairs and floor clearances are shared; the intermediate posture and floor reading are recomputed for every progress.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns two postures, their fixed joint pairs and two floor scalars until its plan releases it; no query history, FK reader or handles are retained.
    */
-  export function between(body: IHumanBody, from: IHumanPosture, to: IHumanPosture): (weight: number) => IHumanPosture {
-    const interpolate: (weight: number) => IHumanPosture["joints"] = jointBlend(from.joints, to.joints);
-    const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-    const sunk = (posture: IHumanPosture): number => Math.max(0, knockdown.rest(body, posture) - posture.root.y);
-    let fixed: { hipsFrom: IAutoMovieVector3; hipsTo: IAutoMovieVector3; sunkFrom: number; sunkTo: number } | undefined;
-    return (weight: number): IHumanPosture => {
-    if (weight <= 0) return from;
-    if (weight >= 1) return to;
-    fixed ??= { hipsFrom: hips(body, from), hipsTo: hips(body, to), sunkFrom: sunk(from), sunkTo: sunk(to) };
-    const lerp = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = interpolate(weight);
-    const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
-      yaw: from.yaw + turn * weight,
-      pitch: lerp(from.pitch, to.pitch),
-      roll: lerp(from.roll, to.roll),
-    };
-    const carried: IHumanPosture = {
-      ...heading,
-      root: Vector3.subtract(
-        Vector3.lerp(fixed.hipsFrom, fixed.hipsTo, weight),
-        Quaternion.rotateVector(
-          resolveHumanPosture.heading(heading),
-          body.rest.get("hips")!,
-        ),
-      ),
-      joints,
-      limbs: {},
-    };
-
-    // The floor is a constraint on the way: angles blended between two
-    // postures that rest on the floor can dip a limb under it, so the body
-    // is raised by whatever sinks deeper than the two ends themselves do.
-    const rise: number = Math.max(
-      0,
-      sunk(carried) - lerp(fixed.sunkFrom, fixed.sunkTo),
+  export function between(
+    body: IHumanBody,
+    from: IHumanPosture,
+    to: IHumanPosture,
+  ): (weight: number) => IHumanPosture {
+    const interpolate: (weight: number) => IHumanPosture["joints"] = jointBlend(
+      from.joints,
+      to.joints,
     );
-    return rise === 0
-      ? carried
-      : { ...carried, root: { ...carried.root, y: carried.root.y + rise } };
+    const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
+    const sunk = (posture: IHumanPosture): number =>
+      Math.max(0, knockdown.rest(body, posture) - posture.root.y);
+    let fixed:
+      | {
+          hipsFrom: IAutoMovieVector3;
+          hipsTo: IAutoMovieVector3;
+          sunkFrom: number;
+          sunkTo: number;
+        }
+      | undefined;
+    return (weight: number): IHumanPosture => {
+      if (weight <= 0) return from;
+      if (weight >= 1) return to;
+      fixed ??= {
+        hipsFrom: hips(body, from),
+        hipsTo: hips(body, to),
+        sunkFrom: sunk(from),
+        sunkTo: sunk(to),
+      };
+      const lerp = (a: number, b: number): number => a + (b - a) * weight;
+      const joints: IHumanPosture["joints"] = interpolate(weight);
+      const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
+        yaw: from.yaw + turn * weight,
+        pitch: lerp(from.pitch, to.pitch),
+        roll: lerp(from.roll, to.roll),
+      };
+      const carried: IHumanPosture = {
+        ...heading,
+        root: Vector3.subtract(
+          Vector3.lerp(fixed.hipsFrom, fixed.hipsTo, weight),
+          Quaternion.rotateVector(
+            resolveHumanPosture.heading(heading),
+            body.rest.get("hips")!,
+          ),
+        ),
+        joints,
+        limbs: {},
+      };
+
+      // The floor is a constraint on the way: angles blended between two
+      // postures that rest on the floor can dip a limb under it, so the body
+      // is raised by whatever sinks deeper than the two ends themselves do.
+      const rise: number = Math.max(
+        0,
+        sunk(carried) - lerp(fixed.sunkFrom, fixed.sunkTo),
+      );
+      return rise === 0
+        ? carried
+        : { ...carried, root: { ...carried.root, y: carried.root.y + rise } };
     };
   }
 
@@ -374,8 +394,15 @@ export namespace floorEntry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed endpoint triples and their ordered union are shared; each query has independent output arrays.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains one pair per union bone and ends with the owning transition; no query results or history survive.
    */
-  export function jointBlend(from: IHumanPosture["joints"], to: IHumanPosture["joints"]): (weight: number) => IHumanPosture["joints"] {
-    const pairs: [AutoMovieHumanoidBone, readonly [number, number, number], readonly [number, number, number]][] = [];
+  export function jointBlend(
+    from: IHumanPosture["joints"],
+    to: IHumanPosture["joints"],
+  ): (weight: number) => IHumanPosture["joints"] {
+    const pairs: [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+      readonly [number, number, number],
+    ][] = [];
     for (const bone of new Set([
       ...Object.keys(from),
       ...Object.keys(to),
@@ -386,7 +413,12 @@ export namespace floorEntry {
     }
     return (weight: number): IHumanPosture["joints"] => {
       const joints: IHumanPosture["joints"] = {};
-      for (const [bone, a, b] of pairs) joints[bone] = [a[0] + (b[0] - a[0]) * weight, a[1] + (b[1] - a[1]) * weight, a[2] + (b[2] - a[2]) * weight];
+      for (const [bone, a, b] of pairs)
+        joints[bone] = [
+          a[0] + (b[0] - a[0]) * weight,
+          a[1] + (b[1] - a[1]) * weight,
+          a[2] + (b[2] - a[2]) * weight,
+        ];
       return joints;
     };
   }

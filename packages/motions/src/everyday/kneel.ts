@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -24,6 +24,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelKeys } from "./kneelKeys";
+import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 
 /**
@@ -209,26 +210,36 @@ export namespace kneel {
       { holds: ["settled"] },
     );
     const duration: number = clock.duration;
-    const at = (seconds: number): { phase: IPhase; index: number; u: number } => {
-      let index: number = 0;
-      for (let i: number = 0; i < phases.length; i++)
-        if (seconds >= clock.at(phases[i]!.name) - 1e-9) index = i;
-      const phase: IPhase = phases[index]!;
-      const next: string =
-        index + 1 < phases.length ? phases[index + 1]!.name : "end";
-      return {
-        phase,
-        index,
-        u: minimumJerk(clock.linear(phase.name, next, seconds)).s,
-      };
-    };
+    const at: ReturnType<typeof prepareKneelClock<IPhase>> = prepareKneelClock(
+      clock,
+      phases,
+    );
 
     // A foot between two keys: pivoting on its toes' joint when that stays,
     // swinging on an arc when it moves.
-    const feetAt: Record<"left" | "right", ReturnType<typeof prepareKneelFoot>>[] = phases.map((phase: IPhase): Record<"left" | "right", ReturnType<typeof prepareKneelFoot>> => ({
-      left: prepareKneelFoot(body, "left", keys[phase.from]!.feet.left, keys[phase.to]!.feet.left, CLEARANCE * m.shank),
-      right: prepareKneelFoot(body, "right", keys[phase.from]!.feet.right, keys[phase.to]!.feet.right, CLEARANCE * m.shank),
-    }));
+    const feetAt: Record<
+      "left" | "right",
+      ReturnType<typeof prepareKneelFoot>
+    >[] = phases.map(
+      (
+        phase: IPhase,
+      ): Record<"left" | "right", ReturnType<typeof prepareKneelFoot>> => ({
+        left: prepareKneelFoot(
+          body,
+          "left",
+          keys[phase.from]!.feet.left,
+          keys[phase.to]!.feet.left,
+          CLEARANCE * m.shank,
+        ),
+        right: prepareKneelFoot(
+          body,
+          "right",
+          keys[phase.from]!.feet.right,
+          keys[phase.to]!.feet.right,
+          CLEARANCE * m.shank,
+        ),
+      }),
+    );
 
     // The body at a second. While it stands on its feet (the step and the
     // lowering, and their way back) the hips run a course along the heading

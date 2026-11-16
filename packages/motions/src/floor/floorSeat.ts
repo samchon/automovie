@@ -199,8 +199,20 @@ export namespace floorSeat {
   }
 
   /** Joint-space origins needed by both folded-leg placements. */
-  const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot"]);
+  const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftUpperLeg",
+    "rightUpperLeg",
+    "leftLowerLeg",
+    "rightLowerLeg",
+    "leftFoot",
+    "rightFoot",
+  ]);
 
   /** Side sitting also measures its supporting shoulder, elbow and wrist. */
-  const SIDE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([...LEG_BONES, "leftUpperArm", "leftLowerArm", "leftHand"]);
+  const SIDE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    ...LEG_BONES,
+    "leftUpperArm",
+    "leftLowerArm",
+    "leftHand",
+  ]);
 }

@@ -94,6 +94,10 @@ export namespace AutoMovieMotionHumanArm {
   export const goal: typeof AutoMovieMotionHumanArmTarget.goal =
     AutoMovieMotionHumanArmTarget.goal;
 
+  /** Fixed-geometry goal producer owned by AutoMovieMotionHumanArmTarget.prepareGoal. */
+  export const prepareGoal: typeof AutoMovieMotionHumanArmTarget.prepareGoal =
+    AutoMovieMotionHumanArmTarget.prepareGoal;
+
   /**
    * {@link AutoMovieMotionHumanArmAngles.IAngles}, re-exported so a caller of the arm facade imports one namespace.
    *

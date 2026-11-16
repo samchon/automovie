@@ -81,7 +81,13 @@ export function test_motion_distal_twist_paired_projection(): void {
     );
     TestValidator.predicate("retained projection belongs to the selected candidate",
       qclose(result.projection.local, turn(desired - expected), 1e-8) &&
-      qclose(result.projection.quaternion, turn(0), 1e-12),
+      qclose(result.projection.quaternion, turn(0), 1e-12) &&
+      result.projection.joint.bone === "leftHand" &&
+      (result.projection.joint.flexion === null || result.projection.joint.flexion === 0) &&
+      (result.projection.joint.abduction === null || result.projection.joint.abduction === 0) &&
+      (result.projection.joint.twist === null || result.projection.joint.twist === 0) &&
+      qclose(jointToQuaternionOnBasis(result.projection.joint, effectorBasis),
+        result.projection.quaternion, 1e-12),
     );
     const lower: IAutoMovieQuaternion = jointToQuaternionOnBasis(result.joint, lowerBasis);
     const shown: IAutoMovieQuaternion = Quaternion.multiply(
@@ -97,6 +103,7 @@ export function test_motion_distal_twist_paired_projection(): void {
       TestValidator.predicate("each query owns a fresh selected pair",
         result !== previous && result.joint !== previous.joint &&
         result.projection !== previous.projection &&
+        result.projection.joint !== previous.projection.joint &&
         result.projection.local !== previous.projection.local &&
         result.projection.quaternion !== previous.projection.quaternion,
       );
@@ -105,6 +112,7 @@ export function test_motion_distal_twist_paired_projection(): void {
   saved[0]!.joint.twist = 123;
   saved[0]!.projection.local.w = 456;
   saved[0]!.projection.quaternion.x = 789;
+  saved[0]!.projection.joint.flexion = 123;
   TestValidator.predicate("earlier output mutation cannot alter the later same target",
     nclose(saved[4]!.joint.twist!, 45, 1e-8) &&
     qclose(saved[4]!.projection.local, turn(0), 1e-8) &&

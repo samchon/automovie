@@ -15,6 +15,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { StrikingAim } from "./StrikingAim";
 import { StrikingReach } from "./StrikingReach";
@@ -364,8 +365,9 @@ export namespace punchGeometry {
       const reference: IHumanPosture.IReference | undefined =
         bare === undefined ? anchored(clock) : undefined;
       const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
-      const posture: IHumanPosture = (bare?.base ?? footwork.base)(t, clock);
-      const guard = StrikingStance.guard(body, posture, { lead });
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const posture: IHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
+      const guard: ReturnType<typeof StrikingStance.guard> = StrikingStance.guard(body, posture, { lead }, {}, undefined, resolution);
       const elbow: IAutoMovieVector3 = Vector3.lerp(
         Vector3.lerp(
           startElbow,

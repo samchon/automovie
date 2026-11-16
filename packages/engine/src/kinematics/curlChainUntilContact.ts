@@ -212,10 +212,10 @@ export function curlChainUntilContact(
 /**
  * Companion types of {@link curlChainUntilContact}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation Chains of rig bones with a tip and a radius, world-placed physical shapes, and per-chain angles and gaps in degrees and metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a grasping consumer passes and reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the physical profile's shape union and the resolver's axes and rest frames.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents clinical degrees, world/bone-local metre frames, closing order and optional resolver conventions; IInput.resolution requires an explicitly prepared rig of those same unchanged inputs.
+ * @evidence contracts/development/design.md#principled-representation Existing skeleton/pose types, ordered rig-bone chains with a local tip/radius, world-placed physical shapes and per-chain angle/gap reports describe the curl. Positive radius/step, chain ancestry and prepared-rig equivalence remain runtime/caller premises.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Every input drives the actual curl and every result reports it; HumanGrip supplies its existing body-owned immutable rig through resolution to avoid repeated static FK preparation without another rig representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the physical shape, axes/rest-frame and prepared-rig owners' types; absent resolution keeps full raw FK, and no fitted answer, contact verdict or hand-specific proxy can be injected.
  */
 export namespace curlChainUntilContact {
   /**
@@ -239,10 +239,9 @@ export namespace curlChainUntilContact {
   /**
    * The sequential contact-closure request and its optional immutable FK rig.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states degrees/metres, world and bone-local frames, closing order and optional resolver conventions; resolution requires an explicitly prepared rig of those same unchanged inputs.
-   * @evidence contracts/development/design.md#principled-representation The existing skeleton, pose, chain and physical-shape types carry clinical angles and world collider frames; positive radius/step, chain ancestry and prepared-rig equivalence remain runtime/caller premises.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member drives the actual curl; HumanGrip supplies its existing body-owned rig to eliminate repeated static FK preparation without another rig representation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An optional prepared rig is the engine owner's own type and absent callers keep full raw FK; no fitted answer, contact result or hand-specific geometry can be injected.
+   * The caller keeps an explicit prepared rig's skeleton, axes, rest frames
+   * and topology unchanged through this synchronous curl. Without that rig,
+   * the original full raw FK walk still reads every live input at each probe.
    */
   export interface IInput {
     /** The rig, whose range of motion caps every flexion. */

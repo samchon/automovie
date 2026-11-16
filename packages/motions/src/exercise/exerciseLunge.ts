@@ -79,8 +79,16 @@ export namespace exerciseLunge {
     const sink: number = Math.max(0, hip.y - low) * extent;
     const heel: number =
       90 - (AutoMovieMotionHumanRange.limit(`${trail}Foot`, "flexion") ?? 0);
-    const pivot: ReturnType<typeof HumanFoot.preparePivot> = HumanFoot.preparePivot(body, trail, "mtp", HumanFoot.point(body, trail, "mtp", stance[trail]), HumanFoot.heading(stance[trail].rotation));
-    const tiptoe = (share: number): HumanFoot.IPlacement => pivot(-heel * share);
+    const pivot: ReturnType<typeof HumanFoot.preparePivot> =
+      HumanFoot.preparePivot(
+        body,
+        trail,
+        "mtp",
+        HumanFoot.point(body, trail, "mtp", stance[trail]),
+        HumanFoot.heading(stance[trail].rotation),
+      );
+    const tiptoe = (share: number): HumanFoot.IPlacement =>
+      pivot(-heel * share);
     const toes: IAutoMovieVector3 = tiptoe(1).ankle;
     const travel: number =
       (Vector3.dot(Vector3.subtract(toes, hip), forward) +

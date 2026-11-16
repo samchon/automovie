@@ -15,6 +15,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -112,8 +113,8 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's segment mass model over the posture's bones: forward kinematics alone for a posture of joints, the full resolution for one with goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one weighted mean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Canonical joint admission and FK remain linear in bones, plus actual limb/digit fits and segment mass reduction. One operation-scoped exact FK reader serves resolution and final bones; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same synchronous body's reader may also serve floor or collider reads; every actual posture, goal and mass reduction still executes, while the reader validates equal joint/ancestor prerequisites.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Complete canonical joint admission and actual limb/digit fits remain. Final FK requests only mass-observed bone ancestry, followed by the unchanged segment reduction; one operation-scoped reader shares equal dependency math and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's canonical mass model and collider demand come from its same unchanged profile, so that borrowed demand covers every mass bone. Other models construct their own actual segment-bone set; the optional synchronous reader still validates equal FK dependencies rather than sharing a COM verdict.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local lazy reader ends on return or throw; an explicitly borrowed reader stays with its synchronous parent. No reader, map or query history escapes in the returned centre vector.
    */
   export function centre(
@@ -124,8 +125,15 @@ export namespace GymnasticsFlight {
   ): IAutoMovieVector3 {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
+    let requested: ReadonlySet<AutoMovieHumanoidBone>;
+    if (model === body.massModel) requested = HumanColliders.bones(body);
+    else {
+      const massBones: Set<AutoMovieHumanoidBone> = new Set();
+      for (const segment of model.segments) massBones.add(segment.bone);
+      requested = massBones;
+    }
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, undefined, read).pose, read());
+      poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, undefined, read).pose, read(), requested);
     return resolveAutoMovieCenterOfMass.place(model, bones);
   }
 

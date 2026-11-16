@@ -256,10 +256,36 @@ export namespace HumanForceExchange {
     /** Seconds from the break to the release. */
     release: number;
 
-    /** The centre's angle from the vertical through the fulcrum at a second since the break, radians. */
+    /**
+     * The centre's angle from the vertical through the fulcrum, radians.
+     *
+     * @param seconds Seconds since the break; held at release afterward.
+     * @returns The integrated swing angle.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the break-relative clock, vertical reference, radian result and release clamp of swing's producer.
+     * @evidence contracts/development/implementation.md#principled-implementation swing reads the angle component of the integrated driven pendulum state at min(seconds, release); no new integration or angle law is substituted.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer delegates to one shared indexed span reader and selects component zero; HumanForceThrow uses it during the rigid swing.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Release clamping holds the actual integrated release state; no scripted angle, new tolerance or cached pose replaces a reading.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One constant-time span selection and one existing trajectory read per call; integration cost and span storage remain with swing construction.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work All readings borrow the trajectory integrated for this swing's fixed physical inputs. Consumers needing angle and rate together may use sample; individual reads do not memoise time answers.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains its swing's trajectory spans for the owning plan's lifetime; each reading returns only a number and acquires no resource or history.
+     */
     angle(seconds: number): number;
 
-    /** The angular rate at a second since the break, radians per second. */
+    /**
+     * The angular rate about the fulcrum, radians per second.
+     *
+     * @param seconds Seconds since the break; held at release afterward.
+     * @returns The integrated swing rate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the break-relative clock, rate unit and release clamp of swing's producer.
+     * @evidence contracts/development/implementation.md#principled-implementation swing reads component one of the same integrated pendulum state at min(seconds, release), preserving the momentum used for release flight.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared indexed span reader supplies the scalar component; HumanForceThrow reads release angle and rate together when sample exists.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns the actual integrated rate without a synthetic launch speed, pose cache or altered release threshold.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One constant-time span selection and one trajectory read; the producer's existing integration and span storage dominate setup.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows this swing's already-integrated fixed-input trajectory; sample combines paired release reads without sharing results across different seconds or swings.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the captured trajectory spans; a call adds no retained state and returns one scalar.
+     */
     rate(seconds: number): number;
 
     /**
@@ -272,9 +298,9 @@ export namespace HumanForceExchange {
      * @evidence contracts/development/implementation.md#principled-implementation Reads the same integrated state as angle and rate once for consumers needing both.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One trajectory reading and two scalar fields.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not expose or retain the trajectory's state array.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no algorithm; swing owns the reading.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work; swing supplies the shared read.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; swing owns the trajectories.
+     * @evidence contracts/development/implementation.md#efficient-algorithms swing selects one span by index and reads its trajectory once for both scalar components, replacing the two separate release reads in HumanForceThrow.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The angle and rate share one actual state at the same clamped second of this swing's fixed physical trajectory; no reading is shared across calls or swings.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the captured trajectories; each call returns a fresh scalar record without exposing state arrays or adding query history.
      */
     sample?(seconds: number): { angle: number; rate: number };
   }

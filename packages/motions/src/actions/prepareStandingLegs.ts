@@ -1,9 +1,13 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { standingLegs } from "./standingLegs";
 
 /**
  * Prepare a standing body's two toe-out headings and metatarsophalangeal
@@ -23,24 +27,35 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, heading and toe-out define equivalent fixed geometry; different roots and ankle points are always read afresh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns two fixed foot records until release; returned rotation/contact vectors are fresh copies and no time-query output or solver reader is retained.
  */
-export function prepareStandingLegs(body: IHumanBody, yaw: number, toeOut: number): (root: IAutoMovieVector3, feet: Record<"left" | "right", IAutoMovieVector3>) => IHumanPosture["limbs"] {
-  const foot = (side: "left" | "right"): { yaw: number; rotation: IAutoMovieQuaternion; contact: IAutoMovieVector3 } => {
+export function prepareStandingLegs(
+  body: IHumanBody,
+  yaw: number,
+  toeOut: number,
+): (
+  root: IAutoMovieVector3,
+  feet: Record<"left" | "right", IAutoMovieVector3>,
+) => IHumanPosture["limbs"] {
+  /** Fixed heading rotation and body-local contact of one side. */
+  const foot = (
+    side: "left" | "right",
+  ): {
+    yaw: number;
+    rotation: IAutoMovieQuaternion;
+    contact: IAutoMovieVector3;
+  } => {
     const heading: number = yaw + (side === "left" ? toeOut : -toeOut);
-    return { yaw: heading, rotation: HumanFrame.turn(heading), contact: HumanFoot.offset(body, side, "mtp") };
+    return {
+      yaw: heading,
+      rotation: HumanFrame.turn(heading),
+      contact: HumanFoot.offset(body, side, "mtp"),
+    };
   };
-  const fixed: Record<"left" | "right", ReturnType<typeof foot>> = { left: foot("left"), right: foot("right") };
-  return (root: IAutoMovieVector3, feet: Record<"left" | "right", IAutoMovieVector3>): IHumanPosture["limbs"] => {
-    const limbs: IHumanPosture["limbs"] = {};
-    for (const side of ["left", "right"] as const) {
-      const prepared: ReturnType<typeof foot> = fixed[side];
-      limbs[`${side}Leg`] = {
-        point: feet[side],
-        bend: HumanFrame.point({ origin: HumanFrame.point({ origin: root, yaw }, body.rest.get(`${side}LowerLeg`)!), yaw: prepared.yaw }, { x: 0, y: 0, z: 1 }),
-        rotation: { ...prepared.rotation },
-        planted: true,
-        contact: { ...prepared.contact },
-      };
-    }
-    return limbs;
+  const fixed: Record<"left" | "right", ReturnType<typeof foot>> = {
+    left: foot("left"),
+    right: foot("right"),
   };
+  return (
+    root: IAutoMovieVector3,
+    feet: Record<"left" | "right", IAutoMovieVector3>,
+  ): IHumanPosture["limbs"] => standingLegs(body, root, yaw, feet, toeOut, fixed);
 }

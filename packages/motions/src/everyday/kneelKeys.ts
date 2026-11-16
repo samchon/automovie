@@ -140,19 +140,20 @@ export namespace kneelKeys {
         HumanFoot.offset(body, side, "mtp"),
       ),
     );
-    const atPitch = (pitch: number): (d: number) => IFoot => {
-      const height: number = floor + toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180);
+    const atPitch = (pitch: number): ((d: number) => IFoot) => {
+      const height: number =
+        floor +
+        toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180);
       const toes: number = Math.min(extension, pitch);
       return (d: number): IFoot => ({
-      at: {
-        ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
-        y:
-          height,
-      },
-      heading: yaw,
-      pitch: -pitch,
-      toes,
-      planted: true,
+        at: {
+          ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
+          y: height,
+        },
+        heading: yaw,
+        pitch: -pitch,
+        toes,
+        planted: true,
       });
     };
     const foot = (d: number, pitch: number): IFoot => atPitch(pitch)(d);
@@ -160,7 +161,13 @@ export namespace kneelKeys {
       HumanFoot.pivot(body, side, "mtp", at.at, at.heading, at.pitch).ankle;
     const back = (pitch: number): number => {
       const at: (d: number) => IFoot = atPitch(pitch);
-      const pivot: ReturnType<typeof HumanFoot.prepareAt> = HumanFoot.prepareAt(body, side, "mtp", yaw, -pitch);
+      const pivot: ReturnType<typeof HumanFoot.prepareAt> = HumanFoot.prepareAt(
+        body,
+        side,
+        "mtp",
+        yaw,
+        -pitch,
+      );
       let lo: number = 0;
       let hi: number = m.shank + m.footLength;
       for (let i: number = 0; i < 40; i++) {
@@ -326,7 +333,10 @@ export namespace kneelKeys {
         rotation: goal.rotation ?? HumanFrame.turn(yaw),
       };
     };
-    const standingFeet: Record<"left" | "right", HumanFoot.IPlacement> = { left: flat("left"), right: flat("right") };
+    const standingFeet: Record<"left" | "right", HumanFoot.IPlacement> = {
+      left: flat("left"),
+      right: flat("right"),
+    };
     const stood = (side: "left" | "right"): IFoot => ({
       at: HumanFoot.point(body, side, "mtp", standingFeet[side]),
       heading: HumanFoot.heading(standingFeet[side].rotation),
@@ -380,17 +390,40 @@ export namespace kneelKeys {
       { root: rootKneel, feet: feet(foot0[f]) },
     ];
     if (kind !== "one") {
-      const secondFoot: IFoot = tucked(body, f, { ...Vector3.add(rootKneel, rest[f]), y: knee }, yaw, foot0[f].at.y);
+      const secondFoot: IFoot = tucked(
+        body,
+        f,
+        { ...Vector3.add(rootKneel, rest[f]), y: knee },
+        yaw,
+        foot0[f].at.y,
+      );
       keys.push({ root: rootKneel, feet: feet(secondFoot) });
       if (kind === "sitBack") {
-
         // Only sitting back turns the thigh about the knee to SIT degrees.
-        const shankDir: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(ankleOf(k, backFoot), kneeK));
-        const across: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(shankDir, up));
-        const normal: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(across, shankDir));
+        const shankDir: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(ankleOf(k, backFoot), kneeK),
+        );
+        const across: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.cross(shankDir, up),
+        );
+        const normal: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.cross(across, shankDir),
+        );
         const open: number = ((180 - SIT) * Math.PI) / 180;
-        const hipSit: IAutoMovieVector3 = Vector3.add(kneeK, Vector3.scale(Vector3.add(Vector3.scale(shankDir, Math.cos(open)), Vector3.scale(normal, Math.sin(open))), m.thigh));
-        keys.push({ root: Vector3.subtract(hipSit, rest[k]), feet: feet(secondFoot) });
+        const hipSit: IAutoMovieVector3 = Vector3.add(
+          kneeK,
+          Vector3.scale(
+            Vector3.add(
+              Vector3.scale(shankDir, Math.cos(open)),
+              Vector3.scale(normal, Math.sin(open)),
+            ),
+            m.thigh,
+          ),
+        );
+        keys.push({
+          root: Vector3.subtract(hipSit, rest[k]),
+          feet: feet(secondFoot),
+        });
       }
     }
     return {

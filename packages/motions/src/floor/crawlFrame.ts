@@ -94,7 +94,11 @@ export namespace crawlFrame {
           body,
           side,
           "palm",
-          { point: { x: 0, y: 0, z: 0 }, normal: Vector3.scale(Vector3.normalize({ x: 0, y: 1, z: 0 }), -1), forward },
+          {
+            point: { x: 0, y: 0, z: 0 },
+            normal: Vector3.scale(Vector3.normalize({ x: 0, y: 1, z: 0 }), -1),
+            forward,
+          },
           "flat",
         ).point,
       );
@@ -140,30 +144,51 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not substitute a bend preset or cache a pose, elbow solution or time query; each actual target still executes its default bend policy.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed orientation/offset geometry and flat shape construction are shared across a plan; changing point placement and the two actual bend solves remain per query.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's hand surfaces, flat shape, floor normal and explicit forward stay fixed; the target owner validates this preparation by construction, while postures and palm points remain independent.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed hand readers and shape maps until release, without retaining an evaluated posture, FK workspace or query history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed hand readers until release and borrows the module's two immutable flat shape maps; neither the readers nor those constants retain an evaluated posture, FK workspace or query history.
    */
-  export function prepareLaid(body: IHumanBody, forward: IAutoMovieVector3): (posture: IHumanPosture, palm: (side: "left" | "right") => IAutoMovieVector3) => IHumanPosture {
-    const targets: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>> = {
-      left: AutoMovieMotionHumanTarget.prepareHand(body, "left", { x: 0, y: 1, z: 0 }, { surface: "palm", shape: "flat", forward }),
-      right: AutoMovieMotionHumanTarget.prepareHand(body, "right", { x: 0, y: 1, z: 0 }, { surface: "palm", shape: "flat", forward }),
+  export function prepareLaid(
+    body: IHumanBody,
+    forward: IAutoMovieVector3,
+  ): (
+    posture: IHumanPosture,
+    palm: (side: "left" | "right") => IAutoMovieVector3,
+  ) => IHumanPosture {
+    const targets: Record<
+      "left" | "right",
+      ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>
+    > = {
+      left: AutoMovieMotionHumanTarget.prepareHand(
+        body,
+        "left",
+        { x: 0, y: 1, z: 0 },
+        { surface: "palm", shape: "flat", forward },
+      ),
+      right: AutoMovieMotionHumanTarget.prepareHand(
+        body,
+        "right",
+        { x: 0, y: 1, z: 0 },
+        { surface: "palm", shape: "flat", forward },
+      ),
     };
-    const shapes: Record<"left" | "right", IHumanPosture["joints"]> = { left: HumanHand.shape("left", "flat"), right: HumanHand.shape("right", "flat") };
-    return (posture: IHumanPosture, palm: (side: "left" | "right") => IAutoMovieVector3): IHumanPosture => {
-    let out: IHumanPosture = posture;
-    for (const side of ["left", "right"] as const)
-      out = {
-        ...out,
-        joints: { ...out.joints, ...shapes[side] },
-        limbs: {
-          ...out.limbs,
-          [`${side}Arm`]: AutoMovieMotionHumanArm.goal(
-            body,
-            side,
-            targets[side](out, palm(side)),
-          ),
-        },
-      };
-    return out;
+    return (
+      posture: IHumanPosture,
+      palm: (side: "left" | "right") => IAutoMovieVector3,
+    ): IHumanPosture => {
+      let out: IHumanPosture = posture;
+      for (const side of ["left", "right"] as const)
+        out = {
+          ...out,
+          joints: { ...out.joints, ...FLAT[side] },
+          limbs: {
+            ...out.limbs,
+            [`${side}Arm`]: AutoMovieMotionHumanArm.goal(
+              body,
+              side,
+              targets[side](out, palm(side)),
+            ),
+          },
+        };
+      return out;
     };
   }
 
@@ -183,9 +208,9 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the arm is blended between two sets of angles (`blendHumanJoint`), never re-solved toward a goal that moves.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three blended joints and the fingers per arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fingers start from the held ones, or the posture's where the arm holds none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy O(B) rig index serves the six interior joint blends for B rig bones, with each actual interpolation's existing cost; endpoint shares need no metadata index and fixed flat shapes/key lists are not rebuilt.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous blendHumanJoint metadata owner serves the six actual arm joints, and the two side-only flat shapes/key lists are shared constants; current endpoints and posture fingers remain per-query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous joint-metadata reader ends on return or throw; two side-only immutable flat shape maps and key lists are bounded module constants, and no current posture or blended result is retained.
    */
   export function armed(
     body: IHumanBody,
@@ -196,7 +221,8 @@ export namespace crawlFrame {
   ): IHumanPosture {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    const blend: ReturnType<typeof blendHumanJoint.prepare> = blendHumanJoint.prepare(body);
+    const blend: ReturnType<typeof blendHumanJoint.prepare> =
+      blendHumanJoint.prepare(body);
     for (const side of ["left", "right"] as const) {
       const from: AutoMovieMotionHumanArm.IAngles = held[side];
       const to: AutoMovieMotionHumanArm.IAngles = toward[side];
@@ -206,9 +232,9 @@ export namespace crawlFrame {
         [`${side}Hand`, "hand"],
       ] as const)
         joints[bone] = blend(bone, from[key], to[key], share);
-      const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
+      const flat: IHumanPosture["joints"] = FLAT[side];
       const was: IHumanPosture["joints"] = {};
-      for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
+      for (const bone of FLAT_BONES[side]) {
         const held: readonly [number, number, number] | undefined =
           from.fingers?.[bone] ?? posture.joints[bone];
         if (held !== undefined) was[bone] = held;
@@ -345,4 +371,10 @@ export namespace crawlFrame {
     );
     return Vector3.subtract(hips, Vector3.lerp(joints.left, joints.right, 0.5));
   }
+
+  /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
+  const FLAT: Readonly<Record<"left" | "right", IHumanPosture["joints"]>> = { left: HumanHand.shape("left", "flat"), right: HumanHand.shape("right", "flat") };
+
+  /** The same deterministic digit order is used when reading held finger endpoints. */
+  const FLAT_BONES: Readonly<Record<"left" | "right", readonly AutoMovieHumanoidBone[]>> = { left: Object.keys(FLAT.left) as AutoMovieHumanoidBone[], right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[] };
 }

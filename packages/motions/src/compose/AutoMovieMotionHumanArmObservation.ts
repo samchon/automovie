@@ -68,6 +68,36 @@ export namespace AutoMovieMotionHumanArmObservation {
       ...posture,
       limbs,
     }));
+    return reachingPose(body, base, side, from, to);
+  }
+
+  /**
+   * Measure the original blended-arm reach duration on an actual solved base.
+   * A planner that already resolved its only planned arm's removed-goal base
+   * may use that same complete pose instead of resolving it again.
+   *
+   * @param body The unchanged body whose rig admits every probe sample.
+   * @param base The actual canonical base pose; the measured arm's three joints are replaced by each blend sample, while its fingers and ancestors remain this base's.
+   * @param side The measured arm.
+   * @param from The original starting arm rotations.
+   * @param to The original ending arm rotations.
+   * @returns The same speed-bound duration in seconds for this base's actual probe arcs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the supplied actual base, replaced arm joints, preserved finger/ancestor dependencies and second-valued duration.
+   * @evidence contracts/development/implementation.md#principled-implementation The three arm joints are replaced at every sample; all remaining FK dependencies come from the supplied solved base. The original ARC samples and minimum-jerk peak/mean speed factor measure its actual elbow, wrist and fingertip arcs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure reaching owns raw-posture admission/resolution, this companion owns identical probe integration, and the existing single-arm planner supplies its already completed exact removed-arm base.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample, blend, arc increment, speed bound or tolerance changes. Multiarm planner bases still use the original raw resolver because removing both arms differs from removing only the measured arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps ARC+1 actual probe FK admissions and the original integration; a valid existing canonical base avoids one duplicate posture solve. One local exact FK reader and demanded ancestry remain; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-arm planner's at(t).pose resolved exactly the same body/posture after removing that sole arm goal; its body and raw posture stay unchanged during this synchronous planning query. Cold reaching still resolves its actual raw base normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the caller's completed base only until the scalar returns, with one local reader, prior probe array and three accumulated lengths. No new time/pose history or numerical result is retained.
+   */
+  export function reachingPose(
+    body: IHumanBody,
+    base: IAutoMoviePose,
+    side: HumanHand.Side,
+    from: HumanArmClearance.IArm,
+    to: HumanArmClearance.IArm,
+  ): number {
     const probes: readonly AutoMovieHumanoidBone[] = [
       `${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`,
     ];

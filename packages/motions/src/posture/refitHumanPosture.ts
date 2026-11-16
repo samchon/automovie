@@ -99,7 +99,8 @@ export function refitHumanPosture(
             pose,
             other,
             coming,
-            (): ReturnType<typeof poseBones> => poseBones(body, pose, read()),
+            (): ReturnType<typeof poseBones> => poseBones(body, pose, read(),
+              coming.on === undefined ? undefined : new Set([coming.on])),
           ).point;
     const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
       body,

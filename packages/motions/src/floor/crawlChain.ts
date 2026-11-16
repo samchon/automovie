@@ -224,20 +224,35 @@ export namespace crawlChain {
 
     // The leg at an elevation over the foot pivoted on its ball, the heel
     // lifted as far as the shank leans forward.
-    const pivot: ReturnType<typeof HumanFoot.preparePivot> = HumanFoot.preparePivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw);
-    const scan: Map<number, { heel: number; ankle: IAutoMovieVector3; along: number; up: number }> = new Map();
+    const pivot: ReturnType<typeof HumanFoot.preparePivot> =
+      HumanFoot.preparePivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw);
+    const scan: Map<
+      number,
+      { heel: number; ankle: IAutoMovieVector3; along: number; up: number }
+    > = new Map();
     const legAt = (mu: number, lam: number): ILeg => {
-      let geometry: { heel: number; ankle: IAutoMovieVector3; along: number; up: number } | undefined = scan.get(lam);
+      let geometry:
+        | { heel: number; ankle: IAutoMovieVector3; along: number; up: number }
+        | undefined = scan.get(lam);
       if (geometry === undefined) {
         const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
         const ankle: IAutoMovieVector3 = HumanFrame.local(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           pivot(-heel).ankle,
         );
-        geometry = { heel, ankle, along: l * Math.cos(lam / DEG), up: l * Math.sin(lam / DEG) };
-        if (Number.isInteger(lam) && lam >= LOWEST && lam <= 120) scan.set(lam, geometry);
+        geometry = {
+          heel,
+          ankle,
+          along: l * Math.cos(lam / DEG),
+          up: l * Math.sin(lam / DEG),
+        };
+        if (Number.isInteger(lam) && lam >= LOWEST && lam <= 120)
+          scan.set(lam, geometry);
       }
-      const a: IPlanar = { u: mu + geometry.ankle.z, v: ballY + geometry.ankle.y };
+      const a: IPlanar = {
+        u: mu + geometry.ankle.z,
+        v: ballY + geometry.ankle.y,
+      };
       return {
         lam,
         heel: geometry.heel,
@@ -373,5 +388,12 @@ export namespace crawlChain {
   }
 
   /** Upright lengths and lateral places read by this chain's preparation. */
-  const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg"]);
+  const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftUpperArm",
+    "rightUpperArm",
+    "leftUpperLeg",
+    "rightUpperLeg",
+    "leftLowerLeg",
+    "rightLowerLeg",
+  ]);
 }

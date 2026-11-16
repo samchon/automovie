@@ -189,10 +189,13 @@ export namespace rest {
       at0,
       places,
     );
+    const requested: Set<AutoMovieHumanoidBone> = new Set();
+    for (const side of ["left", "right"] as const)
+      if (goals[side] !== undefined)
+        for (const bone of HumanHand.frameBones(body, side, goals[side].surface))
+          requested.add(bone);
     const entry: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
-      goals.left === undefined && goals.right === undefined
-        ? undefined
-        : poseBones(body, context.entry.pose);
+      requested.size === 0 ? undefined : poseBones(body, context.entry.pose, undefined, requested);
     const begin: Partial<
       Record<
         HumanHand.Side,

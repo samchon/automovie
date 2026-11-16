@@ -39,9 +39,9 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 for a hinged mid joint (`fitHingedChainCandidate`), and a pole vector's bend plane as game-engine two-bone IK takes it, every candidate judged by its clamped forward kinematics.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The search alone: preparation, the analytic solve, the swivel candidate and the candidate's forward kinematics have their own owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A degenerate preparation or solve keeps the given pose; no ideal measurement replaces the clamped forward kinematics.
- * @evidence contracts/development/implementation.md#efficient-algorithms Free-bend search retains at most 34 initial candidates plus 32 minima times 20 refinements, stopping under its original rule; hinged requests add their unchanged search. Every candidate computes actual clamped FK/residual, but two geodesic continuity reads run only when equal residual buckets need them or the original explicit-reference stop asks for them. Source/target geometry and exact-angle factors are shared at their fixed scope; selected poses alone copy the ordered O(J) prefix. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Free-bend search retains at most 34 initial candidates plus 32 minima times 20 refinements, stopping under its original rule; hinged requests add their unchanged search. Every candidate computes actual clamped FK/residual, but geodesic continuity runs only for equal residual buckets or the original explicit-reference stop. The incumbent retains only its actual clamped joint pair; exactly the final fitted winner copies the ordered O(J) source prefix, while a source winner returns by identity. Invariant geometry/factors stay shared and speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Targets share prepared frames/domains, authored/reference data, ordered source prefix and resolved clamps. A candidate's admitted raw quaternions serve actual FK and its lazy memoized continuity, whose numerical value is independent of comparison order under fixed source/reference inputs. Lexicographic comparison reads that value only after an equal residual bucket; every needed ranking/stop and cold/near decision remains the same. Target-owned composers still perform each candidate's original angle/frame admission and fresh outer product while sharing pure factors.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sweep/minima arrays hold at most 32 entries each, now including each retained candidate's two raw rotations and fixed-size lazy continuity reader. Composers retain bounded axis/inner-factor state. Search records and closures release with this target, including on throw; only the selected pose/seed escape, with no history or handles.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays hold at most 32 entries each, with two raw rotations and a lazy continuity reader per retained score. The incumbent additionally holds two clamped joint records rather than a copied full pose. Composers retain bounded factors. Search records release with the target, including on throw; only one final pose/seed escape, with no history or handles.
  */
 export const fitChainBend: (
   props: IFitChainToTargetProps,
@@ -97,7 +97,7 @@ export const fitChainBend: (
   const authoredContinuity: number =
     props.referencePose === undefined ? 0 : workspace.authoredContinuity();
   let best: IPlantCandidate = {
-    pose: props.pose,
+    kind: "source",
     residual: Vector3.distance(authored, props.target),
     continuity: (): number => authoredContinuity,
   };
@@ -160,7 +160,9 @@ export const fitChainBend: (
     };
     if (comparePlantCandidate(score, best) < 0)
       best = {
-        pose: workspace.pose(upper, lower),
+        kind: "fitted",
+        upper,
+        lower,
         residual: candidateResidual,
         continuity,
       };
@@ -231,7 +233,7 @@ export const fitChainBend: (
   }
 
   consider(pole);
-  if (canFinish(props, best)) return { pose: best.pose, seed: null };
+  if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
 
   const upper: IAutoMovieResolvedBone = prepared.upper;
   const reachAxis: IAutoMovieVector3 = Vector3.normalize(
@@ -269,7 +271,7 @@ export const fitChainBend: (
     );
     if (Vector3.length(referenceNormal) >= 1e-6) {
       consider(solve(Vector3.normalize(referenceNormal))!);
-      if (canFinish(props, best)) return { pose: best.pose, seed: null };
+      if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
     }
   }
 
@@ -278,7 +280,7 @@ export const fitChainBend: (
   for (let index: number = 0; index < segments; ++index) {
     const angle: number = (2 * Math.PI * index) / segments;
     sweep.push({ angle, ...consider(solve(normalAt(angle))!) });
-    if (canFinish(props, best)) return { pose: best.pose, seed: null };
+    if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
   }
   const minima: IPlantBendCandidate[] = sweep.filter(
     (entry: IPlantBendCandidate, index: number): boolean => {
@@ -311,11 +313,11 @@ export const fitChainBend: (
           ...consider(solve(normalAt(angle))!),
         };
         if (comparePlantCandidate(candidate, center) < 0) center = candidate;
-        if (canFinish(props, best)) return { pose: best.pose, seed: null };
+        if (canFinish(props, best)) return { pose: plantPose(props, workspace, best), seed: null };
       }
     }
   }
-  return { pose: best.pose, seed: null };
+  return { pose: plantPose(props, workspace, best), seed: null };
 };
 
 /** Existing squared-radian equality threshold for stopping an exact-pin search. */
@@ -342,10 +344,20 @@ interface IPlantCandidateScore {
   continuity(): number;
 }
 
-/** Best actual pose and its unchanged contact/continuity scores. */
-interface IPlantCandidate extends IPlantCandidateScore {
-  /** Actual clamped pose, retaining the source root and unrelated authored joints. */
-  pose: IAutoMoviePose;
+/** Best actual source or clamped joint pair, without copying unused intermediate pose arrays. */
+type IPlantCandidate = IPlantCandidateScore & (
+  | { kind: "source" }
+  | { kind: "fitted"; upper: IAutoMovieJointPose; lower: IAutoMovieJointPose }
+);
+
+/** Only the final selected clamped pair needs the source's ordered unrelated-joint prefix. */
+function plantPose(
+  props: IFitChainToTargetProps,
+  workspace: prepareChainFit.IWorkspace,
+  candidate: IPlantCandidate,
+): IAutoMoviePose {
+  return candidate.kind === "source" ? props.pose
+    : workspace.pose(candidate.upper, candidate.lower);
 }
 
 /** Bend-plane parameter beside the contact/continuity scores it produced. */

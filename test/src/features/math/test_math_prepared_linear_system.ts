@@ -21,7 +21,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names actual public consumers, integer-system equations, mutable-input/output ownership, descent priority, resolution and the three scenarios without exporting an internal factor helper for tests.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public AutoMovieSolidVector.solve and fitDigitDescent, checks hand-derived roots and original residuals, observes unchanged caller data and earlier solutions, and verifies the actual prioritized repeated-right-hand-side consumer reaches the constrained task optimum.
- * @evidence contracts/development/testing.md#independent-expectations Multiplication gives (3,0,-1) from (1,2,-1) and (5,-13,-1) from (-2,1,3). The task equations solve to (3,1); imposing x+y=4 with x,y>=0 bounds x-y at4, making (4,0) the closest feasible secondary. Primary residual stays within its declared1e-6 tolerance and component/secondary checks within1e-5 for the declared1e-6 descent step.
+ * @evidence contracts/development/testing.md#independent-expectations Matrix multiplication fixes the two integer roots. Task equations give(3,1); x+y=4 with x,y>=0 bounds x-y at4, giving constrained(4,0). Primary tolerance stays1e-6 and root agreement1e-5. A1e-7 variable step gives this linear primary at most2e-7 one-step motion, strictly below its requested1e-6 met bound, so resolution stopping cannot contradict that bound.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers pivot swaps, multiple/zero/repeated columns, input/output mutation, edited current source, singular/empty/singleton systems, a full null-space task and a bound-limited secondary with primary priority. Internal storage/work counters and general conditioning are outside this public semantic test.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns finite arrays and actual public residual/projector callbacks. It imports no internal helper, changes no public API, starts no host/compiler and replaces no foreign function or global.
  */
@@ -63,10 +63,10 @@ export function test_math_prepared_linear_system(): void {
       primary: (x: readonly number[]): number[] => [x[0]! + x[1]! - 4],
       secondary: (x: readonly number[]): number[] => [x[0]! - x[1]! - bias],
       project: (x: readonly number[]): number[] => x.map((value: number): number => Math.min(10, Math.max(0, value))),
-      step: 1e-6,
+      step: 1e-7,
       tolerance: (): number => 1e-6,
     });
-    TestValidator.predicate("prioritized descent reaches its independent constrained optimum",
+    TestValidator.predicate(`priority bias=${bias}, result=(${result.join(",")}), primary=${result[0]! + result[1]! - 4}: reaches the independent constrained optimum`,
       result.length === 2 && nclose(result[0]!, expected[0], 1e-5) &&
       nclose(result[1]!, expected[1], 1e-5) &&
       Math.abs(result[0]! + result[1]! - 4) <= 1e-6 &&

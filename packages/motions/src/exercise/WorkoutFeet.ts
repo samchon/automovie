@@ -57,10 +57,22 @@ export namespace WorkoutFeet {
     const planted: readonly ("left" | "right")[] =
       kind.strides === true ? [] : bearing("plant");
     const pivots: readonly ("left" | "right")[] = bearing("pivot");
-    const plans: IPlan[] = [...planted, ...pivots].map((side: "left" | "right"): IPlan => {
-      const stance: HumanFoot.IPlacement = { ankle: context.entry.feet[side].ankle, rotation: context.entry.feet[side].rotation };
-      return planted.includes(side) ? { side, kind: "plant", stance } : { side, kind: "pivot", at: HumanFoot.point(context.body, side, "mtp", stance), heading: HumanFoot.heading(stance.rotation) };
-    });
+    const plans: IPlan[] = [...planted, ...pivots].map(
+      (side: "left" | "right"): IPlan => {
+        const stance: HumanFoot.IPlacement = {
+          ankle: context.entry.feet[side].ankle,
+          rotation: context.entry.feet[side].rotation,
+        };
+        return planted.includes(side)
+          ? { side, kind: "plant", stance }
+          : {
+              side,
+              kind: "pivot",
+              at: HumanFoot.point(context.body, side, "mtp", stance),
+              heading: HumanFoot.heading(stance.rotation),
+            };
+      },
+    );
     return (placed: IHumanPosture): IHumanPosture => {
       if (plans.length === 0) return placed;
       const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
@@ -91,17 +103,20 @@ export namespace WorkoutFeet {
   type IPlan = {
     /** The bearing leg. */
     side: "left" | "right";
-  } & ({
-    /** An unturned plant. */
-    kind: "plant";
-    /** The entry ankle and foot rotation. */
-    stance: HumanFoot.IPlacement;
-  } | {
-    /** A turn about the metatarsophalangeal contact. */
-    kind: "pivot";
-    /** The fixed contact in world metres. */
-    at: ReturnType<typeof HumanFoot.point>;
-    /** The entry heading in degrees. */
-    heading: number;
-  });
+  } & (
+    | {
+        /** An unturned plant. */
+        kind: "plant";
+        /** The entry ankle and foot rotation. */
+        stance: HumanFoot.IPlacement;
+      }
+    | {
+        /** A turn about the metatarsophalangeal contact. */
+        kind: "pivot";
+        /** The fixed contact in world metres. */
+        at: ReturnType<typeof HumanFoot.point>;
+        /** The entry heading in degrees. */
+        heading: number;
+      }
+  );
 }

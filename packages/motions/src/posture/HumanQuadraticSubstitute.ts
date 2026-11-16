@@ -30,12 +30,15 @@ export function HumanQuadraticSubstitute(
 ): boolean {
   const n: number = factor.n;
   const u: Float64Array[] = factor.system;
+  const forward: Float64Array = factor.forward;
+  const starts: Float64Array = factor.forwardStart;
   for (let i: number = 0; i < n; ++i) {
     let v: number = b[i]!;
-    const row: Float64Array = factor.forward[i]!;
-    const first: number = i - row.length;
-    for (let j: number = 0; j < row.length; ++j)
-      v -= row[j]! * x[first + j]!;
+    const start: number = starts[i]!;
+    const length: number = starts[i + 1]! - start;
+    const first: number = i - length;
+    for (let j: number = 0; j < length; ++j)
+      v -= forward[start + j]! * x[first + j]!;
     x[i] = v / u[i]![0]!;
   }
   let finite: boolean = true;

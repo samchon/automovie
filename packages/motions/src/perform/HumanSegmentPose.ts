@@ -20,13 +20,14 @@ import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /**
  * A person's displayed pose: the layered action, carried holds, overlays,
  * stopped weapons and entering transition offset. Range-of-motion clamps
  * precede the final planted refits, so no later operation moves a plant.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and what it reads from its siblings.
+ * @evidence contracts/development/common.md#meaningful-documentation States displayed composition order and observational limits; nearby aliases the exact-name seed lookup documented at HumanSegmentPoseSeeds, without another continuation implementation.
  * @evidence contracts/development/design.md#principled-representation One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Split from `HumanSegment` unchanged, so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the sibling owners; nothing is duplicated between them.
@@ -109,7 +110,7 @@ export namespace HumanSegmentPose {
    * @param seconds Film seconds.
    * @param near The fits of a nearby second to continue, if any.
    * @param prepared Same-body preparation borrowed only within this synchronous evaluation, or acquired here and released on return or throw.
-   * @param requested Optional bone observation; near fits, holds, stops, active transitions and overlays retain complete evaluation.
+   * @param requested Optional bone observation; near fits, holds, stops, active transitions and contact/plant-dependent overlays retain complete evaluation.
    * @returns The pose and the seeds of its fits.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the leaf, carry, stop and planted fits and explains how only the matching nearby seed continues each one.
@@ -136,7 +137,7 @@ export namespace HumanSegmentPose {
     const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
     const transition: HumanSegment.ISegment["transition"] = segment.transition;
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
+      requested !== undefined && near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
       !(transition !== undefined && transition.kind !== "redirect" &&
         seconds - transition.cut < transition.blend)
         ? requested
@@ -193,7 +194,8 @@ export namespace HumanSegmentPose {
         written = resolveHumanPosture.rebased(written, { ...written, joints });
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
-        HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution, observed);
+        HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
+          unplantedHumanObservation(written.limbs, observed));
       return {
         posture: {
           ...written,
@@ -399,13 +401,9 @@ export namespace HumanSegmentPose {
   /**
    * Exact-name continuation lookup, shared with overlays and final plants.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the seed lookup owner and its absent/null behavior.
-   * @evidence contracts/development/implementation.md#principled-implementation The original seed lookup is forwarded unchanged, preserving exact names and tolerances.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alias keeps the existing evaluator entry point and one implementation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lookup, seed, branch or tolerance is transformed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The alias adds no wrapper work to the owner's map lookup and seed copy.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The alias owns no evaluated work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the shared function reference is retained.
+   * HumanSegmentPoseSeeds.nearby owns the exact name, absent/null behavior
+   * and copied degree tolerance. This alias adds no wrapper, transformed
+   * seed, numerical result or retained query state.
    */
   export const nearby: typeof HumanSegmentPoseSeeds.nearby = HumanSegmentPoseSeeds.nearby;
 

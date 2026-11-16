@@ -252,7 +252,7 @@ export namespace SwimStroke {
       events,
       contacts: [],
       posture: (seconds: number): IHumanPosture => {
-        if (held !== undefined) return held;
+        if (held !== undefined) return structuredClone(held);
         const t: number = Math.min(duration, Math.max(0, seconds));
         let within: number = t - Math.floor(t / period) * period;
         if (t >= duration) within = 0;

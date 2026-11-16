@@ -190,7 +190,7 @@ export function fitDigitToTarget(
     const resolved: IAutoMovieResolvedBone | undefined = (
       input.rig === undefined
         ? readBones({ ...input.pose, joints: [...others, ...list] }, requested)
-        : (fixedPose ??= input.rig.preparePose({ ...input.pose, joints: others }, requested))
+        : (fixedPose ??= input.rig.preparePose({ ...input.pose, joints: others }, requested, prepared))
             .resolve(list)
     ).find(
       (r: IAutoMovieResolvedBone): boolean => r.bone === input.effector.bone,

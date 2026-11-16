@@ -55,11 +55,11 @@ const AXES: readonly ["flexion", "abduction", "twist"] = [
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who reads the scan and why it builds no message, the report order, what `null`, `0` and a non-finite angle mean on each kind of axis, how each overshoot is measured, the swing coupling, and each callback argument's unit.
  * @evidence contracts/development/implementation.md#principled-implementation An interval's overshoot is the distance to its nearer bound and an immobile axis's is the whole angle, the distances a clamp would move the joint; the swing is measured by `swingConeAngle` on the rotation the renderer reads, so a resting axis counts as its actual 0.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One private scan body owns every fault rule. This entry keeps its callback/void interface for validation and audits, while the companion numeric entry serves solver scores through that same body; only fault emission chooses reporting or ordered summation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One private scan body owns every fault rule. This entry keeps its callback/void interface for validation and audits, while overshoot and the fixed-bone prepare scorer serve numerical solvers through that same body; only fault emission chooses reporting or ordered summation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is added and no bone or axis is special-cased; a non-finite angle is reported without a distance instead of being scored as zero or clamped.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three axis checks and an optional cone angle remain fixed work without records or collector closures. Swing-twist retains its actual rotation, reading and existing radius-table lookup; its finite check uses three ordered reads without an array callback. Both entries add one fixed core call, and fault dispatch adds one fixed helper call; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Callback reports and scalar solver scores share the same actual scan and fault order; no second pass, candidate memo, target result or numerical rule is duplicated.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; faults leave through the caller's callback.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Callback reports and scalar solver scores share the same scan and fault order. An explicit prepare scorer borrows one unchanged bone/constraint/frame and lazily shares its basis and pure composition factors at the original admission site; candidate checks and numerical readings still run.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct scans retain nothing and faults leave through the caller's callback. Each explicit prepare scorer owns one optional prepared frame/composer with bounded axis-factor state until caller release; it stores no joint result, target history, handle or task.
  */
 export function scanJointRom(
   joint: IAutoMovieJointPose,
@@ -251,13 +251,12 @@ export namespace scanJointRom {
    * frame and lazy joint composer for this synchronous operation, released
    * with the scorer. No joint, quaternion result or target history is cached.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed-bone input, unchanged constraint/frame scope, canonical fallback and lazy original-site numerical admission.
-   * @evidence contracts/development/implementation.md#principled-implementation The same private fault scan evaluates every candidate; only the gated frame and composition factors are prepared from unchanged inputs, with finite checks before any composition as in a direct scan.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame/composer preparation surrounds the shared scan without duplicating finite, interval, cone or swing-twist fault rules.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the direct scanner's canonical frame fallback and original ordered additions; no changed constraint, score cache or tolerance is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and one lazy normalized basis/composer serve this operation's gated candidates; each actual candidate still performs its finite checks and swing-twist reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's unchanged bone/constraint/axes/frame prove source metadata equivalence. Pure composer factors may be shared by exact angles, while every candidate owns a fresh outer product and actual reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One scorer owns one optional prepared frame and composer with bounded axis-factor state until caller release; no joint result, target history, handle or task is retained.
+   * The same private fault scan evaluates every candidate, with finite checks
+   * before any composition. Only the gated frame and composition factors are
+   * prepared, without duplicating interval, cone or swing-twist fault rules.
+   * Canonical fallback, ordered additions and tolerances remain unchanged.
+   * Exact unchanged bone/constraint/axes/frame inputs justify that preparation;
+   * each candidate still owns its fresh outer product and actual reading.
    */
   export function prepare(
     bone: AutoMovieHumanoidBone,

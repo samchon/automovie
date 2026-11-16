@@ -8,20 +8,18 @@ import {
 import type {
   AutoMovieGripKind,
   AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGraspReach } from "./HumanGraspReach";
+import { HumanGraspTarget } from "./HumanGraspTarget";
 
 /**
  * A prop's grip affordance as a grasp target, and the hand that grasps it:
@@ -51,11 +49,21 @@ import { HumanGraspReach } from "./HumanGraspReach";
  * @evidence contracts/development/implementation.md#principled-implementation Affordance frame composition, socket-to-frame alignment, and collider extents along an axis read from the engine's shape span.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Target reading, hand placement and the reachable grip search as functions over one target record.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing prop affordance or collider throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per target; the reachable search fits the arm once per candidate turn and tilt and once per stroke key.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per planned grasp.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms HumanGraspTarget prepares handle admission once; authored-aperture hand frames omit collider scans/allocations, inferred widths retain the original exact shape scan, and complete targets still supply all colliders. Reach search retains each original candidate/key fit.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The same target producer serves complete grasp closure and the hand-only support path, with no parallel geometry formula; fixed tool callers explicitly own one preparation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold facades retain nothing; explicit prepared target readers retain only their unchanged prop geometry for the consuming plan, without pose/time history or numerical readers.
  */
 export namespace HumanGrasp {
+  /**
+   * The existing target fields a hand placement actually consumes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Reuses the target's world grip point, inward approach, wrapped axis and metre width without requiring collider output a hand placement never reads.
+   * @evidence contracts/development/design.md#principled-representation A Pick of the complete target retains its exact frames/units while distinguishing a hand's geometric goal from digit-closure collider data.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGraspTarget produces this view for HumanHeldUse.support; hand and around consume precisely these members.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field is guessed, widened or substituted; complete target consumers retain ITarget and its actual colliders/grip kind.
+   */
+  export type IFrame = Pick<ITarget, "point" | "approach" | "axis" | "width">;
+
   /** A grasp target in the world. */
   export interface ITarget {
     /** The grip point, world metres. */
@@ -112,72 +120,7 @@ export namespace HumanGrasp {
     id: string,
     frame: IHumanProp.IFrame,
   ): ITarget {
-    const subject: string = prop.subject;
-    const affordance: IAutoMovieAffordance | undefined = prop.affordances?.find(
-      (a: IAutoMovieAffordance): boolean => a.id === id,
-    );
-    if (affordance === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "handle",
-        value: id,
-        feasible: {
-          kind: "alternatives",
-          values: (prop.affordances ?? []).map(
-            (a: IAutoMovieAffordance): string => a.id,
-          ),
-        },
-        reason: `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id).join(", ") || "none"}`,
-        fix: "name one of the prop's affordances, or declare this one on the prop",
-      });
-    const shapes: readonly P.IShape[] = prop.shapes ?? [];
-    if (shapes.length === 0)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "prop",
-        value: subject,
-        reason: `Prop ${subject} declares no colliders; a grasp closes the fingers on them`,
-        fix: "give the prop the shapes the fingers close on",
-      });
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      frame.rotation,
-      affordance.frame.rotation,
-    );
-    const approach: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-      x: 0,
-      y: -1,
-      z: 0,
-    });
-    const colliders: curlChainUntilContact.ICollider[] = shapes.map(
-      (shape: P.IShape): curlChainUntilContact.ICollider => ({ shape, frame }),
-    );
-    const point: IAutoMovieVector3 = Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
-    );
-
-    // Without an authored aperture, the grasped part is the collider whose
-    // centre lies nearest the grip point (a mug's handle, not its body).
-    const centre = (c: curlChainUntilContact.ICollider): IAutoMovieVector3 =>
-      Vector3.add(
-        c.frame.position,
-        Quaternion.rotateVector(c.frame.rotation, c.shape.transform.position),
-      );
-    const nearest: curlChainUntilContact.ICollider = colliders.reduce(
-      (best, c) =>
-        Vector3.length(Vector3.subtract(centre(c), point)) <
-        Vector3.length(Vector3.subtract(centre(best), point))
-          ? c
-          : best,
-    );
-    return {
-      point,
-      approach,
-      axis: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
-      grip: affordance.grip ?? "power",
-      width: affordance.aperture ?? extent([nearest], approach),
-      colliders,
-    };
+    return HumanGraspTarget(prop, id).at(frame);
   }
 
   /**
@@ -192,37 +135,51 @@ export namespace HumanGrasp {
   export function hand(
     body: IHumanBody,
     side: HumanHand.Side,
-    target: ITarget,
+    target: IFrame,
     tilt: number = 0,
   ): HumanHand.IWrist {
-    // The grip socket's frame fixes the hand's turn; the palm then lies on
-    // the grasped part's near surface, half its width back from the axis. A
-    // tilt turns the hand about the approach through the palm's point, an
-    // oblique power grip (Feix et al. 2016), the part still across the palm.
-    const turn = HumanHand.reach(
-      body,
-      side,
-      "grip",
-      { point: target.point, normal: target.approach, forward: target.axis },
-      "flat",
-    ).rotation;
-    const tilted = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(target.approach, tilt),
-        turn,
-      ),
-    );
-    return HumanHand.place(
-      body,
-      side,
-      "palm",
-      Vector3.subtract(
-        target.point,
-        Vector3.scale(target.approach, target.width / 2),
-      ),
-      tilted,
-      "flat",
-    );
+    return prepareHand(body, side)(target, tilt);
+  }
+
+  /**
+   * Prepare one body's hand geometry before its grasp targets vary.
+   *
+   * @param body The unchanged canonical body.
+   * @param side The grasping hand.
+   * @returns The original wrist goal for each actual target and optional tilt in degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/side, world target geometry, metre width and degree tilt.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the grip-frame alignment, approach-axis tilt and half-width palm placement of hand; only the body's fixed grip frame and palm offset are prepared.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed hand geometry precedes the same orientation and rigid palm-offset translation for each target.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No width, target, quaternion normalization or tilt changes; the unused grip-wrist translation is omitted because only its rotation ever fed palm placement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two fixed hand-offset queries serve C candidate goals instead of repeated grip/palm lookups and an unused wrist placement; each actual target still performs its original alignment, tilt and palm transform.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/side grip and palm geometry are shared; differing target points, approaches, axes, widths and tilts compute their own actual wrist.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns constant-size hand frames/offsets through its grasp search or support plan and stores no candidate pose, numerical reader or time history.
+   */
+  export function prepareHand(
+    body: IHumanBody,
+    side: HumanHand.Side,
+  ): (target: IFrame, tilt?: number) => HumanHand.IWrist {
+    const grip: HumanHand.IFrame = HumanHand.offset(body, side, "grip", "flat");
+    const palm: IAutoMovieVector3 = HumanHand.offset(body, side, "palm", "flat").point;
+    const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(grip);
+    return (target: IFrame, tilt: number = 0): HumanHand.IWrist => {
+      // The grip fixes the turn; the tilted palm stays on the actual near
+      // surface, half the grasped width back along the approach.
+      const turn: IAutoMovieQuaternion = align({ normal: target.approach, forward: target.axis });
+      const tilted: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle(target.approach, tilt),
+          turn,
+        ),
+      );
+      return {
+        point: Vector3.subtract(Vector3.subtract(target.point,
+          Vector3.scale(target.approach, target.width / 2)),
+          Quaternion.rotateVector(tilted, palm)),
+        rotation: tilted,
+      };
+    };
   }
 
   /**
@@ -415,7 +372,21 @@ export namespace HumanGrasp {
    * @param turn Degrees about the wrapped axis.
    * @returns The turned target.
    */
-  export function around(target: ITarget, turn: number): ITarget {
+  export function around(target: ITarget, turn: number): ITarget;
+  /** The same rigid handle turn when only its hand-placement frame is needed. */
+  export function around(target: IFrame, turn: number): IFrame;
+  /**
+   * Delegate both target views to the same wrapped-axis rotation owner.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The overloads distinguish complete closure targets from the exact fields a hand goal consumes; both keep world points, unit directions and metre width.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing approach rotation about the unchanged wrapped axis, delegated without another transform formula.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner handles both structural views and preserves every additional supplied target field.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No collider placeholder, width proxy, normalization or different turn rule is introduced.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant target-copy and quaternion-vector work with no data traversal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both views use HumanGraspReach.around's same existing wrapped-axis computation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new target view and retains no state or handle.
+   */
+  export function around(target: IFrame, turn: number): IFrame {
     return HumanGraspReach.around(target, turn);
   }
 

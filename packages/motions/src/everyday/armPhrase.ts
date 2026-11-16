@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -26,6 +27,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { armPhraseFacing } from "./armPhraseFacing";
 
 /**
  * One arm phrase on a target: the hand visits a place, strokes along a path
@@ -76,8 +78,8 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases on the phrase clock, each phase a minimum-jerk movement through the arm phrases, timed by the vocabulary's transport rule.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Each arm's geometry, one clock shared by the arms, one primitive per arm, one composition.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset's shares are the caller's and scale with the body; the phases are the timing owner's transport and pauses. Two defaults are set here and named provisional: an oscillation's swing (`SWING`, a tenth of the arm's length) and its two cycles.
- * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics at plan time; each posture is the primitives' constant work.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Planning resolves entry bones and prepares fixed offsets/bend hints once; each posture pays its actual base and arm primitive work. Declared root/own-arm/own-hand dependencies let requested prefix reads omit unrelated channels without omitting any later actual limb fit.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The target, offset, swing and bend are fixed plan geometry. Target closures ignore the current posture, while the move still reads current root/yaw and preserves own arm joints and own-hand digit goals; those are exactly its declared input channels.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
  */
 export namespace armPhrase {
@@ -199,6 +201,9 @@ export namespace armPhrase {
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set(sides.flatMap((side: HumanHand.Side): AutoMovieHumanoidBone[] =>
+        [...HumanHand.frameBones(body, side, surface)])),
     );
 
     // A held prop must be in the one acting hand at entry, and a working
@@ -303,7 +308,7 @@ export namespace armPhrase {
                   forward: { x: 0, y: 1, z: 0 },
                 },
               )
-            : turned(side, aimed.normal);
+            : armPhraseFacing(side, aimed.normal);
       // The working point's lever from the surface, world metres at the
       // hand's asked rotation: both offsets are from the wrist joint in the
       // hand's rest axes, the prop's read from the grip socket it rides.
@@ -422,6 +427,9 @@ export namespace armPhrase {
                     ),
                   ),
               });
+
+        // Targets are fixed above; the move reads root and preserves its
+        // own arm joints and digit goals, so no other channel is an input.
         return {
           ...primitive,
           reads: ["root", `${a.side}Arm`, `${a.side}Hand`],
@@ -478,15 +486,3 @@ interface IArm {
 /** An oscillation's swing when none is given, a share of the arm's length to each side (provisional: a wave's sweep, read from no measured source). */
 const SWING: number = 0.1;
 
-/** The hand turned to face against a normal with its fingers as near upright as the normal allows. */
-const turned: (side: HumanHand.Side, normal: IAutoMovieVector3) => IAutoMovieQuaternion = (
-  side: HumanHand.Side,
-  normal: IAutoMovieVector3,
-): IAutoMovieQuaternion => {
-  const n: IAutoMovieVector3 = Vector3.normalize(normal);
-  const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const across: IAutoMovieVector3 = Vector3.subtract(up, Vector3.scale(n, Vector3.dot(up, n)));
-  const fingers: IAutoMovieVector3 =
-    Vector3.length(across) > 1e-6 ? across : { x: 0, y: 0, z: 1 };
-  return HumanHand.rotation(side, { fingers, palm: Vector3.scale(n, -1) });
-};

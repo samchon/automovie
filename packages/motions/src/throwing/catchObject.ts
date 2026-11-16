@@ -361,6 +361,8 @@ export namespace catchObject {
         fingers: first,
         strain: Infinity,
       };
+      const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
+        AutoMovieMotionHumanBend.prepare({ body, posture: standing, side });
       for (const degrees of ROLLS) {
         const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
           Quaternion.fromAxisAngle(outward, degrees),
@@ -387,9 +389,9 @@ export namespace catchObject {
           ).point,
           rotation: target.rotation,
         };
-        const strain: number = AutoMovieMotionHumanBend.strain(
+        const strain: number = bends.strain(
           solve,
-          AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
+          bends.solve({ ...solve, fallback: "hang" }),
         );
         if (strain < best.strain - 1e-9) best = { fingers, strain };
       }

@@ -5,6 +5,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
@@ -108,8 +109,9 @@ export namespace punchFootwork {
      *
      * @param seconds Seconds since the start, the feet's clock.
      * @param clock The trunk turn's clock; the feet's own when absent.
+     * @param resolution Optional exact FK supplier borrowed only during this synchronous base/lowering evaluation.
      */
-    base(seconds: number, clock?: number): IHumanPosture;
+    base(seconds: number, clock?: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture;
 
     /** The feet's contact windows, as shares of the punch. */
     contacts: IHumanContactWindow[];
@@ -255,7 +257,7 @@ export namespace punchFootwork {
                     t - s,
                   );
     }
-    const base = (t: number, clock: number = t): IHumanPosture => {
+    const base = (t: number, clock: number = t, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const followed: number = follow(t);
@@ -319,6 +321,7 @@ export namespace punchFootwork {
           ),
         },
         5,
+        resolution,
       );
     };
 

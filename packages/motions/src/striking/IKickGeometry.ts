@@ -7,6 +7,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { StrikingRecord } from "./StrikingRecord";
 import type { kick } from "./kick";
 
@@ -22,9 +23,10 @@ export interface IKickGeometry {
    *
    * @param seconds Seconds since the kick's start.
    * @param channels Optional observational demand; limb-only contact reads may omit unused guard goals while preserving the complete kicking leg/base.
-   * @returns The posture, the guard and the kicking leg's goal included.
+   * @param resolution Optional exact FK supplier borrowed only by this synchronous course evaluation.
+   * @returns The demanded posture, with guard and kicking leg included when demand is omitted.
    */
-  posture(seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture;
+  posture(seconds: number, channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture;
 
   /** The horizontal unit line from the kicker toward the target the body's carriage was committed on. */
   line: IAutoMovieVector3;
@@ -39,12 +41,14 @@ export interface IKickGeometry {
    * @param seconds Seconds since the start: the clock of the support foot's step.
    * @param carriage The carriage shown in full at contact.
    * @param turning The second the pelvis's turn, lean and travel over the support foot are read at; `seconds` when absent, so a withdrawal can play the turn back while the step keeps its own clock.
+   * @param resolution Optional exact reader borrowed only within this synchronous person's evaluation.
    * @returns The posture, both leg goals being the stance's.
    */
   base(
     seconds: number,
     carriage: IKickGeometry.ICarriage,
     turning?: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IHumanPosture;
 
   /**

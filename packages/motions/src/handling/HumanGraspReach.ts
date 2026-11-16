@@ -358,7 +358,24 @@ export namespace HumanGraspReach {
   export function around(
     target: HumanGrasp.ITarget,
     turn: number,
-  ): HumanGrasp.ITarget {
+  ): HumanGrasp.ITarget;
+  /** The same wrapped-axis rotation for the hand-only target view. */
+  export function around(target: HumanGrasp.IFrame, turn: number): HumanGrasp.IFrame;
+  /**
+   * Preserve all supplied target fields while turning only its approach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The complete and hand-only overloads keep the original world target point, wrapped axis and metre width while turning the inward approach by degrees.
+   * @evidence contracts/development/implementation.md#principled-implementation The original Quaternion.fromAxisAngle wrapped-axis turn followed by quaternion-vector rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target spread and one approach transform serve both existing target views.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original target field is preserved and no collider list, width or contact point is manufactured.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant rigid-transform work with no variable population.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete closure and narrow hand goals use this same numerical owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh target wrapper and approach vector without retained state.
+   */
+  export function around(
+    target: HumanGrasp.IFrame,
+    turn: number,
+  ): HumanGrasp.IFrame {
     return {
       ...target,
       approach: Quaternion.rotateVector(

@@ -1,5 +1,8 @@
 import { Vector3, minimumJerk, physicalShapeBounds } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
@@ -243,11 +246,33 @@ export namespace workout {
       first: first.key,
       borne,
     });
-    const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(kind.pin.map((pin: ExerciseKey.Pin): AutoMovieHumanoidBone => pin === "gripLeft" || pin === "gripRight" ? body.surfaces.sockets[pin].bone : pin));
-    const starts: number[] = spans.map((span: ISpan): number => clock.at(span.from));
-    const blends: ((share: number) => ExerciseKey.IKey)[] = spans.map((span: ISpan): (share: number) => ExerciseKey.IKey => ExerciseKey.prepareBlend(span.a, span.b));
-    const profiled: ReadonlySet<string> = new Set(body.profile.segments.map((segment: IHumanBody["profile"]["segments"][number]): string => segment.bone));
-    const floorBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([...body.rest.keys()].filter((bone: AutoMovieHumanoidBone): boolean => profiled.has(bone) && !(kind.hands === true && ARM.test(bone))));
+    const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      kind.pin.map(
+        (pin: ExerciseKey.Pin): AutoMovieHumanoidBone =>
+          pin === "gripLeft" || pin === "gripRight"
+            ? body.surfaces.sockets[pin].bone
+            : pin,
+      ),
+    );
+    const starts: number[] = spans.map((span: ISpan): number =>
+      clock.at(span.from),
+    );
+    const blends: ((share: number) => ExerciseKey.IKey)[] = spans.map(
+      (span: ISpan): ((share: number) => ExerciseKey.IKey) =>
+        ExerciseKey.prepareBlend(span.a, span.b),
+    );
+    const profiled: ReadonlySet<string> = new Set(
+      body.profile.segments.map(
+        (segment: IHumanBody["profile"]["segments"][number]): string =>
+          segment.bone,
+      ),
+    );
+    const floorBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      [...body.rest.keys()].filter(
+        (bone: AutoMovieHumanoidBone): boolean =>
+          profiled.has(bone) && !(kind.hands === true && ARM.test(bone)),
+      ),
+    );
 
     // How far the supported posture at the far end of each way down or up
     // sinks itself, by span, read once.
@@ -264,9 +289,7 @@ export namespace workout {
       const s: ISpan = spans[index]!;
       const opened: number = starts[index]!;
       const length: number =
-        (index + 1 < spans.length
-          ? starts[index + 1]!
-          : duration) - opened;
+        (index + 1 < spans.length ? starts[index + 1]! : duration) - opened;
       const x: number =
         length > 1e-9
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
@@ -303,7 +326,12 @@ export namespace workout {
         let lowest: number = 0;
         for (const segment of HumanColliders.placed(
           body,
-          poseBones(body, resolveHumanPosture(body, posture), undefined, floorBones),
+          poseBones(
+            body,
+            resolveHumanPosture(body, posture),
+            undefined,
+            floorBones,
+          ),
         )) {
           if (kind.hands === true && ARM.test(segment.bone)) continue;
           for (const shape of segment.shapes)
@@ -317,16 +345,7 @@ export namespace workout {
       const endpoint: ExerciseKey.IKey = s.a === stood ? s.b : s.a;
       const supported: number =
         far.get(endpoint) ??
-        sunk(
-          ExerciseKey.pinned(
-            body,
-            endpoint,
-            yaw,
-            kind.pin,
-            at,
-            pins,
-          ),
-        );
+        sunk(ExerciseKey.pinned(body, endpoint, yaw, kind.pin, at, pins));
       far.set(endpoint, supported);
       const rise: number = Math.max(0, sunk(carried) - down * supported);
       return rise === 0
@@ -377,11 +396,19 @@ export namespace workout {
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: 1 },
       );
-      const hands: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, set, undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
+      const hands: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
+        body,
+        set,
+        undefined,
+        new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
+      );
       for (const side of ["left", "right"] as const) {
-        const wrist: IAutoMovieVector3 = ExerciseKey.mean(body, set, [
-          `${side}Hand`,
-        ], hands);
+        const wrist: IAutoMovieVector3 = ExerciseKey.mean(
+          body,
+          set,
+          [`${side}Hand`],
+          hands,
+        );
         const laid: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.wrist(
           body,
           side,

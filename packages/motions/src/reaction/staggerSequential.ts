@@ -62,8 +62,8 @@ export namespace staggerSequential {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One private stance problem owns invariant frames, placements and support data; fitted swivels or their first-order pieces are installed immediately before each synchronous reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body sample, phase, support, target, tolerance or solver round is removed; probes still fit each requested leg and fall back to the other side on a branch change.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each course fits its active planted legs; its piece probes seven coordinates per leg with the original possible opposite-side fit. Goal-only reads avoid unrelated leg posing, one private vector serves all probes, and fixed problem geometry is built once per solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses fitted/piece records only for the same immutable course vector, fixed body and knots; only held-swivel objects change in private copied knot records, while placements, frames and row topology remain unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, one latest fit record, one latest piece record and one probe vector, each linear in its active course size, released on return or failure; returned course knots retain only final swivels.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses fitted/piece records only for the same immutable course vector, fixed body and knots; the current model's base fits survive rejected trials, while private copied knot records change only held-swivel objects under fixed placements, frames and row topology.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, the current model's base fits, one latest trial-fit record, one latest piece record and one probe vector, each linear in active course size and released on return or failure; returned knots retain only final swivels.
    */
   export function solve(
     body: IHumanActionContext["body"],
@@ -184,9 +184,12 @@ export namespace staggerSequential {
         },
       );
 
-    // The fits at the last course read, read once a course.
+    // Keep the current model's base fits while merit reads rejected trials:
+    // returning to that same immutable course must not fit its legs again.
+    let anchored: { x: Float64Array; at: Fitted } | undefined;
     let last: { x: Float64Array; at: Fitted } | undefined;
     const fitted: (x: Float64Array) => Fitted = (x: Float64Array): Fitted => {
+      if (anchored?.x === x) return anchored.at;
       if (last === undefined || last.x !== x) last = { x, at: fits(x) };
       return last.at;
     };
@@ -212,7 +215,9 @@ export namespace staggerSequential {
       // The differences are synchronous, and the original course never
       // changes. One private vector serves all single-coordinate probes.
       const moved: Float64Array = Float64Array.from(x);
-      const swivels: IPieces["swivels"] = fitted(x).map(
+      const baseFits: Fitted = fitted(x);
+      anchored = { x, at: baseFits };
+      const swivels: IPieces["swivels"] = baseFits.map(
         (
           fit: Partial<Record<"left" | "right", ISeeded>> | undefined,
           k: number,

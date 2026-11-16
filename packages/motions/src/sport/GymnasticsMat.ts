@@ -103,7 +103,7 @@ export namespace GymnasticsMat {
 
       // The centre's floor place, carried out from the touchdown.
       const carry: number = carriedRate(SETTLE, t);
-      const frame: prepareGymnasticsFrame.IFrame = prepareGymnasticsFrame(
+      const frame: ReturnType<typeof prepareGymnasticsFrame> = prepareGymnasticsFrame(
         body,
         model,
         posed,

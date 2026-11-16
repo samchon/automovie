@@ -16,7 +16,7 @@ import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { toRigAngle } from "../rom/toRigAngle";
+import { prepareDistalTwistEffector } from "./prepareDistalTwistEffector";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 
 /**
@@ -75,11 +75,11 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  *   this synchronous solve, including while its pure readers/clamps run.
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the effector cannot take, the equation its twist makes, how it is solved, which solution is taken and the start that breaks a tie.
+ * @evidence contracts/development/common.md#meaningful-documentation States the degree-valued lower/effector articulations, model/local rotation frames, bounded roots/range/start law and tie. withProjection's child documentation defines the selected lower joint plus copied actual effector joint/raw quaternion/local demand, exact-demand reuse condition and caller ownership; prepare documents lazy unchanged fixed-frame readings.
  * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One equation, its two solutions and one choice among a handful of candidates.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Both ordinary and withProjection entries use one private bounded search; only paired mode retains the actual winning projection. prepare delegates fixed axis/clinical-zero readers to prepareDistalTwistEffector, leaving one equation/root/ranking owner here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
- * @evidence contracts/development/implementation.md#efficient-algorithms Without caller-shared clamps/projector, setup performs O(B) rig lookups for B bones. At most five distinct clamped twists query the same prepared projector once each; an eligible query scores the reference plus at most eighteen pairs, at most nineteen actual joint recompositions or 95 across five queries. Unsupported queries retain the factory's four-sweep, forty-step-per-axis fallback, at most 528 recompositions each. The twist law's quaternion work remains additional constant work, and the existing TIE policy can stop after the start; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source bases/clamps/inverses/projector and fixed effector readings are shared under unchanged dependencies. Optional raw/untwisted/held readers keep their original first-use order, and component-identical articulated/untwisted rotations share needed as K only after both reads. Within this solve, Object.is-identical requested twists reuse their completed pure lower clamp, preserving signed zero and actual joint coordinates. Exact-angle lower factors/inner pairs and fixed harmonic dot/cross terms share only pure arithmetic. Paired projection preserves the actual winning local demand/raw articulation before final normalization. No target answer crosses solves.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One solve retains at most eight requested-twist/clamped-joint rows (raw/clamped start, two extreme probes, two range ends and two roots), five candidate twists and constant harmonic/preparation data. Current/selected paired projections are bounded. All release at return/throw except the selected caller-owned result; borrowed source preparation remains its caller's, with no growing history, handles or tasks.
  */
@@ -197,10 +197,22 @@ function solve(
   let latestProjection: solveDistalTwist.IProjection | undefined;
   const missed: (twist: number) => number = (twist: number): number => {
     const local: IAutoMovieQuaternion = effectorOf(at(twist));
-    const shown: IAutoMovieQuaternion = projectWithQuaternion === undefined
-      ? jointToQuaternionOnBasis(project(local), props.effectorBasis, props.effectorFrame)
-      : projectWithQuaternion(local).quaternion;
-    if (paired) latestProjection = { local, quaternion: { ...shown } };
+    let effector: IAutoMovieJointPose;
+    let shown: IAutoMovieQuaternion;
+    if (projectWithQuaternion === undefined) {
+      effector = project(local);
+      shown = jointToQuaternionOnBasis(effector, props.effectorBasis, props.effectorFrame);
+    } else {
+      const projected: prepareJointRotationProjection.IProjection = projectWithQuaternion(local);
+      effector = projected.joint;
+      shown = projected.quaternion;
+    }
+    if (paired) latestProjection = {
+      local,
+      joint: { bone: effector.bone, flexion: effector.flexion,
+        abduction: effector.abduction, twist: effector.twist },
+      quaternion: { x: shown.x, y: shown.y, z: shown.z, w: shown.w },
+    };
     return Quaternion.angle(Quaternion.normalize(shown), local);
   };
 
@@ -359,25 +371,29 @@ interface ISolution {
 }
 
 /**
- * Fixed effector readings for one unchanged twist-solving operation.
+ * Fixed-source effector readers and one solve's paired candidate/result records.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the actual fixed lower-to-effector rotation, admitted basis and clinical frame, lazy original-use admission, borrowed derived readings and operation lifetime; target harmonics and candidates stay in each solve.
- * @evidence contracts/development/design.md#principled-representation Rotated effector axes and the handed clinical-zero twist sine/cosine depend only on the unchanged rest, basis and frame, while K and its P/Q projections depend on the request and remain outside this preparation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One prepared object supplies the actual two axis readers and zero-angle reader used by solveDistalTwist. Workspace and standalone solving share their mathematics without exposing candidate or target-history caches.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The factory captures only the three fixed rig references and performs no admission at construction. Each reading is first computed at its original solve site; a caller borrows it unchanged and drops the preparation when those dependencies or its operation end.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged lower-to-effector rest/basis/clinical-frame readers and paired results: normalized local demand, copied effector clinical joint, actual raw quaternion and selected clamped lower joint. Child/member prose gives frames, ownership, first-use admission and operation lifetimes.
+ * @evidence contracts/development/design.md#principled-representation Fixed rotated axes/clinical-zero sine-cosine are source-only, while each paired projection belongs to one actually scored target candidate. IResult pairs its actual lower winner with that candidate's required projection; final consumers still recompute their actual demand before reuse.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IPrepared supplies two axis readers and one zero reader. IProjection/IResult serve actual hinged error and immediate orientation consumers that need the completed effector joint/raw composition plus exact local-equivalence proof; no target-history controls are exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Fixed preparation admits nothing eagerly and stores no target. Paired fields are mandatory because every paired solve scores its start; no optional invalid winner, approximate match, achieved-point substitution or alternate ROM representation is encoded.
  */
 export namespace solveDistalTwist {
   /**
    * A candidate's exact local demand and raw displayed effector articulation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the normalized demand and unnormalized selected articulation from one actual projection query.
-   * @evidence contracts/development/design.md#principled-representation The two quaternion records describe one scored candidate under fixed basis, rest frame and projector dependencies; they preserve the normalization boundary used by final display.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Final hinged rotation scoring needs the demand to prove exact equivalence and the raw articulation to avoid repeating its completed projection.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No achieved point, angular score, approximate match or target-history key replaces the actual local rotation demand.
+   * The local demand and selected articulation belong to the same actual
+   * query under fixed basis/rest/domain/clamp dependencies. The joint is
+   * copied in clinical degrees and the quaternion remains raw, preserving
+   * final display's normalization boundary. No score or approximate key
+   * replaces the original demand.
    */
   export interface IProjection {
     /** Normalized local target used by that candidate's actual projector query. */
     local: IAutoMovieQuaternion;
+
+    /** Actual selected effector articulation in clinical degrees, copied for this result. */
+    joint: IAutoMovieJointPose;
 
     /** Its selected raw articulation, before the score's normalization. */
     quaternion: IAutoMovieQuaternion;
@@ -386,10 +402,10 @@ export namespace solveDistalTwist {
   /**
    * The selected lower joint paired with its completed effector projection.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the selected clamped joint and the actual winning-candidate projection, both owned by one result.
-   * @evidence contracts/development/design.md#principled-representation The joint belongs to the same bounded search winner whose local projection is returned; final consumers still recompute the demand from that actual completed clamped joint.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The hinged rotation scorer consumes both members, while ordinary twist authoring keeps the joint-only entry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The projection is mandatory because every paired solve scores at least its start; no optional mode or unscored candidate is exposed in this result.
+   * This joint is the lower articulation; projection.joint is the effector.
+   * Both describe the same bounded-search winner. A paired solve always
+   * scores its start, so projection is required, and consumers recompute
+   * their actual demand from the selected lower clamp before reuse.
    */
   export interface IResult {
     /** Selected clamped mid joint, with the ordinary entry's ownership. */
@@ -413,13 +429,12 @@ export namespace solveDistalTwist {
    * solve remain unchanged. Callers release the fresh result after composing
    * the actual displayed world rotation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States selected-candidate ownership, exact-local equivalence, actual completed lower clamp and caller release.
-   * @evidence contracts/development/implementation.md#principled-implementation Returns the projection actually measured by the unchanged bounded distal-twist law; a consumer must compare its recomputed local demand exactly before reuse.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both public entries delegate to one private search; only paired mode retains the selected projection beside its joint.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate, tie and selected clamp remains actual, with no tolerance-based demand match or zero-error substitution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds one fixed-size reading per actual query and one result; matching final consumers avoid another complete effector projection, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The winning candidate's raw projected articulation is completed work for its exact local target and fixed projection dependencies, rather than a cross-solve cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most current and selected projection readings remain reachable during solving; one selected reading escapes in the caller-owned result, with no global state or handles.
+   * Ordinary and paired entries share one search, candidate order and TIE.
+   * Paired mode only retains the winning query's actual effector joint/raw
+   * quaternion and local target, adding fixed-size current/selected readings.
+   * Exact matching avoids another projection; a different demand still runs
+   * its own query. These readings never cross targets or operations and the
+   * selected caller-owned result retains no solver, history or handles.
    */
   export function withProjection(
     props: Parameters<typeof solveDistalTwist>[0],
@@ -459,31 +474,6 @@ export namespace solveDistalTwist {
   export function prepare(
     props: Pick<Parameters<typeof solveDistalTwist>[0], "effectorRest" | "effectorBasis" | "effectorFrame">,
   ): IPrepared {
-    const rest: IAutoMovieQuaternion = props.effectorRest;
-    const basis: IAutoMovieJointAxes = props.effectorBasis;
-    const frame: IAutoMovieRestFrame | undefined = props.effectorFrame;
-    let abduction: IAutoMovieVector3 | undefined;
-    let flexion: IAutoMovieVector3 | undefined;
-    let zero: IZero | undefined;
-    return {
-      abduction: (): IAutoMovieVector3 => {
-        abduction ??= Quaternion.rotateVector(rest, basis.abduction);
-        return abduction;
-      },
-      flexion: (): IAutoMovieVector3 => {
-        flexion ??= Quaternion.rotateVector(rest, basis.flexion);
-        return flexion;
-      },
-      zero: (): IZero => {
-        if (zero === undefined) {
-          const handed: number =
-            Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0 ? 1 : -1;
-          const phi: number =
-            (handed * (toRigAngle(0, frame?.twist) ?? 0) * Math.PI) / 180;
-          zero = { cosine: Math.cos(phi), sine: Math.sin(phi) };
-        }
-        return zero;
-      },
-    };
+    return prepareDistalTwistEffector(props);
   }
 }

@@ -1,8 +1,3 @@
-import {
-  type IAutoMovieRandom,
-  minimumJerk,
-  seededSmoothNoise,
-} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -11,24 +6,21 @@ import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
-import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { HumanSkill } from "../skill/HumanSkill";
+import { prepareStand } from "./prepareStand";
+import { prepareStandingLegs } from "./prepareStandingLegs";
 import { standFeet } from "./standFeet";
 import { standRelaxed } from "./standRelaxed";
 import { standUpright } from "./standUpright";
-import { prepareStandingLegs } from "./prepareStandingLegs";
+import { standingLegs } from "./standingLegs";
 
 /**
  * Quiet standing: both feet planted where they are (or under the hips when
@@ -88,126 +80,26 @@ export namespace stand {
   ): IHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
     HumanBound.above("seconds", duration, 0, "s");
-    const yaw: number = context.entry.posture.yaw;
-    const course: standFeet.ICourse = standFeet.of(
-      context.body,
-      context.entry,
-      yaw,
-    );
-    const footing: Record<"left" | "right", IAutoMovieVector3> = course.flat;
-    const initial: IAutoMovieVector3 = course.offset(0);
-    const upright: standUpright.IAlignment = standUpright.of(context.body);
-    const middle: IAutoMovieVector3 = root(context.body, footing, yaw);
-    const joints: IHumanPosture["joints"] = {
-      ...relaxed(context.body),
-      ...upright.joints,
-    };
-    const settle: number = Math.min(0.5, duration);
-    const from: IAutoMovieVector3 = context.entry.posture.root;
-    const sway: number =
-      context.params.sway ?? 0.003 * HumanSkill.sway(context.skill);
-    HumanBound.least("sway", sway, 0, "m");
-    const sx: IAutoMovieRandom = context.random("swayX");
-    const sz: IAutoMovieRandom = context.random("swayZ");
+    return prepare(context, side)(duration);
+  }
 
-    // The support the stance stands on: the ground, or a prop that moves.
-    const left: IHumanContactWindow.Support = HumanSupportFrame.contact(
-      context,
-      "leftFoot",
-    );
-    const right: IHumanContactWindow.Support = HumanSupportFrame.contact(
-      context,
-      "rightFoot",
-    );
-    const inherited: string | undefined =
-      context.entry.feet.left.planted &&
-      context.entry.feet.right.planted &&
-      left.kind === "prop" &&
-      right.kind === "prop" &&
-      left.subject === right.subject
-        ? left.subject
-        : undefined;
-    const on: IParams["on"] =
-      context.params.on ??
-      (inherited === undefined ? undefined : { prop: inherited });
-    const carried: (seconds: number) => HumanSupportCarry.ICarry | undefined = (
-      seconds: number,
-    ): HumanSupportCarry.ICarry | undefined =>
-      on === undefined
-        ? undefined
-        : HumanSupportCarry.of(
-            (t: number): IHumanProp.IFrame => context.prop(on.prop).frame(t),
-            context.start,
-            context.start + seconds,
-          );
-    return {
-      duration,
-      events: [{ name: "settled", share: settle / duration }],
-      contacts: (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
-          part,
-          kind: "plant" as const,
-          from: 0,
-          to: 1,
-          support:
-            on === undefined
-              ? HumanSupportFrame.contact(context, part)
-              : { kind: "prop" as const, subject: on.prop },
-        }),
-      ),
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number = minimumJerk(t / settle).s;
-        const u: number = t / duration;
-        const feet: standFeet.ISample = course.sample(s);
-        const offset: IAutoMovieVector3 = feet.offset;
-        // The sway runs side to side and front to back in the body's frame,
-        // the side to side signed in the acting side's frame.
-        const swayed: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          {
-            x:
-              (side === "left" ? -1 : 1) *
-              sway *
-              Math.SQRT2 *
-              seededSmoothNoise(sx, u, duration, 0.8),
-            y: 0,
-            z: sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
-          },
-        );
-        const root: IAutoMovieVector3 = {
-          x:
-            from.x +
-            (middle.x - from.x) * s +
-            offset.x -
-            initial.x * (1 - s) +
-            swayed.x,
-          y: from.y + (middle.y - from.y) * s + offset.y - initial.y * (1 - s),
-          z:
-            from.z +
-            (middle.z - from.z) * s +
-            offset.z -
-            initial.z * (1 - s) +
-            swayed.z,
-        };
-        // On a moving support the stance planned at the entry is carried by
-        // the support's rigid motion since then (#3491); its tilt is not
-        // read yet, only its travel and its turn about the vertical.
-        const carry: HumanSupportCarry.ICarry | undefined = carried(t);
-        const placed: IAutoMovieVector3 = carry?.point(root) ?? root;
-        return feet.write(
-          {
-            root: placed,
-            yaw: yaw + (carry?.yaw ?? 0),
-            pitch: 0,
-            roll: 0,
-            joints,
-            limbs: {},
-          },
-          carry,
-        );
-      },
-    };
+  /**
+   * Prepare fixed entry geometry for probe and final-duration standing
+   * plans; each positive duration retains its own settle, sway and streams.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed entry geometry and independently timed duration plans; prepareStand documents the fixed context and ownership contract.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the existing quiet-standing law to prepareStand, sharing only duration-independent geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner of stance construction serves raw and prepared callers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No probe trajectory replaces the actual-duration stance and the side retains its existing sway sign.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry preparation serves each requested duration; time-dependent posture evaluations remain actual computations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, entry, skill, side, sway and support remain fixed; timing and fresh random channels belong to each child plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one two-foot preparation until its action is released; no FK workspace or evaluated pose is retained.
+   */
+  export function prepare(
+    context: IHumanActionContext<IParams>,
+    side: HumanHand.Side = "right",
+  ): ReturnType<typeof prepareStand> {
+    return prepareStand(context, side);
   }
 
   /** Parameters. */
@@ -371,7 +263,7 @@ export namespace stand {
     yaw: number,
     feet: Record<"left" | "right", IAutoMovieVector3>,
   ): IHumanPosture["limbs"] {
-    return prepareLegs(body, yaw)(root, feet);
+    return standingLegs(body, root, yaw, feet, TOE_OUT);
   }
 
   /**
@@ -386,7 +278,10 @@ export namespace stand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps body/yaw fixed; the returned function reads every new root and ankle target independently.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the delegated two-foot preparation for its plan's lifetime; no query result is retained.
    */
-  export function prepareLegs(body: IHumanBody, yaw: number): ReturnType<typeof prepareStandingLegs> {
+  export function prepareLegs(
+    body: IHumanBody,
+    yaw: number,
+  ): ReturnType<typeof prepareStandingLegs> {
     return prepareStandingLegs(body, yaw, TOE_OUT);
   }
 

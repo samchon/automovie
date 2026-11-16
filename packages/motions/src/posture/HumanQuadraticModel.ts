@@ -33,6 +33,14 @@ export namespace HumanQuadraticModel {
      * @param duals Optional keyed multipliers when warm is absent.
      * @returns Fresh caller-owned unscaled iterates and current diagnostics.
      * @throws {RangeError} For malformed intervals, incompatible warm data or nonfinite computation.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation Runs the same OSQP solve against this admitted fixed P/q/A snapshot, transforming current intervals by positive E and soft weights by c/E before the unchanged ADMM, certificate and polishing stages.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The model owns fixed matrices and disposable storage; this method validates and atomically refreshes changed scalar row inputs, then delegates the sole iteration to HumanQuadraticSolve.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads every current key and compares exact l/u/weight values, preserving signed zeros, hard versus soft semantics and all solver constants; it computes a current step rather than returning an old answer or mutating warm input.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Refresh costs O(m), and a finite iteration costs O(n*w+Z+m) for w=band+1 and Z stored coefficients, with the unchanged 4000 guard; exact factor reuse skips its documented assembly/Cholesky work without rescanning fixed input storage.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only immutable matrix preparation, exactly matched factor dependencies and disposable storage. Bound snapshots prove unchanged scaling by Object.is; rho restarts, and current iterates/products/residuals recompute while only discarded candidates may be reset as scratch.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The model bounds scratch by O(n+m), copied zero-bearing layouts by O(R0+m), and factors by one initial plus three workspace owners with upper/forward layouts; returned x/z/y and diagnostics transfer without retention, and model collection releases its state after success or failure.
+     * @evidence contracts/development/common.md#meaningful-documentation Defines fixed snapshot and row-order premises, changing bounds/weights/keys, warm and dual inputs, original-unit output/status ownership, validation failures and bounded model lifetime.
      */
     solve(
       bounds: readonly Pick<Q.IRow, "l" | "u" | "weight" | "key">[],

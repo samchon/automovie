@@ -79,13 +79,19 @@ export namespace WorkoutFloor {
     height: number,
     key: (pitch: number) => ExerciseKey.IKey,
   ): ExerciseKey.IKey {
-    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const above = (pitch: number): number => {
       const posed: IHumanPosture = ExerciseKey.posed(key(pitch), 0);
-      const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, posed, prepared, PITCHED);
+      const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
+        body,
+        posed,
+        prepared,
+        PITCHED,
+      );
       return (
-        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"], bones).y -
-        ExerciseKey.mean(body, posed, ["leftToes", "rightToes"], bones).y
+        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"], bones)
+          .y - ExerciseKey.mean(body, posed, ["leftToes", "rightToes"], bones).y
       );
     };
     let steep: number = 10;
@@ -99,7 +105,12 @@ export namespace WorkoutFloor {
   }
 
   /** Only shoulder and toe positions determine the pitch residual. */
-  const PITCHED: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftToes", "rightToes"]);
+  const PITCHED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftUpperArm",
+    "rightUpperArm",
+    "leftToes",
+    "rightToes",
+  ]);
 
   /**
    * The key of a family of keys by roll that rests on its side on two
@@ -125,8 +136,17 @@ export namespace WorkoutFloor {
     on: RegExp,
     key: (roll: number) => ExerciseKey.IKey,
   ): ExerciseKey.IKey {
-    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined = on.global || on.sticky ? undefined : new Set([...body.rest.keys()].filter((bone: AutoMovieHumanoidBone): boolean => on.test(bone) || /(Foot|Toes)$/.test(bone)));
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      on.global || on.sticky
+        ? undefined
+        : new Set(
+            [...body.rest.keys()].filter(
+              (bone: AutoMovieHumanoidBone): boolean =>
+                on.test(bone) || /(Foot|Toes)$/.test(bone),
+            ),
+          );
     // How far the bearing bones' lowest point lies above the feet's.
     const above = (roll: number): number => {
       const posed: IHumanPosture = ExerciseKey.posed(key(roll), 0);
@@ -134,7 +154,18 @@ export namespace WorkoutFloor {
       let feet: number = Infinity;
       for (const segment of HumanColliders.placed(
         body,
-        poseBones(body, resolveHumanPosture.seeded(body, posed, undefined, undefined, prepared).pose, prepared(), requested),
+        poseBones(
+          body,
+          resolveHumanPosture.seeded(
+            body,
+            posed,
+            undefined,
+            undefined,
+            prepared,
+          ).pose,
+          prepared(),
+          requested,
+        ),
       ))
         for (const shape of segment.shapes) {
           const low: number = physicalShapeBounds(segment.pose, shape).min.y;

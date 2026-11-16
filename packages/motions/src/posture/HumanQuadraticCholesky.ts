@@ -34,23 +34,22 @@ import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace"
 export function HumanQuadraticCholesky(
   matrices: Work.IFactor,
 ): Work.IFactor {
-  const { n, band, system: k, forward }: Work.IFactor = matrices;
+  const { n, band, system: k, forward, forwardStart }: Work.IFactor = matrices;
   for (let i: number = 0; i < n; ++i) {
     const first: number = Math.max(0, i - band);
-    const lower: Float64Array = forward[i]!;
+    const lower: number = forwardStart[i]!;
     for (let j: number = first; j <= i; ++j) {
       const row: Float64Array = k[j]!;
       let v: number = row[i - j]!;
-      const previous: Float64Array = forward[j]!;
       const shared: number = j - first;
-      const offset: number = previous.length - shared;
+      const previous: number = forwardStart[j + 1]! - shared;
       for (let a: number = 0; a < shared; ++a)
-        v -= lower[a]! * previous[offset + a]!;
+        v -= forward[lower + a]! * forward[previous + a]!;
       if (i === j) row[0] = Math.sqrt(Math.max(v, 1e-300));
       else {
         const value: number = v / row[0]!;
         row[i - j] = value;
-        lower[j - first] = value;
+        forward[lower + j - first] = value;
       }
     }
   }

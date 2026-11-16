@@ -56,7 +56,6 @@ export namespace walkStanceModel {
       constraint: (over: number, idx: number[], g: () => number[]) => void,
     ) => void;
     bounds: ReturnType<typeof walkStanceRows.of>;
-    read: ReturnType<typeof walkStanceGeometry.of>["read"];
     planted: ReturnType<typeof walkStanceGeometry.of>["planted"];
   } {
     const geometry: ReturnType<typeof walkStanceGeometry.of> = walkStanceGeometry.of(body, knots);
@@ -395,6 +394,6 @@ export namespace walkStanceModel {
 
     const bounds: ReturnType<typeof walkStanceRows.of> = walkStanceRows.of(knots, hold, geometry);
 
-    return { n, size, x, sweep, bounds, read, planted };
+    return { n, size, x, sweep, bounds, planted };
   }
 }

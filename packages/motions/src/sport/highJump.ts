@@ -339,8 +339,8 @@ export namespace highJump {
     const pike: ExerciseKey.IKey = piked(body);
     const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(start, arch);
     const piking: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(arch, pike);
-    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => prepareGymnasticsFrame.IFrame =
-      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): prepareGymnasticsFrame.IFrame => {
+    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => ReturnType<typeof prepareGymnasticsFrame> =
+      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): ReturnType<typeof prepareGymnasticsFrame> => {
       const key: ExerciseKey.IKey =
         t <= rising
           ? arching(ease(t / rising))
@@ -364,7 +364,7 @@ export namespace highJump {
     const down: number = ((): number => {
       const floorResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const lowest: (t: number) => number = (t: number): number => {
-        const frame: prepareGymnasticsFrame.IFrame = frameAt(t, floorResolution);
+        const frame: ReturnType<typeof prepareGymnasticsFrame> = frameAt(t, floorResolution);
         return frame.posture.root.y - frame.floor();
       };
       if (!(lowest(rising) > surface))

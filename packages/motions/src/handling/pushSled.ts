@@ -263,6 +263,8 @@ export namespace pushSled {
     type Held = { hold: Hold; off: number };
     const take = (side: HumanHand.Side): Held => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
+        AutoMovieMotionHumanBend.prepare({ body, posture: taking, side });
       const { frame: at, symmetry, length } = grips[side];
       const grasps: Map<number, Map<number, Grasp>> = new Map();
 
@@ -291,10 +293,7 @@ export namespace pushSled {
           },
           "fist",
         );
-        const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.solve({
-          body,
-          posture: taking,
-          side,
+        const bend: IAutoMovieVector3 = bends.solve({
           point: wrist.point,
           rotation: wrist.rotation,
           fallback: "hang",

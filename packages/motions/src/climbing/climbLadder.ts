@@ -8,6 +8,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -130,11 +131,11 @@ export namespace climbLadder {
    *
    * @evidence contracts/development/common.md#meaningful-documentation The namespace gives the four-beat pattern, rung geometry, timing and refusals; this entry prepares the fixed supports and limb clocks.
    * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation, per-limb beat arrays and the body primitive.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation and per-limb beat arrays; separate support and arm primitives let root/leg demand omit arm work.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored rung count, beat order, clearance, approach bounds and contact windows retain their original formulas.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in climbed rungs; each pose uses four logarithmic limb lookups and the original fixed-size lowering and hand/leg goal computations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, ladder frame and entry share per-rung feet/handholds, lateral places, root line, grip normal and entry arm angles; foot beat state is read once per side at each query.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns per-limb beat and rung arrays bounded by the authored rung count, released with that plan and without a query cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share rung geometry, root line and entry arms. A completed two-foot contact state shares its exact root/leg goals, and a stationary hand at that state shares its exact rung goal; a moving foot or hand always recomputes its dependent result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned rung/beat arrays and completed support/hand contact states grow with the authored beat sequence and release with the plan; arbitrary queried seconds are not retained.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -150,7 +151,7 @@ export namespace climbLadder {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const flatOf = (side: "left" | "right"): HumanFoot.IPlacement => {
+    const flatOf: (side: "left" | "right") => HumanFoot.IPlacement = (side: "left" | "right"): HumanFoot.IPlacement => {
       const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
@@ -160,7 +161,7 @@ export namespace climbLadder {
     const flats: Record<"left" | "right", HumanFoot.IPlacement> = {
       left: flatOf("left"), right: flatOf("right"),
     };
-    const flat = (side: "left" | "right"): HumanFoot.IPlacement => flats[side];
+    const flat: (side: "left" | "right") => HumanFoot.IPlacement = (side: "left" | "right"): HumanFoot.IPlacement => flats[side];
 
     // The climber stands before the ladder, facing it, the toes near the
     // rungs and the feet between the rails.
@@ -182,7 +183,7 @@ export namespace climbLadder {
       left: HumanFrame.local(frame, flats.left.ankle).x,
       right: HumanFrame.local(frame, flats.right.ankle).x,
     };
-    const lateral = (side: "left" | "right"): number => laterals[side];
+    const lateral: (side: "left" | "right") => number = (side: "left" | "right"): number => laterals[side];
     HumanBound.within(
       "beside",
       Math.abs((lateral("left") + lateral("right")) / 2),
@@ -196,7 +197,7 @@ export namespace climbLadder {
     HumanBound.within("rungs", reach + count, 1, ladder.count, "");
 
     // A foot's placement on a rung: the ball on the rung's top.
-    const footOn = (
+    const footOn: (side: "left" | "right", index: number) => HumanFoot.IPlacement = (
       side: "left" | "right",
       index: number,
     ): HumanFoot.IPlacement =>
@@ -224,6 +225,10 @@ export namespace climbLadder {
     };
     const direction: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
     const normal: IAutoMovieVector3 = HumanFrame.point(direction, { x: 0, y: 0, z: -1 });
+    const hands: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>> = {
+      left: AutoMovieMotionHumanTarget.prepareHand(body, "left", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
+      right: AutoMovieMotionHumanTarget.prepareHand(body, "right", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
+    };
     const rootAlong: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: 0, y: 0, z: ladder.ahead - BACK * (m.thigh + m.shank),
     });
@@ -257,10 +262,10 @@ export namespace climbLadder {
     const reaching: (seconds: number) => number = AutoMovieMotionClock.prepare(clock, "start", "handsOn").progress;
 
     // Where a limb is at a second: its rung index (fractional while moving).
-    const level = (
+    function level(
       limb: Limb,
       seconds: number,
-    ): { index: number; from: number; u: number; moving: boolean } => {
+    ): { index: number; from: number; u: number; moving: boolean } {
       const base: number = limb.endsWith("Hand") ? reach : 0;
       const own: (typeof moves)[Limb] = moves[limb];
       let low: number = 0;
@@ -280,14 +285,40 @@ export namespace climbLadder {
         };
       const index: number = base + (own[low - 1]?.n ?? 0);
       return { index, from: index, u: 1, moving: false };
+    }
+
+    // The support primitive writes first over a still base, so two planted rung
+    // indices fix every input of the root lowering and leg-goal geometry.
+    const supports: Map<string, Pick<IHumanPosture, "root" | "limbs">> = new Map();
+    const heldArms: Record<"left" | "right", Map<string, IHumanPosture.IGoal>> = {
+      left: new Map(), right: new Map(),
     };
+    function stance(
+      posture: IHumanPosture,
+      feet: Record<"left" | "right", HumanFoot.IPlacement>,
+      levels: Record<"left" | "right", ReturnType<typeof level>>,
+    ): IHumanPosture {
+      const key: string | undefined = levels.left.moving || levels.right.moving
+        ? undefined : `${levels.left.index}:${levels.right.index}`;
+      const held: Pick<IHumanPosture, "root" | "limbs"> | undefined = key === undefined ? undefined : supports.get(key);
+      if (held !== undefined) return { ...posture, root: { ...held.root }, yaw, limbs: structuredClone(held.limbs) };
+      const rise: number = (feet.left.ankle.y + feet.right.ankle.y) / 2 - m.ankleHeight;
+      const root: IAutoMovieVector3 = { ...rootAlong, y: rise - stand.DROP };
+      const placed: IHumanPosture = { ...posture, root, yaw };
+      const limbs: IHumanPosture["limbs"] = {};
+      for (const side of ["left", "right"] as const)
+        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(body, placed, side, feet[side], !levels[side].moving);
+      const lowered: IHumanPosture = resolveHumanPosture.lower(body, { ...placed, limbs });
+      if (key !== undefined) supports.set(key, { root: { ...lowered.root }, limbs: structuredClone(lowered.limbs) });
+      return { ...lowered, root: { ...lowered.root }, limbs: structuredClone(lowered.limbs) };
+    }
 
     const climb: IAutoMovieMotionHumanPrimitive = {
-      channels: ["root", "leftLeg", "rightLeg", "leftArm", "rightArm"],
+      channels: ["root", "leftLeg", "rightLeg"],
+      reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const limbs: IHumanPosture["limbs"] = {};
         const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
           left: flat("left"),
           right: flat("right"),
@@ -321,31 +352,31 @@ export namespace climbLadder {
             : b;
         }
 
-        // The pelvis behind the rungs at the feet's mean height.
-        const rise: number =
-          (feet.left.ankle.y + feet.right.ankle.y) / 2 - m.ankleHeight;
-        const root: IAutoMovieVector3 = {
-          ...rootAlong,
-          y: rise - stand.DROP,
+        return stance(posture, feet, footLevels);
+      },
+    };
+    const arms: IAutoMovieMotionHumanPrimitive = {
+      channels: ["leftArm", "rightArm"],
+      reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
+        reaching(seconds) >= 1
+          ? ["root", "trunk", "leftArm", "rightArm"]
+          : AutoMovieMotionHumanChannel.ORDER,
+      from: 0,
+      to: duration,
+      write: (lowered: IHumanPosture, seconds: number): IHumanPosture => {
+        const footLevels: Record<"left" | "right", ReturnType<typeof level>> = {
+          left: level("leftFoot", seconds), right: level("rightFoot", seconds),
         };
-        const placed: IHumanPosture = { ...posture, root, yaw };
-        for (const side of ["left", "right"] as const)
-          limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
-            body,
-            placed,
-            side,
-            feet[side],
-            !footLevels[side].moving,
-          );
-        const lowered: IHumanPosture = resolveHumanPosture.lower(body, {
-          ...placed,
-          limbs,
-        });
+        const limbs: IHumanPosture["limbs"] = { ...lowered.limbs };
 
         // Each hand grips its rung, reaching it from where it hung at first.
         const reachShare: number = reaching(seconds);
         for (const side of ["left", "right"] as const) {
           const at: ReturnType<typeof level> = level(`${side}Hand`, seconds);
+          const key: string | undefined = at.moving || footLevels.left.moving || footLevels.right.moving
+            ? undefined : `${footLevels.left.index}:${footLevels.right.index}:${at.index}`;
+          const held: IHumanPosture.IGoal | undefined = key === undefined ? undefined : heldArms[side].get(key);
+          if (held !== undefined) { limbs[`${side}Arm`] = structuredClone(held); continue; }
           const grip: IAutoMovieVector3 = Vector3.lerp(
             handholds[side][at.from - reach]!,
             handholds[side][at.index - reach]!,
@@ -360,21 +391,13 @@ export namespace climbLadder {
                 ),
               )
             : grip;
-          const target: ReturnType<typeof AutoMovieMotionHumanTarget.hand> = AutoMovieMotionHumanTarget.hand(
-            body,
-            lowered,
-            side,
-            {
-              point: lifted,
-              normal,
-            },
-            { surface: "grip", shape: "relaxed", curl: 50 },
-          );
+          const target: ReturnType<typeof AutoMovieMotionHumanTarget.hand> = hands[side](lowered, lifted);
           limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(
             body,
             side,
             target,
           );
+          if (key !== undefined) heldArms[side].set(key, structuredClone(limbs[`${side}Arm`]!));
         }
         const gripped: IHumanPosture = {
           ...lowered,
@@ -421,7 +444,7 @@ export namespace climbLadder {
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         contact: "handsOn",
-        primitives: [climb],
+        primitives: [climb, arms],
       }),
       ladder,
     };

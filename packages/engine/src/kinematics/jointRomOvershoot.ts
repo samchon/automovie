@@ -24,12 +24,12 @@ import type { swingTwistRange } from "./swingTwistRange";
  * @param rig The bone's frame as the caller's rig resolves it, for a joint gated by swing and twist; the humanoid tables' when absent.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reduces the gate's own per-axis and swing-cone violations to one comparable sum, so ordering by it is ordering by the gate's distances; a violation without a measured distance is a non-finite angle, which the sum treats as infinitely far instead of free.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The null constraint gate delegates every actual score to scanJointRom.overshoot, whose private scan also reports validation faults; no ROM rule or sum is duplicated here.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The direct null gate and prepare's one-bone scorer delegate to scanJointRom's shared fault scanner; prepared frame/composer ownership stays in scanJointRom.prepare, with no duplicate ROM rule.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance and no special case for any bone or axis; the `Infinity` score is the stated meaning of an unmeasurable violation, not a compensation.
- * @evidence contracts/development/common.md#meaningful-documentation States the unit, the zero answer, that the gate's check is reused and why, the `Infinity` case, and what `null` means for the constraint and for an axis.
- * @evidence contracts/development/implementation.md#efficient-algorithms The same fixed axis/swing work and ordered fault additions remain, without a per-score summing callback closure, message or collector object. The shared scanner's fixed helper dispatch remains; runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Validation and numerical scores execute the same scanner and fault order; each candidate is still measured independently, with no cached joint answer or alternate constraint.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the sum is a local number.
+ * @evidence contracts/development/common.md#meaningful-documentation States degree-valued exact gate scores, Infinity/null/rest meaning and prepare's fixed bone/constraint/frame scope, canonical fallback, lazy admission and caller-owned lifetime in its child documentation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Both paths retain actual finite/axis/swing checks and ordered additions. prepare's constant setup shares one lazy canonical or supplied gated basis/composer across the fixed-bone operation instead of repeating it per swivel; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Validation and both scoring entries share one scanner. prepare borrows an unchanged bone/constraint/frame and shares only that metadata and pure exact-angle factors; every joint still has its actual numerical scan and changed dependencies require another scorer.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct scoring owns only a local sum. The caller owns one prepared scorer and optional bounded frame/composer until operation release; no joint answer, target history, global collection or handles are retained.
  */
 export function jointRomOvershoot(
   joint: IAutoMovieJointPose,
@@ -60,13 +60,10 @@ export namespace jointRomOvershoot {
    * frame/composer until caller release. No target or joint result survives
    * a score, and a changed rig or ROM requires a new scorer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States one-bone scope, null-constraint behavior, canonical-frame fallback and caller-owned lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Every constrained score runs the same scanJointRom fault rules and addition order; null ROM remains exactly zero without coordinate admission.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This scalar legality owner delegates prepared frame/composer sharing to scanJointRom.prepare, keeping numerical fault rules in one scanner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, alternative clinical frame or candidate score is introduced or cached; the fixed bone must match every supplied joint.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup and scanner-owned fixed-size metadata avoid repeated gated basis work; each joint still receives its actual numerical scan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged bone/constraint/frame metadata and pure exact-angle factors are shared; changed dependencies require a new operation scorer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one returned scorer and its optional prepared frame/composer until operation release, with no global collection, joint result, target history or handles.
+   * Every supplied joint must name the prepared bone. The scanner keeps its
+   * canonical humanoid frame fallback when no rig is supplied and owns all
+   * finite, interval, cone and swing-twist rules. Preparation adds no tolerance,
+   * alternative frame or candidate-answer cache; each actual score is scanned.
    */
   export function prepare(
     bone: AutoMovieHumanoidBone,

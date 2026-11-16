@@ -24,6 +24,7 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /**
  * A carrier's pose with its overlays written over it: which overlays run at
@@ -84,7 +85,7 @@ export namespace HumanSegmentOverlay {
    * @param carried The holds the carrier carries at the second.
    * @param near The fits of a nearby second to continue, if any.
    * @param source Optional same-body synchronous parent FK source; never retained by a result.
-   * @param requested Optional bone observation, forwarded only through a bare leaf without active overlays or carried holds.
+   * @param requested Optional bone observation, forwarded only with no holds/near/current contact window and no base or leaf plant, so no later IK consumes omitted digit geometry.
    * @returns The pose, the seeds of its fits and its open contact goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fade, carry, contact and seed behavior and which raw posture and weight evaluations are shared.
@@ -108,6 +109,15 @@ export namespace HumanSegmentOverlay {
     const active: HumanSegment.IOverlay[] | undefined =
       person.overlays.length === 0 ? undefined : running(person, seconds);
     const seeds: HumanSegmentPose.IFits = new Map();
+    const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      requested !== undefined && near === undefined && carried.length === 0 && !active?.some(
+        (overlay: HumanSegment.IOverlay): boolean => overlay.plan.contacts.some(
+          (window: IHumanContactWindow): boolean => {
+            const share: number = (seconds - overlay.start) / overlay.plan.duration;
+            return share >= window.from && share <= window.to;
+          },
+        ),
+      ) ? requested : undefined;
 
     // A bare leaf already owns its refit's FK. Additional stages may borrow
     // one reader here, but memory hits and no-FK paths never create it.
@@ -154,7 +164,7 @@ export namespace HumanSegmentOverlay {
           undefined,
           continuations(under.limbs, near, tag),
           resolution,
-          (active?.length ?? 0) === 0 && carried.length === 0 ? requested : undefined,
+          unplantedHumanObservation(under.limbs, observed),
         );
         for (const [limb, seed] of Object.entries(fitted.seeds))
           seeds.set(`leaf:${tag}:${limb}`, seed ?? null);

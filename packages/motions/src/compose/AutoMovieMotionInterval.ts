@@ -68,10 +68,30 @@ export namespace AutoMovieMotionInterval {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampled state, mutable clock reference or optional alternative representation is stored.
    */
   export interface IPrepared {
-    /** Uniform progress at action-local seconds. */
+    /**
+     * Uniform progress at action-local seconds over this fixed interval.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States action-local seconds and the prepared interval's clamped [0,1] output, retaining the original short-span step.
+     * @evidence contracts/development/implementation.md#principled-implementation The method contract is the original numeric linear map; prepare supplies the reader using this namespace's linear owner.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar method separates actual queried seconds from the fixed named endpoints already owned by the producer.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No alternate easing, rounded sample or changed short-span rule is permitted by this interface.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm; prepare and linear document the actual constant-time arithmetic.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no completed work; the producing closure owns its fixed endpoint sharing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration acquires no state or handle; prepare documents the returned reader's numeric lifetime.
+     */
     linear(seconds: number): number;
 
-    /** Flash and Hogan minimum-jerk progress at action-local seconds. */
+    /**
+     * Flash and Hogan minimum-jerk progress at action-local seconds.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the [0,1] minimum-jerk result and action-local seconds of the same prepared interval.
+     * @evidence contracts/development/implementation.md#principled-implementation The contract applies the engine minimumJerk profile to the same actual linear progress, preserving its fixed endpoint and short-span semantics.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar method exposes the smooth form while the producer and shared linear owner retain interval arithmetic.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The profile remains the cited engine profile rather than a fitted alternative or stored sample.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm; prepare documents the actual linear read and polynomial cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No evaluated answer is shared by this declaration; the producer owns fixed endpoints only.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration owns no resource; the producing closure's lifetime and fresh actual reads remain with prepare.
+     */
     progress(seconds: number): number;
   }
 }

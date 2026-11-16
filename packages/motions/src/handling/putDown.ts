@@ -167,18 +167,20 @@ export namespace putDown {
     // happens to give it now.
     const authored: IAutoMovieQuaternion = context.prop(context.params.prop)
       .prop.frame.rotation;
-    const holding = (yaw: number): HumanHand.IWrist => {
+    const declaredHeading: number = heading(authored);
+    const unhold: IAutoMovieQuaternion = Quaternion.inverse(offset.rotation);
+    const holding: (yaw: number) => HumanHand.IWrist = (yaw: number): HumanHand.IWrist => {
       const rest: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(
           Quaternion.fromAxisAngle(
             { x: 0, y: 1, z: 0 },
-            yaw - heading(authored),
+            yaw - declaredHeading,
           ),
           authored,
         ),
       );
       const r: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)),
+        Quaternion.multiply(rest, unhold),
       );
       return {
         point: Vector3.subtract(
@@ -291,9 +293,12 @@ export namespace putDown {
     // Timing: carry down, open, return.
     const hanging: IHumanPosture["limbs"] = { ...held.limbs };
     delete hanging[side === "left" ? "leftArm" : "rightArm"];
+    const handBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const home: IAutoMovieResolvedBone = poseBones(
       body,
-      resolveHumanPosture(body, { ...held, limbs: hanging }),
+      resolveHumanPosture.seeded(body, { ...held, limbs: hanging }, undefined, {}, undefined, handBones).pose,
+      undefined,
+      handBones,
     ).get(`${side}Hand`)!;
     const down: number = HumanPrehension.duration(
       context.skill,

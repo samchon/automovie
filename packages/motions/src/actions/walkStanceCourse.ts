@@ -10,6 +10,7 @@ import type {
   HumanQuadraticProgram as Q,
 } from "../posture/HumanQuadraticProgram";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { IWalkStanceProblem } from "./IWalkStanceProblem";
 
 /**
  * The course of a stepping take's stances, solved once when the take is
@@ -210,7 +211,16 @@ export namespace walkStanceCourse {
     /** The planted feet. */
     stances: readonly IStance[];
 
-    /** The pelvis under a trunk's tilt. */
+    /** The pelvis under a trunk's tilt.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Maps degree pitch/roll to the knot's actual world rotation and pre-drop hip positions.
+     * @evidence contracts/development/implementation.md#principled-implementation The supplied physical frame carries centre travel against the trunk's mass shift and tilts hip joints about the body's rest hips under the knot's fixed stance-directed heading.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Knot framing owns this root/pelvis law; the stance model requests its actual trunk coordinates without a second pelvis model.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the body's hip geometry, entry clinical hips and exact translation/rotation grouping without a posed result table.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Existing producers prepare one upright frame per knot and evaluate each varying trunk with constant two-hip rigid-transform work.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed knot/body/entry/feet facts and the upright inverse are shared; the geometry owner may retain three exact pitch/roll readings under this same immutable frame.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The knot owns a fixed-size frame closure until its course/problem releases it, with no growing query history or external handle.
+     */
     pelvis: (trunk: ITrunk) => IPelvis;
 
     /** The trunk's tilt the take holds; free when absent. */
@@ -313,10 +323,10 @@ export namespace walkStanceCourse {
   /**
    * A course's evaluation (`problem`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The cost, the l1 excess and the largest excess, as a sequential convex method's merit reads them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state objective/degree-scaled violations and raw ordered constraint intervals at this exact course.
+   * @evidence contracts/development/design.md#principled-representation Aggregate merit quantities remain separate from unclamped per-constraint zero-step bounds, so a second-order correction can read actual nonlinear excess instead of a penalty.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The sequential loop reads three original aggregates; its correction consumes the same evaluation's ordered bounds without requesting an unused trial Jacobian/model.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The actual model sweep produces every interval in convexify row order; signed negative excess remains present and no clamped penalty substitutes for a physical constraint reading.
    */
   export interface IEvaluation {
     /** The cost, half the sum of the squared residuals. */
@@ -327,6 +337,9 @@ export namespace walkStanceCourse {
 
     /** The largest excess. */
     worst: number;
+
+    /** Every nonlinear constraint's zero-step interval at this exact course, in convexify row order, before clipping violations to nonnegative penalties. */
+    bounds: readonly Pick<Q.IRow, "l" | "u">[];
   }
 
   /**
@@ -344,40 +357,7 @@ export namespace walkStanceCourse {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The start, the evaluation, the subproblem, the step, the tolerance and the record.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the course's own sweep, rows and record.
    */
-  export interface IProblem {
-    /** The variables at the start. */
-    start: Float64Array;
-
-    /** The course's evaluation at its variables. */
-    evaluate: (x: Float64Array) => IEvaluation;
-
-    /** The convex subproblem in the step about the variables, its soft rows weighted `mu`, without its region (`region`); with `objective` false, the rows alone (`HumanSequentialConvex.IOptions.restore`). */
-    convexify: (x: Float64Array, mu: number, objective?: boolean) => Q.IProblem;
-
-    /** The step's hard rows about the variables within the trust region `radius`, in units of `TRUST` (one is `TRUST`). */
-    region: (x: Float64Array, radius: number) => Q.IRow[];
-
-    /** A step's largest coordinate in the region's units (`TRUST`). */
-    length: (step: Float64Array) => number;
-
-    /** The variables after a step. */
-    stepped: (x: Float64Array, step: Float64Array) => Float64Array;
-
-    /** The excess under which every constraint is met (`MET`). */
-    tolerance: number;
-
-    /** The course at its variables. */
-    course: (x: Float64Array, unmet: number) => ICourse;
-
-    /** A knot's planted goals at the variables, its index the take's; optionally only one side, and none for a knot the problem holds. This reads no fitted knee or stance constraint. */
-    planted: (x: Float64Array, knot: number, side?: "left" | "right") => IPlanted[];
-
-    /** A leg's own variables' indices at a knot (`LEG`), its index the take's. */
-    variables: (knot: number, side: "left" | "right") => number[];
-
-    /** The first knot the problem moves, the take's index. */
-    first: number;
-  }
+  export type IProblem = IWalkStanceProblem;
 
   /**
    * A course read at a second, linearly between its knots.

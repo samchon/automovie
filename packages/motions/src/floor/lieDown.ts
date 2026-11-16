@@ -253,7 +253,15 @@ export namespace lieDown {
         : { pitch: entered.pitch, roll: entered.roll, joints: entered.joints },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
     ];
-    const blend: ((weight: number) => IHumanPosture["joints"])[] = keys.slice(1).map((key: IPose, i: number): (weight: number) => IHumanPosture["joints"] => floorEntry.jointBlend(keys[i]!.joints, key.joints));
+    const blend: ((weight: number) => IHumanPosture["joints"])[] = keys
+      .slice(1)
+      .map(
+        (
+          key: IPose,
+          i: number,
+        ): ((weight: number) => IHumanPosture["joints"]) =>
+          floorEntry.jointBlend(keys[i]!.joints, key.joints),
+      );
     const phases: AutoMovieMotionClock.IPhase[] = [
       { name: "getDown", seconds: PHASE },
       ...route

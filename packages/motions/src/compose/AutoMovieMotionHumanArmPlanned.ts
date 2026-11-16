@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
  * the posture so far and solved once, alone or with the other arm of the
  * same span.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is planned, from what and how often.
+ * @evidence contracts/development/common.md#meaningful-documentation States the planned trajectory and fixed span; reaching/moved alias the physical observations documented at AutoMovieMotionHumanArmObservation while this namespace owns trajectory construction.
  * @evidence contracts/development/design.md#principled-representation The action's four instants, the group of arms solved together, each arm's task and the reach's duration, the inputs of one trajectory problem.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The span, the group and its constructor, the planned arm, the planner and the reach's duration, read by the carry, the touch law and the gesture law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
@@ -181,13 +181,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
   /**
    * Physical reach-duration observation, shared with touch-law planning.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Keeps the existing body/posture/arm endpoint API and speed-bound result in seconds.
-   * @evidence contracts/development/implementation.md#principled-implementation The original arc-measurement owner returns the duration required by the same physical speed bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alias keeps numerical observation separate from trajectory optimization.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No input, sample count, returned duration or speed bound is transformed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The alias adds no wrapper work to the observation's actual solve and probe sampling.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The alias shares no evaluated result.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the shared function reference is retained.
+   * AutoMovieMotionHumanArmObservation.reaching owns the unchanged actual
+   * arc samples, speed bound and result in seconds. The alias transforms
+   * no input and adds no wrapper, evaluated result or retained query state.
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching = AutoMovieMotionHumanArmObservation.reaching;
   /**
@@ -221,9 +217,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is one trajectory optimisation (TrajOpt), read off the very postures it is written on, so the plan is a constant of the action.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture so far, one resolve and one goal read per instant and arm, kept across the refinement; two reach measures; one refined solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `resolveHumanPosture.world`, `reaching` and `HumanArmTrajectory.solve`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the trajectories, which hold the solved waypoints only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture, cached goal and exact endpoint second prove fit equivalence within this synchronous plan. A single-arm at(t).pose resolves exactly the removed-goal base reaching would rebuild; multiarm planners retain the original reaching path. Issued-source provenance may survive raw copies only for the resolver's exact dependency revalidation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This plan owns its existing raw/base/site maps across actual refinement instants and at most two endpoint angle records per arm. Only completed fits are published; failure releases local state, and no global result/time cache is added. Returned trajectories retain their existing solved-waypoint data.
    */
   export function planned(
     body: IHumanBody,
@@ -276,30 +272,33 @@ export namespace AutoMovieMotionHumanArmPlanned {
         goals[a]!.set(t, (found = AutoMovieMotionHumanArmObservation.aim(carries[a]!, at(t).posture, t)));
       return found;
     };
+    const fits: Map<number, AutoMovieMotionHumanArmAngles.IAngles>[] = carries.map(
+      (): Map<number, AutoMovieMotionHumanArmAngles.IAngles> => new Map(),
+    );
+
+    /** Travel and the initial guess share only completed fits of the same cached endpoint inputs. */
+    const fitted = (a: number, t: number): AutoMovieMotionHumanArmAngles.IAngles => {
+      let found: AutoMovieMotionHumanArmAngles.IAngles | undefined = fits[a]!.get(t);
+      if (found === undefined) {
+        const p: IHumanPosture = at(t).posture;
+        const c: IPlanned = carries[a]!;
+        found = AutoMovieMotionHumanArmAngles.angles(resolveHumanPosture(body,
+          resolveHumanPosture.rebased(p, { ...p,
+            limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } })), c.side);
+        fits[a]!.set(t, found);
+      }
+      return found;
+    };
     const travel = (t: number, sign: -1 | 1): number => {
       let longest: number = 0;
       const p: IHumanPosture = at(t).posture;
       carries.forEach((c: IPlanned, a: number): void => {
-        const fit: AutoMovieMotionHumanArmAngles.IAngles =
-          AutoMovieMotionHumanArmAngles.angles(
-            resolveHumanPosture(body, resolveHumanPosture.rebased(p, {
-              ...p,
-              limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) },
-            })),
-            c.side,
-          );
-        longest = Math.max(
-          longest,
-          (reaching(
-            body,
-            p,
-            c.side,
-            sign === 1 ? c.rest : (c.back ?? c.rest),
-            fit,
-          ) *
-            HumanArmTrajectoryModel.SPEED_LIMIT) /
-            1.875,
-        );
+        const fit: AutoMovieMotionHumanArmAngles.IAngles = fitted(a, t);
+        const rest: AutoMovieMotionHumanArmAngles.IAngles = sign === 1 ? c.rest : (c.back ?? c.rest);
+        const duration: number = carries.length === 1
+          ? AutoMovieMotionHumanArmObservation.reachingPose(body, at(t).pose, c.side, rest, fit)
+          : reaching(body, p, c.side, rest, fit);
+        longest = Math.max(longest, (duration * HumanArmTrajectoryModel.SPEED_LIMIT) / 1.875);
       });
       return longest;
     };
@@ -352,16 +351,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
     };
     const holding = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
-    const ready: IHumanPosture = at(span.ready).posture;
     const guesses: AutoMovieMotionHumanArmAngles.IAngles[] = carries.map(
-      (c: IPlanned, a: number): AutoMovieMotionHumanArmAngles.IAngles =>
-        AutoMovieMotionHumanArmAngles.angles(
-          resolveHumanPosture(body, resolveHumanPosture.rebased(ready, {
-            ...ready,
-            limbs: { ...ready.limbs, [`${c.side}Arm`]: aimed(a, span.ready) },
-          })),
-          c.side,
-        ),
+      (_: IPlanned, a: number): AutoMovieMotionHumanArmAngles.IAngles => fitted(a, span.ready),
     );
 
     // Each arm's site at an instant, read once however often the refinement
@@ -470,13 +461,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
   /**
    * Observed target motion since the plan perceived it, in world metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Preserves the feedback API and its error/contact/base result.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared observer compares perceived/current sites on the same actual solved base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alias preserves this planner entry point with one observation owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual target, second and base solve is passed through unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds no wrapper work to the original two-site observation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The alias owns no computed result.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the shared function reference is retained.
+   * AutoMovieMotionHumanArmObservation.moved owns the original same-base
+   * perceived/current site comparison and its error/contact/base result.
+   * This alias adds no wrapper or retained observation state.
    */
   export const moved: typeof AutoMovieMotionHumanArmObservation.moved = AutoMovieMotionHumanArmObservation.moved;
 }

@@ -82,7 +82,10 @@ export namespace HumanMountOff {
     const m: IHumanBody["measure"] = body.measure;
     const entry: IHumanEntryState = context.entry;
     const yaw: number = entry.posture.yaw;
-    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw,
+    );
     const pitch0: number = entry.posture.pitch;
     const sat: HumanBase.ISeat | undefined =
       entry.base.kind === "seated" ? entry.base.seat : undefined;
@@ -157,7 +160,10 @@ export namespace HumanMountOff {
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
-    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...standUpright.of(body).joints };
+    const relaxed: IHumanPosture["joints"] = {
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
+    };
     const crossing: readonly [number, number] = sideways
       ? [0.3 * duration, 0.8 * duration]
       : [seatOff, 0.8 * duration];
@@ -212,7 +218,8 @@ export namespace HumanMountOff {
     // A leg reaches a place within its reachable band, or as far as it stands stretched in the quiet stance the getting off ends in, which holds it nearer straight than the band's edge.
     const standingReach: Record<"left" | "right", number> = {
       left: Math.max(span[1], stretch(duration, "left", landing.left)) + 1e-6,
-      right: Math.max(span[1], stretch(duration, "right", landing.right)) + 1e-6,
+      right:
+        Math.max(span[1], stretch(duration, "right", landing.right)) + 1e-6,
     };
     const reaches = (
       t: number,
@@ -220,10 +227,7 @@ export namespace HumanMountOff {
       ankle: IAutoMovieVector3,
     ): boolean => {
       const d: number = stretch(t, side, ankle);
-      return (
-        d >= span[0] &&
-        d <= standingReach[side]
-      );
+      return d >= span[0] && d <= standingReach[side];
     };
     const first = (
       after: number,

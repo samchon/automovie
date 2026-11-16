@@ -182,6 +182,7 @@ export namespace punchContact {
     const fist: "fistLeft" | "fistRight" =
       side === "left" ? "fistLeft" : "fistRight";
     const at: AutoMovieMotionTarget = p.at;
+    let varied: resolveAutoMovieHumanoidSurfaces.IFrame | undefined;
     const aim: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
     ): IAutoMovieVector3 => {
@@ -189,11 +190,11 @@ export namespace punchContact {
         const other: IHumanActionContext.IPerformer = context.performer(
           at.subject,
         );
-        return StrikingBody.region(
-          other.body,
-          other.bones(seconds),
-          at.region,
-          tangent,
+        const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+          (varied ??= StrikingBody.frame(other.body, at.region, tangent));
+        return resolveAutoMovieHumanoidSurfaces.place(
+          frame,
+          other.bones(seconds, new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
         ).point;
       }
       return StrikingTarget.aim(

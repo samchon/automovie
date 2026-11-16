@@ -16,7 +16,7 @@ import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
  * `strokeEnd`, `retract`. A family adds its own (`chamber`, `takeoff`,
  * `landing`). `start` and `end` always exist, at 0 and at the duration.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a clock owns, why a primitive asks it instead of computing windows, where the shared instant names come from and which two always exist.
+ * @evidence contracts/development/common.md#meaningful-documentation States clock ownership, shared instant origins and the fixed start/end names; prepare aliases AutoMovieMotionInterval.prepare for fixed-window readers whose numerical contract remains documented at that function.
  * @evidence contracts/development/design.md#principled-representation An action's timing is a duration and named instants in seconds, the phase boundaries of gesture research; every window is a pair of names, so a row never repeats a number.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Two constructors, the clock they return and the two records they take; it names no body part, so any performer's action can use it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Instants are plain records and names are checked when the clock is built; an unknown name throws instead of reading as zero.
@@ -73,13 +73,10 @@ export namespace AutoMovieMotionClock {
   /**
    * Fixed named-window readers, resolving each instant once.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Exposes the interval owner's prepared linear and minimum-jerk readers on the existing clock namespace.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared interval owner reads the same named instants and uses the clock's unchanged numeric progress rule.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One function alias keeps interval preparation with its owner and the author-facing clock entry point together.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No interval, actual queried second or profile value is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The alias adds no wrapper work; two named reads are shared across all actual interval queries.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both ordinary clock interpolation and preparation use AutoMovieMotionInterval.linear.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The alias retains only the shared function; each returned reader has its own documented fixed-interval lifetime.
+   * AutoMovieMotionInterval.prepare owns the named admission, unchanged
+   * linear/minimum-jerk rule and returned reader lifetime. This alias adds
+   * no wrapper work or result state, and ordinary clock interpolation uses
+   * the same numeric interval owner.
    */
   export const prepare: typeof AutoMovieMotionInterval.prepare = AutoMovieMotionInterval.prepare;
   /**

@@ -185,8 +185,8 @@ export function resolveAutoMovieContactEvents(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
  * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What callers provide and read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What callers provide and read; the optional combined producer supplies the two endpoints first-impact and mutual-contact consumers already require.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector. A combined frame contains actual endpoints from one exact time/stop context, with no pose, approximation, result cache or domain-specific limb fields.
  */
 export namespace resolveAutoMovieContactEvents {
   /** The stops so far: each stopped weapon's id with its contact second. */
@@ -195,10 +195,10 @@ export namespace resolveAutoMovieContactEvents {
   /**
    * One weapon's actual axis in a single synchronous sample.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States world-metre endpoints and the absent tail's sphere meaning.
-   * @evidence contracts/development/design.md#principled-representation Couples the centre and optional capsule end from one exact time and stop context without storing a pose or changing the sphere/capsule representation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The first-impact and mutual-contact consumers need both endpoints; the optional producer avoids evaluating one source independently for each end.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains actual path endpoints with no tolerance, approximate geometry, result cache or domain-specific limb data.
+   * The position is the sphere centre or capsule's first end, and an absent
+   * tail means a sphere. Both world-metre endpoints belong to one exact
+   * time and stop context; the record stores no pose or domain-specific limb
+   * data and changes no tolerance or sphere/capsule geometry.
    */
   export interface IWeaponFrame {
     /** The sphere centre or capsule's first end, world metres. */
@@ -293,6 +293,18 @@ export namespace resolveAutoMovieContactEvents {
      * consumers use this actual sample instead of calling position and tail
      * separately; the presence of tail still declares capsule geometry.
      * Results belong only to this call's exact seconds and stop context.
+     *
+     * @param seconds The actual scan, departure witness or contact second.
+     * @param stops The current stops, borrowed unchanged during this call.
+     * @returns The actual world-metre centre and optional capsule end.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines exact time/stop ownership, world-metre endpoints, sphere meaning and replacement of separate endpoint callbacks.
+     * @evidence contracts/development/implementation.md#principled-implementation sampleAutoMovieContactWeapon reads this combined producer once for one physical axis; first-impact and carried-contact consumers use both ends under the same exact time and stop state.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared sampling helper selects combined or legacy callbacks and validates shape kind; the optional producer owns actual path geometry.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tail presence must match the declared capsule kind or the helper throws; no approximate endpoint, contact tolerance, limb-specific engine data or cross-context result cache is introduced.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One producer call replaces two endpoint calls per demanded sample. Producer cost remains payable; motion chain producers fit the actual dependent posture once, while legacy paths retain their original work.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only endpoints of this one exact body/course/time/stop evaluation may share producer work. Each scan, changed stop state and contact read invokes the producer anew.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The helper retains no sample or stops. Actual frame values belong to the synchronous query; producer callbacks live with their weapon and no new history or external resource is acquired.
      */
     sample?(seconds: number, stops: IStops): IWeaponFrame;
   }

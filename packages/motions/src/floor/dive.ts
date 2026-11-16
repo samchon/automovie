@@ -177,7 +177,27 @@ export namespace dive {
 
     // The joints a share of the way from `from` to the kind's shape,
     // mirrored for a dive to the right, turned about the kind's axis.
-    const targets: [AutoMovieHumanoidBone, readonly [number, number, number]][] = (Object.entries(SHAPES[kind]) as [AutoMovieHumanoidBone, readonly [number, number, number]][]).map(([bone, angles]): [AutoMovieHumanoidBone, readonly [number, number, number]] => [kind === "dive" && toLeft < 0 ? ((bone.startsWith("left") ? bone.replace(/^left/, "right") : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone) : bone, angles]);
+    const targets: [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][] = (
+      Object.entries(SHAPES[kind]) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][]
+    ).map(
+      ([bone, angles]): [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ] => [
+        kind === "dive" && toLeft < 0
+          ? ((bone.startsWith("left")
+              ? bone.replace(/^left/, "right")
+              : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone)
+          : bone,
+        angles,
+      ],
+    );
     const shape = (
       share: number,
       turn: number,
@@ -205,7 +225,12 @@ export namespace dive {
       };
     };
     const ankleMid = (posture: IHumanPosture): IAutoMovieVector3 => {
-      const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, posture), undefined, FEET);
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture(body, posture),
+        undefined,
+        FEET,
+      );
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
       return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
@@ -249,14 +274,20 @@ export namespace dive {
     // hips joint `REACH` statures from where it took off (the turn moves the
     // hips about the root, so the root is placed for the hips).
     const landedShape: IHumanPosture = shape(1, TURN[kind], launch);
-    const landedBones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, landedShape));
+    const landedBones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture(body, landedShape),
+    );
     let lowest: number = Infinity;
-    for (const bone of landedBones.values()) lowest = Math.min(lowest, bone.worldPosition.y);
+    for (const bone of landedBones.values())
+      lowest = Math.min(lowest, bone.worldPosition.y);
     const hips = (posture: IHumanPosture): IAutoMovieVector3 =>
-      poseBones(body, resolveHumanPosture(body, posture), undefined, HIPS).get("hips")!
-        .worldPosition;
+      poseBones(body, resolveHumanPosture(body, posture), undefined, HIPS).get(
+        "hips",
+      )!.worldPosition;
     const startHips: IAutoMovieVector3 = hips(takeoff);
-    const landedHips: IAutoMovieVector3 = landedBones.get("hips")!.worldPosition;
+    const landedHips: IAutoMovieVector3 =
+      landedBones.get("hips")!.worldPosition;
     const landed: IAutoMovieVector3 = {
       x: startHips.x + away.x * REACH[kind] * stature - landedHips.x,
       y: ankles.y - lowest,
@@ -323,7 +354,10 @@ export namespace dive {
   }
 
   /** Only ankles are measured while placing the crouch over its feet. */
-  const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
+  const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftFoot",
+    "rightFoot",
+  ]);
 
   /** The planned travel is stated at the hips joint. */
   const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);

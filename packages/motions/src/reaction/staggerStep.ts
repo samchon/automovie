@@ -34,9 +34,24 @@ import { staggerSequential } from "./staggerSequential";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound is a measured one from `staggerBounds`; the region scales with the body's stature.
  */
 export namespace staggerStep {
-  /** What a step reads besides its pendulum. */
+  /** What a step reads besides its pendulum.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines lazy same-entry bending, whether the landing is kinematically judged and the exact preceding course.
+   * @evidence contracts/development/design.md#principled-representation A fixed-entry geometric supplier is separate from the kinematic-mode switch and optional prior course; the pendulum-only path never demands bending.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Recovery supplies these three original planning inputs and take reads them at their existing phase of work.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no substitute bending result or success override; the actual supplier and original stance solver remain authoritative.
+   */
   export interface IProps {
-    /** The same entry's trunk shift per sine of its tilt, demanded only when the landing needs a stance course. */
+    /** The same entry's trunk shift per sine of its tilt, demanded only by a stance course.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Returns the exact body's unchanged-entry pitch/roll centre shifts in metres per sine, only when kinematic landing work requests them.
+     * @evidence contracts/development/implementation.md#principled-implementation The producer runs the original standing and two lowered reference-tilt mass readings and returns their original sine-normalized shifts.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Recovery owns one explicit lazy invariant supplier; this step asks for it only when constructing the actual stance knots.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the actual same-body/complete-entry measurement, without a dummy zero shift, approximate key or skipped required bending read.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Costs the original three centre readings once per owning unchanged-entry operation, and no work for pendulum-only landings.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only an explicit supplier within the same body/entry operation shares its actual completed reference measurement; changed operations prepare afresh.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation retains at most two shift vectors and releases its supplier with the search/plan, with no global result or time history.
+     */
     bend: () => Record<"pitch" | "roll", IAutoMovieVector3>;
 
     /** Whether the landing is placed by the stance course under the legs' ranges; the pendulum alone when false. */
@@ -46,7 +61,13 @@ export namespace staggerStep {
     checking: walkStanceCourse.ICourse | undefined;
   }
 
-  /** A step's outcome. */
+  /** A step's outcome.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines captured/not-captured/null infeasibility and the actual continued course.
+   * @evidence contracts/development/design.md#principled-representation The original three-valued outcome distinguishes a held landing from one the legs cannot place, while a course is absent only before kinematic judgement exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Recovery prefix search reads both fields to continue or stop each foot order.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reports actual capture and course data without a fixture result or omitted infeasibility state.
+   */
   export interface IResult {
     /** Whether the body is caught after it; null when the legs hold no landing in its region. */
     done: boolean | null;
@@ -80,8 +101,8 @@ export namespace staggerStep {
     reaction: number,
     unloaded: boolean,
   ): IResult {
-    const body = pendulum.body;
-    const flat = StaggerPendulum.flat;
+    const body: StaggerPendulum["body"] = pendulum.body;
+    const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
     const {
       REACTION,
       TRANSFER,
@@ -123,9 +144,11 @@ export namespace staggerStep {
     const aim: IAutoMovieVector3 = flat(
       Vector3.subtract(goal, HumanFoot.point(body, side, "sole", from)),
     );
+    const aimed: number = Vector3.length(aim);
+    const toeLength: number = Vector3.length(toes);
     const share: number =
-      Vector3.length(aim) > 0 && Vector3.length(toes) > 0
-        ? Vector3.dot(aim, toes) / (Vector3.length(aim) * Vector3.length(toes))
+      aimed > 0 && toeLength > 0
+        ? Vector3.dot(aim, toes) / (aimed * toeLength)
         : 0;
     const lands: IAutoMovieVector3 = Vector3.lerp(
       HumanFoot.point(body, side, "sole", from),
@@ -142,14 +165,15 @@ export namespace staggerStep {
       pendulum.feet[stance].ankle,
       flat(Vector3.subtract(entered[side].ankle, entered[stance].ankle)),
     );
-    const reached = (ankle: IAutoMovieVector3): IAutoMovieVector3 => {
+    const reached: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (ankle: IAutoMovieVector3): IAutoMovieVector3 => {
       const travel: IAutoMovieVector3 = flat(Vector3.subtract(ankle, beside));
       const longest: number =
         pendulum.bound(travel, STEP_LENGTH) * body.measure.stature;
-      return Vector3.length(travel) > longest
+      const distance: number = Vector3.length(travel);
+      return distance > longest
         ? Vector3.add(
             beside,
-            Vector3.scale(travel, longest / Vector3.length(travel)),
+            Vector3.scale(travel, longest / distance),
           )
         : ankle;
     };
@@ -163,7 +187,7 @@ export namespace staggerStep {
     // step (Khadiv et al. 2016; Griffin et al. 2017). Where the legs can hold
     // no landing in the region, this order of the feet does not catch the
     // body.
-    const region = (ankle: IAutoMovieVector3): number[] => {
+    const region: (ankle: IAutoMovieVector3) => number[] = (ankle: IAutoMovieVector3): number[] => {
       const travel: IAutoMovieVector3 = flat(Vector3.subtract(ankle, beside));
       return [
         Vector3.length(travel) -
@@ -186,7 +210,7 @@ export namespace staggerStep {
           across,
         ) <
       width;
-    const crossed = (way: number): HumanFoot.IPlacement => {
+    const crossed: (way: number) => HumanFoot.IPlacement = (way: number): HumanFoot.IPlacement => {
       const ahead: number = Vector3.dot(
         Vector3.subtract(ankle0, pendulum.feet[stance].ankle),
         forward,
@@ -216,11 +240,10 @@ export namespace staggerStep {
       pendulum.feet[side] = placed;
       return { done: pendulum.captured(), checking: props.checking };
     }
-    const nearest = (): IAutoMovieVector3 =>
-      StaggerPendulum.nearest(both, pendulum.xi());
+    const pressure: IAutoMovieVector3 = StaggerPendulum.nearest(both, pendulum.xi());
     pendulum.phases.push({
       from: pendulum.t,
-      p: nearest(),
+      p: pressure,
       s: pendulum.s,
       v: pendulum.v,
     });
@@ -229,11 +252,14 @@ export namespace staggerStep {
     // the course run on through the weight's shift onto both feet that
     // follows it.
     const t: number = pendulum.t;
-    const steps = pendulum.steps;
-    const solveFrom = (
+    const steps: StaggerPendulum["steps"] = pendulum.steps;
+
+    /** One actual stance-course solve and the landing it placed. */
+    type ILanding = { course: walkStanceCourse.ICourse; to: HumanFoot.IPlacement };
+    const solveFrom: (origin: HumanFoot.IPlacement, warm: walkStanceCourse.ICourse | undefined) => ILanding = (
       origin: HumanFoot.IPlacement,
       warm: walkStanceCourse.ICourse | undefined,
-    ): { course: walkStanceCourse.ICourse; to: HumanFoot.IPlacement } => {
+    ): ILanding => {
       const knots: staggerKnots.IKnot[] = staggerKnots.of(
         body,
         pendulum.entry,
@@ -291,30 +317,30 @@ export namespace staggerStep {
     // them, the one that lands nearer its aim does.
     pendulum.phases.push({
       from: pendulum.t,
-      p: nearest(),
+      p: { ...pressure },
       s: pendulum.s,
       v: pendulum.v,
     });
-    const off = (l: ReturnType<typeof solveFrom>): number =>
+    const off: (l: ILanding) => number = (l: ILanding): number =>
       Vector3.length(flat(Vector3.subtract(l.to.ankle, wanted)));
-    const better = (
-      a: ReturnType<typeof solveFrom>,
-      b: ReturnType<typeof solveFrom>,
-    ): ReturnType<typeof solveFrom> => {
-      const met = (l: ReturnType<typeof solveFrom>): boolean =>
+    const better: (a: ILanding, b: ILanding) => ILanding = (
+      a: ILanding,
+      b: ILanding,
+    ): ILanding => {
+      const met: (l: ILanding) => boolean = (l: ILanding): boolean =>
         l.course.unmet <= walkStanceCourse.MET;
       if (met(a) !== met(b)) return met(a) ? a : b;
       if (!met(a)) return a.course.unmet <= b.course.unmet ? a : b;
       return off(a) <= off(b) ? a : b;
     };
-    let landed = crossing
+    let landed: ILanding = crossing
       ? better(
           solveFrom(crossed(1), props.checking),
           solveFrom(crossed(-1), props.checking),
         )
       : solveFrom(placed, props.checking);
     if (landed.course.unmet > walkStanceCourse.MET) {
-      const near = solveFrom(
+      const near: ILanding = solveFrom(
         { ankle: { ...beside, y: from.ankle.y }, rotation: from.rotation },
         undefined,
       );

@@ -141,11 +141,21 @@ export namespace HumanMountOn {
             2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat, under) - 1)),
           )) * AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const duration: number = climb + hold;
-    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw0);
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      yaw0,
+    );
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...standUpright.of(body).joints };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] = Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+    const relaxed: IHumanPosture["joints"] = {
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
+    };
+    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
+      Object.entries(final.joints) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][];
 
     // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
     const crossing: readonly [number, number] = astride

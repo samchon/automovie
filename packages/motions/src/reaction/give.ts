@@ -77,7 +77,13 @@ export namespace give {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /** Parameters. */
+  /** Parameters for the inherited-base contact reaction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state the source/default, closed reacting part and direction, and normalized intensity range/default.
+   * @evidence contracts/development/design.md#principled-representation The original target union identifies contact, closed part/way unions identify the physical response, and dimensionless intensity scales the law's named provisional angles/shift under runtime bounds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Plan consumes exactly these four author inputs; shared motion-target and HumanUnit types retain their existing ownership.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No performer, posture or physical result is encoded in the type; the original source fallback and HumanBound admission remain in the actual planner.
+   */
   export interface IParams {
     /** Where the contact comes from; a place ahead of the performer when absent. */
     from?: AutoMovieMotionTarget;

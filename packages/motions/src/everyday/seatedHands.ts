@@ -1,5 +1,13 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -32,9 +40,19 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both targets read the same completed bone map; it is never shared across different input postures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bones and goals are invocation-local and no cache or handle is retained.
    */
-  export function hands(body: IHumanBody, posture: IHumanPosture, side?: HumanHand.Side): IHumanPosture["limbs"] {
-    const sides: readonly HumanHand.Side[] = side === undefined ? SIDES : [side];
-    return thighs(body, posture, resolved(body, posture, thighBones(body, sides, false)), sides);
+  export function hands(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side?: HumanHand.Side,
+  ): IHumanPosture["limbs"] {
+    const sides: readonly HumanHand.Side[] =
+      side === undefined ? SIDES : [side];
+    return thighs(
+      body,
+      posture,
+      resolved(body, posture, thighBones(body, sides, false)),
+      sides,
+    );
   }
 
   /**
@@ -49,7 +67,11 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses one invocation's exact bone map for target surfaces and hanging wrist frames.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned posture and its goals survive the call.
    */
-  export function arms(body: IHumanBody, posture: IHumanPosture, share: number): IHumanPosture {
+  export function arms(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    share: number,
+  ): IHumanPosture {
     return towardThighs(body, posture, share, SIDES);
   }
 
@@ -66,10 +88,24 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The thigh operation shares origins and targets within its invocation; armrest origins retain their legs-only pose semantics.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The active-side list and resolved maps end with the invocation; no retained state is added.
    */
-  export function rested(body: IHumanBody, posture: IHumanPosture, rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined, yaw: number, share: number): IHumanPosture {
+  export function rested(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
+    yaw: number,
+    share: number,
+  ): IHumanPosture {
     if (rests === undefined) return arms(body, posture, share);
-    const sides: HumanHand.Side[] = SIDES.filter((side: HumanHand.Side): boolean => rests[side] === undefined);
-    return onArmrests(body, towardThighs(body, posture, share, sides), rests, yaw, share);
+    const sides: HumanHand.Side[] = SIDES.filter(
+      (side: HumanHand.Side): boolean => rests[side] === undefined,
+    );
+    return onArmrests(
+      body,
+      towardThighs(body, posture, share, sides),
+      rests,
+      yaw,
+      share,
+    );
   }
 
   /**
@@ -85,7 +121,13 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both supplied armrests use the same completed map, with no cross-posture cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Resolved bones and temporary goals end with the call; the returned posture owns its new limb map.
    */
-  export function onArmrests(body: IHumanBody, posture: IHumanPosture, rests: Partial<Record<"left" | "right", IAutoMovieVector3>>, yaw: number, share: number): IHumanPosture {
+  export function onArmrests(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+    yaw: number,
+    share: number,
+  ): IHumanPosture {
     if (share <= 0) return posture;
     const legs: IHumanPosture["limbs"] = {};
     for (const side of SIDES) {
@@ -93,8 +135,13 @@ export namespace seatedHands {
       if (goal !== undefined) legs[`${side}Leg`] = goal;
     }
     const requested: Set<AutoMovieHumanoidBone> = new Set();
-    for (const side of SIDES) if (rests[side] !== undefined) requested.add(`${side}Hand`);
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(body, { ...posture, limbs: legs }, requested);
+    for (const side of SIDES)
+      if (rests[side] !== undefined) requested.add(`${side}Hand`);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(
+      body,
+      { ...posture, limbs: legs },
+      requested,
+    );
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     const s: number = Math.min(1, share);
     for (const side of SIDES) {
@@ -102,7 +149,12 @@ export namespace seatedHands {
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       const goal: IHumanPosture.IGoal = armrest(body, posture, side, rest, yaw);
-      limbs[`${side}Arm`] = { point: Vector3.lerp(hand.worldPosition, goal.point, s), rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s), bend: goal.bend, planted: s >= 1 };
+      limbs[`${side}Arm`] = {
+        point: Vector3.lerp(hand.worldPosition, goal.point, s),
+        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
+        bend: goal.bend,
+        planted: s >= 1,
+      };
     }
     return { ...posture, limbs };
   }
@@ -119,49 +171,122 @@ export namespace seatedHands {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Independent point and posture inputs require their own goal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state or resources.
    */
-  export function armrest(body: IHumanBody, posture: IHumanPosture, side: HumanHand.Side, rest: IAutoMovieVector3, yaw: number): IHumanPosture.IGoal {
-    return { point: { ...rest, y: rest.y + 0.2 * body.measure.hand }, rotation: HumanHand.rotation(side, { fingers: HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: 1 }), palm: { x: 0, y: -1, z: 0 } }), bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2), planted: true };
+  export function armrest(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    rest: IAutoMovieVector3,
+    yaw: number,
+  ): IHumanPosture.IGoal {
+    return {
+      point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
+      rotation: HumanHand.rotation(side, {
+        fingers: HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          { x: 0, y: 0, z: 1 },
+        ),
+        palm: { x: 0, y: -1, z: 0 },
+      }),
+      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+      planted: true,
+    };
   }
 
   /** Share the input's resolved wrist frames and thigh surfaces in this call. */
-  function towardThighs(body: IHumanBody, posture: IHumanPosture, share: number, sides: readonly HumanHand.Side[]): IHumanPosture {
+  function towardThighs(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    share: number,
+    sides: readonly HumanHand.Side[],
+  ): IHumanPosture {
     if (share <= 0 || sides.length === 0) return posture;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(body, posture, thighBones(body, sides, share < 1));
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(
+      body,
+      posture,
+      thighBones(body, sides, share < 1),
+    );
     const goals: IHumanPosture["limbs"] = thighs(body, posture, bones, sides);
-    if (share >= 1) return { ...posture, limbs: { ...posture.limbs, ...goals } };
+    if (share >= 1)
+      return { ...posture, limbs: { ...posture.limbs, ...goals } };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of sides) {
       const goal: IHumanPosture.IGoal = goals[`${side}Arm`]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      limbs[`${side}Arm`] = { point: Vector3.lerp(hand.worldPosition, goal.point, share), rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, share), bend: goal.bend };
+      limbs[`${side}Arm`] = {
+        point: Vector3.lerp(hand.worldPosition, goal.point, share),
+        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, share),
+        bend: goal.bend,
+      };
     }
     return { ...posture, limbs };
   }
 
   /** Measure only target surfaces this invocation will return. */
-  function thighs(body: IHumanBody, posture: IHumanPosture, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, sides: readonly HumanHand.Side[]): IHumanPosture["limbs"] {
+  function thighs(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    sides: readonly HumanHand.Side[],
+  ): IHumanPosture["limbs"] {
     const limbs: IHumanPosture["limbs"] = {};
     for (const side of sides) {
-      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] = body.surfaces.regions[`thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion];
+      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+        body.surfaces.regions[
+          `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
+        ];
       const thigh: IAutoMovieResolvedBone = bones.get(frame.bone)!;
-      const point: IAutoMovieVector3 = Vector3.add(thigh.worldPosition, Quaternion.rotateVector(thigh.worldRotation, frame.point));
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, frame.normal);
-      const along: IAutoMovieVector3 = Vector3.subtract(bones.get(`${side}LowerLeg`)!.worldPosition, thigh.worldPosition);
-      limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, { surface: "palm", shape: "flat", point, rotation: HumanHand.rotation(side, { fingers: along, palm: Vector3.scale(normal, -1) }), bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2) });
+      const point: IAutoMovieVector3 = Vector3.add(
+        thigh.worldPosition,
+        Quaternion.rotateVector(thigh.worldRotation, frame.point),
+      );
+      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+        thigh.worldRotation,
+        frame.normal,
+      );
+      const along: IAutoMovieVector3 = Vector3.subtract(
+        bones.get(`${side}LowerLeg`)!.worldPosition,
+        thigh.worldPosition,
+      );
+      limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
+        surface: "palm",
+        shape: "flat",
+        point,
+        rotation: HumanHand.rotation(side, {
+          fingers: along,
+          palm: Vector3.scale(normal, -1),
+        }),
+        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+      });
     }
     return limbs;
   }
 
   /** Resolve precisely the posture passed by the caller; maps stay call-local. */
-  function resolved(body: IHumanBody, posture: IHumanPosture, requested: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return poseBones(body, resolveHumanPosture(body, posture), undefined, requested);
+  function resolved(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+      undefined,
+      requested,
+    );
   }
 
   /** Surface bones and knees determine targets; hanging origins also need wrists. */
-  function thighBones(body: IHumanBody, sides: readonly HumanHand.Side[], wrists: boolean): ReadonlySet<AutoMovieHumanoidBone> {
+  function thighBones(
+    body: IHumanBody,
+    sides: readonly HumanHand.Side[],
+    wrists: boolean,
+  ): ReadonlySet<AutoMovieHumanoidBone> {
     const requested: Set<AutoMovieHumanoidBone> = new Set();
     for (const side of sides) {
-      requested.add(body.surfaces.regions[`thighFront${side === "left" ? "Left" : "Right"}`].bone);
+      requested.add(
+        body.surfaces.regions[`thighFront${side === "left" ? "Left" : "Right"}`]
+          .bone,
+      );
       requested.add(`${side}LowerLeg`);
       if (wrists) requested.add(`${side}Hand`);
     }

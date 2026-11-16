@@ -388,7 +388,7 @@ export namespace walk {
         const legs: readonly ("left" | "right")[] = channels === undefined
           ? walkReach.SIDES
           : walkReach.SIDES.filter((side: "left" | "right"): boolean => channels.includes(`${side}Leg`));
-        const posture: IHumanPosture = unswung(seconds, legs);
+        const posture: IHumanPosture = unswung(seconds, legs, channels);
         if (channels !== undefined && !channels.includes("leftArm") && !channels.includes("rightArm"))
           return posture;
         return HumanArmSwing.carry(

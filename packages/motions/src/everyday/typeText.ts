@@ -8,7 +8,7 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -20,7 +20,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
-import { handGoals } from "./handGoals";
 import { typeTextPresses } from "./typeTextPresses";
 
 /**
@@ -328,6 +327,14 @@ export namespace typeText {
         ...HumanHand.shape("left", "point"),
         ...HumanHand.shape("right", "point"),
       }) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+    const goalAt: Record<HumanHand.Side, ReturnType<typeof AutoMovieMotionHumanArm.prepareGoal>> = {
+      left: AutoMovieMotionHumanArm.prepareGoal(body, "left", {
+        surface: "indexTip", shape: "point", ...hands.left,
+      }),
+      right: AutoMovieMotionHumanArm.prepareGoal(body, "right", {
+        surface: "indexTip", shape: "point", ...hands.right,
+      }),
+    };
 
     const contacts: IHumanContactWindow[] = [
       {
@@ -357,18 +364,15 @@ export namespace typeText {
         const joints: IHumanPosture["joints"] = { ...hold.joints };
         for (const [bone, angles] of shaped)
           joints[bone] = [angles[0], angles[1], angles[2]];
-        return handGoals(
-          body,
-          { ...hold, joints },
-          (["left", "right"] as const).map((side: HumanHand.Side): AutoMovieMotionHumanArm.ISided => ({
-            side,
-            surface: "indexTip" as const,
-            shape: "point" as const,
-            point: tipAt(side, t),
-            rotation: { ...hands[side].rotation },
-            bend: { ...hands[side].bend },
-          })),
-        );
+        return {
+          ...hold,
+          joints,
+          limbs: {
+            ...hold.limbs,
+            leftArm: goalAt.left(tipAt("left", t)),
+            rightArm: goalAt.right(tipAt("right", t)),
+          },
+        };
       },
     };
   }

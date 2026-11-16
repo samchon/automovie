@@ -103,10 +103,25 @@ export namespace WorkoutPlace {
       borne === null ? stood : { x: borne.x, y: stood.y, z: borne.z };
     // Where the entry shows the bearing bones: a stance is kept there, not
     // where the keys' own joints would stand it.
-    const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(kind.pin.map((pin: ExerciseKey.Pin): AutoMovieHumanoidBone => pin === "gripLeft" || pin === "gripRight" ? body.surfaces.sockets[pin].bone : pin));
+    const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      kind.pin.map(
+        (pin: ExerciseKey.Pin): AutoMovieHumanoidBone =>
+          pin === "gripLeft" || pin === "gripRight"
+            ? body.surfaces.sockets[pin].bone
+            : pin,
+      ),
+    );
     const shown = (): IAutoMovieVector3 => {
-      const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, context.entry.pose, undefined, pins);
-      return Vector3.scale(kind.pin.reduce((sum: IAutoMovieVector3, pin: ExerciseKey.Pin): IAutoMovieVector3 => Vector3.add(sum, ExerciseKey.at(body, entered, pin)), { x: 0, y: 0, z: 0 }), 1 / kind.pin.length);
+      const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, context.entry.pose, undefined, pins);
+      return Vector3.scale(
+        kind.pin.reduce(
+          (sum: IAutoMovieVector3, pin: ExerciseKey.Pin): IAutoMovieVector3 =>
+            Vector3.add(sum, ExerciseKey.at(body, entered, pin)),
+          { x: 0, y: 0, z: 0 },
+        ),
+        1 / kind.pin.length,
+      );
     };
     if (kind.anchor === "stance") return shown();
     // Feet or toes that bear on the floor on their soles are as high above
@@ -114,26 +129,28 @@ export namespace WorkoutPlace {
     // wrist; a body that bears on its trunk, or on the sides of its feet as
     // a side plank does, is rested by its shapes.
     const grounded = (): number | null => {
-      if (kind.anchor !== "hips" || kind.raise !== undefined || borne !== null) return null;
-      const keyed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, based), undefined, pins);
+      if (kind.anchor !== "hips" || kind.raise !== undefined || borne !== null)
+        return null;
+      const keyed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, resolveHumanPosture(body, based), undefined, pins);
       const soles: boolean = kind.pin.every(
-      (bone: ExerciseKey.Pin): boolean =>
-        bone !== "gripLeft" &&
-        bone !== "gripRight" &&
-        /(Foot|Toes)$/.test(bone) &&
-        Quaternion.rotateVector(keyed.get(bone)!.worldRotation, {
-          x: 0,
-          y: 1,
-          z: 0,
-        }).y > Math.SQRT1_2,
-    );
+        (bone: ExerciseKey.Pin): boolean =>
+          bone !== "gripLeft" &&
+          bone !== "gripRight" &&
+          /(Foot|Toes)$/.test(bone) &&
+          Quaternion.rotateVector(keyed.get(bone)!.worldRotation, {
+            x: 0,
+            y: 1,
+            z: 0,
+          }).y > Math.SQRT1_2,
+      );
       return soles
-          ? shown().y
-          : kind.pin.every((bone: ExerciseKey.Pin): boolean =>
-                bone.endsWith("Hand"),
-              )
-            ? GymnasticsWheel.laid(body)
-            : null;
+        ? shown().y
+        : kind.pin.every((bone: ExerciseKey.Pin): boolean =>
+              bone.endsWith("Hand"),
+            )
+          ? GymnasticsWheel.laid(body)
+          : null;
     };
 
     // A body on a raised support (a bench, a seat, a saddle) has its hip
@@ -143,7 +160,10 @@ export namespace WorkoutPlace {
     // (0.51 m on the first run of the supported test).
     const raised: number | null = borne?.y ?? kind.raise?.(body) ?? null;
     const lain = (): number => {
-      const flat: IHumanPosture = ExerciseKey.posed(ExerciseKey.from(body, { pitch: -90 }, {}), yaw);
+      const flat: IHumanPosture = ExerciseKey.posed(
+        ExerciseKey.from(body, { pitch: -90 }, {}),
+        yaw,
+      );
       return knockdown.rest(body, flat) + ExerciseKey.mean(body, flat, HIPS).y;
     };
 
@@ -187,14 +207,14 @@ export namespace WorkoutPlace {
     };
     const rested: IAutoMovieVector3 =
       kind.anchor === "hips"
-          ? floored()
-          : borne !== null
-            ? { ...borne, y: borne.y + (kind.rise?.(body) ?? 0) }
-            : kind.bars !== undefined
-              ? barred(kind.bars(body))
-              : kind.rise !== undefined
-                ? floored()
-                : unhung();
+        ? floored()
+        : borne !== null
+          ? { ...borne, y: borne.y + (kind.rise?.(body) ?? 0) }
+          : kind.bars !== undefined
+            ? barred(kind.bars(body))
+            : kind.rise !== undefined
+              ? floored()
+              : unhung();
     const floor: number | null = grounded();
     return floor === null ? rested : { ...rested, y: floor };
   }

@@ -15,11 +15,11 @@ import { Vector3 } from "../math/Vector3";
  * @returns Fresh world-axis minimum and maximum coordinates.
  * @throws {Error} For an unknown runtime shape kind; admission of numeric geometry remains the caller's responsibility.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States supported geometry, world/local transforms, metre units, fresh bounds and the admitted-input premise.
+ * @evidence contracts/development/common.md#meaningful-documentation States supported geometry, admitted transforms, world metres and fresh full bounds. Namespace lowest returns only the same world minimum Y for floor readers; it retains no point, frame or result and leaves each full/collected-hull path unchanged.
  * @evidence contracts/development/implementation.md#principled-implementation Composes the parent and shape transforms, then uses exact sphere/capsule/box axis extents or the rotated hull vertices' extrema in the existing arithmetic order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The original pose entry composes centre and rotation; fromFrame owns their shared numerical bounds reader and also serves floor support candidates' already composed frame.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The pose facade and lowest compose the same actual frame. FromFrame owns full bounds and optional hull-point transfer; lowest reads just the corresponding Y expression without unused coordinate/extrema records. Both remain with the geometry's one package owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every shape formula, component extremum, unknown-kind failure and lack of numeric admission here; bounds are not replaced with support-candidate minima or a new tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(1) work for sphere/capsule/box and O(V) for V hull vertices; legacy bounds have constant live auxiliary storage, while an optional fromFrame collector owns its V transferred outputs without a context object or repeated rotations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). Full bounds retain constant live auxiliary storage or V adopted collector points. Lowest omits unused X/Z/max comparisons and extent/min/max records, including two extrema allocations per hull vertex; fixed unit axes are shared by both paths without retaining input geometry.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entries use the same fromFrame equations; current composed-frame readers may additionally adopt each fresh rotated hull point only after its extrema are consumed, avoiding a second identical rotation. Legacy calls always freshly read inputs and request no point transfer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps no pose, shape, frame or result globally; min/max are fresh and independent of adopted hull points, whose ownership transfers only after every bounds component has consumed them.
  */
@@ -43,11 +43,49 @@ export function physicalShapeBounds(
  * and consumers that need this same frame for another geometric reading.
  *
  * @evidence contracts/development/design.md#principled-representation A world centre and world orientation already include the shape transform; fromFrame reads the same admitted shape geometry without recomposing it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The pose facade and HumanFloorReading share one bounds owner; the latter adopts already consumed fresh hull points for actual support candidates, without a cache, context record or barrel identity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The pose facade, HumanFloorReading's adopted hull points and KnockdownFloor's scalar lowest observation share this one bounds owner. Only the actually demanded field/points escape, without a cache, extra representation or caller-supplied derived-answer flag.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Inputs are current geometric values with an explicit frame premise, not a cached answer or identity key; no shape or input validation is skipped from the existing owner.
  * @evidence contracts/development/common.md#meaningful-documentation Defines the composed-frame convention, actual consumers and absence of retained query data.
  */
 export namespace physicalShapeBounds {
+  /**
+   * The exact world-axis minimum Y, metres, for a floor-only observation.
+   * Compose the same admitted parent/local frame as full bounds, then keep
+   * its original Y expression, hull vertex order and Math.min/NaN behavior.
+   * Every shape remains queried; only unused axes/maxima and result records
+   * are omitted. Sphere/capsule/box are constant work and hulls scan V points.
+   * KnockdownFloor consumes this scalar in both floor reductions. Each call
+   * reads current geometry and releases its frame/vertex temporaries on return.
+   */
+  export function lowest(pose: P.ITransform, shape: P.IShape): number {
+    const center: IAutoMovieVector3 = Vector3.add(
+      pose.position,
+      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    );
+    const rotation: P.ITransform["rotation"] = Quaternion.multiply(pose.rotation, shape.transform.rotation);
+    if (shape.kind === "sphere") return center.y - shape.radius;
+    if (shape.kind === "capsule") {
+      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
+      return center.y - (Math.abs(axis.y) * shape.halfLength + shape.radius);
+    }
+    if (shape.kind === "box") {
+      const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_X);
+      const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
+      const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Z);
+      const extent: number = Math.abs(x.y) * shape.halfExtents.x +
+        Math.abs(y.y) * shape.halfExtents.y + Math.abs(z.y) * shape.halfExtents.z;
+      return center.y - extent;
+    }
+    if (shape.kind === "hull") {
+      let minimum: number = Infinity;
+      for (const point of shape.points)
+        minimum = Math.min(minimum, Quaternion.rotateVector(rotation, point).y);
+      return center.y + minimum;
+    }
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
+  }
+
   /**
    * Read bounds from an actual composed shape centre and orientation.
    * The centre is in world metres and rotation includes both parent and
@@ -70,11 +108,7 @@ export namespace physicalShapeBounds {
     if (shape.kind === "sphere")
       extent = { x: shape.radius, y: shape.radius, z: shape.radius };
     else if (shape.kind === "capsule") {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-        x: 0,
-        y: 1,
-        z: 0,
-      });
+      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
       extent = {
         x: Math.abs(axis.x) * shape.halfLength + shape.radius,
         y: Math.abs(axis.y) * shape.halfLength + shape.radius,
@@ -100,21 +134,9 @@ export namespace physicalShapeBounds {
       }
       return { min: Vector3.add(center, min), max: Vector3.add(center, max) };
     } else if (shape.kind === "box") {
-      const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-        x: 1,
-        y: 0,
-        z: 0,
-      });
-      const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-        x: 0,
-        y: 1,
-        z: 0,
-      });
-      const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-        x: 0,
-        y: 0,
-        z: 1,
-      });
+      const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_X);
+      const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
+      const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Z);
       extent = {
         x:
           Math.abs(x.x) * shape.halfExtents.x +
@@ -139,3 +161,12 @@ export namespace physicalShapeBounds {
     };
   }
 }
+
+/** Fixed unit directions are read without mutation by quaternion rotation. */
+const AXIS_X: Readonly<IAutoMovieVector3> = { x: 1, y: 0, z: 0 };
+
+/** Capsule's length axis and the second oriented-box column. */
+const AXIS_Y: Readonly<IAutoMovieVector3> = { x: 0, y: 1, z: 0 };
+
+/** Third oriented-box column, shared without caller-owned geometry. */
+const AXIS_Z: Readonly<IAutoMovieVector3> = { x: 0, y: 0, z: 1 };

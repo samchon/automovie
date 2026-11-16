@@ -53,10 +53,10 @@ const readAngle: (
  *   omitted, the angles are already rest-relative.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the caller must have done to the basis, why the entry exists, that the conventions are `jointToQuaternion`'s, what is thrown and what an unnormalized basis silently gives.
- * @evidence contracts/development/implementation.md#principled-implementation An intrinsic Euler composition of three axis-angle quaternions in a declared order, a rotation for any orthonormal basis; the frame map is the exact affine inverse of `toClinicalAngle`.
+ * @evidence contracts/development/implementation.md#principled-implementation An intrinsic Euler composition of three axis-angle quaternions in a declared order, a rotation for any orthonormal basis; the frame map is the exact affine inverse of `toClinicalAngle`. For an exact rig-declared outer identity and finite inner components, every Hamilton term after 1*b is a signed zero. Nonzero components therefore copy unchanged; zero components keep those original three products and addition/subtraction order, replacing only exact 1*b with b, including its zero sign. A fresh result preserves raw binary64 values; nonfinite inputs retain the full product.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct composition and its prepared companion read F/A/T and use the same two Hamilton products. The prepared path gives each axis its own scalar recent-factor slots, so every candidate avoids a general keyed composition-state dispatch; jointToQuaternion still delegates after admitting the basis.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A `null` angle is the documented rest rotation, and a non-finite angle throws instead of becoming zero.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three axis-angle quaternions and two products in constant time, with no validation of the basis.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Direct composition keeps three axis-angle factors and two products in constant time. Prepared candidates share their documented pure factors and fixed inner products. For an exact marked outer identity with a finite component sum, each nonzero result component omits four products/three additions and each zero component keeps three zero products/three additions. Guards and a fresh four-field result remain; nonidentity/nonfinite products keep the original formula. No basis validation is added and runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller admits the basis once. The direct entry recomputes every factor; prepare lets one query reuse its initial and two recent Object.is-equal rig-angle factors per axis and an unchanged inner pair's exact Hamilton product. Pinning the first actual reading lets a box query reuse its reference factors after the corner traversal, without retaining any completed joint answer. prepareQueries also shares fixed axis scalars and, when declared by its rig, at most two fixed-angle factors per axis and four fixed inner products. Actual angle/frame checks precede every lookup; only exact resolved-number matches borrow a declared factor, and only two actual private declared operands share an operation inner product. Each query owns its dynamic factor/inner slots. Initialization follows the original angle read, sine-division/component-product grouping is unchanged, raw components never mutate and the outer product is fresh.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned quaternion.
  */
@@ -88,7 +88,7 @@ export function jointToQuaternionOnBasis(
  * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged basis/frame/declared-angle lifetime, lazy F/A/T validation, resolved-number keys, query-owned recent factors/inner product and bounded rig scalar/fixed-factor preparation, with fresh output.
  * @evidence contracts/development/design.md#principled-representation An axis-angle factor depends only on its fixed admitted axis and exact resolved rig angle. A rig-declared constant has that same value independently of every target; Object.is equality permits sharing its pure factor. Identical private operands also give the same inner Hamilton product under the original grouping; two operation-declared factors therefore define target-independent fixed inner algebra.
  * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves one query's scores or lower-joint trials. prepareQueries returns independent composers and optionally borrows at most two declared rig angles per axis, as the actual box projector supplies. No quaternion injection, factor/inner getter, target-result control or global cache is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every joint still runs F/A/T finite/frame admission before factor lookup. Only Object.is-equal resolved finite angles borrow a declared constant; null, signed-zero, alias or clamp discrepancies follow the ordinary query path. Each query owns three readers with at most nine scalar-keyed initial/recent readings and one dynamic inner product, whose prior operands may survive partial admission. Initial slots contain only one pure axis factor each, never a joint, target or completed articulation. Metadata never mutates raw quaternions, and outer output is fresh. Operation state retains at most three lazy axis scalar readers, six declared-angle factors and four fixed-factor inner products; no changing target/reference/candidate or dynamic inner product crosses queries. The caller keeps axes/frame/declarations unchanged and releases the factory and all query composers with their operation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every joint still runs F/A/T finite/frame admission before factor lookup. Only Object.is-equal resolved finite angles borrow a declared constant; null, signed-zero, alias or clamp discrepancies follow the ordinary query path. Each query owns three readers with at most nine scalar-keyed initial/recent readings and one dynamic inner product, whose prior operands may survive partial admission. Initial slots contain only one pure axis factor each, never a joint, target or completed articulation. Metadata never mutates raw quaternions, and outer output is fresh. Operation state retains at most three lazy axis scalar readers, six declared-angle factors, their at most six weak exact-identity markers and four fixed-factor inner products. Identity markers register only factors this owner actually produced after admission; finite inner components copy only when nonzero, while zero components retain the original signed-zero terms/order. No external descriptor, tolerance or target fact establishes the shortcut. No changing target/reference/candidate or dynamic inner product crosses queries. The caller keeps axes/frame/declarations unchanged and releases the factory and all query composers with their operation.
  */
 export namespace jointToQuaternionOnBasis {
   /** At most two unchanged, predeclared rig angles per axis; never target readings. */
@@ -159,6 +159,9 @@ interface IOperationState {
 
   /** At most four raw products of two private operation-declared factors. */
   fixedInnerProducts?: IAutoMovieQuaternion[];
+
+  /** Exact identities among at most six actual private rig-declared factors. */
+  identityFactors?: WeakSet<IAutoMovieQuaternion>;
 }
 
 /** Fresh query state, optionally borrowing operation-owned rig arithmetic. */
@@ -198,7 +201,24 @@ function preparedComposition(
       innerLeft = left;
       innerRight = right;
     }
-    return Quaternion.multiply(distal ? qAbduction : qTwist, inner!);
+    const outer: IAutoMovieQuaternion = distal ? qAbduction : qTwist;
+    const product: IAutoMovieQuaternion = inner!;
+
+    // Identity's signed-zero terms leave nonzero finite components unchanged.
+    // Zero components retain those exact terms/order to keep their zero sign.
+    if (operation?.identityFactors?.has(outer) === true &&
+      Number.isFinite(product.x + product.y + product.z + product.w))
+      return {
+        x: product.x !== 0 ? product.x
+          : product.x + outer.x * product.w + outer.y * product.z - outer.z * product.y,
+        y: product.y !== 0 ? product.y
+          : product.y - outer.x * product.z + outer.y * product.w + outer.z * product.x,
+        z: product.z !== 0 ? product.z
+          : product.z + outer.x * product.y - outer.y * product.x + outer.z * product.w,
+        w: product.w !== 0 ? product.w
+          : product.w - outer.x * product.x - outer.y * product.y - outer.z * product.z,
+      };
+    return Quaternion.multiply(outer, product);
   };
 }
 
@@ -293,6 +313,10 @@ function fixedFactor(
   const known: IAutoMovieQuaternion | undefined = operation.fixedFactors?.[key]?.[index];
   if (known !== undefined) return known;
   const quaternion: IAutoMovieQuaternion = read(angle);
+  if (quaternion.x === 0 && quaternion.y === 0 && quaternion.z === 0 && quaternion.w === 1) {
+    operation.identityFactors ??= new WeakSet<IAutoMovieQuaternion>();
+    operation.identityFactors.add(quaternion);
+  }
   operation.fixedFactors ??= {};
   const readings: IFixedReadings = operation.fixedFactors[key] ??= [];
   readings[index] = quaternion;

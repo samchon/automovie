@@ -15,13 +15,13 @@
  * @param rows Matrix entries by rows, not modified.
  * @returns A solver returning fresh solution arrays, or null at the pivot gate.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States square/finite/scaled premises, matrix snapshot ownership, strict pivot rejection, right-hand-side copying and fresh results.
- * @evidence contracts/development/implementation.md#principled-implementation Partial-pivot Gaussian elimination separates matrix-only pivots/factors from each augmented column; replaying their swaps and subtractions before the original back substitution solves the same system in the same arithmetic order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One preparation owns matrix elimination and one returned closure owns right-hand-side elimination/back substitution, serving both ordinary dense solves and repeated digit null-space columns.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original largest-entry pivot threshold and first-row-on-tie pivot policy remain; there is no regularization, inverse approximation or alternate rank decision.
- * @evidence contracts/development/implementation.md#efficient-algorithms Setup costs O(N^3) time and O(N^2) coefficients/factors; each right-hand side costs O(N^2) time and O(N) fresh storage, avoiding repeated matrix elimination for an unchanged matrix.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Pivots and factors depend only on the privately copied matrix, so all right-hand sides reuse exactly completed matrix work without caching solutions or depending on source-array identity.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns O(N^2) copied triangular coefficients/factors and O(N) pivots until caller release. Each solve releases its O(N) working column after returning its solution; rejected setup retains nothing and no global state or handles exist.
+ * @evidence contracts/development/common.md#meaningful-documentation States finite square/scaled premises, strict pivot refusal, owned matrix snapshot and fresh RHS results; solve's child defines its one-shot augmented storage and caller ownership.
+ * @evidence contracts/development/implementation.md#principled-implementation Both entries use partial-pivot Gaussian elimination. Preparation records matrix-only swaps/factors for exact replay on later copied right-hand sides; solve instead eliminates the actual augmented column immediately, before the same descending back substitution.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure eliminate, largestEntry and backSubstitute own all numerical rules. The prepared closure serves repeated digit null-space columns, and solve serves AutoMovieSolidVector's ordinary one-shot workload without retained factors.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both paths retain the largest-original-entry 1e-14 threshold, first-row-on-pivot-tie policy and exact row/back-subtraction order, with no regularization, approximate inverse, alternative rank decision or solution cache.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Prepared setup costs O(N^3) work/O(N^2) factors, then O(N^2) work/O(N) fresh storage per RHS. solve uses one O(N^2) augmented matrix and O(N^3) elimination without factor rows, pivot arrays or a solver closure.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated RHSs share only privately copied matrix factors, independent of source-array mutation or identity. The one-shot entry retains no preparation; both strategies share the same numerical owner and never cache a solution.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared closures own O(N^2) coefficients/factors and O(N) pivots until caller release; each replayed column is local. One-shot augmented rows release on return/refusal. Only fresh O(N) solutions escape, with no global state or handles.
  */
 export function prepareLinearSystem(
   rows: readonly (readonly number[])[],
@@ -61,13 +61,12 @@ export namespace prepareLinearSystem {
    * Solve one square system without allocating retained factors or a solver
    * closure. The same finite/scaled premises and strict pivot refusal apply.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines one-shot augmented storage, unchanged premises/refusal and fresh output ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Partial-pivot elimination includes the augmented right-hand-side column in the original row update, then the same descending back substitution reads it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One-shot and prepared paths share eliminate, largestEntry and backSubstitute; only repeated solving records swaps/multipliers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The matrix/RHS copy, strict pivot selection/refusal, row-update order and back-subtraction order are the ordinary solve's exact formulas.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) work and one O(N^2) augmented matrix avoid factor rows, pivot arrays and a retained closure on ordinary one-shot workloads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both storage strategies share the same actual mathematical owner; a one-shot request retains no factor or prior solution.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Augmented rows release on return or refusal; only one fresh O(N) solution escapes, with no global state or handles.
+   * The actual RHS is copied as one augmented column and participates in
+   * each original row update before descending substitution. Pivot ties,
+   * rejection, update and subtraction order match repeated preparation's
+   * common numerical owner. O(N^3) work and one O(N^2) matrix retain no
+   * factor rows, pivots, closure or prior solution. Augmented rows release
+   * on return/refusal; only the fresh O(N) solution escapes.
    */
   export function solve(
     rows: readonly (readonly number[])[],

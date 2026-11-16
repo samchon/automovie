@@ -63,69 +63,69 @@ export namespace walkStanceRows {
     // has not landed in the take unturned, and a turn kept while its foot
     // stands. A foot in the air carries its pitch and its turn on the
     // acceleration alone.
-      for (let k: number = 0; k < n; k++) {
-        const o: number = walkStanceTerms.WIDTH * k;
-        const knot: walkStanceCourse.IKnot = knots[k]!;
-        if (k < hold) {
-          for (let i: number = 0; i < walkStanceTerms.WIDTH; i++)
-            prepared.push({ kind: "held", index: o + i });
-          // A stance that runs on past the held knots keeps its turn and its
-          // slide across the join.
-          for (const s of knot.stances) {
-            const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
-              (t: walkStanceCourse.IStance): boolean => t.side === s.side,
-            );
-            if (k + 1 >= hold && next?.placement === s.placement)
-              for (const i of [
-                o + turnOf(s.side),
-                o + slideOf(s.side),
-                o + slideOf(s.side) + 1,
-              ])
-                prepared.push({ kind: "join", index: i, next: i + walkStanceTerms.WIDTH });
-          }
-          continue;
-        }
-        if (knot.drop !== undefined) fixed(o, knot.drop);
-        else range(o, 0, Infinity, walkStanceTerms.TRUST.drop);
-        if (knot.trunk !== undefined) {
-          fixed(o + 3, knot.trunk.pitch);
-          fixed(o + 4, knot.trunk.roll);
-        } else {
-          range(o + 3, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
-          range(o + 4, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
-        }
-        for (const side of ["left", "right"] as const) {
-          const j: number = knot.stances.findIndex(
-            (s: walkStanceCourse.IStance): boolean => s.side === side,
-          );
-          const p: number = o + pitchOf(side);
-          const t: number = o + turnOf(side);
-          if (j < 0) {
-            range(p, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
-            range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
-            range(o + slideOf(side), -Infinity, Infinity, walkStanceTerms.TRUST.slide);
-            range(o + slideOf(side) + 1, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
-            continue;
-          }
-          const pitch: number = scheduled[k]![j]!;
-          if (pitch > 1e-6) fixed(p, pitch);
-          else range(p, -walkLeg.STEEPEST, pitch, walkStanceTerms.TRUST.angle);
-          const stance: walkStanceCourse.IStance = knot.stances[j]!;
-          if (stance.turning !== true) fixed(t, 0);
-          else range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
-          const d: number = o + slideOf(side);
-          for (const i of [d, d + 1])
-            if (stance.landing === undefined) fixed(i, 0);
-            else range(i, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
-          // A turn kept from one knot to the next of the same stance.
+    for (let k: number = 0; k < n; k++) {
+      const o: number = walkStanceTerms.WIDTH * k;
+      const knot: walkStanceCourse.IKnot = knots[k]!;
+      if (k < hold) {
+        for (let i: number = 0; i < walkStanceTerms.WIDTH; i++)
+          prepared.push({ kind: "held", index: o + i });
+        // A stance that runs on past the held knots keeps its turn and its
+        // slide across the join.
+        for (const s of knot.stances) {
           const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
-            (s: walkStanceCourse.IStance): boolean => s.side === side,
+            (t: walkStanceCourse.IStance): boolean => t.side === s.side,
           );
-          if (next !== undefined && next.placement === stance.placement)
-            for (const i of [t, d, d + 1])
+          if (k + 1 >= hold && next?.placement === s.placement)
+            for (const i of [
+              o + turnOf(s.side),
+              o + slideOf(s.side),
+              o + slideOf(s.side) + 1,
+            ])
               prepared.push({ kind: "join", index: i, next: i + walkStanceTerms.WIDTH });
         }
+        continue;
       }
+      if (knot.drop !== undefined) fixed(o, knot.drop);
+      else range(o, 0, Infinity, walkStanceTerms.TRUST.drop);
+      if (knot.trunk !== undefined) {
+        fixed(o + 3, knot.trunk.pitch);
+        fixed(o + 4, knot.trunk.roll);
+      } else {
+        range(o + 3, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
+        range(o + 4, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
+      }
+      for (const side of ["left", "right"] as const) {
+        const j: number = knot.stances.findIndex(
+          (s: walkStanceCourse.IStance): boolean => s.side === side,
+        );
+        const p: number = o + pitchOf(side);
+        const t: number = o + turnOf(side);
+        if (j < 0) {
+          range(p, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
+          range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
+          range(o + slideOf(side), -Infinity, Infinity, walkStanceTerms.TRUST.slide);
+          range(o + slideOf(side) + 1, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
+          continue;
+        }
+        const pitch: number = scheduled[k]![j]!;
+        if (pitch > 1e-6) fixed(p, pitch);
+        else range(p, -walkLeg.STEEPEST, pitch, walkStanceTerms.TRUST.angle);
+        const stance: walkStanceCourse.IStance = knot.stances[j]!;
+        if (stance.turning !== true) fixed(t, 0);
+        else range(t, -Infinity, Infinity, walkStanceTerms.TRUST.angle);
+        const d: number = o + slideOf(side);
+        for (const i of [d, d + 1])
+          if (stance.landing === undefined) fixed(i, 0);
+          else range(i, -Infinity, Infinity, walkStanceTerms.TRUST.slide);
+        // A turn kept from one knot to the next of the same stance.
+        const next: walkStanceCourse.IStance | undefined = knots[k + 1]?.stances.find(
+          (s: walkStanceCourse.IStance): boolean => s.side === side,
+        );
+        if (next !== undefined && next.placement === stance.placement)
+          for (const i of [t, d, d + 1])
+            prepared.push({ kind: "join", index: i, next: i + walkStanceTerms.WIDTH });
+      }
+    }
     return (x: Float64Array, trust: number): Q.IRow[] =>
       prepared.map((row: IBound): Q.IRow => {
         if (row.kind === "join") {

@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -92,6 +92,9 @@ export namespace defendGoals {
 
     /** This exact body's posture's trunk bones, borrowed within the current synchronous evaluation when already resolved. */
     bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** This exact body's fixed region/tangent frame, when already prepared by the defence's geometry. */
+    frame?: ReturnType<typeof StrikingBody.frame>;
   }
 
   /**
@@ -120,7 +123,9 @@ export namespace defendGoals {
       props.bones ?? StrikingBody.trunk(body, props.posture);
     let placed: ReturnType<typeof StrikingBody.region> | undefined;
     const region: () => ReturnType<typeof StrikingBody.region> = (): ReturnType<typeof StrikingBody.region> =>
-      (placed ??= StrikingBody.region(body, bones, props.region, props.aimed));
+      (placed ??= props.frame === undefined
+        ? StrikingBody.region(body, bones, props.region, props.aimed)
+        : resolveAutoMovieHumanoidSurfaces.place(props.frame, bones.get(props.frame.bone)!));
     const glove = (
       side: "left" | "right",
       at: IAutoMovieVector3,

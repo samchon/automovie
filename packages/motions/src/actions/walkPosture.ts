@@ -1,10 +1,12 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IWalkGait } from "./IWalkGait";
 import { stand } from "./stand";
@@ -31,14 +33,14 @@ interface ISettled {
  * @param elbows The authored added shoulder abduction, degrees.
  * @param steps The take's fixed step clock and phase readers.
  * @param solve The take's same-second pelvis and requested-foot solve.
- * @returns A clamped action-second reader; omitted leg demand writes both legs.
+ * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body preparation, arm units, action time and the optional leg demand.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves the gait's sinusoidal pelvic/chest counter-rotation, arm angles, upright-relative lumbopelvic inclination and footprint-heading knee hints, then pivots the trunk about the hips.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Standing alignment, relaxed joints and lower-leg rest points are prepared once before the single posture reader; foot reach remains with the supplied solve owner.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Lower-leg rest points precede one posture reader; standing alignment and relaxed arm preparation start only on their first actual demand, while foot reach remains with the supplied solve owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No gait parameter, contact, joint angle or root formula changes; unread leg goals are omitted only under explicit channel demand.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant body preparation and constant-size posture assembly per second; the supplied solve computes only requested swinging feet, with at most two leg goals written.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes the body, gait, arm modifiers and step plan, so their standing alignment and bone rest points remain valid for every queried second.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The supplied solve computes only requested swinging feet, with at most two leg goals; root/trunk/leg-only reads skip relaxed-arm clearance preparation and arm tuples, while hand-only shape reads use HumanHand's original shape directly.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, gait, arm modifiers and step plan. Each lazily prepared alignment, relaxed record, abduction and hand shape is reused only under those unchanged dependencies, with no queried posture cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns fixed body/step references and standing terms until its plan releases it, without a sample history or external handle.
  */
 export function walkPosture(
@@ -48,10 +50,11 @@ export function walkPosture(
   elbows: number,
   steps: walkSteps.IPlan,
   solve: (seconds: number, legs: readonly ("left" | "right")[]) => ISettled,
-): (seconds: number, legs?: readonly ("left" | "right")[]) => IHumanPosture {
-  const upright: standUpright.IAlignment = standUpright.of(body);
-  const relaxed: IHumanPosture["joints"] = stand.relaxed(body);
-  const abduction: number = stand.abduction(body) + elbows;
+): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[]) => IHumanPosture {
+  let upright: standUpright.IAlignment | undefined;
+  let relaxed: IHumanPosture["joints"] | undefined;
+  let abduction: number | undefined;
+  const shapes: Partial<Record<"left" | "right", IHumanPosture["joints"]>> = {};
   const rest: Record<"left" | "right", IAutoMovieVector3> = {
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
@@ -59,6 +62,7 @@ export function walkPosture(
   return (
     seconds: number,
     legs: readonly ("left" | "right")[] = walkReach.SIDES,
+    channels?: readonly AutoMovieMotionHumanChannel[],
   ): IHumanPosture => {
     const t: number = Math.min(steps.duration, Math.max(0, seconds));
     const phase: number = steps.phase(t);
@@ -71,20 +75,28 @@ export function walkPosture(
     // The inclination grows and fades with the gait, leaving and joining
     // upright standing while its pelvis share turns about the fixed hips.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      upright.joints, gait.lean * amount,
+      (upright ??= standUpright.of(body)).joints, gait.lean * amount,
     );
+    const swinging: boolean = channels === undefined || channels.includes("leftArm") || channels.includes("rightArm");
     const joints: IHumanPosture["joints"] = {
-      ...relaxed,
+      ...(swinging ? (relaxed ??= stand.relaxed(body)) : {}),
       ...inclined.joints,
       hips,
       leftToes: [reached.left.toes, 0, 0],
       rightToes: [reached.right.toes, 0, 0],
       chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
-      leftUpperArm: [-gait.arms.shoulder * arms * swing, abduction, 0],
-      rightUpperArm: [gait.arms.shoulder * arms * swing, abduction, 0],
-      leftLowerArm: [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0],
-      rightLowerArm: [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0],
     };
+    if (swinging) {
+      const held: number = abduction ??= stand.abduction(body) + elbows;
+      joints.leftUpperArm = [-gait.arms.shoulder * arms * swing, held, 0];
+      joints.rightUpperArm = [gait.arms.shoulder * arms * swing, held, 0];
+      joints.leftLowerArm = [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0];
+      joints.rightLowerArm = [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0];
+    } else {
+      for (const side of walkReach.SIDES)
+        if (channels?.includes(`${side}Hand`))
+          Object.assign(joints, shapes[side] ??= HumanHand.shape(side, "relaxed"));
+    }
     const limbs: IHumanPosture["limbs"] = {};
     for (const side of legs) {
       const planted: boolean = feet[side].swing === undefined;

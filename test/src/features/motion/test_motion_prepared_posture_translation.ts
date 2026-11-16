@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, resolvePose } from "@automovie/engine";
+import { type IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieJointPose,
@@ -10,6 +10,7 @@ import {
   type IHumanBody,
   type IHumanPosture,
   createHumanBody,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -44,10 +45,10 @@ import { vclose } from "../internal/vclose";
  *    leg ancestor or the actual goal. Every result retains the new head
  *    angle and current foot target beside an ordinary cold solve.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States original clinical/world demand ownership, live rig/raw invalidation, Human provenance, contact precision and four snapshot/fallback/ownership scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated and fixed-base candidate workspaces beside ordinary seeded resolution on a real canonical Human; changes source/results/current head constraints and world-leg candidates, then observes actual clinical angles, cold parity and displayed foot contact.
+ * @evidence contracts/development/common.md#meaningful-documentation States original clinical/world demand ownership, live rig/raw invalidation, canonical Human provenance, fixed-base candidates, checked rebasing and contact precision across six scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated/rebased and fixed-base candidate workspaces beside ordinary seeded resolution. It changes sources/results/head constraints, leg ancestors and actual goals, then observes clinical angles, cold parity and canonical displayed foot contact.
  * @evidence contracts/development/testing.md#independent-expectations Literal authored head angles and the later five-degree bound independently fix 10/20/5. World goals must retain their actual asked coordinates under source-plus-root displacement and the existing 0.001 metre contact limit. Cold parity supplements these assertions but cannot independently certify all inverse kinematics.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers multiple translations, source/output mutation, changed raw versus rig, added free-leg context, original goal/bend transport, copied wrapper refusal, copied raw ordinary resolution, fresh outputs and A/B/A fixed-base candidate fits. No global Human table or shared fixture is mutated.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers translations, source/output edits, changed raw/rig, added goals, raw goal/bend transport, copied-wrapper refusal, copied raw, fresh outputs, A/B/A fixed-base fits and rebased head/hip/goal changes. No global table or shared fixture is mutated.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the repository's canonical Human fixture and independently cloned skeleton/profile through the actual body factory. All changed records belong to the test; no renderer, viewer, foreign method replacement, subprocess or compiler is started.
  */
 export function test_motion_prepared_posture_translation(): void {
@@ -100,7 +101,7 @@ export function test_motion_prepared_posture_translation(): void {
     nclose(head(resolveHumanPosture(body, constrained)), 5, 1e-12),
   );
 
-  const rest: IAutoMovieResolvedBone[] = resolvePose(resolveHumanPosture(body, constrained), skeleton);
+  const rest: IAutoMovieResolvedBone[] = Array.from(poseBones(body, resolveHumanPosture(body, constrained)).values());
   const foot: IAutoMovieVector3 = rest.find(
     (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
   )!.worldPosition;
@@ -111,9 +112,7 @@ export function test_motion_prepared_posture_translation(): void {
   const bend: IAutoMovieVector3 = { x: knee.x, y: knee.y, z: knee.z + 0.3 };
   constrained.limbs.leftLeg = { point: { ...point }, bend: { ...bend } };
   const fitted: IAutoMoviePose = resolveHumanPosture(body, constrained);
-  const shown: IAutoMovieVector3 = resolvePose(fitted, skeleton).find(
-    (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
-  )!.worldPosition;
+  const shown: IAutoMovieVector3 = poseBones(body, fitted).get("leftFoot")!.worldPosition;
   TestValidator.predicate("new free-leg goal receives an actual current fit",
     Math.hypot(shown.x - point.x, shown.y - point.y, shown.z - point.z) <= 0.001,
   );
@@ -147,9 +146,7 @@ export function test_motion_prepared_posture_translation(): void {
     const current: IAutoMoviePose = workspace.seeded({ leftLeg: goal }).pose;
     const cold: IAutoMoviePose = resolveHumanPosture(body, { ...fixed, limbs: { leftLeg: goal } });
     samePose(current, cold);
-    const endpoint: IAutoMovieVector3 = resolvePose(current, skeleton).find(
-      (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
-    )!.worldPosition;
+    const endpoint: IAutoMovieVector3 = poseBones(body, current).get("leftFoot")!.worldPosition;
     TestValidator.predicate("fixed-base candidate still performs its current actual fit",
       Math.hypot(endpoint.x - goal.point.x, endpoint.y - goal.point.y, endpoint.z - goal.point.z) <= 0.001,
     );
@@ -174,9 +171,7 @@ export function test_motion_prepared_posture_translation(): void {
     const rebased: IHumanPosture = resolveHumanPosture.rebased(carried, raw);
     const actual: IAutoMoviePose = resolveHumanPosture(body, rebased);
     samePose(actual, resolveHumanPosture(body, structuredClone(raw)));
-    const endpoint: IAutoMovieVector3 = resolvePose(actual, skeleton).find(
-      (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
-    )!.worldPosition;
+    const endpoint: IAutoMovieVector3 = poseBones(body, actual).get("leftFoot")!.worldPosition;
     const target: IAutoMovieVector3 = raw.limbs.leftLeg!.point;
     TestValidator.predicate("rebased evidence never substitutes an old raw goal or whole pose",
       nclose(head(actual), i === 0 ? 2 : 5, 1e-12) &&

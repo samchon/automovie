@@ -176,7 +176,12 @@ export namespace WorkoutLoad {
     );
     const bare: StrikingHeld.ITool = StrikingHeld.of(context, other);
     const fist: IHumanPosture["joints"] = HumanHand.shape(other, "fist");
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        `${side}LowerArm`,
+        `${side}Hand`,
+      ]);
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.

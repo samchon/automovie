@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, resolvePose } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, type resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
@@ -8,12 +8,15 @@ import {
   type IHumanActionPlan,
   type IHumanBody,
   type IHumanPosture,
+  poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+import { vclose } from "../internal/vclose";
 
 /**
  * A public performer observation may request a few bones without publishing
@@ -30,11 +33,13 @@ import { nclose } from "../internal/nclose";
  *    full pose through the existing exact-time pose cache.
  * 3. Mutating a returned partial head position cannot alter another partial
  *    map or the fresh full bone map at that same instant.
+ * 4. The body's real mass-bearing bone set returns the same current world
+ *    frames as full display and cannot publish an incomplete full-pose cache.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States post-construction observation timing, selected versus complete pose ownership, canonical Human source, arbitrary seek order and unchanged metre contact bound across three scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States post-construction timing, partial versus complete pose ownership, canonical Human source, real mass-bearing demand, query order and the unchanged contact bound in four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Uses only actual registered laws, context.performer.bones requested sets and public HumanPerformance pose/bones. It observes requested membership, full displayed foot contact after partial-first reads, reversed query order and nested returned-transform isolation.
  * @evidence contracts/development/testing.md#independent-expectations The law explicitly asks a foot to rise0.06 metres and move forward0.04 from its initial world point. A complete fit must meet that actual goal within the existing0.001 metre bound, so returning an omitted-leg partial solve as full fails. Ownership comparisons supplement this geometric oracle and do not supply target expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers selected-head before full at an unsettled-cache instant after construction, full before selected-head at a second instant, repeated exact queries and returned partial-transform mutation. The earlier composer test owns dependency counters; physical overlay/cut acceptance remains in full motion specifications.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers partial-head before full at a fresh post-construction instant, full before partial, exact replay, returned partial-transform edits and the actual body mass-bone set beside complete display. Composer counters and physical overlay/cut acceptance retain separate owners.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the canonical Human fixture and actual public extension laws. The captured performer reader is invoked only inside the observer's posture at that same film second, as its supported contract requires; no internal module, test-only export, replacement or host is used.
  */
 export function test_motion_partial_observation_cache(): void {
@@ -42,7 +47,7 @@ export function test_motion_partial_observation_cache(): void {
   const neutral: IAutoMoviePose = resolveHumanPosture(body, {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
   });
-  const rest: IAutoMovieResolvedBone[] = resolvePose(neutral, body.skeleton);
+  const rest: IAutoMovieResolvedBone[] = Array.from(poseBones(body, neutral).values());
   const foot: IAutoMovieVector3 = rest.find(
     (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
   )!.worldPosition;
@@ -54,7 +59,8 @@ export function test_motion_partial_observation_cache(): void {
   const observed: {
     reader?: IHumanActionContext.IPerformer;
     partial?: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  } = {};
+    demand: ReadonlySet<AutoMovieHumanoidBone>;
+  } = { demand: selected };
   const moving: IHumanActionLaw = {
     name: "observedFreeLeg", interrupts: {},
     plan: (context: IHumanActionContext): IHumanActionPlan => ({
@@ -74,7 +80,7 @@ export function test_motion_partial_observation_cache(): void {
       observed.reader = reader;
       return { duration: 1, events: [], contacts: [],
         posture: (seconds: number): IHumanPosture => {
-          observed.partial = reader.bones(context.start + seconds, selected);
+          observed.partial = reader.bones(context.start + seconds, observed.demand);
           return context.entry.posture;
         } };
     },
@@ -111,6 +117,25 @@ export function test_motion_partial_observation_cache(): void {
   complete(secondTime);
   partialAt(secondTime);
   complete(secondTime);
+  const massBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(body.massModel.segments.map(
+    (segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone,
+  ));
+  observed.demand = massBones;
+  const massTime: number = 0.612345;
+  const mass: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = partialAt(massTime);
+  TestValidator.predicate("actual mass observation returns every requested mass frame only",
+    mass.size === massBones.size && Array.from(mass.keys()).every(
+      (name: AutoMovieHumanoidBone): boolean => massBones.has(name)),
+  );
+  complete(massTime);
+  const displayed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = performance.bones("A", massTime);
+  TestValidator.predicate("partial mass frames equal the subsequent complete display",
+    Array.from(mass).every(([name, value]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean => {
+      const full: IAutoMovieResolvedBone | undefined = displayed.get(name);
+      return full !== undefined && vclose(value.worldPosition, full.worldPosition, 1e-9) &&
+        qclose(value.worldRotation, full.worldRotation, 1e-9);
+    }),
+  );
 
   /** Invoke the cross-performer observation only from its owning public posture. */
   function partialAt(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
@@ -123,9 +148,7 @@ export function test_motion_partial_observation_cache(): void {
     const pose: IAutoMoviePose = performance.pose("A", seconds);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = performance.bones("A", seconds);
     const actual: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
-    const resolved: IAutoMovieVector3 = resolvePose(pose, body.skeleton).find(
-      (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
-    )!.worldPosition;
+    const resolved: IAutoMovieVector3 = poseBones(body, pose).get("leftFoot")!.worldPosition;
     TestValidator.predicate("a complete read retains the actual free-leg task after selected observations",
       Math.hypot(actual.x - target.x, actual.y - target.y, actual.z - target.z) <= 0.001 &&
       Math.hypot(resolved.x - target.x, resolved.y - target.y, resolved.z - target.z) <= 0.001,

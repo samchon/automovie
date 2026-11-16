@@ -32,12 +32,12 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @throws Error naming the vector and component when a component is not finite.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The shortest arc between two unit vectors is the rotation about their cross product by `atan2(|a x b|, a . b)`, which `rotationBetween` computes without a near-parallel deadzone; normalizing first removes the magnitudes the angle does not depend on, and the documented zero-vector identity is `rotationBetween`'s degenerate branch rather than a separate rule.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A validating front for the one shared shortest-arc primitive, so every aim, light, projectile and two-bone caller turns vectors the same way while non-finite input is refused with the aim's own message.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Non-finite components are refused rather than replaced, and no tolerance snaps a small angle to the identity.
- * @evidence contracts/development/common.md#meaningful-documentation States its uses and how to call it for aiming, the shared primitive and why that matters, the aligned, antiparallel and zero-length results, and the refusal.
- * @evidence contracts/development/implementation.md#efficient-algorithms Six input finiteness checks precede the shared constant-time shortest-arc computation; direction normalization occurs only in rotationBetween.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two vectors; callers that need it per frame or per candidate pass different vectors each time.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no temporary vectors or persistent state; the delegated computation's bounded direction and quaternion records leave no references here.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepare entries own named finite refusal and delegate every numerical turn to rotationBetween's same core; the prepared reader adds only lazy successful source admission/normalization for the two-bone workload.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite inputs retain named refusal, every target still validates, and no small angle is snapped. Preparation stores nothing until original source-then-target validation succeeds and requires an unchanged borrowed source; direct calls keep live reads.
+ * @evidence contracts/development/common.md#meaningful-documentation States direction frames, unit rotation, collinear behavior and refusal; prepare's child documentation defines unchanged-source lifetime, lazy original-order admission, per-target checks and caller release.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Direct aiming checks six components and normalizes both directions. prepare checks/normalizes its fixed source once after successful first target admission; each later target retains three checks and the actual constant shortest-arc solve, with no measured speedup claim.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Only prepare's successful normalized source is shared under its explicit unchanged-source premise; target failure before that leaves the reader unprepared and retryable. No target, angle or rotation is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct temporaries end with the call. A prepared closure borrows its source and owns at most one normalized-source reader/vector until caller release, with no global collection, target history or handles.
  */
 export function aimRotation(
   from: IAutoMovieVector3,
@@ -64,13 +64,11 @@ export namespace aimRotation {
    * Every later target still receives the same named finite checks and exact
    * shortest-arc solve. A changed source requires another reader.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged borrowed source, lazy original-order finite admission, per-target refusal and operation release.
-   * @evidence contracts/development/implementation.md#principled-implementation Source finiteness/normalization are target-independent and successfully prepared only after both original vector validations; rotationBetween.prepare owns the same normalized-direction turn core as direct aiming.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This validating adapter owns named input refusal and delegates every numerical turn to the shared shortest-arc primitive.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Failed source or target admission stores no reader, and no zero/small-angle branch, threshold or target answer changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One successful source validation/normalization serves all candidates; each query retains three target checks and the actual constant shortest-arc work. No speedup is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged source's completed admission/normalized value are shared, and target failure before first preparation remains retryable.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One closure owns the borrowed source and at most one prepared shortest-arc closure/vector until caller release, with no target history, global state or handles.
+   * Source admission and normalization are independent of target after that
+   * first success. Only their completed work is shared; no angle, target or
+   * rotation is cached, and a failed validation leaves preparation retryable.
+   * One closure and one normalized-source reader/vector belong to this
+   * operation until caller release. Direct aiming keeps its live admission.
    */
   export function prepare(
     from: IAutoMovieVector3,

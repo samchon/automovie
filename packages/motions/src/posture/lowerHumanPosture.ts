@@ -4,6 +4,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
 import { resolveHumanPosture } from "./resolveHumanPosture";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * A posture with its root lowered along gravity to the highest height at
@@ -18,12 +19,22 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * @param body The performer's body.
  * @param posture The posture; legs with `planted` goals are kept reachable.
  * @param knee The least knee flexion, degrees; a planted leg's (`resolveHumanPosture.KNEE`) when absent.
+ * @param resolution Optional exact FK reader or lazy supplier borrowed from this synchronous person evaluation; never requested without an actual planted-leg read.
  * @returns The posture, its root lowered when needed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States gravity-axis lowering, minimum knee degrees, original targets and synchronous FK borrowing; short below documents metre/degree inputs, negative slack and the horizontally-unreachable -Infinity result.
+ * @evidence contracts/development/implementation.md#principled-implementation Actual pelvis-to-hip FK supplies origins; short applies the cosine law a*a+b*b+2*a*b*cos(knee) to measured thigh/shank lengths, then Pythagoras removes horizontal span to determine each maximum vertical reach. Taking the greatest required drop preserves the existing footskate-cleanup rule and exact arithmetic.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects actual world-anchored planted goals, reads both hip origins once, and delegates each scalar lowering to short.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Attached goals stay outside the world-root solve. short retains -Infinity at or beyond horizontal reach and negative slack when the leg reaches; no target, knee threshold, tolerance or replacement contact is introduced.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most two goals and one two-hip ancestor-demand FK precede short's constant scalar cosine/Pythagoras work per leg. No FK reader is allocated/invoked without a world plant, and short itself traverses no rig or retained state.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied same-person reader shares only exact FK prerequisites with later pose/guard reads; absent supply uses the ordinary call-local FK path. Changed root/pelvis inputs remain actual dependencies and no reader is created for absent supply.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local goals, hip frames and a lazy getter release on return or throw; only the original or lowered posture escapes, with no reader, pose history, handle or task retained.
  */
 export function lowerHumanPosture(
   body: IHumanBody,
   posture: IHumanPosture,
   knee: number = resolveHumanPosture.KNEE,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): IHumanPosture {
   // Only world-anchored plants are lowered for: a leg goal attached to a
   // bone moves with that bone, so the root cannot be solved against it here.
@@ -39,6 +50,7 @@ export function lowerHumanPosture(
     posture.root,
     resolveHumanPosture.heading(posture),
     posture.joints.hips,
+    resolution === undefined ? undefined : prepareHumanPoseResolution(resolution)(),
   );
   let drop: number = 0;
   for (const { side, goal } of legs)
@@ -51,7 +63,14 @@ export function lowerHumanPosture(
     : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
 }
 
-/** Companion helpers of {@link lowerHumanPosture}. */
+/**
+ * Scalar reach geometry used by posture lowering.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the metre-valued knee-reach helper and its unsupported horizontal-reach result.
+ * @evidence contracts/development/design.md#principled-representation The body's measured two-segment leg and clinical knee flexion determine a spherical hip-to-ankle reach.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The short helper is consumed by lowering and existing reach readers; no alternative solver state is represented.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses each actual body's thigh/shank lengths rather than a fixed person or replacement contact target.
+ */
 export namespace lowerHumanPosture {
   /**
    * How far a hip joint stands above the height from which its leg reaches an
@@ -66,6 +85,12 @@ export namespace lowerHumanPosture {
    * @returns Metres, negative by the slack of a leg that reaches with more
    *   flexion, and `-Infinity` for an ankle horizontally beyond the leg's
    *   reach, which no lowering helps.
+   *
+   * The cosine law gives squared reach a*a+b*b+2*a*b*cos(knee), and
+   * Pythagoras removes horizontal span to recover maximum vertical reach.
+   * Equality/outside reach keeps -Infinity; no target displacement or clamp
+   * is introduced. This constant scalar query traverses no rig, coordinates
+   * no cross-query result and retains no body, input or external resource.
    */
   export function short(
     body: IHumanBody,

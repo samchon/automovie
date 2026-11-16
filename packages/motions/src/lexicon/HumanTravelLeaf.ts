@@ -48,13 +48,20 @@ import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
  * a `reach` refusal on `handle` naming the largest swing followed. First
  * pass: the closure is the one at the instant the hand arrives.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, the timing and its source, the refusal and what the first pass leaves out.
+ * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, timing, refusal and closure limitation; the law comment states each hold check's exact-FK scope and reuse of a completed standing support decision.
  * @evidence contracts/development/design.md#principled-representation A law record over the stand, with one arm's goal on a prop's moving point.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased: the handle, its frame, its width and the leaf's colliders are the prop's own.
  */
 export namespace HumanTravelLeaf {
-  /** Parameters of opening a door. */
+  /**
+   * Parameters of opening a scene door by one of its moving handle points.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its scene identifier, timebase or hand default; seconds includes the reach and must exceed TAKE.
+   * @evidence contracts/development/design.md#principled-representation References the performance's actual prop and point by identifier, with action duration in seconds and an optional closed side union.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The four fields are all consumed by openDoor; handle geometry and motion remain with the scene prop rather than this parameter record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No door, handle path or hand pose is built into the parameters; the existing duration bound rejects a hold that ends before the reach finishes.
+   */
   export interface IParams {
     /** The door: its prop's subject id in the performance. */
     door: string;
@@ -81,10 +88,10 @@ export namespace HumanTravelLeaf {
   /**
    * Open a door by its handle, standing or following its leaf. Each holds
    * check lends one lazy exact-FK reader through its actual posture fit and
-   * displayed wrist read, then releases it synchronously. It does not memoize
-   * a standing posture, handle sample, fit or contact verdict across calls.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace states phases, timing and refusals. Hold checks keep their operation-local exact-FK scope and demanded hand output; a successful complete standing verdict is reused instead of solving that same support again. Runtime effect is unmeasured.
+   * displayed wrist read, then releases it synchronously. Every distinct
+   * hold check performs its actual fit. A successful complete standing pass
+   * settles that plan's support decision without repeating the same pass;
+   * no handle sample or fitted wrist is shared across differing inputs.
    */
   export const openDoor: IHumanActionLaw<IParams> = {
     name: "openDoor",

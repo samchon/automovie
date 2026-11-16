@@ -197,12 +197,13 @@ export namespace KickChain {
     base: IHumanPosture,
     solved: StrikingReach.ISolution,
     origin?: IAutoMovieVector3,
+    borrowed?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IFit {
     const { body, side } = props;
     const round: boolean = props.technique === "round";
     const hip: IAutoMovieVector3 = origin ?? KickCarriage.hip(body, base, side);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
+      prepareHumanPoseResolution(borrowed);
 
     // A round kick's foot is pointed along the shank with the instep facing
     // the travel, so the instep and the lower shin present one surface.

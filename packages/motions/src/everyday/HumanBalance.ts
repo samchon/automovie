@@ -183,14 +183,38 @@ export namespace HumanBalance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the measured quantity, its sign, the support points used and the static (zero-velocity) form of Hof's margin.
    * @evidence contracts/development/implementation.md#principled-implementation Hof et al. 2005 margin with zero velocity: the engine's segmental centre of mass to the convex hull of the feet's bearing outlines (`HumanFoot.base`), from the solved posture's bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Solves the posture once for both balance measures (`read`), gathers the feet's bearing outline points and delegates the hull distance to the engine's `resolveAutoMovieCenterOfMass.margin`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Solves common centre/support geometry once and delegates only the requested hull margin to the engine, leaving directional projection and heel-state queries to consumers that need them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every posture uses the same bearing outlines and the engine's model.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve plus the hull of the two outlines' points.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full posture solve, common mass/support placement and the hull of the two outlines' points; it no longer computes an unused heading offset or repeats sole-socket queries for heel state.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse across calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during this synchronous query and retains no model or result.
    */
   export function margin(body: IHumanBody, posture: IHumanPosture): number {
-    return read(body, posture).margin;
+    const placed: IPlaced = placement(body, posture);
+    return resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
+  }
+
+  /**
+   * Whole-body mass centre of the actual solved posture, without foot-support
+   * geometry for callers that only need the centre's position.
+   *
+   * @param body The unchanged body owning its prepared classic mass model.
+   * @param posture The actual posture with every limb and digit goal retained.
+   * @returns The whole-body centre, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States actual complete posture solving, classic mass-model ownership and world-metre output, with support geometry outside this request.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary canonical posture solver and FK, then the same engine segmental centre-of-mass placement used by support; no leg, contact or digit fit is omitted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual pose/FK and one body-owned mass placement expose the centre-only dependency that reaction entry and bending observations need.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original authored goals, clamping, actual limb/digit fitting and mass model; it omits unused foot-outline/socket/hull work without substituting a guessed centre or achieved target.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Costs one full posture solve, full FK and linear placement over mass segments; centre-only requests allocate no foot bearing points and run no support projection or hull query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the unchanged body's prepared mass model; every supplied posture is actually solved and placed without retaining time samples or numerical answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh world vector and retains no body, pose, model, FK reader or support data after the synchronous query.
+   */
+  export function centre(body: IHumanBody, posture: IHumanPosture): IAutoMovieVector3 {
+    return resolveAutoMovieCenterOfMass.place(
+      body.massModel,
+      poseBones(body, resolveHumanPosture(body, posture)),
+    );
   }
 
   /**
@@ -219,11 +243,8 @@ export namespace HumanBalance {
     seconds: number,
   ): number {
     const h: number = 1 / 240;
-    const com = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(
-        body.massModel,
-        poseBones(body, resolveHumanPosture(body, at(t))),
-      );
+    const com: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 =>
+      centre(body, at(t));
     const a: IAutoMovieVector3 = com(seconds - h);
     const b: IAutoMovieVector3 = com(seconds + h);
     const velocity: IAutoMovieVector3 = Vector3.scale(
@@ -262,10 +283,10 @@ export namespace HumanBalance {
     body: IHumanBody,
     posture: IHumanPosture,
   ): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
-    const bones = poseBones(body, resolveHumanPosture(body, posture));
+    const placed: IPlaced = placement(body, posture);
     return {
-      centre: resolveAutoMovieCenterOfMass.place(body.massModel, bones),
-      points: HumanFoot.base(body, bones),
+      centre: placed.centre,
+      points: placed.base,
     };
   }
 
@@ -330,14 +351,14 @@ export namespace HumanBalance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the quantity, the reference (the bearing base's middle along the heading), the axis (the posture's heading) and the sign.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's centre of mass minus the middle of the base that bears after the leg fit, both projected on the heading from the posture's yaw: the static balance error `shift` drives to zero, which a heel-off moves with the base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve read for both balance measures (`read`) and one projection; `shift` uses it as its error.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solved centre/support preparation feeds the same heading projection shared by shift's complete reading; offset requests do not compute hull margins or heel state.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case present.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full posture solve and linear projection over actual bearing points; the unused support-hull margin and heel-state socket queries are omitted.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during one synchronous solve and retains no duplicate model or output.
    */
   export function offset(body: IHumanBody, posture: IHumanPosture): number {
-    return read(body, posture).offset;
+    return projected(placement(body, posture), posture.yaw);
   }
 }
 
@@ -350,44 +371,60 @@ interface IReading {
 
 /** A posture's balance, read on one solve of it. */
 function read(body: IHumanBody, posture: IHumanPosture): IReading {
+  const placed: IPlaced = placement(body, posture);
+  return {
+    offset: projected(placed, posture.yaw),
+    margin: resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base),
+
+    // A heel bears within the bearing height of the lowest sole socket.
+    flat: (["left", "right"] as const).every(
+      (side: "left" | "right"): boolean => {
+        const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(body, placed.bones, side);
+        return sockets[0]!.point.y <=
+          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING;
+      },
+    ),
+  };
+}
+
+/** Common solved geometry needed by all static balance measurements. */
+interface IPlaced {
+  /** Actual complete displayed FK, after every limb and digit fit. */
+  bones: ReturnType<typeof poseBones>;
+
+  /** Actual whole-body mass centre in world metres. */
+  centre: IAutoMovieVector3;
+
+  /** Original foot-outline bearing points in their original order. */
+  base: IAutoMovieVector3[];
+}
+
+/** Solve once and prepare only the common mass-centre and support geometry. */
+function placement(body: IHumanBody, posture: IHumanPosture): IPlaced {
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
     resolveHumanPosture(body, posture),
   );
-  const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-    body.massModel,
+  return {
     bones,
-  );
-  const base: IAutoMovieVector3[] = HumanFoot.base(body, bones);
+    centre: resolveAutoMovieCenterOfMass.place(body.massModel, bones),
+    base: HumanFoot.base(body, bones),
+  };
+}
+
+/** Project the same mass centre and base on the heading without a hull or heel query. */
+function projected(placed: IPlaced, yaw: number): number {
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
     { x: 0, y: 0, z: 1 },
   );
   let rear: number = Infinity;
   let front: number = -Infinity;
-  for (const p of base) {
+  for (const p of placed.base) {
     const along: number = Vector3.dot(p, forward);
     rear = Math.min(rear, along);
     front = Math.max(front, along);
   }
-  return {
-    offset: Vector3.dot(com, forward) - (rear + front) / 2,
-    margin: resolveAutoMovieCenterOfMass.margin(com, base),
-    // A heel bears within the bearing height of the foot's lowest sole
-    // socket, the ball or the toe a foot stands on either way.
-    flat: (["left", "right"] as const).every(
-      (side: "left" | "right"): boolean => {
-        const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(
-          body,
-          bones,
-          side,
-        );
-        return (
-          sockets[0]!.point.y <=
-          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING
-        );
-      },
-    ),
-  };
+  return Vector3.dot(placed.centre, forward) - (rear + front) / 2;
 }
 

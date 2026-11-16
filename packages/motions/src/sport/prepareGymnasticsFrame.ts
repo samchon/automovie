@@ -5,12 +5,14 @@ import {
 import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
 import type { GymnasticsFlight } from "./GymnasticsFlight";
+import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 
 /**
  * Prepare one joint-only flight query for both its COM placement and its
@@ -29,8 +31,8 @@ import type { GymnasticsFlight } from "./GymnasticsFlight";
  * @evidence contracts/development/implementation.md#principled-implementation Resolve the original clinical demands once at root Y zero. A rigid translation carries its mass-weighted centre and every collider together; COM fixes the new root, while the negated lowest collider at root Y zero is the root height needed to rest the same articulation on the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the fixed query inputs, resolve one canonical bone map, place the raw posture by COM and lend that same map to the floor owner's reduction only on demand.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves raw clinical joints, resolver ROM, collision shapes and exact physical bounds. A position-dependent goal is refused rather than frozen or substituted, and the returned posture still receives ordinary downstream resolution.
- * @evidence contracts/development/implementation.md#efficient-algorithms One canonical resolution/FK in B bones and O(S) segment reduction supplies both real consumers; floor demand adds only O(C) collider bounds. It avoids the original second floor FK without changing bisection stations or tolerance; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the current query's articulation shares canonical bones between COM/floor. An explicit synchronous planning reader may also share exactly unchanged FK dependencies between bisection stations; changed angles/joints still evaluate, without a time-keyed result cache.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One canonical resolution and FK of mass/collider bone ancestry supplies both consumers, followed by O(S) mass reduction and demanded O(C) collider bounds. It removes the second floor FK without changing stations or tolerance; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The same unchanged profile supplies the body's canonical mass model and borrowed collider demand; alternate model bones are explicitly added. Only current-query geometry is shared between COM/floor, while a synchronous reader reuses exactly unchanged FK dependencies across real stations, without time-keyed result reuse.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each frame owns one current-query map and fresh raw posture. Its floor reader captures only body/map, never the optional FK reader/supplier, which stays with the synchronous planning caller or releases on return/throw; no global history or external handle is acquired.
  */
 export function prepareGymnasticsFrame(
@@ -39,7 +41,7 @@ export function prepareGymnasticsFrame(
   raw: IHumanPosture,
   centre: IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-): prepareGymnasticsFrame.IFrame {
+): IPreparedGymnasticsFrame {
   if (
     Object.values(raw.limbs).some((goal: IHumanPosture.IGoal | undefined): boolean => goal !== undefined) ||
     Object.values(raw.digits ?? {}).some((goal: IHumanPosture.IDigitGoal | undefined): boolean => goal !== undefined) ||
@@ -49,8 +51,14 @@ export function prepareGymnasticsFrame(
 
   const source: IHumanPosture = { ...raw, root: { ...raw.root, y: 0 } };
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+  let requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(body);
+  if (model !== body.massModel) {
+    const combined: Set<AutoMovieHumanoidBone> = new Set(requested);
+    for (const segment of model.segments) combined.add(segment.bone);
+    requested = combined;
+  }
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(body, resolveHumanPosture.seeded(body, source, undefined, undefined, read).pose, read());
+    poseBones(body, resolveHumanPosture.seeded(body, source, undefined, undefined, read).pose, read(), requested);
   const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, bones);
   return {
     posture: {
@@ -65,39 +73,3 @@ export function prepareGymnasticsFrame(
   };
 }
 
-/**
- * The two real readings sharing one joint-only query's canonical geometry.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The frame documents raw posture provenance, exact floor reading and operation lifetime.
- * @evidence contracts/development/design.md#principled-representation Shares canonical geometry between COM placement and floor bounds while preserving the original raw posture separately.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One frame record serves those two existing law consumers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No alternate accepted pose, cached verdict, source flag or range override is exposed.
- */
-export namespace prepareGymnasticsFrame {
-  /**
-   * COM-placed raw demands and a floor-height reader of the same articulation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state demanded versus resolved ownership, units and the synchronous query lifetime.
-   * @evidence contracts/development/design.md#principled-representation Keeps the law's original posture separate from the floor height derived from its canonical collider geometry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The flight law reads the posture and its touchdown check reads floor; no prepared state enters the public action interface.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no resolved flag, altered target or stored acceptance verdict; the floor remains the real collider reduction.
-   */
-  export interface IFrame {
-    /** Original clinical demands with only the root moved to the requested COM. */
-    posture: IHumanPosture;
-
-    /**
-     * Read the root Y that rests this articulation's lowest collider on zero.
-     * Release the reader with its current query frame.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States metre units through root Y, floor-zero convention and frame-owned lifetime.
-     * @evidence contracts/development/implementation.md#principled-implementation Delegates the current canonical bone map's exact collider bounds to KnockdownFloor.lowest, then negates its minimum Y.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One reduction keeps physical floor policy in its existing owner.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual collider bound is still evaluated; no cached floor verdict or tolerance changes the contact.
-     * @evidence contracts/development/implementation.md#efficient-algorithms O(C) shape bounds without another canonical solve/FK.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the same synchronous query's bones as COM placement; distinct postures never share this frame.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows its frame's map through the query, with no external handle or global retention.
-     */
-    floor(): number;
-  }
-}

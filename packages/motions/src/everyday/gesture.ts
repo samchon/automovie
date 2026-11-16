@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
@@ -25,10 +25,9 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { HumanHand } from "../posture/HumanHand";
+import type { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
@@ -39,6 +38,7 @@ import { gestureStroke } from "./gestureStroke";
 import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureTouch } from "./gestureTouch";
 import { handGoals } from "./handGoals";
+import { prepareGestureTransport } from "./prepareGestureTransport";
 
 /**
  * A communicative gesture while standing: the hand, head or trunk moves
@@ -259,17 +259,16 @@ export namespace gesture {
     // left it and rests where that body's arm hangs.
     // A one-handed gesture's stand sways in that hand's frame, so a left
     // gesture mirrors a right one (`stand.plan`).
-    const under = (seconds: number): IHumanActionPlan =>
+    const standing: ReturnType<typeof stand.prepare> | undefined =
       context.carrier === undefined
-        ? stand.plan(
-            { ...context, params: { seconds } },
-            sides.length === 1 ? sides[0]! : "right",
-          )
-        : AutoMovieMotionHumanBase.under(context, seconds);
+        ? stand.prepare({ ...context, params: {} }, sides.length === 1 ? sides[0]! : "right")
+        : undefined;
+    const under: (seconds: number) => IHumanActionPlan = (seconds: number): IHumanActionPlan =>
+      standing === undefined
+        ? AutoMovieMotionHumanBase.under(context, seconds)
+        : standing(seconds);
     const probe: IHumanActionPlan = under(1);
     const at0: IHumanPosture = probe.posture(0);
-    const entryBones: ReturnType<typeof poseBones> | undefined =
-      sides.length === 0 ? undefined : poseBones(body, context.entry.pose);
     const restPose: IAutoMoviePose | undefined =
       sides.length === 0 ? undefined : resolveHumanPosture(body, at0);
     const begin: Partial<
@@ -298,9 +297,10 @@ export namespace gesture {
         padding[side] = gestureTouch.padding(body, side);
     }
     // The farthest a hand travels from the entry to its stroke's start.
-    const span = (): number => {
-      let far: number = 0;
-      for (const side of sides) {
+    const measure: ReturnType<typeof prepareGestureTransport> =
+      prepareGestureTransport(body, context.entry.pose, sides);
+    const span: () => number = (): number =>
+      measure((side: HumanHand.Side): gestureStroke.IHand => {
         const goal: gestureStroke.IHand = gestureStroke.hand(
           p.kind,
           side,
@@ -309,19 +309,8 @@ export namespace gesture {
           input(at0, 0, side),
         );
         shapes[side] = goal.shape;
-        far = Math.max(
-          far,
-          Vector3.length(
-            Vector3.subtract(
-              goal.point,
-              HumanHand.frame(body, entryBones!, side, goal.surface, "relaxed")
-                .point,
-            ),
-          ),
-        );
-      }
-      return far;
-    };
+        return goal;
+      });
 
     // The Effort's tempo, slowed by the action's own time scale where it is
     // replanned to take the time its motion needs (`AutoMovieMotionManner.of`).

@@ -172,12 +172,13 @@ export const preserveRetargetContacts: (props: {
   const effectors: ReadonlySet<AutoMovieHumanoidBone> = new Set(
     windows.map(({ chain }: IAutoMovieContactWindow): AutoMovieHumanoidBone => chain.effector),
   );
+  const sourceDemand: prepareSkeletonPoseResolution.IBoneDemand = sourceRig.prepareBones(effectors);
 
   const frames: IAutoMovieKeyframe[] = props.retargeted.keyframes;
   const sourceResolved: ReturnType<typeof resolveBoneMap>[] =
     props.sourceMotion.keyframes.map(
       (kf: IAutoMovieKeyframe): ReturnType<typeof resolveBoneMap> =>
-        resolvePrepared(sourceRig, kf.pose, sourceResolution, effectors),
+        resolvePrepared(sourceDemand, kf.pose, sourceResolution),
     );
 
   // Per-frame contact pins, already mapped into target space.
@@ -296,12 +297,13 @@ const correctFrame: (props: {
 }): IAutoMovieKeyframe => {
   if (props.pins.size === 0) return props.keyframe;
 
-  const effectors: ReadonlySet<AutoMovieHumanoidBone> = new Set(props.pins.keys());
+  const demanded: prepareSkeletonPoseResolution.IBoneDemand =
+    props.poseResolution.prepareBones(new Set(props.pins.keys()));
 
   const resolve: (pose: IAutoMoviePose) => ReturnType<typeof resolveBoneMap> = (
     pose: IAutoMoviePose,
   ): ReturnType<typeof resolveBoneMap> =>
-    resolvePrepared(props.poseResolution, pose, props.resolution, effectors);
+    resolvePrepared(demanded, pose, props.resolution);
 
   let pose: IAutoMoviePose = props.keyframe.pose;
   let resolved: ReturnType<typeof resolve> = resolve(pose);
@@ -341,13 +343,12 @@ const correctFrame: (props: {
 
 /** Index only demanded fresh outputs from one admitted immutable retarget rig. */
 function resolvePrepared(
-  rig: prepareSkeletonPoseResolution.IRig,
+  demand: prepareSkeletonPoseResolution.IBoneDemand,
   pose: IAutoMoviePose,
   resolution: ReturnType<typeof preparePoseResolution>,
-  requested: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-  for (const bone of rig.resolve(pose, resolution, requested)) map.set(bone.bone, bone);
+  for (const bone of demand.resolve(pose, resolution)) map.set(bone.bone, bone);
   return map;
 }
 

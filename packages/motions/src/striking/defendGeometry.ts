@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -124,7 +124,9 @@ export namespace defendGeometry {
     // The point within the region is the strike's own, so the defence goes
     // where the strike is aimed.
     const aimed = timing.attack.plan.aimed;
-    const regionAt = StrikingBody.region(body, own, timing.region, aimed);
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, timing.region, aimed);
+    const regionAt: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+      resolveAutoMovieHumanoidSurfaces.place(frame, own.get(frame.bone)!);
     const attacker: IHumanActionContext.IPerformer = context.performer(
       timing.attack.subject,
     );
@@ -257,6 +259,7 @@ export namespace defendGeometry {
           aimed,
           sight,
           bones,
+          frame,
         });
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs, ...guard };
         for (const limb of [

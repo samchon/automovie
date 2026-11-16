@@ -75,8 +75,8 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#principled-implementation Retains the original TrajOpt outer loop, exact l1 constraint merit, keyed multiplier warm start and Nocedal-Wright second-order bound correction under the same schedule and stopping thresholds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The course problem owns physical evaluations, HumanSequentialConvex owns acceptance and steering, and a prepared quadratic model owns each fixed P/q/A convexification's numeric solves.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original QP calls, warm/cold choices, penalties, attempts and tolerance tests; preparation shares numeric prerequisites only while changing row intervals remain explicit solve inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each convexification prepares fixed matrices once across radius retries and its bound-only corrections. Model value and soft-row violation share one ordered row-product pass; the finite origin avoids a zero-vector scan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed variable layout, ordered A rows and P/q are shared only within one convex model; each new linearization prepares afresh, warm iterates follow the original radius path, and corrections remain cold.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One x/objective linearization shares fixed matrices/preparation across steering prices, radius retries and bound-only corrections. Corrections reuse trial merit's raw bounds instead of unused derivatives/P/q; value/violation share one row pass and discarded steering proposals defer trial-vector allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed layout, ordered A and P/q stay private to one x/objective linearization. Repricing changes only original nonlinear rows to the exact new mu and starts fresh model-local cold/keyed-dual state; radius retries keep their original warm state and corrections remain cold while borrowing the exact trial's unclamped bounds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve retains current multipliers, last-step metadata and active prepared-model state, each bounded by its course dimensions; model closures and numeric scratch release with the solve and no history or global cache is added.
    */
   export function optimise(
@@ -100,7 +100,6 @@ export namespace walkStanceSolve {
           x: Float64Array;
           model: Q.IProblem;
           rows: number;
-          mu: number;
           radius: number;
           step: Float64Array;
           prepared: ReturnType<typeof Q.prepare>;
@@ -121,62 +120,79 @@ export namespace walkStanceSolve {
       ): SCO.IModel<Float64Array> => {
         const about: { problem: walkStanceCourse.IProblem; rows: Q.IRow[] } = at(x, true);
         const convex: Q.IProblem = about.problem.convexify(x, mu, objective);
-        const model: Q.IProblem = {
+        const fixed: Q.IProblem = {
           ...convex,
           rows: [...convex.rows, ...about.rows],
         };
-        const zero: number = Q.value(model);
-        let trusted: Q.IProblem | undefined;
         let prepared: ReturnType<typeof Q.prepare> | undefined;
-        let warm: Q.IState | undefined;
-        return {
-          solve: (radius: number): SCO.IStep<Float64Array> => {
-            trusted = {
-              ...model,
-              rows: [...model.rows, ...shape.region(x, radius)],
-            };
-            // Radius changes alter the bounds alone; P, q and every row's
-            // coefficients belong to this one convexification.
-            prepared ??= Q.prepare(trusted);
-            warm = prepared.solve(trusted.rows, warm, duals);
-            last = {
-              x,
-              model,
-              rows: convex.rows.length,
-              mu,
-              radius,
-              step: warm.x,
-              prepared,
-            };
-            const length: number = shape.length(warm.x);
-            // The soft rows' linearised excess at the step, in their own
-            // degrees, the violation the steering reads.
-            let violation: number = 0;
-            let worst: number = 0;
-            const value: number = Q.value(model, warm.x, (_row: Q.IRow, over: number): void => {
-              violation += over;
-              worst = Math.max(worst, over);
-            });
-            const delta: Float64Array = warm.x;
-            let trial: Float64Array | undefined;
-            return {
-              // Steering compares scalar diagnostics before choosing a model;
-              // only a proposal actually evaluated needs its course vector.
-              get trial(): Float64Array {
-                return (trial ??= shape.stepped(x, delta));
-              },
-              predicted: zero - value,
-              violation,
-              met: worst <= shape.tolerance,
-              length,
-              // The step at the region's edge, to the solver's own accuracy.
-              full: length >= radius * (1 - Q.TOLERANCE),
-            };
-          },
-          taken: (): void => {
-            duals = Q.multipliers(trusted!, warm!);
-          },
+
+        // Steering changes only the original nonlinear rows' l1 prices.
+        // Each price owns fresh warm iterates while fixed P/q/A preparation
+        // remains private to this one course and objective mode.
+        const priced: (penalty: number) => SCO.IModel<Float64Array> = (
+          penalty: number,
+        ): SCO.IModel<Float64Array> => {
+          const model: Q.IProblem = {
+            ...fixed,
+            rows: fixed.rows.map((row: Q.IRow, index: number): Q.IRow =>
+              index < convex.rows.length && row.weight !== undefined
+                ? { ...row, weight: penalty }
+                : row,
+            ),
+          };
+          const zero: number = Q.value(model);
+          let trusted: Q.IProblem | undefined;
+          let warm: Q.IState | undefined;
+          return {
+            solve: (radius: number): SCO.IStep<Float64Array> => {
+              trusted = {
+                ...model,
+                rows: [...model.rows, ...shape.region(x, radius)],
+              };
+              // Radius changes alter the bounds alone; P, q and every row's
+              // coefficients belong to this one convexification.
+              prepared ??= Q.prepare(trusted);
+              warm = prepared.solve(trusted.rows, warm, duals);
+              last = {
+                x,
+                model,
+                rows: convex.rows.length,
+                radius,
+                step: warm.x,
+                prepared,
+              };
+              const length: number = shape.length(warm.x);
+              // The soft rows' linearised excess at the step, in their own
+              // degrees, the violation the steering reads.
+              let violation: number = 0;
+              let worst: number = 0;
+              const value: number = Q.value(model, warm.x, (_row: Q.IRow, over: number): void => {
+                violation += over;
+                worst = Math.max(worst, over);
+              });
+              const delta: Float64Array = warm.x;
+              let trial: Float64Array | undefined;
+              return {
+                // Steering compares scalar diagnostics before choosing a model;
+                // only a proposal actually evaluated needs its course vector.
+                get trial(): Float64Array {
+                  return (trial ??= shape.stepped(x, delta));
+                },
+                predicted: zero - value,
+                violation,
+                met: worst <= shape.tolerance,
+                length,
+                // The step at the region's edge, to the solver's own accuracy.
+                full: length >= radius * (1 - Q.TOLERANCE),
+              };
+            },
+            taken: (): void => {
+              duals = Q.multipliers(trusted!, warm!);
+            },
+            reprice: priced,
+          };
         };
+        return priced(mu);
       },
 
       // The second-order correction of a rejected step (Nocedal and Wright
@@ -184,31 +200,28 @@ export namespace walkStanceSolve {
       // each row's linearisation error at the trial, e = g(trial) - (g(x) +
       // a d), is taken off its bounds, and the subproblem at `x` is solved
       // again within the same region, so the step lands where the rows'
-      // second-order miss is met. A row's error is read from the rows
-      // linearised at the trial, which list the same constraints in the same
-      // order: there its bounds are L - g(trial), U - g(trial), so
+      // second-order miss is met. The trial's preceding merit evaluation
+      // already read the same signed constraints in their model order,
+      // before clamping to penalty: its bounds are L-g(trial), U-g(trial), so
       // g(trial) - g(x) is the difference of whichever bound is finite; a
       // row bounded on neither side has no error to correct.
       correct: (
         x: Float64Array,
-        step: SCO.IStep<Float64Array>,
+        _step: SCO.IStep<Float64Array>,
+        trial: walkStanceCourse.IEvaluation,
       ): Float64Array | null => {
         if (last === undefined || last.x !== x) return null;
-        const there: Q.IProblem = at(step.trial, true).problem.convexify(
-          step.trial,
-          last.mu,
-          true,
-        );
+        const there: walkStanceCourse.IEvaluation["bounds"] = trial.bounds;
         // The same constraints in the same order, or no correction.
-        if (there.rows.length !== last.rows) return null;
+        if (there.length !== last.rows) return null;
         const d: Float64Array = last.step;
         const rows: Q.IRow[] = last.model.rows.map(
           (row: Q.IRow, i: number): Q.IRow => {
-            if (i >= there.rows.length) return row;
+            if (i >= there.length) return row;
             let predicted: number = 0;
             for (let r: number = 0; r < row.index.length; r++)
               predicted += row.coef[r]! * d[row.index[r]!]!;
-            const linearised: Q.IRow = there.rows[i]!;
+            const linearised: Pick<Q.IRow, "l" | "u"> = there[i]!;
             const moved: number | null = Number.isFinite(row.l)
               ? row.l - linearised.l
               : Number.isFinite(row.u)
@@ -319,7 +332,7 @@ export namespace walkStanceSolve {
     n: number,
     x: Float64Array,
     unmet: number,
-    read: (x: Float64Array, k: number, j: number) => { planted: walkStanceCourse.IPlanted },
+    read: (x: Float64Array, k: number, j: number) => walkStanceCourse.IPlanted,
   ): walkStanceCourse.ICourse {
     const series: (slot: number) => Float64Array = (slot: number): Float64Array =>
       Float64Array.from(
@@ -339,7 +352,7 @@ export namespace walkStanceSolve {
       unmet,
       planted: knots.map((knot: walkStanceCourse.IKnot, k: number): walkStanceCourse.IPlanted[] =>
         knot.stances.map(
-          (_: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted => read(x, k, j).planted,
+          (_: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted => read(x, k, j),
         ),
       ),
     };
@@ -385,6 +398,7 @@ export namespace walkStanceSolve {
         let objective: number = 0;
         let violation: number = 0;
         let worst: number = 0;
+        const bounds: Pick<Q.IRow, "l" | "u">[] = [];
         built.sweep(
           x,
           false,
@@ -392,11 +406,12 @@ export namespace walkStanceSolve {
             objective += (r * r) / 2;
           },
           (over: number): void => {
+            bounds.push({ l: -Infinity, u: -over });
             violation += Math.max(0, over);
             worst = Math.max(worst, over);
           },
         );
-        return { objective, violation, worst };
+        return { objective, violation, worst, bounds };
       },
       convexify: walkStanceConvexify(tail, size, built.sweep),
       region: (x: Float64Array, radius: number): Q.IRow[] =>
@@ -416,9 +431,7 @@ export namespace walkStanceSolve {
           built.n,
           x,
           unmet,
-          (values: Float64Array, k: number, j: number): { planted: walkStanceCourse.IPlanted } => ({
-            planted: built.planted(values, k, j),
-          }),
+          built.planted,
         );
         return windowed ? joined(knots, start!, join, solved) : solved;
       },

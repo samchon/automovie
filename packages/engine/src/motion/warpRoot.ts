@@ -6,6 +6,9 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { minimumJerk } from "./minimumJerk";
 
+/** Module-owned fixed world-up preparation, never a yaw or quaternion result. */
+let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
+
 /**
  * Warp a motion's root so it arrives at a different place and heading by a
  * named instant, leaving the motion's own shape intact.
@@ -29,9 +32,9 @@ import { minimumJerk } from "./minimumJerk";
  * @evidence contracts/development/implementation.md#principled-implementation A displacement map blended by the minimum-jerk profile (Witkin and Popović 1995; Unreal Motion Warping).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One profile read and one composition.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A window that does not move forward throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work; the private unchanged +Y axis shares its magnitude preparation after first actual use, while every varying yaw still computes its original sine/cosine, Hamilton product and normalization. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One lazy module-owned reader reuses only the private canonical +Y axis scalars. Window validation and profile/translation/yaw reads retain their original order; every root/yaw remains a fresh actual computation with no result cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module retains at most one lazy reader and its private fixed axis/direction-length metadata. First use acquires it at the original axis-angle site; no root, window, angle or quaternion result is retained. Fresh output belongs to the caller and the fixed population releases with the module.
  */
 export function warpRoot(
   root: IAutoMovieTransform,
@@ -51,7 +54,7 @@ export function warpRoot(
     },
     rotation: Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, warp.yaw * s),
+        (yawRotation ??= Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 }))(warp.yaw * s),
         root.rotation,
       ),
     ),

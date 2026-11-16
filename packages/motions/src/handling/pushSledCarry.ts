@@ -42,7 +42,18 @@ export namespace pushSledCarry {
     /** The shared floor turn from the arrival, around world +Y. */
     turn: IAutoMovieQuaternion;
 
-    /** Carry a hold by this actual frame, returning fresh wrist and hint records. */
+    /**
+     * Carry the arrival wrist/elbow by this actual chest frame, returning
+     * fresh world-metre wrist/hint records with their original point heights.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the fixed arrival/current-frame relation, world-metre hold, fresh output and preserved point heights.
+     * @evidence contracts/development/implementation.md#principled-implementation prepare returns this operation as currentChest + RY(point-arrivalChest), restoring each point's original world Y, with wrist rotation normalize(RY * originalRotation); RY is the actual current-minus-arrival chest heading.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The same moved point transform places the wrist and elbow hint, while one quaternion composition carries the hand's attitude.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The operation changes no IK goal, contact threshold, capsule or tolerance and retains the original yaw-only floor-load motion.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each hold performs two fixed-size rigid point transforms and one normalized quaternion product; no skeleton traversal or numerical fit runs here.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Both hands share the same current frame's actual yaw quaternion and point transform while the borrowed arrival/current frames remain unchanged; different holds still calculate their own points and attitudes.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call returns fresh IHold, wrist, point, bend and rotation records. Its owning frame closure borrows arrival/current bone frames and the fixed yaw for that frame's lifetime, with no queried-hold history or external handle.
+     */
     hold: (hold: IHold) => IHold;
   }
 

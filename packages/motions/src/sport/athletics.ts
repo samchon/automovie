@@ -224,6 +224,7 @@ export namespace athletics {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels: ["root", "trunk"],
+        reads: ["root", "trunk"],
         from: 0,
         to: clock.duration,
         write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
@@ -281,8 +282,7 @@ export namespace athletics {
       const share: (seconds: number) => number = (seconds: number): number => {
         return Math.min(1, Math.max(0, (seconds - a) / (b - a)));
       };
-      primitives.push(
-        AutoMovieMotionHumanLeg.place({
+      const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place({
           body,
           side,
           from: 0,
@@ -301,8 +301,8 @@ export namespace athletics {
             const at: number = share(seconds);
             return at <= 0 || at >= 1;
           },
-        }),
-      );
+        });
+      primitives.push({ ...leg, reads: ["root", `${side}Leg`] });
     }
     for (const side of ["left", "right"] as const)
       primitives.push(

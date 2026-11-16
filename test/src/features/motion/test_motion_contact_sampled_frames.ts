@@ -18,11 +18,14 @@ import { nclose } from "../internal/nclose";
  * 3. A sphere initially touching X=0 departs, has certified positive clearance
  *    at 0.25 seconds and re-enters at 0.6. Both certificate measurements and
  *    the later scan use actual combined frames.
+ * 4. A stop at exactly0 changes another weapon's frame at that same second
+ *    from separated to touching. Its second event stays exactly0, proving
+ *    same-time samples from different committed-stop states cannot be shared.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives metre/second geometry, stop-dependent path, taper/departure equations and the ownership of callback counters in three scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives metre/second geometry, stop-dependent paths including the same exact second, taper/departure equations and owned callback counters in four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Runs public event resolution with ordinary and sampled weapons, checks analytic contact ids/times and actual taper arguments, and observes owned callbacks to require samples while leaving replaced position/tail operations inactive.
  * @evidence contracts/development/testing.md#independent-expectations Sphere contact solves x=-radius, giving 0.45 and stop-adjusted 0.7. For the falling tilted capsule, tail gap is 0.8-2t-0.05, whose zero is 0.375; uniform wide radius gives 0.3. The departing piecewise linear path reaches x=-0.1 again at 0.6. No event snapshot supplies those times.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers sphere and tapered capsule geometry, ordinary versus combined adapters, current stops before/after a committed event, replaced callback inactivity, required positive sampling, initial departure witness and later entry. Mutual contact and malformed declarations remain separately specified.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers spheres/tapers, ordinary/combined adapters, stop-state changes at both later and identical exact times, inactive legacy callbacks, required sampling, departure witnesses and reentry. Mutual contact and malformed declarations remain separately specified.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory unit owns analytic paths, walls, certificate callbacks and counters. It replaces no foreign function, global or solver and starts no host, renderer or compiler; the existing 1e-6-second contact precision remains unchanged.
  */
 export function test_motion_contact_sampled_frames(): void {
@@ -74,6 +77,23 @@ export function test_motion_contact_sampled_frames(): void {
     );
     TestValidator.predicate("combined sphere sampling leaves replaced callbacks inactive",
       sampled ? samples > 0 && positions === 0 && tails === 0 : samples === 0 && positions > 0,
+    );
+  }
+
+  for (const sampled of [false, true]) {
+    const statesAtZero: boolean[] = [];
+    const simultaneous: C.IEvent[] = C({ from: 0, to: 0.5, step: 1 / 120, bodies: [wall], weapons: [
+      weapon("a", sampled, (): C.IWeaponFrame => ({ position: { x: -0.1, y: 0, z: 0 } })),
+      weapon("b", sampled, (seconds: number, stops: C.IStops): C.IWeaponFrame => {
+        const stopped: boolean = stops.has("a");
+        if (seconds === 0) statesAtZero.push(stopped);
+        return { position: { x: stopped ? -0.05 - 2 * seconds : -1, y: 0, z: 0 } };
+      }),
+    ] });
+    TestValidator.predicate("same exact time after a committed stop reads its current actual frame",
+      simultaneous.length === 2 && simultaneous[0]!.weapon === "a" && simultaneous[1]!.weapon === "b" &&
+      nclose(simultaneous[0]!.seconds, 0, 0) && nclose(simultaneous[1]!.seconds, 0, 0) &&
+      statesAtZero.includes(false) && statesAtZero.includes(true),
     );
   }
 

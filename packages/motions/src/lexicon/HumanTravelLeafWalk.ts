@@ -33,7 +33,14 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is named: the handle's path and normal are the prop's own.
  */
 export namespace HumanTravelLeafWalk {
-  /** What the walk is planned from. */
+  /**
+   * The door law's entry, action clock and actual held-handle path.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the entry context, action duration, local taking instant and world-frame handle reader with their units.
+   * @evidence contracts/development/design.md#principled-representation One action-local clock and a deterministic world point/normal reader describe the stance the held handle asks without duplicating the door's articulation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields supply every entry, timing and handle dependency the planner reads; geometry remains behind the supplied reader.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The path comes from the caller's held handle, never a named door, baked trajectory or invented sequence of stance points.
+   */
   export interface IProps {
     /** The door law's context; its entry is where the walk starts. */
     context: IHumanActionContext<object>;
@@ -44,7 +51,18 @@ export namespace HumanTravelLeafWalk {
     /** When the hand has taken the handle, seconds from the start. */
     take: number;
 
-    /** Where the hand holds the handle at a second of the action, and the handle's outward normal, world. */
+    /**
+     * Where the hand holds the handle at an action-local second, metres in
+     * world coordinates, with the handle's outward world normal.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the action-second input and returned world position and outward normal used to carry the taking stance.
+     * @evidence contracts/development/implementation.md#principled-implementation A deterministic geometry reader lets the planner follow the scene's actual articulated handle at every requested instant rather than replace its path.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure This declaration supplies only the reader contract; its caller owns handle construction and plan owns the unchanged reading schedules.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contract supplies no fallback path, normalized time or cached sample in place of the actual action-second point and normal.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration has no body or algorithm; each supplied handle reader owns its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declared member coordinates no work and owns no cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no resource or retained state; the planner retains the supplied reader only through its own input lifetime.
+     */
     handle: (seconds: number) => {
       point: IAutoMovieVector3;
       normal: IAutoMovieVector3;

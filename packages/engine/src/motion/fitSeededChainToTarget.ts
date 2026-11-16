@@ -96,8 +96,9 @@ export namespace fitSeededChainToTarget {
    * Prepare one source request for a synchronous operation that varies only
    * its target, such as contact re-aim. The source owns its cold/near mode;
    * neither the previous target nor its answer becomes a new seed.
-   * A supplied authored reader must use the exact source rig, pose and
-   * clinical mappings; it shares already completed full FK at first use.
+   * A supplied authored reader must include the source effector frame under
+   * this exact rig/pose/clinical mapping and admit every authored joint in
+   * order; extra frames may serve the caller. It shares completed FK at first use.
    * An optional resolution reader belongs to the same synchronous operation
    * and shares exact computation across its source, zeroed and reference FK.
    * A supplied poseResolution must snapshot this exact source rig, topology

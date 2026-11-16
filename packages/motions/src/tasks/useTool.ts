@@ -254,7 +254,9 @@ export namespace useTool {
         rotation,
       };
     };
-    const strain: (pose: IWork) => number = (pose: IWork): number => {
+    const strain: (pose: IWork, bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>) => number = (
+      pose: IWork, bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
+    ): number => {
       const props: AutoMovieMotionHumanBend.ISolve = {
         body,
         posture: context.entry.posture,
@@ -269,9 +271,9 @@ export namespace useTool {
         ).point,
         rotation: pose.rotation,
       };
-      return AutoMovieMotionHumanBend.strain(
+      return bends.strain(
         props,
-        AutoMovieMotionHumanBend.solve({ ...props, fallback: "hang" }),
+        bends.solve({ ...props, fallback: "hang" }),
       );
     };
     const pose: IWork = ((): IWork => {
@@ -282,6 +284,8 @@ export namespace useTool {
         case "stir":
           return posed(down);
         case "saw": {
+          const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
+            AutoMovieMotionHumanBend.prepare({ body, posture: context.entry.posture, side });
           const poses: IWork[] = SLOPES.map((degrees: number): IWork => {
             const slope: number = (degrees * Math.PI) / 180;
             return posed(
@@ -291,7 +295,7 @@ export namespace useTool {
               ),
             );
           });
-          const strains: number[] = poses.map(strain);
+          const strains: number[] = poses.map((candidate: IWork): number => strain(candidate, bends));
           return poses[strains.indexOf(Math.min(...strains))]!;
         }
       }

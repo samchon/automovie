@@ -89,16 +89,15 @@ export namespace StrikingRoom {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the swept points and one bisection each.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms A point clear over the room found so far costs one distance query; a touching one, one per halving.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual point/halving queries borrow the same unchanged other-body bone map, so one operation-local collider reader shares only placed geometry, spheres and fixed shape frames; every distance is still evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collider reader lives only through this synchronous room search and ends on return or throw; only the scalar room escapes.
    */
   export function along(props: IProps): number {
+    const geometry: ReturnType<typeof HumanColliders.reading> = HumanColliders.reading(props.other, props.others);
     let room: number = props.limit;
     for (const { point, radius } of swept(props.body, props.bones)) {
       const gap = (d: number): number =>
-        HumanColliders.distanceToSegment(
-          props.other,
-          props.others,
+        geometry.segment(
           point,
           Vector3.add(point, Vector3.scale(props.line, d)),
         ).distance - radius;
@@ -152,7 +151,7 @@ export namespace StrikingRoom {
       body: context.body,
       bones,
       other: other.body,
-      others: other.bones(launch - StrikingTarget.LOOK),
+      others: other.bones(launch - StrikingTarget.LOOK, HumanColliders.bones(other.body)),
       line,
       limit: StrikingStance.length(context.body),
     });
@@ -268,7 +267,7 @@ export namespace StrikingRoom {
       target.subject,
     );
     const theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      other.bones(feint.launch - StrikingTarget.LOOK);
+      other.bones(feint.launch - StrikingTarget.LOOK, GUARD);
     const guard: number = Math.max(
       0,
       ...(
@@ -317,3 +316,8 @@ export namespace StrikingRoom {
     return out;
   }
 }
+
+/** A feint reads only the four actual guard joints and their required ancestry. */
+const GUARD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "leftHand", "rightHand", "leftLowerArm", "rightLowerArm",
+]);

@@ -9,7 +9,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
-import { HumanPostureRigSignature } from "./HumanPostureRigSignature";
+import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 import type { IHumanPosture } from "./IHumanPosture";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
@@ -46,9 +46,9 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary resolver once before recording its exact solution; only finite free world-leg demands with no extra context are eligible for translation equivalence.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns numerical admission/solving; this owner records raw/rig evidence and transfers fresh output observations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No prior time, quantized key, fitted target or manually asserted resolved state supplies the solution; unsupported source contexts remain ineligible and resolve normally after translation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds linear source/result copying and one rig scalar signature to the cold solve; an eligible same-query consumer can remove its duplicate IK, without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private source is copied after its ordinary solve and the same body, static FK snapshot, topology and live rig/table signature must still match at consumption.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each issued preparation owns one raw snapshot, one private seeded result and one signature; weak ownership releases them with its wrapper and transported postures, without a global time/result population.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds linear source/result copying and one typed rig/table snapshot to the cold solve; consumption directly compares current scalar fields without rebuilding nested signature strings, and an eligible consumer removes duplicate IK without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private source is copied after its ordinary solve; the same body, static FK snapshot, topology and every live rig/table scalar must match its owned snapshot at consumption, with no cached comparison verdict.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each issued preparation owns one raw snapshot, one private seeded result and one bounded typed rig snapshot/checker; weak ownership releases them with its wrapper/transported postures, without a global time/result population or retained FK state.
    */
   export function prepare(
     body: IHumanBody,
@@ -64,7 +64,7 @@ export namespace HumanPosturePreparation {
       body,
       rig: body.poseResolution,
       topology: body.topology,
-      signature: eligible(raw) ? HumanPostureRigSignature(body) : null,
+      rigUnchanged: eligible(raw) ? prepareHumanPostureRigCheck(body) : undefined,
       raw,
       solved: structuredClone(solved),
       legs: legInputs(body, raw),
@@ -89,17 +89,18 @@ export namespace HumanPosturePreparation {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined) throw new Error("Unissued canonical posture preparation");
     const raw: IHumanPosture = translation(source.raw, root);
-    if (source.signature !== null && eligible(raw))
+    if (source.rigUnchanged !== undefined && eligible(raw))
       CARRIED.set(raw, { source, signature: rawSignature(raw) });
     return raw;
   }
 
   /**
-   * Attach private evidence only to an exact translation of this preparation's
-   * original raw source. A changed or unsupported posture is returned normally.
+   * Attach private evidence to an exact raw translation. A joint-only source
+   * with no goals may also vary its Euler root orientation, since direct
+   * clinical projection is independent of that rigid placement.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States exact source matching, raw preservation and silent ordinary fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation Translation leaves clinical articulations and free-leg root-relative goals unchanged; strict ordered raw signatures verify the supplied candidate against the authoritative source-plus-displacement construction.
+   * @evidence contracts/development/implementation.md#principled-implementation Strict raw signatures verify source-plus-displacement equivalence. Only empty source/candidate limb sets additionally permit current Euler root angles: no IK depends on them, direct joint projection remains identical, and read runs the original heading construction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One private issued-source lookup and exact supported-raw comparison establish candidate evidence; read owns final body/context validation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, target substitution, public resolved marker or source-goal removal is used; unrelated/modified context receives no evidence.
    * @evidence contracts/development/implementation.md#efficient-algorithms Takes linear work in directly authored joints plus fixed goal count, without FK or a solver; each transported object stores one bounded raw signature.
@@ -108,8 +109,13 @@ export namespace HumanPosturePreparation {
    */
   export function carried(prepared: IPrepared, posture: IHumanPosture): IHumanPosture {
     const source: ISource | undefined = SOURCES.get(prepared);
-    if (source?.signature === null || source === undefined || !eligible(posture)) return posture;
+    if (source === undefined || source.rigUnchanged === undefined || !eligible(posture)) return posture;
     const expected: IHumanPosture = translation(source.raw, posture.root);
+    if (Object.keys(source.raw.limbs).length === 0 && Object.keys(posture.limbs).length === 0) {
+      expected.yaw = posture.yaw;
+      expected.pitch = posture.pitch;
+      expected.roll = posture.roll;
+    }
     const signature: string | undefined = rawSignature(posture);
     if (signature !== undefined && signature === rawSignature(expected)) CARRIED.set(posture, { source, signature });
     return posture;
@@ -141,10 +147,10 @@ export namespace HumanPosturePreparation {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines post-clamp admission, cold context, per-leg proof and remaining-goal output.
    * @evidence contracts/development/implementation.md#principled-implementation A free-leg fit reads its source chain/ancestor articulations, root orientation, free goal and fixed rig; unchanged scalar inputs under one translation preserve its actual clinical output. Ancestors changed by another limb conservatively disable this proof.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Private source provenance, one live rig signature and independent leg-input checks precede copied actual source joints/seeds/values; the original refit loop receives every remaining complete goal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Private source provenance, one direct live rig/table comparison and independent leg-input checks precede copied actual source joints/seeds/values; the original refit loop receives every remaining complete goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All current direct joints have already entered ordinary clamping; changed leg/goal/parent, rotation, digit or body/ROM context declines reuse. Raw goals remain untouched for audits, and current arm coupling/clearance and nonmatching legs still solve normally.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds a current rig scalar scan, at most two short ancestor/chain comparisons and O(B) result patching, removing only proven duplicate free-leg fits without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only an issued same-body cold source supplies data; exact raw goal translation, orientation and every chain/ancestor clinical scalar plus live rig/table signatures establish per-leg equivalence independently of changed unrelated arm inputs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only an issued same-body cold source supplies data; exact raw goal translation, orientation, every chain/ancestor clinical scalar and direct live rig/table comparisons establish per-leg equivalence independently of changed unrelated arm inputs.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Patching creates owned joints and metadata for this caller, borrows unchanged current pose data, and retains no result or candidate history; private source lifetime remains weakly owned by its preparation/transported postures.
    */
   export function reuseLegs(
@@ -158,7 +164,7 @@ export namespace HumanPosturePreparation {
       source.topology !== body.topology || posture.rotation !== undefined || posture.digits !== undefined ||
       !Object.is(source.raw.yaw, posture.yaw) || !Object.is(source.raw.pitch, posture.pitch) ||
       !Object.is(source.raw.roll, posture.roll) || !finiteVector(posture.root) ||
-      source.signature === null || source.signature !== HumanPostureRigSignature(body)
+      source.rigUnchanged === undefined || !source.rigUnchanged()
     ) return undefined;
     const kept: Leg[] = [];
     const delta: IAutoMovieVector3 = Vector3.subtract(posture.root, source.raw.root);
@@ -205,7 +211,7 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#principled-implementation A free-leg pose is equivariant under world translation; unchanged clinical/raw goal scalars, body/rig/table inputs and cold context prove that the source's actual joint/seed/value solution applies at the translated root.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver checks base/near eligibility before this call; this owner checks issued evidence, exact current raw signature and live rig prerequisites before cloning the actual source solution.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Added or changed contacts, goals, joints, orientation, digits, layers/copies, topology, ROM, axes or rest frames decline reuse; original raw goals remain for audits and no acceptance bound or numerical result is invented.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Checks raw joints/goals and rig scalar signatures, then copies the source pose/metadata in linear space; it removes the eligible duplicate fit without a measured runtime claim.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Checks raw joints/goals and live rig scalars against owned typed snapshots, then copies source pose/metadata in linear space; it removes eligible duplicate fitting and repeated rig serialization without a measured runtime claim.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Private evidence belongs to the exact candidate object and source body; its source numerical output is reused only after every supported mutable scalar dependency matches, with fresh nested output ownership.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Clones result records for the current caller and retains no returned output; source evidence remains weakly owned by its issued preparation/transported candidate and contains no FK reader, callback or external handle.
    */
@@ -219,11 +225,13 @@ export namespace HumanPosturePreparation {
       source.topology !== body.topology ||
       !eligible(posture) ||
       evidence.signature !== rawSignature(posture) ||
-      source.signature !== HumanPostureRigSignature(body)
+      source.rigUnchanged === undefined || !source.rigUnchanged()
     ) return undefined;
     const out: resolveHumanPosture.ISeeded = structuredClone(source.solved);
     if (out.pose.root === null) return undefined;
     out.pose.root.translation = { ...posture.root };
+    if (Object.keys(source.raw.limbs).length === 0)
+      out.pose.root.rotation = resolveHumanPosture.heading(posture);
     return out;
   }
 }
@@ -233,7 +241,7 @@ interface ISource {
   body: IHumanBody;
   rig: IHumanBody["poseResolution"];
   topology: IHumanBody["topology"];
-  signature: string | null;
+  rigUnchanged: (() => boolean) | undefined;
   raw: IHumanPosture;
   solved: resolveHumanPosture.ISeeded;
   legs: Partial<Record<Leg, readonly AutoMovieHumanoidBone[]>>;

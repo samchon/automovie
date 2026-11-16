@@ -32,7 +32,7 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which bones and carried regions are valid, why limb goals are skipped, and each helper's world-metre or degree convention and caller premises.
  * @evidence contracts/development/design.md#principled-representation Groups canonical trunk FK, lumbopelvic inclination and trunk-surface readings over the existing body and posture types; points use world metres, angles use degrees and normals are unit directions. Positive limb lengths, valid trunk regions and nonzero ray directions remain caller premises.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five operations and two published inclination constants serve posture composition, bending, gaze and self-touch; engine FK and surface placement and HumanColliders own their underlying transforms and geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Authored FK, inclination/limit helpers and actual region/ray readers serve posture composition, bending, gaze and self-touch; explicit synchronous preparation shares only their fixed frame geometry. Engine FK, surface placement and HumanColliders keep the numerical owners.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared body, posture, bone and region types without a second rig or surface representation; the region union also permits limb regions, so this namespace's documented trunk-only region restriction is not enforced by its parameter type.
  */
 export namespace HumanTrunk {
@@ -44,7 +44,7 @@ export namespace HumanTrunk {
    * @param joints Joints to use instead of the posture's; the posture's when absent.
    * @param resolution Optional exact reader or lazy supplier borrowed only by this synchronous evaluation.
    * @param requested Bones whose transforms the caller reads; all bones when absent. Every authored joint is still admitted.
-   * @returns Resolved bones; the trunk, head, eyes and shoulder girdles are valid.
+   * @returns Resolved bones, restricted to requested names when supplied; trunk/head/eye/girdle frames are valid and limb goals remain ignored.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States valid bones, ignored limb goals, optional joint override and demanded outputs, unchanged-skeleton premise and optional synchronous borrowed reader.
    * @evidence contracts/development/implementation.md#principled-implementation Builds the posture's root through turnHumanPosture and resolves the directly set clinical angles with the canonical mappings and the body's parent-first topology; no limb goal is solved.

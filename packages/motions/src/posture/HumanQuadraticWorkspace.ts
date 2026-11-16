@@ -153,8 +153,11 @@ export namespace HumanQuadraticWorkspace {
     /** Upper K during assembly, then U in place; every entry is reset from P before rebuilding a changed system. */
     system: Float64Array[];
 
-    /** Row i copies finalized U(t,i) for t in [max(0,i-band),i), in forward-substitution order; Cholesky overwrites every entry. */
-    forward: Float64Array[];
+    /** Packed rows of finalized U(t,i) for increasing t in [max(0,i-band),i); Cholesky overwrites every coefficient. */
+    forward: Float64Array;
+
+    /** Exact numeric prefix offsets for packed forward rows, n+1 entries; avoids imposing Int32 limits on curvature storage. */
+    forwardStart: Float64Array;
   }
 
   /**
@@ -224,6 +227,13 @@ export namespace HumanQuadraticWorkspace {
   ): IFactor {
     let matrices: IFactor | undefined = work?.matrices;
     if (matrices === undefined || matrices.n !== s.n || matrices.band !== s.band) {
+      const forwardStart: Float64Array = new Float64Array(s.n + 1);
+      let entries: number = 0;
+      for (let i: number = 0; i < s.n; ++i) {
+        forwardStart[i] = entries;
+        entries += Math.min(s.band, i);
+      }
+      forwardStart[s.n] = entries;
       matrices = {
         n: s.n,
         band: s.band,
@@ -232,11 +242,8 @@ export namespace HumanQuadraticWorkspace {
           (_: unknown, i: number): Float64Array =>
             new Float64Array(Math.min(s.band + 1, s.n - i)),
         ),
-        forward: Array.from(
-          { length: s.n },
-          (_: unknown, i: number): Float64Array =>
-            new Float64Array(Math.min(s.band, i)),
-        ),
+        forward: new Float64Array(entries),
+        forwardStart,
       };
       if (work !== undefined) work.matrices = matrices;
     }
@@ -293,15 +300,15 @@ export namespace HumanQuadraticWorkspace {
         out.fill(0);
       }
     }
-    const offsets: B.IScaled["pOffsets"] = s.pOffsets;
-    if (offsets !== undefined && (finiteX ?? x.every(Number.isFinite))) {
+    const pattern: B.IScaled["pPattern"] = s.pPattern;
+    if (pattern !== undefined && (finiteX ?? x.every(Number.isFinite))) {
       for (let i: number = 0; i < s.n; ++i) {
         const row: Float64Array = s.p[i]!;
         const xi: number = x[i]!;
         out[i] = out[i]! + row[0]! * xi;
-        const columns: readonly number[] = offsets[i]!;
-        for (let a: number = 1; a < columns.length; ++a) {
-          const j: number = columns[a]!;
+        const end: number = pattern.start[i + 1]!;
+        for (let a: number = pattern.start[i]! + 1; a < end; ++a) {
+          const j: number = pattern.offsets[a]!;
           const coefficient: number = row[j]!;
           out[i] = out[i]! + coefficient * x[i + j]!;
           out[i + j] = out[i + j]! + coefficient * xi;

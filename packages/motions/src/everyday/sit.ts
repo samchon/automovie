@@ -200,8 +200,15 @@ export namespace sit {
     const yaw0: number = context.entry.posture.yaw;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
-    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...standUpright.of(body).joints };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] = Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+    const relaxed: IHumanPosture["joints"] = {
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
+    };
+    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
+      Object.entries(final.joints) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][];
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";

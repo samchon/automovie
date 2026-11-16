@@ -16,6 +16,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
@@ -258,7 +259,8 @@ export namespace KickGeometry {
         seconds: number,
         shown: IKickGeometry.ICarriage,
         turning?: number,
-      ): IHumanPosture => KickCarriage.posture(props, shown, seconds, turning),
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      ): IHumanPosture => KickCarriage.posture(props, shown, seconds, turning, resolution),
       shown: plans.shown,
       leg: plans.leg,
       origin,
@@ -309,12 +311,12 @@ export namespace KickGeometry {
     parts: Omit<IKickGeometry, "posture">,
   ): IKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
-    const chain = (t: number): IHeld => {
+    const chain = (t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>): IHeld => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
-        const base: IHumanPosture = parts.base(t, parts.shown(t));
-        const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side);
+        const base: IHumanPosture = parts.base(t, parts.shown(t), undefined, resolution);
+        const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution);
         return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip) };
       }
 
@@ -330,8 +332,8 @@ export namespace KickGeometry {
       const stepped: number = minimumJerk(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       ).s;
-      const base: IHumanPosture = parts.base(s, parts.shown(back), back);
-      const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side);
+      const base: IHumanPosture = parts.base(s, parts.shown(back), back, resolution);
+      const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution);
       return {
         body: base,
         leg: parts.leg(
@@ -347,15 +349,16 @@ export namespace KickGeometry {
     };
     return {
       ...parts,
-      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
-        const held: IHeld = chain(t);
+      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[], source?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+        const held: IHeld = chain(t, resolution);
         const arms: boolean = channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"));
         const down: boolean = t <= timing.prep || t >= timing.duration - 1e-9;
         return {
           ...held.body,
           limbs: {
             ...held.body.limbs,
-            ...(arms ? StrikingStance.guard(body, held.body, { lead: timing.lead }) : {}),
+            ...(arms ? StrikingStance.guard(body, held.body, { lead: timing.lead }, {}, undefined, resolution) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
               point: held.leg.ankle,
               bend: held.leg.hint,

@@ -37,16 +37,20 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame premise, where each family of measures is read and the fallbacks.
  * @evidence contracts/development/implementation.md#principled-implementation Joint-centre anthropometry on the rest rig and exact collider bounds, the segment definitions of Winter ch. 4.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for rest positions, then direct reads per measure.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-position pass and a first-name segment index feed direct anthropometric reads. The existing stature traversal also supplies each segment's complete axis bounds to every later measure.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or segment throws rather than being guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones plus colliders.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(B+S) indexing for B bones and S segments, then one bounds computation per profile shape, including its O(V) hull vertex rotations. Head, chest, hands and repeated foot measures reuse those extents; hull-radius face costs remain with physicalHullFaces.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The rig/profile are unchanged through this pure synchronous call. Exact segment identity in that epoch shares its actual neutral bounds; the first-name index preserves the old first matching segment when names repeat. No value crosses calls or substitutes for changed geometry.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns O(B+S) rest, name and numeric-bounds data until return or throw. Only the fresh numeric measure escapes, without a source, callback, geometry cache or handle.
  */
 export function measureAutoMovieHumanoidBody(
   skeleton: IAutoMovieSkeleton,
   profile: P,
 ): IAutoMovieBodyMeasure {
+  const segments: Map<string, P.ISegment> = new Map();
+  for (const part of profile.segments)
+    if (!segments.has(part.bone)) segments.set(part.bone, part);
+  const extents: Map<P.ISegment, ReturnType<typeof physicalShapeBounds>> = new Map();
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(
@@ -69,17 +73,16 @@ export function measureAutoMovieHumanoidBody(
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
   ): number => Vector3.length(Vector3.subtract(at(a), at(b)));
-  const segment = (name: AutoMovieHumanoidBone): P.ISegment => {
-    const s: P.ISegment | undefined = profile.segments.find(
-      (x: P.ISegment): boolean => x.bone === name,
-    );
+  const segment: (name: AutoMovieHumanoidBone) => P.ISegment = (name: AutoMovieHumanoidBone): P.ISegment => {
+    const s: P.ISegment | undefined = segments.get(name);
     if (s === undefined) throw new Error(`The humanoid profile lacks ${name}`);
     return s;
   };
-  const bounds = (
-    name: AutoMovieHumanoidBone,
-  ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-    const s: P.ISegment = segment(name);
+  const segmentBounds: (s: P.ISegment) => ReturnType<typeof physicalShapeBounds> = (
+    s: P.ISegment,
+  ): ReturnType<typeof physicalShapeBounds> => {
+    const known: ReturnType<typeof physicalShapeBounds> | undefined = extents.get(s);
+    if (known !== undefined) return known;
     const out: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = {
       min: { x: Infinity, y: Infinity, z: Infinity },
       max: { x: -Infinity, y: -Infinity, z: -Infinity },
@@ -92,8 +95,12 @@ export function measureAutoMovieHumanoidBody(
         out.max[k] = Math.max(out.max[k], b.max[k]);
       }
     }
+    extents.set(s, out);
     return out;
   };
+  const bounds: (name: AutoMovieHumanoidBone) => ReturnType<typeof physicalShapeBounds> = (
+    name: AutoMovieHumanoidBone,
+  ): ReturnType<typeof physicalShapeBounds> => segmentBounds(segment(name));
   const radius = (name: AutoMovieHumanoidBone): number =>
     Math.max(
       ...segment(name).shapes.map((shape: P.IShape): number => {
@@ -127,14 +134,9 @@ export function measureAutoMovieHumanoidBody(
         throw new Error("Unknown physical shape kind");
       }),
     );
-  const top: number = Math.max(
-    ...profile.segments.flatMap((s: P.ISegment): number[] =>
-      s.shapes.map(
-        (shape: P.IShape): number =>
-          physicalShapeBounds(s.neutral, shape).max.y,
-      ),
-    ),
-  );
+  let top: number = -Infinity;
+  for (const part of profile.segments)
+    top = Math.max(top, segmentBounds(part).max.y);
   const head: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
     bounds("head");
   const chest: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
@@ -178,11 +180,7 @@ export function measureAutoMovieHumanoidBody(
     const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Foot"),
     );
-    if (
-      !profile.segments.some(
-        (x: P.ISegment): boolean => x.bone === bone(side, "Toes"),
-      )
-    )
+    if (!segments.has(bone(side, "Toes")))
       return rear;
     const toes: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Toes"),

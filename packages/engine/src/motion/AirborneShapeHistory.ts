@@ -57,12 +57,12 @@ interface IPrincipalInverse {
  * correction at either boundary. An optional prepared model is borrowed;
  * its caller releases it after clearing this history, including on refusal.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, finite-difference seconds, boundary correction and separate history/model ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, difference seconds, boundary correction and separate history/model ownership. Namespace inverse reads only factory-issued instants, returns undefined for a general history output, validates copied principal coordinates and lends an immutable root-to-principal value to the ODE/dense consumers.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and principal-axis owners and the same two-pose rigid-body momentum formula; boundary correction retains the derivative of the quadratic interpolant with the unchanged difference interval.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the model's pose and interval reducers together, then share one bounded exact-node reader and momentum reducer across numeric history queries.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact time reads the actual pure shape; no pose interpolation, time quantization, reduced stencil or changed physical check replaces a requested evaluation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact time reads the actual pure shape; no interpolation, time quantization, reduced stencil or changed physical check replaces evaluation. A private issued-instant registration alone proves only provenance: inverse additionally checks all four actual quaternion coordinates, never trusting a public prepared flag.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each new query needs at most four posed nodes and O(S) mass work; an exact hit in the four-node numeric LRU also omits its repeated shape/IK/FK read. One boundary stencil's maximum footprint supplies the cache bound, without a numerical sampling policy. Prepared models share unchanged scalar transforms and shape suppliers may request only mass-bearing FK.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact query time in one unchanged shape/model/span epoch identifies the same I and h across stages and shooting trials. The four most recently read exact posed mass reductions additionally share overlap between stencils, and fixed boundary stencils share numeric momenta. Evicted nodes are recomputed normally; no time is rounded or interpolated. The token selects both model reducers, preventing unrelated-model pairing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under one unchanged shape/model/span identifies I/h across trials; four recent numeric posed nodes share stencil overlap and fixed boundaries share momenta. Issued instant identity selects private inverse provenance, then Object.is checks copied principal coordinates including mutation/signed zero; unchanged adjacent rotations may share the owner's last inverse. Evictions compute normally, and the token selects both model reducers without unrelated pairing.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns O(N) numeric I/h instants and weak inverse registrations, at most two boundary moments and four posed mass reductions of O(S) numeric parts. clear unregisters N instants, clears all three maps and forgets the last inverse. Raw bone maps and full canonical poses never enter the retained node cache. A borrowed model separately owns O(S) scalar state released by the planning caller.
  */
 export function AirborneShapeHistory(
@@ -216,13 +216,13 @@ export namespace AirborneShapeHistory {
    * is borrowed and must not be mutated; its actual coordinates are checked
    * against the copied key on every read.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States frames, unissued-output absence, copied coordinate validation and borrowed immutable result ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing Quaternion.inverse on the same principal rotation; this inverse is shape-only and is independent of the ODE's momentum, attitude and tangent directions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A private issued-instant registration lends its history's fixed-size last-value owner until the inverse is actually demanded; unissued outputs return undefined for the caller's original fallback.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Instant identity establishes only private provenance; every copied quaternion coordinate must additionally match the actual requested principal rotation before reusing numeric work.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One weak lookup and four scalar comparisons per read, with one inverse for a new rotation. New instants initially share their owner without per-instant state allocation; unchanged rotations share one computed numeric record.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The history's existing exact-time I/h memo already selects the same issued instant across trials. Copied quaternion checks also detect mutation and signed zero; adjacent exact rotations share the owner's last inverse independently of momentum and target.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the history's N issued numeric instants have weak registrations. clear deletes each registration and forgets the one last record in O(N), and dropping the history also releases its weak keys. No callback, body, model or posed history is retained by this numeric registry.
+   * States frames, unissued-output absence, copied coordinate validation and borrowed immutable result ownership.
+   * Uses the existing Quaternion.inverse on the same principal rotation; this inverse is shape-only and is independent of the ODE's momentum, attitude and tangent directions.
+   * A private issued-instant registration lends its history's fixed-size last-value owner until the inverse is actually demanded; unissued outputs return undefined for the caller's original fallback.
+   * Instant identity establishes only private provenance; every copied quaternion coordinate must additionally match the actual requested principal rotation before reusing numeric work.
+   * One weak lookup and four scalar comparisons per read, with one inverse for a new rotation. New instants initially share their owner without per-instant state allocation; unchanged rotations share one computed numeric record.
+   * The history's existing exact-time I/h memo already selects the same issued instant across trials. Copied quaternion checks also detect mutation and signed zero; adjacent exact rotations share the owner's last inverse independently of momentum and target.
+   * Only the history's N issued numeric instants have weak registrations. clear deletes each registration and forgets the one last record in O(N), and dropping the history also releases its weak keys. No callback, body, model or posed history is retained by this numeric registry.
    */
   export function inverse(
     instant: IInstant,
@@ -252,4 +252,5 @@ export namespace AirborneShapeHistory {
 function sameRotation(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
   return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z) && Object.is(a.w, b.w);
 }
+
 

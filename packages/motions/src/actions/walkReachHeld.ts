@@ -91,25 +91,25 @@ export namespace walkReachHeld {
       joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
       trunk: { pitch: number; roll: number },
     ): ReturnType<typeof tilt> => {
-    const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading({
-      yaw,
-      pitch: trunk.pitch,
-      roll: trunk.roll,
-    });
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      rotation,
-      inverse,
-    );
-    const centre: IAutoMovieVector3 = Vector3.add(
-      root,
-      offset,
-    );
-    const at: (side: "left" | "right") => IAutoMovieVector3 = (side: "left" | "right"): IAutoMovieVector3 =>
-      Vector3.add(
-        centre,
-        Quaternion.rotateVector(turn, Vector3.subtract(joints[side], centre)),
+      const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading({
+        yaw,
+        pitch: trunk.pitch,
+        roll: trunk.roll,
+      });
+      const turn: IAutoMovieQuaternion = Quaternion.multiply(
+        rotation,
+        inverse,
       );
-    return { rotation, hips: { left: at("left"), right: at("right") } };
+      const centre: IAutoMovieVector3 = Vector3.add(
+        root,
+        offset,
+      );
+      const at: (side: "left" | "right") => IAutoMovieVector3 = (side: "left" | "right"): IAutoMovieVector3 =>
+        Vector3.add(
+          centre,
+          Quaternion.rotateVector(turn, Vector3.subtract(joints[side], centre)),
+        );
+      return { rotation, hips: { left: at("left"), right: at("right") } };
     };
   }
 
@@ -165,17 +165,17 @@ export namespace walkReachHeld {
       },
       course.trunk,
     );
-    const placed = {} as Record<"left" | "right", walkFoot.IEnd>;
-    const contacts = {} as Record<"left" | "right", IAutoMovieVector3>;
-    for (const side of walkReach.SIDES) {
+    const place: (side: "left" | "right") => { end: walkFoot.IEnd; contact: IAutoMovieVector3 } = (
+      side: "left" | "right",
+    ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
       // A swinging foot is the swing's to place; it stands as scheduled.
       if (feet[side].swing !== undefined) {
-        placed[side] = { ...feet[side].placement, toes: feet[side].toes };
-        contacts[side] = HumanFoot.offset(body, side, "mtp");
-        continue;
+        return {
+          end: { ...feet[side].placement, toes: feet[side].toes },
+          contact: HumanFoot.offset(body, side, "mtp"),
+        };
       }
-      const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
-        walkReachStance.of(
+      return walkReachStance.of(
           body,
           side,
           {
@@ -191,15 +191,15 @@ export namespace walkReachHeld {
           0,
           course.pitch[side],
         );
-      placed[side] = out.end;
-      contacts[side] = out.contact;
-    }
+    };
+    const left: ReturnType<typeof place> = place("left");
+    const right: ReturnType<typeof place> = place("right");
     return {
       yaw,
       root: lowered,
       hips: tilted.hips,
-      feet: placed,
-      contacts,
+      feet: { left: left.end, right: right.end },
+      contacts: { left: left.contact, right: right.contact },
       pelvis: tilted.rotation,
     };
   }

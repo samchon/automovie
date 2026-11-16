@@ -47,13 +47,13 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @returns The momenta.
  * @throws {Error} When the interval is not positive or a segment's bone is not posed in both.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the model, the consumers, the units, the frame convention, both differences, where each quantity is read and the error of a rigid turn.
+ * @evidence contracts/development/common.md#meaningful-documentation States model, units, common frame, ordered endpoint snapshots, positive seconds, central differences and rigid-turn error. Namespace between borrows posed endpoints without retaining them; prepareIntervals lends one operation-owned exact quaternion/intrinsic reader while every actual interval rate and momentum sum remains current.
  * @evidence contracts/development/implementation.md#principled-implementation The angular momentum of a rigid multibody about its centre of mass is the sum of each part's orbital `m (c - C) × v` and spin `I ω` (any rigid-body dynamics text); the velocities are central differences, second order in the interval for sufficiently smooth segment trajectories, with the relative rotation's rotation vector for the angular one.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pose both ends once, then delegate their ordered parts and centres to the shared interval reduction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or a non-positive interval throws; no momentum is clamped.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments: one combined parts-and-centre pass at each end, one centre transform per segment and one momentum pass. Each spin consumes the physical tensor owner's nine scalar entries directly, without copied parts or temporary tensor rows. Fresh midpoint, displacement and rotation-vector results are scaled in place, avoiding one further record per segment and two per interval. Orbital coordinates accumulate as scalars without temporary vector records; tensor, cross-product, dot-product and segment-sum association remain unchanged.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each endpoint's posed centres serve both its whole-body centre and every orbital term. The airborne history additionally shares at most four exact numeric mass-part reductions across overlapping stencils; it never retains mutable bone maps or full canonical poses.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each endpoint's centres serve the mean and orbital terms; raw and between entries share reduceBetween. PrepareIntervals compares eight copied endpoint quaternion coordinates per index, reusing only raw shortest-arc turn and midpoint frame; its physical tensor reader separately compares actual midpoint moments/rotation. Current points, masses, seconds and spin products are always evaluated, and no momentum answer or mutable bone object is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct and between calls borrow endpoints and return fresh numeric records without retained state. PrepareIntervals owns at most one copied quaternion-pair/turn/midpoint and intrinsic slot per current part, truncates after shrink, and releases with its enclosing mass-model token; no endpoint pose, model, target or result population is held.
  */
 export function resolveAutoMovieMomentum(
   model: resolveAutoMovieCenterOfMass.IModel,
@@ -77,7 +77,7 @@ export function resolveAutoMovieMomentum(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
  * @evidence contracts/development/design.md#principled-representation A rigid multibody's composite inertia and momenta about its centre of mass, the quantities of Euler's equations; tensors are symmetric 3x3 rows as the engine's diagonalization takes them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Readings over the one mass model: posed parts and their centre, the interval momentum, tensor, principal frame and tensor product. The flight history consumes posed reductions to share each exact instant within its stencil.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Readings over the one mass model include posed parts/centre, raw and prepared interval momentum, tensor, principal frame and tensor product. The mass-model owner consumes prepareIntervals, while the flight history shares exact posed reductions within its bounded stencil footprint.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The tensor sum is `physicalInertiaTensor`'s, the diagonalization `physicalPrincipalAxes`'s and the ordered mass-weighted centre `resolveAutoMovieCenterOfMass.mean`'s, imported rather than copied.
  */
 export namespace resolveAutoMovieMomentum {
@@ -154,13 +154,13 @@ export namespace resolveAutoMovieMomentum {
    * cross difference and segment addition. Scaling mutates only fresh vector
    * results; neither endpoint is changed or retained by the numeric momentum.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States endpoint order, common frame, positive seconds, original arithmetic and fresh-result ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared reduction uses central chord velocities, shortest-arc angular differences and the sum of each part's orbital and spin angular momentum about the whole-body midpoint centre.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The raw entry delegates to the same reduction as the optional prepared interval reader without retaining a workspace.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves positive-interval admission, model order, complete orbital/spin contributions and their existing floating-point association.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(S) segment pass plus constant-size centre and linear-momentum output for S ordered parts; the raw path prepares no cross-query cache.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both endpoints' already transformed centres serve the centre and orbital terms; repeated-query quaternion work is available only through an explicitly owned prepared reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows endpoints for the synchronous reduction and returns fresh numeric momentum records without holding a pose, model or handle.
+   * States endpoint order, common frame, positive seconds, original arithmetic and fresh-result ownership.
+   * The shared reduction uses central chord velocities, shortest-arc angular differences and the sum of each part's orbital and spin angular momentum about the whole-body midpoint centre.
+   * The raw entry delegates to the same reduction as the optional prepared interval reader without retaining a workspace.
+   * Preserves positive-interval admission, model order, complete orbital/spin contributions and their existing floating-point association.
+   * One O(S) segment pass plus constant-size centre and linear-momentum output for S ordered parts; the raw path prepares no cross-query cache.
+   * Both endpoints' already transformed centres serve the centre and orbital terms; repeated-query quaternion work is available only through an explicitly owned prepared reader.
+   * Borrows endpoints for the synchronous reduction and returns fresh numeric momentum records without holding a pose, model or handle.
    */
   export function between(
     model: resolveAutoMovieCenterOfMass.IModel,
@@ -180,13 +180,13 @@ export namespace resolveAutoMovieMomentum {
    * unchanged midpoint intrinsic tensors share the physical owner's exact
    * moment/quaternion preparation before those current spin products.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which endpoint prerequisites are retained and which current physical values remain evaluated.
-   * @evidence contracts/development/implementation.md#principled-implementation The shortest-arc rotation vector of Q1 Q0 inverse and the half-way slerp depend only on the two endpoint rotations; their reuse leaves the original angular-rate division and orbital-plus-spin formula unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A bounded numeric quaternion reader is lent to the single shared interval reduction, while the raw entry continues to compute its own fresh differences.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact copied quaternion coordinates are the only reuse key; current velocities, inertia and momentum answers are never replayed or clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) current orbital/spin work for S segments. Unchanged endpoint frames omit quaternion inverse/product, logarithm and slerp; unchanged midpoint moments/rotation also omit intrinsic axis rotations. Changed dependencies do their original computations. Retained storage is O(S).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each ordered part index compares all eight copied endpoint quaternion coordinates with Object.is, detecting mutation and signed zero. These rotation prerequisites are independent of model mass, points and interval seconds, so those current inputs remain outside the key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one closure and at most one numeric interval per current part index; shrinking the part array truncates old entries. No pose, model or momentum result is retained, and the mass-model token drops this reader on release.
+   * States which endpoint prerequisites are retained and which current physical values remain evaluated.
+   * The shortest-arc rotation vector of Q1 Q0 inverse and the half-way slerp depend only on the two endpoint rotations; their reuse leaves the original angular-rate division and orbital-plus-spin formula unchanged.
+   * A bounded numeric quaternion reader is lent to the single shared interval reduction, while the raw entry continues to compute its own fresh differences.
+   * Exact copied quaternion coordinates are the only reuse key; current velocities, inertia and momentum answers are never replayed or clamped.
+   * O(S) current orbital/spin work for S segments. Unchanged endpoint frames omit quaternion inverse/product, logarithm and slerp; unchanged midpoint moments/rotation also omit intrinsic axis rotations. Changed dependencies do their original computations. Retained storage is O(S).
+   * Each ordered part index compares all eight copied endpoint quaternion coordinates with Object.is, detecting mutation and signed zero. These rotation prerequisites are independent of model mass, points and interval seconds, so those current inputs remain outside the key.
+   * The caller owns one closure and at most one numeric interval per current part index; shrinking the part array truncates old entries. No pose, model or momentum result is retained, and the mass-model token drops this reader on release.
    */
   export function prepareIntervals(): (
     model: resolveAutoMovieCenterOfMass.IModel,
@@ -398,4 +398,5 @@ interface IRotationInterval {
 function sameQuaternion(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
   return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z) && Object.is(a.w, b.w);
 }
+
 

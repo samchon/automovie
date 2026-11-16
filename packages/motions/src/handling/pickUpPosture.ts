@@ -148,7 +148,9 @@ export namespace pickUpPosture {
       throw new Error("A seated lean of a body that is not seated");
     const limit: number =
       reach ?? context.body.measure.upperArm + context.body.measure.forearm;
-    const lower = (posture: IHumanPosture, pitch: number): IHumanPosture => {
+    // Reach probes read only the trunk, so hand-rest goals belong to actual
+    // output lowering rather than every discarded bisection trial.
+    const leanBody: (posture: IHumanPosture, pitch: number) => IHumanPosture = (posture: IHumanPosture, pitch: number): IHumanPosture => {
       if (pitch <= 0) return posture;
       const socket: IAutoMovieVector3 = seated.socket(context.body, posture);
       const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
@@ -158,12 +160,17 @@ export namespace pickUpPosture {
         pitch: posture.pitch + tilt.pitch,
         roll: posture.roll,
       };
-      const leant: IHumanPosture = resolveHumanPosture.lower(context.body, {
+      return resolveHumanPosture.lower(context.body, {
         ...posture,
         ...heading,
         root: seated.root(context.body, socket, heading),
         joints: tilt.joints,
       });
+    };
+    const lower: (posture: IHumanPosture, pitch: number) => IHumanPosture = (posture: IHumanPosture, pitch: number): IHumanPosture => {
+      if (pitch <= 0) return posture;
+      const leant: IHumanPosture = leanBody(posture, pitch);
+
       // A free hand rests where the leaned body sets it, on the thigh or
       // the armrest, as it rested sitting; a hand that holds keeps its goal.
       // The rest is read from the leaned body's legs alone, as `seated.rested`
@@ -195,19 +202,28 @@ export namespace pickUpPosture {
         z: Math.cos(yaw),
       };
       const limbs: IHumanPosture["limbs"] = { ...leant.limbs };
-      for (const hand of ["left", "right"] as const) {
-        const goal: IHumanPosture.IGoal | undefined =
-          rested.limbs[`${hand}Arm`];
-        if (context.entry.holds[hand] !== undefined || goal === undefined)
-          continue;
+      const hands: HumanHand.Side[] = (["left", "right"] as const).filter(
+        (hand: HumanHand.Side): boolean => context.entry.holds[hand] === undefined &&
+          rested.limbs[`${hand}Arm`] !== undefined,
+      );
+      if (hands.length === 0) return { ...leant, limbs };
+      const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(hands.map(
+        (hand: HumanHand.Side): AutoMovieHumanoidBone => `${hand}UpperArm`,
+      ));
+      const after: ReturnType<typeof HumanTrunk.resolve> =
+        HumanTrunk.resolve(context.body, leant, undefined, undefined, requested);
+      const before: ReturnType<typeof HumanTrunk.resolve> =
+        HumanTrunk.resolve(context.body, posture, undefined, undefined, requested);
+      for (const hand of hands) {
+        const goal: IHumanPosture.IGoal = rested.limbs[`${hand}Arm`]!;
         const slide: number = Math.min(
           0.5 * context.body.measure.thigh,
           Math.max(
             0,
             Vector3.dot(
               Vector3.subtract(
-                shoulder(context, hand, leant),
-                shoulder(context, hand, posture),
+                after.get(`${hand}UpperArm`)!.worldPosition,
+                before.get(`${hand}UpperArm`)!.worldPosition,
               ),
               ahead,
             ),
@@ -220,9 +236,9 @@ export namespace pickUpPosture {
       }
       return { ...leant, limbs };
     };
-    const far = (pitch: number): number =>
+    const far: (pitch: number) => number = (pitch: number): number =>
       Vector3.length(
-        Vector3.subtract(grip, shoulder(context, side, lower(entry, pitch))),
+        Vector3.subtract(grip, shoulder(context, side, leanBody(entry, pitch))),
       );
     // The seated reach from the upright shoulder, ahead and aside.
     const from: IAutoMovieVector3 = shoulder(context, side, entry);
@@ -244,13 +260,14 @@ export namespace pickUpPosture {
         reason: `${context.subject}: the grip lies ${away.toFixed(3)} m from the ${side} shoulder, beyond the ${extent.toFixed(3)} m a seated person reaches by leaning; stand and step closer first`,
         fix: "stand and step closer first, or bring the prop within the seated reach",
       });
-    if (far(SEATED_LEAN) > limit)
+    const farthestLean: number = far(SEATED_LEAN);
+    if (farthestLean > limit)
       throw new HumanRefusal({
         kind: "reach",
         axis: "prop",
-        value: far(SEATED_LEAN),
+        value: farthestLean,
         feasible: { kind: "range", minimum: 0, maximum: limit, unit: "m" },
-        reason: `${context.subject}: the grip lies ${far(SEATED_LEAN).toFixed(3)} m from the ${side} shoulder even with the trunk leaned ${SEATED_LEAN} degrees forward from the seat, beyond the arm's ${limit.toFixed(3)} m; stand and step closer first`,
+        reason: `${context.subject}: the grip lies ${farthestLean.toFixed(3)} m from the ${side} shoulder even with the trunk leaned ${SEATED_LEAN} degrees forward from the seat, beyond the arm's ${limit.toFixed(3)} m; stand and step closer first`,
         fix: "stand and step closer first, or bring the prop within the seated reach",
       });
     // The least lean that reaches, by bisection.

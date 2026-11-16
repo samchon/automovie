@@ -70,7 +70,15 @@ import { HumanForceThrow } from "./HumanForceThrow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No outcome is reached by a scripted angle: each refuses when the forces cannot produce it.
  */
 export namespace HumanForceResponse {
-  /** A response a pull can be met with. */
+  /**
+   * The authored response to the sustained pull: counter-lean within the
+   * base, yield until the base breaks, or yield then swing and release.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines resist, yield and thrown as requested physical responses; plan refuses a response the actual force, base or fulcrum cannot produce.
+   * @evidence contracts/development/design.md#principled-representation A closed string union names the three existing response laws while actual forces and body geometry determine their motion and feasibility.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The perturb law selects one outcome; force input, thrower and fulcrum remain with their existing owners rather than entering this label.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A label requests a branch, never certifies success or supplies scripted motion; plan retains all physical refusals and documented rigid-body limitations.
+   */
   export type Outcome = "resist" | "yield" | "thrown";
 
   /**

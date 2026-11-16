@@ -1,8 +1,8 @@
 import {
   type IAutoMovieResolvedBone,
-  physicalShapeSegmentDistance,
   Quaternion,
   Vector3,
+  physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -332,7 +332,6 @@ export namespace HumanMountRider {
     };
   }
 
-
   /**
    * How far a seated rider leans the trunk forward to reach what the hands
    * hold, the support standing where it does with the rider seated so
@@ -359,6 +358,8 @@ export namespace HumanMountRider {
     const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => points[side] !== undefined,
     );
-    return sides.length === 0 ? 0 : HumanMountReach.reach(body, seated, sides)(points);
+    return sides.length === 0
+      ? 0
+      : HumanMountReach.reach(body, seated, sides)(points);
   }
 }

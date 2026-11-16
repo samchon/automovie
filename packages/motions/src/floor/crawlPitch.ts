@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -31,18 +34,43 @@ export function crawlPitch(
   shoulderY: number,
   posed: (degrees: number) => IHumanPosture,
 ): { pitch: number; bones: ReturnType<typeof poseBones> } {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
   const at = (degrees: number): ReturnType<typeof poseBones> => {
     const tilted: IHumanPosture = posed(degrees);
-    const posture: IHumanPosture = { ...tilted, root: crawlFrame.rootFor(body, tilted, hips) };
-    return poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution).pose, resolution(), MEASURED);
+    const posture: IHumanPosture = {
+      ...tilted,
+      root: crawlFrame.rootFor(body, tilted, hips),
+    };
+    return poseBones(
+      body,
+      resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        resolution,
+      ).pose,
+      resolution(),
+      MEASURED,
+    );
   };
   const pitch: number = crawlFrame.pitched((degrees: number): boolean => {
     const bones: ReturnType<typeof poseBones> = at(degrees);
-    return (bones.get("leftUpperArm")!.worldPosition.y + bones.get("rightUpperArm")!.worldPosition.y) / 2 > shoulderY;
+    return (
+      (bones.get("leftUpperArm")!.worldPosition.y +
+        bones.get("rightUpperArm")!.worldPosition.y) /
+        2 >
+      shoulderY
+    );
   });
   return { pitch, bones: at(pitch) };
 }
 
 /** The residual's shoulders and the downstream nominal hip places. */
-const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftUpperLeg", "rightUpperLeg"]);
+const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftUpperArm",
+  "rightUpperArm",
+  "leftUpperLeg",
+  "rightUpperLeg",
+]);

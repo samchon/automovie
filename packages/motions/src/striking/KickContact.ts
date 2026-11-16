@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
@@ -63,6 +64,7 @@ export namespace KickContact {
     step: number | undefined,
     prefer?: number,
   ): IContact {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const leans: number[] = prefer === undefined ? [] : [prefer];
     if (chain.technique === "round")
       for (
@@ -82,18 +84,20 @@ export namespace KickContact {
         props,
         carriage,
         props.timing.impact,
+        undefined, resolution,
       );
       const hip: IAutoMovieVector3 = source?.hip ?? KickCarriage.hip(
         props.body,
         base,
         props.side,
+        resolution,
       );
       return {
         hip,
         contact: {
           carriage,
           base,
-          fit: KickChain.fit(chain, base, source?.solved ?? KickChain.solve(chain, base, hip), hip),
+          fit: KickChain.fit(chain, base, source?.solved ?? KickChain.solve(chain, base, hip), hip, resolution),
         },
       };
     };
@@ -108,11 +112,13 @@ export namespace KickContact {
           props,
           carriage,
           props.timing.impact,
+          undefined, resolution,
         );
         const hip: IAutoMovieVector3 = KickCarriage.hip(
           props.body,
           base,
           props.side,
+          resolution,
         );
         const solved: StrikingReach.ISolution = KickChain.solve(chain, base, hip);
         source = { base, hip, solved };

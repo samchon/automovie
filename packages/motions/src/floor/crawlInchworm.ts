@@ -122,7 +122,8 @@ export namespace crawlInchworm {
       frame,
       HumanFrame.forward(standing.yaw),
     );
-    const laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(body, HumanFrame.forward(standing.yaw));
+    const laid: ReturnType<typeof crawlFrame.prepareLaid> =
+      crawlFrame.prepareLaid(body, HumanFrame.forward(standing.yaw));
     const travel: number = Math.max(0, chain.plank - chain.folding);
     const hands: number = Math.max(
       1,
@@ -159,7 +160,12 @@ export namespace crawlInchworm {
         }),
       };
     };
-    const targets: Record<Limb, AutoMovieMotionTarget> = { leftHand: point("leftHand"), rightHand: point("rightHand"), leftFoot: point("leftFoot"), rightFoot: point("rightFoot") };
+    const targets: Record<Limb, AutoMovieMotionTarget> = {
+      leftHand: point("leftHand"),
+      rightHand: point("rightHand"),
+      leftFoot: point("leftFoot"),
+      rightFoot: point("rightFoot"),
+    };
     const contacts = (only?: readonly Limb[]): HumanSupport.IContact[] =>
       (only ?? LIMBS).map(
         (limb: Limb): HumanSupport.IContact => ({
@@ -234,10 +240,12 @@ export namespace crawlInchworm {
       params: { stances },
     });
     const shares: Map<string, number> = new Map();
-    for (const event of planned.events) if (!shares.has(event.name)) shares.set(event.name, event.share);
+    for (const event of planned.events)
+      if (!shares.has(event.name)) shares.set(event.name, event.share);
     const share = (name: string): number => {
       const found: number | undefined = shares.get(name);
-      if (found === undefined) throw new Error(`The inchworm support plan has no event ${name}`);
+      if (found === undefined)
+        throw new Error(`The inchworm support plan has no event ${name}`);
       return found;
     };
     const held = (i: number): string => stances[i]!.event ?? `stance${i}`;

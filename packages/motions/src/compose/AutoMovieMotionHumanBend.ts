@@ -12,6 +12,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
+import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
 
 /**
  * Bend hints: the world point an elbow or a knee bends toward, from a named
@@ -259,6 +260,22 @@ export namespace AutoMovieMotionHumanBend {
   }
 
   /**
+   * Prepare a fixed body's trunk and side for actual solve/strain queries.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixed body/root/heading/side own one real chain and collider context; every query keeps its own world wrist, hand rotation, hint and explicit fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates fixed geometry to the original search owner and retains distinct original legality/strain and elbow-side rankings for solve and strain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The preparation adapter exposes the two existing queries over one fixed search context.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original numerical sweep/refinement, fallback, refusal and exact-zero legality rule remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One real chain/FK preparation serves all Q differently ranked queries while their actual numerical sweeps remain unchanged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/profile/posture/root/heading/side scope shares geometry only; no target or candidate answer is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous selector owns one prepared context until return or throw; it retains no FK reader, pose/time history or external handle.
+   */
+  export function prepare(
+    fixed: Pick<ISolve, "body" | "posture" | "side">,
+  ): AutoMovieMotionHumanBendPreparation.IPrepared {
+    return AutoMovieMotionHumanBendPreparation.of(fixed, hung);
+  }
+  /**
    * The elbow place of least joint strain for a hand goal.
    *
    * A wrist's place leaves the elbow free on a circle about the line from
@@ -292,34 +309,7 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the hanging arm's three angles per body and side, in a weak map keyed by the body.
    */
   export function solve(props: ISolve): IAutoMovieVector3 {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-      AutoMovieMotionHumanBendSearch.search(
-        props,
-        (): ((
-          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-        ) => AutoMovieMotionHumanBendSearch.IScore) =>
-          (
-            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-          ): AutoMovieMotionHumanBendSearch.IScore => ({
-            overshoot: candidate.overshoot,
-            deviation: candidate.strain,
-          }),
-        hung,
-      );
-    if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
-    if (props.fallback !== undefined)
-      return arm(props.body, props.posture, props.side, props.fallback);
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "target",
-      value: props.side,
-      reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${props.side} hand: ${
-        typeof found === "string"
-          ? found
-          : "every place leaves a joint out of range or the forearm inside the body"
-      }`,
-      fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
-    });
+    return prepare(props).solve(props);
   }
 
   /**
@@ -394,24 +384,7 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
   export function strain(props: ISolve, bend: IAutoMovieVector3): number {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-      AutoMovieMotionHumanBendSearch.search(
-        props,
-        (
-          chain: AutoMovieMotionHumanBendChain.IChain,
-        ): ((
-          candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-        ) => AutoMovieMotionHumanBendSearch.IScore) =>
-          AutoMovieMotionHumanBendSearch.toward(
-            chain.shoulder,
-            props.point,
-            bend,
-          ),
-        hung,
-      );
-    return typeof found === "string" || found.overshoot !== 0
-      ? Infinity
-      : found.strain;
+    return prepare(props).strain(props, bend);
   }
 
   /**

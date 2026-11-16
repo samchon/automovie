@@ -46,8 +46,8 @@ import { splitDistalTwist } from "./splitDistalTwist";
  * @evidence contracts/development/implementation.md#principled-implementation The requested articulation is inverse(fixedFrame) * inverse(lowerWorld) * requestedWorld. The shared quaternion projector minimizes angular error on a plain box with at most two mobile axes; unsupported coupled or three-axis domains retain bounded local refinement, with no global guarantee.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One twist split, one frame read and one shared projection replace a second local optimizer. Standalone FK and prepared FK meet at the same local target.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Actual bone axes and ROM overrides govern projection. Residual error is not declared reached, and unsupported ancestry keeps the legacy own-rest fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms With a rotation request, frame reads and joint-array copies cost O(J) for J joints; a supplied workspace rig shares B-bone lookups and projection preparation, otherwise they add O(B) work; supplied preparation uses chain FK, while standalone uses full FK once and again when a distal split is needed. The distal split makes at most five projector queries and final orientation one, at most six. Each eligible query scores its reference plus at most eighteen pairs, at most nineteen actual joint recompositions; unsupported queries keep the factory's four-sweep, forty-step-per-axis fallback, at most 528 recompositions each. Missing rotation returns immediately; runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares prepared fixed frames with candidate scoring and twist splitting, and a supplied lazy workspace rig reuses the exact normalized basis, clamp, local projector and fixed inverse at their original first-use sites. Preparation is valid only while root, source/non-chain pose, rig domains and clinical mappings remain unchanged; no target result is cached.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Frame/joint-array work remains O(J), with shared source rig setup or O(B) standalone work. A distal split makes at most five actual projector queries; when its winning local demand exactly matches the final recomputed one, orientation reuses that selected joint, otherwise one final query runs. Eligible queries score at most nineteen unique articulations; generic refinement retains its existing bound. Missing rotation returns immediately and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source frames, basis, clamp, projector and fixed inverse retain their original first-use sites. After actual final lower FK, rest removal and basis/projector setup still run, the split's copied selected effector joint may serve only a four-component Object.is-identical local demand under the same unchanged dependencies. Different demands and non-distal inputs run ordinary projection; no target answer crosses this operation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local frames end with this call and the returned pose owns a new joint array. A supplied rig/projector is borrowed until its caller releases the workspace; standalone projection ends with this call. No query history, external handle or task is retained.
  */
 export function orientChainEffector(
@@ -61,7 +61,7 @@ export function orientChainEffector(
     prepared !== undefined && props.jointAxes !== undefined
       ? props.jointAxes
       : skeletonJointAxes(props.skeleton, props.jointAxes);
-  const pose: IAutoMoviePose = splitDistalTwist(
+  const split: splitDistalTwist.IResult = splitDistalTwist.withProjection(
     props,
     axes,
     fitted,
@@ -69,6 +69,7 @@ export function orientChainEffector(
     prepared,
     rig,
   );
+  const pose: IAutoMoviePose = split.pose;
 
   // Full FK remains the standalone admission owner, in authored record order.
   const map: ReturnType<typeof resolveBoneMap> | undefined =
@@ -138,7 +139,11 @@ export function orientChainEffector(
       frame: props.restFrames?.[props.chain.effector],
       clamp: clampJointToSkeleton.of(props.chain.effector, props.skeleton),
     });
-  const effector: IAutoMovieJointPose = project(local);
+  const previous: splitDistalTwist.IResult["projection"] = split.projection;
+  const effector: IAutoMovieJointPose = previous !== undefined &&
+    Object.is(previous.local.x, local.x) && Object.is(previous.local.y, local.y) &&
+    Object.is(previous.local.z, local.z) && Object.is(previous.local.w, local.w)
+      ? previous.joint : project(local);
   return {
     ...pose,
     joints: [

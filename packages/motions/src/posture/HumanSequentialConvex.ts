@@ -47,7 +47,15 @@ export namespace HumanSequentialConvex {
     accuracy?: number;
   }
 
-  /** A convex model of the merit about an iterate, at one penalty. */
+  /**
+   * A convex merit model about one iterate, at one penalty, with the caller's
+   * solved units and optional same-linearization price factory.
+   *
+   * @evidence contracts/development/design.md#principled-representation Models current trust-region steps, acceptance notification and optional exact l1 repricing; generic X and radius units remain the producer's domain contract, while numeric solvers admit their actual matrices and bounds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies only solve, taken and reprice consumed by the shared acceptance/steering loop; producers own geometry, numerical preparation and warm-state policy.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Repricing is optional only when the producer proves fixed linearization and exact price equivalence; absence takes the general convexify path, without body-specific cases or cached step results.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines model locality, units, acceptance notification, optional price factory and owning producer responsibilities.
+   */
   export interface IModel<X> {
     /**
      * The model's step within a region.
@@ -59,6 +67,23 @@ export namespace HumanSequentialConvex {
 
     /** Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one). */
     taken?(): void;
+
+    /**
+     * Reprice this same fixed linearization for steering, without rebuilding
+     * its geometry or matrices. Absent, convexify rebuilds the model.
+     *
+     * @param penalty The new exact l1 penalty, at the same iterate/objective and row domain.
+     * @returns A fresh model shell with the original cold/keyed-dual initialization; fixed numeric preparation may be shared sequentially.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation Changes only the exact l1 row prices of one unchanged linearization, the same model that convexify would build at this penalty; producers with penalty-dependent geometry or curvature omit this method.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer owns its weight formula and fixed numeric data; steering selects this factory when available and otherwise invokes its existing convexify callback.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires the same x/objective/domain and original weight calculation, preserves cold/keyed-dual initialization in each new shell, and never substitutes an old step, radius or convergence decision.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Adds O(1) coordinator selection; the stance producer reprices O(m) rows instead of repeating geometric linearization and matrix preparation for m rows, then performs the actual current QP solve.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer proves fixed P/q/A and row order while current prices change; immutable preparation and bounded scratch may be shared, but every new model resets its local warm state and recomputes each step.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Repriced shells share only their current linearization's owned data, with no linked model history; the loop releases them when it advances or finishes and each producer owns its bounded preparation/scratch lifetime.
+     * @evidence contracts/development/common.md#meaningful-documentation States optional fallback, exact dependency premises, changed penalty, fresh warm-state shell and shared-data ownership.
+     */
+    reprice?(penalty: number): IModel<X>;
   }
 
   /** The problem, as the caller reads it. */
@@ -429,7 +454,9 @@ export namespace HumanSequentialConvex {
     };
     const grow: () => void = (): void => {
       mu *= STEERING.increase;
-      model = problem.convexify(x, current, mu, radius, true);
+      model = model.reprice === undefined
+        ? problem.convexify(x, current, mu, radius, true)
+        : model.reprice(mu);
       step = model.solve(radius);
     };
     if (step.met !== true) {

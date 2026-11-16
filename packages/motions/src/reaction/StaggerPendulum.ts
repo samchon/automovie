@@ -28,6 +28,12 @@ import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
  * @evidence contracts/development/design.md#principled-representation One pendulum's state with the geometry of the entry it starts from, so a recovery's steps share it rather than closing over loose variables.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The state, its spans and its readings, as `staggerStep`, `staggerClose` and `staggerRecover` read them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every quantity is the body's own: its feet, its centre of mass and its pendulum's frequency.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the original Hof held-pressure cosh/sinh pendulum, xi=s+v/omega, measured-bound stepping and midpoint minimum-jerk weight transfer; support projection and capture retain actual placed foot outlines and original containment decisions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Explicit entry preparation owns unchanged mass/heading/sole facts, this class owns current state and actual phase integration, and staggerPendulumCourses owns readings of the retained original phases. Private update and footprint methods serve these same public operations.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every transfer interval, pressure sample, hyperbolic/vector grouping, capture test and measured ellipse bound; reused footprints require Object.is agreement on all seven placement scalars, with no rounded key or substituted dynamics.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Entry support/sole facts are prepared once per unchanged-entry operation; hull/projection reads cost O(V log V) for V sole points, and transfer keeps O(C) original intervals while computing their identical cosh/sinh factors once. Snapshot/restore copy O(P+S) phase/step wrappers.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit borrowed geometry belongs to the same fixed body and complete entry; two local footprint slots retain exact copied placement prerequisites, equal-duration transfer factors share the same frequency, and prefix snapshots belong to the same push/speed search context.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search-owned instance retains at most two O(V) footprint records and its actual P phases/S steps, growing only with physical advances/steps until reset or release. Issued snapshots may retain their old arrays until the owning prefix search ends; no global result history or external handle exists.
  */
 export class StaggerPendulum {
   /** The body. */
@@ -91,21 +97,15 @@ export class StaggerPendulum {
   }>> = {};
 
   /**
-   * A pendulum at the push.
+   * Start one push's actual pendulum from the fixed entry geometry.
+   * An explicit operation-owned geometry record may share the same complete
+   * unchanged body/entry facts across speeds; dynamic state remains local.
    *
    * @param body The body.
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param speed The centre of mass's speed after the blow, m/s.
    * @param geometry Optional same-operation geometry prepared from this exact unchanged body and entry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States entry, horizontal direction, speed and the resulting pendulum state.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the body's original pendulum frequency, entry centre of mass, heading axes and measured foot extents with initial velocity push*speed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed entry geometry is initialized before the original dynamic state and sole extent readings.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the actual entry posture and both placed feet without replacing a body measure or force.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fresh entry preparation performs one support evaluation and two sole constructions; an explicit same-operation preparation shares them across speeds while this constructor initializes constant-size dynamic state.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied entry preparation belongs to this exact unchanged body/entry; its actual extents and two footprint records are borrowed, while each instance owns later replacements of its two cache slots.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This search-owned instance retains entry geometry, two bounded outline records and the original phase/step arrays until the search releases it.
    */
   public constructor(
     body: IHumanActionContext["body"],
@@ -373,15 +373,10 @@ export class StaggerPendulum {
     this.advanceAt(p, seconds, Math.cosh(this.w * seconds), Math.sinh(this.w * seconds));
   }
 
-  /** Advance with this exact duration's hyperbolic factors already evaluated.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The factors belong to this same pendulum frequency and supplied duration; pressure/travel/velocity remain centre-relative world quantities.
-   * @evidence contracts/development/implementation.md#principled-implementation Applies the original held-pressure cosh/sinh update and records its actual starting state before changing travel, velocity and time.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One state-update owner serves ordinary advance and fixed-interval transfer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original vector arithmetic grouping, phase order and time addition without reducing integration samples.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant vector work per phase; factors already computed for this exact duration are not reevaluated.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the same frequency/duration factors are shared; every pressure and current state receives a new update.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adds one original phase owned by this search; local arithmetic vectors become current state or release at return.
+  /**
+   * Advance the original held-pressure law using cosh/sinh for this exact
+   * frequency and duration. Record the starting phase before replacing the
+   * state; fixed-interval transfers lend their identical prepared factors.
    */
   private advanceAt(p: IAutoMovieVector3, seconds: number, ch: number, sh: number): void {
     const w: number = this.w;
@@ -436,15 +431,11 @@ export class StaggerPendulum {
     return 1 / Math.sqrt((ahead / along) ** 2 + (aside / of.side) ** 2);
   }
 
-  /** Reuse a fixed foot outline only after checking every placement scalar.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns centre-relative sole points for one side under this instance's fixed body and entry centre.
-   * @evidence contracts/development/implementation.md#principled-implementation Reuses the actual HumanFoot.sole result only for exact ankle/quaternion scalars; otherwise the same sole producer and horizontal centre translation run again.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A private copied placement snapshot proves equivalence before one original geometry construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses Object.is on all seven placement numbers, retaining signed zero distinctions and never quantizing geometry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant snapshot comparison; a miss costs O(v) original sole construction/translation for v fixed sole points.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body sole geometry and entry centre stay fixed during the owning search; returned prepared points are borrowed only by this instance's unchanged projection/hull consumers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One record per side retains a placement copy and one O(v) relative array, replaced on a miss and released with the instance, independently of query count.
+  /**
+   * Read the actual centre-relative sole, reusing only exact Object.is
+   * agreement on every ankle/quaternion scalar under the fixed body/centre.
+   * Each side retains one copied placement snapshot and latest outline;
+   * replacing a slot never mutates a borrowed entry-preparation record.
    */
   private footprint(side: "left" | "right", placement: HumanFoot.IPlacement): {
     placement: HumanFoot.IPlacement;

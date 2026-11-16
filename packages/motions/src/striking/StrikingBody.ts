@@ -103,8 +103,36 @@ export namespace StrikingBody {
     region: AutoMovieHumanoidRegion,
     tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
-      tangent === undefined || (tangent.up === 0 && tangent.out === 0)
+    const local: resolveAutoMovieHumanoidSurfaces.IFrame = frame(body, region, tangent);
+    const placed = resolveAutoMovieHumanoidSurfaces.place(
+      local,
+      bones.get(local.bone)!,
+    );
+    return { point: placed.point, normal: placed.normal };
+  }
+
+  /**
+   * A region's fixed bone-local frame, including an authored tangent offset.
+   *
+   * @param body The unchanged canonical body supplying the physical skin.
+   * @param region The named anatomical region.
+   * @param tangent Optional fixed offset on its tangent plane; absent or zero keeps the prepared centre frame.
+   * @returns The actual engine frame in its owning bone's coordinates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States bone-local units/frame, canonical-body stability and the central-versus-offset cases.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the prepared anatomical centre frame, or the engine's existing offset ray on the same skeleton/profile for the exact requested tangent.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One centre/offset branch owns the choice shared by region placement and fixed-target consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same region, tangent, skin ray and out-of-domain refusal; no surface tolerance or target point is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Centre selection is constant work; a nonzero tangent pays the engine's original rest-pose/skin-ray cost once when a fixed-target consumer prepares it. No speedup is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable canonical body contract fixes skeleton/profile and a caller's explicit region/tangent fixes this bone-local frame; consumers may retain that metadata while still placing the actual posed bone at every observation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This function stores no cache; callers borrow the central frame or own the offset result for their geometry's lifetime, without retaining a world pose, observation or FK reader.
+   */
+  export function frame(
+    body: IHumanBody,
+    region: AutoMovieHumanoidRegion,
+    tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
+  ): resolveAutoMovieHumanoidSurfaces.IFrame {
+    return tangent === undefined || (tangent.up === 0 && tangent.out === 0)
         ? body.surfaces.regions[region]
         : resolveAutoMovieHumanoidSurfaces.offset(
             body.skeleton,
@@ -112,11 +140,6 @@ export namespace StrikingBody {
             region,
             tangent,
           );
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
-      frame,
-      bones.get(frame.bone)!,
-    );
-    return { point: placed.point, normal: placed.normal };
   }
 
   /**

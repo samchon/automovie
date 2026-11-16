@@ -324,15 +324,33 @@ export namespace dance {
           falls.push({ foot, beat: beatAt(k), at: offset[foot] });
         }
         const paths: Record<"left" | "right", typeof falls> = {
-          left: falls.filter((fall: (typeof falls)[number]): boolean => fall.foot === "left"),
-          right: falls.filter((fall: (typeof falls)[number]): boolean => fall.foot === "right"),
+          left: falls.filter(
+            (fall: (typeof falls)[number]): boolean => fall.foot === "left",
+          ),
+          right: falls.filter(
+            (fall: (typeof falls)[number]): boolean => fall.foot === "right",
+          ),
         };
         const origin: IOffset = { x: 0, z: 0 };
-        const placements: Record<"left" | "right", Map<IOffset, HumanFoot.IPlacement>> = { left: new Map(), right: new Map() };
+        const placements: Record<
+          "left" | "right",
+          Map<IOffset, HumanFoot.IPlacement>
+        > = { left: new Map(), right: new Map() };
         for (const foot of ["left", "right"] as const)
-          for (const at of [origin, ...paths[foot].map((fall: (typeof falls)[number]): IOffset => fall.at)])
+          for (const at of [
+            origin,
+            ...paths[foot].map(
+              (fall: (typeof falls)[number]): IOffset => fall.at,
+            ),
+          ])
             placements[foot].set(at, {
-              ankle: Vector3.add(stance[foot].ankle, Vector3.add(Vector3.scale(leftward, at.x), Vector3.scale(forward, at.z))),
+              ankle: Vector3.add(
+                stance[foot].ankle,
+                Vector3.add(
+                  Vector3.scale(leftward, at.x),
+                  Vector3.scale(forward, at.z),
+                ),
+              ),
               rotation: stance[foot].rotation,
             });
         const lateral = (
@@ -350,7 +368,11 @@ export namespace dance {
           const at: IOffset = lo === 0 ? origin : path[lo - 1]!.at;
           const next: (typeof falls)[number] | undefined = path[lo];
           if (next !== undefined && s > next.beat - period / 2)
-            return { at: next.at, swing: (s - (next.beat - period / 2)) / (period / 2), from: at };
+            return {
+              at: next.at,
+              swing: (s - (next.beat - period / 2)) / (period / 2),
+              from: at,
+            };
           return { at, swing: 1, from: at };
         };
         const placed = (

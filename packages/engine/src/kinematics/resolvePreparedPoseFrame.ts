@@ -14,7 +14,7 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * by prepareSkeletonPoseResolution. Public outputs are cloned by that owner;
  * this function may update the prior private row and its frame in place.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the immutable private-input premise, internal row mutation and the producer's public cloning boundary.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines immutable private operands, internal row mutation, the public cloning boundary and IReading's frame, parent operand and rotated metre-offset roles below.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves ordinary FK's parent-times-local quaternion product and parent position plus the parent-rotated rest offset. A local rotation cannot move its own origin; a parent translation changes only the sum, so unchanged private operand identities justify reusing that pure rotation/offset work.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner composes both root-relative and placed prepared frames; dependency revisions and demanded hierarchy remain in prepareSkeletonPoseResolution.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Identity equivalence is limited to actual private immutable values supplied by the prepared producer, never raw caller objects or a user-set admission flag. No rotation normalization, tolerance, scale convention or arithmetic reassociation is added.
@@ -55,18 +55,17 @@ export function resolvePreparedPoseFrame(
  * Private own-data operand row used only by prepared FK.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the frame and immutable operand references that justify exact computation reuse.
- * @evidence contracts/development/design.md#principled-representation A frame depends on one local quaternion, parent rotation/position and fixed rest offset in model metres. The row retains the parent operands and their rotated offset; its frame holds the local operand and completed world values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only prepared root-relative/placed FK reads or updates the row. Existing interface quaternion/vector and resolved-bone types own all numerical data, and no raw-input admission option is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts These references mean exact private immutable producer values, not shape-based trust, external object identity or a special rig. The row contains no target, time, solution or unbounded result history.
+ * @evidence contracts/development/design.md#principled-representation IReading couples one private resolved frame to its actual immutable parent quaternion/position and parent-rotated fixed rest offset in model metres. Its frame holds the local quaternion and completed world values; the prepared producer supplies unit/fixed-input premises instead of the type claiming runtime admission.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only prepared root-relative/placed FK reads or updates IReading. Existing interface quaternion/vector and resolved-bone types own numerical data; exactly these four fields distinguish local, rotation and translation changes without a raw-input admission option.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Operand references are actual private immutable producer values, never shape-based trust, raw caller identity or a special rig. No time, target, chosen solution, admission flag or unbounded result history is represented.
  */
 export namespace resolvePreparedPoseFrame {
   /**
    * Mutable private storage whose referenced numerical operands remain immutable.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States internal mutation and each member's frame/ownership role.
-   * @evidence contracts/development/design.md#principled-representation Holds one composed bone frame, its actual immutable parent operands and the rotated fixed rest offset; all positions/offsets are model metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exactly the values resolvePreparedPoseFrame needs to distinguish rotation, translation and local-articulation changes; callers expose only cloned frames.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No raw-input certificate, cached target answer or global entry is encoded; the enclosing prepared operation owns one row per demanded bone.
+   * The row holds one composed frame and the actual immutable operands that
+   * produced it. Positions/offsets are model metres; only cloned frames leave
+   * the prepared owner, and one row lives per demanded operation bone.
    */
   export interface IReading {
     /** Private completed frame, copied before public return. */

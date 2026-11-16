@@ -227,20 +227,25 @@ export namespace stretch {
     ): IAutoMovieMotionHumanPrimitive => {
       const offset: IAutoMovieVector3 = over(standing);
       return {
-      channels: ["root"],
-      from: 0,
-      to: clock.duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
-        ...posture,
-        root: Vector3.add(
-          posture.root,
-          Vector3.scale(
-            offset,
-            clock.envelope(["start", "reachEnd"], ["release", "end"], seconds),
+        channels: ["root"],
+        from: 0,
+        to: clock.duration,
+        write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
+          ...posture,
+          root: Vector3.add(
+            posture.root,
+            Vector3.scale(
+              offset,
+              clock.envelope(
+                ["start", "reachEnd"],
+                ["release", "end"],
+                seconds,
+              ),
+            ),
           ),
-        ),
-      }),
-    }; };
+        }),
+      };
+    };
     const lifted = (
       placement: HumanFoot.IPlacement,
     ): IAutoMovieMotionHumanPrimitive =>
@@ -314,10 +319,20 @@ export namespace stretch {
             { spine: bend("spine"), chest: bend("chest") },
           ),
         );
-        const carryFrom: ReturnType<typeof AutoMovieMotionHumanPlaced.carryFrom> = AutoMovieMotionHumanPlaced.carryFrom(body, entry);
+        const carryFrom: ReturnType<
+          typeof AutoMovieMotionHumanPlaced.carryFrom
+        > = AutoMovieMotionHumanPlaced.carryFrom(body, entry);
         for (const s of ["left", "right"] as const) {
-          const point: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.grid(body, entry, s, { height: "overhead", lateral: "inside", distance: "close" });
-          const tip: IAutoMovieVector3 = Vector3.add(point, facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }));
+          const point: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.grid(
+            body,
+            entry,
+            s,
+            { height: "overhead", lateral: "inside", distance: "close" },
+          );
+          const tip: IAutoMovieVector3 = Vector3.add(
+            point,
+            facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }),
+          );
           primitives.push(
             ...AutoMovieMotionHumanPlaced.arm({
               body,

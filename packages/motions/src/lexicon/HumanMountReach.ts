@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -49,8 +52,8 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The circles once, then one root per hand per point set.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points the arms do not reach at `LEAN` leave the hands short, which the contact audit reports; only the spine flexes, and the pelvis's roll forward that carries most of a rower's or a cyclist's tilt (Agius et al. 2023, Bioengineering 10:774, section 4.1) is not modelled.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three FK trials request only shoulder positions, with the first also requesting elbows/wrists to measure reach; the remaining per-instant root calculation is unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three trials share one operation-local exact dependency reader; only the completed circle vectors and arm lengths enter the returned ride evaluator.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function holds six vectors and two lengths per hand.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous sample helper owns the trials' exact dependency reader; the two shoulders share the same fixed Cramer rows and denominator while point-dependent determinants remain fresh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sample helper releases its reader on return or throw; the returned evaluator retains one circle of three vectors and one reach scalar per holding hand, without a reader or query history.
    */
   export function reach(
     body: IHumanBody,
@@ -58,19 +61,23 @@ export namespace HumanMountReach {
     sides: readonly ("left" | "right")[],
   ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
-    const angles: readonly [number, number, number] = [0, HumanMountRider.LEAN / 2, HumanMountRider.LEAN];
-    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const shoulders: Set<AutoMovieHumanoidBone> = new Set(sides.map((side: "left" | "right"): AutoMovieHumanoidBone => `${side}UpperArm`));
-    const measured: Set<AutoMovieHumanoidBone> = new Set(shoulders);
-    for (const side of sides) { measured.add(`${side}LowerArm`); measured.add(`${side}Hand`); }
-    const read: ReturnType<typeof poseBones>[] = angles.map(
-      (degrees: number, index: number): ReturnType<typeof poseBones> =>
-        poseBones(
-          body,
-          resolveHumanPosture.seeded(body, { ...HumanMountRider.leant(seated, degrees), limbs: {} }, undefined, undefined, prepared).pose,
-          prepared(),
-          index === 0 ? measured : shoulders,
-        ),
+    const angles: readonly [number, number, number] = [
+      0,
+      HumanMountRider.LEAN / 2,
+      HumanMountRider.LEAN,
+    ];
+    const read: ReturnType<typeof poseBones>[] = readSamples(
+      body,
+      seated,
+      angles,
+      sides,
+    );
+    const frame: ReturnType<typeof circle> = circle(
+      angles.map((degrees: number): number => (degrees * Math.PI) / 180) as [
+        number,
+        number,
+        number,
+      ],
     );
     const circles: Map<"left" | "right", ICircle> = new Map(
       sides.map((side: "left" | "right"): ["left" | "right", ICircle] => {
@@ -85,14 +92,7 @@ export namespace HumanMountReach {
         return [
           side,
           {
-            ...circle(
-              angles.map((d: number): number => (d * Math.PI) / 180) as [
-                number,
-                number,
-                number,
-              ],
-              [at(0), at(1), at(2)],
-            ),
+            ...frame([at(0), at(1), at(2)]),
             reach:
               HumanMountRider.ARM *
               (Vector3.length(Vector3.subtract(elbow, at(0))) +
@@ -132,6 +132,42 @@ export namespace HumanMountReach {
     };
   }
 
+  /** Own the exact FK workspace only while the three actual trial poses are read. */
+  function readSamples(
+    body: IHumanBody,
+    seated: IHumanPosture,
+    angles: readonly [number, number, number],
+    sides: readonly ("left" | "right")[],
+  ): ReturnType<typeof poseBones>[] {
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const shoulders: Set<AutoMovieHumanoidBone> = new Set(
+      sides.map(
+        (side: "left" | "right"): AutoMovieHumanoidBone => `${side}UpperArm`,
+      ),
+    );
+    const measured: Set<AutoMovieHumanoidBone> = new Set(shoulders);
+    for (const side of sides) {
+      measured.add(`${side}LowerArm`);
+      measured.add(`${side}Hand`);
+    }
+    return angles.map(
+      (degrees: number, index: number): ReturnType<typeof poseBones> =>
+        poseBones(
+          body,
+          resolveHumanPosture.seeded(
+            body,
+            { ...HumanMountRider.leant(seated, degrees), limbs: {} },
+            undefined,
+            undefined,
+            prepared,
+          ).pose,
+          prepared(),
+          index === 0 ? measured : shoulders,
+        ),
+    );
+  }
+
   /** A shoulder's circle under the spine's flexion, `a + b cos θ + c sin θ`, world metres, and the arm's reach, metres. */
   interface ICircle {
     /** The circle's centre. */
@@ -153,13 +189,13 @@ export namespace HumanMountReach {
    * Cramer's rule.
    *
    * @param angles The three angles, radians, distinct.
-   * @param points The points at them.
-   * @returns The circle's vectors.
+   * @returns A reader of the three world-metre points, returning their circle vectors with the fixed matrix rows and denominator shared.
    */
   function circle(
     angles: readonly [number, number, number],
+  ): (
     points: readonly [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3],
-  ): Omit<ICircle, "reach"> {
+  ) => Omit<ICircle, "reach"> {
     const rows: [number, number, number][] = angles.map(
       (t: number): [number, number, number] => [1, Math.cos(t), Math.sin(t)],
     );
@@ -168,24 +204,32 @@ export namespace HumanMountReach {
       m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
       m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
     const whole: number = det(rows);
-    const solve = (axis: "x" | "y" | "z"): [number, number, number] =>
-      [0, 1, 2].map(
-        (column: number): number =>
-          det(
-            rows.map((row: [number, number, number], i: number): number[] =>
-              row.map((v: number, j: number): number =>
-                j === column ? points[i]![axis] : v,
+    return (
+      points: readonly [
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+      ],
+    ): Omit<ICircle, "reach"> => {
+      const solve = (axis: "x" | "y" | "z"): [number, number, number] =>
+        [0, 1, 2].map(
+          (column: number): number =>
+            det(
+              rows.map((row: [number, number, number], i: number): number[] =>
+                row.map((v: number, j: number): number =>
+                  j === column ? points[i]![axis] : v,
+                ),
               ),
-            ),
-          ) / whole,
-      ) as [number, number, number];
-    const x: [number, number, number] = solve("x");
-    const y: [number, number, number] = solve("y");
-    const z: [number, number, number] = solve("z");
-    return {
-      a: { x: x[0], y: y[0], z: z[0] },
-      b: { x: x[1], y: y[1], z: z[1] },
-      c: { x: x[2], y: y[2], z: z[2] },
+            ) / whole,
+        ) as [number, number, number];
+      const x: [number, number, number] = solve("x");
+      const y: [number, number, number] = solve("y");
+      const z: [number, number, number] = solve("z");
+      return {
+        a: { x: x[0], y: y[0], z: z[0] },
+        b: { x: x[1], y: y[1], z: z[1] },
+        c: { x: x[2], y: y[2], z: z[2] },
+      };
     };
   }
 }

@@ -34,7 +34,7 @@ export function prepareHumanSegmentPose(
 /**
  * Operation-owned preparation borrowed by displayed-pose stages.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents body identity, clamp behavior, lazy FK and the synchronous release boundary.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents IPrepared's same-body admission, actual clamp behavior, lazy FK getter and synchronous release boundary; the companion record introduces no target or result state.
  * @evidence contracts/development/design.md#principled-representation One unchanged body supplies the rig; actual poses and FK dependencies remain inputs of each numerical operation.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The body admission, clamp and lazy reader are exactly the fields used by the seeded evaluator and its physical stages.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The record carries no sample time, goal or fitted result and cannot act as a frame-result cache.
@@ -43,10 +43,9 @@ export namespace prepareHumanSegmentPose {
   /**
    * One synchronous evaluation's rig metadata and lazily demanded FK.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the same-body admission, actual pose projection and operation-owned lazy reader fields.
-   * @evidence contracts/development/design.md#principled-representation The body owns unchanged rig data, while actual pose and joint scalars remain numerical inputs at every use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The seeded evaluator checks body identity and lends only the clamp and FK getter to its existing stages.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No time, pose, target or solved answer can be stored through this surface.
+   * The seeded evaluator checks the unchanged body's identity and lends
+   * only its clamp and FK getter. Actual pose/joint scalars stay numerical
+   * inputs at every use; no time, target or solved answer is stored here.
    */
   export interface IPrepared {
     /** Same body identity required by every borrower. */

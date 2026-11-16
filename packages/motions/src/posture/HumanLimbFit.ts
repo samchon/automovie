@@ -18,6 +18,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
+import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
 import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
@@ -112,7 +113,7 @@ export namespace HumanLimbFit {
    * @param pose The pose that places the attachment bone, before the limb is fitted.
    * @param limb The limb the goal is for.
    * @param goal The goal, attached or not.
-   * @param readAuthored Optional full FK of this exact body/pose and canonical mappings, shared only within the current fit operation.
+   * @param readAuthored Optional exact FK containing the attachment bone for this body/pose and canonical mappings, shared only within the current fit operation.
    * @returns The goal with world point, bend and rotation and no `on`.
    * @throws {Error} When the goal is attached to a bone of its own limb's chain, or to a bone the rig lacks.
    *
@@ -120,7 +121,7 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#principled-implementation A rigid transform of the goal by the bone's posed frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame read and one transform.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal on its own chain or on a missing bone throws instead of chasing itself.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics, only for an attached goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An attached goal requests only its carrying bone and ancestor FK while preserving ordered authored-joint admission; a supplied exact reading shares that completed frame.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses poseBones, or the same exact authored-FK reader the fit's clearance and engine source read consume; a self-chain refusal precedes that read.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -145,7 +146,7 @@ export namespace HumanLimbFit {
         `A ${limb} goal cannot be attached to ${on}, a bone of its own chain`,
       );
     const frame: IAutoMovieResolvedBone | undefined = (
-      readAuthored === undefined ? poseBones(body, pose) : readAuthored()
+      readAuthored === undefined ? poseBones(body, pose, undefined, new Set([on])) : readAuthored()
     ).get(on);
     if (frame === undefined)
       throw new Error(
@@ -215,7 +216,7 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One world goal, one obstruction, one fit, then the re-aim loop and the toes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The re-aim keeps the fit whose contact lay nearest, not its last pass, and stops at `REAIM_PASSES`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source FK serves attachment, clearance and authored admission; at most REAIM_PASSES targets share rig/clamp/reference work. All obstruction candidates also share fixed room/shape-frame preparation instead of preparing each selected shape at every candidate; actual distances, screens and sample counts remain, with unmeasured speedup.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source read requests only the actual effector, attachment and selected trunk/thigh/placed-arm obstacle frames plus their ancestors, preserving all authored admission. At most REAIM_PASSES targets share rig work and every obstruction candidate shares fixed shape-frame preparation; actual queries/searches remain and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve the fixed body/source pose, placed colliders, goal bend/rotation/reference and cold/near mode; only fit targets and candidate points vary. No callback value, distance or fitted answer is shared across distinct candidates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one source-FK map, fit workspace and at most one opaque distance reader per queried fixed shape through synchronous return or failure. Its lazy reader is local or borrowed; only pose/seed/value escape, and no returned plan or body-memory entry captures readers or callbacks.
    */
@@ -246,6 +247,7 @@ export namespace HumanLimbFit {
     }
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
+    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     let authoredBones:
       | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
       | undefined;
@@ -257,8 +259,13 @@ export namespace HumanLimbFit {
       AutoMovieHumanoidBone,
       IAutoMovieResolvedBone
     > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      if (authoredBones === undefined)
-        authoredBones = poseBones(body, pose, readResolution());
+      if (authoredBones === undefined) {
+        const requested: Set<AutoMovieHumanoidBone> = new Set(limb.endsWith("Arm")
+          ? HumanArmObstacleBones(placed.filter((arm: "left" | "right"): boolean => arm !== side)) : []);
+        requested.add(chain(limb).effector);
+        if (attached.on !== undefined) requested.add(attached.on);
+        authoredBones = poseBones(body, pose, readResolution(), requested);
+      }
       return authoredBones;
     };
     const goal: IHumanPosture.IGoal = world(
@@ -271,7 +278,6 @@ export namespace HumanLimbFit {
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
     // whatever the hint or the hand's turn prefer.
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
       ? HumanArmClearance.obstacles(
           body,

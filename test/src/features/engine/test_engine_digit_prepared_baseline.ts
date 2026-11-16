@@ -2,6 +2,7 @@ import {
   type IAutoMovieResolvedBone,
   fitDigitToTarget,
   prepareSkeletonPoseResolution,
+  ROM_TOLERANCE,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -38,7 +39,7 @@ import { vclose } from "../internal/vclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the isolated unit-link metre rig, degree/normal equations, fixed versus current solve inputs, existing0.5mm digit contact precision and three actual-consumer scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual fitDigitToTarget with and without an explicit static rig, substitutes returned clinical joints into full raw FK, and checks independently reachable points/normals, original residuals, ROM, changed baselines, replay ownership and unrelated invalid authored admission.
- * @evidence contracts/development/testing.md#independent-expectations The tip is the fixed proximal offset plus three unit vectors at cumulative finger angles, rotated by the authored root30 plus current hand angle. The normal is that cumulative final angle applied to plus Y. These trigonometric equations do not call FK to construct targets; FK only observes achieved output. Position retains the existing5e-4m digit bound, and the normal bound1e-4 allows less than0.006degree for the three1e-3degree joint-resolution contributions.
+ * @evidence contracts/development/testing.md#independent-expectations The tip is the fixed proximal offset plus three unit vectors at cumulative finger angles, rotated by root30 plus current hand. The normal applies their cumulative final angle to plus Y. Trigonometric targets never call FK. Position retains the existing5e-4m digit bound; the normal's chord bound is three declared ROM_TOLERANCE angular steps in radians, the triangle bound for these three planar hinge contributions.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers A/B/A changing point+normal targets, raw versus prepared execution, nonidentity root/hand, a changed non-digit baseline, current range/residual checks, mutated prior output and invalid overwritten stray source admission. Human anatomical digit coverage and opposition remain in the existing canonical-body feature test.
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable kernel unit owns every finite planar rig/input and calls real public fitting/FK APIs. It creates no Human imitation for motion validation, starts no host/compiler and introduces no internal export or foreign replacement.
  */
@@ -85,13 +86,14 @@ export function test_engine_digit_prepared_baseline(): void {
         x: frame.worldPosition.x + Math.cos(z), y: frame.worldPosition.y + Math.sin(z), z: frame.worldPosition.z,
       };
       const distance: number = Math.hypot(displayed.x - wanted.point.x, displayed.y - wanted.point.y, displayed.z - wanted.point.z);
+      const normalMiss: number = Math.hypot(result.normal.x - wanted.normal.x,
+        result.normal.y - wanted.normal.y, result.normal.z - wanted.normal.z);
       TestValidator.predicate("actual prepared digit Jacobian retains current point and original residual",
         distance <= 5e-4 && vclose(result.point, displayed, 1e-9) &&
         nclose(result.residual, distance, 1e-9),
       );
-      TestValidator.predicate("secondary normal remains feasible without trading its point goal",
-        Math.hypot(result.normal.x - wanted.normal.x, result.normal.y - wanted.normal.y,
-          result.normal.z - wanted.normal.z) <= 1e-4,
+      TestValidator.predicate(`secondary normal hand=${hand}, target=(${angles.join(",")}), prepared=${prepared}, pointMiss=${distance}, normalChord=${normalMiss}, joints=(${result.joints.map((value: IAutoMovieJointPose): number | null => value.flexion).join(",")}): stays within declared joint resolution`,
+        normalMiss <= 3 * ROM_TOLERANCE * Math.PI / 180,
       );
       TestValidator.predicate("actual clamped digit joints retain each declared interval",
         result.joints.length === 3 && result.joints.every((value: IAutoMovieJointPose): boolean =>

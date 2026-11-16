@@ -47,8 +47,14 @@ export namespace HumanQuadraticBand {
     /** Admitted canonical P is exactly diagonal; finite positive Ruiz factors preserve its off-diagonal signed zeros, and factors still use the full band. */
     diagonal: boolean;
 
-    /** Ordered sparse P positions with offset 0 first in every row; absent metadata uses the full band. Originally nonzero off-diagonal entries remain listed even if scaling underflows them. */
-    pOffsets?: readonly (readonly number[])[];
+    /** Packed sparse P positions with offset 0 first per row; absent metadata uses the full band. Originally nonzero off-diagonal entries remain listed after underflow. */
+    pPattern?: {
+      /** Exact numeric prefix positions of n curvature rows, with a final end. */
+      start: Float64Array;
+
+      /** Increasing relative column offsets within each original curvature row. */
+      offsets: Float64Array;
+    };
 
     /** The scaled linear term. */
     q: Float64Array;
@@ -145,11 +151,10 @@ export namespace HumanQuadraticBand {
    * @param sigma The proximal term.
    * @param work Optional mutable owner for adaptive factorizations; absent for the independently cached initial factor.
    * @returns Upper U of K=UᵀU; persistent work retains it read-only until an exact dependency miss replaces it.
-   * @throws {Error} When a row couples variables beyond the band.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Forms the cited indirect OSQP reduced system and banded Cholesky factor; convex P and positive rho/sigma are caller premises, with the existing diagonal guard documented by HumanQuadraticCholesky.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses a persistent owner's exactly matching last adapted factor or resets canonical upper storage, adds the proximal diagonal and row products, then overwrites that system with U through one Cholesky helper.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all row contributions, including duplicate indices, and the band-coupling rejection; no threshold or physical tolerance changes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every row contribution, including duplicates; original index/span admission already proves the coupling band before this reader, so its kernel removes only redundant pairwise checks, without threshold or tolerance changes.
    * @evidence contracts/development/implementation.md#efficient-algorithms An exact persistent hit compares O(m) row steps; misses assemble O(n*w+sum(k_r*k_r)) and factor O(n*w*w), using O(n*w) band storage and a reused m-entry dependency copy.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation owns the independent initial factor; persistent adaptive reuse requires identical scaled-core identity, sigma and every rho value, while any miss fully resets P and recomputes the weighted system. Resetting initial rho and convergence policy remain the solver's responsibility.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One-shot work owns one mutable factor; persistent work retains one adapted factor plus one polishing factor and one mutable owner, each with upper/forward layouts, rotating replaced owners independently of initial factors and public outputs.

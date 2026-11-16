@@ -118,13 +118,13 @@ const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create());
 /**
  * Own sparse dynamic FK rows on one immutable prepared rig.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States immutable rig inputs, operation ownership, ordered current-pose admission and fresh output.
- * @evidence contracts/development/implementation.md#principled-implementation Exact clinical scalars, local quaternion revisions and parent/root dependencies determine parent-first FK; raw formulas and missing-articulation identity are retained.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Static rig construction stays in prepareSkeletonPoseResolution; this owner alone manages admission rows, demand ancestry and relative/placed revisions.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored record remains admitted in order. No timestamp, target, tolerance or external object identity substitutes for actual scalar dependencies.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(J) admission plus K-request sorting and D-ancestor checks; only changed local/parent/root operands compose and K public outputs are copied. Direct node rows avoid per-ancestor name-map lookup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Inputs are immutable static producer records. One operation retains exact successful joint/frame rows; changing or removing articulation and changing root scalars invalidates affected dependencies.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One returned reader owns O(U+B) current rows until its caller releases it. It retains no pose, target history, task or handle.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents immutable rooted nodes/clinical conventions, complete-pose readers, fixed-source source-plus-edits readers, optional name demand, ordered admission, metre frames and fresh output ownership, including each companion's lifetime below.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete-pose resolution composes exact admitted clinical quaternions through parent-first FK. preparePose actually admits source records once, snapshots their last articulation/root and selects each query's complete ordered overlay before the baseline. prepareDemand resolves actual names to rooted indices. All paths use the same recurrence, raw grouping and missing identity.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Static rig construction remains prepareSkeletonPoseResolution's responsibility. This owner shares admission, root snapshots, demanded ancestry and relative/placed rows across its ordinary reader and two companions; fixed-source selection and fixed-demand preparation change only their stated input preparation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary reads admit every current record, fixed-source production admits every baseline record and every query admits all supplied edits, including overwritten/stray records. No target, time, tolerance, editable whitelist or external admission flag certifies a result; numeric demands come only from the same immutable rig's name lookup.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Complete poses cost O(J) admission plus K-name sorting, D-ancestor checks and K fresh copies. prepareDemand pays sorting once. preparePose pays source admission once and then E edit reads plus demanded ancestry, with optional bound demand. Only changed local/parent/root operands compose; direct node rows avoid ancestor name lookups and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Static inputs are owned immutable records. Operation readers share only exact successful scalar/frame dependencies; fixed demand borrows that same reader rather than duplicating state. A fixed-source producer may borrow actual same-rig admission rows, re-admits source records and filters current membership before copying baseline quaternions into independent overlay state. Changed/removed joints, edits and roots invalidate their actual dependencies.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An ordinary reader owns O(U+B) current rows until release. A fixed-source workspace owns O(B+U) baseline/overlay/frame data and fixed root scalars until its source operation ends. A bound-demand closure owns only K indices and retains no borrowed reader, pose or source set. No query-result history, task or handle survives those owners.
  */
 export function preparePoseResolutionState(
   nodes: readonly INode[],
@@ -134,6 +134,8 @@ export function preparePoseResolutionState(
 ): preparePoseResolutionState.IReader {
   const state: IState = createState();
   return {
+    preparePose: (source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader =>
+      preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, source, requested, state),
     resolve: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[] => {
       ++state.epoch;
       for (const joint of pose.joints) admit(state, joint, conventions, fallback, indices);
@@ -147,18 +149,17 @@ export function preparePoseResolutionState(
  * Internal immutable rig inputs and actual dynamic-reader producer contracts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines static input ownership and ordinary versus fixed-source reader semantics.
- * @evidence contracts/development/design.md#principled-representation Immutable rest/clinical data determine FK; a reader owns current exact dynamic dependencies, while a fixed source owns an admitted baseline and complete per-query overlays.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The static public rig is the sole consumer of these internal constructors and types.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No target answer, pose identity cache or caller-set admission certificate is represented.
+ * @evidence contracts/development/design.md#principled-representation INode represents one rooted parent index, metre rest offset and quaternion; IConvention owns raw fixed axes/optional degree frames plus lazy successful basis admission. IReader accepts complete current poses and actual same-rig internal demand; IOverlayReader accepts complete ordered edits over one actually admitted fixed baseline/root. Raw finite/admission checks remain runtime responsibilities.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The static public rig consumes these constructors/types; complete-pose resolution, actual fixed-source preparation and fixed-demand binding are the only operations current body, flight and digit consumers need. Existing interface/ROM owners supply all numeric types and no target result or mutable row escapes.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene, fixed body shape, editable whitelist, target answer, pose-identity cache or caller-set admission certificate is represented. Missing/unreachable bone handling stays with rooted FK, and actual supplied records still receive their stated admission.
  */
 export namespace preparePoseResolutionState {
 /**
  * Immutable rest data and the parent-first index of one reachable bone.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines name, parent index, parent-frame metre offset and exact rest quaternion.
- * @evidence contracts/development/design.md#principled-representation One node has one parent index and immutable rest transform; -1 represents a null-parent root.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The static rig producer and sparse FK state share this one representation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose, rig-specific name or alternate hierarchy is embedded; the producer owns rooted ordering.
+ * The static producer numbers rooted bones in traversal order; -1 is a
+ * null-parent root. Rest offsets use parent-frame metres and rotations retain
+ * their exact quaternion components. No pose or rig-specific case is stored.
  */
 export interface INode {
   /** Original name, preserved in outputs and joint lookup. */
@@ -177,10 +178,9 @@ export interface INode {
 /**
  * Immutable clinical inputs and their lazy successful basis admission.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States raw-axis ownership, optional clinical frames and lazy normalized basis.
- * @evidence contracts/development/design.md#principled-representation Fixed raw axes and optional degree-valued affine frames determine a joint's clinical interpretation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Static preparation owns the inputs and dynamic admission shares the successful normalized basis.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unused malformed inputs remain unadmitted; no flag certifies an external record or source pose.
+ * Fixed raw axes and optional affine degree frames define clinical reading.
+ * The first actual authored use admits the basis; an unused malformed mapping
+ * stays unadmitted. No external record or source pose is certified here.
  */
 export interface IConvention {
   /** Own-data raw axes, admitted lazily only when an authored joint uses them. */
@@ -197,39 +197,58 @@ export interface IConvention {
   /**
    * Fresh-output FK of complete changing poses on the same immutable rig.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States ordered pose admission, optional reachable demand and fresh outputs.
-   * @evidence contracts/development/design.md#principled-representation The pose supplies clinical degrees/root placement; optional demand selects model-metre frames.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One resolve method serves the static producer's operation-owned readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No mutable state, revision, admission flag or cached target answer escapes.
+   * The pose supplies clinical degrees/root placement and optional demand
+   * selects model-metre outputs. Only exact current dependency rows remain
+   * private; no revision, source pose or target answer escapes.
    */
   export interface IReader {
-    /** Admit the complete pose; an internal demand is created only by this immutable rig's prepareDemand owner, never exposed by the public rig API. */
+    /**
+     * Actually admit and snapshot a fixed source/root once, with optional bound
+     * names. The shared producer reuses only exact completed joint conversion
+     * from this operation; it never presumes source admission. O(J+B) baseline
+     * preparation creates an independent O(B+U) overlay workspace, released
+     * with that source operation, without retaining this reader or source pose.
+     */
+    preparePose(source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): IOverlayReader;
+
+    /**
+     * Admit every complete-pose record in order, then resolve requested rooted
+     * frames through the common recurrence and fresh-output copier. Internal
+     * demand indices come only from this rig's actual prepareDemand producer.
+     * O(J+D+K) work plus live-name sorting shares exact scalar dependencies;
+     * current rows remain with this operation and no input/result is retained.
+     */
     resolve(pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[];
   }
 
   /**
    * A genuine admitted fixed source with complete appended edits for each query.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines source-plus-edits precedence, fixed root, ordered edit admission and restoration when edits disappear.
-   * @evidence contracts/development/design.md#principled-representation Each query is exactly the fixed source joint array followed by this query's edit records; later records win and the captured source root is unchanged.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Digit descent needs only fresh requested FK for its current candidate edits; no source pose, internal rows or results are exposed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer actually admits every source record before issuing this reader. Every supplied edit is admitted per query, arbitrary bone edits remain supported and no external resolved flag is trusted.
+   * A query means the fixed source joint array followed by this query's edits,
+   * with later records winning and absent edits restoring the baseline. The
+   * producer actually admits the source; arbitrary bone edits stay supported.
    */
   export interface IOverlayReader {
-    /** Resolve baseline plus this query's complete ordered edits; absent edits restore baseline. */
+    /**
+     * Admit all current edits in order, including overwritten/stray records,
+     * then resolve baseline plus those edits through the same sparse FK.
+     * Optional live names override bound demand. O(E+D+K) work plus override
+     * sorting reuses exact local/ancestor rows; fresh transforms escape while
+     * O(B+U) baseline/overlay rows end with this workspace, never query history.
+     */
     resolve(edits: readonly IAutoMovieJointPose[], requested?: ReadonlySet<AutoMovieHumanoidBone>): IAutoMovieResolvedBone[];
   }
 
   /**
    * Admit one fixed source and own exact FK updates for appended query edits.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines eager source admission/snapshotting, fixed root, complete appended-edit semantics, fresh outputs and query-owned lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Sparse-pose concatenation selects the last source/edit articulation per bone. Source quaternions are produced by ordinary ordered admission once; a query's absent edit selects its baseline quaternion without rescanning source records.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses the same admission, node rows, root snapshot and FK recurrence as the complete-pose reader; only baseline selection differs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No supplied source record is presumed admitted, and every edit is checked in order including overwritten and stray entries. Source changes require a new producer; no tolerance, target result or restricted editable whitelist replaces real input.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Source admission is O(J) once. Each query admits E edits, sorts K requested indices and checks their D ancestors, copying K outputs; untouched baseline joints need neither scanning nor repeated conversion.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer snapshots successful source articulation and exact root scalars. Query state owns current overlay values/revisions, so removed edits restore baseline and changed ancestors update descendants under the original arithmetic.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One query workspace owns O(B+U) baseline/overlay/frame rows and fixed root scalars until release. It retains no source pose, edit array, query-result history, task or handle.
+   * Ordinary ordered admission produces the last source articulation per bone;
+   * current membership is filtered before snapshotting, even with a borrowed
+   * same-rig admission state. Each query admits its complete appended edits and
+   * missing edits select baseline, through the unchanged parent-first FK.
+   * Source work is O(J+B) once; queries use O(E+D+K) plus live-demand sorting.
+   * Release the independent O(B+U) workspace with the source operation; source
+   * edits require a new producer and no pose or query-result history is kept.
    */
   export function preparePose(
     nodes: readonly INode[],
@@ -238,12 +257,15 @@ export interface IConvention {
     fallback: IConvention,
     source: IAutoMoviePose,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    admission?: IState,
   ): IOverlayReader {
-    const baseline: IState = createState();
+    const baseline: IState = admission ?? createState();
+    ++baseline.epoch;
     for (const joint of source.joints) admit(baseline, joint, conventions, fallback, indices);
     const state: IState = createState();
     state.baseline = baseline.jointsByNode.map(
-      (joint: IJointReading | undefined): IAutoMovieQuaternion | undefined => joint?.rotation,
+      (joint: IJointReading | undefined): IAutoMovieQuaternion | undefined =>
+        joint?.epoch === baseline.epoch ? joint.rotation : undefined,
     );
     setRoot(state, source);
     const demanded: readonly number[] | undefined = requested === undefined
@@ -261,13 +283,11 @@ export interface IConvention {
   /**
    * Snapshot demanded names once and read the same operation's actual FK state.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed name membership, immutable rig ownership and exact operation-reader provenance.
-   * @evidence contracts/development/implementation.md#principled-implementation The demand owner snapshots actual reachable names into parent-first indices; each produced reader still admits its current complete pose and uses the original sparse FK recurrence.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses ordinary admission/root/frame owners; only output-index preparation moves outside repeated queries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No numeric index list or admitted-pose flag enters from a public caller. This owner derives the internal list from actual rig names and passes it only to that rig's genuine operation reader, which still checks every current joint.
-   * @evidence contracts/development/implementation.md#efficient-algorithms K-name sorting is paid once. Queries admit J current records and check D ancestors/copy K outputs, reusing the same operation's completed exact rows from ordinary or other-demand reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable rig map and copied name membership establish demand equivalence. The caller lends its same-rig operation reader, so changing demanded outputs does not duplicate dynamic FK state or bypass current pose admission.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure owns K private indices and retains no reader, pose or source set. Dynamic rows remain with the borrowed operation reader until release, without tasks or handles.
+   * Actual reachable names are sorted into rooted indices once in O(K log K).
+   * The returned closure passes only those private indices to a genuine
+   * same-rig reader; every current joint still receives ordinary admission.
+   * Exact dynamic rows remain shared with that operation's other reads. The
+   * closure retains K indices, without a reader, source set, pose or result.
    */
   export function prepareDemand(
     indices: ReadonlyMap<AutoMovieHumanoidBone, number>, count: number,
@@ -329,9 +349,9 @@ function admit(
   const convention: IConvention = known?.convention ?? conventions.get(joint.bone) ?? fallback;
   const basis: IAutoMovieJointAxes = convention.basis ??=
     normalizeJointAxes(convention.axes, "jointToQuaternion axes");
-  const flexion: number | null = clinical(joint, "flexion", convention.frame?.flexion);
-  const abduction: number | null = clinical(joint, "abduction", convention.frame?.abduction);
-  const twist: number | null = clinical(joint, "twist", convention.frame?.twist);
+  const flexion: number | null = clinical(joint, "flexion", convention.frame?.flexion, known?.flexion);
+  const abduction: number | null = clinical(joint, "abduction", convention.frame?.abduction, known?.abduction);
+  const twist: number | null = clinical(joint, "twist", convention.frame?.twist, known?.twist);
   if (known !== undefined && Object.is(known.flexion, flexion) &&
     Object.is(known.abduction, abduction) && Object.is(known.twist, twist)) {
     known.epoch = state.epoch;
@@ -447,11 +467,14 @@ function clinical(
   joint: IAutoMovieJointPose,
   axis: "flexion" | "abduction" | "twist",
   frame: IAutoMovieAxisFrame | undefined,
+  previous: number | null | undefined,
 ): number | null {
   const value: number | null = joint[axis];
   if (value !== null && !Number.isFinite(value))
     throw new Error(`jointToQuaternion ${axis} must be finite or null, but was ${value}`);
-  toRigAngle(value, frame);
+
+  // A successful nonnull reading already admitted this actual immutable frame.
+  if (previous === undefined || previous === null) toRigAngle(value, frame);
   return value;
 }
 

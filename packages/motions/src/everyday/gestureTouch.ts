@@ -30,7 +30,7 @@ import type { gestureStroke } from "./gestureStroke";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both goals, the pointing source and the provisional values.
  * @evidence contracts/development/design.md#principled-representation Effector goals as a named hand surface, a world point in metres and a world rotation, read from the trunk's own forward kinematics.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two goals the gesture's hand stroke dispatches to.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pointing and self-touch goals serve the stroke dispatcher; profile-derived finger padding is prepared by the gesture plan and remains available to direct uncached stroke callers.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stroke's input and goal types and the body's surface regions; contact points do not scale with the extent.
  */
 export namespace gestureTouch {

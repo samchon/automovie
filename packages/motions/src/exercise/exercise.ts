@@ -243,7 +243,10 @@ export namespace exercise {
         [`concentricStart${i}`, `top${i}`],
         seconds,
       );
-    const ends: number[] = Array.from({ length: reps }, (_: unknown, i: number): number => clock.at(`top${i + 1}`));
+    const ends: number[] = Array.from(
+      { length: reps },
+      (_: unknown, i: number): number => clock.at(`top${i + 1}`),
+    );
     const active = (seconds: number): number => {
       let lo: number = 0;
       let hi: number = ends.length;
@@ -254,7 +257,10 @@ export namespace exercise {
       }
       return lo;
     };
-    const any = (seconds: number): number => { const index: number = active(seconds); return index < reps ? into(index + 1, seconds) : 0; };
+    const any = (seconds: number): number => {
+      const index: number = active(seconds);
+      return index < reps ? into(index + 1, seconds) : 0;
+    };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IHumanContactWindow[] = [];
     const shifted = (
@@ -279,9 +285,22 @@ export namespace exercise {
     switch (p.kind) {
       case "squat": {
         const depth: Depth = p.depth ?? "parallel";
-        const crouch: ReturnType<typeof AutoMovieMotionHumanTrunk.prepareCrouch> = AutoMovieMotionHumanTrunk.prepareCrouch({ body, standing: entry, depth: drop(m, depth) * modifiers.extent, pitch: PITCH[depth] * modifiers.extent });
+        const crouch: ReturnType<
+          typeof AutoMovieMotionHumanTrunk.prepareCrouch
+        > = AutoMovieMotionHumanTrunk.prepareCrouch({
+          body,
+          standing: entry,
+          depth: drop(m, depth) * modifiers.extent,
+          pitch: PITCH[depth] * modifiers.extent,
+        });
         for (let i: number = 1; i <= reps; i++)
-          primitives.push({ channels: ["root", "trunk", "leftLeg", "rightLeg"], from: clock.at(`eccentricStart${i}`), to: clock.at(`top${i}`), write: (posture: IHumanPosture, seconds: number): IHumanPosture => crouch(posture, into(i, seconds)) });
+          primitives.push({
+            channels: ["root", "trunk", "leftLeg", "rightLeg"],
+            from: clock.at(`eccentricStart${i}`),
+            to: clock.at(`top${i}`),
+            write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+              crouch(posture, into(i, seconds)),
+          });
         contacts.push(...AutoMovieMotionHumanBase.plants());
         break;
       }
@@ -318,10 +337,15 @@ export namespace exercise {
         };
         const sideOf = (i: number): "left" | "right" =>
           i % 2 === 1 ? lead : trail;
-        const destinations: Record<"left" | "right", HumanFoot.IPlacement> = { left: raised("left"), right: raised("right") };
+        const destinations: Record<"left" | "right", HumanFoot.IPlacement> = {
+          left: raised("left"),
+          right: raised("right"),
+        };
         const lifted = (side: "left" | "right", s: number): number => {
           const index: number = active(s);
-          return index < reps && sideOf(index + 1) === side ? into(index + 1, s) : 0;
+          return index < reps && sideOf(index + 1) === side
+            ? into(index + 1, s)
+            : 0;
         };
         const half: number =
           Vector3.length(

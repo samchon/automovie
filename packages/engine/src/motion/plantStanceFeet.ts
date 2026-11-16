@@ -128,9 +128,10 @@ export const plantStanceFeet: (props: {
     props.skeleton,
   );
   const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
-  const demanded: ReadonlySet<AutoMovieHumanoidBone> = new Set(
-    legs.map((leg: IAutoMovieFootLeg): AutoMovieHumanoidBone => leg.foot),
-  );
+  const demand: prepareSkeletonPoseResolution.IBoneDemand | undefined =
+    props.poseResolution?.prepareBones(new Set(
+      legs.map((leg: IAutoMovieFootLeg): AutoMovieHumanoidBone => leg.foot),
+    ));
   const times: number[] = sampleTimes(props.motion.duration, sampleRate);
   const poses: ReturnType<typeof sampleMotion>[] = times.map(
     (time: number): ReturnType<typeof sampleMotion> =>
@@ -140,7 +141,7 @@ export const plantStanceFeet: (props: {
     (
       sampled: ReturnType<typeof sampleMotion>,
     ): ReturnType<typeof resolveBoneMap> => {
-      if (props.poseResolution === undefined) return resolveBoneMap(
+      if (demand === undefined) return resolveBoneMap(
         props.skeleton,
         sampled.pose,
         topology,
@@ -149,7 +150,7 @@ export const plantStanceFeet: (props: {
         resolution,
       );
       const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-      for (const bone of props.poseResolution.resolve(sampled.pose, resolution, demanded))
+      for (const bone of demand.resolve(sampled.pose, resolution))
         map.set(bone.bone, bone);
       return map;
     },

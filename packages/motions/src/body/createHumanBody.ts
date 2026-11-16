@@ -15,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanBody } from "./IHumanBody";
 
 /**
@@ -23,13 +22,13 @@ import type { IHumanBody } from "./IHumanBody";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology, rest joints, immutable canonical FK preparation and bone-local mass model, its colliders placed and their hulls' faces built. Recreate it after editing the input rig or profile.
+ * @returns The body with its measure, surfaces, topology, rest joints, immutable canonical FK preparation and bone-local mass model. Collider placement and hull faces are prepared by their actual first queries. Recreate it after editing the input rig or profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is derived and the frame premise.
  * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver, topology index, immutable FK producer with canonical axes/rest frames and segmental mass-model resolver, and sums rest translations for rest positions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Preserves rest-position, measure, surface and topology derivation order, then prepares immutable FK and the body mass model, followed by collider preparation (`HumanColliders.prepare`).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Preserves rest-position, measure, surface and topology derivation order, then prepares immutable FK and the body mass model. Collider owners prepare only the neutral metadata and hull geometry actual queries need.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig or profile lacking a needed bone throws inside the engine owners.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and colliders, once per body, plus each collider hull's face search, cubic to quartic in its points, paid here instead of in the first action.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Body derivations scale with rig/profile populations once. This producer no longer eagerly searches every collider hull's faces; existing geometry owners lazily perform and retain that work only when a real query needs it. Runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The same topology feeds static FK preparation and action ancestry reads; poseBones shares the immutable rest/axes/frame snapshot, and jump/flight plans share one body mass model instead of rebuilding geometric rest per plan. Rig/profile edits require a new body.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned body owns O(B) static FK/mass data. FK dynamic rows use weak operation keys; collider placement/hull faces use weak body/point keys. All release with those owners, without external handles or tasks.
  */
@@ -68,8 +67,5 @@ export function createHumanBody(
     massModel: resolveAutoMovieCenterOfMass(skeleton, profile),
     rest,
   };
-  // The colliders as placed and their hulls' faces, built once here so no
-  // action pays for them.
-  HumanColliders.prepare(body);
   return body;
 }

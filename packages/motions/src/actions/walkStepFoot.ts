@@ -229,8 +229,13 @@ export namespace walkStepFoot {
       const step: IStep | undefined = own[low];
       if (step === undefined || t < step.toeOff) return stances[low]!(t);
       const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
+      const end: walkFoot.IFoot = u < 0.5 ? ends[low]!.from : ends[low]!.to;
       return {
-        ...(u < 0.5 ? ends[low]!.from : ends[low]!.to),
+        placement: {
+          ankle: { ...end.placement.ankle },
+          rotation: { ...end.placement.rotation },
+        },
+        toes: end.toes,
         swing: { u, off: step.toeOff, on: step.heelStrike },
       };
     };

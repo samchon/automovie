@@ -43,7 +43,16 @@ export function sitHands(
 }
 
 /** Flat-hand clinical endpoints depend only on side, not on body or time. */
-const FLAT: Record<"left" | "right", [AutoMovieHumanoidBone, readonly [number, number, number]][]> = {
-  left: Object.entries(HumanHand.shape("left", "flat")) as [AutoMovieHumanoidBone, readonly [number, number, number]][],
-  right: Object.entries(HumanHand.shape("right", "flat")) as [AutoMovieHumanoidBone, readonly [number, number, number]][],
+const FLAT: Record<
+  "left" | "right",
+  [AutoMovieHumanoidBone, readonly [number, number, number]][]
+> = {
+  left: Object.entries(HumanHand.shape("left", "flat")) as [
+    AutoMovieHumanoidBone,
+    readonly [number, number, number],
+  ][],
+  right: Object.entries(HumanHand.shape("right", "flat")) as [
+    AutoMovieHumanoidBone,
+    readonly [number, number, number],
+  ][],
 };

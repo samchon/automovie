@@ -56,7 +56,10 @@ export namespace crawlInchwormPose {
     frame: HumanFrame.IFrame,
     feet: Record<"left" | "right", number>,
     wrists: Record<"left" | "right", number>,
-    laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(body, HumanFrame.forward(frame.yaw)),
+    laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(
+      body,
+      HumanFrame.forward(frame.yaw),
+    ),
   ): lieDown.IPose {
     const DEG: number = 180 / Math.PI;
     const sides = ["left", "right"] as const;
@@ -119,7 +122,15 @@ export namespace crawlInchwormPose {
       };
       posture.joints[`${side}Toes`] = [shape.heel, 0, 0];
     }
-    const placed: IHumanPosture = laid(posture, (side: "left" | "right"): IAutoMovieVector3 => HumanFrame.point(frame, { x: chain.palms[side], y: 0, z: wrists[side] - chain.wrists[side].z }));
+    const placed: IHumanPosture = laid(
+      posture,
+      (side: "left" | "right"): IAutoMovieVector3 =>
+        HumanFrame.point(frame, {
+          x: chain.palms[side],
+          y: 0,
+          z: wrists[side] - chain.wrists[side].z,
+        }),
+    );
     const joints: lieDown.IPose["joints"] = {};
     for (const j of resolveHumanPosture(body, placed).joints)
       joints[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];

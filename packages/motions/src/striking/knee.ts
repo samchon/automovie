@@ -21,6 +21,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
@@ -157,15 +158,14 @@ export namespace knee {
     const leg: "leftLeg" | "rightLeg" =
       side === "left" ? "leftLeg" : "rightLeg";
 
-    // The body without the driven leg: the hips squared and the trunk leaned
-    // by `whole`, the pelvis travelled by `drive`, the support foot turning
-    // on its ball with the hips so the support hip keeps its twist, and the
-    // root lowered until the planted support leg reaches its foot.
+    // The pelvis travels by drive and squares/leans by whole; the support
+    // foot pivots with it and lowering preserves its planted reach.
     const carriage = (
       thrust: IAutoMovieVector3,
       turn: number,
       whole: number,
       drive: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IHumanPosture => {
       const supportFoot: HumanFoot.IPlacement = StrikingTarget.pivot(
         body,
@@ -190,7 +190,7 @@ export namespace knee {
             { left: side !== "left", right: side !== "right" },
           ),
         },
-        5,
+        5, resolution,
       );
     };
 
@@ -202,6 +202,7 @@ export namespace knee {
     let built: IGeometry | undefined;
     const geometry = (): IGeometry => {
       if (built !== undefined) return built;
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const target: IAutoMovieVector3 = StrikingTarget.aim(
         context,
         p.at,
@@ -222,8 +223,8 @@ export namespace knee {
         KneeReach.solve(hip, target, m.thigh, patella, m.shank, travel, line);
       const start: IAutoMovieVector3 = KickCarriage.hip(
         body,
-        carriage({ x: 0, y: 0, z: 0 }, 0, 0, 0),
-        side,
+        carriage({ x: 0, y: 0, z: 0 }, 0, 0, 0, resolution),
+        side, resolution,
       );
       let hip: IAutoMovieVector3 = start;
       let solved: KneeReach.ISolution = reach(hip);
@@ -232,7 +233,7 @@ export namespace knee {
       );
       for (let round: number = 0; round < KneeForm.ROUNDS; round++) {
         hip = Vector3.subtract(
-          KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1), side),
+          KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1, resolution), side, resolution),
           solved.thrust,
         );
         solved = reach(hip);
@@ -309,7 +310,8 @@ export namespace knee {
 
     // The knee on its free course at a clock second (as if it met nothing),
     // the clinching hands reading the other's nape at the film second.
-    const free = (clock: number, seconds: number, arms: boolean = true): IHumanPosture => {
+    const free = (clock: number, seconds: number, arms: boolean = true, source?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const t: number = Math.min(duration, Math.max(0, clock));
       const g: IGeometry = geometry();
 
@@ -325,12 +327,12 @@ export namespace knee {
       const drive: number =
         minimumJerk((t - (impact - lift)) / lift).s -
         minimumJerk((t - impact) / lower).s;
-      const posture: IHumanPosture = carriage(g.thrust, g.turn, whole, drive);
+      const posture: IHumanPosture = carriage(g.thrust, g.turn, whole, drive, resolution);
 
       // The thigh swung about the hip the carriage leaves, the shank folding
       // under it, and the stance's slack given back as the leg lifts.
       const joint: IAutoMovieVector3 = Vector3.add(
-        KickCarriage.hip(body, posture, side),
+        KickCarriage.hip(body, posture, side, resolution),
         Vector3.scale(KneeReach.swing(g.from.thigh, g.to.thigh, rise), m.thigh),
       );
       const ankle: IAutoMovieVector3 = Vector3.add(
@@ -343,7 +345,7 @@ export namespace knee {
         ),
         Vector3.scale(g.slack, 1 - rise),
       );
-      const hands: ReturnType<typeof StrikingStance.guard> = arms ? StrikingStance.guard(body, posture, { lead }) : {};
+      const hands: ReturnType<typeof StrikingStance.guard> = arms ? StrikingStance.guard(body, posture, { lead }, {}, undefined, resolution) : {};
       if (arms && p.at.kind === "person") {
         const other: IHumanActionContext.IPerformer = context.performer(
           p.at.subject,
@@ -401,7 +403,7 @@ export namespace knee {
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,
-          (at: number, channels?: Parameters<StrikingWeapon.Course>[1]): IHumanPosture => free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"))),
+          (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture => free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution),
           side,
           seconds,
         ),

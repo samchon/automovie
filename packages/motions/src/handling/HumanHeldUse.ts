@@ -28,6 +28,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
+import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGrip } from "./HumanGrip";
 
 /**
@@ -287,6 +288,7 @@ export namespace HumanHeldUse {
     const { context, clock } = props;
     const body: IHumanBody = context.body;
     const other: HumanHand.Side = props.side === "right" ? "left" : "right";
+    const place: ReturnType<typeof HumanGrasp.prepareHand> = HumanGrasp.prepareHand(body, other);
     const held: AutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,
@@ -300,8 +302,9 @@ export namespace HumanHeldUse {
     ).point;
 
     // The other handle where a wrist of the holding hand puts the tool.
-    const target = (wrist: HumanHand.IWrist): HumanGrasp.ITarget =>
-      HumanGrasp.at(record, props.handle, {
+    const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(record, props.handle);
+    const target: (wrist: HumanHand.IWrist) => HumanGrasp.IFrame = (wrist: HumanHand.IWrist): HumanGrasp.IFrame =>
+      prepared.frame({
         position: Vector3.add(
           wrist.point,
           Quaternion.rotateVector(
@@ -318,18 +321,19 @@ export namespace HumanHeldUse {
     // at its use, and the elbow the arm takes there, carried with the body
     // as the place it falls back to where no place is legal.
     const entry: IHumanPosture = context.entry.posture;
-    const used: HumanGrasp.ITarget = target(props.key.wrist);
+    const used: HumanGrasp.IFrame = target(props.key.wrist);
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       body,
       entry,
       other,
       AutoMovieMotionHumanBend.hang(body, entry, other),
       (turn: number, tilt: number): HumanHand.IWrist =>
-        HumanGrasp.hand(body, other, HumanGrasp.around(used, turn), tilt),
+        place(HumanGrasp.around(used, turn), tilt),
     );
     const hint: IAutoMovieVector3 = HumanFrame.local(
       { origin: entry.root, yaw: entry.yaw },
-      poseBones(body, chosen.pose).get(`${other}LowerArm`)!.worldPosition,
+      poseBones(body, chosen.pose, undefined,
+        new Set<AutoMovieHumanoidBone>([`${other}LowerArm`])).get(`${other}LowerArm`)!.worldPosition,
     );
     // The other hand's reach, hold and return, as its weight states them.
     const span: AutoMovieMotionHumanArm.ISpan | undefined =
@@ -348,9 +352,7 @@ export namespace HumanHeldUse {
           seconds: number,
         ): IHumanPosture.IGoal => {
           const first: IHumanPosture.IGoal = props.goal(posture, seconds);
-          const wrist: HumanHand.IWrist = HumanGrasp.hand(
-            body,
-            other,
+          const wrist: HumanHand.IWrist = place(
             HumanGrasp.around(
               target({
                 point: first.point,
