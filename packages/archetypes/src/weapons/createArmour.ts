@@ -24,7 +24,7 @@ const PAD: string =
 /**
  * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
  *
- * A piece is fitted to a body when the author gives the body's measure (`IAutoMovieBodyMeasure`, as the motion laws read the polygon man's): its inside follows the body part it covers, its plate the drawn thickness beyond it, a helmet's padding between the head and the plate. Without a measure it is the read piece as its museum record measures it, a box of its height, width and depth. Either way its mass is its record's. It is built centred on the body part it covers, `+Y` up the segment, and `wear` is that centre, which a worn prop rides on its bone (`createArmour.bone`); a limb piece is the same on either side, and `bone` names the side's bone. A brimmed helmet carries its brim as wide as its record's depth.
+ * A piece is fitted to a body when the author gives the body's measure (`IAutoMovieBodyMeasure`, as the motion laws read the polygon man's): its inside follows the body part it covers, its plate the drawn thickness beyond it, a helmet's padding between the head and the plate. Without a measure it is the read piece as its museum record measures it, a box of its height, width and depth. Either way its mass is its record's. It is built centred on the body part it covers, `+Y` up the segment, and `wear` is that centre, which a worn prop rides on its bone (`createArmour.bone`); a limb piece is the same on either side, and `bone` names the side's bone. A brimmed helmet carries its brim as wide as its record's depth. A plate piece carries a provisional glance angle (`GLANCE`, as `contact.glance`); a mail shirt carries none. Performance flight and melee outcomes do not consume that angle yet.
  *
  * @param params The kind, the read piece, the body's measure, and any dimension the author fixes.
  * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
@@ -34,7 +34,7 @@ const PAD: string =
  * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
  * @evidence contracts/development/implementation.md#principled-implementation Fitted, each piece's inside is its body part's measure (the head's radius, the chest's breadth and depth between the waist and the shoulders, a limb's radius over its length) and its plate the read thickness beyond it, a helmet's read padding inside it; unfitted, the read piece's own box; the mass is the read piece's whole.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the piece, draw the thickness and padding, then one branch per kind's shape, and the `wear` contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each piece is one rigid solid on one bone: lames, a mail shirt's drape and a closed helmet's visor are not drawn, so an open and a closed helmet differ only in their records; a mail shirt is drawn on the body's surface, its rings' thickness unread; the glance angle and the share of a hit passed to the body, which no source read gives, are not declared.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each piece is one rigid solid on one bone: lames, a mail shirt's drape and a closed helmet's visor are not drawn, so an open and a closed helmet differ only in their records; a mail shirt is drawn on the body's surface, its rings' thickness unread. A plate piece's body carries the provisional glance angle `GLANCE`; the share of a hit passed to the body is no figure here, since a projectile that stops in the plate hands the wearer its whole momentum, which the hit's outcome computes (#3479), as Krenn, Kalaus and Hall's breastplate stopped a 907 J ball with only a bruise behind it.
  * @evidence contracts/development/implementation.md#efficient-algorithms One or two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -119,7 +119,11 @@ export function createArmour(
     frame: ArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
-  return builder.build(d.mass!, { rests: "steel" });
+  // A plate piece glances a projectile struck beyond its glance angle; mail, rings rather than a plate, declares none.
+  return builder.build(d.mass!, {
+    rests: "steel",
+    ...(kind === "mail" ? {} : { outcome: { glance: createArmour.GLANCE } }),
+  });
 }
 
 /**
@@ -128,7 +132,7 @@ export function createArmour(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, dimension, record and band states what it is and its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read pieces, each record whole; the thickness and padding as cited bands; a body's measure as the interface's own record, so the producer fits any body the motion laws read.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The piece, its `wear` place and the bone it rides (#3500).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No piece is sized by a guess: unfitted it is its record's box, fitted its body's measure; a helmet's padding is a modern pad's, marked provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No piece is sized by a guess: unfitted it is its record's box, fitted its body's measure; a helmet's padding is a modern pad's and the plate's glance angle a quoted test's, both marked provisional.
  */
 export namespace createArmour {
   /** The kinds of piece. */
@@ -274,6 +278,9 @@ export namespace createArmour {
       met22276: read(38.3, 11.7, 14.3, 854),
     },
   };
+
+  /** A plate piece's glance angle, degrees from the plate's normal, a provisional value: Peter Jones's long bodkin against 1.5 mm mild steel "penetrated perhaps 2 mm beyond the inner surface of the plate and then broke while the rest of the arrow ricocheted" at 60 degrees and ricocheted at 70 (Hardy, Longbow, as quoted at https://willscommonplacebook.blogspot.com/2007/02/glancing-blows-and-armor-penetration.html, not read at the book), so the plate glances from 60 degrees. Williams's table of the energy to defeat mild steel at an angle (The Knight and the Blast Furnace, 2003, quoted there), rising to twice the square-on energy at 60 degrees, and Hinsley's 30-degree strikes (The Historian, 2015, pp. 31-32) give no glance angle. Searched for #3500 without a primary figure: Jones 1992 (Materials Characterization 29) and Magier et al. 2017 (unreadable), and the DTIC report ADA030268 on spheres ricocheting from thin plates (unreadable). */
+  export const GLANCE: number = 60;
 
   /** The plate's thickness band. */
   const thickness: IArchetypeBand = ArchetypeBand.metres(0.0015, 0.003, PLATE);

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -23,7 +23,7 @@ const SILL: string =
 /**
  * A window in a piece of wall: a casement that swings out, or a sash that slides up or sideways.
  *
- * The window stands in the `XY` plane, its wall's foot at the origin and the room on the `+Z` side. The sash is a part on its articulation and carries its handle: a casement's and a sliding sash's on the stile that leaves the frame, at the drawn handle height, and a hung sash's on its bottom rail. The `sill` is the ledge under the opening, facing into the room, and the `aperture` is the opening itself.
+ * The window stands in the `XY` plane, its wall's foot at the origin and the room on the `+Z` side. The sash is a part on its articulation and carries its handle: a casement's and a sliding sash's on the stile that leaves the frame, at the drawn handle height, and a hung sash's on its bottom rail. The `sill` is the ledge under the opening, facing into the room, and the `aperture` is the opening itself. A hit at or above `BREAKING` breaks the glazed sash out of its frame with its handle as one `shards` fragment, leaving the wall, the jambs, the head, the sill and the aperture.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -33,7 +33,7 @@ const SILL: string =
  * @evidence contracts/development/common.md#meaningful-documentation States the window's plane, which side the room is on and what moves.
  * @evidence contracts/development/implementation.md#principled-implementation A wall panel below the sill, two jambs and a head round a sash box; a casement's hinge axis points down on its `+X` edge so a positive travel swings the sash out toward `-Z`, and a sliding sash runs along its slider's `+X`, up or toward `-X`. The handle is a short level bar at the edge of the sash a hand opens it by, and a slider's frame stands at it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the surround and the sash, place the handle, then the articulation and the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One sash, no glazing bars; the fixed half of a sliding window is left out.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One sash, no glazing bars; the fixed half of a sliding window is left out. The sash breaks out whole, glass and handle, its shards not drawn, at a body's break-through energy, which a small hard projectile breaks far below.
  * @evidence contracts/development/implementation.md#efficient-algorithms Six parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -178,7 +178,12 @@ export function createWindow(
     width,
     height,
   });
-  return builder.build(d.mass!);
+
+  // The glazed sash breaks out of its frame with its handle at the energy that breaks an annealed pane through (`createWindow.BREAKING`); the wall, jambs and head stay.
+  builder.fracture([{ id: "shards", parts: ["sash", "handle"] }]);
+  return builder.build(d.mass!, {
+    outcome: { fracture: createWindow.BREAKING },
+  });
 }
 
 /**
@@ -190,6 +195,10 @@ export function createWindow(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts `sash` is a hinge on one kind and a slider on the others, the articulation each really has, under one id an opening act names. A hung sash's handle sits on its bottom rail, so its height follows the sill and that kind declares no `handleHeight` it would not use; sill plus rail stays inside the cited reach range.
  */
 export namespace createWindow {
+  /** The energy, joules, at which a hit breaks the glazed sash out: 25 ft-lbf, 33.9 J, the lowest drop at which a 100 lb bag broke through new 1/8 in annealed window glass, "Two of the five new annealed lites (C) also broke through on their first impact" of 25 ft-lbf, against an average of 65 ft-lbf, and every weathered lite "broke on the first impact of 25 ft.-lbs." (Meshulam, On the Weakening of Weathered Window Glass and Its Effect on Human Impact Resistance, IIBEC 2019, https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/). A body's break-through: provisional for a pane of another thickness and for a small hard projectile, which breaks annealed glass at about a joule (Moore and Wilson, JPL DOE/JPL-1012-78/6, 1978, Table 6). */
+  export const BREAKING: number =
+    25 * ArchetypeUnits.FOOT * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+
   /** The kinds of window: a side-hung casement, a vertically sliding hung sash, a horizontally sliding sash. */
   export type Kind = "casement" | "hung" | "sliding";
 

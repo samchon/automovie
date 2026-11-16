@@ -1,4 +1,5 @@
 import {
+  AffordanceArticulation,
   Vector3,
   affordanceFollowedTravel,
   affordanceTravelRange,
@@ -9,8 +10,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
+import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 
 /**
@@ -29,18 +30,8 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  */
 export namespace ArchetypeArticulation {
   /** The kinds whose travel moves parts and carried affordances. */
-  export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set<
-    IAutoMovieAffordance["kind"]
-  >([
-    "hinge",
-    "slider",
-    "knob",
-    "button",
-    "trigger",
-    "crank",
-    "wheel",
-    "pedal",
-  ]);
+  export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> =
+    AffordanceArticulation.KINDS;
 
   /**
    * A model's moving data: its parts and its affordances, both in the model's space.
@@ -183,7 +174,10 @@ export namespace ArchetypeArticulation {
         fix,
       });
     };
-    const within = (affordance: IAutoMovieAffordance, travel: number): boolean => {
+    const within = (
+      affordance: IAutoMovieAffordance,
+      travel: number,
+    ): boolean => {
       const { minimum, maximum } = range(affordance);
       return (
         Number.isFinite(travel) &&
@@ -194,7 +188,10 @@ export namespace ArchetypeArticulation {
 
     // Normalize reversible inputs before resolving any dependent travel.
     const inputs: Map<string, number> = ArchetypeArticulationState(
-      archetype, byId, articulations, state,
+      archetype,
+      byId,
+      articulations,
+      state,
     );
 
     // Every articulation's travel: a leader's as set, a follower's by its rule from its leader's.
@@ -209,11 +206,7 @@ export namespace ArchetypeArticulation {
         return set;
       }
       const leader: IAutoMovieAffordance | undefined = byId.get(a.follows.id);
-      if (
-        leader === undefined ||
-        !KINDS.has(leader.kind) ||
-        visiting.has(a.id)
-      )
+      if (leader === undefined || !KINDS.has(leader.kind) || visiting.has(a.id))
         throw new ArchetypeRefusal({
           kind: "articulation",
           archetype,

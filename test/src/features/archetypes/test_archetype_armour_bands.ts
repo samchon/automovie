@@ -1,7 +1,9 @@
 import { ArchetypeRefusal, createArmour } from "@automovie/archetypes";
+import { validateModel } from "@automovie/engine";
 import type {
   AutoMoviePrimitiveShape,
   IAutoMovieBodyMeasure,
+  IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -19,12 +21,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. Seedless, each kind is its first record, its plate the band's middle, 2.25 mm; over 200 seeds every record of every kind is drawn and every plate stays in its band.
  * 5. Fitted or not, every piece weighs its record, and its `wear` place is the origin, upright.
  * 6. A brimmed helmet's brim is a disc as wide as its record's depth and as thick as its plate, for both read pieces.
+ * 7. Every plate piece's body glances a projectile struck beyond 60 degrees from its normal, Jones's bodkin test on 1.5 mm plate as Hardy's Longbow quotes it; a mail shirt declares no glance; a cuirass with it is admitted, and a glance of -1, 91 or NaN degrees is refused by `validateModel`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real pieces at and past their band ends and reads the produced parts' shapes, the refusals' axes, the drawn records and the `wear` frame; a plate clamped instead of refused, a band end off by a step, a record never drawn or a brim of the wrong width is caught.
  * @evidence contracts/development/testing.md#independent-expectations The band ends are Williams's 1.5 and 3 mm and the US Army's ¾ in pad, written here; the masses, depths and the records' order the Metropolitan Museum's records, written in `ARMOUR_RECORDS`, not read from the producer.
  * @evidence contracts/development/testing.md#distinguishing-cases Both ends of every plated kind and a step past each, a pad off its value, four kinds of misplaced parameter, the seedless and seeded draws, fitted and unfitted, and both brimmed records.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man of the sweep and builds the pieces in memory; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
  */
 export function test_archetype_armour_bands(): void {
   const findings: string[] = [];
@@ -242,6 +245,29 @@ export function test_archetype_armour_bands(): void {
           `a brimmed helmet ${record} with a ${thickness} m plate: brim ${JSON.stringify(brim)}, ${depth} m deep`,
         );
     }
+  }
+  // 7. A plate glances a projectile struck beyond 60 degrees from its normal (Jones's bodkin on 1.5 mm plate, quoted in Hardy's Longbow); mail declares no glance; the engine admits the angle only from 0 to 90 degrees.
+  for (const kind of createArmour.KINDS) {
+    const piece: ReturnType<typeof createArmour> = createArmour({ kind });
+    const glance: number | undefined = piece.body.contact?.glance;
+    if (kind === "mail" ? glance !== undefined : glance !== 60)
+      findings.push(`${kind} glances at ${glance} degrees`);
+  }
+  const cuirass: IAutoMovieModel = JSON.parse(
+    JSON.stringify(createArmour({ kind: "cuirass" })),
+  ) as IAutoMovieModel;
+  if (!validateModel({ model: cuirass }).success)
+    findings.push("a cuirass with its glance is not admitted");
+  for (const bad of [-1, 91, Number.NaN]) {
+    const model: IAutoMovieModel = {
+      ...cuirass,
+      body: {
+        ...cuirass.body!,
+        contact: { ...cuirass.body!.contact, glance: bad },
+      },
+    };
+    if (validateModel({ model }).success)
+      findings.push(`a glance of ${bad} degrees is admitted`);
   }
   TestValidator.equals(
     "armour stays in its bands and is drawn whole",
