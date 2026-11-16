@@ -378,6 +378,7 @@ export * from "./sport/poleVault";
 export * from "./lexicon/HumanGymnastics";
 export * from "./posture/HumanHandShape";
 export * from "./posture/HumanDigitFit";
+export * from "./posture/HumanBodyContactPath";
 export * from "./perform/HumanPerformanceSoft";
 export * from "./perform/HumanPerformanceHold";
 export * from "./handling/manipulate";
