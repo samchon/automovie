@@ -418,14 +418,22 @@ export namespace walk {
       const joints: Partial<
         Record<AutoMovieHumanoidBone, readonly [number, number, number]>
       > = {
-        ...stand.RELAXED,
+        ...stand.relaxed(body),
         ...inclined.joints,
         hips,
         leftToes: [reached.left.toes, 0, 0],
         rightToes: [reached.right.toes, 0, 0],
         chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
-        leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
-        rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+        leftUpperArm: [
+          -gait.arms.shoulder * arms * swing,
+          stand.abduction(body) + elbows,
+          0,
+        ],
+        rightUpperArm: [
+          gait.arms.shoulder * arms * swing,
+          stand.abduction(body) + elbows,
+          0,
+        ],
         leftLowerArm: [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0],
         rightLowerArm: [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0],
       };

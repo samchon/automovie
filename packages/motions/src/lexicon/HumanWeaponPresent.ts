@@ -15,6 +15,8 @@ import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
+import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -84,6 +86,9 @@ export namespace HumanWeaponPresent {
     /** The weapon's working point affordance, put on the line; `muzzle` when absent. */
     tip?: string;
 
+    /** The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it. */
+    from?: string;
+
     /** The weapon's sighting affordance, square to its line; `sight` when absent. */
     edge?: string;
 
@@ -109,9 +114,16 @@ export namespace HumanWeaponPresent {
    * How the weapon is carried: on the line of aim; at a ready position with
    * the muzzle down or up; or at a long arm's recover, the firelock upright
    * with its butt at the support side's breast (the 1764 Manual Exercise's
-   * position from which it is cocked).
+   * position from which it is cocked); or shouldered, the piece in one hand
+   * against the shoulder, its butt on the hip (the manual's Position of a
+   * Soldier under Arms).
    */
-  export type Carriage = "aim" | "lowReady" | "highReady" | "recover";
+  export type Carriage =
+    | "aim"
+    | "lowReady"
+    | "highReady"
+    | "recover"
+    | "shoulder";
 
   /** Parameters of presenting the weapon. */
   export interface IPresent extends IWield, HumanWeaponTrack.IParams {
@@ -275,7 +287,7 @@ export namespace HumanWeaponPresent {
         (points: StrikingHeld.IPoints): StrikingHeld.ITool => grip.tool(points),
       );
       try {
-        const { bladed, pose } = HumanWeaponPose.of(
+        const { bladed, pose, carriage } = HumanWeaponPose.of(
           ahead,
           grip.posture,
           ahead.start,
@@ -286,12 +298,41 @@ export namespace HumanWeaponPresent {
             posture: bladed,
             tool: s.tool,
             frame: pose,
-            back: s.tool.length,
+            back: carriage === "aim" ? 0 : s.tool.length,
             bound: StrikingRoll.MISS,
           },
         ];
       } catch (error) {
-        if (error instanceof HumanRefusal) return [];
+        if (error instanceof HumanRefusal) {
+          if (
+            error.axis === "target" &&
+            error.feasible?.kind === "range" &&
+            error.feasible.unit === "deg"
+          )
+            return [];
+
+          // A pose impossible for this grip is an infeasibility certificate,
+          // not an absence of requirements on the grip. The candidate's
+          // entry frame supplies a finite key; least forbids accepting it.
+          const lying: IHumanProp.IFrame = ahead.prop(p.gun).frame(ahead.start);
+          const frame: IHumanProp.IFrame = HumanPropFrame.parent(
+            lying,
+            s.tool.held!.frame,
+          );
+          return [
+            {
+              posture: grip.posture,
+              tool: s.tool,
+              frame: {
+                point: frame.position,
+                rotation: frame.rotation,
+              },
+              back: s.tool.length,
+              bound: StrikingRoll.MISS,
+              least: Infinity,
+            },
+          ];
+        }
         throw error;
       }
     },

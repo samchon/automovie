@@ -115,6 +115,15 @@ export interface IHumanActionPlan {
   wears?: readonly IHumanActionPlan.IWear[];
 
   /**
+   * Props this action sets on another prop's socket: an arrow nocked on a
+   * bow's string. From its instant the prop rides that socket, posed where
+   * the other prop's articulations put it at every second (the arrow drawn
+   * with the string), until a later grip takes it off: a prop parented to a
+   * socket in the scene graph, as a worn prop is to a bone.
+   */
+  mounts?: readonly IHumanActionPlan.IMount[];
+
+  /**
    * Articulations of props this action moves: a door's hinge the hand
    * swings, a trigger it presses, a slider it draws. Each writes the travel
    * of one articulation over a window of the action; the performance poses
@@ -306,6 +315,9 @@ export namespace IHumanActionPlan {
     /** The affordance id of its working point: a blade's point, a muzzle, a hammer's face. */
     tip: string;
 
+    /** The affordance the working line runs from toward the tip, when two points define it. */
+    from?: string;
+
     /** The affordance id of its edge or sighting direction, where it has one. */
     edge?: string;
   }
@@ -319,6 +331,21 @@ export namespace IHumanActionPlan {
     bone: AutoMovieHumanoidBone;
 
     /** Share of this action from which the prop is worn. */
+    from: number;
+  }
+
+  /** A prop set on another prop's socket. */
+  export interface IMount {
+    /** The prop's subject. */
+    prop: string;
+
+    /** The prop it is set on. */
+    onto: string;
+
+    /** The socket affordance of `onto` it rides. */
+    point: string;
+
+    /** Share of this action from which the prop rides the socket. */
     from: number;
   }
 

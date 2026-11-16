@@ -24,7 +24,7 @@ const CARTRIDGE: string =
 
 /** The hand-thrown stone's mass, read. */
 const STONE: string =
-  "Wilson et al., Scientific Reports 6:30614 (2016), p. 5 (https://doi.org/10.1038/srep30614): the stone thrown farthest weighs \"approximately 0.75 kg +/- 0.25 kg\", the range 81.8 % of 55 spheroids chosen for throwing fell in";
+  'Wilson et al., Scientific Reports 6:30614 (2016), p. 5 (https://doi.org/10.1038/srep30614): the stone thrown farthest weighs "approximately 0.75 kg +/- 0.25 kg", the range 81.8 % of 55 spheroids chosen for throwing fell in';
 
 /**
  * The band of each free dimension of {@link createProjectile} an object leaves, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. Read only as `createProjectile.BANDS`; an arrow's and a bolt's provisional bands are drawn only for the object that does not give the figure, a stone's specific gravity is granite's as `createRock` reads it, and every band names its source.

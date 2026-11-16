@@ -74,8 +74,7 @@ async function main(): Promise<void> {
 
   if (failures.length !== 0) {
     console.log(chalk.red(`\n${failures.length} FAILED:`));
-    for (const f of failures)
-      console.log(chalk.red(`\n● ${f.execution.name}`));
+    for (const f of failures) console.log(chalk.red(`\n● ${f.execution.name}`));
     process.exit(1);
   }
   console.log(chalk.green("All tests passed."));

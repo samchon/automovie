@@ -74,7 +74,14 @@ export namespace crawlInchwormPose {
       ) *
         DEG -
       chain.lean;
-    const target: IHumanPosture = crawlFrame.posed(frame.yaw, 1, pitch, 0, 0);
+    const target: IHumanPosture = crawlFrame.posed(
+      body,
+      frame.yaw,
+      1,
+      pitch,
+      0,
+      0,
+    );
     const posture: IHumanPosture = {
       ...target,
       root: crawlFrame.rootFor(

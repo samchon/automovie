@@ -16,6 +16,7 @@ import type { HumanSupport } from "../law/HumanSupport";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
@@ -121,7 +122,8 @@ export namespace getUp {
       pitch: 5,
       roll: 0,
       joints: {
-        ...stand.RELAXED,
+        ...HumanHand.shape("left", "relaxed"),
+        ...HumanHand.shape("right", "relaxed"),
         rightUpperLeg: [90, 5, 0],
         rightLowerLeg: [90, 0, 0],
         rightFoot: [0, 0, 0],
@@ -132,7 +134,7 @@ export namespace getUp {
         rightUpperArm: [20, 10, 0],
       },
     },
-    stood: { pitch: 0, roll: 0, joints: stand.RELAXED },
+    stood: { pitch: 0, roll: 0, joints: {} },
   };
 
   /**
@@ -331,7 +333,11 @@ export namespace getUp {
     pitch: number,
     a: { hip: number; knee: number; ankle: number; shoulder: number },
   ): IPose {
-    const joints: AutoMovieMotionHumanJoints.Angles = { ...stand.RELAXED };
+    // The hands at rest; every arm angle is the key's own below.
+    const joints: AutoMovieMotionHumanJoints.Angles = {
+      ...HumanHand.shape("left", "relaxed"),
+      ...HumanHand.shape("right", "relaxed"),
+    };
     for (const side of ["left", "right"] as const) {
       joints[`${side}UpperLeg`] = [a.hip, 8, 0];
       joints[`${side}LowerLeg`] = [a.knee, 0, 0];

@@ -358,16 +358,14 @@ function secondAt(
       },
     );
   const frame = coupling.bearers![HumanCarriedCoupling.SECOND]!;
-  const anchor = HumanCarriedCouplingPose.bones(
-    first,
-    HumanCarriedCouplingPose.still(),
-    coupling.anchor,
-  ).get(coupling.anchor)!;
-  const own: IAutoMovieVector3 = HumanCarriedCouplingPose.bones(
-    second,
-    HumanCarriedCouplingPose.still(),
-    frame.anchor,
-  ).get(frame.anchor)!.worldPosition;
+  const anchor = HumanCarriedCouplingPose.stood(first, {
+    incline: 0,
+    depth: 0,
+  }).get(coupling.anchor)!;
+  const own: IAutoMovieVector3 = HumanCarriedCouplingPose.stood(second, {
+    incline: 0,
+    depth: 0,
+  }).get(frame.anchor)!.worldPosition;
   return Vector3.subtract(
     Vector3.add(
       anchor.worldPosition,

@@ -20,7 +20,8 @@ import { TestValidator } from "@nestia/e2e";
  *    turned +X from the moved origin, within 1e-9.
  * 4. A carried posture moves its root, its heading and every limb goal's
  *    point, bend and rotation, leaves a goal on a bone untouched, and keeps
- *    its joint angles.
+ *    its joint angles. Hand and foot contact offsets and bounded tool points
+ *    stay in their end-joint frames; their world places follow the carry.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Carries points and a posture through a moving frame; a carry that ignores the turn, moves a bone-attached goal or changes joint angles fails.
  * @evidence contracts/development/testing.md#independent-expectations The carried places are the rigid motion's, written here.
@@ -82,11 +83,19 @@ export function test_human_motion_support_carry(): void {
         point: { x: 0.4, y: 1.4, z: 0.3 },
         bend: { x: 0.6, y: 1.1, z: 0 },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
+        contact: { x: -0.03, y: 0.01, z: 0.02 },
+        limits: [{ contact: { x: -0.5, y: 0.1, z: 0.2 }, bound: 0.01 }],
       },
       leftArm: {
         point: { x: -0.1, y: 1.2, z: 0.1 },
         bend: { x: -0.4, y: 1.1, z: 0 },
         on: "chest",
+      },
+      rightLeg: {
+        point: { x: -0.1, y: 0.1, z: 0 },
+        bend: { x: -0.1, y: 0.5, z: 0.1 },
+        rotation: Quaternion.identity(),
+        contact: { x: 0, y: -0.02, z: 0.12 },
       },
     },
   };
@@ -116,4 +125,30 @@ export function test_human_motion_support_carry(): void {
     posture.limbs.leftArm,
   );
   TestValidator.equals("joint angles stay", carried.joints, posture.joints);
+  for (const limb of ["rightArm", "rightLeg"] as const) {
+    const before: IHumanPosture.IGoal = posture.limbs[limb]!;
+    const after: IHumanPosture.IGoal = carried.limbs[limb]!;
+    TestValidator.equals(
+      `${limb}'s contact stays joint-local`,
+      after.contact,
+      before.contact,
+    );
+    const first: IAutoMovieVector3 = Vector3.add(
+      before.point,
+      Quaternion.rotateVector(before.rotation!, before.contact!),
+    );
+    const second: IAutoMovieVector3 = Vector3.add(
+      after.point,
+      Quaternion.rotateVector(after.rotation!, after.contact!),
+    );
+    TestValidator.predicate(
+      `${limb}'s physical contact follows the rigid carrier`,
+      close(second, carry.point(first)),
+    );
+  }
+  TestValidator.equals(
+    "tool point limits stay joint-local",
+    carried.limbs.rightArm!.limits,
+    posture.limbs.rightArm!.limits,
+  );
 }

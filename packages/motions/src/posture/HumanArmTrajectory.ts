@@ -213,7 +213,11 @@ export namespace HumanArmTrajectory {
     let most: number = 1;
     x.forEach((arm: readonly (readonly number[])[], a: number): void => {
       for (let k: number = 0; k + 1 < c.n; ++k) {
-        const now: G.IPlaced = G.placed(c.setups[a]!, c.frames[a]![k]!, arm[k]!);
+        const now: G.IPlaced = G.placed(
+          c.setups[a]!,
+          c.frames[a]![k]!,
+          arm[k]!,
+        );
         const next: G.IPlaced = G.placed(
           c.setups[a]!,
           c.frames[a]![k + 1]!,
@@ -295,6 +299,18 @@ export namespace HumanArmTrajectory {
       ...site,
       point: HumanArmMirror.flip(site.point),
       contact: HumanArmMirror.flip(site.contact),
+      ...(site.limits === undefined
+        ? {}
+        : {
+            limits: site.limits.map(
+              (
+                limit: NonNullable<ISite["limits"]>[number],
+              ): NonNullable<ISite["limits"]>[number] => ({
+                ...limit,
+                contact: HumanArmMirror.flip(limit.contact),
+              }),
+            ),
+          }),
       ...(site.rotation === undefined
         ? {}
         : { rotation: HumanArmMirror.turn(site.rotation) }),

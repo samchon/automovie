@@ -24,9 +24,9 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
  *
  * Events: the jump's (`takeoff`, `apex`, `touchdown`, `settled`).
  *
- * First pass: the take-off's largest momentum is not bounded yet, so the
- * pass refuses only a request its search cannot land; `RATE`, the rate
- * other gymnastics laws are still bounded by, is not read here.
+ * The take-off's largest momentum is the flight pass's physical ceiling,
+ * and the search must meet its turns within that ceiling. `RATE`, the
+ * provisional rate other gymnastics laws still read, is not read here.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the row asks of the jump, who turns it and refuses, the events and the first pass's gap.
  * @evidence contracts/development/design.md#principled-representation A law record whose plan is the jump's with fixed turns.

@@ -171,9 +171,10 @@ export function test_human_motion_recompose_exercise(): void {
     );
 
     // 4. The manner matrix.
-    const preset: string = AutoMovieMotionManner.PRESET_NAMES[0]!;
+    const preset: AutoMovieMotionManner.Preset =
+      AutoMovieMotionManner.PRESET_NAMES[0]!;
     for (const kind of kinds)
-      for (const manner of [undefined, { preset }] as const)
+      for (const manner of [undefined, AutoMovieMotionManner.PRESETS[preset]])
         try {
           perform(
             body,
@@ -184,7 +185,7 @@ export function test_human_motion_recompose_exercise(): void {
                 ...(manner === undefined
                   ? {}
                   : {
-                      manner: manner as IHumanActionParams["dance"]["manner"],
+                      manner,
                     }),
               }),
           );

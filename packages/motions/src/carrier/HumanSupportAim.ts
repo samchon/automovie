@@ -98,7 +98,8 @@ export namespace HumanSupportAim {
   /**
    * A carried posture re-aimed: the trunk twisted by the correction's yaw,
    * the arms' goals turned with it about the vertical through the root and
-   * raised by its rise about the pivot.
+   * raised by its rise about the pivot. Contact and task-limit offsets stay
+   * in the end joint's frame while only the asked world frame turns.
    *
    * @param carry The support's carry since the act's start.
    * @param posture The posture already carried (`HumanSupportCarry.posture`).
@@ -144,9 +145,6 @@ export namespace HumanSupportAim {
         ...goal,
         point: move(goal.point),
         bend: move(goal.bend),
-        ...(goal.contact === undefined
-          ? {}
-          : { contact: move(goal.contact) }),
         ...(goal.rotation === undefined
           ? {}
           : {

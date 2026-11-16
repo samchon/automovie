@@ -56,7 +56,7 @@ export namespace HumanArmGeometry {
   export interface IShape {
     /** The bone the shape's segment rides on. */
     bone: AutoMovieHumanoidBone;
-    /** The tangle audit's part the segment is, on this body; -1 for another body's. */
+    /** The frame's collider part: the body's audit indices first, then the external placed segments in their order in the base. */
     part: number;
     /** The segment's world pose. */
     pose: HumanColliders.IPlaced["pose"];
@@ -131,7 +131,7 @@ export namespace HumanArmGeometry {
     segments: number[];
     /** Each surface probe's index among its part's own probes, for the audit's reference depth of it. */
     corners: number[];
-    /** Whether two audit parts are one part or share a joint, which the audit does not read (`AutoMovieMotionHumanAuditTangleModel.IModel.related`). */
+    /** Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. */
     related: boolean[][];
     /** The arm's own collider segments, each in the frame of the arm's segment it rides on: what another moving arm keeps clear of. */
     colliders: {
@@ -148,7 +148,7 @@ export namespace HumanArmGeometry {
     }[];
     /** The shapes in the arm's way. */
     shapes: IShape[];
-    /** The collider probes of the body in the arm's way (the tangle audit's corners), in the world, the arms of the problem left out: each one's point, audit part, index among that part's probes, and bone. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
+    /** The collider probes in the arm's way (the tangle audit's corners), in the world, the solved arms left out: each one's point, frame part, index among that part's probes, and bone. Includes external bodies, whose frame parts follow the body's audit parts and have no own-body reference depth. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
     body: {
       point: IAutoMovieVector3;
       part: number;

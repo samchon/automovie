@@ -16,7 +16,9 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
  * task-priority redundancy resolution", IEEE TRA 13(3):398-410). A variable
  * standing on a bound its descent pushes against (the projection undoes a
  * resolution's move along the negative gradient) is held for the step, the
- * active set of a projected Newton method (Bertsekas 1982).
+ * active set of a projected Newton method (Bertsekas 1982); the gradient is
+ * the primary's while the primary is unmet, so the secondary never holds a
+ * joint the primary needs.
  *
  * A trial is accepted lexicographically: while the primary is unmet, only
  * when it lowers the primary; once met (within the effector's motion for one
@@ -66,7 +68,10 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
   ): number[][] =>
     at.map((i: number): number[] =>
       at.map((j: number): number =>
-        J.reduce((s: number, row: readonly number[]): number => s + row[i]! * row[j]!, 0),
+        J.reduce(
+          (s: number, row: readonly number[]): number => s + row[i]! * row[j]!,
+          0,
+        ),
       ),
     );
   const times = (
@@ -75,7 +80,11 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     r: readonly number[],
   ): number[] =>
     at.map((i: number): number =>
-      J.reduce((s: number, row: readonly number[], k: number): number => s + row[i]! * r[k]!, 0),
+      J.reduce(
+        (s: number, row: readonly number[], k: number): number =>
+          s + row[i]! * r[k]!,
+        0,
+      ),
     );
   const damped = (A: number[][], mu: number): number[][] =>
     A.map((row: number[], i: number): number[] =>
@@ -87,7 +96,10 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
   let r2: number[] = secondary(x);
   let J1: number[][] = jacobian(primary, x);
   let J2: number[][] = r2.length === 0 ? [] : jacobian(secondary, x);
-  const all: number[] = Array.from({ length: n }, (_: unknown, i: number): number => i);
+  const all: number[] = Array.from(
+    { length: n },
+    (_: unknown, i: number): number => i,
+  );
   let mu: number =
     TAU *
     Math.max(
@@ -98,10 +110,15 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     );
   let nu: number = 2;
   for (;;) {
-    // The active set, by the whole residual's gradient.
+    // The active set, by the gradient of the task being served: the
+    // primary's while it is unmet, so a bound the secondary pushes against
+    // never holds a joint the primary needs; the whole residual's once met.
+    const met: number = props.tolerance(x, J1);
+    const served: boolean = Math.sqrt(squared(r1)) <= met;
     const g: number[] = all.map(
       (i: number): number =>
-        times(J1, [i], r1)[0]! + (J2.length === 0 ? 0 : times(J2, [i], r2)[0]!),
+        times(J1, [i], r1)[0]! +
+        (J2.length === 0 || !served ? 0 : times(J2, [i], r2)[0]!),
     );
     const free: number[] = all.filter((i: number): boolean => {
       if (g[i] === 0) return true;
@@ -123,27 +140,36 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       const G: number[][] = gram(J1, free);
       const P: (number[] | null)[] = free.map(
         (_c: number, c: number): number[] | null =>
-        AutoMovieSolidVector.solve(
-          A1,
-          G.map((row: number[]): number => row[c]!),
-        ),
+          AutoMovieSolidVector.solve(
+            A1,
+            G.map((row: number[]): number => row[c]!),
+          ),
       );
       if (P.some((col: number[] | null): boolean => col === null)) break;
       // N = I - P, P's columns solved above.
       const N: number[][] = free.map((_r: number, a: number): number[] =>
-        free.map((_c: number, c: number): number => (a === c ? 1 : 0) - P[c]![a]!),
+        free.map(
+          (_c: number, c: number): number => (a === c ? 1 : 0) - P[c]![a]!,
+        ),
       );
       const J2f: number[][] = J2.map((row: number[]): number[] =>
         free.map((i: number): number => row[i]!),
       );
       const M: number[][] = J2f.map((row: number[]): number[] =>
         free.map((_c: number, c: number): number =>
-          row.reduce((s: number, v: number, a: number): number => s + v * N[a]![c]!, 0),
+          row.reduce(
+            (s: number, v: number, a: number): number => s + v * N[a]![c]!,
+            0,
+          ),
         ),
       );
       const b: number[] = J2f.map(
         (row: number[], k: number): number =>
-          r2[k]! + row.reduce((s: number, v: number, a: number): number => s + v * h1[a]!, 0),
+          r2[k]! +
+          row.reduce(
+            (s: number, v: number, a: number): number => s + v * h1[a]!,
+            0,
+          ),
       );
       const local: number[] = free.map((_v: number, a: number): number => a);
       const z: number[] | null = AutoMovieSolidVector.solve(
@@ -153,7 +179,11 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       if (z !== null)
         h = h1.map(
           (v: number, a: number): number =>
-            v + N[a]!.reduce((s: number, w: number, c: number): number => s + w * z[c]!, 0),
+            v +
+            N[a]!.reduce(
+              (s: number, w: number, c: number): number => s + w * z[c]!,
+              0,
+            ),
         );
     }
     if (Math.max(...h.map((v: number): number => Math.abs(v))) <= step) break;
@@ -166,11 +196,9 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     );
     const t1: number[] = primary(trial);
     const t2: number[] = secondary(trial);
-    const met: number = props.tolerance(x, J1);
-    const accepted: boolean =
-      Math.sqrt(squared(r1)) > met
-        ? squared(t1) < squared(r1)
-        : Math.sqrt(squared(t1)) <= met && squared(t2) < squared(r2);
+    const accepted: boolean = !served
+      ? squared(t1) < squared(r1)
+      : Math.sqrt(squared(t1)) <= met && squared(t2) < squared(r2);
     if (accepted) {
       x = trial;
       r1 = t1;
@@ -214,7 +242,10 @@ export namespace fitDigitDescent {
     step: number;
 
     /** The primary residual's length at which the primary counts as met, at `x` with its Jacobian. */
-    tolerance: (x: readonly number[], J1: readonly (readonly number[])[]) => number;
+    tolerance: (
+      x: readonly number[],
+      J1: readonly (readonly number[])[],
+    ) => number;
   }
 }
 

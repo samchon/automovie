@@ -101,7 +101,9 @@ export namespace HumanPerformanceRead {
    * with the offset it had when the grip closed, and left where the last
    * grip released it. A worn span is a grip by a bone: from the film's start
    * for a prop declared worn, from the instant an action puts it on
-   * (`IHumanActionPlan.wears`), each to the next grip that takes it off.
+   * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a
+   * prop set on another prop's socket (`IHumanActionPlan.mounts`) rides
+   * that socket the same way, posed as the other prop is.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
@@ -215,6 +217,20 @@ export namespace HumanPerformanceRead {
                 to: Infinity,
               });
           }
+      // A prop set on another prop's socket rides it like a worn one.
+      for (const segment of [...person.segments, ...person.overlays])
+        for (const m of segment.plan.mounts ?? [])
+          if (m.prop === subject) {
+            const from: number = segment.start + m.from * segment.plan.duration;
+            if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
+              worn.push({
+                subject: person.performer.subject,
+                side: "right",
+                mount: { prop: m.onto, point: m.point },
+                from,
+                to: Infinity,
+              });
+          }
       for (const held of person.holds)
         if (held.prop === subject)
           out.push({
@@ -301,7 +317,7 @@ export namespace HumanPerformanceRead {
     );
     const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
     const left: number =
-      (self.intended.get(subject) ?? 0) - person.segments.length;
+      (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
       throw new HumanRefusal({
         kind: "participant",

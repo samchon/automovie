@@ -167,7 +167,10 @@ export namespace HumanMountOn {
         t < 0.6 * climb
           ? HumanMount.LEAN * minimumJerk(t / (0.4 * climb)).s
           : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IHumanPosture["joints"] = { ...stand.RELAXED, ...upright };
+      const joints: IHumanPosture["joints"] = {
+        ...stand.relaxed(body),
+        ...upright,
+      };
       for (const [bone, a] of Object.entries(final.joints) as [
         AutoMovieHumanoidBone,
         readonly [number, number, number],

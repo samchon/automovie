@@ -30,14 +30,23 @@ import { WorkoutStance } from "./WorkoutStance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres.
  */
 export namespace WorkoutGym {
+  /** A key of the body's, built once the body is known. */
+  type Keyed = (body: IHumanBody) => ExerciseKey.IKey;
+
+  /** A key from the whole body's part and the limbs' angles, on the body it is built for (`ExerciseKey.from`). */
+  const key =
+    (trunk: ExerciseKey.ITrunk, both: ExerciseKey.ILimb): Keyed =>
+    (body: IHumanBody): ExerciseKey.IKey =>
+      ExerciseKey.from(body, trunk, both);
+
   /** A squat's bottom: the trunk pitched, the knees bent over shanks that lean, with the arms as given. */
   const squat = (
     pitch: number,
     knee: number,
     shank: number,
     arms: ExerciseKey.ILimb,
-  ): ExerciseKey.IKey =>
-    ExerciseKey.of(
+  ): Keyed =>
+    key(
       { pitch, neck: -10 },
       { ...ExerciseKey.stood(pitch, knee, shank), ...arms },
     );
@@ -45,17 +54,17 @@ export namespace WorkoutGym {
   /** A standing kind on both feet whose repetition goes between two keys. */
   const pair = (
     reps: number,
-    low: readonly [ExerciseKey.IKey, number, string, string],
-    high: readonly [ExerciseKey.IKey, number, string, string],
+    low: readonly [Keyed, number, string, string],
+    high: readonly [Keyed, number, string, string],
   ): WorkoutKind =>
     WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.8,
       reps,
-      (): WorkoutKind.IStep[] => [
-        WorkoutKind.step(low[0], low[1], low[2], low[3]),
-        WorkoutKind.step(high[0], high[1], high[2], high[3]),
+      (body: IHumanBody): WorkoutKind.IStep[] => [
+        WorkoutKind.step(low[0](body), low[1], low[2], low[3]),
+        WorkoutKind.step(high[0](body), high[1], high[2], high[3]),
       ],
     );
 
@@ -99,26 +108,21 @@ export namespace WorkoutGym {
     /** A curl: the elbows bent from straight to full, the upper arms still. */
     curl: pair(
       5,
-      [
-        ExerciseKey.of({}, { raise: 5, elbow: 5, twist: 0 }),
-        1.2,
-        "lower",
-        "down",
-      ],
-      [ExerciseKey.of({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
+      [key({}, { raise: 5, elbow: 5, twist: 0 }), 1.2, "lower", "down"],
+      [key({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
     ),
 
     /** An overhead triceps extension: the upper arms beside the head, the elbows straightened. */
     tricepsExtension: pair(
       5,
       [
-        ExerciseKey.of({}, { shoulder: 172, raise: 0, elbow: 135 }),
+        key({}, { shoulder: 172, raise: 0, elbow: 135 }),
         1.2,
         "lower",
         "bottom",
       ],
       [
-        ExerciseKey.of({}, { shoulder: 172, raise: 0, elbow: 5 }),
+        key({}, { shoulder: 172, raise: 0, elbow: 5 }),
         0.9,
         "extend",
         "lockout",
@@ -128,27 +132,22 @@ export namespace WorkoutGym {
     /** A lateral raise: the arms lifted out to the shoulders' height. */
     lateralRaise: pair(
       5,
-      [ExerciseKey.of({}, { raise: 8, elbow: 10 }), 1.2, "lower", "down"],
-      [ExerciseKey.of({}, { raise: 88, elbow: 10 }), 0.9, "raise", "top"],
+      [key({}, { raise: 8, elbow: 10 }), 1.2, "lower", "down"],
+      [key({}, { raise: 88, elbow: 10 }), 0.9, "raise", "top"],
     ),
 
     /** A front raise: the arms lifted forward to the shoulders' height. */
     frontRaise: pair(
       5,
-      [ExerciseKey.of({}, { raise: 3, elbow: 5 }), 1.2, "lower", "down"],
-      [
-        ExerciseKey.of({}, { shoulder: 88, raise: 3, elbow: 5 }),
-        0.9,
-        "raise",
-        "top",
-      ],
+      [key({}, { raise: 3, elbow: 5 }), 1.2, "lower", "down"],
+      [key({}, { shoulder: 88, raise: 3, elbow: 5 }), 0.9, "raise", "top"],
     ),
 
     /** A shrug: the shoulder girdles lifted 20 degrees toward the ears and lowered, the arms hanging (provisional). */
     shrug: pair(
       8,
-      [ExerciseKey.of({}, { elbow: 5 }), 0.8, "lower", "down"],
-      [ExerciseKey.of({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
+      [key({}, { elbow: 5 }), 0.8, "lower", "down"],
+      [key({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
     ),
 
     /** A calf raise: both heels lifted over the toes' joints, which stay. */
@@ -157,10 +156,10 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       0,
       8,
-      (): WorkoutKind.IStep[] => [
-        WorkoutStance.rest(0.8),
+      (body: IHumanBody): WorkoutKind.IStep[] => [
+        WorkoutStance.rest(body, 0.8),
         WorkoutKind.step(
-          ExerciseKey.of({}, { ankle: -30, toes: 30 }),
+          key({}, { ankle: -30, toes: 30 })(body),
           0.6,
           "raise",
           "top",
@@ -174,12 +173,7 @@ export namespace WorkoutGym {
     /** A front squat: the hands at the shoulders with the elbows high, the trunk more upright than a back squat's. */
     frontSquat: pair(
       5,
-      [
-        ExerciseKey.of({}, { shoulder: 85, raise: 5, elbow: 145 }),
-        1.2,
-        "rise",
-        "top",
-      ],
+      [key({}, { shoulder: 85, raise: 5, elbow: 145 }), 1.2, "rise", "top"],
       [
         squat(20, 120, 35, { shoulder: 85, raise: 5, elbow: 145 }),
         1.8,
@@ -191,12 +185,7 @@ export namespace WorkoutGym {
     /** A goblet squat: both hands before the chest. */
     gobletSquat: pair(
       5,
-      [
-        ExerciseKey.of({}, { shoulder: 35, raise: 5, elbow: 135 }),
-        1.2,
-        "rise",
-        "top",
-      ],
+      [key({}, { shoulder: 35, raise: 5, elbow: 135 }), 1.2, "rise", "top"],
       [
         squat(25, 120, 33, { shoulder: 35, raise: 5, elbow: 135 }),
         1.8,
@@ -235,8 +224,8 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1.5,
       1,
-      (): WorkoutKind.IStep[] => [
-        WorkoutKind.pose(squat(0, 90, 0, { elbow: 10 }), 0, 30),
+      (body: IHumanBody): WorkoutKind.IStep[] => [
+        WorkoutKind.pose(squat(0, 90, 0, { elbow: 10 })(body), 0, 30),
       ],
     ),
 
@@ -245,7 +234,7 @@ export namespace WorkoutGym {
       midfoot: true,
       ...pair(
         5,
-        [ExerciseKey.of({}, { elbow: 3 }), 1.2, "rise", "top"],
+        [key({}, { elbow: 3 }), 1.2, "rise", "top"],
         [
           squat(60, 15, 5, { shoulder: 60, raise: 0, elbow: 3 }),
           1.8,
@@ -258,12 +247,7 @@ export namespace WorkoutGym {
     /** A good morning: the same hinge with the hands behind the head. */
     goodMorning: pair(
       5,
-      [
-        ExerciseKey.of({}, { shoulder: 20, raise: 80, elbow: 140 }),
-        1.2,
-        "rise",
-        "top",
-      ],
+      [key({}, { shoulder: 20, raise: 80, elbow: 140 }), 1.2, "rise", "top"],
       [
         squat(65, 15, 5, { shoulder: 20, raise: 80, elbow: 140 }),
         1.8,
@@ -278,29 +262,29 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1,
       1,
-      (): WorkoutKind.IStep[] => [
+      (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 }),
+          squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
           1,
           "set",
           "start",
           0.3,
         ),
         WorkoutKind.step(
-          ExerciseKey.of({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 }),
+          key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
           0.45,
           "pull",
           "extension",
         ),
         WorkoutKind.step(
-          squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 }),
+          squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
           0.3,
           "turnOver",
           "catch",
           0.2,
         ),
         WorkoutKind.step(
-          ExerciseKey.of({}, { shoulder: 85, raise: 5, elbow: 145 }),
+          key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
           0.8,
           "recover",
           "rack",
@@ -315,32 +299,32 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1,
       1,
-      (): WorkoutKind.IStep[] => [
+      (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          squat(60, 85, 28, { shoulder: 60, raise: 30, elbow: 3 }),
+          squat(60, 85, 28, { shoulder: 60, raise: 30, elbow: 3 })(body),
           1,
           "set",
           "start",
           0.3,
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          key(
             { pitch: -5 },
             { hip: -5, ankle: -15, raise: 30, elbow: 3 },
-          ),
+          )(body),
           0.45,
           "pull",
           "extension",
         ),
         WorkoutKind.step(
-          squat(15, 115, 32, { shoulder: 165, raise: 30, elbow: 3 }),
+          squat(15, 115, 32, { shoulder: 165, raise: 30, elbow: 3 })(body),
           0.35,
           "turnOver",
           "catch",
           0.3,
         ),
         WorkoutKind.step(
-          ExerciseKey.of({}, { shoulder: 172, raise: 30, elbow: 3 }),
+          key({}, { shoulder: 172, raise: 30, elbow: 3 })(body),
           1,
           "recover",
           "overhead",

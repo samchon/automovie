@@ -10,12 +10,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanFoot } from "../posture/HumanFoot";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * The one reader of the frame a body's base rests on (#3491, P6): the
@@ -79,6 +82,63 @@ export namespace HumanSupportFrame {
     return bearing?.support ?? { kind: "ground" };
   }
 
+  /**
+   * The frame an entry part already bears on. Continuing a plant keeps
+   * that frame; a part with no declared contact starts on the ground.
+   *
+   * @param context The displayed entry's contacts.
+   * @param part The contact part being continued.
+   * @returns Its support frame.
+   * @evidence contracts/development/common.md#meaningful-documentation States continuation and the absent-contact default.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the same part's existing contact, preserving a prop or person identity through an action transition.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and the ground default.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No inferred frame from height or proximity.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few declared entry contacts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A direct entry reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function contact(
+    context: Pick<IHumanActionContext, "entry">,
+    part: IHumanContactWindow["part"],
+  ): IHumanContactWindow.Support {
+    return (
+      context.entry.supports.find(
+        (support: IHumanEntryState.ISupport): boolean => support.part === part,
+      )?.support ?? { kind: "ground" }
+    );
+  }
+  /**
+   * The floor actually touched by the planted entry feet, read from their
+   * displayed sole sockets. With no planted foot the ground is the default.
+   *
+   * @param body The body.
+   * @param entry The displayed entry.
+   * @returns World metres.
+   * @evidence contracts/development/common.md#meaningful-documentation States the measured datum and absent-contact case.
+   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics places each planted foot's actual sole sockets, including articulated toes; the lowest socket defines its bearing plane.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose and the minimum of the bearing sockets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A raised heel's ankle height is never substituted for its contact height.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and six socket readings at most.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFoot.sockets as the surface datum.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function floor(body: IHumanBody, entry: IHumanEntryState): number {
+    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
+      (side: "left" | "right"): boolean => entry.feet[side].planted,
+    );
+    if (planted.length === 0) return 0;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      entry.pose,
+    );
+    return Math.min(
+      ...planted.flatMap((side: "left" | "right"): number[] =>
+        HumanFoot.sockets(body, bones, side).map(
+          (socket: HumanFoot.ISocket): number => socket.point.y,
+        ),
+      ),
+    );
+  }
   /**
    * Refuse stepping from the ground onto a moving prop faster than the gait
    * can match (#3491): getting on is a step at a matched speed, so a support

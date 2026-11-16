@@ -172,7 +172,7 @@ export namespace crawlChain {
     const upright: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, {
-        ...crawlFrame.posed(yaw, 0, 0, 0, 0),
+        ...crawlFrame.posed(body, yaw, 0, 0, 0, 0),
         root: standing.root,
       }),
     );

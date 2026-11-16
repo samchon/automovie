@@ -14,6 +14,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliderCorners } from "../posture/HumanColliderCorners";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -141,7 +142,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     const parts: IPart[] = rest.map((p: HumanColliders.IPlaced): IPart => {
       const probes: IAutoMovieVector3[] = [];
       for (const shape of p.shapes)
-        for (const corner of corners(shape))
+        for (const corner of HumanColliderCorners(shape))
           probes.push(
             Vector3.add(
               shape.transform.position,
@@ -448,39 +449,4 @@ const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;
 const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
-};
-
-/** A shape's corners in its own frame: a hull's points, a box's corners, and the poles and equators of a sphere or a capsule. */
-const corners = (
-  shape: IAutoMoviePhysicalProfile.IShape,
-): readonly IAutoMovieVector3[] => {
-  if (shape.kind === "hull") return physicalHullFaces(shape.points).vertices;
-  if (shape.kind === "box") {
-    const h: IAutoMovieVector3 = shape.halfExtents;
-    return [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
-      [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
-        [-1, 1].map(
-          (z: number): IAutoMovieVector3 => ({
-            x: x * h.x,
-            y: y * h.y,
-            z: z * h.z,
-          }),
-        ),
-      ),
-    );
-  }
-  const r: number = shape.radius;
-  const half: number = shape.kind === "capsule" ? shape.halfLength : 0;
-  return [
-    { x: 0, y: half + r, z: 0 },
-    { x: 0, y: -half - r, z: 0 },
-    ...(half === 0 ? [0] : [-half, 0, half]).flatMap(
-      (y: number): IAutoMovieVector3[] => [
-        { x: r, y, z: 0 },
-        { x: -r, y, z: 0 },
-        { x: 0, y, z: r },
-        { x: 0, y, z: -r },
-      ],
-    ),
-  ];
 };

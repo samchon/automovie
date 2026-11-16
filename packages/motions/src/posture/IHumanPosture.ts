@@ -91,6 +91,15 @@ export namespace IHumanPosture {
     /** A world point the middle joint (elbow or knee) bends toward. */
     bend: IAutoMovieVector3;
 
+    /**
+     * Where an arm's elbow goes when the law leaves it to the body:
+     * `"strain"` takes, among the places that leave the hand's rotation
+     * error least, the one where the arm strains least, read from the fit's
+     * own sweep (`AutoMovieMotionHumanBend.strainOf`), with `bend` serving only
+     * where no place is legal. Absent, `bend` decides; a leg ignores it.
+     */
+    elbow?: "strain";
+
     /** The hand's or foot's world rotation from its rest, when the law sets it. */
     rotation?: IAutoMovieQuaternion;
 
@@ -105,6 +114,9 @@ export namespace IHumanPosture {
      * foot pivots on its ball.
      */
     contact?: IAutoMovieVector3;
+
+    /** Points in the end joint's own frame whose world positions must remain within their bounds of the asked frame. Requires rotation. These hard task limits accompany the contact when a path is planned; a held tool names both ends of its working line. */
+    limits?: readonly IPointLimit[];
 
     /**
      * The bone the goal is attached to, when it moves with the body rather
@@ -156,6 +168,22 @@ export namespace IHumanPosture {
      * (`HumanArmClearance`). Ignored on a leg.
      */
     rests?: readonly HumanColliders.IPlaced[];
+  }
+
+  /**
+   * A point of the effector whose asked place bounds a task's rigid pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the local point and world displacement bound with their units.
+   * @evidence contracts/development/design.md#principled-representation A rigid effector point plus a Euclidean tolerance against the goal's asked world frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by limb goals and trajectory sites; no separate tool constraint type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The law supplies its physical bound and the planner reserves its numerical allowance inside it.
+   */
+  export interface IPointLimit {
+    /** The point from the end joint in its own frame, metres. */
+    contact: IAutoMovieVector3;
+
+    /** The largest displacement from where the goal's point and rotation place it, metres. */
+    bound: number;
   }
 
   /** A rigid turn of a whole posture about a world point. */

@@ -128,7 +128,7 @@ export namespace operateInsert {
     const hand: StrikingHeld.IHandFrame = StrikingRoll.hand(
       context,
       tool,
-      tool.length,
+      0,
       Vector3.add(
         socket.point,
         Vector3.scale(inward, depth(mechanism, progress)),

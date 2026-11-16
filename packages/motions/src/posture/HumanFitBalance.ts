@@ -57,10 +57,7 @@ export namespace HumanFitBalance {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
   ): IReading {
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model(body),
-      bones,
-    );
+    const com: IAutoMovieVector3 = centre(body, bones);
     const outline: { x: number; z: number }[] = hull(
       points.map((p: IAutoMovieVector3): { x: number; z: number } => ({
         x: p.x,
@@ -110,33 +107,77 @@ export namespace HumanFitBalance {
     motions: readonly HumanJacobian.IMotion[],
     reading: IReading,
   ): number[][] {
-    const m: resolveAutoMovieCenterOfMass.IModel = model(body);
-    const centre: IAutoMovieVector3[] = motions.map(
-      (motion: HumanJacobian.IMotion): IAutoMovieVector3 => {
-        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-        for (const s of m.segments) {
-          const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
-          if (b === undefined) continue;
-          const at: IAutoMovieVector3 = Vector3.add(
-            b.worldPosition,
-            Quaternion.rotateVector(b.worldRotation, s.point),
-          );
-          sum = Vector3.add(
-            sum,
-            Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
-          );
-        }
-        return Vector3.scale(sum, 1 / m.mass);
-      },
-    );
+    const columns: IAutoMovieVector3[] = velocities(body, bones, motions);
     return reading.outline.map(
       (_: { x: number; z: number }, k: number): number[] => {
         const n: { x: number; z: number } = inward(reading.outline, k);
-        return centre.map(
+        return columns.map(
           (v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z,
         );
       },
     );
+  }
+
+  /**
+   * The body's segmental centre in world metres.
+   *
+   * @param body The body and its physical profile.
+   * @param bones The resolved bones.
+   * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the physical inputs, frame and unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's segmental mass-weighted centre, shared with the support reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call on the existing mass model.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone stands in for the mass centre.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in mass segments, with no forward kinematics.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the per-body mass model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no new state.
+   */
+  export function centre(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IAutoMovieVector3 {
+    return resolveAutoMovieCenterOfMass.place(model(body), bones);
+  }
+
+  /**
+   * The mass centre's velocity under each posture variable.
+   *
+   * @param body The body and its mass model.
+   * @param bones The bones on which the motions were derived.
+   * @param motions The geometric Jacobian's variable motions.
+   * @returns World metres per variable unit, in motion order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units and variable ordering.
+   * @evidence contracts/development/implementation.md#principled-implementation Differentiating the segmental centre gives the mass-weighted sum of each segment centre's rigid-point velocity, divided by total mass.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment sum per variable.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same segment masses and local centres as the actual centre reading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in variables times mass segments; no perturbed fits or forward kinematics.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The support-edge slopes and positional centre goals share this one mass Jacobian.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function velocities(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    motions: readonly HumanJacobian.IMotion[],
+  ): IAutoMovieVector3[] {
+    const m: resolveAutoMovieCenterOfMass.IModel = model(body);
+    return motions.map((motion: HumanJacobian.IMotion): IAutoMovieVector3 => {
+      let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      for (const s of m.segments) {
+        const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
+        if (b === undefined) continue;
+        const at: IAutoMovieVector3 = Vector3.add(
+          b.worldPosition,
+          Quaternion.rotateVector(b.worldRotation, s.point),
+        );
+        sum = Vector3.add(
+          sum,
+          Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
+        );
+      }
+      return Vector3.scale(sum, 1 / m.mass);
+    });
   }
 
   /** The unit inward normal of an outline's edge from corner `k` to the next. */
@@ -170,12 +211,18 @@ export namespace HumanFitBalance {
         a.x - b.x || a.z - b.z,
     );
     if (sorted.length < 3) return sorted;
-    const turn = (
+    const turn: (
+      o: { x: number; z: number },
+      a: { x: number; z: number },
+      b: { x: number; z: number },
+    ) => number = (
       o: { x: number; z: number },
       a: { x: number; z: number },
       b: { x: number; z: number },
     ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-    const chain = (
+    const chain: (
+      list: readonly { x: number; z: number }[],
+    ) => { x: number; z: number }[] = (
       list: readonly { x: number; z: number }[],
     ): { x: number; z: number }[] => {
       const out: { x: number; z: number }[] = [];

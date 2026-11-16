@@ -8,6 +8,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -35,6 +36,7 @@ import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { knockdown } from "./knockdown";
 import { stagger } from "./stagger";
+import { staggerBounds } from "./staggerBounds";
 
 /**
  * One perturbation law whose response follows from the forces on its
@@ -126,10 +128,10 @@ export namespace perturb {
    * @throws {HumanRefusal} When the author's outcome is not what the impulse can produce, or the impulse needs more than one capture step.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base; the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
+   * @evidence contracts/development/implementation.md#principled-implementation The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the impulse, decide the outcome, then plan one of three motions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An outcome the impulse cannot give is refused with the feasible range; no impulse is scaled to fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mass model and one base of support per plan; the absorb is a closed form per evaluated second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One mass model and one base of support per plan, and `stagger`'s plan laid once past the absorb, its landing read and the same plan returned for the step; the absorb is a closed form per evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stagger`'s and `knockdown`'s plans for the step and the fall, and the engine's outcome.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its composed parts for as long as the performance does.
    */
@@ -167,7 +169,28 @@ export namespace perturb {
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
-    const outcome: resolveAutoMovieBalanceOutcome.IOutcome =
+    // The steps' times are `stagger`'s: each later one after the swing of a
+    // recovery step in the push's direction from the heading, the first at
+    // the landing of the step `stagger` itself takes, read from its plan.
+    const facing: IAutoMovieVector3 = {
+      x: Math.sin((entry.posture.yaw * Math.PI) / 180),
+      y: 0,
+      z: Math.cos((entry.posture.yaw * Math.PI) / 180),
+    };
+    const pushedAt: number = Math.hypot(impulse.x, impulse.z);
+    const ahead: number =
+      pushedAt > 0
+        ? (impulse.x * facing.x + impulse.z * facing.z) / pushedAt
+        : 1;
+    const swing: number =
+      staggerBounds.STEP_TIME[
+        ahead >= Math.SQRT1_2
+          ? "forward"
+          : ahead <= -Math.SQRT1_2
+            ? "backward"
+            : "side"
+      ];
+    const decide = (first: number): resolveAutoMovieBalanceOutcome.IOutcome =>
       resolveAutoMovieBalanceOutcome({
         centre,
         velocity: entry.velocity.linear,
@@ -181,8 +204,47 @@ export namespace perturb {
         ),
         reach: body.measure.thigh + body.measure.shank,
         margin: body.measure.footLength / 2,
-        step: AutoMovieMotionHumanTiming.seconds(stagger.LANDING),
+        step: swing,
+        first,
       });
+
+    // The absorb's bound and the velocity after the impulse do not depend on
+    // the step's landing; past the absorb, the landing is the one `stagger`
+    // lays for this push, and a push it cannot catch is a fall.
+    const balanced: resolveAutoMovieBalanceOutcome.IOutcome = decide(
+      AutoMovieMotionHumanTiming.seconds(stagger.LANDING),
+    );
+    const magnitude: number = Math.hypot(impulse.x, impulse.z);
+    const speed: number = Math.hypot(balanced.velocity.x, balanced.velocity.z);
+    const push: IAutoMovieVector3 =
+      magnitude > 0
+        ? { x: impulse.x / magnitude, y: 0, z: impulse.z / magnitude }
+        : { x: 0, y: 0, z: 0 };
+    // The side the impulse comes from: a point behind the push.
+    const from: AutoMovieMotionTarget = {
+      kind: "point",
+      at: Vector3.subtract(entry.posture.root, push),
+      frame: "world",
+    };
+    let caught: IHumanActionPlan | null = null;
+    if (balanced.outcome !== "absorb")
+      try {
+        caught = stagger.plan({
+          ...context,
+          params: { from, speed: Math.max(speed, Number.MIN_VALUE) },
+        });
+      } catch (error) {
+        if (!(error instanceof HumanRefusal)) throw error;
+      }
+    const landing: IAutoMovieMotionEvent | undefined = caught?.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "caught",
+    );
+    const outcome: resolveAutoMovieBalanceOutcome.IOutcome =
+      balanced.outcome === "absorb"
+        ? balanced
+        : caught === null || landing === undefined
+          ? { ...balanced, outcome: "fall" }
+          : decide(landing.share * caught.duration);
     const requested: NonNullable<IParams["outcome"]> =
       context.params.outcome ?? "auto";
 
@@ -197,7 +259,6 @@ export namespace perturb {
     const asked: "auto" | "absorb" | "step" | "fall" = requested;
     const chosen: "absorb" | "step" | "fall" =
       asked === "auto" ? outcome.outcome : asked;
-    const magnitude: number = Math.hypot(impulse.x, impulse.z);
     if (asked !== "auto" && asked !== outcome.outcome)
       throw new HumanRefusal({
         kind: "parameter",
@@ -223,17 +284,6 @@ export namespace perturb {
         fix: `give an impulse in the feasible range, or the outcome ${outcome.outcome}`,
       });
 
-    // The side the impulse comes from: a point behind the push.
-    const speed: number = Math.hypot(outcome.velocity.x, outcome.velocity.z);
-    const push: IAutoMovieVector3 =
-      magnitude > 0
-        ? { x: impulse.x / magnitude, y: 0, z: impulse.z / magnitude }
-        : { x: 0, y: 0, z: 0 };
-    const from: AutoMovieMotionTarget = {
-      kind: "point",
-      at: Vector3.subtract(entry.posture.root, push),
-      frame: "world",
-    };
     if (chosen === "step") {
       if (outcome.steps.length > 1)
         throw new HumanRefusal({
@@ -244,10 +294,7 @@ export namespace perturb {
           reason: `the impulse needs ${outcome.steps.length} capture steps; this first pass lays one`,
           fix: "give a smaller impulse, or the outcome fall",
         });
-      return stagger.plan({
-        ...context,
-        params: { from, speed: Math.max(speed, Number.MIN_VALUE) },
-      });
+      return caught!;
     }
     if (chosen === "fall")
       return knockdown.plan({ ...context, params: { from } });
@@ -311,6 +358,18 @@ export namespace perturb {
           legs: (): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> =>
             StrikingStance.legs(body, feet),
         }),
+
+        // The sway reads the legs for the hips' height only; the legs stand
+        // on the entry's feet through their own channels.
+        {
+          channels: ["leftLeg", "rightLeg"],
+          from: 0,
+          to: duration,
+          write: (posture: IHumanPosture): IHumanPosture => ({
+            ...posture,
+            limbs: { ...posture.limbs, ...StrikingStance.legs(body, feet) },
+          }),
+        },
       ],
     });
 

@@ -23,7 +23,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingRoll } from "../striking/StrikingRoll";
 import type { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspWorn } from "./HumanGraspWorn";
 
 /**
@@ -39,7 +41,7 @@ import { HumanGraspWorn } from "./HumanGraspWorn";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a use names, why the reach alone is not enough and how the use enters the grasp's choice.
  * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of six lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), one across the body, the long axis of a thing held in both hands, one along a surface of the body, the working face laid on it, and one worn there, the worn frame whole with its turn free for a round thing; the search ranges are data beside it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its five lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its six lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: a sword and a pistol differ only in the id of their working point and the line asked.
  */
 export namespace HumanGraspUse {
@@ -168,9 +170,9 @@ export namespace HumanGraspUse {
    * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface; worn, the thing's own worn frame, the one `dress` puts it at (`HumanWorn.frame`), so the grasp is judged at the very pose it is put on in (`HumanGraspWorn`). Every key is judged in the unit of what it places, metres, read off the fitted hand (`HumanGrasp.IKey.judge`): a tool on a line by the measure the law presenting it judges a held tool by (`StrikingHeld.strayed`, its working point and its line a tool's length behind, so a grip that keeps the point and turns the line is counted), the tool read from the candidate grip as a held tool is read (`StrikingHeld.read`); a tool laid along a surface by its working point. The roll about that line, or the turn about the surface's normal, is free in a use that names only that much: the shared chooser takes it (`HumanFreedomChoice`, a wrapped freedom), the roll whose key the arm, fitted within its ranges, leaves the working point nearest, as a law presenting the tool takes it (`StrikingRoll`), so the grasp is judged at the roll the law will use.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The two contacts, the two lines, the turn between them, the place, the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. Given the closed hand's clearance, its depth inside the body adds to a roll's miss. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's fits, each roll fitted and its elbow solved once, kept in a map, however often the search returns to it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's fits, each roll fitted once, its elbow placed by the fit's own sweep (`IHumanPosture.IGoal.elbow`) with no search of its own, kept in a map, however often the search returns to it.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's bones once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned key retains its immutable body and pose inputs; the roll-search map is local to the call and is released before return.
    */
   export function presented(props: {
     context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "start">;
@@ -349,6 +351,22 @@ export namespace HumanGraspUse {
         props.wrist.point,
       ),
     );
+    const tool: StrikingHeld.ITool | undefined =
+      props.use.line === "along"
+        ? undefined
+        : StrikingHeld.read(
+            AutoMovieMotionHumanHeld.grasped(
+              context.body,
+              props.side,
+              props.prop,
+              held.frame(context.start),
+              held.prop.affordances ?? [],
+              props.wrist,
+            ),
+            { tip: props.use.tip },
+          );
+    const back: number =
+      tool === undefined || site !== undefined ? 0 : Vector3.length(tool.tip);
 
     // The roll about the asked line, or the turn about the surface's normal,
     // is free in a use that names only that much: the shared chooser takes
@@ -364,32 +382,67 @@ export namespace HumanGraspUse {
       return {
         point: Vector3.subtract(
           site ?? ahead,
-          Quaternion.rotateVector(rolled, site === undefined ? socket : inHand),
+          Quaternion.rotateVector(
+            rolled,
+            tool === undefined
+              ? inHand
+              : Vector3.add(
+                  socket,
+                  Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back)),
+                ),
+          ),
         ),
         rotation: rolled,
       };
     };
 
-    // The elbow's hint of a roll's key: its place of least joint strain
-    // (`AutoMovieMotionHumanBend.solve`), solved once per roll.
-    const hints: Map<number, IAutoMovieVector3> = new Map();
-    const hinted = (
-      roll: number,
-      wrist: HumanHand.IWrist,
-    ): IAutoMovieVector3 => {
-      let found: IAutoMovieVector3 | undefined = hints.get(roll);
-      if (found === undefined) {
-        found = AutoMovieMotionHumanBend.solve({
-          body: context.body,
+    // A roll's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the
+    // fit takes the place of least strain among those that turn the hand
+    // best, in its own sweep, and the hanging arm's place is only where no
+    // place is legal, as the least-strain place falls back to it.
+    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      context.body,
+      context.entry.posture,
+      props.side,
+    );
+
+    // A use's key is the same contact-pivot goal and two-point measure the
+    // presenting action uses; fitting only the wrist judges another task.
+    const key = (roll: number): HumanGrasp.IKey => {
+      const wrist: HumanHand.IWrist = keyed(roll);
+      if (tool !== undefined)
+        return HumanGraspDemand.key(context.body, {
           posture: context.entry.posture,
-          side: props.side,
-          point: wrist.point,
-          rotation: wrist.rotation,
-          fallback: "hang",
+          tool,
+          frame: {
+            point: Vector3.add(
+              wrist.point,
+              Quaternion.rotateVector(wrist.rotation, socket),
+            ),
+            rotation: wrist.rotation,
+          },
+          back,
+          bound: StrikingRoll.MISS,
         });
-        hints.set(roll, found);
-      }
-      return found;
+      return {
+        posture: context.entry.posture,
+        wrist,
+        bend: hang,
+        judge: (
+          bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+        ): number => {
+          const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
+          return Vector3.length(
+            Vector3.subtract(
+              Vector3.add(
+                hand.worldPosition,
+                Quaternion.rotateVector(hand.worldRotation, inHand),
+              ),
+              site!,
+            ),
+          );
+        },
+      };
     };
 
     // Each roll fitted once, however often the search comes back to it.
@@ -397,33 +450,33 @@ export namespace HumanGraspUse {
     const missed = (roll: number): number => {
       const known: number | undefined = fitted.get(roll);
       if (known !== undefined) return known;
-      const wrist: HumanHand.IWrist = keyed(roll);
+      const candidate: HumanGrasp.IKey = key(roll);
+      const wrist: HumanHand.IWrist = candidate.wrist;
       const posture: IHumanPosture = context.entry.posture;
       const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      limbs[`${props.side}Arm`] = {
+      limbs[`${props.side}Arm`] = candidate.goal ?? {
         point: wrist.point,
         rotation: wrist.rotation,
-        bend: hinted(roll, wrist),
+        bend: hang,
+        elbow: "strain",
       };
-      const hand: IAutoMovieResolvedBone = poseBones(
-        context.body,
-        resolveHumanPosture(context.body, { ...posture, limbs }),
-      ).get(`${props.side}Hand`)!;
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(
+          context.body,
+          resolveHumanPosture(context.body, { ...posture, limbs }),
+        );
+      const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
       const kept: number =
-        props.clear === undefined ? 0 : Math.min(0, props.clear(wrist));
-      const miss: number =
-        Vector3.length(
-          Vector3.subtract(
-            Vector3.add(
-              hand.worldPosition,
-              Quaternion.rotateVector(hand.worldRotation, inHand),
-            ),
-            Vector3.add(
-              wrist.point,
-              Quaternion.rotateVector(wrist.rotation, inHand),
-            ),
-          ),
-        ) - kept;
+        props.clear === undefined
+          ? 0
+          : Math.min(
+              0,
+              props.clear({
+                point: hand.worldPosition,
+                rotation: hand.worldRotation,
+              }),
+            );
+      const miss: number = candidate.judge!(bones) - kept;
       fitted.set(roll, miss);
       return miss;
     };
@@ -435,66 +488,6 @@ export namespace HumanGraspUse {
       freedoms: [{ kind: "wrapped", step: ROLL, period: 360 }],
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
-    const { point, rotation }: HumanHand.IWrist = keyed(roll);
-    // The use is judged once the arm is fitted to the key, rigid in the
-    // hand: laid along a surface, by its working point's stray from where
-    // the key asks it; on a line, as the law presenting it judges a held
-    // tool (`StrikingHeld.strayed`), its working point and its line a tool's
-    // length behind, the tool read from the candidate grip as a held one is
-    // (`StrikingHeld.read`).
-    const working: IAutoMovieVector3 = Vector3.add(
-      point,
-      Quaternion.rotateVector(rotation, inHand),
-    );
-    const tool: StrikingHeld.ITool | undefined =
-      props.use.line === "along"
-        ? undefined
-        : StrikingHeld.read(
-            AutoMovieMotionHumanHeld.grasped(
-              context.body,
-              props.side,
-              props.prop,
-              held.frame(context.start),
-              held.prop.affordances ?? [],
-              props.wrist,
-            ),
-            { tip: props.use.tip },
-          );
-    const framed: StrikingHeld.IHandFrame = {
-      point: Vector3.add(point, Quaternion.rotateVector(rotation, socket)),
-      rotation,
-    };
-    return {
-      posture: context.entry.posture,
-      wrist: { point, rotation },
-      // The elbow's hint of this pose: its place of least joint strain for
-      // the presented wrist (`AutoMovieMotionHumanBend.solve`).
-      bend: hinted(roll, { point, rotation }),
-      judge: (
-        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      ): number => {
-        const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
-        if (tool !== undefined)
-          return StrikingHeld.strayed(
-            tool,
-            {
-              point: HumanHand.frame(context.body, bones, props.side, "grip")
-                .point,
-              rotation: hand.worldRotation,
-            },
-            framed,
-            0,
-          );
-        return Vector3.length(
-          Vector3.subtract(
-            Vector3.add(
-              hand.worldPosition,
-              Quaternion.rotateVector(hand.worldRotation, inHand),
-            ),
-            working,
-          ),
-        );
-      },
-    };
+    return key(roll);
   }
 }

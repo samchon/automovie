@@ -1,8 +1,10 @@
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanBodyFit } from "./HumanBodyFit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
+import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
@@ -32,7 +34,7 @@ export namespace HumanBodyFitMerit {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its row and sign.
    * @evidence contracts/development/design.md#principled-representation One list per kind of row.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the merit and the feasibility.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every constraint family, all read by the merit and the feasibility.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Distances in the reading's units, never pre-priced.
    */
   export interface IMisses {
@@ -44,6 +46,12 @@ export namespace HumanBodyFitMerit {
 
     /** Each target's misses on its rows. */
     goals: number[][];
+
+    /** Included-angle misses, radians, in goal order. */
+    angles: number[];
+
+    /** Centre-position misses on its selected axes, metres. */
+    centre: number[];
 
     /** Each pair's overlap. */
     pairs: number[];
@@ -73,13 +81,18 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The members the merit reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit's props are read by `Pick`, not restated.
    */
-  export interface IProps
-    extends Pick<HumanBodyFit.IProps, "body" | "posture" | "balance"> {
+  export interface IProps extends Pick<
+    HumanBodyFit.IProps,
+    "body" | "posture" | "balance" | "centre"
+  > {
     /** The variables moved. */
     variables: readonly HumanJacobian.IVariable[];
 
     /** The goals. */
     targets: readonly HumanBodyFit.ITarget[];
+
+    /** The geometric included-angle goals. */
+    angles: readonly HumanFitGoals.IAngle[];
 
     /** Each part that bears on the floor. */
     bearing: readonly RegExp[];
@@ -125,8 +138,26 @@ export namespace HumanBodyFitMerit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the fit's inputs only.
    */
   export function of(props: IProps): IMerit {
-    const { body, posture, variables, targets, bearing, pairs, key, price } =
-      props;
+    const {
+      body,
+      posture,
+      variables,
+      targets,
+      bearing,
+      pairs,
+      key,
+      price,
+    }: Pick<
+      IProps,
+      | "body"
+      | "posture"
+      | "variables"
+      | "targets"
+      | "bearing"
+      | "pairs"
+      | "key"
+      | "price"
+    > = props;
     const n: number = variables.length;
     const BAND: number = HumanBodyFitRows.BAND;
     const MM: number = HumanBodyFitRows.MM;
@@ -138,7 +169,9 @@ export namespace HumanBodyFitMerit {
         ? props.balance.parts.map((p: RegExp): string => p.source)
         : [],
     );
-    const supports = (r: HumanFloorReading.IReading): IAutoMovieVector3[] => {
+    const supports: (r: HumanFloorReading.IReading) => IAutoMovieVector3[] = (
+      r: HumanFloorReading.IReading,
+    ): IAutoMovieVector3[] => {
       const out: IAutoMovieVector3[] = [];
       bearing.forEach((part: RegExp, k: number): void => {
         if (!named.has(part.source)) return;
@@ -150,23 +183,36 @@ export namespace HumanBodyFitMerit {
       });
       return out;
     };
-    const read = (x: Float64Array): HumanBodyFitRows.IReading => {
+    const read: (x: Float64Array) => HumanBodyFitRows.IReading = (
+      x: Float64Array,
+    ): HumanBodyFitRows.IReading => {
       const r: HumanFloorReading.IReading = HumanFloorReading.of(
         body,
         HumanFitVariables.written(variables, posture, x),
         bearing,
         targets,
       );
-      if (props.balance === undefined || props.balance === false) return r;
+      const measured: HumanBodyFitRows.IReading = {
+        ...r,
+        ...HumanFitGoals.read(body, r.bones, props.angles, props.centre),
+      };
+      if (props.balance === undefined || props.balance === false)
+        return measured;
       if (props.balance === true)
-        return { ...r, balance: HumanFitBalance.of(body, r.bones) };
-      return { ...r, balance: HumanFitBalance.of(body, r.bones, supports(r)) };
+        return { ...measured, balance: HumanFitBalance.of(body, r.bones) };
+      return {
+        ...measured,
+        balance: HumanFitBalance.of(body, r.bones, supports(r)),
+      };
     };
-    const beyond = (miss: number): number => Math.max(0, miss - BAND);
+    const beyond: (miss: number) => number = (miss: number): number =>
+      Math.max(0, miss - BAND);
 
     // What a reading misses by, row by row: the merit's and the feasibility's
     // one reading of the rows the model linearises.
-    const misses = (r: HumanBodyFitRows.IReading): IMisses => {
+    const misses: (r: HumanBodyFitRows.IReading) => IMisses = (
+      r: HumanBodyFitRows.IReading,
+    ): IMisses => {
       const lowest: number[] = HumanBodyFitRows.lowest(r);
       const floor: number[] = r.heights.map((h: number, c: number): number =>
         lowest.includes(c) ? Math.abs(h) : -h,
@@ -179,6 +225,23 @@ export namespace HumanBodyFitMerit {
         floor,
         balance: (r.balance?.inside ?? []).map((d: number): number => -d),
         goals,
+        angles: props.angles.map(
+          (target: HumanFitGoals.IAngle, k: number): number => {
+            const [lo, hi]: readonly [number, number] =
+              HumanFitGoals.bounds(target);
+            return r.angles[k]! - Math.min(hi, Math.max(lo, r.angles[k]!));
+          },
+        ),
+        centre:
+          props.centre === undefined
+            ? []
+            : HumanFitGoals.directions(props.centre).map(
+                (axis: IAutoMovieVector3): number =>
+                  Vector3.dot(
+                    Vector3.subtract(r.centre!, props.centre!.point),
+                    axis,
+                  ),
+              ),
         pairs: pairs.map(
           (pair: HumanFitPairs.IPair): number =>
             -HumanFitPairs.gap(r.bones, pair).distance,
@@ -200,16 +263,37 @@ export namespace HumanBodyFitMerit {
           violation += beyond(d);
         m.goals.forEach((g: number[], k: number): void => {
           const share: number = (targets[k]!.price ?? price) / price;
-          for (const d of g) violation += share * beyond(Math.abs(d));
+          g.forEach((d: number, j: number): void => {
+            // A physical maximum distance has no extra numerical radius.
+            violation +=
+              share *
+              (targets[k]!.bound !== undefined && j === 0
+                ? Math.max(0, d)
+                : beyond(Math.abs(d)));
+          });
         });
+        m.angles.forEach((d: number, k: number): void => {
+          violation +=
+            ((props.angles[k]!.price ?? price) / price) * beyond(Math.abs(d));
+        });
+        for (const d of m.centre)
+          violation +=
+            ((props.centre?.price ?? price) / price) * beyond(Math.abs(d));
         return { objective: pull, violation: violation * MM, r, misses: m };
       },
       holds: (m: IMisses): boolean =>
         [...m.floor, ...m.balance, ...m.pairs].every(
           (d: number): boolean => d <= TOLERANCE,
         ) &&
-        m.goals.every((g: number[]): boolean =>
-          g.every((d: number): boolean => Math.abs(d) <= TOLERANCE),
+        [...m.angles, ...m.centre].every(
+          (d: number): boolean => Math.abs(d) <= TOLERANCE,
+        ) &&
+        m.goals.every((g: number[], k: number): boolean =>
+          g.every((d: number, j: number): boolean =>
+            targets[k]!.bound !== undefined && j === 0
+              ? d <= 0
+              : Math.abs(d) <= TOLERANCE,
+          ),
         ),
     };
   }

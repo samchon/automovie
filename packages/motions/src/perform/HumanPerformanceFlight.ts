@@ -4,6 +4,7 @@ import {
   Quaternion,
   Vector3,
   integrateAirborneRotation,
+  integrateMotionTrajectory,
   resolveAutoMovieCenterOfMass,
   solveAirborneTakeoff,
 } from "@automovie/engine";
@@ -35,7 +36,9 @@ import type { HumanSegment } from "./HumanSegment";
  * from take-off and carried into the root's own frame, so the result does
  * not depend on where or facing which way the flight happens. Its history
  * gives the composite inertia and the segments' relative momentum
- * (`integrateAirborneRotation.history`); the momentum is the plan's, or the
+ * (`integrateAirborneRotation.history`), differenced inside the flight at
+ * take-off and touchdown so the push-off and the landing are not read; the
+ * momentum is the plan's, or the
  * one `solveAirborneTakeoff` finds for its turns within the take-off's
  * ceiling (the moment of the take-off's momentum about the foot, at most
  * the centre's distance from it, unless the plan states its own), and a
@@ -44,19 +47,36 @@ import type { HumanSegment } from "./HumanSegment";
  * `q(t)` is integrated from the displayed one at take-off, and the rotation
  * handed back is `q(t) R(t)⁻¹` about the composed centre of mass, `R(t)` the
  * unturned root's own rotation, so the turned root is exactly `q(t)` and
- * the centre stays where the composed shape put it. Both are tabulated at
- * the integrator's knots and read between them by slerp and by line, so the
- * plan's posture reads no displayed pose and the pass has no cycle.
+ * the centre stays where the composed shape put it. `R(t)` and the centre
+ * are tabulated on the integrator's default step and read between those
+ * instants by slerp and by line, so the plan's posture reads no displayed
+ * pose and the pass has no cycle; `q(t)` is integrated under error control
+ * (`ACCURACY`), its steps as short as the shape's changes need, and read
+ * between its knots by the integrator's own continuous extension, so a
+ * shape that changes fast turns at its momentum's rate there too.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is turned, which shape is read and in which frame, where the momentum comes from, the refusal, the rotation handed back and why it reads no displayed pose afterwards.
  * @evidence contracts/development/implementation.md#principled-implementation Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A turn the take-off cannot give is refused, never clamped.
- * @evidence contracts/development/implementation.md#efficient-algorithms One displayed pose per knot and per difference instant of the history, each kept by the history; the take-off search shares them.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each instant's inertia and relative momentum across the search and the integration.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables live with the plan that receives them; the history is dropped when the pass ends.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each distinct stage or difference time resolves one displayed pose and its bones, linear in the skeleton after the posture's limb fits. Exact repeated times reuse the history, but adaptive shooting trials add different times; real-body completion cost remains unresolved.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's inertia and relative momentum across the search, and playback reuses the evaluated flight whose residual was judged.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables and integrated flight live with the plan that receives its rotation. The history's bone and instant maps have no fixed population bound across adaptive trials; the pass keeps them until its search ends and does not attach them to the plan.
  */
 export namespace HumanPerformanceFlight {
+  /**
+   * The flight's error control: each step's rotation within half a
+   * hundredth of the step's own turn, no absolute floor. A step's error
+   * under that share of its turn `|w| h` bounds the rate read over it by the
+   * same share of `|w|`, and the momentum read from the displayed bones,
+   * `I w + h`, with it; #3416 accepts a read-back within 1 % of the take-off
+   * momentum, and that check compares two reads, so each gets half.
+   */
+  export const ACCURACY: Readonly<{ relative: number; absolute: number }> = {
+    relative: 0.01 / 2,
+    absolute: 0,
+  };
+
   /**
    * Turn every placed flight of a performance.
    *
@@ -126,7 +146,7 @@ export namespace HumanPerformanceFlight {
       return out;
     };
     const history: integrateAirborneRotation.IHistory =
-      integrateAirborneRotation.history(model, shape);
+      integrateAirborneRotation.history(model, shape, { from: t0, to: t1 });
     const q0: IAutoMovieQuaternion = root(unturned(t0));
 
     // The largest angular momentum the take-off can give: the momentum about
@@ -158,6 +178,7 @@ export namespace HumanPerformanceFlight {
 
     // The momentum: given, or solved from the turns.
     let momentum: IAutoMovieVector3;
+    let solvedFlight: integrateAirborneRotation.IFlight | undefined;
     if (declared.momentum.kind === "momentum")
       momentum = declared.momentum.momentum;
     else {
@@ -172,6 +193,7 @@ export namespace HumanPerformanceFlight {
         somersault: turns.somersault,
         twist: turns.twist,
         maximum,
+        integration: HumanPerformanceFlight.ACCURACY,
       });
       if (!solved.met)
         throw new HumanRefusal({
@@ -185,36 +207,44 @@ export namespace HumanPerformanceFlight {
           act: segment.name,
         });
       momentum = solved.momentum;
+      solvedFlight = solved.flight;
     }
-    const turned: integrateAirborneRotation.IFlight = integrateAirborneRotation(
-      { history, t0, t1, q0, momentum },
-    );
+    const turned: integrateAirborneRotation.IFlight =
+      solvedFlight ??
+      integrateAirborneRotation({
+        history,
+        t0,
+        t1,
+        q0,
+        momentum,
+        tolerance: HumanPerformanceFlight.ACCURACY,
+      });
 
-    // The rotation at the knots: the turn from the unturned root to the
-    // integrated one, about the composed centre.
-    const step: number = turned.h;
-    const knots: number = turned.knots;
+    // The unturned root and the composed centre on the default step's grid,
+    // whatever steps the error control took; the turn from the one to the
+    // integrated root, whose own read between its knots keeps the rate the
+    // integration gave them.
+    const step: number = integrateMotionTrajectory.STEP;
+    const knots: number = Math.ceil((t1 - t0) / step) + 1;
     const times: number[] = Array.from(
       { length: knots },
       (_: unknown, k: number): number => (k === knots - 1 ? t1 : t0 + k * step),
     );
-    const table: IHumanPosture.IRotation[] = times.map(
-      (t: number): IHumanPosture.IRotation => {
-        const pose: IAutoMoviePose = unturned(t);
-        return {
-          about: resolveAutoMovieCenterOfMass.place(
-            model,
-            poseBones(body, pose),
-          ),
-          turn: Quaternion.normalize(
-            Quaternion.multiply(
-              turned.orientation(t),
-              Quaternion.inverse(root(pose)),
+    const table: { about: IAutoMovieVector3; root: IAutoMovieQuaternion }[] =
+      times.map(
+        (
+          t: number,
+        ): { about: IAutoMovieVector3; root: IAutoMovieQuaternion } => {
+          const pose: IAutoMoviePose = unturned(t);
+          return {
+            about: resolveAutoMovieCenterOfMass.place(
+              model,
+              poseBones(body, pose),
             ),
-          ),
-        };
-      },
-    );
+            root: root(pose),
+          };
+        },
+      );
     const rotation = (seconds: number): IHumanPosture.IRotation => {
       const t: number = Math.max(t0, Math.min(t1, segment.start + seconds));
       const i: number = Math.min(knots - 2, Math.floor((t - t0) / step));
@@ -228,7 +258,14 @@ export namespace HumanPerformanceFlight {
             u,
           ),
         ),
-        turn: Quaternion.slerp(table[i]!.turn, table[i + 1]!.turn, u),
+        turn: Quaternion.normalize(
+          Quaternion.multiply(
+            turned.orientation(t),
+            Quaternion.inverse(
+              Quaternion.slerp(table[i]!.root, table[i + 1]!.root, u),
+            ),
+          ),
+        ),
       };
     };
     plan.airborne!(rotation);

@@ -19,6 +19,7 @@ import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
+import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
@@ -165,7 +166,6 @@ export namespace HumanPerformancePlace {
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
     const body = person.performer.body;
-    const range: number = 0.9 * (body.measure.thigh + body.measure.shank);
     const carried: Map<number, IHumanPosture> = new Map();
     const context: IHumanActionContext<never> = {
       subject: intent.subject,
@@ -211,19 +211,17 @@ export namespace HumanPerformancePlace {
           }
         : {}),
       aim: (target: AutoMovieMotionTarget, seconds: number) =>
-        HumanPerformanceAim.aim(self, target, seconds, {
-          root: entry.posture.root,
-          yaw: entry.posture.yaw,
-          heights: {
-            low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-            middle: body.measure.chestHeight,
-            high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-          },
-          range,
-          body,
-          bones: () => poseBones(body, entry.pose),
-          subject: intent.subject,
-        }),
+        HumanPerformanceAim.aim(
+          self,
+          target,
+          seconds,
+          HumanPerformanceAim.frame(
+            body,
+            entry.posture,
+            () => poseBones(body, entry.pose),
+            intent.subject,
+          ),
+        ),
       forces: (from: number, to: number): readonly HumanForce.IForce[] =>
         HumanForce.within(
           self.forces,
@@ -352,6 +350,15 @@ export namespace HumanPerformancePlace {
         };
       },
     };
+    // What the performer's next action on a prop demands of a grip this one
+    // chooses (`HumanPerformanceAhead`); an overlay leaves the body's grips
+    // to its carrier.
+    if (!over)
+      context.demands = HumanPerformanceAhead.reader(
+        self,
+        context,
+        person.segments.length,
+      );
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
     let plan = HumanPerformanceTempo.plan(law, context);

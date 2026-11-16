@@ -40,10 +40,9 @@ import { resolvePose } from "./resolvePose";
  * coupling of hand animation, DIP = 2/3 PIP, Rijpkema and Girard 1991,
  * SIGGRAPH 25(4):339-348, as relayed by the hand-animation literature;
  * provisional until read at the source), its residual likewise that distance
- * times the angle by which the distal joint misses the ratio. So a reachable
- * point is always reached, and a normal or a coupling the point does not
- * allow is met as nearly as the point leaves room for, never traded against
- * it.
+ * times the angle by which the distal joint misses the ratio. The point
+ * goal, optionally eased by soft IK as described below, is never traded
+ * against a normal or a coupling it does not allow.
  *
  * Each descent is `fitDigitDescent`: damped task-priority least squares
  * (Nakamura, Hanafusa and Yoshikawa 1987; Chiaverini 1997) with the active
@@ -56,7 +55,7 @@ import { resolvePose } from "./resolvePose";
  * resolution step of every joint, and a descent stops when its step moves no
  * joint by more than `ROM_TOLERANCE`, the resolution to which the engine
  * resolves a joint's angle.
- * * The fit is a continuation: it descends from the pose's own angles for the
+ * The fit is a continuation: it descends from the pose's own angles for the
  * digit, so a caller that seeds each fit from the one before follows a
  * moving target in one basin, its joints moving continuously. Only when that
  * fit cannot reach the target (the tip farther from it than one joint
@@ -64,21 +63,32 @@ import { resolvePose } from "./resolvePose";
  * of every range, where a digit folded the wrong way round its target is not
  * trapped, keeping the restart only if it comes nearer; it never takes the
  * better of two starts for a target the continued fit reaches, an argmin
- * that would switch basins between neighbouring targets. The result is
+ * that would switch basins between neighbouring targets. A caller's `rate`
+ * softens the target near full extension, where the exact inverse has an
+ * unbounded derivative: the exponential soft IK of Andy Nicholas (2006),
+ * demonstrated in Jeremie Passerin's "Control Rig: 5.3: Soft IK" (2024,
+ * https://dev.epicgames.com/community/learning/tutorials/y4Ll/unreal-engine-control-rig-5-3-soft-ik).
+ * Below the soft band the target is unchanged; within it, some reach is
+ * traded for a bounded radial extension rate. The band's width comes from
+ * the chain's lengths and the requested rate, not the seed's posture.
+ * This controls the full-extension singularity, not every possible change
+ * of basin of a constrained digit. The result is
  * deterministic for its input: fixed starts, a fixed order of variables and
- * no random draw. A
- * target outside the digit's workspace ends at the reachable point nearest
- * it, and `residual` reports the distance left, so a caller refuses or
- * accepts by its own bound.
+ * no random draw. A target outside the digit's workspace is fitted as
+ * nearly as this constrained local solve reaches it. With `rate` it fits
+ * the eased target instead, so its constrained minimum may differ from
+ * the original target's. In either case `residual` reports distance to the
+ * original target, including any reach traded away, so a caller refuses
+ * or accepts by its own bound.
  *
  * @param input The rig, the posed body, the digit's joints and the effector and target.
  * @returns The digit's fitted joints, the effector's world point and the residual.
- * @throws {Error} When the digit names no joint, or a bone cannot be resolved.
+ * @throws {Error} When the digit names no joint, a bone cannot be resolved, or `rate` is not finite and positive.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the variables, the two tasks and their units and order, the coupling's source and status, the method and its sources, the reach and stop rules and their owner, the continuation, determinism and the out-of-reach behaviour.
- * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) through `fitDigitDescent` on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution; continuation from the caller's seed.
+ * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) through `fitDigitDescent` on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution; continuation from the caller's seed. Optional exponential soft IK eases only the target's radial distance in a band derived from the full-extension curvature.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two residual functions over the digit's variables, one continued descent and a restart only when it cannot reach.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the point is never traded for the normal or the coupling, the fit ends at the joint-angle resolution, and an unreached target reports its residual instead of being counted as met.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the fit ends at the joint-angle resolution and reports distance from the original target, including any reach soft IK trades away. The width is derived from the chain lengths and `rate`; it does not penalise departure from an arbitrary seed.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is one forward kinematics of the rig, linear in its bones; a Jacobian costs two per variable (at most 9 for a digit of three joints) and the active set's probe one clamp per variable; a step solves two small systems of the free variables; a restart, run only for a target the continued fit cannot reach, doubles the work.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; a caller keeps the result by its own plan.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned joints belong to the caller.
@@ -88,9 +98,15 @@ export function fitDigitToTarget(
 ): fitDigitToTarget.IResult {
   if (input.bones.length === 0)
     throw new Error("A digit fit needs the digit's joints");
+  if (
+    input.rate !== undefined &&
+    !(Number.isFinite(input.rate) && input.rate > 0)
+  )
+    throw new Error("A digit fit's rate must be finite and positive");
   const topology: IAutoMovieSkeletonTopology =
     input.topology ?? indexSkeletonTopology(input.skeleton);
   const coupling: number | null = input.coupling ?? null;
+  const target: IAutoMovieVector3 = softTarget(input, topology);
 
   // The digit's free axes, in the order of its joints.
   const variables: IVariable[] = [];
@@ -181,9 +197,9 @@ export function fitDigitToTarget(
   const primary = (x: readonly number[]): number[] => {
     const at = place(joints(x));
     return [
-      at.point.x - input.target.x,
-      at.point.y - input.target.y,
-      at.point.z - input.target.z,
+      at.point.x - target.x,
+      at.point.y - target.y,
+      at.point.z - target.z,
     ];
   };
   const secondary = (x: readonly number[]): number[] => {
@@ -215,15 +231,6 @@ export function fitDigitToTarget(
         sum + Math.hypot(J1[0]![i]!, J1[1]![i]!, J1[2]![i]!) * ROM_TOLERANCE,
       0,
     );
-  const descend = (start: readonly number[]): number[] =>
-    fitDigitDescent({
-      start,
-      primary,
-      secondary,
-      project: (x: readonly number[]): number[] => read(joints(x)),
-      step: ROM_TOLERANCE,
-      tolerance,
-    });
   const jacobian = (x: readonly number[]): number[][] =>
     [0, 1, 2].map((k: number): number[] =>
       x.map((_v: number, i: number): number => {
@@ -235,6 +242,17 @@ export function fitDigitToTarget(
       }),
     );
 
+  const seed: number[] = read(input.pose.joints);
+  const descend = (start: readonly number[]): number[] =>
+    fitDigitDescent({
+      start,
+      primary,
+      secondary,
+      project: (x: readonly number[]): number[] => read(joints(x)),
+      step: ROM_TOLERANCE,
+      tolerance,
+    });
+
   // Continuation: the descent starts from the pose's own angles, so a
   // caller that seeds each fit from the one before follows the target
   // continuously in one basin. Only a continued fit that cannot reach (its
@@ -242,7 +260,7 @@ export function fitDigitToTarget(
   // where a digit folded the wrong way round its target is not trapped, and
   // keeps that fit only when it comes nearer.
   const reach = (x: readonly number[]): number => Math.hypot(...primary(x));
-  const continued: number[] = descend(read(input.pose.joints));
+  const continued: number[] = descend(seed);
   let x: number[] = continued;
   if (reach(continued) > tolerance(continued, jacobian(continued))) {
     const restarted: number[] = descend(
@@ -307,6 +325,9 @@ export namespace fitDigitToTarget {
 
     /** The rig's topology, when the caller has it. */
     topology?: IAutoMovieSkeletonTopology;
+
+    /** Desired radial extension rate near full reach, positive finite degrees per metre. Derives a soft-IK band from the chain's smallest full-extension hinge curvature; targets in that band are eased short of full reach, and `residual` still measures the original target. Other constrained-IK basin changes are not bounded by this value. No softening when absent. */
+    rate?: number;
   }
 
   /** What a digit fit returns. */
@@ -324,6 +345,72 @@ export namespace fitDigitToTarget {
     residual: number;
   }
 }
+
+/**
+ * Exponential soft IK in the radial coordinate: identity below L-s and
+ * L-s exp(-(d-(L-s))/s) above it. For a hinge dividing the straight chain
+ * into lengths a and b, the cosine rule gives L-d = k theta² + O(theta⁴),
+ * k = ab/(2L) (pi/180)² in metres per degree squared. In that leading-order
+ * model the inverse's radial rate at the band's start is 1/(2 sqrt(k s))
+ * and falls exponentially thereafter, giving s = 1/(4 k rate²), using the
+ * smallest hinge curvature. This local model is not a global rate proof
+ * for the nonlinear, range-constrained chain.
+ * The band is at most the chain's whole length; a chain with no positive
+ * internal hinge has no full-extension fold to soften. Link lengths are
+ * invariant under the pose; only the base's world place follows it.
+ */
+const softTarget = (
+  input: fitDigitToTarget.IInput,
+  topology: IAutoMovieSkeletonTopology,
+): IAutoMovieVector3 => {
+  if (input.rate === undefined) return input.target;
+  const posed: IAutoMovieResolvedBone[] = resolvePose(
+    input.pose,
+    input.skeleton,
+    input.jointAxes,
+    input.restFrames,
+    topology,
+  );
+  const points: IAutoMovieVector3[] = input.bones.map(
+    (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => {
+      const frame: IAutoMovieResolvedBone | undefined = posed.find(
+        (p: IAutoMovieResolvedBone): boolean => p.bone === bone,
+      );
+      if (frame === undefined)
+        throw new Error(`A digit fit cannot resolve ${bone}`);
+      return frame.worldPosition;
+    },
+  );
+  const links: number[] = points
+    .slice(1)
+    .map((point: IAutoMovieVector3, i: number): number =>
+      Vector3.length(Vector3.subtract(point, points[i]!)),
+    );
+  links.push(Vector3.length(input.effector.point));
+  const reach: number = links.reduce(
+    (sum: number, link: number): number => sum + link,
+    0,
+  );
+  let left: number = 0;
+  const curvatures: number[] = links
+    .slice(0, -1)
+    .map((link: number): number => {
+      left += link;
+      return ((left * (reach - left)) / (2 * reach)) * (Math.PI / 180) ** 2;
+    })
+    .filter((k: number): boolean => k > 0);
+  if (curvatures.length === 0) return input.target;
+  const width: number = Math.min(
+    reach,
+    1 / (4 * Math.min(...curvatures) * input.rate ** 2),
+  );
+  const delta: IAutoMovieVector3 = Vector3.subtract(input.target, points[0]!);
+  const distance: number = Vector3.length(delta);
+  if (distance === 0 || distance <= reach - width) return input.target;
+  const eased: number =
+    reach - width * Math.exp(-(distance - (reach - width)) / width);
+  return Vector3.add(points[0]!, Vector3.scale(delta, eased / distance));
+};
 
 /** A variable of the fit: one free axis of one joint. */
 interface IVariable {

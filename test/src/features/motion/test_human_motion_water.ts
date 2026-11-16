@@ -23,12 +23,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios, on every body of `EXTREMES`:
  * 1. Archimedes: lowered by `float`, the body's submerged volume times the
- *    water's density equals its mass within 2 % (the issue's bound); a body
- *    whose colliders cannot displace its mass is reported sinking, and
- *    then the whole volume's displacement is under its mass.
- * 2. Floating higher in denser water: sea water (1025 kg/m³) floats the
- *    body no lower than fresh water.
- * 3. A glide of 1 m/s along the body's long axis, its shape held, decays as
+ *    water's density equals its mass within 2 % (the issue's bound). The
+ *    profile carries no lung air, so a body whose colliders displace less
+ *    than its mass truthfully sinks (`float` reports null): then its whole
+ *    volume's displacement must be under its mass, and the report is the
+ *    passing verdict, not a failure.
+ * 2. Denser water: sea water (1025 kg/m³) floats a floating body no lower
+ *    than fresh water, and a body whose whole volume of sea water outweighs
+ *    it floats there by Archimedes within the same 2 %.
+ * 3. A glide of 1 m/s along the body's long axis, its shape held, afloat or
+ *    wholly under for a sinking body, decays as
  *    quadratic drag predicts, `v(t) = v0 / (1 + k v0 t)` with `k` the summed
  *    drag at 1 m/s over the mass, within 2 % over 2 s.
  * 4. Determinism: the glide read at shuffled times gives the bits read in
@@ -91,46 +95,67 @@ export function test_human_motion_water(): void {
 
     // 1. Archimedes.
     const dy: number | null = HumanWater.float(body, bones, fresh);
+    // A profile without lung air may displace less than its mass: then the
+    // truthful verdict is that it sinks, wholly under it displaces less
+    // than it weighs, and its glide is read wholly under the plane.
+    const whole: HumanWater.ISum = HumanWater.sum(
+      body,
+      lowered(bones, -10 * body.measure.stature),
+      still,
+      fresh,
+    );
     if (dy === null) {
-      const whole: HumanWater.ISum = HumanWater.sum(
-        body,
-        lowered(bones, -10),
-        still,
-        fresh,
-      );
       if (!(whole.volume * 1000 < mass))
         findings.push(
           `${name}: reported sinking though its ${(whole.volume * 1000).toFixed(1)} kg of displacement exceeds ${mass} kg`,
         );
-      else
-        findings.push(
-          `${name}: its colliders displace ${(whole.volume * 1000).toFixed(1)} kg, under its ${mass} kg, so it sinks`,
-        );
-      continue;
-    }
-    const floated: HumanWater.ISum = HumanWater.sum(
-      body,
-      lowered(bones, dy),
-      still,
-      fresh,
-    );
-    if (Math.abs(floated.submerged * 1000 - mass) > 0.02 * mass)
-      findings.push(
-        `${name}: floats displacing ${(floated.submerged * 1000).toFixed(2)} kg for ${mass} kg`,
+    } else {
+      const floated: HumanWater.ISum = HumanWater.sum(
+        body,
+        lowered(bones, dy),
+        still,
+        fresh,
       );
+      if (Math.abs(floated.submerged * 1000 - mass) > 0.02 * mass)
+        findings.push(
+          `${name}: floats displacing ${(floated.submerged * 1000).toFixed(2)} kg for ${mass} kg`,
+        );
+    }
 
-    // 2. Sea water floats it no lower.
+    // 2. Sea water floats it no lower, and floats by Archimedes when its
+    // whole volume of sea water outweighs it.
     const sea: number | null = HumanWater.float(body, bones, {
       surface: 0,
       density: 1025,
     });
-    if (sea === null || sea < dy - 1e-6)
+    if (dy !== null && (sea === null || sea < dy - 1e-6))
       findings.push(
         `${name}: sea water floats it at ${sea}, below fresh water's ${dy}`,
       );
+    if (whole.volume * 1025 > mass) {
+      if (sea === null)
+        findings.push(
+          `${name}: sea water outweighs it but it is reported sinking`,
+        );
+      else {
+        const salted: number = HumanWater.sum(
+          body,
+          lowered(bones, sea),
+          still,
+          {
+            surface: 0,
+            density: 1025,
+          },
+        ).submerged;
+        if (Math.abs(salted * 1025 - mass) > 0.02 * mass)
+          findings.push(
+            `${name}: floats in sea water displacing ${(salted * 1025).toFixed(2)} kg for ${mass} kg`,
+          );
+      }
+    }
 
-    // 3. The glide's decay.
-    const afloat: Bones = lowered(bones, dy);
+    // 3. The glide's decay, afloat or wholly under.
+    const afloat: Bones = lowered(bones, dy ?? -10 * body.measure.stature);
     const along: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
     const k: number =
       -Vector3.dot(HumanWater.sum(body, afloat, along, fresh).drag, along) /

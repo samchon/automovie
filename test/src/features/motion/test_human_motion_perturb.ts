@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanTiming,
   HumanChain,
   type HumanForce,
   HumanPerformance,
@@ -17,6 +18,7 @@ import {
   type IHumanBody,
   type IHumanContactWindow,
   perturb,
+  stagger,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,11 +43,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    and back, its largest travel `v / (e ω0)` within 20 % (the critically
  *    damped pendulum's peak; the tolerance is the hips' share of the whole
  *    body's travel, provisional).
- * 3. Step: the capture step lands (`caught`) between 0.3 and 0.4 s after
- *    the impulse (Maki and McIlroy 1997, as `stagger` cites), on the side
- *    the push drives the body to.
+ * 3. Step: the capture step is `stagger`'s and lands (`caught`) after the
+ *    impulse, on the side the push drives the body to; pushed forward, at
+ *    `stagger.LANDING` within a sixtieth of a second (the reaction, the
+ *    weight shift and the forward swing at the threshold of recovery). A
+ *    step back or to a side lands as `stagger` lays it for that direction
+ *    and body (the backward swing is shorter, and a lateral step is placed
+ *    by its stance course), which `stagger`'s own tests pin.
  * 4. Fall: the action is `knockdown`'s, its seat contact no earlier than
- *    the free fall of the centre from its height, `sqrt(2 h / g)`.
+ *    free fall over the centre's own drop from the entry to the seat's
+ *    contact, `sqrt(2 Δ / g)`, read from the displayed poses (a body cannot
+ *    come down faster than gravity takes its centre).
  * 5. An author's outcome the impulse cannot give (an absorb of the 5 m/s
  *    push, a fall of the 0.05 m/s one) is refused with a `HumanRefusal` on
  *    the axis `outcome`; the outcome the impulse gives is accepted.
@@ -54,8 +62,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 7. Determinism: the same input performed twice gives the same bones bit
  *    for bit at ten instants.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the law through the public performance with forces and reads the placed plan and the displayed bones; an outcome not the impulse's, a sliding foot, an absorb that never returns, a step out of the reactive-step window, a fall faster than free fall or an impossible outcome accepted fails.
- * @evidence contracts/development/testing.md#independent-expectations The critically damped pendulum's peak, Maki and McIlroy's reactive-step window, free fall's time and the campaign's slip bound; the outcome is compared with the engine's own decision, which `test_engine_balance_outcome` checks against closed forms.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs the law through the public performance with forces and reads the placed plan and the displayed bones; an outcome not the impulse's, a sliding foot, an absorb that never returns, a step off stagger's landing, a fall faster than free fall or an impossible outcome accepted fails.
+ * @evidence contracts/development/testing.md#independent-expectations The critically damped pendulum's peak, stagger's landing as its owner states it, free fall's time over the centre's drop and the campaign's slip bound; the outcome is compared with the engine's own decision, which `test_engine_balance_outcome` checks against closed forms.
  * @evidence contracts/development/testing.md#distinguishing-cases Three sizes, four directions, two bodies, an author's possible and impossible outcomes, no impulse and a replay; the hit-to-impulse conversion belongs to `test_human_motion_core_force`.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds short performances in memory, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios, the impulses and the bounds with their sources.
@@ -196,7 +204,7 @@ export function test_human_motion_perturb(): void {
         }
 
         if (size === "step") {
-          // 3. The step lands in the reactive window, on the push's side.
+          // 3. The step lands at stagger's landing, on the push's side.
           const caught: IAutoMovieMotionEvent | undefined =
             segment.plan.events.find(
               (e: IAutoMovieMotionEvent): boolean => e.name === "caught",
@@ -205,9 +213,15 @@ export function test_human_motion_perturb(): void {
             caught === undefined
               ? Number.NaN
               : segment.start + caught.share * segment.plan.duration - START;
-          if (!(at >= 0.3 && at <= 0.4))
+          const landing: number = AutoMovieMotionHumanTiming.seconds(
+            stagger.LANDING,
+          );
+          if (
+            !(at > 0) ||
+            (way === "forward" && !(Math.abs(at - landing) <= 1 / 60))
+          )
             findings.push(
-              `${label}: the step lands ${at.toFixed(3)} s after the impulse`,
+              `${label}: the step lands ${at.toFixed(3)} s after the impulse, stagger's forward landing ${landing.toFixed(3)} s`,
             );
           const moved: IHumanContactWindow | undefined =
             segment.plan.contacts.find(
@@ -236,16 +250,23 @@ export function test_human_motion_perturb(): void {
             segment.plan.contacts.find(
               (w: IHumanContactWindow): boolean => w.part === "seat",
             );
-          const height: number = centre(p, segment.entryTime).y;
-          const free: number = Math.sqrt(
-            (2 * height) / AutoMovieGravity.STANDARD,
-          );
           if (seat === undefined)
             findings.push(`${label}: the fall declares no seat contact`);
-          else if (seat.from * segment.plan.duration < free)
-            findings.push(
-              `${label}: the seat lands at ${(seat.from * segment.plan.duration).toFixed(3)} s, before free fall's ${free.toFixed(3)} s`,
+          else {
+            // The centre's drop from the entry to the seat's contact, read
+            // from the displayed poses, and free fall's time over it.
+            const landed: number = seat.from * segment.plan.duration;
+            const drop: number =
+              centre(p, segment.entryTime).y -
+              centre(p, segment.start + landed).y;
+            const free: number = Math.sqrt(
+              (2 * Math.max(0, drop)) / AutoMovieGravity.STANDARD,
             );
+            if (landed < free)
+              findings.push(
+                `${label}: the seat lands at ${landed.toFixed(3)} s, before free fall's ${free.toFixed(3)} s over the centre's ${(1000 * drop).toFixed(0)} mm drop`,
+              );
+          }
         }
       }
     }

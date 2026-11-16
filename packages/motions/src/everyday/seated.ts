@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -147,7 +148,7 @@ export namespace seated {
    * seat's height is measured from it, since the legs reach from the seat
    * down to it. On the ground it is the ground's 0; a foot planted on a
    * prop (a boat's floor, a stage, a deck) stands on that prop's floor,
-   * which lies under the foot's sole, the ankle's height below its ankle.
+   * which is read on its displayed bearing sockets, even with its heel raised.
    * The lowest such sole is the floor, as the lower foot reaches farthest.
    *
    * @param body The body.
@@ -155,20 +156,7 @@ export namespace seated {
    * @returns The floor's height, world metres.
    */
   export function floor(body: IHumanBody, entry: IHumanEntryState): number {
-    const soles: number[] = (["left", "right"] as const)
-      .filter(
-        (side: "left" | "right"): boolean =>
-          entry.feet[side].planted &&
-          entry.supports.some(
-            (s: IHumanEntryState.ISupport): boolean =>
-              s.part === `${side}Foot` && s.support.kind === "prop",
-          ),
-      )
-      .map(
-        (side: "left" | "right"): number =>
-          entry.feet[side].ankle.y - body.measure.ankleHeight,
-      );
-    return soles.length === 0 ? 0 : Math.min(...soles);
+    return HumanSupportFrame.floor(body, entry);
   }
 
   /**

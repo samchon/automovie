@@ -3,29 +3,24 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanBalance } from "../everyday/HumanBalance";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
+import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { sprintStartSet } from "./sprintStartSet";
 
 /**
  * The sprint start's crouch into the set position and its hold until the
@@ -38,15 +33,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * the line and the rear block 0.45 of it behind the front, and the front
  * knee stands at 90 degrees (their 90, SD 8; Harland and Steele 1997's
  * "about 90"). The hands lie on the line a shoulder width apart with the
- * arms vertical, so the shoulders stand the arms' reach above the wrists of
- * the laid hands; each foot rests in its block, the ball on the floor and
- * the sole on the face. The hip height is the result: the trunk tilts by a
- * total shared by the lumbopelvic rhythm, the pelvis taking no more than
- * the hips' range of flexion leaves it and the spine the rest
- * (`HumanTrunk.incline`), its root placed so the shoulders stand over the
- * hands, and the tilt is the one at which the front hip joint stands the
- * front knee's hip-to-ankle distance from the front ankle, by bisection to
- * float resolution. The rear knee follows from where the rear block lies.
+ * four support frames fixed by the measured body. One whole-body fit
+ * (`sprintStartSet`) keeps those supports, the front knee at 90, rear knee
+ * within 117 +/- 11 and front hip within 43 +/- 6 degrees, and the sex-matched centre of mass
+ * behind the line. Arm extension is free, rather than a fixed fraction
+ * consuming a degree of freedom the measured posture needs. Hip height
+ * and the trunk's inclination are results of that shared constrained fit.
  *
  * The crouch takes 1.5 s (provisional): the front foot steps back to its
  * block over the first half, the rear foot over the second, while the hips
@@ -74,16 +66,16 @@ export namespace athletics {
     });
 
   /** The front knee's included angle in the set, degrees: 90 (SD 8) measured with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One 14:e0213979, table 2), Harland and Steele's (1997) "about 90". */
-  export const FRONT: number = 90;
+  export const FRONT: number = sprintStartSet.FRONT;
 
   /** The front block's distance behind the start line, a share of the leg's length (greater trochanter to lateral malleolus): the anthropometry-driven setting (Cavedon et al. 2019, table 2). */
-  export const FRONT_DISTANCE: number = 0.6;
+  export const FRONT_DISTANCE: number = sprintStartSet.FRONT_DISTANCE;
 
   /** The rear block's distance behind the front block, a share of the leg's length: the same setting's spacing (Cavedon et al. 2019). */
-  export const SPACING: number = 0.45;
+  export const SPACING: number = sprintStartSet.SPACING;
 
   /** The most the trunk's total tilt is searched to, degrees: a half turn, past which the trunk would point back up. */
-  export const TILT: number = 180;
+  export const TILT: number = sprintStartSet.TILT;
 
   /**
    * The whole body's centre of mass behind the start line in the set, metres
@@ -94,22 +86,20 @@ export namespace athletics {
    * Environ Res Public Health 19:4074, section 4.1.2), the primary texts being
    * closed.
    */
-  export const CENTRE: Readonly<Record<"female" | "male", number>> = {
-    female: 0.162,
-    male: 0.229,
-  };
+  export const CENTRE: Readonly<Record<"female" | "male", number>> =
+    sprintStartSet.CENTRE;
 
   /** The most the straight arms are searched to lean forward from the vertical, degrees: a quarter turn, past which the hands would no longer bear. */
-  export const LEAN: number = 90;
+  export const LEAN: number = sprintStartSet.LEAN;
 
   /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
-  export const FRONT_BLOCK: number = 50;
+  export const FRONT_BLOCK: number = sprintStartSet.FRONT_BLOCK;
 
   /** The rear block's face from the floor, degrees (provisional, within a competition block's adjustment). */
-  export const REAR_BLOCK: number = 65;
+  export const REAR_BLOCK: number = sprintStartSet.REAR_BLOCK;
 
-  /** The share of the straight arm's length the shoulders stand above the wrists (provisional): the elbows a little soft. */
-  export const REACH: number = 0.98;
+  /** The arm extension of the initial geometric guess (provisional), owned by sprintStartSet; the fitted stance is free to change it. */
+  export const REACH: number = sprintStartSet.REACH;
 
   /** The crouch's seconds (provisional). */
   export const CROUCH: number = 1.5;
@@ -142,13 +132,14 @@ export namespace athletics {
    * @param context The body.
    * @param entry The standing posture; the line is a hand's length ahead of its feet.
    * @param front The front foot.
+   * @param sex The measured centre-of-mass stratum.
    * @returns The hips' world point, the trunk's pitch, each palm's place on the floor and each foot's placement.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the geometry and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The shoulders over the wrists of the laid hands at the arms' reach, the feet in blocks set by the leg's length, and the trunk's total tilt, shared by the lumbopelvic rhythm within the hips' range, bisected to float resolution until the front hip joint stands the front knee's hip-to-ankle distance from its ankle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The palms, the shoulders, the hips, then one foot per knee angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable knee angle puts the foot under the hip rather than off the floor; the wrist's height is the hand owner's, never half a hand.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Once per plan, a bisection to float resolution of about fifty steps, each two posture solves of the trunk with no limb goals.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the four-contact, measured-angle and centre-of-mass problem to sprintStartSet.of and the shared whole-body fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegate with the unchanged public inputs and result.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fit that misses its declared constraints is reported by the solver's refusal, never hidden by moving a foot or altering a joint range.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The numerical cost and iteration guard are the shared whole-body fit's; no nested bisection remains.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm's wrist, pitch and root, and the foot's pivot.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -157,210 +148,9 @@ export namespace athletics {
     entry: IHumanPosture,
     front: "left" | "right",
     sex: "female" | "male" = "male",
-  ): {
-    hips: IAutoMovieVector3;
-    pitch: number;
-    joints: IHumanPosture["joints"];
-    palms: Record<
-      "left" | "right",
-      {
-        point: IAutoMovieVector3;
-        facing: IAutoMovieVector3;
-        forward: IAutoMovieVector3;
-      }
-    >;
-    feet: Record<"left" | "right", HumanFoot.IPlacement>;
-  } {
-    const body = context.body;
-    const m = body.measure;
-    const frame: HumanFrame.IFrame = {
-      origin: { x: entry.root.x, y: 0, z: entry.root.z },
-      yaw: entry.yaw,
-    };
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    const palm = (side: "left" | "right") => ({
-      point: HumanFrame.point(frame, {
-        x: (side === "left" ? 1 : -1) * m.shoulderHalfWidth,
-        y: 0,
-        z: m.footLength - m.hand / 2,
-      }),
-      facing: { x: 0, y: -1, z: 0 },
-      forward,
-    });
-    const palms = { left: palm("left"), right: palm("right") };
-    // The shoulders stand the arms' reach from the wrists of the laid hands,
-    // the straight arms leaning forward from the vertical by `lean` degrees.
-    const wrist: Record<"left" | "right", IAutoMovieVector3> = {
-      left: AutoMovieMotionHumanPlaced.wrist(body, "left", palms.left),
-      right: AutoMovieMotionHumanPlaced.wrist(body, "right", palms.right),
-    };
-    const wrists: IAutoMovieVector3 = Vector3.lerp(wrist.left, wrist.right, 0.5);
-    const arm: number = REACH * (m.upperArm + m.forearm);
-    const over = (lean: number): IAutoMovieVector3 =>
-      Vector3.add(
-        { ...wrists, y: wrists.y + arm * Math.cos((lean * Math.PI) / 180) },
-        Vector3.scale(forward, arm * Math.sin((lean * Math.PI) / 180)),
-      );
-    // Each foot in its block, the ball on the floor and the sole on the
-    // block's face, its ball behind the line by the anthropometry-driven
-    // setting's share of the leg's length (`FRONT_DISTANCE`, `SPACING`).
-    const rear: "left" | "right" = front === "left" ? "right" : "left";
-    const leg: number = m.thigh + m.shank;
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
-      [front]: block(body, entry, frame, front, FRONT_DISTANCE * leg, FRONT_BLOCK),
-      [rear]: block(
-        body,
-        entry,
-        frame,
-        rear,
-        (FRONT_DISTANCE + SPACING) * leg,
-        REAR_BLOCK,
-      ),
-    } as Record<"left" | "right", HumanFoot.IPlacement>;
-
-    // The trunk inclined by a total tilt shared by the lumbopelvic rhythm,
-    // the pelvis taking no more than the planted legs' hip range leaves it
-    // and the spine the rest (`HumanTrunk.incline`), its root placed so the
-    // shoulders stand over the hands.
-    const reach: number = Math.sqrt(
-      m.thigh * m.thigh +
-        m.shank * m.shank -
-        2 * m.thigh * m.shank * Math.cos((FRONT * Math.PI) / 180),
-    );
-    const posed = (q: number, shoulders: IAutoMovieVector3): IStance => {
-      const at = (limit: number): IStance => {
-        const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
-          HumanTrunk.incline(entry.joints, q, limit);
-        const turned: IHumanPosture = {
-          ...entry,
-          root: { x: 0, y: 0, z: 0 },
-          pitch: tilt.pitch,
-          roll: 0,
-          joints: tilt.joints,
-          // The trunk alone is read: the limbs' goals move no joint of it.
-          limbs: {},
-        };
-        const bones: ReturnType<typeof poseBones> = poseBones(
-          body,
-          resolveHumanPosture(body, turned),
-        );
-        const girdle: IAutoMovieVector3 = Vector3.lerp(
-          bones.get("leftUpperArm")!.worldPosition,
-          bones.get("rightUpperArm")!.worldPosition,
-          0.5,
-        );
-        const root: IAutoMovieVector3 = Vector3.subtract(shoulders, girdle);
-        return {
-          pitch: tilt.pitch,
-          joints: tilt.joints,
-          hips: Vector3.add(root, bones.get("hips")!.worldPosition),
-          joint: Vector3.add(root, bones.get(`${front}UpperLeg`)!.worldPosition),
-          root,
-        };
-      };
-      const free: IStance = at(Infinity);
-      return at(
-        HumanTrunk.pelvisLimit(
-          body,
-          Vector3.subtract(free.hips, body.rest.get("hips")!),
-          entry.yaw,
-          { left: feet.left.ankle, right: feet.right.ankle },
-        ),
-      );
-    };
-
-    // The total tilt at which the front hip joint stands the front knee's
-    // hip-to-ankle distance (the law of cosines on the thigh and the shank)
-    // from the front ankle, by bisection to float resolution: halved until
-    // the midpoint is one of its ends. The gap grows with the tilt, which
-    // lifts the hips away from the blocks about the planted hands.
-    const tilted = (shoulders: IAutoMovieVector3): IStance => {
-      const gap = (q: number): number =>
-        Vector3.length(
-          Vector3.subtract(posed(q, shoulders).joint, feet[front].ankle),
-        ) - reach;
-      let low: number = 0;
-      let high: number = TILT;
-      for (
-        let middle: number = (low + high) / 2;
-        middle > low && middle < high;
-        middle = (low + high) / 2
-      )
-        if (gap(middle) < 0) low = middle;
-        else high = middle;
-      return posed(low, shoulders);
-    };
-
-    // The arms' lean at which the whole body's centre of mass stands the
-    // measured distance behind the line (`CENTRE`), its ground projection
-    // read on the set posture with its legs on the blocks and its hands on
-    // the line, by bisection to float resolution. The distance falls as the
-    // lean carries the shoulders, and the hips with them, toward the line.
-    const line: number = m.footLength;
-    const behind = (lean: number): number => {
-      const stance: IStance = tilted(over(lean));
-      const posture: IHumanPosture = {
-        ...entry,
-        root: stance.root,
-        pitch: stance.pitch,
-        roll: 0,
-        joints: stance.joints,
-        limbs: {},
-      };
-      const limbs: IHumanPosture["limbs"] = {
-        leftLeg: AutoMovieMotionHumanLeg.goal(
-          body,
-          posture,
-          "left",
-          feet.left,
-          true,
-        ),
-        rightLeg: AutoMovieMotionHumanLeg.goal(
-          body,
-          posture,
-          "right",
-          feet.right,
-          true,
-        ),
-        leftArm: {
-          point: wrist.left,
-          bend: AutoMovieMotionHumanBend.hang(body, posture, "left"),
-        },
-        rightArm: {
-          point: wrist.right,
-          bend: AutoMovieMotionHumanBend.hang(body, posture, "right"),
-        },
-      };
-      return (
-        line -
-        HumanFrame.local(
-          frame,
-          HumanBalance.support(body, { ...posture, limbs }).centre,
-        ).z
-      );
-    };
-    let near: number = 0;
-    let far: number = LEAN;
-    for (
-      let middle: number = (near + far) / 2;
-      middle > near && middle < far;
-      middle = (near + far) / 2
-    )
-      if (behind(middle) > CENTRE[sex]) near = middle;
-      else far = middle;
-    const stance: IStance = tilted(over(near));
-    return {
-      hips: stance.hips,
-      pitch: stance.pitch,
-      joints: stance.joints,
-      palms,
-      feet,
-    };
+  ): ReturnType<typeof sprintStartSet.of> {
+    return sprintStartSet.of(context, entry, front, sex);
   }
-
   /**
    * Plan a sprint start.
    *
@@ -380,7 +170,7 @@ export namespace athletics {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
+    const body: IHumanActionContext["body"] = context.body;
     const hold: number = p.seconds ?? 1.5;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
@@ -388,7 +178,12 @@ export namespace athletics {
     const front: "left" | "right" = p.front ?? "left";
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     const entry: IHumanPosture = context.entry.posture;
-    const target = set(context, entry, front, p.sex ?? "male");
+    const target: ReturnType<typeof set> = set(
+      context,
+      entry,
+      front,
+      p.sex ?? "male",
+    );
     const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: CROUCH,
@@ -407,7 +202,7 @@ export namespace athletics {
         { name: "gun", seconds: timed.at("relax") },
       ],
     );
-    const into = (seconds: number): number =>
+    const into: (seconds: number) => number = (seconds: number): number =>
       clock.progress("start", "ready", seconds);
     // The span the arms are planned over: the reach to the place, held to the end.
     const span: AutoMovieMotionHumanArm.ISpan = {
@@ -429,7 +224,9 @@ export namespace athletics {
         write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
           const w: number = into(seconds);
           // The spine's share of the trunk's tilt comes in with the pelvis's.
-          const flexed = (
+          const flexed: (
+            bone: "spine" | "chest",
+          ) => readonly [number, number, number] = (
             bone: "spine" | "chest",
           ): readonly [number, number, number] => {
             const was: readonly [number, number, number] = posture.joints[
@@ -441,7 +238,7 @@ export namespace athletics {
           };
           const pitched: IHumanPosture = {
             ...posture,
-            pitch: posture.pitch + target.pitch * w,
+            pitch: posture.pitch + (target.pitch - entry.pitch) * w,
             joints: {
               ...posture.joints,
               spine: flexed("spine"),
@@ -475,7 +272,7 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: HumanFoot.IPlacement = target.feet[side];
-      const share = (seconds: number): number => {
+      const share: (seconds: number) => number = (seconds: number): number => {
         const half: number = clock.at("ready") / 2;
         const a: number = from === "start" ? 0 : half;
         const b: number = to === "half" ? half : clock.at("ready");
@@ -552,40 +349,4 @@ export namespace athletics {
       contact: "set",
     });
   }
-}
-
-/** A set stance at one total tilt: the pelvis's pitch, the spine's flexion added, and the hips, the front hip joint and the root placed so the shoulders stand over the hands, world metres. */
-interface IStance {
-  pitch: number;
-  joints: IHumanPosture["joints"];
-  hips: IAutoMovieVector3;
-  joint: IAutoMovieVector3;
-  root: IAutoMovieVector3;
-}
-
-/**
- * A foot in its block: the ball on the floor `behind` metres behind the
- * start line (the entry's foot length ahead of the root, where the hands lie),
- * the sole turned up onto the block's face.
- */
-function block(
-  body: IHumanBody,
-  entry: IHumanPosture,
-  frame: HumanFrame.IFrame,
-  side: "left" | "right",
-  behind: number,
-  face: number,
-): HumanFoot.IPlacement {
-  return HumanFoot.pivot(
-    body,
-    side,
-    "ball",
-    HumanFrame.point(frame, {
-      x: body.rest.get(`${side}UpperLeg`)!.x,
-      y: 0,
-      z: body.measure.footLength - behind,
-    }),
-    entry.yaw,
-    -face,
-  );
 }

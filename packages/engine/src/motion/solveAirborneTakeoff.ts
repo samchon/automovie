@@ -3,12 +3,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+import { AirborneTakeoffLinear } from "./AirborneTakeoffLinear";
 import { integrateAirborneRotation } from "./integrateAirborneRotation";
+import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
  * The take-off angular momentum that turns a body in flight through the
@@ -18,42 +18,44 @@ import { integrateAirborneRotation } from "./integrateAirborneRotation";
  * The flight's attitude is read as somersault, tilt and twist angles, the
  * convention #3416 names after Yeadon 1993 ("The biomechanics of twisting
  * somersaults", J Sports Sci 11, not yet read at the source; the order here
- * is this module's own): relative to the take-off frame turned by `frame`, the
- * orientation is `Rx(φ) Rz(θ) Ry(ψ)`, a somersault `φ` about the frame's
+ * is this module's own): the body's attitude seen in the frame's axes `F`
+ * relative to its take-off, `(q0 F)⁻¹ q(t) F`, the identity at take-off
+ * whatever the frame, is `Rx(φ) Rz(θ) Ry(ψ)`, a somersault `φ` about the frame's
  * lateral axis X, then a tilt `θ` about its forward axis Z, then a twist `ψ`
  * about the body's long axis Y (`angles`). The somersault and the twist are
  * unwrapped across the integrator's knots, so a whole turn reads 2π and not
  * zero. The residual at touchdown is `[φ - 2π somersault, θ, ψ - 2π twist]`.
  *
- * The momentum, in the frame's axes, starts at the rigid-body estimate
- * `L = I_mean w`, `I_mean` the mean of the shape's composite inertia at
- * take-off, mid-flight and touchdown and `w` the first stage's turns over
- * the flight time. The twist is reached by continuation with adaptive steps
- * (Allgower and Georg, Introduction to Numerical Continuation Methods): the
- * whole twist is tried first, a stage that misses is halved and one that
- * meets is accepted and the next doubled, each stage's search starting from
- * the last accepted momentum, until the request is reached or a stage falls
- * below the tolerance's size in turns. Each stage is refined by
- * `ITERATIONS` Newton steps with a forward-difference Jacobian on the
- * integrator. A step that does not lower
- * the residual's norm is halved, at most `HALVINGS` times (backtracking on
- * the step, which keeps Newton inside the basin of the requested turns on
- * this periodic map). The counts are fixed and the start is fixed, so the
- * search is deterministic. The search stops early once the residual is under
- * `tolerance`, and reports a miss, never a clamped answer, when it ends
- * outside it or when the momentum exceeds the caller's `maximum`.
+ * The linearized start is `(∫ I⁻¹ dt)⁻¹ (turns + ∫ I⁻¹ h dt)`, the
+ * integrals by Simpson's rule on the integration grid. Newton's Jacobian
+ * is the forward sensitivity of that same flight, integrated with the
+ * orientation (`s' = f_y s + f_p`, SUNDIALS CVODES, section 4.2.6,
+ * https://sundials.readthedocs.io/en/latest/cvodes/Mathematics_link.html),
+ * carried into the derivatives of Yeadon's angles. It does not difference
+ * separately adapted integrations at machine-epsilon momentum offsets.
+ * Continuation scales the whole turn request: a missed stage is halved,
+ * an accepted stage advances and doubles the next increment (Allgower and
+ * Georg, Introduction to Numerical Continuation Methods), down to the
+ * request's angular tolerance. Newton's starts and trial steps are projected
+ * onto the momentum ball when a ceiling is given, and a projected trial is
+ * accepted only if it lowers the residual (projected search, Bertsekas 1982,
+ * https://web.mit.edu/dimitrib/www/ProjectedNewton.pdf). The ceiling bounds
+ * the search as well as the answer; a projected point outside the angular
+ * tolerance remains a miss. The returned flight
+ * is the one whose residual was judged, so playback never reintegrates the
+ * answer on a different adaptive mesh.
  *
  * @param props The shape's history, the flight, the take-off frame, the request and its bounds.
  * @returns The momentum, its residual and whether the request is met.
  * @throws {Error} When the flight is not positive.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the angle convention with its source, the unwrapping, the residual, the start, the iteration with its globalization, determinism and the miss.
- * @evidence contracts/development/implementation.md#principled-implementation Newton's method on the integrator's touchdown angles with a forward-difference Jacobian and step halving (Dennis and Schnabel, Numerical Methods for Unconstrained Optimization and Nonlinear Equations, ch. 6, backtracking line search); the attitude angles are Yeadon's somersault, tilt and twist.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A residual over one integration, a start, then a fixed loop of Jacobian, solve and backtrack.
+ * @evidence contracts/development/implementation.md#principled-implementation Newton's method with the flight's forward sensitivity and analytic Euler-angle derivatives, step-halving line search (Dennis and Schnabel, ch. 6), and continuation in both requested turns; an Euler-angle singularity can still prevent a solve and is reported as a miss.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A residual over one integration, a linearized start, then a fixed loop of Jacobian, solve and backtrack.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A request the flight cannot meet is reported as a miss with its residual; the caller refuses it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Per continuation stage at most `ITERATIONS` times four integrations for the Jacobian plus `HALVINGS` for the backtrack, the stages as many as convergence asks, bounded by the halvings down to the tolerance's size; every integration reads the one history, so the shape is posed once per instant over the whole search.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The history is shared by every integration of the search, since the shape does not depend on the momentum.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps one flight per integration only while its residual is read; the history is the caller's.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One flight with nine sensitivity states per residual, at most ITERATIONS Newton steps and HALVINGS backtracks per stage. Continuation adds stages until the request is reached or its increment falls below the angular tolerance; adaptive trial meshes can require distinct full-body history evaluations, and real-body completion cost remains unresolved.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The shape does not depend on momentum, so every trial reads the same history. Only exactly equal times reuse a cached instant; different adaptive meshes add new instants.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps the current and last accepted trial flights during the search; the returned flight escapes for playback and other trials lose their references. The caller's history retains every distinct evaluation instant across those trials with no fixed population bound.
  */
 export function solveAirborneTakeoff(
   props: solveAirborneTakeoff.IProps,
@@ -61,17 +63,32 @@ export function solveAirborneTakeoff(
   const flight: number = props.t1 - props.t0;
   if (!(flight > 0))
     throw new Error(`The take-off needs a positive flight, got ${flight}`);
+  const axes: IAutoMovieQuaternion = props.frame ?? Quaternion.identity();
   const frame: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(props.q0, props.frame ?? Quaternion.identity()),
+    Quaternion.multiply(props.q0, axes),
   );
   const tolerance: number = props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
+  /** A shooting residual and its exact-ODE Jacobian on the evaluated flight. */
+  interface IEvaluation {
+    r: number[];
+    jacobian: number[][];
+    flight: integrateAirborneRotation.IFlight;
+  }
+  const directions: IAutoMovieVector3[] = [0, 1, 2].map(
+    (i: number): IAutoMovieVector3 =>
+      Quaternion.rotateVector(frame, {
+        x: i === 0 ? 1 : 0,
+        y: i === 1 ? 1 : 0,
+        z: i === 2 ? 1 : 0,
+      }),
+  );
 
   // The touchdown residual of a momentum given in the frame's axes, against
   // a request of somersault and twist turns.
   const residual = (
     local: readonly number[],
     target: readonly number[],
-  ): number[] => {
+  ): IEvaluation => {
     const turned: integrateAirborneRotation.IFlight = integrateAirborneRotation(
       {
         history: props.history,
@@ -84,59 +101,81 @@ export function solveAirborneTakeoff(
           z: local[2]!,
         }),
         h: props.h,
+        tolerance: props.integration,
+        variations: directions,
       },
     );
+    // The body seen in the frame's axes, `q F`, so the take-off reads zero.
     const end: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.unwrapped(
-      turned,
+      {
+        ...turned,
+        orientation: (t: number): IAutoMovieQuaternion =>
+          Quaternion.multiply(turned.orientation(t), axes),
+      },
       frame,
     );
-    return [
-      end.somersault - target[0]!,
-      end.tilt - target[1]!,
-      end.twist - target[2]!,
-    ];
+    const columns: number[][] = turned
+      .variations(props.t1)
+      .map((eta: IAutoMovieVector3): number[] => {
+        const v: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(axes),
+          eta,
+        );
+        const phi: number =
+          (Math.cos(end.twist) * v.x + Math.sin(end.twist) * v.z) /
+          Math.cos(end.tilt);
+        return [
+          phi,
+          -Math.sin(end.twist) * v.x + Math.cos(end.twist) * v.z,
+          v.y + Math.sin(end.tilt) * phi,
+        ];
+      });
+    return {
+      r: [
+        end.somersault - target[0]!,
+        end.tilt - target[1]!,
+        end.twist - target[2]!,
+      ],
+      jacobian: [0, 1, 2].map((i: number): number[] =>
+        columns.map((column: number[]): number => column[i]!),
+      ),
+      flight: turned,
+    };
   };
   const norm = (r: readonly number[]): number => Math.hypot(...r);
+  /** Euclidean projection onto the admitted momentum ball, used only for search points. */
+  const projected = (values: readonly number[]): number[] => {
+    const magnitude: number = norm(values);
+    const maximum: number = props.maximum ?? Number.POSITIVE_INFINITY;
+    const scale: number = magnitude > maximum ? maximum / magnitude : 1;
+    return values.map((v: number): number => scale * v);
+  };
 
   // Newton from a start toward one request, backtracking by halves.
   const newton = (
     start: readonly number[],
     target: readonly number[],
-  ): { local: number[]; r: number[] } => {
-    let local: number[] = [...start];
-    let r: number[] = residual(local, target);
+  ): IEvaluation & { local: number[] } => {
+    let local: number[] = projected(start);
+    let evaluated: IEvaluation = residual(local, target);
     for (
       let k: number = 0;
-      k < solveAirborneTakeoff.ITERATIONS && norm(r) > tolerance;
+      k < solveAirborneTakeoff.ITERATIONS && norm(evaluated.r) > tolerance;
       k++
     ) {
-      // Forward-difference Jacobian, its step scaled to the momentum.
-      const step: number =
-        solveAirborneTakeoff.JACOBIAN * Math.max(1, norm(local));
-      const columns: number[][] = [0, 1, 2].map((c: number): number[] => {
-        const probe: number[] = local.map(
-          (v: number, i: number): number => v + (i === c ? step : 0),
-        );
-        return residual(probe, target).map(
-          (v: number, i: number): number => (v - r[i]!) / step,
-        );
-      });
-      const jacobian: number[][] = [0, 1, 2].map((i: number): number[] =>
-        columns.map((column: number[]): number => column[i]!),
-      );
-      const delta: number[] | null = solve3(jacobian, r);
+      const delta: number[] | null = solve3(evaluated.jacobian, evaluated.r);
       if (delta === null) break;
 
       // Backtrack: halve the step until it lowers the residual.
       let scale: number = 1;
       let next: number[] = local;
-      let after: number[] = r;
+      let after: IEvaluation = evaluated;
       for (let h: number = 0; h <= solveAirborneTakeoff.HALVINGS; h++) {
-        const trial: number[] = local.map(
-          (v: number, i: number): number => v - scale * delta[i]!,
+        const trial: number[] = projected(
+          local.map((v: number, i: number): number => v - scale * delta[i]!),
         );
-        const tr: number[] = residual(trial, target);
-        if (norm(tr) < norm(r)) {
+        const tr: IEvaluation = residual(trial, target);
+        if (norm(tr.r) < norm(evaluated.r)) {
           next = trial;
           after = tr;
           break;
@@ -145,67 +184,47 @@ export function solveAirborneTakeoff(
       }
       if (next === local) break;
       local = next;
-      r = after;
+      evaluated = after;
     }
-    return { local, r };
+    return { local, ...evaluated };
   };
 
-  // The rigid-body start: the mean inertia in the frame's axes times the
-  // first stage's requested rate.
-  const mean: number[][] = [0, 0.5, 1]
-    .map((share: number): number[][] =>
-      tensorOf(
-        props.history(props.t0 + share * flight).inertia,
-        Quaternion.inverse(props.frame ?? Quaternion.identity()),
-      ),
-    )
-    .reduce(
-      (sum: number[][], t: number[][]): number[][] =>
-        sum.map((row: number[], i: number): number[] =>
-          row.map((v: number, j: number): number => v + t[i]![j]! / 3),
-        ),
-      [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-      ],
-    );
+  const { turning, lagging } = AirborneTakeoffLinear(
+    props,
+    Quaternion.inverse(axes),
+  );
 
-  // Continuation in the twist with adaptive steps (Allgower and Georg,
-  // Introduction to Numerical Continuation Methods): the whole
-  // twist is tried first; a stage whose Newton search misses is halved, and
-  // one that meets its request is accepted and the next stage doubled, so
-  // the stage count follows from convergence. A stage before any accepted
-  // one starts from the rigid-body estimate of its own request, a later one
-  // from the last accepted momentum. A stage below the tolerance's own size
-  // in turns cannot be told from its predecessor, so the search stops there
-  // and reports the last accepted stage's miss.
-  const rigid = (twist: number): number[] => {
-    const l: IAutoMovieVector3 = resolveAutoMovieMomentum.apply(mean, {
-      x: (2 * Math.PI * props.somersault) / flight,
-      y: (2 * Math.PI * twist) / flight,
-      z: 0,
-    });
-    return [l.x, l.y, l.z];
+  // Continue the whole request, since even a plain somersault can couple to tilt.
+  const linearized = (share: number): number[] => {
+    const start: number[] | null = solve3(turning, [
+      2 * Math.PI * props.somersault * share + lagging[0]!,
+      2 * Math.PI * props.twist * share + lagging[1]!,
+      lagging[2]!,
+    ]);
+    if (start === null)
+      throw new Error(
+        "The take-off's shape history gives no finite inertia over the flight",
+      );
+    return start;
   };
-  const request = (twist: number): number[] => [
-    2 * Math.PI * props.somersault,
+  const request = (share: number): number[] => [
+    2 * Math.PI * props.somersault * share,
     0,
-    2 * Math.PI * twist,
+    2 * Math.PI * props.twist * share,
   ];
-  const smallest: number = tolerance / (2 * Math.PI);
+  const smallest: number = tolerance / Math.max(tolerance, norm(request(1)));
   let reached: number = 0;
-  let accepted: { local: number[]; r: number[] } | null = null;
-  let stage: number = props.twist;
-  let solved: { local: number[]; r: number[] } = newton(
-    rigid(stage),
+  let accepted: (IEvaluation & { local: number[] }) | null = null;
+  let stage: number = 1;
+  let solved: IEvaluation & { local: number[] } = newton(
+    linearized(stage),
     request(stage),
   );
   for (;;) {
     if (norm(solved.r) <= tolerance) {
       accepted = solved;
       reached += stage;
-      const left: number = props.twist - reached;
+      const left: number = 1 - reached;
       if (Math.abs(left) <= 0) break;
       stage = Math.sign(left) * Math.min(Math.abs(left), 2 * Math.abs(stage));
     } else {
@@ -216,14 +235,18 @@ export function solveAirborneTakeoff(
       }
     }
     solved = newton(
-      accepted === null ? rigid(reached + stage) : accepted.local,
+      accepted === null ? linearized(reached + stage) : accepted.local,
       request(reached + stage),
     );
   }
-  if (accepted !== null && Math.abs(props.twist - reached) > 0)
+  if (accepted !== null && Math.abs(1 - reached) > 0)
     solved = {
+      ...accepted,
       local: accepted.local,
-      r: residual(accepted.local, request(props.twist)),
+      r: accepted.r.map(
+        (v: number, i: number): number =>
+          v + request(reached)[i]! - request(1)[i]!,
+      ),
     };
   const { local, r } = solved;
   const momentum: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
@@ -242,6 +265,7 @@ export function solveAirborneTakeoff(
     met:
       norm(r) <= tolerance &&
       magnitude <= (props.maximum ?? Number.POSITIVE_INFINITY),
+    flight: solved.flight,
   };
 }
 
@@ -260,9 +284,6 @@ export namespace solveAirborneTakeoff {
 
   /** Step halvings of the backtracking per iteration, at most: a work budget, shrinking a step to a thousandth before the search gives up on it. */
   export const HALVINGS: number = 10;
-
-  /** The forward-difference Jacobian's step, as a share of the momentum's magnitude (or of 1 kg m²/s below it): the square root of the machine epsilon, which balances a forward difference's truncation against its rounding (Dennis and Schnabel, section 5.4). */
-  export const JACOBIAN: number = Math.sqrt(Number.EPSILON);
 
   /**
    * The default tolerance on the residual's norm, radians: a hundredth of a
@@ -309,6 +330,9 @@ export namespace solveAirborneTakeoff {
 
     /** The integrator's step, seconds. */
     h?: number;
+
+    /** The integrator's error control, as the flight that reads the momentum integrates it; the fixed step when absent. */
+    integration?: integrateMotionTrajectory.ITolerance;
   }
 
   /** A solved take-off. */
@@ -321,6 +345,9 @@ export namespace solveAirborneTakeoff {
 
     /** Whether the residual is within the tolerance and the momentum within the maximum. */
     met: boolean;
+
+    /** The evaluated flight whose residual was judged; a consumer uses this value for playback instead of reintegrating the momentum on a different adaptive mesh. */
+    flight: integrateAirborneRotation.IFlight;
   }
 
   /** Yeadon's attitude angles, in the unit their reader states. */
@@ -377,10 +404,12 @@ export namespace solveAirborneTakeoff {
 
   /**
    * A flight's attitude at touchdown with the somersault and the twist
-   * unwrapped across its knots, radians, so whole turns accumulate: each
-   * knot's angle is taken on the branch nearest the previous one, which holds
-   * while a turn between knots stays under half a revolution (at the default
-   * sixtieth-of-a-second step, under 30 revolutions a second).
+   * unwrapped across the integrator's default step from take-off, read
+   * between knots as the flight reads itself, radians, so whole turns
+   * accumulate: each instant's angle is taken on the branch nearest the
+   * previous one, which holds while a turn between instants stays under half
+   * a revolution (under 30 revolutions a second at a sixtieth of a second),
+   * however long an error-controlled step is.
    *
    * @param flight The flight.
    * @param frame The reference frame the angles are read in.
@@ -393,9 +422,10 @@ export namespace solveAirborneTakeoff {
     let somersault: number = 0;
     let twist: number = 0;
     let tilt: number = 0;
-    for (let k: number = 0; k < flight.knots; k++) {
-      const t: number =
-        k === flight.knots - 1 ? flight.t1 : flight.t0 + k * flight.h;
+    const step: number = integrateMotionTrajectory.STEP;
+    const instants: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
+    for (let k: number = 0; k < instants; k++) {
+      const t: number = k === instants - 1 ? flight.t1 : flight.t0 + k * step;
       const a: IAngles = angles(frame, flight.orientation(t));
       somersault = near(a.somersault, somersault);
       twist = near(a.twist, twist);
@@ -419,34 +449,7 @@ export namespace solveAirborneTakeoff {
 }
 
 /**
- * A principal frame's tensor seen in another frame, `B R diag(I) Rᵀ Bᵀ`,
- * through the engine's one rotated-tensor sum (a massless part, so no
- * parallel-axis term enters).
- *
- * @param principal The tensor's principal frame.
- * @param into The rotation into the frame it is read in.
- * @returns The tensor's rows.
- */
-function tensorOf(
-  principal: resolveAutoMovieMomentum.IPrincipal,
-  into: IAutoMovieQuaternion,
-): number[][] {
-  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  return physicalInertiaTensor(
-    [
-      {
-        mass: 0,
-        centerOfMass: origin,
-        inertia: principal.moments,
-        inertiaRotation: Quaternion.multiply(into, principal.rotation),
-      },
-    ],
-    origin,
-  );
-}
-
-/**
- * Solve a 3x3 linear system by Cramer's rule over the engine's determinant.
+ * Adapt row arrays to the engine's existing three-column linear solver.
  *
  * @param a The matrix's rows.
  * @param b The right-hand side.
@@ -455,14 +458,14 @@ function tensorOf(
 function solve3(a: readonly number[][], b: readonly number[]): number[] | null {
   if (!a.flat().every(Number.isFinite) || !b.every(Number.isFinite))
     return null;
-  const d: number = determinantAutoMovieMatrix3(a.flat());
-  if (d === 0) return null;
-  return [0, 1, 2].map(
-    (c: number): number =>
-      determinantAutoMovieMatrix3(
-        a.flatMap((row: number[], i: number): number[] =>
-          row.map((v: number, j: number): number => (j === c ? b[i]! : v)),
-        ),
-      ) / d,
-  );
+  const column = (c: number): AutoMovieSolidVector.Vec3 => [
+    a[0]![c]!,
+    a[1]![c]!,
+    a[2]![c]!,
+  ];
+  return AutoMovieSolidVector.solve3(column(0), column(1), column(2), [
+    b[0]!,
+    b[1]!,
+    b[2]!,
+  ]);
 }

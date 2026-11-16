@@ -28,9 +28,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * degrees forward at the catch, Agius et al. 2023, Bioengineering 10:774).
  *
  * The ride is told the rowing thwart, the one the oarlocks stand beside
- * (BoatOars' geometry), and that each hand holds its oar's handle. Each
- * scenario waits 6 s in which the boat lies still while the rower sits and
- * takes hold, then rows 20 m straight.
+ * (BoatOars' geometry), and that each hand holds its oar's handle. The
+ * rower first stands on the boat's floor, so the thwart's height is read
+ * from that floor (`seated.floor`). Each scenario waits 6 s in which the
+ * boat lies still while the rower sits and takes hold, then rows 20 m
+ * straight.
  *
  * Scenarios, on the average man and the small woman, on still water and on
  * a slight sea (significant height 1 m, seed 7):
@@ -52,11 +54,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_ride_rowing(): void {
   const complaints: string[] = [];
   const WAIT: number = 6;
-  const boat: ReturnType<typeof createBoat> = createBoat({ kind: "rowboat" }, 2);
+  const boat: ReturnType<typeof createBoat> = createBoat(
+    { kind: "rowboat" },
+    2,
+  );
   const affordances: readonly IAutoMovieAffordance[] = boat.affordances ?? [];
   const along = (id: string): number =>
-    affordances.find((a: IAutoMovieAffordance): boolean => a.id === id)!
-      .frame.translation.z;
+    affordances.find((a: IAutoMovieAffordance): boolean => a.id === id)!.frame
+      .translation.z;
   const oarlocks: number = (along("leftOarlock") + along("rightOarlock")) / 2;
   const thwart: string = affordances
     .filter((a: IAutoMovieAffordance): boolean => /^thwart\d$/.test(a.id))
@@ -91,8 +96,23 @@ export function test_human_motion_ride_rowing(): void {
         };
       };
       const part = (id: string, seconds: number): IAutoMovieTransform =>
-        ride.frame(id as Parameters<typeof ride.frame>[0], Math.max(0, seconds - WAIT));
+        ride.frame(
+          id as Parameters<typeof ride.frame>[0],
+          Math.max(0, seconds - WAIT),
+        );
       const seat: seated.ISeat = HumanObject.seat(boat, placed(0), thwart);
+      // The rower stands on the boat's floor before sitting, so the thwart
+      // is measured from that floor (`seated.floor`), on the swell too.
+      const floor: IAutoMovieVector3 = Quaternion.rotateVector(
+        placed(0).rotation,
+        affordances.find(
+          (a: IAutoMovieAffordance): boolean => a.id === "floor",
+        )!.frame.translation,
+      );
+      const standing: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
+        { x: 0, y: 0, z: 0.4 },
+      );
       let performance: HumanPerformance;
       try {
         performance = new HumanPerformance({
@@ -103,15 +123,13 @@ export function test_human_motion_ride_rowing(): void {
             {
               subject: "a",
               body,
-              at: HumanFrame.point(
-                { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
-                { x: 0, y: 0, z: 0.4 },
-              ),
+              at: { ...standing, y: placed(0).position.y + floor.y },
               yaw: seat.yaw,
               proficiency: { level: "trained" },
             },
           ],
           composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3, on: { prop: "boat" } })
             .sit({ seat, seconds: 0.5 })
             .registered("ride", {
               on: "boat",
@@ -137,7 +155,8 @@ export function test_human_motion_ride_rowing(): void {
       const catches: number[] = ride.instants
         .filter((i: { label: string }): boolean => /^catch\d+$/.test(i.label))
         .map((i: { seconds: number }): number => WAIT + i.seconds);
-      if (catches.length === 0) complaints.push(`${label}: the ride names no catch`);
+      if (catches.length === 0)
+        complaints.push(`${label}: the ride names no catch`);
       const instants: number[] = catches.flatMap(
         (t: number, k: number): number[] =>
           k + 1 < catches.length ? [t, (t + catches[k + 1]!) / 2] : [t],
@@ -150,7 +169,10 @@ export function test_human_motion_ride_rowing(): void {
             t,
             `${side}Hand`,
           );
-          const handle: IAutoMovieVector3 = part(`${side}Handle`, t).translation;
+          const handle: IAutoMovieVector3 = part(
+            `${side}Handle`,
+            t,
+          ).translation;
           const gap: number = Math.hypot(
             wrist.x - handle.x,
             wrist.y - handle.y,
@@ -167,8 +189,16 @@ export function test_human_motion_ride_rowing(): void {
       // 2. The trunk leans to the first catch.
       if (catches.length > 0) {
         const bow = (t: number): number => {
-          const neck: IAutoMovieVector3 = HumanSignature.joint(reader, t, "neck");
-          const hips: IAutoMovieVector3 = HumanSignature.joint(reader, t, "hips");
+          const neck: IAutoMovieVector3 = HumanSignature.joint(
+            reader,
+            t,
+            "neck",
+          );
+          const hips: IAutoMovieVector3 = HumanSignature.joint(
+            reader,
+            t,
+            "hips",
+          );
           // Toward the bow: the rower faces the stern, so the bow lies behind the seat's heading.
           const local: IAutoMovieVector3 = Quaternion.rotateVector(
             Quaternion.inverse(placed(t).rotation),
@@ -176,7 +206,8 @@ export function test_human_motion_ride_rowing(): void {
           );
           return local.z;
         };
-        const trunk: number = body.measure.shoulderHeight - body.measure.hipHeight;
+        const trunk: number =
+          body.measure.shoulderHeight - body.measure.hipHeight;
         const upright: number = bow(WAIT);
         const leant: number = bow(catches[0]!);
         const ahead: number = Math.sign(along("bow") - along("stern"));

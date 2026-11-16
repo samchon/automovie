@@ -13,7 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -272,20 +271,13 @@ export class HumanPerformance {
    *
    * @param target The target.
    * @param seconds Film seconds.
-   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, and their own body and bones, for `self`.
+   * @param frame The aiming person's own frame and body, including their optional subject id so a carried or mounted prop is read on the supplied bones, as a self target is.
    * @returns The aim.
    */
   public aim(
     target: AutoMovieMotionTarget,
     seconds: number,
-    frame: {
-      root: IAutoMovieVector3;
-      yaw: number;
-      heights: Record<"low" | "middle" | "high", number>;
-      range: number;
-      body: IHumanBody;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    },
+    frame: HumanPerformanceAim.IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
   }

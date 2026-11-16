@@ -31,8 +31,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * to side.
  *
  * Scenarios, the carrier walking 2 m, read at five instants 0.35 s apart
- * from 0.5 s after the carry is taken up (the lift into a carry is not
- * planned yet, so the take-up is a transition and not part of the hold;
+ * from 0.5 s after the carry is taken up (these fixtures request no explicit
+ * lift, so the take-up is a transition and not part of the hold;
  * the carried root is solved onto the carrier at every instant by one
  * rule, so a fault is systematic and five instants across more than a
  * stride show it, which keeps ten films near a minute):

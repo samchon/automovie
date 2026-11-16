@@ -18,6 +18,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
@@ -391,8 +392,9 @@ export namespace knee {
     const stop = (seconds: number): number | undefined =>
       fixed !== null && fixed <= seconds ? fixed : undefined;
 
-    // The shown leg as capsules tapered between the girths at its joints:
-    // the thigh, the shank and the foot.
+    // The shown leg as capsules tapered between the girths at its joints,
+    // fitted on the knee's free course (`StrikingWeapon.leg`): the thigh, the
+    // shank and the foot.
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb: leg,
@@ -400,7 +402,12 @@ export namespace knee {
       from: t0 + prep,
       to: t0 + impact + KickForm.WEAPON_TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
-        StrikingWeapon.leg(context, side, seconds),
+        StrikingWeapon.leg(
+          context.body,
+          (at: number): IHumanPosture => free(at - t0, at),
+          side,
+          seconds,
+        ),
     };
 
     // The contact the performance committed, and the stopped leg's ride on
@@ -462,10 +469,14 @@ export namespace knee {
       },
     };
     StrikingRecord.register(out, (): StrikingRecord.IRecord => {
-      // The knee's front where the shown leg puts it at the planned impact,
-      // with the solve's own status.
+      // The knee's front where the leg's free course puts it at the planned
+      // impact, with the solve's own status; the performer's own displayed
+      // bones read the entry's (`StrikingWeapon`).
       const g: IGeometry = geometry();
-      const bones = context.performer(context.subject).bones(t0 + impact);
+      const bones = poseBones(
+        body,
+        resolveHumanPosture(body, free(impact, t0 + impact)),
+      );
       const reached: IAutoMovieVector3 = StrikingBody.region(
         body,
         bones,

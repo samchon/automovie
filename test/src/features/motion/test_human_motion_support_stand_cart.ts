@@ -7,6 +7,7 @@ import {
   HumanPerformance,
   HumanSupportFrame,
   type IHumanBody,
+  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,17 +29,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. `HumanSupportFrame.at` of a context on the cart reads the cart's
  *    velocity, 2 m/s within 1e-3 m/s, at the start (the turn's own
  *    contribution at the origin is nil).
+ * 5. The deck is 0.3 m above ground: the standing root keeps that height
+ *    and both ankles stay one ankle height above it within 1 mm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Stands a body on a moving cart archetype through the public chain and reads the displayed feet in the cart's frame and the support reader; feet left on the ground, sliding on the bed or a heading that does not turn fails.
  * @evidence contracts/development/testing.md#independent-expectations The cart's motion is the scene's own function; the 10 mm is #3491's bound.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; a translation and a turn together.
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory and reads seven instants of each.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios with their bounds.
  */
 export function test_human_motion_support_stand_cart(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
   const motion = (seconds: number): HumanObject.Placement => ({
-    at: { x: 0, y: 0, z: 2 * seconds },
+    at: { x: 0, y: 0.3, z: 2 * seconds },
     yaw: 10 * seconds,
   });
   for (const name of ["m-average", "f-small"] as const) {
@@ -52,7 +55,7 @@ export function test_human_motion_support_stand_cart(): void {
           {
             subject: "a",
             body,
-            at: { x: 0, y: 0, z: 0 },
+            at: { x: 0, y: 0.3, z: 0 },
             yaw: 0,
             proficiency: { level: "trained" },
           },
@@ -99,6 +102,18 @@ export function test_human_motion_support_stand_cart(): void {
         worst <= 0.01,
       );
     }
+    TestValidator.predicate(
+      `${name}: standing preserves the raised deck's height`,
+      Math.abs(performance.posture("a", 4).root.y - (0.3 - stand.DROP)) <= 1e-9,
+    );
+    for (const side of ["left", "right"] as const)
+      TestValidator.predicate(
+        `${name}: the ${side} ankle stays above the deck`,
+        Math.abs(
+          performance.bones("a", 4).get(`${side}Foot`)!.worldPosition.y -
+            (0.3 + body.measure.ankleHeight),
+        ) <= 0.001,
+      );
     const turned: number =
       performance.posture("a", 4).yaw - performance.posture("a", 0).yaw;
     TestValidator.predicate(

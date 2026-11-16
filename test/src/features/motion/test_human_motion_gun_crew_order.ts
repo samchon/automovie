@@ -122,21 +122,30 @@ export function test_human_motion_gun_crew_order(): void {
     throw new Error("The gunner's lay has no mechanism");
   const mechanism: unknown = lay.mechanism;
   if (
-    typeof mechanism !== "object" || mechanism === null ||
-    !("kind" in mechanism) || mechanism.kind !== "knob" ||
-    !("turn" in mechanism) || typeof mechanism.turn !== "number" ||
+    typeof mechanism !== "object" ||
+    mechanism === null ||
+    !("kind" in mechanism) ||
+    mechanism.kind !== "knob" ||
+    !("turn" in mechanism) ||
+    typeof mechanism.turn !== "number" ||
     !("at" in mechanism)
   )
     throw new Error("The gunner's lay does not turn a knob");
   const target: unknown = mechanism.at;
   if (
-    typeof target !== "object" || target === null ||
-    !("kind" in target) || target.kind !== "prop" ||
-    !("subject" in target) || target.subject !== "gun" ||
-    !("point" in target) || typeof target.point !== "string"
+    typeof target !== "object" ||
+    target === null ||
+    !("kind" in target) ||
+    target.kind !== "prop" ||
+    !("subject" in target) ||
+    target.subject !== "gun" ||
+    !("point" in target) ||
+    typeof target.point !== "string"
   )
     throw new Error("The gunner's lay has no point on its gun");
-  const gun: ReturnType<typeof createCannon> = createCannon({ kind: "fieldGun" });
+  const gun: ReturnType<typeof createCannon> = createCannon({
+    kind: "fieldGun",
+  });
   const contact: IAutoMovieAffordance | undefined = gun.affordances.find(
     (part: IAutoMovieAffordance): boolean => part.id === target.point,
   );
@@ -147,5 +156,8 @@ export function test_human_motion_gun_crew_order(): void {
   const launch: createCannon.ILaunch = createCannon.launch(gun, {
     [target.point]: mechanism.turn,
   });
-  TestValidator.predicate("the gunner's lay raises the muzzle", launch.direction.y > 0);
+  TestValidator.predicate(
+    "the gunner's lay raises the muzzle",
+    launch.direction.y > 0,
+  );
 }

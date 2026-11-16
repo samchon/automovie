@@ -72,7 +72,8 @@ import { pickUpStance } from "./pickUpStance";
  *    (Johansson and Westling 1984, Exp. Brain Res. 56:550); the duration is
  *    provisional, as the phase durations themselves were not reached.
  * 3. Lift: the wrist rises `lift` metres (0.1 m when absent, provisional:
- *    about a hand's breadth clear of the support) on a minimum-jerk profile
+ *    about a hand's breadth clear of the support, or 0 when the other hand
+ *    already holds it) on a minimum-jerk profile
  *    timed by the same movement-time law. Where the arm alone cannot bring
  *    the wrist to its lifted place, the trunk inclines toward it, or a
  *    lowered body straightens part of the way, over the lift
@@ -85,6 +86,8 @@ import { pickUpStance } from "./pickUpStance";
  * the plan declares a hold from `gripClosed`, so the hand keeps the prop with
  * its closed fingers through later actions (carried with the trunk while a
  * walk or a turn drives the body) until a put down or a hand over takes it.
+ * A second hand steadies a prop the other already carries; it takes the grip
+ * without a lift, and an independently requested lift is refused on `lift`.
  *
  * Events: `gripClosed`, `liftOff`, `lifted`, and `upright` after a body
  * lowered for the grip or inclined for the lift straightens. A pick up cut
@@ -130,7 +133,7 @@ export namespace pickUp {
     /** The grasping hand; `right` when absent. */
     hand?: HumanHand.Side;
 
-    /** How far the wrist rises after the grasp, metres; 0.1 when absent. */
+    /** How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. */
     lift?: number;
 
     /**
@@ -156,15 +159,27 @@ export namespace pickUp {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When no lowering brings the grip within the arm's reach (step closer first), no grasp serves the use, or the hand cannot rise as far as the lift asks.
+   * @throws {HumanRefusal} When no lowering brings the grip within reach, no grasp serves the use, the hand cannot rise as far as the lift asks, or a second hand asks to lift independently of the hand already carrying the prop.
    * @throws {Error} When the lift is negative, or the prop has no such affordance or no colliders.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const side: HumanHand.Side = context.params.hand ?? "right";
-    const lift: number = context.params.lift ?? 0.1;
+    const steadied: boolean =
+      context.entry.holds[side === "left" ? "right" : "left"] ===
+      context.params.prop;
+    const lift: number = context.params.lift ?? (steadied ? 0 : 0.1);
     if (!(lift >= 0)) throw new Error("A pick up lifts a non-negative height");
+    if (steadied && lift > 0)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "lift",
+        value: lift,
+        feasible: { kind: "range", minimum: 0, maximum: 0, unit: "m" },
+        reason: `the other hand already holds ${context.params.prop}; a second grip steadies it and cannot lift it independently`,
+        fix: "take the second grip without lifting, then move both hands together or hand the prop over",
+      });
     const body: IHumanBody = context.body;
 
     // The grasp: where the hand goes, how it opens and how it closes.
@@ -197,8 +212,10 @@ export namespace pickUp {
     // where the use asks it (`HumanGrasp.IKey.judge`), within the held-tool
     // bound (`StrikingRoll.MISS`). What the grasp pose leaves unmet of an
     // asked tilt is no failure of the use: the fingers close where the arm
-    // shows the hand, and the use's pose is built from that hand.
-    const unmet: number = chosen.judged[chosen.judged.length - 1] ?? Number.NaN;
+    // shows the hand, and the use's pose is built from that hand. Its key
+    // follows the grasp's and the lift's (`pickUpSearch`); the next
+    // action's demands after it are judged by that action's own plan.
+    const unmet: number = chosen.judged[lift > 0 ? 2 : 1] ?? Number.NaN;
     if (context.params.use !== undefined && !(unmet <= StrikingRoll.MISS))
       throw new HumanRefusal({
         kind: "reach",

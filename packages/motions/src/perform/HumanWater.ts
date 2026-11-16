@@ -32,7 +32,8 @@ import type { IHumanBody } from "../body/IHumanBody";
  * First pass: the strokes do not yet drive the root; a swimmer's speed from
  * its strokes and its roll from its arms are the next pass, on the same
  * forces. The float holds the posture's orientation and moves the root only
- * vertically.
+ * vertically. These calculations are exported and unit-tested; the swim law
+ * and the performance do not yet consume them.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three readings, the laws behind them and the first pass's limits.
  * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.

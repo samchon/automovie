@@ -78,19 +78,25 @@ export namespace WorkoutStance {
   /**
    * Standing, as the step every repetition returns to (`recover`, `stood`).
    *
+   * @param body The body.
    * @param seconds Seconds taken to return to it.
    * @returns The step.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the event names.
-   * @evidence contracts/development/implementation.md#principled-implementation The relaxed standing key itself, which the workout law recognises as the posture stood in before and after.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the event names.
+   * @evidence contracts/development/implementation.md#principled-implementation The body's relaxed standing key itself (`ExerciseKey.standing`), which the workout law recognises as the posture stood in before and after.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function rest(seconds: number): WorkoutKind.IStep {
-    return WorkoutKind.step(ExerciseKey.STOOD, seconds, "recover", "stood");
+  export function rest(body: IHumanBody, seconds: number): WorkoutKind.IStep {
+    return WorkoutKind.step(
+      ExerciseKey.standing(body),
+      seconds,
+      "recover",
+      "stood",
+    );
   }
 
   /**
@@ -174,7 +180,8 @@ export namespace WorkoutStance {
   ): ExerciseKey.IKey {
     const front: number = split(body, back);
     const pitch: number = trunk.pitch ?? 0;
-    return ExerciseKey.of(
+    return ExerciseKey.from(
+      body,
       trunk,
       arms,
       { hip: pitch - back, ankle: back },

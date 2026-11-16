@@ -1,4 +1,8 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  ROM_TOLERANCE,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanVerdicts } from "../audit/HumanVerdicts";
@@ -11,9 +15,10 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import type { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
+import { StrikingSupport } from "../striking/StrikingSupport";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanFirearmReady } from "./HumanFirearmReady";
-import type { HumanWeaponHeld } from "./HumanWeaponHeld";
+import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /**
@@ -43,7 +48,7 @@ export namespace HumanWeaponPose {
     /** The trunk's turn toward the firing side, degrees. */
     turn: number;
 
-    /** The entry posture with the trunk turned. */
+    /** The entry posture with the trunk turned and the supporting hand on its planned handle. */
     bladed: IHumanPosture;
 
     /** The sight line's start, world metres. */
@@ -95,12 +100,27 @@ export namespace HumanWeaponPose {
     // trunk turns toward the firing side, and the eye, the shoulders and
     // the reach are read on the turned trunk. At the recover the body stays
     // "as square to the front as possible".
-    const turn: number = !s.long || carriage === "recover"
-      ? 0
-      : s.tool.side === "right"
-        ? -HumanWeaponPresent.BLADED
-        : HumanWeaponPresent.BLADED;
+    const turn: number =
+      !s.long || carriage === "recover" || carriage === "shoulder"
+        ? 0
+        : s.tool.side === "right"
+          ? -HumanWeaponPresent.BLADED
+          : HumanWeaponPresent.BLADED;
     const bladed: IHumanPosture = StrikingBlade.turned(entry, turn);
+
+    // Both arms are judged where the presentation will put them. Leaving
+    // the previous support goal here makes that old hand an obstacle to a
+    // feasible two-handed presentation.
+    const supported = (frame: StrikingHeld.IHandFrame): IHumanPosture =>
+      StrikingSupport.posture(
+        context.body,
+        bladed,
+        s.tool,
+        frame,
+        carriage === "recover" && s.lock !== undefined
+          ? s.lock
+          : HumanWeaponHeld.supported(context, s, frame, bladed),
+      );
     const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
       context.body,
       bladed,
@@ -113,12 +133,16 @@ export namespace HumanWeaponPose {
     const shoulder: IAutoMovieVector3 = bones.get(
       `${s.tool.side}UpperArm`,
     )!.worldPosition;
-    const anchor: HumanWeaponPresent.Anchor = p.anchor ?? (s.long ? "cheek" : "eye");
+    const anchor: HumanWeaponPresent.Anchor =
+      p.anchor ?? (s.long ? "cheek" : "eye");
     const eye: IAutoMovieVector3 =
       anchor === "eye"
         ? head
         : anchor === "cheek"
-          ? { ...head, y: head.y - HumanWeaponPresent.CHEEK * (head.y - shoulder.y) }
+          ? {
+              ...head,
+              y: head.y - HumanWeaponPresent.CHEEK * (head.y - shoulder.y),
+            }
           : anchor === "arm"
             ? shoulder
             : resolveAutoMovieHumanoidSurfaces.place(
@@ -151,7 +175,12 @@ export namespace HumanWeaponPose {
         kind: "reach",
         axis: "target",
         value: off,
-        feasible: { kind: "range", minimum: 0, maximum: HumanWeaponPresent.TURN, unit: "deg" },
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: HumanWeaponPresent.TURN,
+          unit: "deg",
+        },
         reason: `the target lies ${off.toFixed(0)} degrees off the heading, beyond the ${HumanWeaponPresent.TURN} degrees the arms present to`,
         fix: "turn to face the target first",
       });
@@ -171,20 +200,27 @@ export namespace HumanWeaponPose {
             Vector3.add(eye, Vector3.scale(sight, out)),
             sight,
             0,
-            bladed,
+            supported,
           );
         if (!p.extended) return held((s.long ? 0.3 : 0.7) * s.arm);
 
-        // An extended arm (a bow's) puts its wrist at the arm's own length
-        // from the shoulder, short of it by the audit's skin
-        // (`HumanVerdicts.SKIN`) so the reach holds it. The hand frame is
+        // An extended arm (a bow's) keeps only the solver's angular
+        // resolution short of straight: the law of cosines at
+        // ROM_TOLERANCE. A skin-sized setback bends a bow arm visibly.
+        // The hand frame is
         // chosen once, where the line meets that length with the grip's
         // distance beyond the wrist; the tool is rigid in the hand, so sliding
         // that frame along the line moves its wrist by the same step, and the
         // step that brings the wrist to the length is the larger root of
         // `|w + s u - c|^2 = r^2` (the wrist `w`, the line `u`, the shoulder
         // `c`, the length `r`). A line the length never meets is refused.
-        const goal: number = s.arm - HumanVerdicts.SKIN;
+        const upper: number = context.body.measure.upperArm;
+        const lower: number = context.body.measure.forearm;
+        const goal: number = Math.sqrt(
+          upper * upper +
+            lower * lower +
+            2 * upper * lower * Math.cos((ROM_TOLERANCE * Math.PI) / 180),
+        );
         const outward = (from: IAutoMovieVector3, r: number): number => {
           const step: number | undefined = reach(
             Vector3.subtract(from, shoulder),
@@ -227,6 +263,82 @@ export namespace HumanWeaponPose {
           rotation: chosen.rotation,
         };
       }
+      if (carriage === "shoulder") {
+        // The 1764 Manual Exercise's Position of a Soldier under Arms: "the
+        // firelock to be carried on the left Shoulder", "the Flat of the
+        // Butt, to be supported against the hip-bone ... that it may stand
+        // before the Hollow of the Shoulder, not leaning towards the head nor
+        // from it; the barrel almost perpendicular". The piece's butt-to-
+        // muzzle line runs from the holding side's hip to before its
+        // shoulder, the butt on the hip.
+        const surface = (
+          id: "hipLeft" | "hipRight" | "shoulderLeft" | "shoulderRight",
+        ): IAutoMovieVector3 => {
+          const region: typeof context.body.surfaces.regions.mouth =
+            context.body.surfaces.regions[id];
+          return resolveAutoMovieHumanoidSurfaces.place(
+            region,
+            bones.get(region.bone)!,
+          ).point;
+        };
+        const left: boolean = s.tool.side === "left";
+        const hip: IAutoMovieVector3 = surface(left ? "hipLeft" : "hipRight");
+        const before: IAutoMovieVector3 = surface(
+          left ? "shoulderLeft" : "shoulderRight",
+        );
+        const piece: IAutoMovieVector3 =
+          s.butt === undefined
+            ? Vector3.scale(s.tool.axis, s.tool.length)
+            : Vector3.subtract(s.tool.tip, s.butt);
+        const along: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(before, hip),
+        );
+        const held: StrikingHeld.IHandFrame = StrikingRoll.hand(
+          context,
+          { ...s.tool, axis: Vector3.normalize(piece) },
+          Vector3.length(piece),
+          hip,
+          along,
+          0,
+          supported,
+        );
+        // "As low down as can be admitted without constraint": the lowest
+        // place along the body's side, from the hip toward the shoulder,
+        // where the holding hand's wrist lies within the arm's length less
+        // the audit's skin, the frame slid up the line by the smaller root
+        // of `|w + s u - c|^2 = r^2`.
+        const wrist: IAutoMovieVector3 = HumanHand.place(
+          context.body,
+          s.tool.side,
+          "grip",
+          held.point,
+          held.rotation,
+          "relaxed",
+        ).point;
+        const lift: number | undefined = rise(
+          Vector3.subtract(wrist, shoulder),
+          along,
+          s.arm - HumanVerdicts.SKIN,
+        );
+        if (lift === undefined)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "gun",
+            value: Vector3.length(Vector3.subtract(wrist, shoulder)),
+            feasible: {
+              kind: "range",
+              minimum: 0,
+              maximum: s.arm - HumanVerdicts.SKIN,
+              unit: "m",
+            },
+            reason: `the ${s.tool.side} hand cannot hold the shouldered piece's butt anywhere along the body's side`,
+            fix: "shoulder a shorter piece",
+          });
+        return {
+          point: Vector3.add(held.point, Vector3.scale(along, lift)),
+          rotation: held.rotation,
+        };
+      }
       if (carriage === "recover") {
         // The 1764 Manual Exercise's recover: "the Butt close to the left
         // breast, but not pressed, the Firelock perpendicular, opposite the
@@ -236,10 +348,11 @@ export namespace HumanWeaponPose {
           context.body.surfaces.regions[
             s.tool.side === "right" ? "chestLeft" : "chestRight"
           ];
-        const breast: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-          region,
-          bones.get(region.bone)!,
-        ).point;
+        const breast: IAutoMovieVector3 =
+          resolveAutoMovieHumanoidSurfaces.place(
+            region,
+            bones.get(region.bone)!,
+          ).point;
         // "The Firelock perpendicular" is read as the whole piece upright,
         // the line from its butt to its muzzle: the manual places the piece
         // by its butt ("close to the left breast") and the face, names no
@@ -260,7 +373,7 @@ export namespace HumanWeaponPose {
           breast,
           { x: 0, y: 1, z: 0 },
           0,
-          bladed,
+          supported,
         );
       }
       // A ready position is a region the doctrine describes, and the arm
@@ -272,10 +385,10 @@ export namespace HumanWeaponPose {
         shoulder: bones.get(`${s.tool.side}UpperArm`)!.worldPosition,
         line,
         low: carriage === "lowReady",
-        posture: bladed,
+        posture: supported,
       });
     })();
-    return { turn, bladed, eye, target, line, carriage, pose };
+    return { turn, bladed: supported(pose), eye, target, line, carriage, pose };
   }
 
   /**
@@ -293,5 +406,25 @@ export namespace HumanWeaponPose {
     const b: number = Vector3.dot(d, u);
     const disc: number = b * b - Vector3.dot(d, d) + r * r;
     return disc < 0 ? undefined : -b + Math.sqrt(disc);
+  }
+
+  /**
+   * The least step along a line from a point that brings it within a
+   * distance of a centre: 0 when it already is, the smaller root of
+   * `|d + s u|^2 = r^2` ahead of it otherwise; undefined when the line never
+   * comes that near ahead.
+   */
+  function rise(
+    d: IAutoMovieVector3,
+    u: IAutoMovieVector3,
+    r: number,
+  ): number | undefined {
+    const c: number = Vector3.dot(d, d) - r * r;
+    if (c <= 0) return 0;
+    const b: number = Vector3.dot(d, u);
+    const disc: number = b * b - c;
+    if (disc < 0) return undefined;
+    const step: number = -b - Math.sqrt(disc);
+    return step >= 0 ? step : undefined;
   }
 }

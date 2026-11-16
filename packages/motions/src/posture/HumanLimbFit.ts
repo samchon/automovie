@@ -18,6 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanColliders } from "./HumanColliders";
@@ -229,7 +230,7 @@ export namespace HumanLimbFit {
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
         near,
       );
-      return { pose: HumanLimbMirror.pose(image.pose), seed: image.seed };
+      return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
     const goal: IHumanPosture.IGoal = world(body, pose, limb, attached);
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
@@ -350,6 +351,7 @@ export namespace HumanLimbFit {
         ),
       },
       seed: fitted.seed,
+      ...(fitted.value === undefined ? {} : { value: fitted.value }),
     };
   }
 
@@ -433,6 +435,18 @@ export namespace HumanLimbFit {
       abduction: of[1],
       twist: of[2],
     });
+    // An elbow left to the body (`IHumanPosture.IGoal.elbow`) takes, among the
+    // swivels whose hand error is least, the one of least strain the fit's own
+    // sweep reads (`AutoMovieMotionHumanBend.strainOf`), task first (Nakamura;
+    // Siciliano and Slotine 1991); a continued fit keeps its seed's side.
+    const strain: ReturnType<typeof AutoMovieMotionHumanBend.strainOf> =
+      goal.elbow === "strain" && near === undefined && limb.endsWith("Arm")
+        ? AutoMovieMotionHumanBend.strainOf({
+            body,
+            side: limb.startsWith("left") ? "left" : "right",
+            rotation: goal.rotation,
+          })
+        : null;
     return fitSeededChainToTarget({
       skeleton: body.skeleton,
       pose,
@@ -444,6 +458,7 @@ export namespace HumanLimbFit {
         : { effectorRotation: goal.rotation }),
       ...(obstruction === undefined ? {} : { obstruction }),
       ...(near === undefined ? {} : { near }),
+      ...(strain === null ? {} : { strain }),
       // A reference of no weight decides nothing, so it is left out entirely.
       ...(goal.reference === undefined || goal.reference.weight === 0
         ? {}

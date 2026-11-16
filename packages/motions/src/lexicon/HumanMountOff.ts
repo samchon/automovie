@@ -110,7 +110,10 @@ export namespace HumanMountOff {
     const follower: "left" | "right" = leader === "left" ? "right" : "left";
 
     // Where it stands afterwards: the pelvis clear of the seat, the feet at their rest places under it.
-    const under: HumanFrame.IFrame = { origin: { ...start, y: 0 }, yaw };
+    const under: HumanFrame.IFrame = {
+      origin: { ...start, y: seated.floor(body, entry) },
+      yaw,
+    };
     const stood: HumanFrame.IFrame = {
       origin: HumanFrame.point(
         under,
@@ -177,7 +180,7 @@ export namespace HumanMountOff {
           : HumanMount.LEAN *
             (1 - minimumJerk((t - 0.4 * duration) / (0.6 * duration)).s);
       const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
-        HumanTrunk.incline({ ...stand.RELAXED, ...upright }, lean);
+        HumanTrunk.incline({ ...stand.relaxed(body), ...upright }, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,

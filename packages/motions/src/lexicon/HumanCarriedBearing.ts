@@ -19,8 +19,10 @@ import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { bendLower } from "../everyday/bendLower";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanCarried } from "./HumanCarried";
@@ -48,7 +50,7 @@ export namespace HumanCarriedBearing {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and where the law is documented.
-   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named, each holding palm goes where the coupled carry lays the held region in this bearer's displayed anchor frame, the bone the borne body rides (`HumanCarriedCouplingPose.holds`), a second helper's in its own, the goal attached to that bone (`IGoal.on`) so a layer's tip carries it, and a lone bearer's base tips about the feet by the pair's balance (`HumanCarriedCouplingLoad.lean`) as the hands take the body, two helpers keeping their stances; otherwise each wrist goes to the row's place from one of the carrier's own regions, in arm lengths, and the base is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named, each holding palm goes where the coupled carry lays the held region in this bearer's displayed anchor frame, the bone the borne body rides (`HumanCarriedCouplingPose.holds`), a second helper's in its own, the goal attached to that bone (`IGoal.on`) so a layer's tip carries it, and a lone bearer's base takes the coupling's stance (`bendLower.lower`) and tips about the feet by the pair's balance (`HumanCarriedCouplingLoad.lean`) as the hands take the body, two helpers keeping their stances; otherwise each wrist goes to the row's place from one of the carrier's own regions, in arm lengths, and the base is kept.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The role, the coupling, one arm primitive per holding hand, then the inherited base tipped.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands do not read the carried body's displayed bones; the rows' places are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
@@ -236,9 +238,63 @@ export namespace HumanCarriedBearing {
       coupling === undefined || coupling.bearers !== undefined
         ? { pitch: 0, roll: 0 }
         : HumanCarriedCouplingLoad.lean(body, coupling, role);
+    // A lone bearer takes the stance the coupling placed the body on, its
+    // trunk inclined and its knees lowered as the hands take the body
+    // (`bendLower.lower`, the stance's own lowering); upright it keeps its
+    // base.
+    const stance: { incline: number; depth: number } =
+      coupling === undefined || coupling.bearers !== undefined
+        ? { incline: 0, depth: 0 }
+        : coupling.key.stance;
+    const bent = (posture: IHumanPosture, w: number): IHumanPosture =>
+      (stance.incline === 0 && stance.depth === 0) ||
+      posture.limbs.leftLeg === undefined ||
+      posture.limbs.rightLeg === undefined
+        ? posture
+        : bendLower.lower(
+            body,
+            posture,
+            "squat",
+            stance.incline * w,
+            stance.depth * w,
+            0,
+          );
     return composeAutoMovieMotionHumanAction({
       base: {
         ...base,
+        // The coupling declares the borne side of every bearing contact.
+        // Its holding palms declare the same closed contacts from this
+        // side, so overlays and transitions retain them until release.
+        contacts: [
+          ...base.contacts,
+          ...(of === undefined || coupling === undefined
+            ? []
+            : coupling.contacts
+                .filter(
+                  (contact): boolean =>
+                    contact.kind === "bear" &&
+                    contact.on.role === role &&
+                    (contact.on.region === "palmLeft" ||
+                      contact.on.region === "palmRight"),
+                )
+                .map(
+                  (contact): IHumanContactWindow => ({
+                    part:
+                      contact.on.region === "palmLeft"
+                        ? "leftHand"
+                        : "rightHand",
+                    kind: "grip",
+                    from: clock.at("held") / seconds,
+                    to: 1,
+                    load: 0,
+                    support: {
+                      kind: "person",
+                      subject: of,
+                      region: contact.region,
+                    },
+                  }),
+                )),
+        ],
         posture: (at: number): IHumanPosture => {
           const w: number = clock.progress(
             AutoMovieMotionClock.START,
@@ -246,7 +302,7 @@ export namespace HumanCarriedBearing {
             at,
           );
           return HumanCarriedLean.tipped(
-            base.posture(at),
+            bent(base.posture(at), w),
             tip.pitch * w,
             tip.roll * w,
           );

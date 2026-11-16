@@ -20,6 +20,7 @@ import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
 import type { IHumanPosture } from "./IHumanPosture";
 import { lowerHumanPosture } from "./lowerHumanPosture";
+import { orderHumanLimbs } from "./orderHumanLimbs";
 import { turnHumanPosture } from "./turnHumanPosture";
 
 /**
@@ -86,6 +87,11 @@ export namespace resolveHumanPosture {
 
     /** Each fitted limb's seed. */
     seeds: Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelSeed | null>>;
+
+    /** Each fitted limb's fit value (`IAutoMovieSeededChainFit.value`), where its fit reports one. */
+    values: Partial<
+      Record<IHumanPosture.Limb, IAutoMovieSeededChainFit["value"]>
+    >;
   }
 
   /**
@@ -106,7 +112,6 @@ export namespace resolveHumanPosture {
     base?: IAutoMoviePose,
     near: INear = {},
   ): ISeeded {
-    const seeds: ISeeded["seeds"] = {};
     const kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
       (base?.joints ?? []).map(
         (
@@ -142,7 +147,7 @@ export namespace resolveHumanPosture {
 
     // The set joints are clamped first and the limbs fitted last, so the clamp
     // never moves a solved goal; the fit keeps the limb's own angles in range.
-    let pose: IAutoMoviePose = clampPose(
+    const pose: IAutoMoviePose = clampPose(
       {
         skeleton: body.skeleton.id,
         root: Transform.of(turned.position, turned.rotation),
@@ -150,17 +155,52 @@ export namespace resolveHumanPosture {
       },
       body.skeleton,
     );
+    const fitted: ISeeded = refit(body, pose, posture.limbs, near);
+    // The digits reach from the hands the arms placed (`HumanDigitFit`).
+    return {
+      ...fitted,
+      pose: HumanDigitFit.fitted(body, fitted.pose, posture.digits),
+    };
+  }
+
+  /**
+   * Re-fit limb goals on an already displayed pose, after its parents,
+   * blending or transition have been placed. World goals have already
+   * received the posture's root turn; attached goals keep their `on` frame
+   * and are carried into the world once, by the limb fit.
+   *
+   * @param body The performer's body.
+   * @param pose The pose before these limb fits.
+   * @param limbs The goals, world or attached to a posed bone.
+   * @param near Each limb's nearby fit to continue, if any.
+   * @returns The pose, seeds and values of the same limb solver `seeded` uses.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' frames and the returned fit records.
+   * @evidence contracts/development/implementation.md#principled-implementation Fits the limbs on their already placed parents, in attachment order, with independent arms solved as one pair.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original seeded limb loop is the one shared implementation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves contact, attachment, clearance, reference, seed and value data without reconstructing a goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most four limb fits, using the existing remembered solver.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by posture resolution and final contact restoration.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure operation that retains nothing.
+   */
+  export function refit(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    limbs: IHumanPosture["limbs"],
+    near: INear = {},
+  ): ISeeded {
+    const seeds: ISeeded["seeds"] = {};
+    const values: ISeeded["values"] = {};
     // An arm with no goal hangs or rests where its joints put it, so its own
     // colliders keep its room from the first fit on.
     const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean =>
-        posture.limbs[`${side}Arm`] === undefined,
+      (side: "left" | "right"): boolean => limbs[`${side}Arm`] === undefined,
     );
     // Two arms with goals, neither riding the other, are one coupled problem
     // (`HumanLimbPair`), fitted when the first of them is reached.
     const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
-      left: posture.limbs.leftArm,
-      right: posture.limbs.rightArm,
+      left: limbs.leftArm,
+      right: limbs.rightArm,
     };
     const riding = (
       goal: IHumanPosture.IGoal | undefined,
@@ -171,8 +211,8 @@ export namespace resolveHumanPosture {
       arms.right !== undefined &&
       !riding(arms.left, "right") &&
       !riding(arms.right, "left");
-    for (const limb of resolveHumanPosture.order(posture.limbs)) {
-      const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
+    for (const limb of resolveHumanPosture.order(limbs)) {
+      const goal: IHumanPosture.IGoal | undefined = limbs[limb];
       if (goal === undefined) continue;
       if (paired && (limb === "leftArm" || limb === "rightArm")) {
         if (placed.length === 0) {
@@ -188,6 +228,8 @@ export namespace resolveHumanPosture {
           pose = pair.pose;
           seeds.leftArm = pair.seeds.left;
           seeds.rightArm = pair.seeds.right;
+          values.leftArm = pair.values.left;
+          values.rightArm = pair.values.right;
         }
         placed.push(limb === "leftArm" ? "left" : "right");
         continue;
@@ -204,7 +246,7 @@ export namespace resolveHumanPosture {
         other === undefined ||
         placed.includes(other === "leftArm" ? "left" : "right")
           ? undefined
-          : posture.limbs[other];
+          : limbs[other];
       const rival: IAutoMovieVector3 | undefined =
         coming === undefined || other === undefined
           ? undefined
@@ -220,12 +262,12 @@ export namespace resolveHumanPosture {
       );
       pose = fitted.pose;
       seeds[limb] = fitted.seed;
+      values[limb] = fitted.value;
       if (limb === "leftArm") placed.push("left");
       if (limb === "rightArm") placed.push("right");
     }
 
-    // The digits reach from the hands the arms placed (`HumanDigitFit`).
-    return { pose: HumanDigitFit.fitted(body, pose, posture.digits), seeds };
+    return { pose, seeds, values };
   }
 
   /**
@@ -395,71 +437,9 @@ export namespace resolveHumanPosture {
     return { upper: read(chain.upper), lower: read(chain.lower) };
   }
 
-  /**
-   * The order to fit a posture's limbs in: legs then arms, so an arm is
-   * chosen beside thighs that already stand where the posture puts them
-   * (`HumanArmClearance`), each limb after
-   * any limb whose bones its goal is attached to (`on`), so an attachment
-   * reads that limb's solved frame (a palm under the other elbow follows the
-   * other arm). A limb's bones are its chain, its hand or foot, and the
-   * fingers or toes beyond them. Two limbs attached to each other (crossed
-   * arms, each palm on the other arm) cannot be ordered and are refused; a
-   * law that wants them solves the pair itself and attaches to a shared bone
-   * such as the chest.
-   *
-   * @param limbs The posture's limb goals.
-   * @returns Every limb, in fitting order.
-   * @throws {Error} When two limbs' goals are attached to each other, naming both.
-   */
+  /** The order to fit a posture's limbs in ({@link orderHumanLimbs}). */
   export function order(limbs: IHumanPosture["limbs"]): IHumanPosture.Limb[] {
-    const all: readonly IHumanPosture.Limb[] = [
-      "leftLeg",
-      "rightLeg",
-      "leftArm",
-      "rightArm",
-    ];
-    // The limb a bone belongs to, when it belongs to one.
-    const owner = (
-      bone: AutoMovieHumanoidBone,
-    ): IHumanPosture.Limb | undefined =>
-      all.find((limb: IHumanPosture.Limb): boolean => {
-        const side: string = limb.startsWith("left") ? "left" : "right";
-        return limb.endsWith("Arm")
-          ? bone.startsWith(side) &&
-              /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(
-                bone,
-              )
-          : bone.startsWith(side) &&
-              /(UpperLeg|LowerLeg|Foot|Toes|Hallux)/.test(bone);
-      });
-    const after = (
-      limb: IHumanPosture.Limb,
-    ): IHumanPosture.Limb | undefined => {
-      const on: AutoMovieHumanoidBone | undefined = limbs[limb]?.on;
-      const first: IHumanPosture.Limb | undefined =
-        on === undefined ? undefined : owner(on);
-      return first === limb ? undefined : first;
-    };
-    for (const limb of all) {
-      const first: IHumanPosture.Limb | undefined = after(limb);
-      if (first !== undefined && after(first) === limb)
-        throw new Error(
-          `The ${limb} and ${first} goals are attached to each other and cannot be ordered`,
-        );
-    }
-    // With at most one dependency per limb and no two-cycle, placing each limb
-    // after its dependency in one pass is a topological order of four nodes.
-    const out: IHumanPosture.Limb[] = [];
-    const visit = (limb: IHumanPosture.Limb, depth: number): void => {
-      if (out.includes(limb)) return;
-      if (depth > all.length)
-        throw new Error("Limb goal attachments form a cycle");
-      const first: IHumanPosture.Limb | undefined = after(limb);
-      if (first !== undefined) visit(first, depth + 1);
-      out.push(limb);
-    };
-    for (const limb of all) visit(limb, 0);
-    return out;
+    return orderHumanLimbs(limbs);
   }
 
   /**

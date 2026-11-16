@@ -206,8 +206,10 @@ export namespace crawlFrame {
   /**
    * The body tilted forward by a pitch at a share of the way down, its
    * pelvis turned about the spine's axis and the spine and the chest
-   * turning it back.
+   * turning it back, the arms hanging as the body's relaxed arms
+   * (`stand.relaxed`).
    *
+   * @param body The body.
    * @param yaw The heading, degrees about +Y.
    * @param share The share of the way down, 0 standing and 1 on the hands.
    * @param degrees The whole body's forward pitch on the hands, degrees.
@@ -224,6 +226,7 @@ export namespace crawlFrame {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function posed(
+    body: IHumanBody,
     yaw: number,
     share: number,
     degrees: number,
@@ -236,7 +239,7 @@ export namespace crawlFrame {
       pitch: degrees * share,
       roll: 0,
       joints: {
-        ...stand.RELAXED,
+        ...stand.relaxed(body),
         neck: [neck * share, 0, 0],
         hips: [0, 0, hike],
         spine: [0, 0, -(1 - CHEST) * hike],

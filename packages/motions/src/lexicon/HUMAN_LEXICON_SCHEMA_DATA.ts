@@ -133,7 +133,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o5"
     },
     "boxVault": {
-      "$ref": "#/components/schemas/OmitIParamsstances"
+      "$ref": "#/components/schemas/OmitIParamsnever-o5"
     },
     "braceForImpact": {
       "$ref": "#/components/schemas/OmitIParamskind-o2"
@@ -355,7 +355,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o8"
     },
     "drinkFrom": {
-      "$ref": "#/components/schemas/OmitIParamsfacingholdphrasepointshapesurfacetarget"
+      "$ref": "#/components/schemas/OmitIParamsholdphrasepointshapesurfacetarget"
     },
     "drunk": {
       "$ref": "#/components/schemas/HumanGait.IParams"
@@ -364,7 +364,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsdepthhold"
     },
     "eatWith": {
-      "$ref": "#/components/schemas/OmitIParamsfacingholdphraseshapesurfacetarget"
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
     },
     "enGarde": {
       "$ref": "#/components/schemas/OmitIParamsguard"
@@ -463,7 +463,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsdirection"
     },
     "fosburyFlop": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o5"
+      "$ref": "#/components/schemas/OmitIParamsnever-o6"
     },
     "fret": {
       "$ref": "#/components/schemas/OmitIParamsside"
@@ -472,7 +472,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o6"
     },
     "frontHandspring": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o6"
+      "$ref": "#/components/schemas/OmitIParamsnever-o7"
     },
     "frontKick": {
       "$ref": "#/components/schemas/OmitIParamslegtechnique"
@@ -634,7 +634,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsleftright"
     },
     "handspringVault": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o7"
+      "$ref": "#/components/schemas/OmitIParamsnever-o8"
     },
     "handstand": {
       "$ref": "#/components/schemas/OmitIParamsnever"
@@ -676,7 +676,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
     },
     "holsterFirearm": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o9"
+      "$ref": "#/components/schemas/OmitIParamsnever-o10"
     },
     "hook": {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
@@ -1375,7 +1375,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
     },
     "vaultOnPole": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o8"
+      "$ref": "#/components/schemas/OmitIParamsnever-o9"
     },
     "victory": {
       "$ref": "#/components/schemas/OmitIParamskind-o1"
@@ -13350,6 +13350,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
           },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
+          },
           "edge": {
             "type": "string",
             "description": "The weapon's sighting affordance, square to its line; `sight` when absent."
@@ -13528,6 +13532,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming."
+          },
+          "extended": {
+            "type": "boolean",
+            "description": "Whether the presenting arm reaches straight out along the line of aim\nto its own reach, a bow arm extended to the target; otherwise the\nworking point is held the presentation's own share of the arm out.\nNot extended when absent."
           },
           "seconds": {
             "type": "number",
@@ -13829,6 +13837,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "tip": {
             "type": "string",
             "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
+          },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
           },
           "edge": {
             "type": "string",
@@ -15081,6 +15093,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The front foot; `left` when absent."
           },
+          "sex": {
+            "oneOf": [
+              {
+                "const": "female"
+              },
+              {
+                "const": "male"
+              }
+            ],
+            "description": "The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent."
+          },
           "seconds": {
             "type": "number",
             "minimum": 0,
@@ -15630,9 +15653,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "IHumanLexiconParams.Merged-o19": {
         "type": "object",
         "properties": {
-          "boxVault": {
-            "$ref": "#/components/schemas/OmitIParamsstances"
-          },
           "scramble": {
             "$ref": "#/components/schemas/OmitIParamsstances"
           },
@@ -15641,7 +15661,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
-          "boxVault",
           "scramble",
           "slideOff"
         ],
@@ -16868,7 +16887,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               "prop"
             ],
             "additionalProperties": false,
-            "description": "A moving support stood on (#3491): a cart's bed, a deck. The stance is\nplanned where the body stands at the entry and carried by the prop's\nmotion from there, its feet planted on the prop. The ground when absent."
+            "description": "A moving support stood on (#3491): a cart's bed, a deck. The stance is\nplanned where the body stands at the entry and carried by the prop's\nmotion from there, its feet planted on the prop. When absent, a prop\nalready under both planted entry feet is continued; otherwise the\nfeet retain their declared entry support frames."
           }
         },
         "required": [],
@@ -16877,14 +16896,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "IHumanLexiconParams.Merged-o23": {
         "type": "object",
         "properties": {
-          "fosburyFlop": {
+          "boxVault": {
             "$ref": "#/components/schemas/OmitIParamsnever-o5"
           },
-          "frontHandspring": {
+          "fosburyFlop": {
             "$ref": "#/components/schemas/OmitIParamsnever-o6"
           },
-          "handspringVault": {
+          "frontHandspring": {
             "$ref": "#/components/schemas/OmitIParamsnever-o7"
+          },
+          "handspringVault": {
+            "$ref": "#/components/schemas/OmitIParamsnever-o8"
           },
           "roundOffLeft": {
             "$ref": "#/components/schemas/OmitIParamslead"
@@ -16893,10 +16915,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamslead"
           },
           "vaultOnPole": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o8"
+            "$ref": "#/components/schemas/OmitIParamsnever-o9"
           }
         },
         "required": [
+          "boxVault",
           "fosburyFlop",
           "frontHandspring",
           "handspringVault",
@@ -16908,6 +16931,23 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
       },
       "OmitIParamsnever-o5": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "The box vaulted over, its subject id; its `surface` is the top the hands are set on."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "How long the landing is held, seconds; 0.5 when absent."
+          }
+        },
+        "required": [
+          "on"
+        ],
+        "additionalProperties": false
+      },
+      "OmitIParamsnever-o6": {
         "type": "object",
         "properties": {
           "to": {
@@ -16929,7 +16969,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o6": {
+      "OmitIParamsnever-o7": {
         "type": "object",
         "properties": {
           "lead": {
@@ -16947,7 +16987,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o7": {
+      "OmitIParamsnever-o8": {
         "type": "object",
         "properties": {
           "lead": {
@@ -16984,7 +17024,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o8": {
+      "OmitIParamsnever-o9": {
         "type": "object",
         "properties": {
           "pole": {
@@ -17644,7 +17684,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanWeaponPresent.IWield"
           },
           "holster": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o9"
+            "$ref": "#/components/schemas/OmitIParamsnever-o10"
           },
           "present": {
             "$ref": "#/components/schemas/HumanWeaponPresent.IPresent"
@@ -17716,6 +17756,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
           },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
+          },
           "edge": {
             "type": "string",
             "description": "The weapon's sighting affordance, square to its line; `sight` when absent."
@@ -17766,7 +17810,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "What every presenting action takes."
       },
-      "OmitIParamsnever-o9": {
+      "OmitIParamsnever-o10": {
         "type": "object",
         "properties": {
           "prop": {
@@ -17775,7 +17819,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
-            "description": "Where the prop's origin goes, world metres; required unless `on` is given."
+            "description": "Where the prop's origin goes, world metres; required unless `on` or `onto` is given."
           },
           "on": {
             "type": "object",
@@ -17795,6 +17839,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "additionalProperties": false,
             "description": "The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent."
+          },
+          "onto": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "point": {
+                "type": "string"
+              },
+              "via": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop",
+              "point"
+            ],
+            "additionalProperties": false,
+            "description": "The other prop's socket the prop is set on, riding it from `placed`\nas that prop's articulations pose it (an arrow nocked by its `nock` on\na bow's string, drawn back with it, `IHumanActionPlan.mounts`): the\nprop's own socket `via` laid on the other's `point`, the prop's origin\nwhen `via` is absent."
           },
           "yaw": {
             "type": "number",
@@ -17872,6 +17936,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "tip": {
             "type": "string",
             "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
+          },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
           },
           "edge": {
             "type": "string",
@@ -18062,9 +18130,19 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "lowReady"
+              },
+              {
+                "const": "recover"
+              },
+              {
+                "const": "shoulder"
               }
             ],
             "description": "The carriage; `aim` when absent."
+          },
+          "extended": {
+            "type": "boolean",
+            "description": "Whether the presenting arm reaches straight out along the line of aim\nto its own reach, a bow arm extended to the target; otherwise the\nworking point is held the presentation's own share of the arm out.\nNot extended when absent."
           },
           "seconds": {
             "type": "number",
@@ -18886,10 +18964,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamscyclesfacingoffsetphrasesideswingtarget"
           },
           "drinkFrom": {
-            "$ref": "#/components/schemas/OmitIParamsfacingholdphrasepointshapesurfacetarget"
+            "$ref": "#/components/schemas/OmitIParamsholdphrasepointshapesurfacetarget"
           },
           "eatWith": {
-            "$ref": "#/components/schemas/OmitIParamsfacingholdphraseshapesurfacetarget"
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
           },
           "foldArms": {
             "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphraseshapesidetarget"
@@ -19738,7 +19816,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsfacingholdphrasepointshapesurfacetarget": {
+      "OmitIParamsholdphrasepointshapesurfacetarget": {
         "type": "object",
         "properties": {
           "offset": {
@@ -19775,54 +19853,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
           },
-          "manner": {
-            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
-            "description": "The manner; neutral when absent."
-          },
-          "held": {
-            "type": "string",
-            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
-          }
-        },
-        "required": [],
-        "additionalProperties": false
-      },
-      "OmitIParamsfacingholdphraseshapesurfacetarget": {
-        "type": "object",
-        "properties": {
-          "offset": {
-            "$ref": "#/components/schemas/armPhrase.IOffset",
-            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
-          },
-          "from": {
-            "$ref": "#/components/schemas/armPhrase.IOffset",
-            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
-          },
-          "swing": {
-            "$ref": "#/components/schemas/armPhrase.IOffset",
-            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
-          },
-          "cycles": {
-            "type": "number",
-            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
-          },
-          "mirror": {
-            "type": "boolean",
-            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
-          },
-          "side": {
-            "oneOf": [
-              {
-                "const": "both"
-              },
-              {
-                "const": "left"
-              },
-              {
-                "const": "right"
-              }
-            ],
-            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -19831,10 +19864,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "held": {
             "type": "string",
             "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
-          },
-          "point": {
-            "type": "string",
-            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
           }
         },
         "required": [],
@@ -21525,7 +21554,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               "prop"
             ],
             "additionalProperties": false,
-            "description": "A moving support stood on (#3491): a cart's bed, a deck. The stance is\nplanned where the body stands at the entry and carried by the prop's\nmotion from there, its feet planted on the prop. The ground when absent."
+            "description": "A moving support stood on (#3491): a cart's bed, a deck. The stance is\nplanned where the body stands at the entry and carried by the prop's\nmotion from there, its feet planted on the prop. When absent, a prop\nalready under both planted entry feet is continued; otherwise the\nfeet retain their declared entry support frames."
           }
         },
         "required": [],
@@ -23941,7 +23970,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "lift": {
             "type": "number",
-            "description": "How far the wrist rises after the grasp, metres; 0.1 when absent."
+            "description": "How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently."
           },
           "use": {
             "$ref": "#/components/schemas/HumanGraspUse.IUse",
@@ -24029,7 +24058,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
-            "description": "Where the prop's origin goes, world metres; required unless `on` is given."
+            "description": "Where the prop's origin goes, world metres; required unless `on` or `onto` is given."
           },
           "on": {
             "type": "object",
@@ -24049,6 +24078,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "additionalProperties": false,
             "description": "The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent."
+          },
+          "onto": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "point": {
+                "type": "string"
+              },
+              "via": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop",
+              "point"
+            ],
+            "additionalProperties": false,
+            "description": "The other prop's socket the prop is set on, riding it from `placed`\nas that prop's articulations pose it (an arrow nocked by its `nock` on\na bow's string, drawn back with it, `IHumanActionPlan.mounts`): the\nprop's own socket `via` laid on the other's `point`, the prop's origin\nwhen `via` is absent."
           },
           "yaw": {
             "type": "number",
@@ -26754,6 +26803,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "How it touches: `bear`, laid on a surface whose up it faces and pressed by the body's weight; `grip`, a hand closed on a handle, holding as well as pressing."
+          },
+          "inset": {
+            "type": "number",
+            "description": "How far in from the edge of the action's surface a contact on it (`on`) lies along the heading, as a share of the forearm and hand's length: positive onto a surface ahead of the body, negative onto one behind it; at the edge when absent."
+          },
+          "step": {
+            "type": "boolean",
+            "description": "Whether the part is set down anew in this stance, stepping from where it bore before to where the stance's solve lays it; a part that bears on from the stance before stays where it bore when absent."
           }
         },
         "required": [
@@ -28597,6 +28654,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The front foot; `left` when absent."
+          },
+          "sex": {
+            "oneOf": [
+              {
+                "const": "female"
+              },
+              {
+                "const": "male"
+              }
+            ],
+            "description": "The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent."
           },
           "seconds": {
             "type": "number",

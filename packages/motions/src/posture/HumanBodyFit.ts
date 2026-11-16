@@ -1,12 +1,9 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
+import type { HumanBodyFitTypes } from "./HumanBodyFitTypes";
+import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanJacobian } from "./HumanJacobian";
@@ -29,7 +26,12 @@ import type { IHumanPosture } from "./IHumanPosture";
  * preferred posture in joint space. A target brings a point riding a bone
  * to a world goal on the axes it names, a rotation to a goal, or, as a
  * planar contact, the contact frame's normal parallel to the surface's with
- * its turn about it free. A bearing part touches the floor at its lowest
+ * its turn about it free. Included angles between bone-carried landmarks
+ * and projections of the physical centre of mass are constrained by the
+ * same fit, with their own analytic Jacobians (`HumanFitGoals`). Goals may
+ * ride another bone, whose frame and Jacobian move with the fit. A physical
+ * point radius is one distance inequality, without widening it by the
+ * equality rows' numerical band (`HumanFitTargets`). A bearing part touches the floor at its lowest
  * point and every other point of it stays out of the floor, so a rigid
  * curved part rests on one point and a planar contact's normal lays it
  * flat. Every row is an exact penalty at its price (an elastic l1
@@ -50,87 +52,40 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor is read on the body's colliders, the ranges on the shared table, the slopes on the shared Jacobian, the loop and the convex step are the shared ones.
  */
 export namespace HumanBodyFit {
-  /** One goal on a point riding a bone, at a price per millimetre or milliradian it misses by. */
-  export interface ITarget {
-    /** The bone. */
-    bone: AutoMovieHumanoidBone;
+  /**
+   * The bone-carried point and orientation goal, owned by HumanBodyFitTypes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the underlying goal owner.
+   * @evidence contracts/development/design.md#principled-representation The existing public name aliases the same rigid-effector record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves the public type used by contact laws.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second type definition.
+   */
+  export type ITarget = HumanBodyFitTypes.ITarget;
 
-    /** The point in the bone's frame, metres; its origin when absent. */
-    point?: IAutoMovieVector3;
+  /**
+   * The fitted posture and measured residuals, owned by HumanBodyFitTypes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the underlying result owner.
+   * @evidence contracts/development/design.md#principled-representation The existing public name aliases the measured result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps callers on the same result type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copied result shape.
+   */
+  export type IResult = HumanBodyFitTypes.IResult;
 
-    /** Where it goes, world metres. */
-    goal: IAutoMovieVector3;
-
-    /** The axes it is held on; all three when absent, none for a target that holds only a rotation or a normal. */
-    axes?: readonly ("x" | "y" | "z")[];
-
-    /** Its price per millimetre missed, and per milliradian for a turn; `PRICE`, the floor's, when absent. */
-    price?: number;
-
-    /** The bone's world rotation it is brought to as well; none when absent. */
-    rotation?: IAutoMovieQuaternion;
-
-    /**
-     * A planar contact's normal: the contact frame's normal in the bone's
-     * frame (`local`, the palm socket's for a hand, the plantar side for a
-     * foot or its toes) brought parallel to a world normal (`world`, away
-     * from the surface it lies on), its turn about that normal left free.
-     * None when absent.
-     */
-    normal?: { local: IAutoMovieVector3; world: IAutoMovieVector3 };
-  }
-
-  /** A fit's outcome. */
-  export interface IResult {
-    /** The fitted posture, by joint angles alone. */
-    posture: IHumanPosture;
-
-    /** How far each target misses, in the targets' order: its point in millimetres over its axes, and its turn in degrees, the rotation's or the normal's; a law refuses a target it cannot meet by these. */
-    residuals: { point: number; turn: number }[];
-
-    /** How far the centre of mass lies outside the base of support, millimetres; nought when inside or unasked. */
-    balance: number;
-
-    /** Whether the loop settled (its model's own accuracy or a step under the least) at a posture meeting every row to the tolerance. */
-    converged: boolean;
-
-    /** Why the loop stopped. */
-    reason: HumanSequentialConvex.Reason;
-  }
-
-  /** A fit. */
-  export interface IProps {
-    /** The body. */
-    body: IHumanBody;
-
-    /** The preferred posture, written by its joint angles alone (its limbs' goals already solved into them). */
-    posture: IHumanPosture;
-
-    /** The posture the solve starts from, by joint angles alone: the previous stance's solution; the preferred posture when absent. */
-    start?: IHumanPosture;
-
-    /** The variables moved; the whole body's (`HumanFitVariables.BODY`) when absent. */
-    variables?: readonly HumanJacobian.IVariable[];
-
-    /** The goals. */
-    targets?: readonly ITarget[];
-
-    /** Each part that bears on the floor, as the bones it bears through; none when absent. Every other collider is kept out of the floor either way. */
-    bearing?: readonly RegExp[];
-
-    /**
-     * Whether the centre of mass is kept over the base of support
-     * (`HumanFitBalance`), at the floor's price: `true` over the feet's
-     * bearing outline, or over the hull of the points of the bearing parts
-     * named (each of `bearing` that one of `parts` matches by its pattern's
-     * source), every support candidate of theirs within the bearing margin
-     * of the part's lowest; not when absent.
-     */
-    balance?: boolean | { parts: readonly RegExp[] };
-  }
-
+  /**
+   * The static multi-contact problem, owned by HumanBodyFitTypes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the underlying input owner.
+   * @evidence contracts/development/design.md#principled-representation The same constraints are the numerical fit's inputs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves existing HumanBodyFit.IProps consumers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No duplicate parameter record.
+   */
+  export type IProps = HumanBodyFitTypes.IProps;
   /** The price of a millimetre a contact misses by, in the merit and in each step's rows: an exact penalty above what the objective trades a millimetre of a contact for (a degree of a joint moves a contact a few millimetres, and weighs one). */
   export const PRICE: number = 100;
+
+  /** The shared acceptance precision, metres or radians, owned by the merit. */
+  export const TOLERANCE: number = HumanBodyFitMerit.TOLERANCE;
 
   /** How far a row may miss unpriced, metres, in each step's rows and in the merit alike; half the tolerance, so a step that meets its rows holds. */
   const BAND: number = HumanBodyFitRows.BAND;
@@ -195,10 +150,11 @@ export namespace HumanBodyFit {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function fit(props: IProps): IResult {
-    const { body, posture } = props;
+    const { body, posture }: Pick<IProps, "body" | "posture"> = props;
     const variables: readonly HumanJacobian.IVariable[] =
       props.variables ?? HumanFitVariables.BODY;
     const targets: readonly ITarget[] = props.targets ?? [];
+    const angles: readonly HumanFitGoals.IAngle[] = props.angles ?? [];
     const bearing: readonly RegExp[] = props.bearing ?? [];
     const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
     const n: number = variables.length;
@@ -224,6 +180,8 @@ export namespace HumanBodyFit {
       ...(props.balance === undefined ? {} : { balance: props.balance }),
       variables,
       targets,
+      angles,
+      ...(props.centre === undefined ? {} : { centre: props.centre }),
       bearing,
       pairs,
       key,
@@ -297,6 +255,8 @@ export namespace HumanBodyFit {
           ),
           units,
           targets,
+          angles,
+          ...(props.centre === undefined ? {} : { centre: props.centre }),
           price: mu,
           touching: HumanBodyFitRows.lowest(at),
         };
@@ -392,18 +352,15 @@ export namespace HumanBodyFit {
               full: HumanFitVariables.edge(variables, solved, radius),
               violation: linear,
               met,
-
-              // The subproblem's relative accuracy on the merit's unpenalised
-              // scale, the objective at the iterate, never on the penalised
-              // value a steered penalty inflates.
-              accuracy:
-                HumanQuadraticProgram.TOLERANCE * Math.max(1, e.objective),
             };
           },
         };
       },
     };
-    const moved = (x: Float64Array, s: Float64Array): Float64Array =>
+    const moved: (x: Float64Array, s: Float64Array) => Float64Array = (
+      x: Float64Array,
+      s: Float64Array,
+    ): Float64Array =>
       Float64Array.from(
         x,
         (v: number, i: number): number => v + s[i]! * units[i]!,
@@ -439,6 +396,24 @@ export namespace HumanBodyFit {
         (t: ITarget, k: number): { point: number; turn: number } =>
           HumanBodyFitRows.residual(t, r, k),
       ),
+      angles: angles.map((target: HumanFitGoals.IAngle, k: number): number => {
+        const [lo, hi]: readonly [number, number] =
+          HumanFitGoals.bounds(target);
+        return (
+          (Math.max(0, lo - r.angles[k]!, r.angles[k]! - hi) * 180) / Math.PI
+        );
+      }),
+      centre:
+        props.centre === undefined
+          ? 0
+          : Math.hypot(
+              ...HumanFitGoals.directions(props.centre).map(
+                (axis: IAutoMovieVector3): number =>
+                  (r.centre!.x - props.centre!.point.x) * axis.x +
+                  (r.centre!.y - props.centre!.point.y) * axis.y +
+                  (r.centre!.z - props.centre!.point.z) * axis.z,
+              ),
+            ) * MM,
       balance:
         Math.max(
           0,

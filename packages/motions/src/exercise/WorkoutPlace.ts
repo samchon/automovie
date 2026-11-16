@@ -150,7 +150,7 @@ export namespace WorkoutPlace {
     // (0.51 m on the first run of the supported test).
     const raised: number | null = borne?.y ?? kind.raise?.(body) ?? null;
     const flat: IHumanPosture = ExerciseKey.posed(
-      ExerciseKey.of({ pitch: -90 }, {}),
+      ExerciseKey.from(body, { pitch: -90 }, {}),
       yaw,
     );
     const lain: number =

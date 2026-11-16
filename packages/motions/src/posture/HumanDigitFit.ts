@@ -103,6 +103,7 @@ export namespace HumanDigitFit {
           ? {}
           : { normal: Vector3.scale(Vector3.normalize(world.normal), -1) }),
         ...(name === "Thumb" ? {} : { coupling: COUPLING }),
+        rate: RATE,
         jointAxes: HUMANOID_JOINT_AXES,
         restFrames: HUMANOID_REST_FRAME,
       });
@@ -213,6 +214,9 @@ export namespace HumanDigitFit {
  * Provisional until read at the source.
  */
 const COUPLING: number = 2 / 3;
+
+/** The radial extension rate soft IK is derived for, degrees per metre: 5 degrees per millimetre, #3444's third acceptance line (`fitDigitToTarget`'s `rate`). The target is eased only near full extension, with the distance traded away left in the residual. */
+const RATE: number = 5000;
 /** A hand's digits as the rig names them, thumb first. */
 const DIGIT_NAMES: readonly HumanGrip.Digit[] = [
   "Thumb",
@@ -244,31 +248,30 @@ const nearBody: (
         !p.bone.startsWith(side) ||
         !(OWN.test(p.bone.slice(side.length)) || p.bone === `${side}LowerArm`),
     )
-    .flatMap(
-      (p: HumanColliders.IPlaced): curlChainUntilContact.ICollider[] =>
-        p.shapes
-          .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
-            const ball: HumanColliders.IBall = HumanColliders.bound(shape);
-            const centre: IAutoMovieVector3 = Vector3.add(
-              p.pose.position,
-              Quaternion.rotateVector(
-                p.pose.rotation,
-                Vector3.add(
-                  shape.transform.position,
-                  Quaternion.rotateVector(shape.transform.rotation, ball.centre),
-                ),
+    .flatMap((p: HumanColliders.IPlaced): curlChainUntilContact.ICollider[] =>
+      p.shapes
+        .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
+          const ball: HumanColliders.IBall = HumanColliders.bound(shape);
+          const centre: IAutoMovieVector3 = Vector3.add(
+            p.pose.position,
+            Quaternion.rotateVector(
+              p.pose.rotation,
+              Vector3.add(
+                shape.transform.position,
+                Quaternion.rotateVector(shape.transform.rotation, ball.centre),
               ),
-            );
-            return (
-              Vector3.length(Vector3.subtract(centre, hand)) <
-              ball.radius + body.measure.hand
-            );
-          })
-          .map(
-            (
-              shape: IAutoMoviePhysicalProfile.IShape,
-            ): curlChainUntilContact.ICollider => ({ shape, frame: p.pose }),
-          ),
+            ),
+          );
+          return (
+            Vector3.length(Vector3.subtract(centre, hand)) <
+            ball.radius + body.measure.hand
+          );
+        })
+        .map(
+          (
+            shape: IAutoMoviePhysicalProfile.IShape,
+          ): curlChainUntilContact.ICollider => ({ shape, frame: p.pose }),
+        ),
     );
 };
 
@@ -281,7 +284,8 @@ const phalanges: (
   chain: curlChainUntilContact.IChain,
 ): IAutoMovieVector3[] => {
   const points: IAutoMovieVector3[] = chain.bones.map(
-    (b: AutoMovieHumanoidBone): IAutoMovieVector3 => bones.get(b)!.worldPosition,
+    (b: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+      bones.get(b)!.worldPosition,
   );
   const last: IAutoMovieResolvedBone = bones.get(chain.bones.at(-1)!)!;
   points.push(

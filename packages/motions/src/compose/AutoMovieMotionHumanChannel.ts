@@ -5,7 +5,8 @@ import { IHumanPosture } from "../posture/IHumanPosture";
 /**
  * A part of the body one primitive writes at a time.
  *
- * The channels partition {@link IHumanPosture}: `root` owns `root` and `yaw`;
+ * The channels partition {@link IHumanPosture}: `root` owns `root`, `yaw`
+ * and the whole-body `rotation`;
  * `trunk` owns `pitch`, `roll` and the joints of the pelvis, the spine and the
  * shoulder girdles; `head` owns the neck, the head, the jaw and the eyes;
  * each arm owns its limb goal and the joints of its upper arm, forearm and
@@ -238,6 +239,12 @@ export namespace AutoMovieMotionHumanChannel {
       ).limbs[limb];
       if (goal !== undefined) limbs[limb] = goal;
     }
+
+    // A whole-body rotation turns the root, so it goes with the root's
+    // channel (#3423); a posture that has none keeps none.
+    const rotation: IHumanPosture.IRotation | undefined = (
+      owns("root") ? written : base
+    ).rotation;
     return {
       root: owns("root") ? written.root : base.root,
       yaw: owns("root") ? written.yaw : base.yaw,
@@ -246,6 +253,7 @@ export namespace AutoMovieMotionHumanChannel {
       joints,
       limbs,
       ...(Object.keys(digits).length === 0 ? {} : { digits }),
+      ...(rotation === undefined ? {} : { rotation }),
     };
   }
 }

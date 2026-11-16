@@ -145,10 +145,10 @@ export namespace jumpAirborne {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {
-      ...stand.RELAXED,
+      ...stand.relaxed(body),
       ...shape.joints,
-      leftUpperArm: [arms, 5, 0],
-      rightUpperArm: [arms, 5, 0],
+      leftUpperArm: [arms, stand.abduction(body), 0],
+      rightUpperArm: [arms, stand.abduction(body), 0],
       leftLowerArm: [12 + arms / 3, 0, 0],
       rightLowerArm: [12 + arms / 3, 0, 0],
       [`${takeoff}Toes`]: [40 * (1 - s), 0, 0],

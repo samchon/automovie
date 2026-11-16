@@ -1,5 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
+  Vector3,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
   solveAirborneTakeoff,
@@ -9,6 +10,7 @@ import type {
   IAutoMovieJointPose,
   IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanAirborneShape,
@@ -21,6 +23,7 @@ import {
   type IHumanPosture,
   type jump,
   poseBones,
+  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,10 +44,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    twist turns faster with arms in; a tuck gives a smaller moment about
  *    the somersault axis than a layout.
  * 3. A shape claims only the limbs its table names: a tuck sets the legs'
- *    joints and drops the leg goals and leaves the arms; `armsIn` the
- *    reverse.
+ *    joints and moves a held leg goal to exactly where the resolver puts the
+ *    ankle for those joints, so a fading tuck carries the goal there rather
+ *    than dropping it at full weight, and leaves the arm's goal as it was
+ *    and gives no goal to a limb that held none; `armsIn` the reverse.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns and shapes through the public performance and reads the displayed root's attitude; a landing off upright, a refusal of another kind or a shape that claims a limb it does not name fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns and shapes through the public performance and reads the displayed root's attitude; a landing off upright, a refusal of another kind, a shape that claims a limb it does not name, or a held goal dropped or left off the shape's end joint fails.
  * @evidence contracts/development/testing.md#independent-expectations Yeadon's attitude angles read independently of the solver's residual, the composed tensor of #3422 for the shapes' moments, and the shapes' own tables for what they claim.
  * @evidence contracts/development/testing.md#distinguishing-cases Two counts, three shapes, three ways, two bodies, arms in and out, legs and arms claimed; the flight pass's own conservation belongs to `test_human_motion_core_flight`.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and performs short films in memory, discovered by its exported name; it starts no host.
@@ -185,29 +190,45 @@ export function test_human_motion_airborne_signature(): void {
       },
     },
   };
-  const context: never = {} as never;
-  const tucked: IHumanPosture = HumanAirborneShape.layer("tuck").apply(
-    standing,
-    0,
-    context,
-  );
-  if (
-    tucked.limbs.leftLeg !== undefined ||
-    tucked.limbs.leftArm === undefined ||
-    tucked.joints.leftUpperLeg === undefined
-  )
-    findings.push("a tuck does not claim exactly the legs");
-  const wrapped: IHumanPosture = HumanAirborneShape.layer("armsIn").apply(
-    standing,
-    0,
-    context,
-  );
-  if (
-    wrapped.limbs.leftArm !== undefined ||
-    wrapped.limbs.leftLeg === undefined ||
-    wrapped.joints.leftUpperArm === undefined
-  )
-    findings.push("arms in do not claim exactly the arms");
+  const man: IHumanBody = motionHumanBody("m-average");
+  const context: IHumanLayer.IContext = { body: man } as IHumanLayer.IContext;
+  // Where the resolver puts an end joint for a shape's joints, the limbs it
+  // claims holding no goal and the others theirs.
+  const end = (
+    shape: HumanAirborneShape.Shape,
+    bone: AutoMovieHumanoidBone,
+    kept: IHumanPosture.Limb,
+  ): IAutoMovieVector3 =>
+    poseBones(
+      man,
+      resolveHumanPosture(man, {
+        ...standing,
+        joints: HumanAirborneShape.ANGLES[shape],
+        limbs: { [kept]: standing.limbs[kept] },
+      }),
+    ).get(bone)!.worldPosition;
+  for (const [shape, limb, kept, bone, set] of [
+    ["tuck", "leftLeg", "leftArm", "leftFoot", "leftUpperLeg"],
+    ["armsIn", "leftArm", "leftLeg", "leftHand", "leftUpperArm"],
+  ] as const) {
+    const laid: IHumanPosture = HumanAirborneShape.layer(shape).apply(
+      standing,
+      0,
+      context,
+    );
+    const moved: IHumanPosture.IGoal | undefined = laid.limbs[limb];
+    if (
+      moved === undefined ||
+      Vector3.length(Vector3.subtract(moved.point, end(shape, bone, kept))) >
+        0 ||
+      laid.limbs[kept] !== standing.limbs[kept] ||
+      Object.keys(laid.limbs).length !== 2 ||
+      laid.joints[set] === undefined
+    )
+      findings.push(
+        `${shape} does not claim exactly its limbs: ${JSON.stringify(laid.limbs)}`,
+      );
+  }
 
   TestValidator.predicate(
     `airborne signature: ${findings.join("; ") || "all hold"}`,

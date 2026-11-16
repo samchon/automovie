@@ -9,46 +9,54 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
- * resolution sweeps: the limb's joints read from the performer's own shown
- * bones, which are the free path until the performance commits a stop, so
- * the resolution meets the limb the figure shows, wherever along it a body
- * is first met. A limb that narrows from one joint to the next is a tapered
- * capsule between the two girths, so a capsule never carries the widest
- * girth of its segment to the joint where the shown limb has narrowed.
+ * resolution sweeps: the limb's joints read from the striking action's own
+ * free course, its posture fitted at the asked second, which is what the
+ * figure shows until the performance commits a stop, so the resolution meets
+ * the limb as it moves, wherever along it a body is first met. The
+ * performer's displayed bones cannot serve: a performer reading their own
+ * body is read as they entered the action (`IHumanActionContext.performer`),
+ * which left the capsules on the entry's resting limb. A limb that narrows
+ * from one joint to the next is a tapered capsule between the two girths, so
+ * a capsule never carries the widest girth of its segment to the joint where
+ * the shown limb has narrowed.
  */
 export namespace StrikingWeapon {
-  /** Whose limb is read. */
-  export type IOwner = Pick<
-    IHumanActionContext,
-    "subject" | "body" | "performer"
-  >;
+  /**
+   * The striking action's free course: its posture at a film second before
+   * any committed stop moves it.
+   *
+   * @param seconds Film seconds.
+   * @returns The posture.
+   */
+  export type Course = (seconds: number) => IHumanPosture;
 
   /**
-   * A performer's shown arm at a film second: the shoulder, the elbow, the
-   * wrist, and the fist's axis end one forearm radius behind the knuckles, so
-   * a capsule of that radius from the wrist ends on the knuckles.
+   * A striking arm at a film second, fitted on its action's free course:
+   * the shoulder, the elbow, the wrist, and the fist's axis end one forearm
+   * radius behind the knuckles, so a capsule of that radius from the wrist
+   * ends on the knuckles.
    *
-   * @param owner The performer.
+   * @param body The performer's body.
+   * @param course The action's free course.
    * @param side The arm's side.
    * @param seconds Film seconds.
    * @returns The four axis ends, world metres.
    */
   export function arm(
-    owner: IOwner,
+    body: IHumanBody,
+    course: Course,
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieVector3[] {
-    return posed(
-      owner.body,
-      owner.performer(owner.subject).bones(seconds),
-      side,
-    );
+    return posed(body, fitted(body, course, seconds), side);
   }
 
   /**
@@ -88,32 +96,45 @@ export namespace StrikingWeapon {
   }
 
   /**
-   * A performer's shown leg at a film second: the hip, the knee, the ankle
-   * and the ball of the foot.
+   * A striking leg at a film second, fitted on its action's free course: the
+   * hip, the knee, the ankle and the ball of the foot.
    *
-   * @param owner The performer.
+   * @param body The performer's body.
+   * @param course The action's free course.
    * @param side The leg's side.
    * @param seconds Film seconds.
    * @returns The four axis ends, world metres.
    */
   export function leg(
-    owner: IOwner,
+    body: IHumanBody,
+    course: Course,
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = owner
-      .performer(owner.subject)
-      .bones(seconds);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = fitted(
+      body,
+      course,
+      seconds,
+    );
     const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return [
       bones.get(`${side}UpperLeg`)!.worldPosition,
       bones.get(`${side}LowerLeg`)!.worldPosition,
       foot.worldPosition,
       resolveAutoMovieHumanoidSurfaces.place(
-        owner.body.surfaces.sockets[side === "left" ? "ballLeft" : "ballRight"],
+        body.surfaces.sockets[side === "left" ? "ballLeft" : "ballRight"],
         foot,
       ).point,
     ];
+  }
+
+  /** The bones of a course's posture at a film second, its limbs fitted to their goals. */
+  function fitted(
+    body: IHumanBody,
+    course: Course,
+    seconds: number,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return poseBones(body, resolveHumanPosture(body, course(seconds)));
   }
 
   /** A limb's capsules. */

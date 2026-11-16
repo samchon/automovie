@@ -59,12 +59,26 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    revolution of each request on every axis; with the momentum bounded by
  *    1.5 times the plain somersault's, a flight of a third of that time is a
  *    miss (it needs about three times the momentum).
+ * 7. A tuck between laid-out ends: scenario 2's three masses folding from
+ *    0.6 m to 0.25 m over [0.05, 0.15] s and back over [0.51, 0.61] s of a
+ *    0.66 s flight are solved for one somersault at the planar closed form
+ *    `L = 2π / ∫ dt / I(t)`, the integral taken independently by the
+ *    midpoint rule, with no momentum off the somersault axis; their masses
+ *    move radially, so no relative momentum enters. The somersault angle
+ *    `L ∫ dt / I` is linear in L, so the solver's residual tolerance, a
+ *    hundredth of a turn of the one requested, bounds L's relative error
+ *    by a hundredth.
+ * 8. The flight's span: a head moving only before take-off, or only after
+ *    touchdown, reads no relative momentum at that end given the span and
+ *    a non-zero one across it without; a head moving as `sin t` reads
+ *    one-sided as central within `DELTA²` relative: its momentum is a
+ *    cosine, `|L''| = |L|`, and each read errs by under `L'' DELTA² / 4`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Integrates flights through the public functions and reads the orientation back; an inverse inertia applied in the wrong frame, a relative momentum with the wrong sign, a lost momentum, a rigid model missing the intermediate-axis flip, or a solver that clamps instead of missing fails.
- * @evidence contracts/development/testing.md#independent-expectations Closed forms of torque-free rotation (constant rate about a principal axis, the linearized growth about the intermediate axis), conservation of angular momentum through a shape change, mirror symmetry, and the read-back through the momentum function of #3422, independent of the integrator.
- * @evidence contracts/development/testing.md#distinguishing-cases Rigid and changing shapes, principal, intermediate and off-axis momentum, a symmetric and two mirrored asymmetric arm actions, three twist requests and a refused short flight; the flight pass over a composed performance belongs to `test_human_motion_core_flight`.
+ * @evidence contracts/development/testing.md#independent-expectations Closed forms of torque-free rotation (constant rate about a principal axis, the linearized growth about the intermediate axis, the planar somersault's `2π / ∫ dt / I`), conservation of angular momentum through a shape change, mirror symmetry, and the read-back through the momentum function of #3422, independent of the integrator.
+ * @evidence contracts/development/testing.md#distinguishing-cases Rigid and changing shapes, principal, intermediate and off-axis momentum, a symmetric and two mirrored asymmetric arm actions, three twist requests, a refused short flight, a tuck between laid-out ends, and a push-off, a landing and a smooth motion at the span's ends; the flight pass over a composed performance belongs to `test_human_motion_core_flight`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of pure engine functions on in-memory models and a prepared body, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios with their bounds and their bases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the eight scenarios with their bounds and their bases.
  */
 export function test_engine_airborne_rotation(): void {
   type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
@@ -103,9 +117,16 @@ export function test_engine_airborne_rotation(): void {
     );
   // A primitive body: point-like segments with given moments riding bones at given places.
   const primitive = (
-    parts: { bone: AutoMovieHumanoidBone; mass: number; inertia: IAutoMovieVector3 }[],
+    parts: {
+      bone: AutoMovieHumanoidBone;
+      mass: number;
+      inertia: IAutoMovieVector3;
+    }[],
   ): resolveAutoMovieCenterOfMass.IModel => ({
-    mass: parts.reduce((s: number, p: { mass: number }): number => s + p.mass, 0),
+    mass: parts.reduce(
+      (s: number, p: { mass: number }): number => s + p.mass,
+      0,
+    ),
     segments: parts.map(
       (p: {
         bone: AutoMovieHumanoidBone;
@@ -175,12 +196,23 @@ export function test_engine_airborne_rotation(): void {
   const hand = (bones: Bones, side: "left" | "right"): IAutoMovieVector3 =>
     bones.get(`${side}Hand`)!.worldPosition;
   const lower: number =
-    hand(posed(man, arm(80, 0)), "left").y < hand(posed(man, arm(-80, 0)), "left").y ? 1 : -1;
+    hand(posed(man, arm(80, 0)), "left").y <
+    hand(posed(man, arm(-80, 0)), "left").y
+      ? 1
+      : -1;
   const mirror: number = [1, -1].reduce((best: number, m: number): number => {
-    const left: IAutoMovieVector3 = hand(posed(man, arm(lower * 40, 0)), "left");
+    const left: IAutoMovieVector3 = hand(
+      posed(man, arm(lower * 40, 0)),
+      "left",
+    );
     const miss = (s: number): number => {
-      const right: IAutoMovieVector3 = hand(posed(man, arm(0, s * lower * 40)), "right");
-      return Vector3.length(Vector3.subtract(right, { x: -left.x, y: left.y, z: left.z }));
+      const right: IAutoMovieVector3 = hand(
+        posed(man, arm(0, s * lower * 40)),
+        "right",
+      );
+      return Vector3.length(
+        Vector3.subtract(right, { x: -left.x, y: left.y, z: left.z }),
+      );
     };
     return miss(m) < miss(best) ? m : best;
   }, 1);
@@ -199,17 +231,23 @@ export function test_engine_airborne_rotation(): void {
   (["x", "y", "z"] as const).forEach((key: "x" | "y" | "z"): void => {
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(
       principal.rotation,
-      { x: key === "x" ? 1 : 0, y: key === "y" ? 1 : 0, z: key === "z" ? 1 : 0 },
+      {
+        x: key === "x" ? 1 : 0,
+        y: key === "y" ? 1 : 0,
+        z: key === "z" ? 1 : 0,
+      },
     );
     const L: number = 40;
     const rate: number = L / principal.moments[key];
-    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation({
-      history: restHistory,
-      t0: 0,
-      t1: 1,
-      q0: STILL,
-      momentum: Vector3.scale(axis, L),
-    });
+    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+      {
+        history: restHistory,
+        t0: 0,
+        t1: 1,
+        q0: STILL,
+        momentum: Vector3.scale(axis, L),
+      },
+    );
     for (let k: number = 0; k <= 20; k++) {
       const t: number = k / 20;
       const expected: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -218,7 +256,9 @@ export function test_engine_airborne_rotation(): void {
       );
       const miss: number = Quaternion.angle(flight.orientation(t), expected);
       if (!(miss <= 1e-6))
-        findings.push(`principal ${key}: misses the closed form by ${miss.toExponential(2)} rad at ${t} s`);
+        findings.push(
+          `principal ${key}: misses the closed form by ${miss.toExponential(2)} rad at ${t} s`,
+        );
     }
   });
 
@@ -255,15 +295,37 @@ export function test_engine_airborne_rotation(): void {
   const after: number = Vector3.length(rateAt(tuck, 0.8, 0.01));
   const ratio: number = after / before / (iLayout / iTuck);
   if (!(Math.abs(ratio - 1) <= 1e-4))
-    findings.push(`tuck: the rate rises by ${(after / before).toFixed(5)}, I_layout / I_tuck ${(iLayout / iTuck).toFixed(5)}`);
+    findings.push(
+      `tuck: the rate rises by ${(after / before).toFixed(5)}, I_layout / I_tuck ${(iLayout / iTuck).toFixed(5)}`,
+    );
 
   // 3. Read-back of the momentum from the displayed bones of a moving shape.
   const swinging = (t: number, arm: number = 1): Bones =>
     posed(man, [
-      { bone: "leftUpperArm", flexion: 60 * Math.sin(2 * Math.PI * t), abduction: 30 * arm, twist: 0 },
-      { bone: "rightUpperArm", flexion: -40 * Math.sin(2 * Math.PI * t), abduction: 30, twist: 0 },
-      { bone: "leftUpperLeg", flexion: 45 * Math.sin(Math.PI * t), abduction: 0, twist: 0 },
-      { bone: "rightUpperLeg", flexion: 20 + 30 * Math.sin(Math.PI * t), abduction: 0, twist: 0 },
+      {
+        bone: "leftUpperArm",
+        flexion: 60 * Math.sin(2 * Math.PI * t),
+        abduction: 30 * arm,
+        twist: 0,
+      },
+      {
+        bone: "rightUpperArm",
+        flexion: -40 * Math.sin(2 * Math.PI * t),
+        abduction: 30,
+        twist: 0,
+      },
+      {
+        bone: "leftUpperLeg",
+        flexion: 45 * Math.sin(Math.PI * t),
+        abduction: 0,
+        twist: 0,
+      },
+      {
+        bone: "rightUpperLeg",
+        flexion: 20 + 30 * Math.sin(Math.PI * t),
+        abduction: 0,
+        twist: 0,
+      },
     ]);
   const L3: IAutoMovieVector3 = { x: 35, y: 6, z: -4 };
   const moving: integrateAirborneRotation.IFlight = integrateAirborneRotation({
@@ -285,7 +347,9 @@ export function test_engine_airborne_rotation(): void {
     const error: number =
       Vector3.length(Vector3.subtract(read, L3)) / Vector3.length(L3);
     if (!(error <= 1e-3))
-      findings.push(`read-back at ${t.toFixed(3)} s: ${error.toExponential(2)} relative`);
+      findings.push(
+        `read-back at ${t.toFixed(3)} s: ${error.toExponential(2)} relative`,
+      );
   }
 
   // 4. The intermediate axis flips and returns; the momentum stays.
@@ -300,20 +364,29 @@ export function test_engine_airborne_rotation(): void {
   );
   const lambda: number = w * Math.sqrt(((2 - 1) * (3 - 2)) / (1 * 3));
   const bound: number = (2 * Math.log(4 / epsilon)) / lambda;
-  const spinning: integrateAirborneRotation.IFlight = integrateAirborneRotation({
-    history: integrateAirborneRotation.history(top, (): Bones => placed({ hips: ORIGIN })),
-    t0: 0,
-    t1: 3 * bound,
-    q0: STILL,
-    momentum: L4,
-    h: 1 / 240,
-  });
+  const spinning: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+    {
+      history: integrateAirborneRotation.history(
+        top,
+        (): Bones => placed({ hips: ORIGIN }),
+      ),
+      t0: 0,
+      t1: 3 * bound,
+      q0: STILL,
+      momentum: L4,
+      h: 1 / 240,
+    },
+  );
   let flipped: number | null = null;
   let returned: boolean = false;
   let drift: number = 0;
   for (let t: number = 0.02; t <= 3 * bound - 0.02; t += 0.01) {
     const q: IAutoMovieQuaternion = spinning.orientation(t);
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(q, { x: 0, y: 1, z: 0 });
+    const axis: IAutoMovieVector3 = Quaternion.rotateVector(q, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     const away: number = Math.acos(Math.max(-1, Math.min(1, axis.y))) * DEG;
     if (flipped === null && away > 90) flipped = t;
     if (flipped !== null && t > flipped && away < 20) returned = true;
@@ -333,17 +406,24 @@ export function test_engine_airborne_rotation(): void {
     );
   }
   if (flipped === null || flipped > bound)
-    findings.push(`intermediate axis: no flip past 90 degrees before ${bound.toFixed(2)} s (first at ${flipped})`);
-  if (!returned) findings.push("intermediate axis: never returns within 20 degrees");
+    findings.push(
+      `intermediate axis: no flip past 90 degrees before ${bound.toFixed(2)} s (first at ${flipped})`,
+    );
+  if (!returned)
+    findings.push("intermediate axis: never returns within 20 degrees");
   if (!(drift <= 1e-3))
-    findings.push(`intermediate axis: momentum drifts ${drift.toExponential(2)} relative`);
+    findings.push(
+      `intermediate axis: momentum drifts ${drift.toExponential(2)} relative`,
+    );
 
   // 5. Raising one arm sideways tilts and twists a pure somersault; the other arm mirrors it.
-  const raising = (side: "left" | "right"): ((t: number) => Bones) => (t: number): Bones => {
-    const u: number = Math.max(0, Math.min(1, (t - 0.1) / 0.3));
-    const up: number = 60 * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
-    return side === "left" ? layout(up, 0) : layout(0, up);
-  };
+  const raising =
+    (side: "left" | "right"): ((t: number) => Bones) =>
+    (t: number): Bones => {
+      const u: number = Math.max(0, Math.min(1, (t - 0.1) / 0.3));
+      const up: number = 60 * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
+      return side === "left" ? layout(up, 0) : layout(0, up);
+    };
   const attitude = (side: "left" | "right"): solveAirborneTakeoff.IAngles =>
     solveAirborneTakeoff.unwrapped(
       integrateAirborneRotation({
@@ -358,7 +438,9 @@ export function test_engine_airborne_rotation(): void {
   const left: solveAirborneTakeoff.IAngles = attitude("left");
   const right: solveAirborneTakeoff.IAngles = attitude("right");
   if (!(Math.abs(left.tilt) > 1 / DEG && Math.abs(left.twist) > 1 / DEG))
-    findings.push(`arm action: tilt ${(left.tilt * DEG).toFixed(2)} and twist ${(left.twist * DEG).toFixed(2)} degrees, not both above one`);
+    findings.push(
+      `arm action: tilt ${(left.tilt * DEG).toFixed(2)} and twist ${(left.twist * DEG).toFixed(2)} degrees, not both above one`,
+    );
   if (
     !(
       Math.abs(left.tilt + right.tilt) <= 1e-3 * Math.abs(left.tilt) &&
@@ -391,7 +473,9 @@ export function test_engine_airborne_rotation(): void {
       Math.abs(solved.residual.twist),
     );
     if (!(solved.met && worst <= 0.02))
-      findings.push(`take-off for 1 somersault and ${twist} twist(s): residual ${JSON.stringify(solved.residual)}, met ${solved.met}`);
+      findings.push(
+        `take-off for 1 somersault and ${twist} twist(s): residual ${JSON.stringify(solved.residual)}, met ${solved.met}`,
+      );
   }
   const short: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
     history: layoutHistory,
@@ -403,7 +487,94 @@ export function test_engine_airborne_rotation(): void {
     maximum: 1.5 * plain,
   });
   if (short.met)
-    findings.push(`a third of the flight is met with ${Vector3.length(short.momentum).toFixed(1)} kg m²/s under ${(1.5 * plain).toFixed(1)}`);
+    findings.push(
+      `a third of the flight is met with ${Vector3.length(short.momentum).toFixed(1)} kg m²/s under ${(1.5 * plain).toFixed(1)}`,
+    );
+
+  // 7. A tuck between laid-out ends: the planar somersault's closed form.
+  const folding = (t: number): number => {
+    const smooth = (u: number): number => {
+      const c: number = Math.max(0, Math.min(1, u));
+      return 10 * c ** 3 - 15 * c ** 4 + 6 * c ** 5;
+    };
+    return 0.6 - 0.35 * (smooth((t - 0.05) / 0.1) - smooth((t - 0.51) / 0.1));
+  };
+  const folded = (t: number): Bones =>
+    placed({
+      hips: ORIGIN,
+      head: { x: 0, y: folding(t), z: 0 },
+      leftFoot: { x: 0, y: -folding(t), z: 0 },
+    });
+  const iOf = (t: number): number => 1.2 + 2 * (0.02 + ends * folding(t) ** 2);
+  let inverse: number = 0;
+  for (let k: number = 0; k < 20000; k++)
+    inverse += 0.66 / 20000 / iOf((0.66 * (k + 0.5)) / 20000);
+  const planar: number = (2 * Math.PI) / inverse;
+  const tucked: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
+    history: integrateAirborneRotation.history(core, folded),
+    t0: 0,
+    t1: 0.66,
+    q0: STILL,
+    somersault: 1,
+    twist: 0,
+  });
+  // The somersault angle is `L ∫ dt / I`, linear in L, so a residual within
+  // the solver's tolerance bounds L's relative error by that many turns.
+  const within: number = solveAirborneTakeoff.TOLERANCE / (2 * Math.PI);
+  if (
+    !tucked.met ||
+    Math.abs(tucked.momentum.x - planar) > within * planar ||
+    Math.hypot(tucked.momentum.y, tucked.momentum.z) > within * planar
+  )
+    findings.push(
+      `a tuck between laid-out ends: ${JSON.stringify(tucked.momentum)}, planar ${planar.toFixed(4)}, met ${tucked.met}`,
+    );
+
+  // 8. The flight's span: the shape is differenced inside it at its ends.
+  const nodding =
+    (z: (t: number) => number): ((t: number) => Bones) =>
+    (t: number): Bones =>
+      placed({
+        hips: ORIGIN,
+        head: { x: 0, y: 0.6, z: z(t) },
+        leftFoot: { x: 0, y: -0.6, z: 0 },
+      });
+  const span: { from: number; to: number } = { from: 0.5, to: 1 };
+  const pushed: (t: number) => Bones = nodding(
+    (t: number): number => 0.3 * Math.min(0, t - 0.5),
+  );
+  const landed: (t: number) => Bones = nodding(
+    (t: number): number => 0.3 * Math.max(0, t - 1),
+  );
+  const lag = (
+    shape: (t: number) => Bones,
+    at: number,
+    sides?: { from: number; to: number },
+  ): IAutoMovieVector3 =>
+    integrateAirborneRotation.history(core, shape, sides)(at).relative;
+  const across: number = Vector3.length(lag(pushed, 0.5));
+  const inside: number = Vector3.length(lag(pushed, 0.5, span));
+  const landing: number = Vector3.length(lag(landed, 1, span));
+  if (!(across > 0.1) || inside !== 0 || landing !== 0)
+    findings.push(
+      `span: a push-off before take-off reads ${across} across and ${inside} inside, a landing after touchdown ${landing}`,
+    );
+  const smooth: (t: number) => Bones = nodding(
+    (t: number): number => 0.3 * Math.sin(t),
+  );
+  for (const at of [0.5, 1]) {
+    const central: IAutoMovieVector3 = lag(smooth, at);
+    const sided: IAutoMovieVector3 = lag(smooth, at, span);
+    if (
+      !(
+        Vector3.length(Vector3.subtract(sided, central)) <=
+        integrateAirborneRotation.DELTA ** 2 * Vector3.length(central)
+      )
+    )
+      findings.push(
+        `span: a smooth motion reads ${JSON.stringify(sided)} one-sided at ${at} s, ${JSON.stringify(central)} central`,
+      );
+  }
 
   TestValidator.predicate(
     `airborne rotation: ${findings.join("; ") || "all hold"}`,

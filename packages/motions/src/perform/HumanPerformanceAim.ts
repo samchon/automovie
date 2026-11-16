@@ -13,6 +13,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
@@ -42,15 +43,7 @@ export namespace HumanPerformanceAim {
     self: HumanPerformanceState,
     target: AutoMovieMotionTarget,
     seconds: number,
-    frame: {
-      root: IAutoMovieVector3;
-      yaw: number;
-      heights: Record<"low" | "middle" | "high", number>;
-      range: number;
-      body: IHumanBody;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-      subject?: string;
-    },
+    frame: IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const yaw: number = (frame.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = {
@@ -197,5 +190,62 @@ export namespace HumanPerformanceAim {
           normal: Vector3.scale(forward, -1),
         };
     }
+  }
+
+  /**
+   * The aiming frame of a performer standing in a posture: its root and
+   * heading, the heights of a `none` target's three lines from the body's
+   * measures (the hips less a third of the thigh, the chest, the head's
+   * centre) and its range, nine tenths of the leg's length.
+   *
+   * @param body The performer's body.
+   * @param posture The posture they stand in.
+   * @param bones Their bones in it, read only for a `self` target or a prop they carry.
+   * @param subject Their subject id.
+   * @returns The frame.
+   */
+  export function frame(
+    body: IHumanBody,
+    posture: Pick<IHumanPosture, "root" | "yaw">,
+    bones: IFrame["bones"],
+    subject?: string,
+  ): IFrame {
+    return {
+      root: posture.root,
+      yaw: posture.yaw,
+      heights: {
+        low: body.measure.hipHeight - 0.3 * body.measure.thigh,
+        middle: body.measure.chestHeight,
+        high: body.measure.headHeight - 0.5 * body.measure.headRadius,
+      },
+      range: 0.9 * (body.measure.thigh + body.measure.shank),
+      body,
+      bones,
+      ...(subject === undefined ? {} : { subject }),
+    };
+  }
+
+  /** The aiming person's own frame, body and bones (`aim`). */
+  export interface IFrame {
+    /** Their root, world metres. */
+    root: IAutoMovieVector3;
+
+    /** Their heading, degrees about +Y. */
+    yaw: number;
+
+    /** The heights of a `none` target's lines, world metres. */
+    heights: Record<"low" | "middle" | "high", number>;
+
+    /** A `none` target's distance when it names none, metres. */
+    range: number;
+
+    /** Their body. */
+    body: IHumanBody;
+
+    /** Their bones. */
+    bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** Their subject id. */
+    subject?: string;
   }
 }

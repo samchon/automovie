@@ -1,5 +1,6 @@
 import {
   type AutoMovieComposition,
+  type IAutoMovieIntent,
   type IAutoMovieSchedule,
   checkAutoMovieLegality,
   resolveAutoMovieSchedule,
@@ -111,8 +112,8 @@ export class HumanPerformanceState {
     readonly resolveAutoMovieSchedule.ICue[]
   > = new Map();
 
-  /** How many actions that carry the body the composition gives each person, overlays aside. */
-  public readonly intended: Map<string, number> = new Map();
+  /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
+  public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
 
   /** The scene's blasts (`HumanPerformance.IInput.blasts`). */
   public readonly blasts: readonly HumanBlast.IBlast[];
@@ -212,37 +213,37 @@ export class HumanPerformanceState {
               performer.subject,
               seconds,
             );
-            return HumanPerformanceAim.aim(this, target, seconds, {
-              root: posture.root,
-              yaw: posture.yaw,
-              heights: {
-                low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-                middle: body.measure.chestHeight,
-                high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-              },
-              range: 0.9 * (body.measure.thigh + body.measure.shank),
-              body,
-              bones: () => poseBones(body, resolveHumanPosture(body, posture)),
-              subject: performer.subject,
-            });
+            return HumanPerformanceAim.aim(
+              this,
+              target,
+              seconds,
+              HumanPerformanceAim.frame(
+                body,
+                posture,
+                () => poseBones(body, resolveHumanPosture(body, posture)),
+                performer.subject,
+              ),
+            );
           },
           random: (channel: string) =>
             HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
         },
       });
     }
-    // Counted before anything is placed, so a law that reads another
-    // person's path can tell a finished chain from one still to be placed.
-    const count = (node: AutoMovieComposition): void => {
-      if (node.kind === "at") count(node.part);
-      else if (node.kind !== "intent") node.parts.forEach(count);
-      else if (node.intent.parameters?.over !== true)
-        this.intended.set(
-          node.intent.subject,
-          (this.intended.get(node.intent.subject) ?? 0) + 1,
-        );
+    // Listed before anything is placed, so a law that reads another
+    // person's path can tell a finished chain from one still to be placed,
+    // and an action can read what its performer does next.
+    const list = (node: AutoMovieComposition): void => {
+      if (node.kind === "at") list(node.part);
+      else if (node.kind !== "intent") node.parts.forEach(list);
+      else if (node.intent.parameters?.over !== true) {
+        const intents: IAutoMovieIntent[] =
+          this.intended.get(node.intent.subject) ?? [];
+        intents.push(node.intent);
+        this.intended.set(node.intent.subject, intents);
+      }
     };
-    count(input.composition);
+    list(input.composition);
 
     // An anchored layer whose window waits for no action has its instants
     // before anything is placed, so actions can be synced to them: they are
@@ -432,6 +433,9 @@ export namespace HumanPerformanceState {
 
     /** The bone it is worn on; held in the hand when absent. */
     bone?: AutoMovieHumanoidBone;
+
+    /** The other prop's socket it rides (`IHumanActionPlan.mounts`); held in the hand or worn when absent. */
+    mount?: { prop: string; point: string };
 
     /** The span's first film second. */
     from: number;

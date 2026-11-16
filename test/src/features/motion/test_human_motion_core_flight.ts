@@ -1,12 +1,15 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
+  Quaternion,
   Vector3,
+  integrateAirborneRotation,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
+  solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -35,10 +38,21 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * over the flight as a layer from `takeoff` to `touchdown`.
  *
  * Scenarios:
- * 1. Metamorphic: one somersault tucked needs less angular momentum than one
- *    laid out, by the ratio of the composed bodies' moments about the
- *    somersault axis at mid-flight (#3422) within 5 %, both read back from
- *    the displayed bones.
+ * 1. The solver's contract, for one somersault laid out and tucked: the
+ *    displayed root lands, against its take-off attitude in Yeadon's angles,
+ *    within `solveAirborneTakeoff.TOLERANCE` of the request on every axis
+ *    (the turn is read a microsecond before touchdown, where the display
+ *    still applies it, so that microsecond's own turn is allowed), and the
+ *    momentum read back at mid-flight is within the take-off's ceiling, the
+ *    mass times the centre's take-off speed times Hof's pendulum length.
+ *    No closed form relates the tuck's momentum to the layout's here: the
+ *    one-footed take-off's free-leg tuck gives the shape a product of
+ *    inertia between the lateral and forward axes, and with the two larger
+ *    moments close (12.20 and 12.98 kg m² for the average man, principal
+ *    axes 17 degrees off the root's) the somersault couples to tilt and
+ *    twist, so the solved momentum leaves the somersault axis. The planar
+ *    relation `L = 2π / ∫ dt / I` holds exactly only for a planar shape and
+ *    is pinned on one in `test_engine_airborne_rotation`.
  * 2. The momentum read back from the displayed bones (#3422) holds within
  *    1 % of its take-off value at every twentieth of the flight
  *    (#3416's acceptance), for a layout and a tuck.
@@ -53,14 +67,13 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  *    the same jump's centre without turns at every flight instant (a turn
  *    about the centre leaves it where the composed shape puts it).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns through the public performance and reads displayed bones; a rotation not about the centre, a momentum that drifts, a pass that reads the frame grid, an impossible request accepted or a landing snap fails.
- * @evidence contracts/development/testing.md#independent-expectations Conservation of angular momentum in flight, the composed tensor of #3422, the spin audit's 5 turns a second, and the campaign's 1 % and 5 mm bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns through the public performance and reads displayed bones; a landing off its request, a momentum over the take-off's ceiling, a rotation not about the centre, a momentum that drifts, a pass that reads the frame grid, an impossible request accepted or a landing snap fails.
+ * @evidence contracts/development/testing.md#independent-expectations The solver's tolerance and the take-off's ceiling as contracts read from the displayed bones, conservation of angular momentum in flight, the composed tensor of #3422, the spin audit's 5 turns a second, and the campaign's 1 % and 5 mm bounds.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a tuck and a layout, ordered and cold reads, a feasible and an infeasible request, with and without turns; the shapes' own rows belong to the airborne rows' tests.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and short performances in memory, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and their bounds.
  */
 export function test_human_motion_core_flight(): void {
-  type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const findings: string[] = [];
   const tuck: IHumanLayer.IScheduled = {
     layer: HumanAirborneShape.layer("tuck"),
@@ -129,21 +142,50 @@ export function test_human_motion_core_flight(): void {
       continue;
     }
 
-    // 1. A tuck needs less momentum, by the moments' ratio.
+    // 1. The solver's contract: the landing meets the request within its
+    // tolerance, by a momentum under the take-off's ceiling.
     const [t0, t1] = span(layout);
-    const middle: number = (t0 + t1) / 2;
-    const lateral = (p: HumanPerformance): number => {
-      const bones: Bones = p.bones("a", middle);
-      return resolveAutoMovieMomentum.inertia(model, bones)[0]![0]!;
-    };
-    const ratio: number =
-      Vector3.length(momentum(tucked, middle)) /
-      Vector3.length(momentum(layout, middle));
-    const moments: number = lateral(tucked) / lateral(layout);
-    if (Math.abs(ratio - moments) > 0.05 * moments)
-      findings.push(
-        `${name}: the tuck needs ${ratio.toFixed(3)} of the layout's momentum, the moments' ratio ${moments.toFixed(3)}`,
+    const centre = (p: HumanPerformance, t: number): IAutoMovieVector3 =>
+      resolveAutoMovieCenterOfMass.place(model, p.bones("a", t));
+    for (const [label, p] of [
+      ["layout", layout],
+      ["tuck", tucked],
+    ] as const) {
+      const [a, b] = span(p);
+      const root = (t: number): IAutoMovieQuaternion =>
+        p.pose("a", t).root!.rotation;
+      const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
+        root(a),
+        root(b - 1e-6),
       );
+      const last: number = Quaternion.angle(root(b - 2e-6), root(b - 1e-6));
+      const worst: number = Math.max(
+        Math.abs(off.somersault),
+        Math.abs(off.tilt),
+        Math.abs(off.twist),
+      );
+      if (worst > solveAirborneTakeoff.TOLERANCE + last)
+        findings.push(
+          `${name} ${label}: lands ${(worst / (2 * Math.PI)).toFixed(4)} revolution off the request`,
+        );
+      const delta: number = integrateAirborneRotation.DELTA;
+      const one: IAutoMovieVector3 = centre(p, a + delta);
+      const two: IAutoMovieVector3 = centre(p, a + 2 * delta);
+      const v0: number = Vector3.length({
+        x: (two.x - one.x) / delta,
+        y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
+        z: (two.z - one.z) / delta,
+      });
+      const ceiling: number =
+        model.mass *
+        v0 *
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight);
+      const held: number = Vector3.length(momentum(p, (a + b) / 2));
+      if (!(held <= ceiling))
+        findings.push(
+          `${name} ${label}: ${held.toFixed(1)} kg m²/s over the take-off's ceiling ${ceiling.toFixed(1)}`,
+        );
+    }
 
     // 2. The momentum holds through the flight.
     for (const [label, p] of [

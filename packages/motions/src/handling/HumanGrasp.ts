@@ -262,7 +262,7 @@ export namespace HumanGrasp {
    * @param tilts The tilts tried at each turn; only the authored one when absent.
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
-   * @param required What a grip must hold before its cost counts: a measure of its per-key errors and judgements (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors, judgements and the bounds the keys hold their judgements to (the grasp's, then each stroke key's; `NaN` where none) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all: a candidate it refuses is tried only when it refuses every one. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
@@ -276,11 +276,15 @@ export namespace HumanGrasp {
     stroke?: (
       wrist: HumanHand.IWrist,
       shown: HumanHand.IWrist,
-    ) => readonly IKey[],
+    ) => Iterable<IKey>,
     turns: readonly number[] = TURNS,
     required?: {
       bound: number;
-      measure: (keys: readonly number[], judged: readonly number[]) => number;
+      measure: (
+        keys: readonly number[],
+        judged: readonly number[],
+        bounds: readonly number[],
+      ) => number;
     },
     admits?: (wrist: HumanHand.IWrist) => boolean,
   ): IReach {
@@ -335,6 +339,15 @@ export namespace HumanGrasp {
     judge?(
       bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ): number;
+
+    /** The most the judgement may be, metres: the bound the action that asks the key holds the pose to. The caller's own bound when absent. */
+    bound?: number;
+
+    /** The limb goal the key is fitted by, as the action that asks it fits its own pose (its effector's kept point, its elbow); the wrist at `wrist` with `bend`, the elbow left to the body, when absent. */
+    goal?: IHumanPosture.IGoal;
+
+    /** False for a key another action asks, which that action fits on its own arm solution: the key is fitted without the grasp's (`reachable`'s reference). Fitted on the grasp's when absent. */
+    reference?: false;
   }
 
   /** The reachable grip {@link reachable} chose. */
@@ -365,6 +378,9 @@ export namespace HumanGrasp {
 
     /** Each of those keys' own judgement (`IKey.judge`), metres, in the same order; `NaN` for a key that has none, the grasp's always: what a law reads to say which pose of a use the grasp cannot hold. */
     judged: readonly number[];
+
+    /** The bound each of those keys holds its judgement to (`IKey.bound`), metres, in the same order; `NaN` where none. */
+    bounds: readonly number[];
 
     /** The posed body at the grasp. */
     pose: IAutoMoviePose;

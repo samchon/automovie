@@ -13,6 +13,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -221,7 +222,7 @@ export namespace brace {
     const upright = standUpright.of(body).joints;
     const setAt = (root: IAutoMovieVector3): IHumanPosture => {
       const tilt = HumanTrunk.incline(
-        { ...stand.RELAXED, ...upright },
+        { ...stand.relaxed(body), ...upright },
         lean * Math.cos((forward * Math.PI) / 180),
       );
       return resolveHumanPosture.lower(body, {
@@ -241,7 +242,7 @@ export namespace brace {
     // engine's centre of mass stands over the middle of the new base's hull.
     let goal: IAutoMovieVector3 = {
       x: settled.x - centre.x,
-      y: -0.005 - (leg - bent),
+      y: settled.y - m.ankleHeight - stand.DROP - (leg - bent),
       z: settled.z - centre.z,
     };
     for (let round: number = 0; round < 2; round++) {
@@ -269,7 +270,7 @@ export namespace brace {
       const s: number = minimumJerk(t / SET).s;
       const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
       const tilt = HumanTrunk.incline(
-        { ...stand.RELAXED, ...upright },
+        { ...stand.relaxed(body), ...upright },
         lean * s * Math.cos((forward * Math.PI) / 180),
       );
       const legs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, {
@@ -374,21 +375,30 @@ export namespace brace {
         kind: "plant",
         from: 0,
         to: 1,
-        support: { kind: "ground" },
+        support: HumanSupportFrame.contact(
+          context,
+          back === "left" ? "rightFoot" : "leftFoot",
+        ),
       },
       {
         part: back === "left" ? "leftFoot" : "rightFoot",
         kind: "plant",
         from: 0,
         to: swing[0] / duration,
-        support: { kind: "ground" },
+        support: HumanSupportFrame.contact(
+          context,
+          back === "left" ? "leftFoot" : "rightFoot",
+        ),
       },
       {
         part: back === "left" ? "leftFoot" : "rightFoot",
         kind: "plant",
         from: swing[1] / duration,
         to: 1,
-        support: { kind: "ground" },
+        support: HumanSupportFrame.contact(
+          context,
+          back === "left" ? "leftFoot" : "rightFoot",
+        ),
       },
     ];
     return {

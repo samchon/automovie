@@ -5,6 +5,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -139,7 +140,8 @@ export namespace rise {
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
-    const r: number = start.y / seated.popliteal(body);
+    const under: number = seated.floor(body, context.entry);
+    const r: number = (start.y - under) / seated.popliteal(body);
 
     // A seat above the band with a foot off the floor is got off, not risen from over the feet.
     if (
@@ -148,7 +150,7 @@ export namespace rise {
         (side: "left" | "right"): boolean =>
           !context.entry.feet[side].planted ||
           context.entry.feet[side].ankle.y >
-            body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
+            under + body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
       )
     )
       return HumanMountOff.plan(context, start, r);
@@ -248,7 +250,7 @@ export namespace rise {
       (peak: number, feetAt: Record<"left" | "right", IAutoMovieVector3>) =>
       (t: number): IHumanPosture => {
         const tilt = HumanTrunk.incline(
-          { ...stand.RELAXED, ...upright },
+          { ...stand.relaxed(body), ...upright },
           pitchAt(t, peak),
           HumanTrunk.pelvisLimit(
             body,
@@ -350,23 +352,7 @@ export namespace rise {
     };
 
     // The standing posture the rise ends in: the stand law's pelvis over the drawn feet.
-    const centre: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      {
-        x: (body.rest.get("leftFoot")!.x + body.rest.get("rightFoot")!.x) / 2,
-        y: 0,
-        z: (body.rest.get("leftFoot")!.z + body.rest.get("rightFoot")!.z) / 2,
-      },
-    );
-    const lean: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: standUpright.of(body).lean },
-    );
-    const standRoot: IAutoMovieVector3 = {
-      x: (drawn.left.x + drawn.right.x) / 2 - centre.x + lean.x,
-      y: -0.005,
-      z: (drawn.left.z + drawn.right.z) / 2 - centre.z + lean.z,
-    };
+    const standRoot: IAutoMovieVector3 = stand.root(body, drawn, yaw);
     const goal: IAutoMovieVector3 = seated.socket(body, {
       root: standRoot,
       yaw,
@@ -385,7 +371,7 @@ export namespace rise {
         kind: "seat",
         from: 0,
         to: share(seatOff),
-        support: GROUND,
+        support: HumanSupportFrame.contact(context, "seat"),
       },
     ];
     for (const side of ["left", "right"] as const) {
@@ -402,7 +388,13 @@ export namespace rise {
       if (rests?.[side] !== undefined)
         windows.push([`${side}Hand`, 0, share(seatOff)]);
       for (const [part, from, to] of windows)
-        contacts.push({ part, kind: "plant", from, to, support: GROUND });
+        contacts.push({
+          part,
+          kind: "plant",
+          from,
+          to,
+          support: HumanSupportFrame.contact(context, part),
+        });
     }
 
     return {
@@ -416,7 +408,7 @@ export namespace rise {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const joints: IHumanPosture["joints"] = {
-          ...stand.RELAXED,
+          ...stand.relaxed(body),
           ...upright,
         };
         if (t < prepared) {
@@ -494,6 +486,3 @@ export namespace rise {
     };
   }
 }
-
-/** What a foot on the floor, or a hand on an armrest of a seat that stands on it, bears on. */
-const GROUND: IHumanContactWindow["support"] = { kind: "ground" };

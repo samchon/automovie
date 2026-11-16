@@ -83,7 +83,8 @@ export namespace HumanSupportCarry {
   /**
    * A posture carried: its root, its heading and every limb goal not
    * attached to a bone moved by the carry; joint angles are the body's own
-   * and stay.
+   * and stay. Contacts and task-limit points are end-joint-local offsets
+   * and remain unchanged by the world's rigid motion.
    *
    * @param carry The carry.
    * @param posture The posture planned at the start.
@@ -105,9 +106,6 @@ export namespace HumanSupportCarry {
               ...goal,
               point: carry.point(goal.point),
               bend: carry.point(goal.bend),
-              ...(goal.contact === undefined
-                ? {}
-                : { contact: carry.point(goal.contact) }),
               ...(goal.rotation === undefined
                 ? {}
                 : {
@@ -230,7 +228,10 @@ export namespace HumanSupportCarry {
    * already added) kept.
    */
   function launch(
-    context: Pick<IHumanActionContext, "entry" | "prop" | "performer" | "start">,
+    context: Pick<
+      IHumanActionContext,
+      "entry" | "prop" | "performer" | "start"
+    >,
     frame: (seconds: number) => IHumanProp.IFrame,
     l: IHumanActionPlan.ILaunch,
   ): IHumanActionPlan.ILaunch {

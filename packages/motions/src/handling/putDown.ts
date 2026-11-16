@@ -17,15 +17,19 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
+import { putDownTarget } from "./putDownTarget";
 
 /**
  * Setting a held prop down at a place and letting go.
@@ -37,7 +41,11 @@ import { pickUp } from "./pickUp";
  * the start, so whatever the grasp was, the same grasp lays the prop down).
  * With `on`, the prop is put on a bone of the performer's own body instead,
  * at its frame on that bone as the body stands at the start, and is worn
- * there from `placed` (`IHumanActionPlan.wears`). A prop is put down as it
+ * there from `placed` (`IHumanActionPlan.wears`). With `onto`, it is set on
+ * another prop's socket, its own socket laid on it, and rides that socket
+ * from `placed` as the other prop's articulations pose it
+ * (`IHumanActionPlan.mounts`): an arrow nocked on a bow's string, drawn
+ * back with it. A prop is put down as it
  * rested: its resting rotation is the one it was
  * declared with, turned about the vertical to the asked heading, so a bottle
  * carried at a tilt still lands upright. The arm keeps the configuration it
@@ -76,7 +84,7 @@ export namespace putDown {
     /** The held prop's subject id. */
     prop: string;
 
-    /** Where the prop's origin goes, world metres; required unless `on` is given. */
+    /** Where the prop's origin goes, world metres; required unless `on` or `onto` is given. */
     at?: IAutoMovieVector3;
 
     /** The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. */
@@ -87,6 +95,15 @@ export namespace putDown {
       /** The prop's frame in the bone's posed frame, metres. */
       offset: IHumanProp.IFrame;
     };
+
+    /**
+     * The other prop's socket the prop is set on, riding it from `placed`
+     * as that prop's articulations pose it (an arrow nocked by its `nock` on
+     * a bow's string, drawn back with it, `IHumanActionPlan.mounts`): the
+     * prop's own socket `via` laid on the other's `point`, the prop's origin
+     * when `via` is absent.
+     */
+    onto?: { prop: string; point: string; via?: string };
 
     /** The prop's heading about +Y at rest, degrees; its current heading when absent. */
     yaw?: number;
@@ -178,32 +195,20 @@ export namespace putDown {
       side,
     );
     const on = context.params.on;
-    const wearing: IHumanProp.IFrame | undefined =
-      on === undefined
-        ? undefined
-        : ((): IHumanProp.IFrame => {
-            const bone: IAutoMovieResolvedBone = poseBones(
-              body,
-              context.entry.pose,
-            ).get(on.bone)!;
-            return {
-              position: Vector3.add(
-                bone.worldPosition,
-                Quaternion.rotateVector(bone.worldRotation, on.offset.position),
-              ),
-              rotation: Quaternion.normalize(
-                Quaternion.multiply(bone.worldRotation, on.offset.rotation),
-              ),
-            };
-          })();
+    const onto: IParams["onto"] = context.params.onto;
+    const wearing: IHumanProp.IFrame | undefined = putDownTarget.of(
+      context,
+      context.entry.pose,
+    );
     if (wearing === undefined && context.params.at === undefined)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "at",
         value: "absent",
-        feasible: { kind: "alternatives", values: ["at", "on"] },
-        reason: "a put down names where the prop goes: a place or a bone",
-        fix: "give `at`, a world point, or `on`, a bone of the performer and the prop's frame on it",
+        feasible: { kind: "alternatives", values: ["at", "on", "onto"] },
+        reason:
+          "a put down names where the prop goes: a place, a bone or another prop's socket",
+        fix: "give `at`, a world point, `on`, a bone of the performer and the prop's frame on it, or `onto`, another prop's socket",
       });
     const chosen: HumanHand.IWrist =
       wearing !== undefined
@@ -247,6 +252,38 @@ export namespace putDown {
     );
     const rotation: IAutoMovieQuaternion = chosen.rotation;
     const place: IAutoMovieVector3 = chosen.point;
+
+    // A socket placement is a contact task: the source socket must remain
+    // on the receiver when the wrist cannot retain the whole attitude.
+    const tool: StrikingHeld.ITool | undefined =
+      onto?.via === undefined
+        ? undefined
+        : StrikingHeld.of(context, side, context.params.prop, {
+            tip: onto.via,
+          });
+    const frame: StrikingHeld.IHandFrame = {
+      point: Vector3.add(
+        place,
+        Quaternion.rotateVector(
+          rotation,
+          HumanHand.offset(body, side, "grip").point,
+        ),
+      ),
+      rotation,
+    };
+    if (tool !== undefined)
+      StrikingRoll.reachable(
+        context,
+        tool,
+        frame,
+        0,
+        held,
+        "take the prop by a grasp that places its socket on the receiver",
+      );
+    const constraint: IHumanPosture.IGoal | undefined =
+      tool === undefined
+        ? undefined
+        : StrikingHeld.goal(context, tool, frame, 0, bend);
     pickUp.reachable(context, side, place);
 
     // Timing: carry down, open, return.
@@ -324,7 +361,19 @@ export namespace putDown {
           support: { kind: "prop", subject: context.params.prop },
         },
       ],
-      ...(on === undefined
+      ...(onto === undefined
+        ? {}
+        : {
+            mounts: [
+              {
+                prop: context.params.prop,
+                onto: onto.prop,
+                point: onto.point,
+                from: down / duration,
+              },
+            ],
+          }),
+      ...(on === undefined || onto !== undefined
         ? {}
         : {
             wears: [
@@ -373,11 +422,67 @@ export namespace putDown {
               rotation: turned,
               bend,
               reference,
+              ...(constraint === undefined || t > down
+                ? {}
+                : {
+                    contact: constraint.contact,
+                    limits: constraint.limits,
+                  }),
               ...(t <= down ? { planted: true } : {}),
             },
           },
         };
       },
     };
+  }
+
+  /**
+   * A socket placement's demands on an earlier grasp: the source socket
+   * on the receiving socket, with the same held-tool goal and bound that
+   * the placement itself judges. A free placement chooses its own heading
+   * and asks nothing of the earlier grasp.
+   *
+   * @param ahead The destination, the predicted stance and the candidate grip.
+   * @returns The socket pose, or no demand without a named source socket.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which placements constrain a prior grasp and whose pose and tolerance are used.
+   * @evidence contracts/development/implementation.md#principled-implementation The destination prop frame P and prop-in-grip offset O require the grip frame P O^-1; the same source-socket contact and held-tool bound as the placing plan judge it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Filter the grip, read the destination, undo its rigid offset and declare one demand.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No object kind is named, and a free world placement keeps its existing freedom.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One destination lookup and constant rigid-frame work per candidate grasp.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and demand share putDownTarget and the held-tool goal and measure owners.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one immutable demand and retains nothing.
+   */
+  export function demands(
+    ahead: IHumanActionLaw.IAhead<IParams>,
+  ): readonly IHumanActionLaw.IDemand[] {
+    const via: string | undefined = ahead.params.onto?.via;
+    if (
+      via === undefined ||
+      ahead.grip.prop !== ahead.params.prop ||
+      ahead.grip.side !== (ahead.params.hand ?? "right")
+    )
+      return [];
+    const destination: IHumanProp.IFrame = putDownTarget.of(
+      ahead,
+      resolveHumanPosture(ahead.body, ahead.grip.posture),
+    )!;
+    const tool: StrikingHeld.ITool = ahead.grip.tool({ tip: via });
+    const frame: IHumanProp.IFrame = HumanPropFrame.parent(
+      destination,
+      tool.held!.frame,
+    );
+    return [
+      {
+        posture: ahead.grip.posture,
+        tool,
+        frame: {
+          point: frame.position,
+          rotation: frame.rotation,
+        },
+        back: 0,
+        bound: StrikingRoll.MISS,
+      },
+    ];
   }
 }

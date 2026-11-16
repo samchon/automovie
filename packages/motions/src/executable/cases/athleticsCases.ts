@@ -86,10 +86,8 @@ export function athleticsCases(
     const gun: number = TouchVerdicts.event(performance, "a", "gun");
     const window: number[] = [];
     for (let t: number = set; t <= gun + 1e-9; t += 1 / 24) window.push(t);
-    const mass: resolveAutoMovieCenterOfMass.IModel = resolveAutoMovieCenterOfMass(
-      body.skeleton,
-      body.profile,
-    );
+    const mass: resolveAutoMovieCenterOfMass.IModel =
+      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const knee = (
       side: "left" | "right",
       want: number,

@@ -178,6 +178,13 @@ export namespace regrasp {
             ...hold.limbs,
             [limb]: {
               ...still,
+
+              // The object turns about its axis, so that axis point is the
+              // contact the fit must keep when the wrist gives up rotation.
+              contact: Quaternion.rotateVector(
+                Quaternion.inverse(hand.rotation),
+                Vector3.subtract(axis.pivot, hand.position),
+              ),
               point: Vector3.add(
                 axis.pivot,
                 Quaternion.rotateVector(

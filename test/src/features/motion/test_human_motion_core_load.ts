@@ -30,8 +30,10 @@ import { TestValidator } from "@nestia/e2e";
  *    base's half-length (a 0.12 m half-length here), 1 % either side.
  * 4. Slip: the required friction is `|a_h| / (g + a_y)`: 0.3 for a
  *    horizontal 0.3 g, under a dry floor's 0.4 and over ice's 0.05 (both
- *    provisional coefficients for the case, not measured), infinite for a
- *    body not pressed onto the floor.
+ *    provisional coefficients for the case, not measured); 0.2 for 0.3 g
+ *    forward on a floor rising at 0.5 g, which presses the feet harder;
+ *    0.5 for 0.3 g sideways with 0.4 g forward, the horizontal magnitude;
+ *    infinite for a body not pressed onto the floor.
  * 5. The sustained forces on a person at a second sum, both kinds of value
  *    read, another person's left out.
  *
@@ -171,6 +173,12 @@ export function test_human_motion_core_load(): void {
     findings.push(`a horizontal 0.3 g needs ${sideways}`);
   if (!(sideways < 0.4) || !(sideways > 0.05))
     findings.push("0.3 does not fall between ice's 0.05 and a dry floor's 0.4");
+  const pressed: number = HumanLoad.required({ x: 0, y: 0.5 * g, z: 0.3 * g });
+  if (Math.abs(pressed - 0.2) > 1e-12)
+    findings.push(`0.3 g forward on a floor rising at 0.5 g needs ${pressed}`);
+  const both: number = HumanLoad.required({ x: 0.3 * g, y: 0, z: 0.4 * g });
+  if (Math.abs(both - 0.5) > 1e-12)
+    findings.push(`0.3 g sideways and 0.4 g forward need ${both}, not 0.5`);
   if (HumanLoad.required({ x: 1, y: -g, z: 0 }) !== Number.POSITIVE_INFINITY)
     findings.push("a body in free fall needs finite friction");
 

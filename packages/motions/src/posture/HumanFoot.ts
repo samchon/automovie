@@ -328,7 +328,16 @@ export namespace HumanFoot {
    * @param at Where that point is, world metres.
    * @param heading The foot's heading, degrees.
    * @param pitch The pitch, degrees, positive toes up.
+   * @param toes The toe joint flexion, degrees; zero when absent.
+   * @param roll The foot roll, degrees; zero when absent.
    * @returns The foot's placement.
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot and every angular convention.
+   * @evidence contracts/development/implementation.md#principled-implementation The ankle is the fixed world pivot minus its rotated bone-local offset, including a socket carried by the toe joint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one rigid-point translation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses offset as the sole owner of toe articulation.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rotation and offset.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pivot(
     body: IHumanBody,
@@ -337,9 +346,11 @@ export namespace HumanFoot {
     at: IAutoMovieVector3,
     heading: number,
     pitch: number,
+    toes: number = 0,
+    roll: number = 0,
   ): IPlacement {
-    const r: IAutoMovieQuaternion = rotation(heading, pitch);
-    const local: IAutoMovieVector3 = offset(body, side, pivot);
+    const r: IAutoMovieQuaternion = rotation(heading, pitch, roll);
+    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
     return {
       ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
       rotation: r,

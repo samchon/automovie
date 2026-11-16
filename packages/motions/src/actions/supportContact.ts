@@ -1,4 +1,8 @@
-import { Quaternion } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -59,10 +63,14 @@ export namespace supportContact {
       aimed === null ? [] : floor ? ["x", "z"] : ["x", "y", "z"];
     const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
     if (c.part.endsWith("Foot")) {
-      const bones = poseBones(
-        body,
-        resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
-      );
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(
+          body,
+          resolveHumanPosture(
+            body,
+            stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+          ),
+        );
       return {
         target: {
           bone: `${side}Toes`,
@@ -308,13 +316,52 @@ export namespace supportContact {
     return { x: p.x, y: 0, z: p.z };
   }
 
+  /**
+   * The exact point the contact's fit target rides, using the same local
+   * offset for seed placement as for its solved residual.
+   *
+   * @param body The body.
+   * @param posture The candidate posture.
+   * @param contact The contact.
+   * @param aimed Its target, world metres, or null on an unnamed floor place.
+   * @returns The contact point, world metres.
+   * @evidence contracts/development/common.md#meaningful-documentation States the shared datum and its frame.
+   * @evidence contracts/development/implementation.md#principled-implementation A rigid point is its bone origin plus its rotated local offset, taken from the fit's own form.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One form and one forward kinematics.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Raised skin contacts keep their surface offset; floor joint datums retain their existing meaning.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses form rather than duplicating the part map.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function point(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    contact: HumanSupport.IContact,
+    aimed: IAutoMovieVector3 | null,
+  ): IAutoMovieVector3 {
+    const target: HumanBodyFit.ITarget = form(body, contact, aimed).target;
+    const bone: IAutoMovieResolvedBone = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    ).get(target.bone)!;
+    return Vector3.add(
+      bone.worldPosition,
+      Quaternion.rotateVector(
+        bone.worldRotation,
+        target.point ?? { x: 0, y: 0, z: 0 },
+      ),
+    );
+  }
   /** Where a part bears in a posture: the joint or bone its contact rides. */
   export function pinned(
     body: IHumanBody,
     posture: IHumanPosture,
     part: HumanSupport.Part,
   ): IAutoMovieVector3 {
-    const bones = poseBones(body, resolveHumanPosture(body, posture));
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    );
     const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
     const bone: AutoMovieHumanoidBone = part.endsWith("Foot")
       ? `${side}Toes`

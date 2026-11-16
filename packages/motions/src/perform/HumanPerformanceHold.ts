@@ -5,9 +5,11 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -82,7 +84,9 @@ export namespace HumanPerformanceHold {
         const steadies: boolean =
           active !== undefined &&
           active.bone === undefined &&
+          active.mount === undefined &&
           g.bone === undefined &&
+          g.mount === undefined &&
           active.subject === g.subject &&
           active.side !== g.side;
         if (!steadies) {
@@ -113,11 +117,14 @@ export namespace HumanPerformanceHold {
     // A window opening on a hand that already holds the prop (a put down
     // after a pick up) keeps that grip's offset: the hand never re-seats what
     // it holds, so no action boundary moves the prop in the hand.
-    // A worn span rides its bone; a held one, its hand's grip socket.
+    // A worn span rides its bone; a mounted one, the other prop's socket; a
+    // held one, its hand's grip socket.
     const carrier = (
       w: HumanPerformanceState.IGrip,
       at: number,
+      supplied?: typeof own,
     ): IHumanProp.IFrame => {
+      if (w.mount !== undefined) return socket(self, w.mount, at, supplied);
       if (w.bone === undefined)
         return HumanPerformanceRead.hand(self, w.subject, w.side, at);
       const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
@@ -130,12 +137,13 @@ export namespace HumanPerformanceHold {
     const seat = (w: HumanPerformanceState.IGrip): IHumanProp.IFrame => {
       if (w.offset !== undefined) return w.offset;
       const earlier: HumanPerformanceState.IGrip | undefined =
-        w.bone !== undefined
+        w.bone !== undefined || w.mount !== undefined
           ? undefined
           : grips.find(
               (g: HumanPerformanceState.IGrip): boolean =>
                 g !== w &&
                 g.bone === undefined &&
+                g.mount === undefined &&
                 g.subject === w.subject &&
                 g.side === w.side &&
                 g.from < w.from &&
@@ -183,13 +191,16 @@ export namespace HumanPerformanceHold {
     const hold = (w: HumanPerformanceState.IGrip): HumanPropHold.IHand => ({
       offset: moved(w, at),
       hand:
-        own !== undefined && active !== undefined && w.subject === own.subject
+        own !== undefined &&
+        active !== undefined &&
+        w.mount === undefined &&
+        w.subject === own.subject
           ? HumanPropHold.frame(
               HumanPerformanceRead.person(self, own.subject).performer.body,
               own.bones(),
               w,
             )
-          : carrier(w, at),
+          : carrier(w, at, own),
     });
     // Taken in both of the performer's hands at once, it is one rigid thing
     // between the two fists; a hand closing on it later only steadies it.
@@ -207,6 +218,57 @@ export namespace HumanPerformanceHold {
       ),
       rotation: Quaternion.normalize(
         Quaternion.multiply(hand.rotation, offset.rotation),
+      ),
+    };
+  }
+
+  /**
+   * A prop's socket in the world at a film second: the prop's own frame and
+   * the socket as the prop's articulations pose it then (a bow's nocking
+   * point drawn back with its string). The performer's supplied bones stay
+   * the source of every worn or held ancestor's frame, as for a direct hold.
+   */
+  function socket(
+    self: HumanPerformanceState,
+    mount: { prop: string; point: string },
+    seconds: number,
+    own?: {
+      subject: string;
+      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    },
+  ): IHumanProp.IFrame {
+    const onto: IHumanProp | undefined = self.props.get(mount.prop);
+    if (onto === undefined)
+      throw HumanPerformanceRead.missing("prop", mount.prop, [
+        ...self.props.keys(),
+      ]);
+    const frame: IHumanProp.IFrame = HumanPerformanceHold.prop(
+      self,
+      mount.prop,
+      seconds,
+      own,
+    );
+    const affordances: readonly IAutoMovieAffordance[] =
+      onto.articulate === undefined
+        ? (onto.affordances ?? [])
+        : HumanPerformanceObject.pose(self, onto, seconds).affordances;
+    const at: IAutoMovieAffordance | undefined = affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === mount.point,
+    );
+    if (at === undefined)
+      throw HumanPerformanceRead.missing(
+        "prop",
+        `${mount.prop}.${mount.point}`,
+        affordances.map((a: IAutoMovieAffordance): string => a.id),
+        "point",
+      );
+    return {
+      position: Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, at.frame.translation),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(frame.rotation, at.frame.rotation),
       ),
     };
   }

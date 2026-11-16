@@ -9,9 +9,13 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -28,6 +32,19 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  */
 export namespace HumanSegmentOverlay {
   /**
+   * A faded pose and the limb contacts its declared windows still hold.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which goals survive fading and their coordinate convention.
+   * @evidence contracts/development/design.md#principled-representation The displayed pose and its active constraints, kept together through final resolution.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only active contact goals to the existing seeded pose record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the posture's own goal type, preserving all constraint data.
+   */
+  export interface IOverlaid extends HumanSegmentPose.ISeeded {
+    /** World goals have received the root turn; attached goals retain `on`. */
+    contacts: IHumanPosture["limbs"];
+  }
+
+  /**
    * A carrier's posture resolved with every overlay active at a second
    * written over it: each overlay's claimed channels come from its own plan,
    * which was composed on this carrier, and an overlay coming in or going
@@ -43,12 +60,18 @@ export namespace HumanSegmentOverlay {
    * hand's (`HumanSegmentPose.IFits`), and continues the fit `near` holds
    * under that name.
    *
+   * A contact is resolved after fading, using its complete original goal
+   * where present. A planned joint path supplies its displayed end frame
+   * and middle joint instead. Contacting fingers keep their planned shape
+   * until the window closes. The goals travel to the final transition
+   * resolver too, so a later offset or clamp cannot move the contact.
+   *
    * @param person The person.
    * @param posture The carrier's posture at the second, layers applied.
    * @param seconds Film seconds.
    * @param carried The holds the carrier carries at the second.
    * @param near The fits of a nearby second to continue, if any.
-   * @returns The pose and the seeds of its fits.
+   * @returns The pose, the seeds of its fits and its open contact goals.
    */
   export function overlaid(
     person: HumanSegment.IPerson,
@@ -56,7 +79,7 @@ export namespace HumanSegmentOverlay {
     seconds: number,
     carried: readonly HumanSegment.IHeld[] = [],
     near?: HumanSegmentPose.INear,
-  ): HumanSegmentPose.ISeeded {
+  ): IOverlaid {
     const body = person.performer.body;
     const active: HumanSegment.IOverlay[] = running(person, seconds);
     const seeds: HumanSegmentPose.IFits = new Map();
@@ -64,7 +87,7 @@ export namespace HumanSegmentOverlay {
       k: number,
       under: IHumanPosture,
       used: readonly HumanSegment.IOverlay[],
-    ): IAutoMoviePose => {
+    ): { pose: IAutoMoviePose; contacts: IHumanPosture["limbs"] } => {
       const overlay: HumanSegment.IOverlay | undefined = active[k];
       if (overlay === undefined) {
         // The leaf is named by the overlays written over it.
@@ -114,7 +137,7 @@ export namespace HumanSegmentOverlay {
           seeds.set(name, carry.seed);
           leaf = carry.pose;
         }
-        return leaf;
+        return { pose: leaf, contacts: {} };
       }
       const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
         under,
@@ -134,9 +157,13 @@ export namespace HumanSegmentOverlay {
           Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
         ).s,
       );
-      const over: IAutoMoviePose = build(k + 1, written, [...used, overlay]);
-      if (weight >= 1) return over;
-      const without: IAutoMoviePose = build(k + 1, under, used);
+      const over = build(k + 1, written, [...used, overlay]);
+      const contacts: IHumanPosture["limbs"] = {
+        ...contactGoals(overlay, written, over.pose, seconds, person),
+        ...over.contacts,
+      };
+      if (weight >= 1) return { pose: over.pose, contacts };
+      const without: IAutoMoviePose = build(k + 1, under, used).pose;
       const angles = (
         pose: IAutoMoviePose,
         bone: AutoMovieHumanoidBone,
@@ -146,14 +173,14 @@ export namespace HumanSegmentOverlay {
       };
       const owned: AutoMovieHumanoidBone[] = [
         ...new Set(
-          [...without.joints, ...over.joints].map(
+          [...without.joints, ...over.pose.joints].map(
             (j): AutoMovieHumanoidBone => j.bone,
           ),
         ),
       ].filter((bone: AutoMovieHumanoidBone): boolean =>
         AutoMovieMotionHumanChannel.covers(overlay.channels, bone),
       );
-      return {
+      const pose: IAutoMoviePose = {
         ...without,
         joints: [
           ...without.joints.filter((j): boolean => !owned.includes(j.bone)),
@@ -162,15 +189,92 @@ export namespace HumanSegmentOverlay {
               body,
               bone,
               angles(without, bone),
-              angles(over, bone),
-              weight,
+              angles(over.pose, bone),
+              ((bone.startsWith("left") && contacts.leftArm !== undefined) ||
+                (bone.startsWith("right") &&
+                  contacts.rightArm !== undefined)) &&
+                AutoMovieMotionHumanChannel.of(bone).endsWith("Hand")
+                ? 1
+                : weight,
             );
             return { bone, flexion, abduction, twist };
           }),
         ],
       };
+      return { pose, contacts };
     };
-    return { pose: build(0, posture, []), seeds };
+    const built = build(0, posture, []);
+    const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
+      body,
+      built.pose,
+      built.contacts,
+      Object.fromEntries(
+        resolveHumanPosture.order(built.contacts).flatMap((limb) => {
+          const continued = HumanSegmentPose.nearby(near, `contact:${limb}`);
+          return continued === undefined ? [] : [[limb, continued]];
+        }),
+      ),
+    );
+    for (const [limb, seed] of Object.entries(fitted.seeds))
+      seeds.set(`contact:${limb}`, seed ?? null);
+    return { pose: fitted.pose, seeds, contacts: built.contacts };
+  }
+
+  /**
+   * The active limb contacts of one overlay, before fading moves them.
+   * A joint-only path contributes its complete displayed limb frame; an
+   * authored goal keeps every member, including its attached frame and
+   * contact pivot. The root turn is applied only to world goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both representations and the coordinate convention.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains a contact constraint over its declared time window; without an explicit goal, its already planned rigid end frame and bend define the same limb constraint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan of the contact windows and one lazily posed bone map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Copies an authored goal intact rather than replacing its contact pivot or attachment with a wrist point.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the plan's contact windows; poses the bones only for a joint-only contact.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses turnHumanPosture, HumanLimbFit.chain and the resolver's reference convention.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no state after the evaluation.
+   */
+  function contactGoals(
+    overlay: HumanSegment.IOverlay,
+    written: IHumanPosture,
+    over: IAutoMoviePose,
+    seconds: number,
+    person: HumanSegment.IPerson,
+  ): IHumanPosture["limbs"] {
+    const share: number = (seconds - overlay.start) / overlay.plan.duration;
+    const contacts: IHumanPosture["limbs"] = {};
+    const turned: IHumanPosture["limbs"] = turnHumanPosture(written).limbs;
+    let placed: ReturnType<typeof poseBones> | undefined;
+    for (const window of overlay.plan.contacts) {
+      if (share < window.from || share > window.to) continue;
+      const limb: IHumanPosture.Limb | undefined = limbOf(window.part);
+      if (limb === undefined || !overlay.channels.includes(limb)) continue;
+      const goal: IHumanPosture.IGoal | undefined = turned[limb];
+      if (goal !== undefined) {
+        contacts[limb] = { ...goal, planted: true };
+        continue;
+      }
+      placed ??= poseBones(person.performer.body, over);
+      const chain = HumanLimbFit.chain(limb);
+      const end = placed.get(chain.effector)!;
+      contacts[limb] = {
+        point: end.worldPosition,
+        rotation: end.worldRotation,
+        bend: placed.get(chain.lower)!.worldPosition,
+        reference: resolveHumanPosture.reference(over, limb),
+        planted: true,
+      };
+    }
+    return contacts;
+  }
+
+  /** The limb carrying a contact part, if the part belongs to a limb. */
+  function limbOf(
+    part: IHumanContactWindow["part"],
+  ): IHumanPosture.Limb | undefined {
+    if (part === "seat" || part === "back") return undefined;
+    const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
+    return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;
   }
 
   /**

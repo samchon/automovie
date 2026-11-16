@@ -159,15 +159,13 @@ export namespace HumanSegmentPose {
       );
       for (const h of borne)
         written = { ...written, joints: { ...written.joints, ...h.fingers } };
-      const overlaid: ISeeded = HumanSegmentOverlay.overlaid(
-        person,
-        written,
-        t,
-        borne,
-        fits,
-      );
+      const overlaid: HumanSegmentOverlay.IOverlaid =
+        HumanSegmentOverlay.overlaid(person, written, t, borne, fits);
       return {
-        posture: written,
+        posture: {
+          ...written,
+          limbs: { ...written.limbs, ...overlaid.contacts },
+        },
         carried: borne,
         pose: overlaid.pose,
         seeds: overlaid.seeds,
@@ -289,15 +287,28 @@ export namespace HumanSegmentPose {
         transition.offset(Math.max(0, seconds - transition.cut), pose),
         body.skeleton,
       );
-      // Attached goals are fitted after the limb they ride on (resolveHumanPosture.order).
-      for (const limb of resolveHumanPosture.order(posture.limbs)) {
-        const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
-        if (goal?.planted === true)
-          pose = fit(`planted:${limb}`, pose, limb, goal);
-      }
-      return { pose, seeds };
     }
-    return { pose: clampPose(pose, body.skeleton), seeds };
+    // Contacts are the final operation, including an overlay's entire
+    // declared window: neither a fade, an offset nor the range clamp can
+    // move them. The ordinary resolver owns attachment order and arm pairs.
+    pose = clampPose(pose, body.skeleton);
+    const plants: IHumanPosture["limbs"] = Object.fromEntries(
+      Object.entries(posture.limbs).filter(([, goal]) => goal.planted === true),
+    );
+    const planted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
+      body,
+      pose,
+      plants,
+      Object.fromEntries(
+        resolveHumanPosture.order(plants).flatMap((limb) => {
+          const continued = nearby(near, `planted:${limb}`);
+          return continued === undefined ? [] : [[limb, continued]];
+        }),
+      ),
+    );
+    for (const [limb, seed] of Object.entries(planted.seeds))
+      seeds.set(`planted:${limb}`, seed ?? null);
+    return { pose: planted.pose, seeds };
   }
 
   /**

@@ -172,6 +172,13 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
         from: S.point(0, a.measure.shoulderHeight, 1),
       }),
     ),
+  // A scene carries no forces, so `perturb` meets no impulse and absorbs
+  // nothing: the still stance its law states for that case.
+  perturb: (
+    _pick: motionHumanLawSweep.Pick,
+    a: IHumanBody,
+  ): motionHumanLawSweep.IScene =>
+    S.solo(a, S.chain().act("stand", { seconds: 0.3 }).act("perturb", {})),
   clinch: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,

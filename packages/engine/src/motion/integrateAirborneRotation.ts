@@ -28,7 +28,7 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * 23(1)) and Yeadon 1993 ("The biomechanics of twisting somersaults", J
  * Sports Sci 11), neither yet read at the source. `I_b` and `h_b` come from the
  * shape's history (`integrateAirborneRotation.history`), and the orientation
- * is integrated by the engine's fixed-step integrator on its quaternion block
+ * is integrated by the engine's trajectory integrator on its quaternion block
  * (`integrateMotionTrajectory`), so the result is a value read by time,
  * independent of the times read.
  *
@@ -37,41 +37,87 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * shape's centre, turned by `orientation`, lies on it. The shape's bones are
  * in the root's own frame (root at the origin, unturned), so the result does
  * not depend on where in the world or at which heading the flight happens.
+ * Requested momentum variations are integrated alongside it as body-frame
+ * rotation tangents: the forward sensitivity equations `s' = f_y s + f_p`
+ * (SUNDIALS CVODES, https://sundials.readthedocs.io/en/latest/cvodes/Mathematics_link.html).
  *
  * @param props The shape's history, the flight and the momentum.
  * @returns The flight's orientation, read by time.
  * @throws {Error} When the interval or the step is not positive, or the shape misses a segment's bone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the conservation law, the decomposition into root and relative motion with its sources, where each term comes from, the frames, what is not integrated and why the result is translation and heading invariant.
- * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia (Yeadon, Atha and Hales 1990); the inverse is applied through the tensor's principal frame, exact for a symmetric positive-definite tensor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A right-hand side over the history handed to the one fixed-step integrator.
+ * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia; the inverse is applied through its principal frame, exact for a symmetric positive-definite tensor. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per step, each a history read (kept by instant) and two quaternion turns.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each instant's inertia and relative momentum, which depend on the shape alone, so the integrator's repeated middles and every integration of a take-off search share them.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned flight holds the integrator's knots, `ceil((t1 - t0) / h) + 1` orientations, for as long as its caller keeps it; the history is the caller's.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per fixed step or six new stages per adaptive attempt, each one history read and linear work in the requested variation directions; no separate flight is integrated for a derivative.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's inertia and relative momentum, which depend on the shape alone. Repeated times reuse them across stages and shooting trials; different adaptive meshes generally require new instants.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned trajectory retains accepted-step states and their dense-output coefficients for its lifetime, linear in accepted steps and requested variations. Adaptive step count has no fixed bound. The caller owns the history, whose caches also grow with distinct evaluated times, including rejected attempts.
  */
 export function integrateAirborneRotation(
   props: integrateAirborneRotation.IProps,
 ): integrateAirborneRotation.IFlight {
   const { history, momentum } = props;
+  const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
+  // The integrator averages squared error over all components. Dividing
+  // both tolerances by sqrt(1 + directions) keeps the orientation's old
+  // three-component RMS contribution unchanged when tangent states are added.
+  const errorScale: number = Math.sqrt(1 + variations.length);
+  const tolerance: integrateMotionTrajectory.ITolerance | undefined =
+    props.tolerance === undefined
+      ? undefined
+      : {
+          relative: props.tolerance.relative / errorScale,
+          absolute: props.tolerance.absolute / errorScale,
+        };
   const trajectory: integrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
       f: (
         t: number,
-        _x: readonly number[],
+        x: readonly number[],
         q: IAutoMovieQuaternion | null,
-      ): integrateMotionTrajectory.IRate => ({
-        dx: [],
-        w: integrateAirborneRotation.rate(
-          history(t),
-          Quaternion.rotateVector(Quaternion.inverse(q!), momentum),
-        ),
-      }),
-      x0: [],
+      ): integrateMotionTrajectory.IRate => {
+        const instant: integrateAirborneRotation.IInstant = history(t);
+        const back: IAutoMovieQuaternion = Quaternion.inverse(q!);
+        const carried: IAutoMovieVector3 = Quaternion.rotateVector(
+          back,
+          momentum,
+        );
+        const w: IAutoMovieVector3 = integrateAirborneRotation.rate(
+          instant,
+          carried,
+        );
+
+        // Forward sensitivity, q(L + dL) = q(L) exp(eta / 2): differentiating
+        // q' = q w / 2 gives eta' = -w x eta + I^-1((R^T L) x eta + R^T dL).
+        const dx: number[] = variations.flatMap(
+          (direction: IAutoMovieVector3, i: number): number[] => {
+            const eta: IAutoMovieVector3 = {
+              x: x[3 * i]!,
+              y: x[3 * i + 1]!,
+              z: x[3 * i + 2]!,
+            };
+            const changed: IAutoMovieVector3 = inverse(
+              instant.inertia,
+              Vector3.add(
+                Vector3.cross(carried, eta),
+                Quaternion.rotateVector(back, direction),
+              ),
+            );
+            const rate: IAutoMovieVector3 = Vector3.subtract(
+              changed,
+              Vector3.cross(w, eta),
+            );
+            return [rate.x, rate.y, rate.z];
+          },
+        );
+        return { dx, w };
+      },
+      x0: Array.from({ length: 3 * variations.length }, (): number => 0),
       q0: props.q0,
       t0: props.t0,
       t1: props.t1,
       h: props.h,
+      tolerance,
     });
   return {
     t0: trajectory.t0,
@@ -80,6 +126,16 @@ export function integrateAirborneRotation(
     knots: trajectory.knots,
     orientation: (seconds: number): IAutoMovieQuaternion =>
       trajectory.at(seconds).q!,
+    variations: (seconds: number): IAutoMovieVector3[] => {
+      const x: number[] = trajectory.at(seconds).x;
+      return variations.map(
+        (_: IAutoMovieVector3, i: number): IAutoMovieVector3 => ({
+          x: x[3 * i]!,
+          y: x[3 * i + 1]!,
+          z: x[3 * i + 2]!,
+        }),
+      );
+    },
   };
 }
 
@@ -118,8 +174,14 @@ export namespace integrateAirborneRotation {
     /** The whole-body angular momentum about the centre of mass, world frame, kg m²/s; constant through the flight. */
     momentum: IAutoMovieVector3;
 
-    /** The integrator's step, seconds; its default when absent. */
+    /** The integrator's step, seconds; its default when absent. Under a `tolerance`, the first step tried. */
     h?: number;
+
+    /** The integrator's error control (`integrateMotionTrajectory.ITolerance`); the fixed step when absent. */
+    tolerance?: integrateMotionTrajectory.ITolerance;
+
+    /** Momentum directions whose forward sensitivities are integrated with the orientation. Each returned tangent is in the instantaneous body's frame, radians per unit change of the corresponding direction. Absent, none are integrated. */
+    variations?: readonly IAutoMovieVector3[];
   }
 
   /**
@@ -146,10 +208,10 @@ export namespace integrateAirborneRotation {
     /** Touchdown, seconds. */
     t1: number;
 
-    /** The integrator's step, seconds. */
+    /** The integrator's step, seconds; under a tolerance, its first step tried. */
     h: number;
 
-    /** The integrator's knot count, the steps plus one. */
+    /** The integrator's knot count, the steps plus one; under a tolerance, its accepted steps plus one. */
     knots: number;
 
     /**
@@ -157,6 +219,9 @@ export namespace integrateAirborneRotation {
      *
      */
     orientation: (seconds: number) => IAutoMovieQuaternion;
+
+    /** Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested. */
+    variations: (seconds: number) => readonly IAutoMovieVector3[];
   }
 
   /**
@@ -165,8 +230,18 @@ export namespace integrateAirborneRotation {
    * second order in `DELTA`, each instant computed once and kept by its exact
    * second for the history's lifetime.
    *
+   * Given the flight's span, the three-point stencil slides up to its
+   * boundary and then stays inside it. At a requested instant `t` away
+   * from the stencil's centre `s`, its central momentum is corrected by
+   * `(t-s)/δ` times the difference of its right and left half-interval
+   * momenta: the derivative of a quadratic interpolant, second order in
+   * `δ` (Fornberg 1988, Mathematics of Computation 51:699-706). Its weights
+   * and nodes are continuous when it becomes centred again, so an ODE
+   * reading the history sees no artificial stencil-switch discontinuity.
+   *
    * @param model The body's mass model.
-   * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned): the composed shape without the flight's rotation. Pure, and read up to `DELTA` outside the flight.
+   * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned): the composed shape without the flight's rotation. Pure, and read up to `DELTA` outside the flight, or up to `2 DELTA` inside it at its ends when `span` is given.
+   * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
    * @returns The history.
    */
   export function history(
@@ -174,6 +249,7 @@ export namespace integrateAirborneRotation {
     shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    span?: { from: number; to: number },
   ): IHistory {
     type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     const bones: Map<number, Bones> = new Map();
@@ -185,6 +261,27 @@ export namespace integrateAirborneRotation {
       return posed;
     };
     const instants: Map<number, IInstant> = new Map();
+    const momentum = (from: number, to: number): IAutoMovieVector3 =>
+      resolveAutoMovieMomentum(model, read(from), read(to), to - from).angular;
+    const relative = (seconds: number): IAutoMovieVector3 => {
+      if (span === undefined) return momentum(seconds - DELTA, seconds + DELTA);
+      const delta: number = Math.min(DELTA, (span.to - span.from) / 2);
+      const centre: number = Math.max(
+        span.from + delta,
+        Math.min(span.to - delta, seconds),
+      );
+      const a: number = Math.max(span.from, centre - delta);
+      const b: number = Math.min(span.to, centre + delta);
+      const central: IAutoMovieVector3 = momentum(a, b);
+      if (centre === seconds) return central;
+      return Vector3.add(
+        central,
+        Vector3.scale(
+          Vector3.subtract(momentum(centre, b), momentum(a, centre)),
+          (2 * (seconds - centre)) / (b - a),
+        ),
+      );
+    };
     return (seconds: number): IInstant => {
       const known: IInstant | undefined = instants.get(seconds);
       if (known !== undefined) return known;
@@ -192,12 +289,7 @@ export namespace integrateAirborneRotation {
         inertia: resolveAutoMovieMomentum.principal(
           resolveAutoMovieMomentum.inertia(model, read(seconds)),
         ),
-        relative: resolveAutoMovieMomentum(
-          model,
-          read(seconds - DELTA),
-          read(seconds + DELTA),
-          2 * DELTA,
-        ).angular,
+        relative: relative(seconds),
       };
       instants.set(seconds, instant);
       return instant;
@@ -218,15 +310,25 @@ export namespace integrateAirborneRotation {
     instant: IInstant,
     momentum: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const frame: resolveAutoMovieMomentum.IPrincipal = instant.inertia;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
+    return inverse(
+      instant.inertia,
       Vector3.subtract(momentum, instant.relative),
     );
-    return Quaternion.rotateVector(frame.rotation, {
-      x: local.x / frame.moments.x,
-      y: local.y / frame.moments.y,
-      z: local.z / frame.moments.z,
-    });
   }
+}
+
+/** Apply the inverse composite tensor through its principal frame. */
+function inverse(
+  frame: resolveAutoMovieMomentum.IPrincipal,
+  vector: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(frame.rotation),
+    vector,
+  );
+  return Quaternion.rotateVector(frame.rotation, {
+    x: local.x / frame.moments.x,
+    y: local.y / frame.moments.y,
+    z: local.z / frame.moments.z,
+  });
 }

@@ -50,6 +50,18 @@ export namespace HumanLimbMirror {
       ...(goal.contact === undefined
         ? {}
         : { contact: HumanArmMirror.flip(goal.contact) }),
+      ...(goal.limits === undefined
+        ? {}
+        : {
+            limits: goal.limits.map(
+              (
+                limit: IHumanPosture.IPointLimit,
+              ): IHumanPosture.IPointLimit => ({
+                ...limit,
+                contact: HumanArmMirror.flip(limit.contact),
+              }),
+            ),
+          }),
       ...(goal.on === undefined
         ? {}
         : { on: HumanArmMirror.opposite(goal.on) }),

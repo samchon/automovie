@@ -13,6 +13,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
+import { walkDelayed } from "../actions/walkDelayed";
 import type { walkFacing } from "../actions/walkFacing";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -35,12 +36,11 @@ import { pushSledStance } from "./pushSledStance";
 
 /**
  * A pushed load's handles held in both hands through a walk: a sled push.
- * The body walks as the walk law plans it to `to`, slowly and with no arm
- * swing; the trunk leans into the load, the hands go to the two
+ * The trunk leans into the load while the body stands, the hands go to the
  * handles where the load stands, close on them, and from then on are carried
- * with the chest along the floor at the handles' own height, so the load,
- * gripped, goes where the hands go, as a held prop does, and stays on the
- * floor while the arms take the walk's rise and fall.
+ * with the chest along the floor at the handles' own height. The body then
+ * walks to `to`, slowly with no arm swing, while the arms take the walk's
+ * rise and fall and the gripped load stays on the floor.
  *
  * The lean is the trunk's incline from the vertical, a hinge at the hips
  * shared by the pelvis and the spine (at least `lean`, if asked), coming in
@@ -160,7 +160,6 @@ export namespace pushSled {
         "degrees",
       );
 
-    // The two handles, read where the sled stands (`pushSledHandles`).
     const grips: Record<HumanHand.Side, pushSledHandles.IHandle> =
       pushSledHandles.of(context, p.sled, p.left ?? "left", p.right ?? "right");
     const sockets: Record<HumanHand.Side, IAutoMovieVector3> = {
@@ -169,6 +168,7 @@ export namespace pushSled {
     };
     const walking: IHumanActionContext<walk.IParams> = {
       ...context,
+      start: context.start + SETTLE,
       params: {
         to: p.to,
         pace: "slow",
@@ -177,10 +177,10 @@ export namespace pushSled {
       },
     } as IHumanActionContext<walk.IParams>;
 
-    // The walk the load is moved over, or a stand in place against it.
+    // Take the handles before moving the load, or stand against it throughout.
     const base: IHumanActionPlan =
       p.seconds === undefined
-        ? walk.plan(walking)
+        ? walkDelayed(walk.plan(walking), SETTLE)
         : stand.plan({
             ...context,
             params: { seconds: p.seconds },

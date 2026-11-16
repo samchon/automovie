@@ -15,6 +15,7 @@ import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
+import { HumanColliderCorners } from "./HumanColliderCorners";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
@@ -65,9 +66,16 @@ export namespace HumanArmFrame {
     const model: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
 
-    // The shapes in the arm's way: the body's, the other arm's when this one
-    // is solved alone, and another body's, which the audit has no part for.
-    const others: ReadonlySet<HumanColliders.IPlaced> = new Set(base.others);
+    // Frame part indices keep the audit's own parts first, then each placed
+    // external segment once. External parts share no own-body reference or
+    // joint exclusions, even when their bone names match the body's.
+    const others: HumanColliders.IPlaced[] = [...new Set(base.others)];
+    const parts: ReadonlyMap<HumanColliders.IPlaced, number> = new Map(
+      others.map(
+        (segment: HumanColliders.IPlaced, i: number) =>
+          [segment, model.parts.length + i] as const,
+      ),
+    );
     const shapes: G.IShape[] = [];
     for (const segment of [
       ...HumanArmClearance.obstacles(
@@ -75,19 +83,18 @@ export namespace HumanArmFrame {
         resolved,
         alone ? [side === "left" ? "right" : "left"] : [],
       ),
-      ...base.others,
+      ...others,
     ])
       for (const shape of segment.shapes)
         shapes.push(
           S.bounded(
             segment.bone,
-            others.has(segment)
-              ? -1
-              : model.parts.findIndex(
-                  (
-                    p: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number],
-                  ): boolean => p.bone === segment.bone,
-                ),
+            parts.get(segment) ??
+              model.parts.findIndex(
+                (
+                  p: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number],
+                ): boolean => p.bone === segment.bone,
+              ),
             segment.pose,
             shape,
           ),
@@ -180,6 +187,26 @@ export namespace HumanArmFrame {
         );
       },
     );
+    for (const segment of others) {
+      let corner: number = 0;
+      for (const shape of segment.shapes)
+        for (const probe of HumanColliderCorners(shape))
+          corners.push({
+            point: Vector3.add(
+              segment.pose.position,
+              Quaternion.rotateVector(
+                segment.pose.rotation,
+                Vector3.add(
+                  shape.transform.position,
+                  Quaternion.rotateVector(shape.transform.rotation, probe),
+                ),
+              ),
+            ),
+            part: parts.get(segment)!,
+            corner: corner++,
+            bone: segment.bone,
+          });
+    }
     const of = (
       owner: "upper" | "lower" | "hand",
     ): { centre: IAutoMovieVector3; radius: number } =>

@@ -14,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -62,7 +63,7 @@ export namespace HumanCarriedCouplingLoad {
   }
 
   /**
-   * The tip of a bearer standing still that brings its own centre and its
+   * The tip of a bearer standing still in the coupling's stance that brings its own centre and its
    * share of the borne centre, the borne body riding it, over the midpoint
    * of its feet.
    *
@@ -101,7 +102,7 @@ export namespace HumanCarriedCouplingLoad {
     };
   }
 
-  /** A bearer standing still at the origin, facing +Z: its mass and centre, its share of the borne mass with the borne centre, and its feet's midpoint. */
+  /** A bearer at the origin facing +Z in the coupling's stance, upright for a further bearer: its mass and centre, its share of the borne mass with the borne centre, and its feet's midpoint. */
   interface IStanding {
     mass: number;
     own: IAutoMovieVector3;
@@ -145,17 +146,19 @@ export namespace HumanCarriedCouplingLoad {
           );
     const model: resolveAutoMovieCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(bearer.skeleton, bearer.profile);
+    // The first bearer stands in the stance the key pose was placed on; a
+    // further one stands upright.
+    const posture: IHumanPosture =
+      frame === undefined
+        ? HumanCarriedCouplingPose.stance(bearer, coupling.key.stance)
+        : HumanCarriedCouplingPose.stance(bearer, { incline: 0, depth: 0 });
     const anchor: IAutoMovieResolvedBone = HumanCarriedCouplingPose.bones(
       bearer,
-      HumanCarriedCouplingPose.still(),
+      posture,
       frame?.anchor ?? coupling.anchor,
     ).get(frame?.anchor ?? coupling.anchor)!;
     const feet: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanCarriedCouplingPose.bones(
-        bearer,
-        HumanCarriedCouplingPose.still(),
-        "leftFoot",
-      );
+      HumanCarriedCouplingPose.bones(bearer, posture, "leftFoot");
     return {
       mass: model.mass,
       own: resolveAutoMovieCenterOfMass.place(model, feet),

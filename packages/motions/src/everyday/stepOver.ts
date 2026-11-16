@@ -5,6 +5,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -160,7 +161,7 @@ export namespace stepOver {
     const startRoot: IAutoMovieVector3 = context.entry.posture.root;
     const endMid: IAutoMovieVector3 = {
       x: (end.left.x + end.right.x) / 2 - centre.x,
-      y: -0.005,
+      y: (end.left.y + end.right.y) / 2 - body.measure.ankleHeight - stand.DROP,
       z: (end.left.z + end.right.z) / 2 - centre.z,
     };
     // The trail foot's heel rise lifts the pelvis as far as it lifts that
@@ -203,28 +204,40 @@ export namespace stepOver {
           kind: "plant",
           from: 0,
           to: 0.08,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(
+            context,
+            lead === "left" ? "leftFoot" : "rightFoot",
+          ),
         },
         {
           part: lead === "left" ? "leftFoot" : "rightFoot",
           kind: "plant",
           from: 0.42,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(
+            context,
+            lead === "left" ? "leftFoot" : "rightFoot",
+          ),
         },
         {
           part: trail === "left" ? "leftFoot" : "rightFoot",
           kind: "plant",
           from: 0,
           to: 0.5,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(
+            context,
+            trail === "left" ? "leftFoot" : "rightFoot",
+          ),
         },
         {
           part: trail === "left" ? "leftFoot" : "rightFoot",
           kind: "plant",
           from: 0.82,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(
+            context,
+            trail === "left" ? "leftFoot" : "rightFoot",
+          ),
         },
       ],
       posture: (seconds: number): IHumanPosture => {
@@ -268,7 +281,7 @@ export namespace stepOver {
               pitch: 0,
               roll: 0,
               joints: {
-                ...stand.RELAXED,
+                ...stand.relaxed(body),
                 ...inclined.joints,
                 leftToes: [toes.left, 0, 0],
                 rightToes: [toes.right, 0, 0],
@@ -292,7 +305,7 @@ export namespace stepOver {
           const [a, b] = windows[side];
           if (t <= a || t >= b) continue;
           landing = Math.max(
-                  smooth(t, (a + b) / 2, b) *
+            smooth(t, (a + b) / 2, b) *
               resolveHumanPosture.short(body, hips[side], end[side], 5),
           );
         }

@@ -13,7 +13,9 @@ import { TestValidator } from "@nestia/e2e";
  * Every case stands a body of mass `m` with its centre 1 m over the middle
  * of a square base of half-side `b` = 0.1 m, its pendulum `l` = 1 m long,
  * `ω0 = sqrt(g / l)`, a leg's reach 0.9 m, a foot's half-length 0.13 m as
- * the margin and a step of 0.35 s, the bodies' masses those of `EXTREMES`'
+ * the margin, the first step landing 0.458 s after the impulse and each
+ * later step swinging 0.238 s (the forward recovery step's landing and swing
+ * that `stagger`'s bounds state), the bodies' masses those of `EXTREMES`'
  * lightest and heaviest (38 and 118 kg) and the average man's (76 kg).
  *
  * Scenarios:
@@ -21,9 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The absorb bound is `m ω0 b` along the push, within 1e-9 relative, for
  *    pushes along +z, -x and a diagonal; an impulse 1 % under it absorbs and
  *    1 % over it steps.
- * 3. The step bound is `m ω0 (e* - margin)` with `e* = reach a / (a - 1)`,
- *    `a = exp(ω0 step)`, within 1e-9 relative; 1 % under it steps and 1 %
- *    over it falls.
+ * 3. The step bound is `m ω0 (e + d* exp(-ω0 first))` with `e` the centre's
+ *    distance to the base's edge along the push and `d* = (reach + margin) a /
+ *    (a - 1)`, `a = exp(ω0 step)`, the capture point's fixed point, within
+ *    1e-9 relative; 1 % under it steps and 1 % over it falls.
  * 4. Metamorphic: at equal impulse the 118 kg body's velocity change is
  *    38 / 118 of the 38 kg body's within 1e-12 relative, and the heavier
  *    body's outcome is never worse (absorb before step before fall) over a
@@ -32,11 +35,11 @@ import { TestValidator } from "@nestia/e2e";
  *    momentum by `(p - c) × J`, +x here, within 1e-12; applied at the
  *    centre, by nothing.
  * 6. Steps: between the bounds, the number of capture steps never falls as
- *    the impulse grows; every step lies along the push from the centre,
- *    each at most a reach from the last, and the last within a reach of the
- *    one before it.
- * 7. A non-positive mass, pendulum, reach or step time, or an empty base,
- *    is refused.
+ *    the impulse grows; every step lies along the push, the first at most a
+ *    reach beyond the base's edge and each later one at most a reach beyond
+ *    the last foot's front edge, a reach and a half foot from its centre.
+ * 7. A non-positive mass, pendulum, reach, step time or first landing, or
+ *    an empty base, is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public outcome on closed-form bodies; a velocity change not `J / m`, a bound off its closed form, an outcome that does not flip at its bound, a wrong cross product or a step laid off the push fails.
  * @evidence contracts/development/testing.md#independent-expectations Hof's extrapolated centre against a square base in closed form, the step recurrence's fixed point written out, momentum's `J / m` and the moment `(p - c) × J`.
@@ -50,7 +53,8 @@ export function test_engine_balance_outcome(): void {
   const length: number = 1;
   const reach: number = 0.9;
   const margin: number = 0.13;
-  const step: number = 0.35;
+  const step: number = 0.238;
+  const first: number = 0.458;
   const w0: number = Math.sqrt(AutoMovieGravity.STANDARD / length);
   const centre: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const support: IAutoMovieVector3[] = [
@@ -75,6 +79,7 @@ export function test_engine_balance_outcome(): void {
       reach,
       margin,
       step,
+      first,
     });
   const close = (a: number, b: number, tolerance: number): boolean =>
     Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
@@ -92,7 +97,7 @@ export function test_engine_balance_outcome(): void {
 
   // 2. The absorb bound, three directions.
   const a: number = Math.exp(w0 * step);
-  const capturable: number = (reach * a) / (a - 1);
+  const capturable: number = ((reach + margin) * a) / (a - 1);
   const directions: IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 1 },
     { x: -1, y: 0, z: 0 },
@@ -116,7 +121,8 @@ export function test_engine_balance_outcome(): void {
         findings.push(`${mass} kg: 1 % over the absorb bound does not step`);
 
       // 3. The step bound.
-      const stepped: number = mass * w0 * (capturable - margin);
+      const stepped: number =
+        mass * w0 * (edge + capturable * Math.exp(-w0 * first));
       if (!close(read.bounds.step, stepped, 1e-9))
         findings.push(
           `${mass} kg: step bound ${read.bounds.step}, closed form ${stepped}`,
@@ -164,7 +170,7 @@ export function test_engine_balance_outcome(): void {
 
   // 6. Steps grow with the impulse and stay within reach along the push.
   const absorb76: number = 76 * w0 * half;
-  const step76: number = 76 * w0 * (capturable - margin);
+  const step76: number = 76 * w0 * (half + capturable * Math.exp(-w0 * first));
   let last: number = 0;
   for (let k: number = 1; k < 20; k++) {
     const j: number = absorb76 + ((step76 - absorb76) * k) / 20;
@@ -184,13 +190,15 @@ export function test_engine_balance_outcome(): void {
         `${j.toFixed(1)} N s takes ${read.steps.length} steps, fewer than ${last} at a smaller impulse`,
       );
     last = read.steps.length;
-    let from: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
+    let from: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z + half };
+    let allowed: number = reach;
     for (const s of read.steps) {
       if (Math.abs(s.x) > 1e-12)
         findings.push(`${j.toFixed(1)} N s: a step off the push at x ${s.x}`);
-      if (Vector3.length(Vector3.subtract(s, from)) > reach + 1e-12)
+      if (Vector3.length(Vector3.subtract(s, from)) > allowed + 1e-12)
         findings.push(`${j.toFixed(1)} N s: a step longer than the reach`);
       from = s;
+      allowed = reach + margin;
     }
   }
 
@@ -211,6 +219,7 @@ export function test_engine_balance_outcome(): void {
     ["length", { ...props, length: -1 }],
     ["reach", { ...props, reach: 0 }],
     ["step", { ...props, step: 0 }],
+    ["first", { ...props, first: 0 }],
     ["support", { ...props, support: [] }],
   ] as const)
     TestValidator.error(`a broken ${label} is refused`, (): void => {

@@ -169,12 +169,13 @@ export namespace kick {
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
 
-    // The whole leg as three capsules read from the performer's shown bones,
-    // which are the free path until the performance commits the stop: the
-    // thigh from the hip to the knee, the shank from the knee to the ankle
-    // and the foot from the ankle to the ball, each tapered between the
-    // girths at its joints, so whatever part of the leg first meets a body
-    // stops it, and the resolution meets the leg the figure shows.
+    // The whole leg as three capsules fitted on the kick's free course, which
+    // is what the figure shows until the performance commits the stop
+    // (`StrikingWeapon.leg`): the thigh from the hip to the knee, the shank
+    // from the knee to the ankle and the foot from the ankle to the ball,
+    // each tapered between the girths at its joints, so whatever part of the
+    // leg first meets a body stops it, and the resolution meets the leg the
+    // figure shows.
     const limb: "leftLeg" | "rightLeg" =
       timing.side === "left" ? "leftLeg" : "rightLeg";
     const chain: StrikingWeapon.IChain = {
@@ -184,7 +185,13 @@ export namespace kick {
       from: Math.max(context.start, t0 + timing.prep),
       to: t0 + timing.impact + KickForm.WEAPON_TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
-        StrikingWeapon.leg(context, timing.side, seconds),
+        StrikingWeapon.leg(
+          context.body,
+          (at: number): IHumanPosture =>
+            geometry().posture(Math.min(timing.duration, Math.max(0, at - t0))),
+          timing.side,
+          seconds,
+        ),
     };
 
     // The contact the performance committed, and the stopped leg's ride on

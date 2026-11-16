@@ -57,7 +57,7 @@ export function test_archetype_projectile_stone(): void {
       Math.max(seen.gravity[1], gravity),
     ];
     const r: number = ball(stone);
-    const filled: number = ((4 / 3) * Math.PI * r ** 3) * gravity * 1000;
+    const filled: number = (4 / 3) * Math.PI * r ** 3 * gravity * 1000;
     if (!(Math.abs(filled / mass - 1) <= 0.01))
       findings.push(
         `seed ${seed}: its ${2 * r} m sphere of gravity ${gravity} weighs ${filled} kg, not ${mass} kg`,

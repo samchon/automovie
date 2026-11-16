@@ -17,11 +17,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * string drawn over it to the anchor, and the arrow loosed along its line.
  * The bow's `string` slider is #3481's.
  *
- * Scenarios, the average man and the small woman, each holding a longbow in
- * the left hand and an arrow on the string, at a target 18 m ahead at chest
- * height:
- * 1. `presentBow`, with `drawBow` over it from the instant the bow is held
- *    out (the set-up), then `loose`, plans.
+ * Scenarios, the average man and the small woman, each taking a longbow in
+ * the left hand, an arrow by its shaft in the right and nocking it on the
+ * string (its nock on the bow's nocking point), at a target 18 m ahead at
+ * chest height:
+ * 1. `takeArrow`, `nockArrow`, then `presentBow` with `drawBow` over it from
+ *    the set-up (as the bow rises, the string drawn while the bow arm
+ *    extends), then `loose`, plans.
  * 2. Through the draw the drawing hand stays within 5 mm of the string's
  *    nocking point (the string's drive carries the nock with the hand).
  * 3. At full draw the bow arm is within 10 degrees of full extension.
@@ -54,6 +56,8 @@ export function test_human_motion_archery_draw(): void {
       performance = new HumanPerformance({
         seed: "archery",
         laws: [
+          HumanArchery.takeArrow,
+          HumanArchery.nockArrow,
           HumanArchery.presentBow,
           HumanArchery.drawBow,
           HumanArchery.loose,
@@ -79,6 +83,15 @@ export function test_human_motion_archery_draw(): void {
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "bow", handle: "grip", hand: "left" })
+          // The arrow taken by its shaft and nocked: its nock set on the
+          // bow's nocking point, where it rides the string (putDown's
+          // `onto`), the bow held before the body as nocking holds it.
+          .registered("takeArrow", { prop: "arrow", hand: "right" })
+          .registered("nockArrow", {
+            prop: "arrow",
+            hand: "right",
+            onto: { prop: "bow", point: "nock", via: "nock" },
+          })
           .registered(
             "presentBow",
             {
@@ -91,17 +104,22 @@ export function test_human_motion_archery_draw(): void {
           )
           .over((u) =>
             u
-              // The draw begins once the bow is held out (the set-up), not
-              // while it is still raised from the side.
+              // The draw begins with the set-up, as the bow rises toward the
+              // target: the string hooked and drawn while the bow arm extends
+              // (the shot cycle's set-up and pre-draw, KSL Shot Cycle,
+              // kslinternationalarchery.com), not from full extension.
               .registered("drawBow", {
                 hand: "right",
                 mechanism: {
                   kind: "slider",
                   at: { kind: "prop", subject: "bow", point: "string" },
-                  travel: createBow.DRAW_LENGTH.longbow,
+                  // The string's own travel, brace to the draw length.
+                  travel: bow.affordances.find(
+                    (a: { id: string }): boolean => a.id === "string",
+                  )!.travel!,
                 },
               })
-              .sync({ of: "present", event: "strokeEnd" })
+              .sync({ of: "present", event: "start" })
               .registered("loose", {
                 hand: "right",
                 launch: {

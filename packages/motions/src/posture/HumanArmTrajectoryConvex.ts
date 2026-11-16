@@ -7,8 +7,10 @@ import type {
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
+import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
@@ -365,6 +367,7 @@ export namespace HumanArmTrajectoryConvex {
             });
             square(T.LIFT, lift, v.idx, v.coef);
           }
+          rows.push(...L.rows(c, at0, jac, a, k, site, mu, index));
           if (site.rotation !== undefined) {
             const r: IAutoMovieVector3 = P.rotationVector(
               at.rotation ?? site.rotation,
@@ -424,33 +427,8 @@ export namespace HumanArmTrajectoryConvex {
           });
           if (pair.rested) square(T.LIFT, -pair.short, v.idx, v.coef);
         }
-        // Ranges, hard: the chart's disc linearised, and the boxes.
-        const v: readonly number[] = arm[k]!;
-        const xy: number = Math.hypot(v[0]!, v[1]!);
-        if (xy > 0.6 * G.SCALE)
-          rows.push({
-            key: `r|${a}|${k}`,
-            index: [index(a, k, 0), index(a, k, 1)],
-            coef: [v[0]! / xy, v[1]! / xy],
-            l: -Infinity,
-            u:
-              Math.max(
-                G.SCALE,
-                Math.hypot(c.rest[a]![0]!, c.rest[a]![1]!),
-                Math.hypot(c.back[a]![0]!, c.back[a]![1]!),
-              ) - xy,
-          });
-        c.free[a]!.forEach((d: number, f: number): void => {
-          const b = c.bounds[a]![d];
-          if (b === null || b === undefined) return;
-          rows.push({
-            key: `b|${a}|${k}|${d}`,
-            index: [index(a, k, f)],
-            coef: [1],
-            l: b[0] - v[d]!,
-            u: b[1] - v[d]!,
-          });
-        });
+        // Hard chart and coordinate domains have one row owner.
+        rows.push(...HumanArmTrajectoryRanges.of(c, a, k, arm[k]!, index));
       }
     });
     // Each arm's probes clear of the other arm's own colliders as both

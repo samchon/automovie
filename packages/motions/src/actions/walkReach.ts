@@ -1,10 +1,10 @@
 import {
-  bracketedRoot,
   DEFAULT_HUMANOID_ROM,
-  minimumJerk,
   Quaternion,
-  smoothMinimum,
   Vector3,
+  bracketedRoot,
+  minimumJerk,
+  smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
 import type {
@@ -310,11 +310,10 @@ export namespace walkReach {
   /**
    * Hold a swinging foot inside its leg's ranges under a settled pelvis: the
    * ankle within reach and no further behind the hip than a thigh `EXTENSION`
-   * degrees back and the knee's bend carry it (an ankle past that keeps its
-   * place behind the hip and rises onto the shank's reach from the knee, the
-   * knee folding as a trailing heel lifts, or turns forward onto that line
-   * where the shank cannot reach so far back), the heading within `TWIST` of
-   * the pelvis, the pitch inside the ankle's range, and neither toe nor heel
+   * degrees back and the knee's bend carry it (an ankle past that turns
+   * forward onto that boundary at the same hip-to-ankle distance and knee
+   * angle), the heading within `TWIST` of the pelvis, the pitch inside the
+   * ankle's range, and neither toe nor heel
    * nearer the floor than the swing carried them.
    *
    * @param body The body.
@@ -358,22 +357,16 @@ export namespace walkReach {
     const extension: number =
       (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
     if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
-      // The thigh stops at its extension and the knee folds: the ankle keeps
-      // its place behind the hip, raised onto the shank's reach from the
-      // knee, as a trailing leg's heel rises after toe-off. Where the shank
-      // cannot reach that far back, the leg turns forward onto the line.
-      const thighAngle: number = (EXTENSION * Math.PI) / 180;
-      const along: number = local.z + m.thigh * Math.sin(thighAngle);
+      // Project the direction onto the extension cone on the same sphere:
+      // the knee's angle stays, and the ankle changes continuously as it
+      // reaches the cone. Keeping the rear coordinate instead changed the
+      // radius, then jumped where the shank could no longer keep it.
       const reach: number = Math.hypot(local.z, down);
-      const rise: number = m.shank ** 2 - along ** 2;
-      const [y, z]: [number, number] =
-        rise >= 0
-          ? [-m.thigh * Math.cos(thighAngle) - Math.sqrt(rise), local.z]
-          : [-reach * Math.cos(extension), -reach * Math.sin(extension)];
+      const y: number = -reach * Math.cos(extension);
       v = Quaternion.rotateVector(frame, {
         x: -y * Math.sin(beta),
         y: y * Math.cos(beta),
-        z,
+        z: -reach * Math.sin(extension),
       });
     }
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);

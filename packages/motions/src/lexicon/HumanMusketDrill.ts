@@ -20,11 +20,15 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * cartridge into the `muzzle`), `drawRammer` (an operation of the `ramrod`
  * slider, then a pick up of the rod), `ramDown` (an operation inserting the
  * rod into the `muzzle`, withdrawn), `returnRammer` (a put down into the
- * pipe), `recover` (the firelock upright before the body, its butt at the
+ * pipe), `seize` (the right hand on the small of the stock, the left still
+ * under the butt), `recover` (the left hand from the butt to above the lock,
+ * the firelock upright before the body, its butt at the
  * left breast, the manual's Make Ready beginning "SPRING the firelock
  * briskly to the recover"), `makeReady` over it (an operation of the `cock`
- * hinge to full cock), then `presentMusket` and `fireMusket`. `shoulderArms` takes the musket by its
- * `butt` and `orderArms` sets its butt down by the foot.
+ * hinge to full cock), then `presentMusket` and `fireMusket`.
+ * `takeFirelock` takes the musket by its `butt` in the left hand,
+ * `shoulderArms` carries it shouldered against the left shoulder, its butt
+ * on the hip, and `orderArms` sets its butt down by the foot.
  *
  * The manual gives the order and the count of motions, not their
  * durations: each row's timing is its law's, provisional, and the composed
@@ -39,10 +43,29 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a row needing a hand that holds something else is refused by the shipped hold rules.
  */
 export namespace HumanMusketDrill {
-  /** Shoulder arms: take the musket up by its butt. */
-  export const shoulderArms = HumanActionRow.of("shoulderArms", pickUp, {
+  /**
+   * Take the firelock: the musket taken up by its butt in the left hand, the
+   * hand that carries it shouldered ("Quit the left Hand and place it strong
+   * Upon the Butt", the 1764 Manual Exercise, Shoulder your Firelocks).
+   */
+  export const takeFirelock = HumanActionRow.of("takeFirelock", pickUp, {
     handle: "butt",
+    hand: "left",
   });
+
+  /**
+   * Shoulder arms: the manual's Position of a Soldier under Arms, "the
+   * firelock to be carried on the left Shoulder", "the Flat of the Butt, to
+   * be supported against the hip-bone ... that it may stand before the
+   * Hollow of the Shoulder ... the barrel almost perpendicular", in the left
+   * hand, "the right Hand hanging straight down the Side" (a present at the
+   * `shoulder` carriage).
+   */
+  export const shoulderArms = HumanActionRow.of(
+    "shoulderArms",
+    HumanWeaponPresent.present,
+    { carriage: "shoulder", hand: "left", hands: 1 },
+  );
 
   /** Order arms: set the butt down by the foot. */
   export const orderArms = HumanActionRow.of("orderArms", putDown, {});
@@ -84,10 +107,25 @@ export namespace HumanMusketDrill {
   export const returnRammer = HumanActionRow.of("returnRammer", putDown, {});
 
   /**
+   * Seize: the right hand raised from the side to take the shouldered firelock
+   * by the small of its stock, "the right hand is raised briskly from the
+   * right Side, and seizes the Firelock across the breast" (the 1764 Manual
+   * Exercise, Prime and Load, first motion; Poise, first motion: "Seize the
+   * firelock with your right hand"), the left still under the butt.
+   */
+  export const seize = HumanActionRow.of("seize", pickUp, {
+    handle: "grip",
+    hand: "right",
+  });
+
+  /**
    * Recover: the firelock brought from the shoulder upright before the body,
    * "the Butt close to the left breast, but not pressed, the Firelock
    * perpendicular, opposite the left Side of the Face" (the 1764 Manual
-   * Exercise, Make Ready: "SPRING the firelock briskly to the recover").
+   * Exercise, Make Ready: "SPRING the firelock briskly to the recover"),
+   * the left hand coming "with a quick motion from the Butt" to seize "the
+   * Firelock strong above the Lock" (Prime and Load, first motion), after
+   * `seize` has the right hand on the stock.
    */
   export const recover = HumanActionRow.of(
     "recover",

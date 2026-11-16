@@ -16,7 +16,8 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  *   socket, its shaft on the bow's `rest`.
  * - `presentBow`: presenting the bow in one hand with the line of aim from
  *   the face (`HumanWeaponPresent`, anchor `face`), the bow's `rest` as the
- *   working point the line passes through, the bow arm extended to its own
+ *   working point the line from `nock` passes through, independently of the
+ *   rest's surface normal, the bow arm extended to its own
  *   reach along the line (`extended`), as the shot cycle's set-up raises it
  *   toward the target.
  * - `drawBow`: an operation of the bow's `string` slider by the drawing
@@ -60,7 +61,14 @@ export namespace HumanArchery {
   export const presentBow = HumanActionRow.of(
     "presentBow",
     HumanWeaponPresent.present,
-    { anchor: "face", hands: 1, tip: "rest", edge: "grip", extended: true },
+    {
+      anchor: "face",
+      hands: 1,
+      from: "nock",
+      tip: "rest",
+      edge: "grip",
+      extended: true,
+    },
   );
 
   /** Draw the string back to the anchor, over `presentBow`. */

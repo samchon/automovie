@@ -8,9 +8,11 @@ import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
  *
  * - **Slide.** A prop of mass `m` at rest stays while the applied
  *   horizontal force is within the static friction `μs m g`; once moving it
- *   accelerates at `(F - μk m g) / m` against its motion (Coulomb's law).
- *   Its position and speed are integrated at plan time by the engine's
- *   integrator, so playback and seek read the same path.
+ *   accelerates at `(F - μk m g) / m` against its motion (Coulomb's law),
+ *   until it stops, where the static friction holds it again. Its position
+ *   and speed are integrated at plan time by the engine's integrator, each
+ *   stop located inside its step and the integration restarted there, so
+ *   playback and seek read the same path.
  * - **Hinge.** A door of moment of inertia `I` about its hinge turns at
  *   `θ'' = τ / I` under the torque applied at its handle.
  * - **Lean.** A body pushing horizontally with a force `F` at the height
@@ -22,13 +24,15 @@ import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
  * (`IAutoMovieBody`), read by the caller; this module reads coefficients
  * only. First pass: rolling resistance is the kinetic coefficient the
  * producer gives; the push's force profile comes from the caller, since no
- * pushing-strength study has been read for it.
+ * pushing-strength study has been read for it. These calculations are
+ * exported and unit-tested; no pushing, hauling or door law yet consumes
+ * their trajectories.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three laws, their premises, where the coefficients come from and the first pass's limits.
- * @evidence contracts/development/implementation.md#principled-implementation Newton's second law under Coulomb friction with its static threshold, the hinge's rotational form of it, and static moment balance for the lean; the slide and the hinge are integrated by the engine's fixed-step integrator.
+ * @evidence contracts/development/implementation.md#principled-implementation Newton's second law under Coulomb friction with its static threshold and its stop located as the switching point of a discontinuous right-hand side, the hinge's rotational form of it, and static moment balance for the lean; the slide and the hinge are integrated by the engine's fixed-step integrator.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side per law and one closed form for the lean.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push the body's weight cannot balance is reported, never clamped to a lean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per integrator step.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per integrator step, and per stop one bisection of single steps down to a double's resolution, about fifty, and one restarted integration of what is left.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned trajectory holds its knots for as long as its caller keeps it.
  */
@@ -60,25 +64,117 @@ export namespace HumanPropDynamics {
   /**
    * A slide's distance and speed along the push.
    *
+   * Coulomb's law switches at rest: a sliding prop decelerates at the
+   * kinetic friction until its speed reaches zero, and is then held by the
+   * static friction for as long as the push stays within it. A fixed step
+   * that straddles the stop would carry the kinetic deceleration past it,
+   * so the stop is located inside its step and the integration restarted
+   * there at rest: the switching point of a discontinuous right-hand side
+   * (Hairer, Nørsett and Wanner, Solving Ordinary Differential Equations I,
+   * section II.6, located, not yet read). The stop is the root of one
+   * sliding step's speed from the step's start, found by bisection down to
+   * the resolution of a double.
+   *
    * @param props The prop and the force.
-   * @returns The trajectory of `[distance, speed]`.
+   * @returns The trajectory of `[distance, speed]`, the integrator's step
+   *   its first piece's and its knots those of all its pieces.
    */
   export function slide(props: ISlide): integrateMotionTrajectory.ITrajectory {
     const g: number = AutoMovieGravity.STANDARD;
-    return integrateMotionTrajectory({
-      f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => {
-        const v: number = x[1]!;
-        const f: number = props.force(t);
-        if (v <= 0 && f <= props.friction * props.mass * g)
-          return { dx: [0, 0] };
-        return {
-          dx: [v, (f - props.kinetic * props.mass * g) / props.mass],
-        };
-      },
-      x0: [0, 0],
+    const sliding = (
+      t: number,
+      x: readonly number[],
+    ): integrateMotionTrajectory.IRate => ({
+      dx: [
+        x[1]!,
+        (props.force(t) - props.kinetic * props.mass * g) / props.mass,
+      ],
+    });
+    const law = (
+      t: number,
+      x: readonly number[],
+    ): integrateMotionTrajectory.IRate =>
+      x[1]! <= 0 && props.force(t) <= props.friction * props.mass * g
+        ? { dx: [0, 0] }
+        : sliding(t, x);
+
+    // One sliding step from a knot to an instant inside its step.
+    const step = (
+      from: number,
+      x: readonly number[],
+      until: number,
+    ): integrateMotionTrajectory.ITrajectory =>
+      integrateMotionTrajectory({
+        f: sliding,
+        x0: x,
+        t0: from,
+        t1: until,
+        h: until - from,
+      });
+    const pieces: {
+      to: number;
+      path: integrateMotionTrajectory.ITrajectory;
+    }[] = [];
+    let from: number = props.from;
+    let x0: readonly number[] = [0, 0];
+    for (;;) {
+      const path: integrateMotionTrajectory.ITrajectory =
+        integrateMotionTrajectory({ f: law, x0, t0: from, t1: props.to });
+      const knot = (k: number): number => path.times[k]!;
+      let k: number = 1;
+      while (
+        k < path.knots &&
+        !(path.at(knot(k)).x[1]! <= 0 && path.at(knot(k - 1)).x[1]! > 0)
+      )
+        k++;
+      if (k === path.knots) {
+        pieces.push({ to: props.to, path });
+        break;
+      }
+
+      // The stop inside the step from knot k - 1 to knot k.
+      const a: number = knot(k - 1);
+      const start: readonly number[] = path.at(a).x;
+      let lo: number = a;
+      let hi: number = knot(k);
+      if (step(a, start, hi).at(hi).x[1]! < 0)
+        for (;;) {
+          const mid: number = (lo + hi) / 2;
+          if (!(mid > lo && mid < hi)) break;
+          if (step(a, start, mid).at(mid).x[1]! > 0) lo = mid;
+          else hi = mid;
+        }
+      const tail: integrateMotionTrajectory.ITrajectory = step(a, start, hi);
+      pieces.push({ to: a, path }, { to: hi, path: tail });
+      if (!(hi < props.to)) break;
+      from = hi;
+      x0 = [tail.at(hi).x[0]!, 0];
+    }
+    const last: integrateMotionTrajectory.ITrajectory =
+      pieces[pieces.length - 1]!.path;
+    // Each piece's knots within its own span, after the piece before it.
+    const times: number[] = pieces.flatMap(
+      (
+        p: { to: number; path: integrateMotionTrajectory.ITrajectory },
+        i: number,
+      ): number[] =>
+        p.path.times.filter(
+          (t: number): boolean =>
+            t <= p.to && (i === 0 || t > pieces[i - 1]!.to),
+        ),
+    );
+    return {
       t0: props.from,
       t1: props.to,
-    });
+      h: pieces[0]!.path.h,
+      knots: times.length,
+      times,
+      at: (time: number): integrateMotionTrajectory.IState =>
+        (
+          pieces.find((p: { to: number }): boolean => time <= p.to)?.path ??
+          last
+        ).at(time),
+    };
   }
 
   /**

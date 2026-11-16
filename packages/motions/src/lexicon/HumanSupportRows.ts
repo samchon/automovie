@@ -1,4 +1,3 @@
-import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { getUp } from "../floor/getUp";
 import { HumanActionRow } from "../law/HumanActionRow";
@@ -27,14 +26,14 @@ const on = (
 
 /**
  * Seated upright on a surface: the hip and the knee at a right angle, the
- * seated reference posture (ANSI/HFES 100-2007), the rest as the stand law
- * holds it.
+ * seated reference posture (ANSI/HFES 100-2007), the arms left to hang as the
+ * body's relaxed arms, which the support planner lays under every stated
+ * posture.
  */
 const SEATED: HumanSupport.IStance["prefer"] = {
   pitch: 0,
   roll: 0,
   joints: {
-    ...stand.RELAXED,
     leftUpperLeg: [90, 0, 0],
     rightUpperLeg: [90, 0, 0],
     leftLowerLeg: [90, 0, 0],

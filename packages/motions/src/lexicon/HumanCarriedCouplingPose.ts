@@ -11,10 +11,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -30,7 +32,7 @@ import type { HumanCarried } from "./HumanCarried";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is placed, what is read and who states the coupling.
  * @evidence contracts/development/design.md#principled-representation The borne body's place as its key frame carried by the bearer's anchor bone, a parent constraint, and the holds as points in the same frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bearer record, the anchor rule and its bone reader, the key and standing postures, the region reader, the borne posture and the holds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The bearer record, the anchor rule and its bone reader, the key, standing and stance postures with the stance's bones, the region reader, the borne posture and the holds.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bearer never reads the borne body's displayed bones, so the two cannot chase each other.
  */
 export namespace HumanCarriedCouplingPose {
@@ -167,7 +169,7 @@ export namespace HumanCarriedCouplingPose {
 
     // The borne root frame: the anchor's displayed frame composed with the
     // key frame.
-    const keyed: IHumanPosture = key(row);
+    const keyed: IHumanPosture = key(row, coupling.key.legs);
     const root: IAutoMovieVector3 = Vector3.add(
       anchored.worldPosition,
       Quaternion.rotateVector(anchored.worldRotation, coupling.key.position),
@@ -241,7 +243,7 @@ export namespace HumanCarriedCouplingPose {
         }
       | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
-    const keyed: IHumanPosture = key(row);
+    const keyed: IHumanPosture = key(row, coupling.key.legs);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
@@ -311,10 +313,67 @@ export namespace HumanCarriedCouplingPose {
   }
 
   /**
+   * A bearer at the origin in the performer's actual standing posture
+   * (`stand.posture`), lowered as a squat by the stance's depth with the
+   * trunk inclined by its angle (`bendLower.lower`). The standing alignment,
+   * planted feet and minimum knee bend are the same at zero and at every
+   * nonzero inclination or depth, so the stance has no finite jump at zero.
+   *
+   * @param body The bearer's body.
+   * @param bent The stance: the trunk's forward inclination, degrees, and the lowering, a share of a squat's drop.
+   * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two cases, the inputs and their units.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies the bend law's continuous lowering to the same planted standing posture at every parameter, rather than changing the kinematic representation at zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing posture and one lowering.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No zero-only trunk shortcut with different feet, knee extension or trunk alignment.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lowering, constant work beyond its leg solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `bendLower.lower` and `stand.posture` own both operations.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   */
+  export function stance(
+    body: IHumanBody,
+    bent: { incline: number; depth: number },
+  ): IHumanPosture {
+    return bendLower.lower(
+      body,
+      stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+      "squat",
+      bent.incline,
+      bent.depth,
+      0,
+    );
+  }
+
+  /**
+   * A bearer's bones in its planted stance (`stance`), including at zero:
+   * every trial is resolved by the same whole-body kinematics.
+   *
+   * @param body The bearer's body.
+   * @param bent The stance.
+   * @returns The resolved bones.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when.
+   * @evidence contracts/development/implementation.md#principled-implementation One kinematic map for the whole parameter domain, so finite differences describe a stance's derivative rather than a branch's finite jump.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolution and one forward kinematics pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing bearer is never substituted with a clinical-zero skeleton.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One resolved pose per stance, shared by the fitter's stance cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `stance`, `resolveHumanPosture` and `poseBones`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   */
+  export function stood(
+    body: IHumanBody,
+    bent: { incline: number; depth: number },
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return poseBones(body, resolveHumanPosture(body, stance(body, bent)));
+  }
+
+  /**
    * The carry's key posture of the borne body at the origin: the row's
-   * heading, tip and leg angles.
+   * heading and tip, and its leg angles or the fitted ones.
    *
    * @param row The carry's row.
+   * @param legs Both legs' hip flexion, knee flexion and hip abduction, degrees; the row's when absent.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the posture takes from the row.
@@ -325,8 +384,11 @@ export namespace HumanCarriedCouplingPose {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function key(row: HumanCarried.IRow): IHumanPosture {
-    const [hip, knee, apart]: readonly [number, number, number] = row.legs;
+  export function key(
+    row: HumanCarried.IRow,
+    legs: readonly [number, number, number] = row.legs,
+  ): IHumanPosture {
+    const [hip, knee, apart]: readonly [number, number, number] = legs;
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: row.turn,

@@ -161,7 +161,9 @@ export namespace operateDrive {
     // on its latch on its hinge swings the hinge and turns the latch.
     const kinds: ReadonlySet<AutoMovieAffordanceKind> = KINDS[kind];
     const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
-      (held.prop.affordances ?? []).map((a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a]),
+      (held.prop.affordances ?? []).map(
+        (a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a],
+      ),
     );
     let link: IAutoMovieAffordance | undefined = contact;
     const seen: Set<string> = new Set();
@@ -173,20 +175,29 @@ export namespace operateDrive {
     const articulation: string = link.id;
     const before: Readonly<Record<string, number>> =
       held.state?.(context.start) ?? {};
-    const base: number | null = AffordanceArticulation.travel(byId, before, articulation);
+    const base: number | null = AffordanceArticulation.travel(
+      byId,
+      before,
+      articulation,
+    );
     if (base === null)
       throw new HumanRefusal({
-        kind: "parameter", axis: "mechanism", value: articulation,
+        kind: "parameter",
+        axis: "mechanism",
+        value: articulation,
         reason: `the current state of "${at.subject}" does not determine a valid travel of "${articulation}"`,
         fix: "give one valid input per coupled degree of freedom in the prop's current state",
       });
-    const degree: string = AffordanceArticulation.leader(byId, articulation) ?? articulation;
+    const degree: string =
+      AffordanceArticulation.leader(byId, articulation) ?? articulation;
 
     // A prior writer may name a reversible follower of this same degree.
     // Keep other degrees, replacing this one in the operation's coordinate.
     const other: Readonly<Record<string, number>> = Object.fromEntries(
-      Object.entries(before).filter(([id]: [string, number]): boolean =>
-        (AffordanceArticulation.leader(byId, id) ?? id) !== degree),
+      Object.entries(before).filter(
+        ([id]: [string, number]): boolean =>
+          (AffordanceArticulation.leader(byId, id) ?? id) !== degree,
+      ),
     );
     const frame: IHumanProp.IFrame = held.frame(context.start);
 

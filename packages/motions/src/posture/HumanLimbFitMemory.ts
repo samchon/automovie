@@ -122,7 +122,7 @@ export namespace HumanLimbFitMemory {
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
         near,
       );
-      return { pose: HumanLimbMirror.pose(image.pose), seed: image.seed };
+      return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
     // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
@@ -158,7 +158,7 @@ export namespace HumanLimbFitMemory {
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
     return frame === null
       ? out
-      : { pose: { ...out.pose, root: pose.root }, seed: out.seed };
+      : { ...out, pose: { ...out.pose, root: pose.root } };
   }
 
   /** The limb fits remembered, by body. */

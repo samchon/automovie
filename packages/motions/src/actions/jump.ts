@@ -30,6 +30,7 @@ import { jumpFlight } from "./jumpFlight";
 import { jumpLanding } from "./jumpLanding";
 import { jumpPath } from "./jumpPath";
 import { jumpPush } from "./jumpPush";
+import { jumpTakeoff } from "./jumpTakeoff";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 
@@ -41,7 +42,8 @@ import { standUpright } from "./standUpright";
  * foot is planted continues without a jump in position or velocity: the root
  * follows a quintic Hermite path from the entry root and velocity to the
  * take-off root and velocity over `PUSH` seconds. The take-off foot is the
- * planted one (the front one when both are, the rear being about to leave),
+ * planted one (the front one in the entered body's own frame when both are,
+ * the rear being about to leave),
  * held on the floor while it comes down about its heel if it was still in its
  * heel rocker and then rises about the toes' joint from its entry pitch to
  * 40°, its toes extending, the stance rockers in order and the forefoot rocker of a
@@ -188,15 +190,8 @@ export namespace jump {
         reason: `a jump takes off from a planted foot, and neither is planted`,
         fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
       });
-    // In double support the front foot bears the body forward; the rear one is the reaching leg.
-    const ahead = (s: "left" | "right"): number =>
-      HumanFrame.local(frame(root0), entry.feet[s].ankle).z;
-    const takeoff: "left" | "right" =
-      planted.length === 1
-        ? planted[0]!
-        : ahead("left") >= ahead("right")
-          ? "left"
-          : "right";
+    // A symmetric double support must choose the same foot after a rigid move.
+    const takeoff: "left" | "right" = jumpTakeoff(body, entry);
     const reaching: "left" | "right" = takeoff === "left" ? "right" : "left";
     const support: HumanFoot.IPlacement = {
       ankle: entry.feet[takeoff].ankle,
@@ -454,10 +449,10 @@ export namespace jump {
         const joints: Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
         > = {
-          ...stand.RELAXED,
+          ...stand.relaxed(body),
           ...upright.joints,
-          leftUpperArm: [arms, 5, 0],
-          rightUpperArm: [raise("right"), 5, 0],
+          leftUpperArm: [arms, stand.abduction(body), 0],
+          rightUpperArm: [raise("right"), stand.abduction(body), 0],
           leftLowerArm: [12 + arms / 3, 0, 0],
           rightLowerArm: [12 + raise("right") / 3, 0, 0],
         };

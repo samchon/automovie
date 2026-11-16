@@ -1,5 +1,12 @@
-import { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieInteractionEvent } from "@automovie/interface";
+import {
+  AutoMovieComposition,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanPerformance,
@@ -26,12 +33,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    from the profile.
  * 4. `b`'s flinch starts at the hit, within one 60 Hz frame.
  * 5. The cross is a row of `punch` with the rear hand's straight.
+ * 6. At the punch's planned contact instant, `a`'s fist capsule lies on
+ *    `b`'s head at the chin it aims at: its surface within one head radius
+ *    of the chin's point, where a capsule left on the entry's resting arm
+ *    lies more than half a metre short.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs a landed cross through the public chain and reads the hit record and the synced reaction's placement; no hit, two hits, a hit off the head, a velocity away from the receiver or a reaction placed elsewhere fails.
- * @evidence contracts/development/testing.md#independent-expectations The forearm's mass is the striker's own profile segment, the frame bound the 60 Hz frame of #3470's acceptance.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs a landed cross through the public chain and reads the hit record, the fist capsule the contact resolution sweeps and the synced reaction's placement; no hit, two hits, a hit off the head, a velocity away from the receiver, a fist capsule away from the chin at the contact or a reaction placed elsewhere fails.
+ * @evidence contracts/development/testing.md#independent-expectations The forearm's mass is the striker's own profile segment, the frame bound the 60 Hz frame of #3470's acceptance, the fist's bound the struck body's own head radius about the aimed chin.
  * @evidence contracts/development/testing.md#distinguishing-cases The struck performer's hits against the striker's none; a synced reaction.
  * @evidence contracts/development/testing.md#execution-ownership Builds one two-person performance in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_hit_punch(): void {
   const body: IHumanBody = motionHumanBody("m-average");
@@ -121,10 +132,53 @@ export function test_human_motion_hit_punch(): void {
     `b's flinch starts at the hit (${flinch.entryTime.toFixed(4)} s against ${hit.time.toFixed(4)} s)`,
     Math.abs(flinch.entryTime - hit.time) <= 1 / 60,
   );
+  // The fist's capsule moves with the arm: at the punch's planned contact
+  // instant it lies on b's head at the chin it was aimed at, not on the
+  // resting arm the punch was entered with.
+  const cross = performance.segments("a")[0]!;
+  const fist = cross.plan.weapons?.find((w) => w.id === "fist");
+  const contact: number = cross.start + (cross.plan.contact ?? Number.NaN);
+  const chin = body.surfaces.regions.chin;
+  const aimed: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    chin,
+    performance.bones("b", contact).get(chin.bone)!,
+  ).point;
+  const off: number =
+    fist === undefined
+      ? Number.NaN
+      : segmentDistance(
+          aimed,
+          fist.path(contact),
+          fist.tail?.(contact) ?? fist.path(contact),
+        ) - fist.radius;
+  TestValidator.predicate(
+    `the fist's capsule at the contact instant lies on b's head at the chin (${(off * 1000).toFixed(1)} mm off, head radius ${(body.measure.headRadius * 1000).toFixed(0)} mm)`,
+    off <= body.measure.headRadius,
+  );
   TestValidator.predicate(
     "the cross is the rear hand's straight punch",
     HumanStrike.cross.family === "punch" &&
       JSON.stringify(HumanStrike.cross.resolve!({})) ===
         JSON.stringify({ technique: "straight", hand: "rear" }),
+  );
+}
+
+/** A point's distance from a segment, metres. */
+function segmentDistance(
+  point: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number {
+  const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
+  const span: number = Vector3.dot(ab, ab);
+  const share: number =
+    span === 0
+      ? 0
+      : Math.min(
+          1,
+          Math.max(0, Vector3.dot(Vector3.subtract(point, a), ab) / span),
+        );
+  return Vector3.length(
+    Vector3.subtract(point, Vector3.add(a, Vector3.scale(ab, share))),
   );
 }

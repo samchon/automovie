@@ -75,7 +75,9 @@ export namespace HumanPerformanceObject {
     if (known !== undefined) return known;
     const out: IWriter[] = [];
     const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
-      (prop.affordances ?? []).map((a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a]),
+      (prop.affordances ?? []).map(
+        (a: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [a.id, a],
+      ),
     );
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
@@ -94,7 +96,9 @@ export namespace HumanPerformanceObject {
           const own: IHumanActionPlan.IDrive = drive;
           out.push({
             articulation: own.articulation,
-            leader: AffordanceArticulation.leader(byId, own.articulation) ?? own.articulation,
+            leader:
+              AffordanceArticulation.leader(byId, own.articulation) ??
+              own.articulation,
             from,
             to,
             travel: (seconds: number): number =>
@@ -106,7 +110,9 @@ export namespace HumanPerformanceObject {
       const from: number = HumanPerformanceLayers.instant(self, track.start);
       out.push({
         articulation: track.articulation,
-        leader: AffordanceArticulation.leader(byId, track.articulation) ?? track.articulation,
+        leader:
+          AffordanceArticulation.leader(byId, track.articulation) ??
+          track.articulation,
         from,
         to: from + (track.duration ?? Infinity),
         travel: (seconds: number): number => track.travel(seconds - from),

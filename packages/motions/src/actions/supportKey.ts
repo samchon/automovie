@@ -8,11 +8,16 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanSupport } from "../law/HumanSupport";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
+import { HumanBodyFitMerit } from "../posture/HumanBodyFitMerit";
 import { HumanColliders } from "../posture/HumanColliders";
+import { HumanFitPairs } from "../posture/HumanFitPairs";
+import { HumanFitVariables } from "../posture/HumanFitVariables";
+import type { HumanJacobian } from "../posture/HumanJacobian";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { stand } from "./stand";
 import { supportContact } from "./supportContact";
 
 /**
@@ -40,10 +45,10 @@ export namespace supportKey {
    * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contacts' forms, the bearing parts' hull as the balance's base, seeded from the key before (Escande, Kheddar and Miossec 2013).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, one fit, one pass over the residuals.
+   * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms and bearing hull, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fit per key.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `supportContact.form` and `HumanBodyFit.fit`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -65,16 +70,40 @@ export namespace supportKey {
       (f: supportContact.IForm): RegExp[] =>
         f.bearing === undefined ? [] : [f.bearing],
     );
+    const targets: HumanBodyFit.ITarget[] = [
+      ...forms.map((f: supportContact.IForm): HumanBodyFit.ITarget => f.target),
+      ...swings,
+    ];
+    // Select the less violated of the previous solution and the geometrically
+    // placed preference before the one SQP solve. This is a seed selection,
+    // not a retry: both candidates are measured on the same full merit rows.
+    const variables: readonly HumanJacobian.IVariable[] =
+      HumanFitVariables.BODY;
+    const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit.of({
+      body,
+      posture: preferred,
+      variables,
+      targets,
+      angles: [],
+      bearing,
+      balance: { parts: bearing },
+      pairs: HumanFitPairs.of(body),
+      key: HumanFitVariables.vector(variables, preferred),
+      price: HumanBodyFit.PRICE,
+    });
+    const previous: HumanBodyFitMerit.IEvaluation = merit.evaluate(
+      HumanFitVariables.vector(variables, from),
+    );
+    const stated: HumanBodyFitMerit.IEvaluation = merit.evaluate(
+      HumanFitVariables.vector(variables, preferred),
+    );
+    const start: IHumanPosture =
+      stated.violation < previous.violation ? preferred : from;
     const result: HumanBodyFit.IResult = HumanBodyFit.fit({
       body,
       posture: preferred,
-      start: from,
-      targets: [
-        ...forms.map(
-          (f: supportContact.IForm): HumanBodyFit.ITarget => f.target,
-        ),
-        ...swings,
-      ],
+      start,
+      targets,
       bearing,
       balance: { parts: bearing },
     });
@@ -108,10 +137,10 @@ export namespace supportKey {
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both cases and how the stated posture is placed.
-   * @evidence contracts/development/implementation.md#principled-implementation The stated tilt and joints over the entry's, at the key before's place moved by the mean miss of its placed contacts across the floor, lowered until its lowest collider meets the floor, so the seed's held parts start where they bear.
+   * @evidence contracts/development/implementation.md#principled-implementation The stated tilt and joints use the fit's actual local contact offsets. Their mean Cartesian miss places the seed; floor contacts lower it to the floor, while entirely raised contacts retain their target height without floor penetration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture and one floor reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per stance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One contact-point resolution per anchor and one floor reading per stance.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.lowest`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -124,13 +153,13 @@ export namespace supportKey {
       null,
   ): IHumanPosture {
     if (stance.prefer === undefined) return base;
-    const anchors: { part: HumanSupport.Part; at: IAutoMovieVector3 }[] =
+    const anchors: { contact: HumanSupport.IContact; at: IAutoMovieVector3 }[] =
       stance.contacts.flatMap(
         (
           c: HumanSupport.IContact,
-        ): { part: HumanSupport.Part; at: IAutoMovieVector3 }[] => {
+        ): { contact: HumanSupport.IContact; at: IAutoMovieVector3 }[] => {
           const at: IAutoMovieVector3 | null = place(c);
-          return at === null ? [] : [{ part: c.part, at }];
+          return at === null ? [] : [{ contact: c, at }];
         },
       );
     const turned: IHumanPosture = {
@@ -138,29 +167,52 @@ export namespace supportKey {
       yaw: base.yaw + (stance.turn ?? 0),
       pitch: stance.prefer.pitch,
       roll: stance.prefer.roll,
-      joints: { ...base.joints, ...stance.prefer.joints },
+      // A stated posture is a whole one: what it leaves unstated hangs as the
+      // body's relaxed arms (`stand.relaxed`), not as the entry held it.
+      joints: {
+        ...base.joints,
+        ...stand.relaxed(body),
+        ...stance.prefer.joints,
+      },
       limbs: {},
     };
     let dx: number = 0;
+    let dy: number = 0;
     let dz: number = 0;
     for (const a of anchors) {
-      const now: IAutoMovieVector3 = supportContact.pinned(
+      const now: IAutoMovieVector3 = supportContact.point(
         body,
         turned,
-        a.part,
+        a.contact,
+        a.at,
       );
       dx += (a.at.x - now.x) / anchors.length;
+      if (a.at.y > 0) dy += (a.at.y - now.y) / anchors.length;
       dz += (a.at.z - now.z) / anchors.length;
     }
     const keyed: IHumanPosture = {
       ...turned,
-      root: { x: turned.root.x + dx, y: turned.root.y, z: turned.root.z + dz },
+      root: {
+        x: turned.root.x + dx,
+        y: turned.root.y + dy,
+        z: turned.root.z + dz,
+      },
     };
     const low: number = HumanColliders.lowest(
       body,
       poseBones(body, resolveHumanPosture(body, keyed)),
     );
-    return { ...keyed, root: { ...keyed.root, y: keyed.root.y - low } };
+    const grounded: boolean = stance.contacts.some(
+      (c: HumanSupport.IContact): boolean =>
+        supportContact.form(body, c, place(c)).bearing !== undefined,
+    );
+    return {
+      ...keyed,
+      root: {
+        ...keyed.root,
+        y: keyed.root.y - (grounded ? low : Math.min(0, low)),
+      },
+    };
   }
 
   /**

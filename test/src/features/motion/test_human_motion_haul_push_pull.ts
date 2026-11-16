@@ -48,7 +48,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    heavy load leans it further that way than a light one, by more than
  *    the joints' resolution (`ROM_TOLERANCE`), at each staging.
  * 6. A haul walks slower than a free walk over the same ground (a walk of
- *    the same length at the walk's own pace).
+ *    the same path and facing at the walk's own pace).
  * 7. A load that does not move (`moves: false`) stays within 1 mm of where
  *    it stood through the press, the fists within 10 mm of its handles.
  * 8. Refused, each with its class and axis: a handle the prop does not
@@ -147,7 +147,7 @@ export function test_human_motion_haul_push_pull(): void {
             `${tag}: the trunk leans ${read.lean.toFixed(1)} degrees forward on average, ${way === "pull" ? "back" : "forward"} expected`,
           );
         leans[`${way} ${label} ${load}`] = read.lean;
-        const free: number = freeSpeed(body, to);
+        const free: number = freeSpeed(body, to, way);
         if (!(read.speed < free))
           complaints.push(
             `${tag}: the haul walks ${read.speed.toFixed(2)} m/s, slower than the free walk's ${free.toFixed(2)} m/s expected`,
@@ -445,8 +445,12 @@ function readHaul(
   };
 }
 
-/** The mean speed of a free walk from the origin to `to`, m/s, at the walk's own pace. */
-function freeSpeed(body: IHumanBody, to: IAutoMovieVector3): number {
+/** The mean speed of an unloaded walk over the same path and facing, m/s, at the walk's own pace: a pull's backpedal keeps +Z facing, so it is compared with a free backpedal rather than a turn followed by forward walking. */
+function freeSpeed(
+  body: IHumanBody,
+  to: IAutoMovieVector3,
+  way: pushPull.Way,
+): number {
   const performance: HumanPerformance = new HumanPerformance({
     seed: "haul",
     performers: [
@@ -458,7 +462,10 @@ function freeSpeed(body: IHumanBody, to: IAutoMovieVector3): number {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").walk({ to }).node,
+    composition: HumanChain.subject("a").walk({
+      to,
+      ...(way === "pull" ? { facing: { yaw: 0 } } : {}),
+    }).node,
   });
   const placed = performance.segments("a")[0]!;
   return Math.hypot(to.x, to.z) / (placed.end - placed.start);

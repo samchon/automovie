@@ -305,4 +305,35 @@ export namespace HumanArmShapes {
     const s: G.IShape = at.shapes[shape]!;
     return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
   }
+
+  /**
+   * A point carried from one placement of a shape into another's world
+   * frame, holding its coordinates relative to that shape. Both placements
+   * must describe the same rigid collider.
+   *
+   * @param now The reference placement.
+   * @param next The placement the point is read against.
+   * @param point The point at `next`, world metres.
+   * @returns The point at `now`, world metres, and the rotation carrying a direction with it.
+   */
+  export function relative(
+    now: G.IShape,
+    next: G.IShape,
+    point: IAutoMovieVector3,
+  ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
+    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+      now.pose.rotation,
+      Quaternion.inverse(next.pose.rotation),
+    );
+    return {
+      point: Vector3.add(
+        now.pose.position,
+        Quaternion.rotateVector(
+          turn,
+          Vector3.subtract(point, next.pose.position),
+        ),
+      ),
+      turn,
+    };
+  }
 }

@@ -3,9 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
-import {
-  AutoMovieMotionHumanClearance,
-} from "../compose/AutoMovieMotionHumanClearance";
+import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -33,9 +31,7 @@ export namespace stepOverPath {
    * @returns What the plan's pelvis and postures read: the body, the feet's sides, the heading, the start, the landing, the footprints, the timing and the feet at a second.
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    */
-  export function of(
-    context: IHumanActionContext<stepOver.IParams>,
-  ) {
+  export function of(context: IHumanActionContext<stepOver.IParams>) {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const obstacle: HumanObstacle.IObstacle = HumanObstacle.of(
@@ -52,7 +48,7 @@ export namespace stepOverPath {
     );
     const origin: IAutoMovieVector3 = {
       x: (feet.left.x + feet.right.x) / 2,
-      y: 0,
+      y: (feet.left.y + feet.right.y) / 2 - m.ankleHeight,
       z: (feet.left.z + feet.right.z) / 2,
     };
     const frame: HumanFrame.IFrame = { origin, yaw };
@@ -151,7 +147,8 @@ export namespace stepOverPath {
     // the near side; the lead foot lifts its toes by up to `TOE_UP` as its
     // toe passes over the near side and is level again once its heel does,
     // so the ankle need not rise as high as a level foot's.
-    const top: number = obstacle.height + stepOver.MARGIN;
+    const top: number =
+      obstacle.at.y - origin.y + obstacle.height + stepOver.MARGIN;
     const heeled = (
       side: "left" | "right",
       ankle: IAutoMovieVector3,
@@ -263,7 +260,7 @@ export namespace stepOverPath {
     };
     // How far a sole socket at a frame-local place must stand above the floor.
     const needed = (p: IAutoMovieVector3): number =>
-      surface(HumanFrame.local(frame, p).z);
+      origin.y + surface(HumanFrame.local(frame, p).z);
 
     return {
       body,

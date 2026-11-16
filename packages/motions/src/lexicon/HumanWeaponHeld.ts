@@ -103,7 +103,10 @@ export namespace HumanWeaponHeld {
           );
     const long: boolean = found("foreEnd") !== undefined;
     const hands: 1 | 2 = p.hands ?? 2;
-    if (long && hands === 1)
+    // A shouldered long arm is carried in one hand (the 1764 Manual
+    // Exercise's Position of a Soldier under Arms); presented, it needs two.
+    const shouldered: boolean = "carriage" in p && p.carriage === "shoulder";
+    if (long && hands === 1 && !shouldered)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "hands",
@@ -115,6 +118,7 @@ export namespace HumanWeaponHeld {
 
     const tool: StrikingHeld.ITool = read({
       tip: p.tip ?? "muzzle",
+      ...(p.from === undefined ? {} : { from: p.from }),
       edge: p.edge ?? "sight",
     });
 
@@ -183,7 +187,7 @@ export namespace HumanWeaponHeld {
    * @throws {HumanRefusal} When the support arm cannot reach the fore-end.
    */
   export const supported = (
-    context: IHumanActionContext<HumanWeaponPresent.IWield>,
+    context: Pick<IHumanActionContext, "body">,
     s: ISetup,
     pose: StrikingHeld.IHandFrame,
     posture: IHumanPosture,

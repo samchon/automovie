@@ -120,6 +120,7 @@ export namespace HumanLimbPair {
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
       seeds: { left: out.seeds.right, right: out.seeds.left },
+      values: { left: out.values.right, right: out.values.left },
     };
   }
 
@@ -137,6 +138,9 @@ export namespace HumanLimbPair {
 
     /** Each arm's seed. */
     seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null>;
+
+    /** Each arm's own fit's value (`IAutoMovieSeededChainFit.value`); absent where the coupled solve replaced the arms' own fits. */
+    values: Record<"left" | "right", IAutoMovieSeededChainFit["value"]>;
   }
 }
 
@@ -228,7 +232,12 @@ function solved(
       ) > 0
     );
   };
-  if (!meets("left") && !meets("right")) return { pose: both, seeds };
+  if (!meets("left") && !meets("right"))
+    return {
+      pose: both,
+      seeds,
+      values: { left: own.left.value, right: own.right.value },
+    };
 
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
@@ -289,5 +298,5 @@ function solved(
       G.arm(context.setups[a]!, result.x[a]![1]!),
     );
   });
-  return { pose: out, seeds };
+  return { pose: out, seeds, values: { left: undefined, right: undefined } };
 }

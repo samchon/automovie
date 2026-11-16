@@ -32,9 +32,12 @@ import { HumanCarriedDrag } from "./HumanCarriedDrag";
  *
  * - **Key pose.** The carry's posture of the borne body (its heading, tip and
  *   leg angles, `HumanCarried.CARRIES`) placed with its resting region on
- *   the bearer's region of a standing bearer, and turned about that point
- *   so its held regions come nearest the places the row's holds put the
- *   bearer's hands (`HumanCarriedCouplingFit.fit`); it is a pure function
+ *   the bearer's region, and turned about that point so its held regions
+ *   come nearest the places the row's holds put the bearer's hands; the
+ *   borne legs and a lone bearer's stance (trunk inclination and knee
+ *   lowering) are the carry's own and upright changed least so every hold
+ *   lies within its arm, a hold beyond it refused
+ *   (`HumanCarriedCouplingFit.fit`); it is a pure function
  *   of the two bodies and the carry, so the record is the same whichever
  *   role plans first and wherever the pair stands.
  * - **Floor.** A drag (`HumanCarriedDrag`) also rests the dragged body's
@@ -69,8 +72,9 @@ import { HumanCarriedDrag } from "./HumanCarriedDrag";
  *   side's region meets the borne body's on that side; the borne body rests
  *   on both, each helper bearing its contacts' share.
  *
- * First pass: the key pose is the carry's table posture, not a whole-body
- * fit of both bodies (`HumanBodyFit`); the borne centre is read with the
+ * First pass: the key pose is the carry's table posture with its legs and
+ * the bearer's stance fitted, not a whole-body fit of both bodies
+ * (`HumanBodyFit`); the borne centre is read with the
  * arms at their clinical zero. The bearer tips by the pair's balance
  * forward and sideways (`HumanCarriedCouplingLoad.lean`); the capacity
  * reads the moment along the facing alone (`HumanLoad.lean`).
@@ -200,10 +204,10 @@ export namespace HumanCarriedCoupling {
    * @param extra Kilograms the borne person carries besides their body.
    * @param second A second helper on the carry's other side: its body, its side's row and carry; none when absent.
    * @returns The coupling, its key, holds and centre in the frame of the bearer's bone the resting region rides on.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `parameter` refusal on `mass` for a negative extra mass.
+   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `reach` refusal on `carry` when no bearer's stance and borne legs within their ranges bring a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`); a `parameter` refusal on `mass` for a negative extra mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame of the result and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at a standing bearer and turns it about that point to the row's hold places (`HumanCarriedCouplingFit.fit`); each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre); the capacity is the moment-balance bound of `HumanLoad.lean`.
+   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at the bearer's fitted stance and turns it about that point to the row's hold places, a lone bearer's stance and the borne legs changed least so the arms reach (`HumanCarriedCouplingFit.fit`), and the record keeps both so the bearer takes that stance and the borne body those legs; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre); the capacity is the moment-balance bound of `HumanLoad.lean`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key pose, contacts, centre, shares, capacity, record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A share the least-norm solution makes negative would pull the borne body down, which a resting contact cannot, so it is set to none and the rest renormalized; collinear bearing contacts, whose equations are singular, share equally. Both are stated here rather than hidden.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk resolutions, one mass model and a three-by-three solve, once per meeting.
@@ -231,9 +235,17 @@ export namespace HumanCarriedCoupling {
         reason: "a borne person carries no negative mass",
         fix: "give the mass they carry, or none",
       });
-    const stand: IHumanPosture = HumanCarriedCouplingPose.still();
+    // A lone bearer's stance and the borne legs are fitted so its arms
+    // reach the holds; a second helper keeps both bearers upright.
+    const fit: HumanCarriedCouplingFit.IFit = HumanCarriedCouplingFit.fit(
+      bearer,
+      borne,
+      row,
+      HOLDS[carry],
+      second === undefined,
+    );
     const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(bearer, stand);
+      HumanCarriedCouplingPose.stood(bearer, fit.stance);
     // The key frame is the bone the resting region rides on, so the borne
     // body goes with that bone wherever the bearer's action takes it.
     const anchor: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(
@@ -241,14 +253,7 @@ export namespace HumanCarriedCoupling {
       row.theirs,
     );
     const anchored: IAutoMovieResolvedBone = theirs.get(anchor)!;
-    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row);
-    const fit: HumanCarriedCouplingFit.IFit = HumanCarriedCouplingFit.fit(
-      bearer,
-      theirs,
-      borne,
-      row,
-      HOLDS[carry],
-    );
+    const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row, fit.legs);
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
@@ -278,7 +283,7 @@ export namespace HumanCarriedCoupling {
     > = {};
     if (second !== undefined) {
       const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        HumanTrunk.resolve(second.body, stand);
+        HumanCarriedCouplingPose.stood(second.body, { incline: 0, depth: 0 });
       const shift: IAutoMovieVector3 = Vector3.subtract(
         fit.place(
           HumanCarriedCouplingPose.region(borne, mine, second.row.mine),
@@ -411,6 +416,8 @@ export namespace HumanCarriedCoupling {
             Quaternion.multiply(fit.turn, resolveHumanPosture.heading(keyed)),
           ),
         ),
+        legs: fit.legs,
+        stance: fit.stance,
       },
       ...(second === undefined ? {} : { bearers }),
     };

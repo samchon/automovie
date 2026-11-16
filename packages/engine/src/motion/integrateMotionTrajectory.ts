@@ -4,23 +4,27 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
 import { samplePoseVelocity } from "./samplePoseVelocity";
+
+const { turn, scaled, dexpinv } = MotionTrajectoryStepper;
 
 /**
  * A trajectory planned once and read by time: the solution of `dx/dt = f(t, x)` from `t0` to `t1` by classical fourth-order Runge-Kutta at a fixed step, its knots kept with their derivatives and read between them by cubic Hermite interpolation.
  *
  * The step count is `ceil((t1 - t0) / h)`, the last step shortened to land on `t1` exactly. A state may carry an orientation block, a unit quaternion advanced on the exponential map by the body-frame angular velocity `f` returns, by the fourth-order Runge-Kutta-Munthe-Kaas method: each stage turns the step's start orientation by a rotation vector built from the earlier stages, each stage's body rate is carried to that vector's derivative by the inverse differential of the exponential, and the step turns the start by the stages' weighted vector, renormalised at each knot. Between knots the vector is the cubic Hermite of the two knots' values and derivatives, exact at knots and C1 between; the orientation is the start knot turned by the cubic Hermite of the rotation vector to the end knot, matching both knots' body rates, so a rate read between knots is the motion's and not the step's mean. Reads outside `[t0, t1]` hold the nearer end.
  *
- * The output depends only on `f`, `x0`, `q0`, `t0`, `t1` and `h`, never on which times are read or in which order, so a plan caches it as a value and playback and seeking read the same motion. `f` must be pure: no draw and no clock. The default step, a sixtieth of a second, keeps the classical method's error far under a millimetre for the motions planned here (#3424); a stiff `f`, such as a contact spring or a large drag, needs a smaller one.
+ * Given a `tolerance`, the trajectory is integrated instead by the Dormand-Prince 5(4) pair under error control, each step as long as its error estimate allows, and read between its knots by the pair's continuous extension (`MotionTrajectoryStepper.dormandPrince`): a right-hand side that changes fast in places, such as a body's shape folding in flight, is followed there without a fine step everywhere. Without one, every number is the fixed step's as it always was.
+ *
+ * The output depends only on `f`, `x0`, `q0`, `t0`, `t1`, `h` and `tolerance`, never on which times are read or in which order, so a plan caches it as a value and playback and seeking read the same motion. `f` must be pure: no draw and no clock. The default step, a sixtieth of a second, keeps the classical method's error far under a millimetre for the motions planned here (#3424); a stiff `f`, such as a contact spring or a large drag, needs a smaller one.
  *
  * @param props The right-hand side, the start state, the interval and the step.
  * @returns The trajectory.
- * @throws {Error} When the interval or the step is not finite and positive, the state is empty when no orientation is given, or `f` returns a rate of another length or without an angular velocity for the orientation: a caller's defect.
+ * @throws {Error} When the interval or the step is not finite and positive, the tolerance is not finite, non-negative and non-zero, the state is empty when no orientation is given, or `f` returns a rate of another length or without an angular velocity for the orientation: a caller's defect; or when an error-controlled step shrinks below its time's resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, the step count, the orientation block, the read between knots, the held ends, the determinism contract, the default step and the stiff-case caveat.
  * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 (Butcher's tableau 1/2, 1/2, 1 with weights 1/6, 1/3, 1/3, 1/6), whose global error is fourth order in the step; cubic Hermite interpolation with the knots' exact derivatives; the orientation by Runge-Kutta-Munthe-Kaas (Munthe-Kaas 1999, Appl Numer Math 29:115-127), the classical tableau applied in the Lie algebra with the inverse differential of the exponential truncated after its second bracket, which keeps the fourth order on the unit sphere; its read between knots is the cubic Hermite of the rotation vector in the same algebra.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, step to `t1` keeping knots, then a reader that finds the knot interval by index.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand an error-controlled request to the stepper, else step to `t1` keeping knots, then a reader that finds the knot interval by index.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters the integration; reads are pure functions of the knots.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four evaluations of `f` per step and one at the last knot; a read finds its interval by division in constant time.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's derivative is the next step's first stage, evaluated once.
@@ -57,6 +61,17 @@ export function integrateMotionTrajectory(
       );
     return r;
   };
+  if (props.tolerance !== undefined) {
+    const { relative, absolute } = props.tolerance;
+    if (
+      !(relative >= 0 && absolute >= 0 && relative + absolute > 0) ||
+      !Number.isFinite(relative + absolute)
+    )
+      throw new Error(
+        `integrateMotionTrajectory: the tolerance ${relative} relative and ${absolute} absolute is not finite, non-negative and non-zero`,
+      );
+    return MotionTrajectoryStepper.dormandPrince(props, rate, h);
+  }
   const add = (
     x: readonly number[],
     k: readonly number[],
@@ -129,6 +144,7 @@ export function integrateMotionTrajectory(
     t1,
     h,
     knots: times.length,
+    times,
     at: (time: number): integrateMotionTrajectory.IState => {
       const t: number = Math.max(t0, Math.min(t1, time));
       const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
@@ -179,7 +195,7 @@ export function integrateMotionTrajectory(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each type states its members' units and meaning.
  * @evidence contracts/development/design.md#principled-representation A vector state of plain numbers with an optional unit quaternion, a right-hand side returning the state's rate and the body-frame angular velocity, and an immutable trajectory read by time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the engine as the one fixed-step ODE integrator (P3 on #3503); read by the archetypes' towed ride and the motion laws #3424 unblocks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the engine as the one ODE integrator (P3 on #3503), fixed-step or, on request, error-controlled; read by the archetypes' towed ride and the motion laws #3424 unblocks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The orientation is a separate block, so a quaternion is never integrated as four free numbers.
  */
 export namespace integrateMotionTrajectory {
@@ -213,8 +229,31 @@ export namespace integrateMotionTrajectory {
     /** The last second, after `t0`. */
     t1: number;
 
-    /** The step, seconds, positive; `STEP` when absent. */
+    /** The step, seconds, positive; `STEP` when absent. Under a `tolerance`, the first step tried. */
     h?: number;
+
+    /**
+     * Error control: when given, the trajectory is integrated by the
+     * Dormand-Prince 5(4) pair with steps chosen so each step's error
+     * estimate stays within it, and read between knots by the pair's
+     * continuous extension; when absent, the fixed-step classical method,
+     * unchanged.
+     */
+    tolerance?: ITolerance;
+  }
+
+  /**
+   * A step's accepted error, per component: `absolute + relative × |value|`,
+   * the vector state's value the larger of the step's two ends, the
+   * orientation's the length of its rotation vector over the step, the
+   * error norm the root mean square of the components' error over that.
+   */
+  export interface ITolerance {
+    /** The share of a component's value, non-negative. */
+    relative: number;
+
+    /** The component's own unit, non-negative; not both zero. */
+    absolute: number;
   }
 
   /**
@@ -252,11 +291,14 @@ export namespace integrateMotionTrajectory {
     /** The last second. */
     t1: number;
 
-    /** The step. */
+    /** The step; under a tolerance, the first step tried. */
     h: number;
 
     /** The number of knots, the steps plus one. */
     knots: number;
+
+    /** The knots' times, seconds, from `t0` to `t1`: a fixed grid, or the accepted steps' ends under a tolerance. */
+    times: readonly number[];
 
     /**
      * The state at a time, held at the ends outside `[t0, t1]`.
@@ -264,67 +306,4 @@ export namespace integrateMotionTrajectory {
      */
     at: (time: number) => IState;
   }
-}
-
-/**
- * An orientation turned in its own frame by a rotation vector: `q * exp(v / 2)`, the rotation by `|v|` radians about `v` in the body's frame.
- *
- * @param q The orientation, or null for a state without one.
- * @param v The rotation vector, radians, body frame; absent for none.
- * @returns The turned orientation, or null.
- */
-function turn(
-  q: IAutoMovieQuaternion | null,
-  v: IAutoMovieVector3 | undefined,
-): IAutoMovieQuaternion | null {
-  if (q === null || v === undefined) return q;
-  const angle: number = Math.hypot(v.x, v.y, v.z);
-  if (angle === 0) return q;
-  return Quaternion.multiply(
-    q,
-    Quaternion.fromAxisAngle(v, (angle * 180) / Math.PI),
-  );
-}
-
-/**
- * A vector scaled, or absent when absent.
- *
- * @param v The vector, or undefined.
- * @param s The scale.
- * @returns `s v`, or undefined.
- */
-function scaled(
-  v: IAutoMovieVector3 | undefined,
-  s: number,
-): IAutoMovieVector3 | undefined {
-  return v === undefined ? undefined : { x: s * v.x, y: s * v.y, z: s * v.z };
-}
-
-/**
- * The derivative of a rotation vector `r` that turns the body at a body-frame
- * rate `w`, for an orientation `q exp(r)`: the inverse differential of the
- * exponential map, `w + r × w / 2 + r × (r × w) / 12`, its Bernoulli series
- * truncated after the second bracket, which keeps a fourth-order
- * Runge-Kutta-Munthe-Kaas step at its order (Munthe-Kaas 1999, "High order
- * Runge-Kutta methods on manifolds", Appl Numer Math 29:115-127; Iserles,
- * Munthe-Kaas, Nørsett and Zanna 2000, "Lie-group methods", Acta Numerica 9;
- * the truncation's order is checked here by the trajectory's own tests). The signs are the body frame's: for `q̇ = q ŵ / 2`, the rate of
- * `q exp(r)` is `ṙ - r × ṙ / 2 + ...`, whose inverse this is.
- *
- * @param r The rotation vector, radians; absent for a state without orientation.
- * @param w The body-frame rate, radians per second.
- * @returns The vector's derivative, radians per second, or undefined.
- */
-function dexpinv(
-  r: IAutoMovieVector3 | undefined,
-  w: IAutoMovieVector3 | undefined,
-): IAutoMovieVector3 | undefined {
-  if (r === undefined || w === undefined) return w;
-  const a: IAutoMovieVector3 = Vector3.cross(r, w);
-  const b: IAutoMovieVector3 = Vector3.cross(r, a);
-  return {
-    x: w.x + a.x / 2 + b.x / 12,
-    y: w.y + a.y / 2 + b.y / 12,
-    z: w.z + a.z / 2 + b.z / 12,
-  };
 }

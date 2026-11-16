@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -91,15 +92,16 @@ export namespace shift {
       });
     const entry: IHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
+    const under: number = seated.floor(body, context.entry);
 
     // The shift pushes off the feet planted on the floor, which a high seat takes off it.
     if (
-      start.y / seated.popliteal(body) > seated.RATIO[1] &&
+      (start.y - under) / seated.popliteal(body) > seated.RATIO[1] &&
       (["left", "right"] as const).some(
         (side: "left" | "right"): boolean =>
           !context.entry.feet[side].planted ||
           context.entry.feet[side].ankle.y >
-            body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
+            under + body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
       )
     )
       throw new HumanRefusal({
@@ -141,21 +143,21 @@ export namespace shift {
           kind: "plant",
           from: 0,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(context, "leftFoot"),
         },
         {
           part: "rightFoot",
           kind: "plant",
           from: 0,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(context, "rightFoot"),
         },
         {
           part: "seat",
           kind: "seat",
           from: 0,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(context, "seat"),
         },
       ],
       posture: (seconds: number): IHumanPosture => {

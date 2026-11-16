@@ -18,6 +18,7 @@ import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
+import type { IHumanActionLaw } from "./IHumanActionLaw";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 import type { IHumanEntryState } from "./IHumanEntryState";
@@ -186,6 +187,19 @@ export interface IHumanActionContext<P = object> {
    * @returns The forces, in the order the performance was given them.
    */
   forces?(from: number, to: number): readonly HumanForce.IForce[];
+
+  /**
+   * What the performer's next action on a prop demands of a grip this action
+   * is choosing (`IHumanActionLaw.demands`): the poses that action will hold
+   * the prop in, so a grasp is chosen for them as well as for its own reach.
+   * The action asked is the first later one of the performer that names the
+   * prop among its parameters; an action that asks nothing, or none, gives
+   * none. Absent on an overlay and on a context built outside a performance.
+   *
+   * @param grip The grip being weighed, with the posture this action leaves the body in with it.
+   * @returns The poses demanded of it.
+   */
+  demands?(grip: IHumanActionLaw.IGrip): readonly IHumanActionLaw.IDemand[];
 
   /**
    * This instance's draw stream for one channel.

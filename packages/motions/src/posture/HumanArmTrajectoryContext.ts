@@ -178,10 +178,11 @@ export namespace HumanArmTrajectoryContext {
 
     // A declared rest is a resting contact: no deeper than where the
     // segments meet (the audit's reference depth of the pair), and drawn to
-    // it by the objective; any other pair keeps `DEPTH` of margin. A
-    // collider's corner keeps the tangle audit's own reference depth in
-    // that segment; an axis sphere keeps the depth the arm resting at the
-    // waypoint has (`HumanArmTrajectoryWaypoint.IWaypoint.placed`).
+    // it by the objective; any other pair keeps `DEPTH` of margin. An
+    // own collider's corner keeps the tangle audit's reference depth in
+    // that segment; an external collider has no own-body reference. An axis
+    // sphere keeps the depth the arm resting at the waypoint has
+    // (`HumanArmTrajectoryWaypoint.IWaypoint.placed`).
     const give = (rested: boolean): number => (rested ? 0 : T.DEPTH);
     const corner = (
       a: number,
@@ -212,7 +213,10 @@ export namespace HumanArmTrajectoryContext {
         const s: G.IShape = frame.shapes[shape]!;
         const rested: number = give(declared(a, k, probe, s.bone));
         if (probe >= G.SURFACE)
-          v = (s.part >= 0 ? -corner(a, k, probe, s.part) : 0) - rested;
+          v =
+            (s.part >= 0 && s.part < model.parts.length
+              ? -corner(a, k, probe, s.part)
+              : 0) - rested;
         else {
           const [p, r]: readonly [IAutoMovieVector3, number] =
             point.placed[a]!.probes[probe]!;
@@ -253,8 +257,9 @@ export namespace HumanArmTrajectoryContext {
     };
 
     // A body corner inside one of the arm's own colliders: the audit reads
-    // every pair both ways, so the body's corners keep their reference
-    // depth in the arm's segments as the arm's keep theirs in the body.
+    // every pair both ways, so own-body corners keep their reference depth
+    // in the arm's segments as the arm's keep theirs in the body. External
+    // frame parts lie beyond the body's model and keep no reference depth.
     const lying = (
       a: number,
       k: number,
@@ -300,11 +305,13 @@ export namespace HumanArmTrajectoryContext {
               ? "lowerArm"
               : "hand";
         v =
-          -AutoMovieMotionHumanAuditTangleModel.reference(
-            model,
-            body.part,
-            col.part,
-          )[body.corner]! - give(lying(a, k, own, body.bone));
+          (body.part < model.parts.length
+            ? -AutoMovieMotionHumanAuditTangleModel.reference(
+                model,
+                body.part,
+                col.part,
+              )[body.corner]!
+            : 0) - give(lying(a, k, own, body.bone));
         point.inside[a]!.set(key, v);
       }
       return v;

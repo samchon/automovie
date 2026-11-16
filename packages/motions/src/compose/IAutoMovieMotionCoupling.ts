@@ -15,7 +15,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, frame and unit.
  * @evidence contracts/development/design.md#principled-representation A coupled contact is a part of one body on a region of the other with a load share, the support model of #3425 between two people; the carried mass and its centre are what the bearer's moment balance (#3431) reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two role names, the contacts, the borne mass and centre, and the borne body's key frame on the bearer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The two role names, the contacts, the borne mass and centre, and the borne body's key frame, legs and bearer's stance.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The frames are bearer bones' own (the anchor bone's), so the record is plain data that survives a move of the pair and keeps no body.
  */
 export interface IAutoMovieMotionCoupling {
@@ -56,13 +56,24 @@ export interface IAutoMovieMotionCoupling {
     >
   >;
 
-  /** The borne body's root frame in the bearer's anchor frame at the coupling's key pose. */
+  /** The borne body's root frame in the bearer's anchor frame at the coupling's key pose, its legs there and the bearer's stance it was placed on. */
   key: {
     /** Metres. */
     position: IAutoMovieVector3;
 
     /** Unit quaternion. */
     rotation: IAutoMovieQuaternion;
+
+    /** Both legs' hip flexion, knee flexion and hip abduction, degrees: the carry's own, changed least so the bearer's arms reach the holds. */
+    legs: readonly [number, number, number];
+
+    /**
+     * The first bearer's stance: its trunk's forward inclination, degrees,
+     * shared by the lumbopelvic rhythm, and how far it lowers by bending
+     * its knees, a share of a squat's drop in [0, 1]. Upright, both none,
+     * changed least so its arms reach the holds.
+     */
+    stance: { incline: number; depth: number };
   };
 }
 /**
