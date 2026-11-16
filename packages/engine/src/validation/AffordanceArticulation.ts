@@ -16,7 +16,14 @@ import { affordanceTravelRange } from "./affordanceTravelRange";
 export namespace AffordanceArticulation {
   /** The kinds whose travel moves parts and carried affordances. */
   export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set([
-    "hinge", "slider", "knob", "button", "trigger", "crank", "wheel", "pedal",
+    "hinge",
+    "slider",
+    "knob",
+    "button",
+    "trigger",
+    "crank",
+    "wheel",
+    "pedal",
   ]);
 
   /**
@@ -79,19 +86,34 @@ export namespace AffordanceArticulation {
     for (let k: number = 0; k < path.length; k++) {
       const at: IAutoMovieAffordance = path[k]!;
       const { minimum, maximum } = affordanceTravelRange(at);
-      if (!Number.isFinite(travel) ||
+      if (
+        !Number.isFinite(travel) ||
         (minimum !== null && travel < minimum) ||
-        (maximum !== null && travel > maximum))
+        (maximum !== null && travel > maximum)
+      )
         return { success: false, kind: "range", id: at.id, travel };
-      if (at.follows === undefined)
-        return { success: true, id: at.id, travel };
+      if (at.follows === undefined) return { success: true, id: at.id, travel };
       if (at.follows.reversible !== true)
-        return { success: false, kind: "follower", id: at.id, travel, leader: at.follows.id };
+        return {
+          success: false,
+          kind: "follower",
+          id: at.id,
+          travel,
+          leader: at.follows.id,
+        };
       const leading: number | null = affordanceLeadingTravel(
-        at.follows, travel, affordanceTravelRange(path[k + 1]!),
+        at.follows,
+        travel,
+        affordanceTravelRange(path[k + 1]!),
       );
       if (leading === null)
-        return { success: false, kind: "inverse", id: at.id, travel, leader: at.follows.id };
+        return {
+          success: false,
+          kind: "inverse",
+          id: at.id,
+          travel,
+          leader: at.follows.id,
+        };
       travel = leading;
     }
     return { success: false, kind: "reference", id, travel: value };
@@ -140,7 +162,8 @@ export namespace AffordanceArticulation {
     const seen: Set<string> = new Set();
     let at: IAutoMovieAffordance | undefined = byId.get(id);
     for (;;) {
-      if (at === undefined || !KINDS.has(at.kind) || seen.has(at.id)) return null;
+      if (at === undefined || !KINDS.has(at.kind) || seen.has(at.id))
+        return null;
       path.push(at);
       seen.add(at.id);
       if (at.follows === undefined) return path;

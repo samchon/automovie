@@ -10,8 +10,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
+import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 
 /**
@@ -174,7 +174,10 @@ export namespace ArchetypeArticulation {
         fix,
       });
     };
-    const within = (affordance: IAutoMovieAffordance, travel: number): boolean => {
+    const within = (
+      affordance: IAutoMovieAffordance,
+      travel: number,
+    ): boolean => {
       const { minimum, maximum } = range(affordance);
       return (
         Number.isFinite(travel) &&
@@ -185,7 +188,10 @@ export namespace ArchetypeArticulation {
 
     // Normalize reversible inputs before resolving any dependent travel.
     const inputs: Map<string, number> = ArchetypeArticulationState(
-      archetype, byId, articulations, state,
+      archetype,
+      byId,
+      articulations,
+      state,
     );
 
     // Every articulation's travel: a leader's as set, a follower's by its rule from its leader's.
@@ -200,11 +206,7 @@ export namespace ArchetypeArticulation {
         return set;
       }
       const leader: IAutoMovieAffordance | undefined = byId.get(a.follows.id);
-      if (
-        leader === undefined ||
-        !KINDS.has(leader.kind) ||
-        visiting.has(a.id)
-      )
+      if (leader === undefined || !KINDS.has(leader.kind) || visiting.has(a.id))
         throw new ArchetypeRefusal({
           kind: "articulation",
           archetype,

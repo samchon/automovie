@@ -24,11 +24,17 @@ export function affordanceLeadingTravel(
   domain?: { minimum: number | null; maximum: number | null },
 ): number | null {
   if (!Number.isFinite(follower)) return null;
-  if ((follows.ratio === undefined) === (follows.table === undefined)) return null;
+  if ((follows.ratio === undefined) === (follows.table === undefined))
+    return null;
   if (follows.table === undefined) {
     if (!Number.isFinite(follows.ratio) || follows.ratio === 0) return null;
     if (domain !== undefined) {
-      const end: number | null | undefined = endpoint(follows, follower, domain, Math.sign(follows.ratio));
+      const end: number | null | undefined = endpoint(
+        follows,
+        follower,
+        domain,
+        Math.sign(follows.ratio),
+      );
       if (end !== undefined) return end;
     }
     const leader: number = follower / follows.ratio;
@@ -51,7 +57,12 @@ export function affordanceLeadingTravel(
       return null;
   }
   if (domain !== undefined) {
-    const end: number | null | undefined = endpoint(follows, follower, domain, direction);
+    const end: number | null | undefined = endpoint(
+      follows,
+      follower,
+      domain,
+      direction,
+    );
     if (end !== undefined) return end;
   }
   if (
@@ -83,7 +94,10 @@ function endpoint(
   domain: { minimum: number | null; maximum: number | null },
   direction: number,
 ): number | null | undefined {
-  for (const [bound, sign] of [[domain.minimum, -1], [domain.maximum, 1]] as const) {
+  for (const [bound, sign] of [
+    [domain.minimum, -1],
+    [domain.maximum, 1],
+  ] as const) {
     if (bound === null) continue;
     if (!Number.isFinite(bound)) return null;
     const image: number = affordanceFollowedTravel(follows, bound);

@@ -18,7 +18,7 @@ const ROUND: string =
 /**
  * A shield held by a grip behind its boss: a buckler or a round shield.
  *
- * The shield stands upright with its centre at the origin and its face toward `+Z`. It is a disc with a domed boss on the face and a bar across the back, behind the boss, that the fist closes on. `face` is the whole front that meets a blow, `boss` the dome's top that a punch leads with, and `rim` the top of the edge.
+ * The shield stands upright with its centre at the origin and its face toward `+Z`. It is a disc with a domed boss on the face and a bar across the back, behind the boss, that the fist closes on. `face` is the whole front that meets a blow, `boss` the dome's top that a punch leads with, and `rim` the top of the edge. `slung` is where the shield hangs on a wearer's back: on its axis at its rearmost point, the back of the grip bar or of the boss ball, which reaches behind the board, `+Y` toward the wearer and `+X` across the shield, so a worn prop placed with that frame on the back of the chest bone carries the shield face out; the strap that holds it there is not drawn.
  *
  * @param params The kind, a buckler's model and any dimension the author fixes.
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
@@ -27,8 +27,8 @@ const ROUND: string =
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the shield stands, what it is built of and what each contact is.
  * @evidence contracts/development/implementation.md#principled-implementation A short cylinder for the board, a ball for the boss and a rod for the grip, of one density, so the centre of mass sits at the disc's centre a little toward the boss and the inertia is a disc's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the other dimensions, three parts, four contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arm strap, no rim binding; the board's thickness and the boss's size are estimates named on their constants.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the other dimensions, three parts, five contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arm strap, no rim binding and no guige strap for slinging; the board's thickness and the boss's size are estimates named on their constants.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -124,6 +124,18 @@ export function createShield(
     frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
   });
+
+  // Slung on the back, the shield's rearmost point lies against the wearer, its face outward: the back of the grip bar or of the boss ball, which reaches behind the board, whichever is farther back.
+  const rear: number = Math.min(
+    -half - createShield.GRIP,
+    half - createShield.BOSS,
+  );
+  builder.affordance({
+    id: "slung",
+    kind: "socket",
+    frame: ArchetypeFrame.facing(v(0, 0, rear), v(0, 0, -1), v(1, 0, 0)),
+    extent: null,
+  });
   return builder.build(d.mass!);
 }
 
@@ -132,7 +144,7 @@ export function createShield(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
  * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read bucklers, each whole, and one cited band per dimension a model leaves, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter and mass a block reads, and the grip, face, boss and rim it is held and struck by (#3202's buckler and round shield).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter and mass a block reads, the grip, face, boss and rim it is held and struck by (#3202's buckler and round shield), and the place it hangs on a back (#3500).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, a buckler's from one measured buckler, never between two; the uncited sizes are named constants, not literals in the builder.
  */
 export namespace createShield {
@@ -161,8 +173,9 @@ export namespace createShield {
    * - `face`: the whole front, facing `+Z`, as wide and as high as the diameter.
    * - `boss`: the top of the boss's dome, facing `+Z`.
    * - `rim`: the top of the edge, facing up.
+   * - `slung`: the shield's rearmost point on its axis, `+Y` toward a wearer whose back the shield hangs on (#3500).
    */
-  export type Affordance = "grip" | "face" | "boss" | "rim";
+  export type Affordance = "grip" | "face" | "boss" | "rim" | "slung";
 
   /**
    * The free dimensions:

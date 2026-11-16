@@ -173,14 +173,23 @@ function admitFollows(
     );
     return;
   }
-  if (follows.reversible !== undefined && typeof follows.reversible !== "boolean")
-    collector.push("type", `${fp}.reversible`, "reversible must be a boolean", follows.reversible);
+  if (
+    follows.reversible !== undefined &&
+    typeof follows.reversible !== "boolean"
+  )
+    collector.push(
+      "type",
+      `${fp}.reversible`,
+      "reversible must be a boolean",
+      follows.reversible,
+    );
   if (
     follows.reversible === true &&
     affordanceLeadingTravel(follows, follows.table?.[0]?.[1] ?? 0) === null
   )
     collector.push(
-      "range", `${fp}.reversible`,
+      "range",
+      `${fp}.reversible`,
       "a reversible coupling needs a nonzero ratio or strictly monotone table outputs",
       follows,
     );
@@ -206,7 +215,8 @@ function admitFollows(
           follows.ratio,
         );
       if (follows.ratio === 0) outputs.push(0);
-    } else outputs.push(follows.ratio * lead.minimum, follows.ratio * lead.maximum);
+    } else
+      outputs.push(follows.ratio * lead.minimum, follows.ratio * lead.maximum);
   } else {
     const table: [number, number][] = follows.table;
     let ordered: boolean = table.length >= 2;
