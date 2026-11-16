@@ -60,10 +60,38 @@ The primary sources behind shipped instructions, with what each supports and whe
 
 | Source | Supports | Limit |
 | --- | --- | --- |
-| [OpenBMB: VoxCPM](https://github.com/OpenBMB/VoxCPM) | Local speech generation from fixed recordings | A model load does not establish usable speech |
+| [OpenBMB: VoxCPM](https://github.com/OpenBMB/VoxCPM) | Reference conditioning and speech generation | Languages and controls vary by checkpoint |
 | [Netflix timed text style guides](https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977), [W3C WebVTT](https://www.w3.org/TR/webvtt1/) | Caption length, reading speed, timing at cuts, captions for viewers who cannot hear | One distributor's values |
 | [FFmpeg filters](https://ffmpeg.org/ffmpeg-filters.html) | Trimming, rebasing, resampling and retiming | An encoder's success proves no synchronization |
 | [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4), [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation) | Separating dialogue, music and effects stems from a film mix, effects being the hardest | Benchmarks and one vendor; test on the production's own takes |
 | [MMAudio](https://github.com/hkchengrex/MMAudio) | Video-to-audio effects generated on clips of a few seconds | Trained on short clips; weights non-commercial |
 | [OpenTimelineIO time ranges](https://opentimelineio.readthedocs.io/en/latest/tutorials/time-ranges.html) | A clip's used range against its available media; handles for transitions | A format, not a required file |
 | [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) | Tagged color, progressive scan and audio sample rate in a delivered file | One platform's values |
+
+### Audio generation
+
+[Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS), [CosyVoice](https://github.com/QwenAudio/CosyVoice) and [OpenVoice](https://github.com/myshell-ai/OpenVoice) distinguish reference synthesis, voice design and conversion. Checkpoint and language determine which inputs and controls exist.
+
+[MOSS-TTS](https://github.com/OpenMOSS/MOSS-TTS) and [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) cover long speech and voice adaptation. [Fish Drama 3](https://huggingface.co/fishaudio/drama-3), [Higgs TTS 3](https://huggingface.co/bosonai/higgs-tts-3-4b) and [IndexTTS](https://github.com/index-tts/index-tts) add expressive controls with release-specific terms.
+
+[F5-TTS](https://github.com/SWivid/F5-TTS) and [XTTS-v2](https://huggingface.co/coqui/XTTS-v2) show why code licenses do not establish weight rights. [Chatterbox](https://github.com/resemble-ai/chatterbox) and [VibeVoice](https://github.com/microsoft/VibeVoice) show why maintenance and component availability affect adoption.
+
+[Stable Audio 3](https://github.com/Stability-AI/stable-audio-3) supplies purpose-built sound generation. Its current model and Community License govern adoption.
+
+### Audio prompting
+
+[VoxCPM](https://github.com/OpenBMB/VoxCPM), [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) and [CosyVoice's examples](https://github.com/QwenAudio/CosyVoice/blob/main/example.py) separate voice design, instructions and reference conditioning. A family's cloning checkpoint need not accept the instructions its design checkpoint takes.
+
+[F5-TTS inference](https://github.com/SWivid/F5-TTS/blob/main/src/f5_tts/infer/README.md) covers complete reference phrases, padding, transcript alignment and text preprocessing. Its numerical limits and punctuation behavior belong to that runtime, not all speech models.
+
+[ElevenLabs voice design](https://elevenlabs.io/docs/eleven-creative/voices/voice-design) distinguishes timbre from delivery and shows how preview text affects a voice. Its [speech guide](https://elevenlabs.io/docs/overview/capabilities/text-to-speech/best-practices) treats normalization, pronunciation and pauses differently across versions.
+
+[Gemini's TTS guide](https://aistudio.google.com/docs/speech-generation#prompting-guide) separates speaker identity, sustained delivery and momentary vocal events. [Drama 3's guide](https://docs.fish.audio/features/text-to-speech/drama-3) scopes direction to lines or words. Their syntaxes are endpoint-specific, not interchangeable.
+
+[Stable Audio's prompt guide](https://stability.ai/guides/stable-audio-3-prompt-guide) grounds effects in source, action and acoustic character, music in instruments and arrangement, and continuation in surrounding audio. Instrumental generation does not establish intelligible speech or exact musical timing.
+
+### Audio observation
+
+[OpenAI's model modalities](https://developers.openai.com/api/docs/models/gpt-6.1-sol) and [Codex's audio input protocol](https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/protocol/src/user_input.rs) distinguish model input support from attachment transport. Check the actual model and tools before claiming auditory access.
+
+[Claude's model inputs](https://platform.claude.com/docs/en/models/opus-5-5) and [Claude Code's dictation](https://code.claude.com/docs/en/voice-dictation) likewise separate coding-model modalities from speech-to-text. Neither decoded measurements nor transcription approves the listening experience.

@@ -10,7 +10,7 @@ Inspect each recording's source, recording method and terms, because a site's fr
 
 Record Foley when the required material or movement is missing, capturing isolated variations that differ usefully in intensity and perspective.
 
-When generating, describe the source, action and recording character, have the user audition a short result, and select variations before expanding. [Stable Audio](https://github.com/Stability-AI/stable-audio-3) is one purpose-built option; its current documentation owns setup, controls and output rights.
+Choose a purpose-built generator under [effects and ambience](diffusion/models.md#effects-and-ambience) and write its [prompt](diffusion/prompts.md#effects-and-ambience). Have the user audition a short result, and select variations before expanding.
 
 ## Editing to picture
 
