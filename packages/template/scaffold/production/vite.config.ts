@@ -7,8 +7,20 @@ const productionRoot: string = fileURLToPath(new URL(".", import.meta.url));
 
 /** The production's inspector page; generated evidence and capture scratch never reload it. `automovie capture`, `render` and `inspect` build their own pages with this configuration. */
 export default defineConfig({
+  resolve: {
+    // Published SDK CommonJS imports must share the browser's ESM Three.js;
+    // Three.js's require entry emits a Node-only process warning.
+    alias: [
+      {
+        find: /^three$/,
+        replacement: fileURLToPath(import.meta.resolve("three")),
+      },
+    ],
+  },
   build: {
     target: "es2022",
+    // Preserve lazy initialization across the published SDK's require cycles.
+    commonjsOptions: { strictRequires: true },
   },
   server: {
     host: "127.0.0.1",

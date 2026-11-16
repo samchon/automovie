@@ -27,13 +27,13 @@ Each delivered video is one film in `src/composition/films/`, registered in `src
 
 ## Stills
 
-Run `pnpm run review:setup` once to install the browser. `pnpm run capture --subject <film> [request]` runs `automovie capture --module src/subjects.ts`: it draws each planned still of the film through the delivery render's draw function and writes the stills, contact sheets and a record into `media/capture/<film>/`, as the [render README](https://github.com/samchon/automovie/tree/master/packages/render#capture) describes, exiting non-zero when a cell could not be drawn. `--file <video>` captures an encoded file's own frames around its cuts instead of a film.
+Run `pnpm run review:setup` once to install the browser. `pnpm run capture --subject <film> [request]` runs `automovie capture --module src/subjects.ts`: it draws each planned still of the film through the delivery render's draw function and writes the stills, contact sheets and a record into `media/capture/<film>/`, as the [render README](https://github.com/samchon/automovie/tree/master/packages/render#capture) describes, exiting non-zero when a cell could not be drawn. `pnpm exec automovie capture --file <video>` captures an encoded file's own frames around its cuts instead of a film.
 
 The request takes the inspector address's keys, each written with `--` before it. The [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with what it asks for and the requirement it serves, including marks, rounds, comparisons and the options that select exact frames or seconds.
 
 ```bash
 pnpm run capture --subject catalog --from 12 --to 14 --events 13.1 --views "right;three-quarter@ortho"
-pnpm run capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
+pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
 ```
 
 ## Render and playback
@@ -71,7 +71,7 @@ Follow the [production workflow]({{skills}}/production/workflow.md) for the requ
 | `pnpm run render --subject <film>` | Export one film as a picture-only video |
 | `pnpm run review --url <address> --seconds <s>` | Record real-time playback of the running inspector page |
 | `pnpm run capture --subject <film> [request]` | Stills, sheets and a record of a film, with views, passes, marks and round comparison |
-| `pnpm run capture --file <video> [request]` | Stills of an encoded file's own frames, around its cuts |
+| `pnpm exec automovie capture --file <video> [request]` | Stills of an encoded file's own frames, around its cuts |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
