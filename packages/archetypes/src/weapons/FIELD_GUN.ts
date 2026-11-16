@@ -132,6 +132,14 @@ export namespace FIELD_GUN {
   export const VENT: number = 80;
 
   /**
+   * The elevating screw (Mordecai, Artillery for the United States Land Service, 1849, p. 73, https://archive.org/details/artilleryforunit00unitrich): the field carriage's screw is forged from 2 in round iron, 15 in long, and turned in a brass box let into the stock, its head bearing under the breech; "the base ring rests upon the head of the elevating screw" (Benton). `bar` is that bar's diameter. `pitch` is ten threads to the inch, the mountain howitzer's screw, which Mordecai says is "finished in the same manner as the screw for a field carriage": borrowed, provisional, since no thread is given for the field screw itself (searched: the 1850, 1861 and 1862 Ordnance Manuals, Gibbon 1860, Benton 1862, the 1845 and 1863 Instruction for Field Artillery, Roberts 1861; records/elevating-screw.md).
+   */
+  export const SCREW: Readonly<{ bar: number; pitch: number }> = {
+    bar: 2 * IN,
+    pitch: IN / 10,
+  };
+
+  /**
    * The gun's service, read at the 1861 Ordnance Manual and Gibbon: the 6-pdr's shot, 3.58 in and 6.1 lb (p. 34); its muzzle velocity at the 1.25 lb service charge, 1439 ft/s, from the Washington Arsenal's ballistic pendulum ("Initial Velocities of Cannon-Balls", p. 393); its recoil, "under some circumstances the 6-pdr. gun will recoil but 1½ or 2 yards" (Gibbon, p. 272); the lanyard, "a piece of strong cod-line (about .2 inch diam.) 12 feet long", a hook at one end and a toggle .75 inch across and 4 inches long at the other (p. 132); the friction primer's long tube 1.75 inch and its wire 3.4 inches (p. 298); the trail handspike, 53 inches long (p. 137).
    */
   export const SERVICE: Readonly<{

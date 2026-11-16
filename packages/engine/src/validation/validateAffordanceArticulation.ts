@@ -2,6 +2,7 @@ import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
+import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
 import { affordanceTravelRange } from "./affordanceTravelRange";
 
 /** The kinds whose travel moves parts and riding affordances. */
@@ -10,14 +11,14 @@ const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set<
 >(["hinge", "slider", "knob", "button", "trigger", "crank", "wheel", "pedal"]);
 
 /**
- * Admit a model's articulation references: every `parts` id names a part of the model, sits on an articulation kind and is claimed once; every `rides` id names another articulation affordance through a chain that ends; and every `follows` sits on an articulation and names another articulation of the model, gives exactly one of a finite `ratio` and a `table` whose leader travels are finite, strictly increasing and span the leader's whole range, keeps every travel it gives inside the follower's own range, and leads into no cycle through `follows` and `rides` together.
+ * Admit a model's articulation references: every `parts` id names a part of the model, sits on an articulation kind and is claimed once; every `rides` and every `follows` chain is independently acyclic; and each coupling names another articulation, gives one finite ratio or a table spanning its leader's range, stays within its follower's range, and is one-to-one when marked reversible.
  *
  * @param affordances The model's affordances, in authored order.
  * @param parts The model's part ids.
  * @param path The caller-relative path of the affordance list, such as `$input.affordances`.
  * @param collector The caller's collector; each fault is appended at the offending field.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Reference resolution over two id sets, then a walk up each `rides` chain that stops at the first affordance met twice, which is the starting one when the chain returns to itself and another when the chain runs into a cycle further up; ids are unique by the caller's earlier check, and a repeated id resolves to its first record. A follower's range check evaluates its rule where the extremes of a piecewise-linear map lie: a ratio at the leader's two ends, a table at its rows. Its cycle check is a depth-first walk over both edges of each affordance.
+ * @evidence contracts/development/implementation.md#principled-implementation Reference resolution over two id sets, then independent walks of rides and follows: travel resolution reads only follows, and subsequent spatial evaluation recurses only through rides, so mixing the edges would refuse valid mechanisms. A follower's range check evaluates the extrema of its piecewise-linear map; reversible admission uses the same inverse that normalizes authored inputs.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One leaf owns the cross-record articulation rules, beside `validateAffordance`, which owns one record's own fields; the follower's rule is evaluated by `affordanceFollowedTravel` and the ranges read from `affordanceTravelRange`, the same owners the archetypes' pose reads.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Faults are reported, never repaired; a `rides` cycle is reported once per affordance on it or leading into it, at its own `rides`, saying which of the two it is, and a cycle through `follows` at the `follows` that leads into it. A ratio on an endless crank gives an endless travel, admitted only when the follower is endless too.
  * @evidence contracts/development/common.md#meaningful-documentation States each admitted rule and where a fault is reported.
@@ -120,7 +121,7 @@ export const validateAffordanceArticulation: (
 };
 
 /**
- * Admit one follower's `follows`: its kind, its leader, its one rule, the rule's travels against both ranges, and no cycle through `follows` and `rides`.
+ * Admit one follower's coupling, its invertibility when requested, and its acyclic follows chain.
  *
  * @param follower The affordance that declares `follows`.
  * @param byId The model's affordances by id.
@@ -172,6 +173,17 @@ function admitFollows(
     );
     return;
   }
+  if (follows.reversible !== undefined && typeof follows.reversible !== "boolean")
+    collector.push("type", `${fp}.reversible`, "reversible must be a boolean", follows.reversible);
+  if (
+    follows.reversible === true &&
+    affordanceLeadingTravel(follows, follows.table?.[0]?.[1] ?? 0) === null
+  )
+    collector.push(
+      "range", `${fp}.reversible`,
+      "a reversible coupling needs a nonzero ratio or strictly monotone table outputs",
+      follows,
+    );
   const outputs: number[] = [];
   if (follows.table === undefined) {
     if (!Number.isFinite(follows.ratio)) {
@@ -193,9 +205,8 @@ function admitFollows(
           `"${leader.id}" turns without limit, so a ratio of ${follows.ratio} drives "${follower.id}" past its range`,
           follows.ratio,
         );
-      return;
-    }
-    outputs.push(follows.ratio * lead.minimum, follows.ratio * lead.maximum);
+      if (follows.ratio === 0) outputs.push(0);
+    } else outputs.push(follows.ratio * lead.minimum, follows.ratio * lead.maximum);
   } else {
     const table: [number, number][] = follows.table;
     let ordered: boolean = table.length >= 2;
@@ -265,7 +276,7 @@ function admitFollows(
       break;
     }
 
-  // Nothing reached through follows and rides leads back to the follower.
+  // Travel dependencies form their own DAG; spatial parentage is checked above.
   const seen: Set<string> = new Set();
   const stack: IAutoMovieAffordance[] = [leader];
   while (stack.length > 0) {
@@ -274,14 +285,14 @@ function admitFollows(
       collector.push(
         "type",
         `${fp}.id`,
-        `the follows and rides chain from "${follower.id}" returns to itself`,
+        `the follows chain from "${follower.id}" returns to itself`,
         follows.id,
       );
       return;
     }
     if (seen.has(at.id)) continue;
     seen.add(at.id);
-    for (const next of [at.follows?.id, at.rides]) {
+    for (const next of [at.follows?.id]) {
       const found: IAutoMovieAffordance | undefined =
         next === undefined ? undefined : byId.get(next);
       if (found !== undefined) stack.push(found);
