@@ -18,7 +18,7 @@ Each subject takes the least form its motion hint needs, as [coarse first](../de
 
 ## Requested detail
 
-Go further only for a [detail option](../development/entities.md#detail), such as a [direct 3D film](../direct-film/SKILL.md)'s, or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. Build only what the request names and the subject's visible role needs, because finer geometry takes the time motion needs and diffusion repaints it anyway.
+Go further only for a [detail option](../development/entities.md#detail), such as a [direct 3D film](../video/direct-film.md)'s, or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. Build only what the request names and the subject's visible role needs, because finer geometry takes the time motion needs and diffusion repaints it anyway.
 
 | Task | Read |
 | --- | --- |

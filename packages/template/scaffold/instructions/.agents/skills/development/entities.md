@@ -4,7 +4,7 @@ Build the subjects the commission's scenes need, each in the entity folder [sour
 
 ## Coarse first
 
-A motion hint guides video diffusion, which supplies the appearance, so models stay coarse and the accuracy goes to motion, staging, timing, range and camera readability.
+Keep geometry coarse so motion, staging, timing and camera stay readable. Choose solid colors freely for people, groups and objects to distinguish them or express their character.
 
 ### People
 
@@ -34,7 +34,7 @@ Author motion, accept catalog cases and review segments on the coarse form. It s
 
 Select the detailed form only for the delivery that commissions it, and record the choice in [project context](../production/project-context.md). Then capture the same segments at both settings and compare their proportions, pivots, contact, deformation, visibility, timing and silhouette.
 
-[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns how a detailed form is made, rigged and verified, and [direct film](../direct-film/SKILL.md) what a direct 3D film's detail adds.
+[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns how a detailed form is made, rigged and verified, and [direct film](../video/direct-film.md) what a direct 3D film's detail adds.
 
 ## Inspection and handoff
 
