@@ -36,12 +36,12 @@ import { motionHumanLawSweepCell } from "./motionHumanLawSweepCell";
  * @evidence contracts/development/design.md#principled-representation Runtime ledger strings select typed scene inputs and attributable cell observations, with world metres, heading degrees, seed identity and elapsed wall milliseconds kept distinct.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns scene construction, row consumption and cell attribution for the stage tables, covering sweep, pose corpus and metamorphic readers; physical cell verification lives in motionHumanLawSweepCell.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Stages retain actual canonical bodies and public compositions; no expected pose or replacement producer is part of the scene types, and unchecked ledger target strings are admitted by the real laws.
- * @evidence contracts/development/implementation.md#principled-implementation Every reading is a detector of the motions package's audit on displayed bones; the limits are the audit's own or the 10 mm skin tolerance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Scene helpers and staging feed the attributed cell reader, which delegates film verification; the loop over laws, rows, bodies and seeds remains motionHumanLawCovering's.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal, an unstaged parameter and an unknown law are complaints, never skipped cells.
- * @evidence contracts/development/implementation.md#efficient-algorithms One film per cell shared by every detector; the repeat for determinism is read at 4 Hz.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and the generic audit come from `motionHumanLaw`.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cell results retain complaint text without an added cap; a kept first film is the caller's and frame caches remain owned by their films, with no sweep-global film cache.
+ * Every reading is a detector of the motions package's audit on displayed bones; the limits are the audit's own or the 10 mm skin tolerance.
+ * Scene helpers and staging feed the attributed cell reader, which delegates film verification; the loop over laws, rows, bodies and seeds remains motionHumanLawCovering's.
+ * A refusal, an unstaged parameter and an unknown law are complaints, never skipped cells.
+ * One film per cell shared by every detector; the repeat for determinism is read at 4 Hz.
+ * Films and the generic audit come from `motionHumanLaw`.
+ * Cell results retain complaint text without an added cap; a kept first film is the caller's and frame caches remain owned by their films, with no sweep-global film cache.
  */
 export namespace motionHumanLawSweep {
   /**

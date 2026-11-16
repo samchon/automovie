@@ -54,22 +54,22 @@ export namespace fitSeededChainToTarget {
    * source root and unrelated joints, which must also remain unchanged while
    * the workspace is in use. Release the workspace when that operation ends.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States input stability, borrowed result members, caller-owned lifetime and the two operations' frames.
-   * @evidence contracts/development/design.md#principled-representation Fixed source dependencies admit several independent model-metre targets without making the previous answer a new source or continuation seed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The contact re-aim consumer needs only another fit and its actual reached rotation; internal preparation and lazy caches stay private.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Cold or near is fixed by the source request; target order does not change it and no prior result replaces a global sweep.
+   * States input stability, borrowed result members, caller-owned lifetime and the two operations' frames.
+   * Fixed source dependencies admit several independent model-metre targets without making the previous answer a new source or continuation seed.
+   * The contact re-aim consumer needs only another fit and its actual reached rotation; internal preparation and lazy caches stay private.
+   * Cold or near is fixed by the source request; target order does not change it and no prior result replaces a global sweep.
    */
   export interface IWorkspace {
     /**
      * Fit one target using the original source pose and unchanged search policy.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States model-metre input and fixed source/search meaning.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare owns the fit composition.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature performs no solve.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents shared preparation and unchanged candidate work.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns invariant sharing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * States model-metre input and fixed source/search meaning.
+     * Signature only; prepare owns the fit composition.
+     * No body is declared here.
+     * The signature performs no solve.
+     * The producer documents shared preparation and unchanged candidate work.
+     * The producer owns invariant sharing.
+     * The signature acquires nothing.
      */
     fit(target: IAutoMovieVector3): IAutoMovieSeededChainFit;
 
@@ -78,13 +78,13 @@ export namespace fitSeededChainToTarget {
      * The pose must be this workspace's result, with its root, ancestors and
      * intermediate joints unchanged; a result with null preparation uses full FK.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States actual rotation, fit-result admission and unchanged non-chain dependencies.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare delegates to the chain-frame reader.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no frame.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents the joint scan and constant-size FK.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns prepared-frame reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * States actual rotation, fit-result admission and unchanged non-chain dependencies.
+     * Signature only; prepare delegates to the chain-frame reader.
+     * No body is declared here.
+     * The signature computes no frame.
+     * The producer documents the joint scan and constant-size FK.
+     * The producer owns prepared-frame reuse.
+     * The signature acquires nothing.
      */
     rotation(pose: IAutoMoviePose): IAutoMovieQuaternion;
   }
@@ -96,13 +96,13 @@ export namespace fitSeededChainToTarget {
    * A supplied authored reader must use the exact source rig, pose and
    * clinical mappings; it shares already completed full FK at first use.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed dependencies, synchronous ownership and target-independent cold/near policy.
-   * @evidence contracts/development/implementation.md#principled-implementation Shares exactly the prepared rigid frames, domains, source/reference FK and angle maps whose inputs remain fixed, then invokes the same bend search and final orientation for each target.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainFit owns invariant data; fitChainBend owns candidate search and orientChainEffector owns final articulation; the rotation reader uses the same prepared frames.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No callback result, target-dependent candidate score, seed, target or final pose is memoized across targets; only fixed preparation, FK, prior conversion and source continuity are shared. Invalid preparation retains the one-shot fallback and full FK rotation read.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Rig preparation and at most two lazy full FK reads occur once per workspace; an authored reader can reuse one full FK the caller already needs. Each target retains its search, sharing candidate FK/continuity conversions and lazy fixed-prior conversions; reached rotation uses a joint scan and constant chain FK.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed input scope proves equivalence; an optional exact authored-FK reader stays at the original lazy admission site, returned fit poses preserve prepared non-chain dependencies, and every target still invokes callbacks at the original candidate sites.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The two returned closures own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
+   * States fixed dependencies, synchronous ownership and target-independent cold/near policy.
+   * Shares exactly the prepared rigid frames, domains, source/reference FK and angle maps whose inputs remain fixed, then invokes the same bend search and final orientation for each target.
+   * prepareChainFit owns invariant data; fitChainBend owns candidate search and orientChainEffector owns final articulation; the rotation reader uses the same prepared frames.
+   * No callback result, target-dependent candidate score, seed, target or final pose is memoized across targets; only fixed preparation, FK, prior conversion and source continuity are shared. Invalid preparation retains the one-shot fallback and full FK rotation read.
+   * Rig preparation and at most two lazy full FK reads occur once per workspace; an authored reader can reuse one full FK the caller already needs. Each target retains its search, sharing candidate FK/continuity conversions and lazy fixed-prior conversions; reached rotation uses a joint scan and constant chain FK.
+   * The fixed input scope proves equivalence; an optional exact authored-FK reader stays at the original lazy admission site, returned fit poses preserve prepared non-chain dependencies, and every target still invokes callbacks at the original candidate sites.
+   * The two returned closures own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
    */
   export function prepare(
     source: Omit<IFitChainToTargetProps, "target">,

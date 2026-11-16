@@ -77,13 +77,13 @@ export namespace resolveChainEffectorBaseRotation {
    * and unchanged non-chain records. The caller owns remaining upper/mid
    * admission and must have admitted strict upper-to-mid-to-end ancestry.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States completed end/non-chain admission, the caller's remaining chain admission, strict ancestry and exact optional-inverse identity.
-   * @evidence contracts/development/implementation.md#principled-implementation Full FK gives endWorld = lowerWorld * fixedFrame * endArticulation, so left multiplication by lowerWorld inverse and right multiplication by the last end articulation inverse recover the fixed frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The same recovery serves preparation and the checked standalone entry, with no repeated FK or ancestry scan after preparation's admission.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Skeleton-declared axes override the host table and the last actual end articulation is removed; unchanged intermediate transforms remain in the recovered frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(J) last-record scan, at most one O(B) bone lookup and one clinical conversion plus constant quaternion work; preparation reuses its already computed lower inverse.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the caller's completed full-FK frames and exact lower inverse, rather than resolving the same pose again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one derived quaternion and retains no inputs, map, rig, handle or task after return.
+   * States completed end/non-chain admission, the caller's remaining chain admission, strict ancestry and exact optional-inverse identity.
+   * Full FK gives endWorld = lowerWorld * fixedFrame * endArticulation, so left multiplication by lowerWorld inverse and right multiplication by the last end articulation inverse recover the fixed frame.
+   * The same recovery serves preparation and the checked standalone entry, with no repeated FK or ancestry scan after preparation's admission.
+   * Skeleton-declared axes override the host table and the last actual end articulation is removed; unchanged intermediate transforms remain in the recovered frame.
+   * One O(J) last-record scan, at most one O(B) bone lookup and one clinical conversion plus constant quaternion work; preparation reuses its already computed lower inverse.
+   * Borrows the caller's completed full-FK frames and exact lower inverse, rather than resolving the same pose again.
+   * Returns one derived quaternion and retains no inputs, map, rig, handle or task after return.
    */
   export function fromPrepared(
     props: IProps,
@@ -118,13 +118,13 @@ export namespace resolveChainEffectorBaseRotation {
    * Whether one root-reachable bone lies strictly below another in the same
    * unchanged rooted topology; root reachability excludes detached cycles.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States strict descent, root reachability and unchanged-topology premises.
-   * @evidence contracts/development/implementation.md#principled-implementation A depth-first walk of the existing parent-to-children index finds a strict descendant without assuming direct adjacency.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation and standalone frame recovery use one ancestry owner instead of separate hierarchy policies.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Equal identities are not accepted by themselves and unreachable/cyclic inputs are excluded by the callers' root-reachability admission.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Visits at most the ancestor's descendant subtree, O(B) time and O(tree depth) stack, stopping at the first match.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the caller's existing topology; prepared callers do not repeat the traversal in fromPrepared.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses only the recursion stack and retains no index, rig, cache or handles after return.
+   * States strict descent, root reachability and unchanged-topology premises.
+   * A depth-first walk of the existing parent-to-children index finds a strict descendant without assuming direct adjacency.
+   * Preparation and standalone frame recovery use one ancestry owner instead of separate hierarchy policies.
+   * Equal identities are not accepted by themselves and unreachable/cyclic inputs are excluded by the callers' root-reachability admission.
+   * Visits at most the ancestor's descendant subtree, O(B) time and O(tree depth) stack, stopping at the first match.
+   * Reuses the caller's existing topology; prepared callers do not repeat the traversal in fromPrepared.
+   * Uses only the recursion stack and retains no index, rig, cache or handles after return.
    */
   export function isDescendant(
     topology: IAutoMovieSkeletonTopology,

@@ -146,7 +146,7 @@ export namespace jointRotationOracle {
   /**
    * Clinical field order, used only for coordinates and domains.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the degree-valued coordinates in their tuple order.
+   * Names the degree-valued coordinates in their tuple order.
    */
   export const AXES: readonly ("flexion" | "abduction" | "twist")[] = [
     "flexion",
@@ -158,14 +158,14 @@ export namespace jointRotationOracle {
    * Absolute score precision exposing the near-equal case's 1e-8 improvement;
    * this numerical comparison is not a physical angular allowance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes normalized-score precision from physical angles.
+   * Distinguishes normalized-score precision from physical angles.
    */
   export const SCORE_PRECISION: number = 1e-12;
 
   /**
    * Immutable normalized F=X, A=Y, T=Z fixture shared by the three entries.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed orthonormal axis convention and record lifetime.
+   * States the fixed orthonormal axis convention and record lifetime.
    */
   export const CANONICAL: IAutoMovieJointAxes = normalizeJointAxes(
     {

@@ -151,10 +151,10 @@ export namespace integrateAirborneRotation {
   /**
    * What a torque-free flight and its optional momentum tangents are integrated from.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state seconds, root/world frames, momentum units, integration budgets and body-frame tangent outputs.
-   * @evidence contracts/development/design.md#principled-representation The history supplies root-frame inertia and relative momentum; world momentum is constant and q0 is the takeoff attitude. Interval and state dimensions are admitted by the trajectory integrator; positive principal moments and a pure history remain caller premises.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The flight pass supplies physical inputs and the shooting solver additionally supplies same-unit momentum directions; this wrapper owns the internal tangent partition and accepts only relative/absolute budgets.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional matrix contains the requested directions without a second body model; its Frobenius budget does not promise invariance under independently rescaled parameter columns.
+   * Members state seconds, root/world frames, momentum units, integration budgets and body-frame tangent outputs.
+   * The history supplies root-frame inertia and relative momentum; world momentum is constant and q0 is the takeoff attitude. Interval and state dimensions are admitted by the trajectory integrator; positive principal moments and a pure history remain caller premises.
+   * The flight pass supplies physical inputs and the shooting solver additionally supplies same-unit momentum directions; this wrapper owns the internal tangent partition and accepts only relative/absolute budgets.
+   * The optional matrix contains the requested directions without a second body model; its Frobenius budget does not promise invariance under independently rescaled parameter columns.
    */
   export interface IProps {
     /** The shape's history (`history`). */
@@ -195,10 +195,10 @@ export namespace integrateAirborneRotation {
   /**
    * A shape history with an explicitly owned numeric memo.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation It is the same seconds-to-root-frame-instant reader, with a clear operation for its numeric memo.
-   * @evidence contracts/development/design.md#principled-representation Extends the history callback with cache lifetime ownership; clear forgets computed values without changing the pure shape or the values a new read computes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The history factory produces it and HumanPerformanceFlight clears it in finally after solving or refusal; general uncached IHistory callbacks remain unchanged.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares IHistory instead of duplicating the callback contract; no cache cap, time grid or approximate sample is introduced.
+   * It is the same seconds-to-root-frame-instant reader, with a clear operation for its numeric memo.
+   * Extends the history callback with cache lifetime ownership; clear forgets computed values without changing the pure shape or the values a new read computes.
+   * The history factory produces it and HumanPerformanceFlight clears it in finally after solving or refusal; general uncached IHistory callbacks remain unchanged.
+   * Shares IHistory instead of duplicating the callback contract; no cache cap, time grid or approximate sample is introduced.
    */
   export type ICachedHistory = IHistory & {
     /** Release cached instants and boundary moments; the next query recomputes them, while already completed flights remain valid. */
@@ -261,13 +261,13 @@ export namespace integrateAirborneRotation {
    * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
    * @returns The history.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the root-frame shape, finite-difference stencil, exact query identity, sufficient statistics and temporary bone lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation The same inertia tensor and three-point momentum formula are reduced to I and h, the only shape quantities the flight ODE reads; no shape interpolation, grid or precision change is introduced.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure An exact-time numeric memo surrounds one scoped shape-to-momentum reduction; the two fixed boundary stencils have their own numeric memo.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new query reads its actual shape and preserves the existing stencil weights; no raw-bone cache cap replaces an evaluation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A new query resolves at most four distinct posed instants and performs linear work in mass segments after shape evaluation. The shape owner may independently reuse its displayed poses; repeated query times read the numeric instant directly.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equivalence is the same exact query time in this history's unchanged model, pure shape function and span. Boundary moments additionally share the identical fixed stencil nodes. A changed evaluation epoch requires a new history.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callable owns O(N) numeric instants for N distinct queries and at most two numeric boundary records, with no fixed N bound. Each evaluate call owns at most four bone maps; none escapes in its numeric result. clear explicitly releases both numeric memos, and the caller drops the shape callback's history when its solve scope ends.
+   * States the root-frame shape, finite-difference stencil, exact query identity, sufficient statistics and temporary bone lifetime.
+   * The same inertia tensor and three-point momentum formula are reduced to I and h, the only shape quantities the flight ODE reads; no shape interpolation, grid or precision change is introduced.
+   * An exact-time numeric memo surrounds one scoped shape-to-momentum reduction; the two fixed boundary stencils have their own numeric memo.
+   * Every new query reads its actual shape and preserves the existing stencil weights; no raw-bone cache cap replaces an evaluation.
+   * A new query resolves at most four distinct posed instants and performs linear work in mass segments after shape evaluation. The shape owner may independently reuse its displayed poses; repeated query times read the numeric instant directly.
+   * Equivalence is the same exact query time in this history's unchanged model, pure shape function and span. Boundary moments additionally share the identical fixed stencil nodes. A changed evaluation epoch requires a new history.
+   * The callable owns O(N) numeric instants for N distinct queries and at most two numeric boundary records, with no fixed N bound. Each evaluate call owns at most four bone maps; none escapes in its numeric result. clear explicitly releases both numeric memos, and the caller drops the shape callback's history when its solve scope ends.
    */
   export function history(
     model: resolveAutoMovieCenterOfMass.IModel,

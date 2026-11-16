@@ -48,7 +48,7 @@ export namespace HumanQuadraticProgram {
    * Relative residual tolerance, OSQP's eps_rel; it does not bound each
    * variable's error independently of conditioning.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the inherited relative residual tolerance and distinguishes residual convergence from a componentwise solution-error guarantee.
+   * Names the inherited relative residual tolerance and distinguishes residual convergence from a componentwise solution-error guarantee.
    */
   export const TOLERANCE: number = 1e-3;
 

@@ -241,13 +241,13 @@ export namespace HumanSegmentOverlay {
    * authored goal keeps every member, including its attached frame and
    * contact pivot. The root turn is applied only to world goals.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States both representations and the coordinate convention.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains a contact constraint over its declared time window; without an explicit goal, its already planned rigid end frame and bend define the same limb constraint.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan of the contact windows and one lazily posed bone map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Copies an authored goal intact rather than replacing its contact pivot or attachment with a wrist point.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the plan's contact windows; poses the bones only for a joint-only contact.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses turnHumanPosture, HumanLimbFit.chain and the resolver's reference convention.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no state after the evaluation.
+   * States both representations and the coordinate convention.
+   * Retains a contact constraint over its declared time window; without an explicit goal, its already planned rigid end frame and bend define the same limb constraint.
+   * One scan of the contact windows and one lazily posed bone map.
+   * Copies an authored goal intact rather than replacing its contact pivot or attachment with a wrist point.
+   * Linear in the plan's contact windows; poses the bones only for a joint-only contact.
+   * Uses turnHumanPosture, HumanLimbFit.chain and the resolver's reference convention.
+   * Keeps no state after the evaluation.
    */
   function contactGoals(
     overlay: HumanSegment.IOverlay,

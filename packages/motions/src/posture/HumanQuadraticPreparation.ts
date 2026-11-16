@@ -120,20 +120,20 @@ export namespace HumanQuadraticPreparation {
 /**
  * Shared scaled matrices and positive invertible scales, without intervals.
  *
- * @evidence contracts/development/design.md#principled-representation Reuses Band.IScaled's numeric matrix and scale representation while excluding lo, hi and weight, which vary independently per solve.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Defines exactly the fields preparation retains and every algebra consumer reads; the existing scaled representation remains owned by Band.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses Omit on the owning type rather than a parallel matrix contract and stores no solver iterates.
- * @evidence contracts/development/common.md#meaningful-documentation Names the shared numeric core and why intervals and weights are excluded.
+ * Reuses Band.IScaled's numeric matrix and scale representation while excluding lo, hi and weight, which vary independently per solve.
+ * Defines exactly the fields preparation retains and every algebra consumer reads; the existing scaled representation remains owned by Band.
+ * Uses Omit on the owning type rather than a parallel matrix contract and stores no solver iterates.
+ * Names the shared numeric core and why intervals and weights are excluded.
  */
 type ICore = Omit<B.IScaled, "lo" | "hi" | "weight">;
 
 /**
  * Copied dependencies and current immutable preparation for one weak owner.
  *
- * @evidence contracts/development/design.md#principled-representation Stores original P/q and ordered nonzero coefficients to prove equivalence with a scaled core; array dimensions and finite values are admitted before creation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only copied numeric dependencies, the algebra core and one optional initial factor consumed by the two preparation functions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds no original problem, body, plan or result references and does not treat mutable input identity as proof.
- * @evidence contracts/development/common.md#meaningful-documentation Describes original snapshots, their relation to CSR columns and the sole optional retained factor.
+ * Stores original P/q and ordered nonzero coefficients to prove equivalence with a scaled core; array dimensions and finite values are admitted before creation.
+ * Contains only copied numeric dependencies, the algebra core and one optional initial factor consumed by the two preparation functions.
+ * Holds no original problem, body, plan or result references and does not treat mutable input identity as proof.
+ * Describes original snapshots, their relation to CSR columns and the sole optional retained factor.
  */
 interface IPrepared {
   /** Original curvature, including its supplied row lengths. */
@@ -155,10 +155,10 @@ interface IPrepared {
 /**
  * Initial factor dependencies; rho is copied before the solve adapts its vector.
  *
- * @evidence contracts/development/design.md#principled-representation Couples the numeric Cholesky factor with the exact rho vector and sigma that formed its reduced matrix; matrix identity belongs to its enclosing prepared core.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Records only the initial-factor dependencies read by factor; adaptive parameters remain inside the solve.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores copied positive numeric parameters without a solve outcome, active-set history or approximate key.
- * @evidence contracts/development/common.md#meaningful-documentation States why rho is copied and why substitution may share the factor read-only.
+ * Couples the numeric Cholesky factor with the exact rho vector and sigma that formed its reduced matrix; matrix identity belongs to its enclosing prepared core.
+ * Records only the initial-factor dependencies read by factor; adaptive parameters remain inside the solve.
+ * Stores copied positive numeric parameters without a solve outcome, active-set history or approximate key.
+ * States why rho is copied and why substitution may share the factor read-only.
  */
 interface IInitial {
   /** Initial step size of each retained row. */
@@ -180,13 +180,13 @@ const MAX_CSR: number = 0x7fffffff;
 /**
  * Validate all original entries and compare copied dependencies in one scan.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Checks the finite convex-program storage contract before zero omission, then compares exact copied P/q and ordered nonzero A; positive semidefiniteness remains the documented caller premise.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Combines admission and comparison so changed data never skip validation and matching data need no second full traversal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Checks zero-coefficient indices and original spans, sparse row holes and every supplied matrix entry; preserves unsorted duplicates and rejects Int32 overflow rather than truncating it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(S+n+R+m) time with scalar auxiliary storage, validating supplied curvature padding and original zero entries as well as stored contributions.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns a match only after dimensions and every numerical dependency compare exactly; bounds and weights are validated but remain independently refreshed inputs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the fixed-size admission result and retains neither the original problem nor the candidate beyond the call.
- * @evidence contracts/development/common.md#meaningful-documentation Defines whole-input admission, exact comparison, original zero-entry validation and the nonzero count result.
+ * Checks the finite convex-program storage contract before zero omission, then compares exact copied P/q and ordered nonzero A; positive semidefiniteness remains the documented caller premise.
+ * Combines admission and comparison so changed data never skip validation and matching data need no second full traversal.
+ * Checks zero-coefficient indices and original spans, sparse row holes and every supplied matrix entry; preserves unsorted duplicates and rejects Int32 overflow rather than truncating it.
+ * Takes O(S+n+R+m) time with scalar auxiliary storage, validating supplied curvature padding and original zero entries as well as stored contributions.
+ * Returns a match only after dimensions and every numerical dependency compare exactly; bounds and weights are validated but remain independently refreshed inputs.
+ * Allocates only the fixed-size admission result and retains neither the original problem nor the candidate beyond the call.
+ * Defines whole-input admission, exact comparison, original zero-entry validation and the nonzero count result.
  */
 function admit(
   problem: Q.IProblem,
@@ -283,13 +283,13 @@ function admit(
 /**
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds ordered CSR and copied snapshots, computes variable/row/cost scales, then admits finite invertible prepared data.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only coefficients equal to zero, retaining all nonzeros, duplicate indices and empty-row offsets; no cutoff, sorting, merged cancellation or changed scaling constants is used.
- * @evidence contracts/development/implementation.md#efficient-algorithms Compression and copies plus ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+Z+n+m) retained space before the initial factor; supplied padding is copied and validated.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Runs only when admission finds a changed dependency and copies raw numeric inputs so later mutation cannot make a stale preparation appear equal.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one numeric prepared value for weak-owner replacement; temporary norm vectors become unreachable after creation.
- * @evidence contracts/development/common.md#meaningful-documentation States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
+ * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
+ * Builds ordered CSR and copied snapshots, computes variable/row/cost scales, then admits finite invertible prepared data.
+ * Omits only coefficients equal to zero, retaining all nonzeros, duplicate indices and empty-row offsets; no cutoff, sorting, merged cancellation or changed scaling constants is used.
+ * Compression and copies plus ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+Z+n+m) retained space before the initial factor; supplied padding is copied and validated.
+ * Runs only when admission finds a changed dependency and copies raw numeric inputs so later mutation cannot make a stale preparation appear equal.
+ * Returns one numeric prepared value for weak-owner replacement; temporary norm vectors become unreachable after creation.
+ * States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
  */
 function create(problem: Q.IProblem, entries: number): IPrepared {
   const { n, band, rows }: Q.IProblem = problem;
@@ -402,13 +402,13 @@ function create(problem: Q.IProblem, entries: number): IPrepared {
 /**
  * Reject nonfinite numeric data before retention can conceal it.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Requires finite prepared matrix and factor entries, preventing NaN or infinity from being retained as reusable numeric data.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One indexed scan supplies the same finite-value rejection for each prepared buffer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tests finiteness directly without a magnitude cutoff, coercion or replacement value.
- * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(buffer length) time and O(1) auxiliary storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads each newly computed buffer before retention; previously admitted immutable buffers need no repeated scan here.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no buffer; a rejection throws a position-bearing RangeError to the caller.
- * @evidence contracts/development/common.md#meaningful-documentation Describes finite-buffer admission and its indexed failure without changing numeric values.
+ * Requires finite prepared matrix and factor entries, preventing NaN or infinity from being retained as reusable numeric data.
+ * One indexed scan supplies the same finite-value rejection for each prepared buffer.
+ * Tests finiteness directly without a magnitude cutoff, coercion or replacement value.
+ * Takes O(buffer length) time and O(1) auxiliary storage.
+ * Reads each newly computed buffer before retention; previously admitted immutable buffers need no repeated scan here.
+ * Retains no buffer; a rejection throws a position-bearing RangeError to the caller.
+ * Describes finite-buffer admission and its indexed failure without changing numeric values.
  */
 function finite(values: Float64Array, label: string): void {
   for (let i: number = 0; i < values.length; ++i)

@@ -66,13 +66,13 @@ export namespace resolvePreparedChainLower {
    * ancestors and intermediate joints unchanged. Missing articulations are
    * identity, as in full FK; no unused clinical basis is admitted here.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States admitted-quaternion input, stable prepared dependencies and missing-articulation meaning.
-   * @evidence contracts/development/implementation.md#principled-implementation Composes prepared root frame, upper articulation, fixed root-to-mid transform and lower articulation in the original two-stage FK order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This prefix owns the rigid compositions for both clinical candidates and an authored-order admission scan, so validation order can change without duplicating FK mathematics.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Accepts actual admitted articulations rather than an ideal target; identity applies only to an absent articulation, not an arbitrary clinical zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion/vector work with no clinical reconversion or skeleton walk; the caller reuses the quaternion work its admission scan already completed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared fixed transforms and the exact completed articulation conversions are reused; changed parent or intermediate inputs require new preparation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh frame, retaining no inputs, cache, handles or tasks after return.
+   * States admitted-quaternion input, stable prepared dependencies and missing-articulation meaning.
+   * Composes prepared root frame, upper articulation, fixed root-to-mid transform and lower articulation in the original two-stage FK order.
+   * This prefix owns the rigid compositions for both clinical candidates and an authored-order admission scan, so validation order can change without duplicating FK mathematics.
+   * Accepts actual admitted articulations rather than an ideal target; identity applies only to an absent articulation, not an arbitrary clinical zero.
+   * Constant quaternion/vector work with no clinical reconversion or skeleton walk; the caller reuses the quaternion work its admission scan already completed.
+   * Prepared fixed transforms and the exact completed articulation conversions are reused; changed parent or intermediate inputs require new preparation.
+   * Returns one fresh frame, retaining no inputs, cache, handles or tasks after return.
    */
   export function fromRotations(
     prepared: IPreparedChainPlant,

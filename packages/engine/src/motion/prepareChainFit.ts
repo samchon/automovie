@@ -210,10 +210,10 @@ export namespace prepareChainFit {
   /**
    * Lazily resolved authored endpoint and last-record clinical joint maps.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish actual authored position from joint maps used only for continuity ranking.
-   * @evidence contracts/development/design.md#principled-representation Model-metre FK and bone-keyed clinical records preserve the full resolver's last-joint semantics.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitChainBend reads every member after its analytic solve admits the target.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries actual FK and input joint records, with no surrogate target or copied limits.
+   * Members distinguish actual authored position from joint maps used only for continuity ranking.
+   * Model-metre FK and bone-keyed clinical records preserve the full resolver's last-joint semantics.
+   * fitChainBend reads every member after its analytic solve admits the target.
+   * Carries actual FK and input joint records, with no surrogate target or copied limits.
    */
   export interface IReading {
     /** Source effector position in resolved model metres. */
@@ -229,10 +229,10 @@ export namespace prepareChainFit {
   /**
    * Target-independent data of an explicitly scoped chain fit.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed-input borrowing, nullable preparation and the two lazy reads' purposes.
-   * @evidence contracts/development/design.md#principled-representation Separates immutable solve dependencies from each target while retaining null preparation as the original invalid-chain result.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitChainBend reads the fixed props, preparation and both lazy values; no target history or cache controls are exposed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Caller ownership, rather than mutable-body identity, defines validity; callbacks and near mode remain fixed input data.
+   * States fixed-input borrowing, nullable preparation and the two lazy reads' purposes.
+   * Separates immutable solve dependencies from each target while retaining null preparation as the original invalid-chain result.
+   * fitChainBend reads the fixed props, preparation and both lazy values; no target history or cache controls are exposed.
+   * Caller ownership, rather than mutable-body identity, defines validity; callbacks and near mode remain fixed input data.
    */
   export interface IWorkspace {
     /** Fixed source request with actual skeleton-declared axes taking precedence. */
@@ -244,13 +244,13 @@ export namespace prepareChainFit {
     /**
      * Clamp a candidate chain joint, resolving that bone's rig lookup only on first use.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States chain-only use and lazy lookup sharing; the original clamp owns ROM semantics.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepareChainFit delegates to clampJointToSkeleton.of.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no articulation.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents the once-per-chain-bone lookup.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns the scoped closure reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * States chain-only use and lazy lookup sharing; the original clamp owns ROM semantics.
+     * Signature only; prepareChainFit delegates to clampJointToSkeleton.of.
+     * No body is declared here.
+     * The signature computes no articulation.
+     * The producer documents the once-per-chain-bone lookup.
+     * The producer owns the scoped closure reuse.
+     * The signature acquires nothing.
      */
     clamp(joint: IAutoMovieJointPose): IAutoMovieJointPose;
 
@@ -258,13 +258,13 @@ export namespace prepareChainFit {
      * Squared sign-insensitive geodesic turn from a raw candidate articulation
      * to this bone's fixed reference; the prior conversion is lazy once.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States raw clinical quaternion, normalization, angular score and fixed-prior sharing.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepareChainFit owns the quaternion angle calculation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no score.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents its lazy once prior conversion.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns the exact scoped prior.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * States raw clinical quaternion, normalization, angular score and fixed-prior sharing.
+     * Signature only; prepareChainFit owns the quaternion angle calculation.
+     * No body is declared here.
+     * The signature computes no score.
+     * The producer documents its lazy once prior conversion.
+     * The producer owns the exact scoped prior.
+     * The signature acquires nothing.
      */
     continuity(
       bone: AutoMovieHumanoidBone,
@@ -275,39 +275,39 @@ export namespace prepareChainFit {
      * The source upper/mid articulation's total turn from the fixed reference,
      * computed only at the search's original explicit-reference first use.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the two source joints, fixed reference and unchanged lazy admission point.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepareChainFit composes the original two continuity scores.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no score.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents once-per-workspace source conversion.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns the fixed-source result.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * States the two source joints, fixed reference and unchanged lazy admission point.
+     * Signature only; prepareChainFit composes the original two continuity scores.
+     * No body is declared here.
+     * The signature computes no score.
+     * The producer documents once-per-workspace source conversion.
+     * The producer owns the fixed-source result.
+     * The signature acquires nothing.
      */
     authoredContinuity(): number;
 
     /**
      * Read invariant authored FK and joint maps once, after analytic target admission.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States lazy evaluation and its position after target admission.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepareChainFit owns the lazy implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents the once-per-workspace scan and FK.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns sharing and validity.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * States lazy evaluation and its position after target admission.
+     * Signature only; prepareChainFit owns the lazy implementation.
+     * No body is declared here.
+     * The signature computes no value.
+     * The producer documents the once-per-workspace scan and FK.
+     * The producer owns sharing and validity.
+     * The signature acquires nothing.
      */
     read(): IReading;
 
     /**
      * Read the reference mid frame under the source's root and non-chain pose once.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes reference chain articulation from unchanged source parent pose.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepareChainFit owns the original full-FK reconstruction.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no frame.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents its one lazy FK.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns the shared result.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     * Distinguishes reference chain articulation from unchanged source parent pose.
+     * Signature only; prepareChainFit owns the original full-FK reconstruction.
+     * No body is declared here.
+     * The signature computes no frame.
+     * The producer documents its one lazy FK.
+     * The producer owns the shared result.
+     * The signature acquires nothing.
      */
     referenceLower(): IAutoMovieResolvedBone;
   }

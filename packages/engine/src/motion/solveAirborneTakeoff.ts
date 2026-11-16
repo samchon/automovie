@@ -316,10 +316,10 @@ export namespace solveAirborneTakeoff {
   /**
    * The fixed shape history, physical request and numerical budgets of a takeoff solve.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state flight seconds, quaternion frames, turns, world angular momentum and angular/integration tolerances.
-   * @evidence contracts/development/design.md#principled-representation A whole-body turn request and momentum ball over a positive flight share one unchanged root-frame history; the solve checks the interval and its flight integrator admits numerical budgets.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPerformanceFlight supplies the request and physical ceiling; numerical consumers can additionally supply step and relative/absolute budgets, while the flight owns its tangent partition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Imports the trajectory's budget fields and the history's type without introducing a second state model, guessed rate or per-body exception.
+   * Members state flight seconds, quaternion frames, turns, world angular momentum and angular/integration tolerances.
+   * A whole-body turn request and momentum ball over a positive flight share one unchanged root-frame history; the solve checks the interval and its flight integrator admits numerical budgets.
+   * HumanPerformanceFlight supplies the request and physical ceiling; numerical consumers can additionally supply step and relative/absolute budgets, while the flight owns its tangent partition.
+   * Imports the trajectory's budget fields and the history's type without introducing a second state model, guessed rate or per-body exception.
    */
   export interface IProps {
     /** The shape's history (`integrateAirborneRotation.history`). */

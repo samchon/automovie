@@ -221,10 +221,10 @@ export namespace integrateMotionTrajectory {
    * An explicit same-unit vector partition instead controls each block
    * independently and takes the maximum with the orientation's original RMS.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Relative error is dimensionless, absolute error is in each state's own unit, and blocks specify a Euclidean partition.
-   * @evidence contracts/development/design.md#principled-representation Nonnegative finite budgets with a nonzero sum are runtime-admitted; optional positive integer block lengths must partition the vector, with [] only for an empty vector.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The integrator owns local error admission. Existing callers keep componentwise RMS; airborne's same-unit sensitivity matrix uses one Euclidean block without changing its orientation budget.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No absolute floor or action-specific precision is added. Each block uses its declared units; a local embedded estimate is not a global physical-error or Newton-convergence certificate.
+   * Relative error is dimensionless, absolute error is in each state's own unit, and blocks specify a Euclidean partition.
+   * Nonnegative finite budgets with a nonzero sum are runtime-admitted; optional positive integer block lengths must partition the vector, with [] only for an empty vector.
+   * The integrator owns local error admission. Existing callers keep componentwise RMS; airborne's same-unit sensitivity matrix uses one Euclidean block without changing its orientation budget.
+   * No absolute floor or action-specific precision is added. Each block uses its declared units; a local embedded estimate is not a global physical-error or Newton-convergence certificate.
    */
   export interface ITolerance {
     /** The share of a component's value, non-negative. */

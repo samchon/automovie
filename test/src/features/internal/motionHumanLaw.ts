@@ -35,12 +35,12 @@ import { motionHumanFrame } from "./motionHumanFrame";
  * @evidence contracts/development/design.md#principled-representation Public performances and audit readers carry world metres and film seconds; frame admission checks finite coordinates and unit rotations before metrics read them.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Seven helpers shared by solo, touch and hand-to-face specifications; body, FK, performance and audit types remain their package owners'.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No action, body or scene gets a replacement pose or limit; the audit part is a closed choice and the frame record is the public FK map.
- * @evidence contracts/development/implementation.md#principled-implementation Builds and reads the public performance, converts event shares to seconds, measures Euclidean travel and delegates generic checks to their audit owner.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Seven small helpers separate construction, frame admission, event lookup, travel, audit formatting, partitioning and complaint selection.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid displayed frames and missing events throw; caller limits and measured values are neither repaired nor relaxed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Local work scales with performer records, event counts, grid intervals and findings; delegated audits also include collider-pair work and continuity refinement, not just a frame scan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each film shares a successfully validated subject/second frame across its measures; planning and audit computations remain with the public owners.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A film retains one map per distinct subject/second read, without a capacity limit, until its reader is released; other helpers retain no process-wide state or external resource.
+ * Builds and reads the public performance, converts event shares to seconds, measures Euclidean travel and delegates generic checks to their audit owner.
+ * Seven small helpers separate construction, frame admission, event lookup, travel, audit formatting, partitioning and complaint selection.
+ * Invalid displayed frames and missing events throw; caller limits and measured values are neither repaired nor relaxed.
+ * Local work scales with performer records, event counts, grid intervals and findings; delegated audits also include collider-pair work and continuity refinement, not just a frame scan.
+ * Each film shares a successfully validated subject/second frame across its measures; planning and audit computations remain with the public owners.
+ * A film retains one map per distinct subject/second read, without a capacity limit, until its reader is released; other helpers retain no process-wide state or external resource.
  */
 export namespace motionHumanLaw {
   /**
@@ -297,7 +297,7 @@ export namespace motionHumanLaw {
   /**
    * The six windows the split specifications use for non-tangle checks.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shared partition count used by AuditPart and auditPart.
+   * States the shared partition count used by AuditPart and auditPart.
    */
   export const PARTS: number = 6;
 

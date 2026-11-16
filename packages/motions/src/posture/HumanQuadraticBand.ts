@@ -428,13 +428,13 @@ export namespace HumanQuadraticBand {
 /**
  * Add `w ā āᵀ` of a row to a banded system.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Accumulates the symmetric row outer product in the stored upper band, including cross products of duplicate variable indices.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pair loop owns the sparse-row contribution shared by ADMM factorization and polishing.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves entry order and all products; rejects coupling beyond the declared band instead of dropping it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(k squared) time for k entries in this row and O(1) auxiliary storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both factor builders call the same outer-product owner with their current row weight; no product is cached for a changed weight.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the caller's banded system and retains no row or matrix.
- * @evidence contracts/development/common.md#meaningful-documentation States the outer-product operation and the band, ordering and destination-mutation invariants.
+ * Accumulates the symmetric row outer product in the stored upper band, including cross products of duplicate variable indices.
+ * One ordered pair loop owns the sparse-row contribution shared by ADMM factorization and polishing.
+ * Preserves entry order and all products; rejects coupling beyond the declared band instead of dropping it.
+ * Takes O(k squared) time for k entries in this row and O(1) auxiliary storage.
+ * Both factor builders call the same outer-product owner with their current row weight; no product is cached for a changed weight.
+ * Mutates only the caller's banded system and retains no row or matrix.
+ * States the outer-product operation and the band, ordering and destination-mutation invariants.
  */
 function add(
   s: HumanQuadraticBand.IScaled,
@@ -456,13 +456,13 @@ function add(
 /**
  * P̄ x for the banded scaled curvature.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Multiplies the symmetric matrix by reading each upper-band entry and adding both symmetric contributions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A single band traversal supplies the curvature product to residual and polishing readers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses every in-range band entry without a magnitude cutoff or diagonal approximation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(n*w) time and one O(n) output vector, reading only in-range band entries.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the matrix representation while recomputing the product for each current iterate.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned vector and retains no input or output.
- * @evidence contracts/development/common.md#meaningful-documentation Names the scaled symmetric product and its upper-band traversal.
+ * Multiplies the symmetric matrix by reading each upper-band entry and adding both symmetric contributions.
+ * A single band traversal supplies the curvature product to residual and polishing readers.
+ * Uses every in-range band entry without a magnitude cutoff or diagonal approximation.
+ * Takes O(n*w) time and one O(n) output vector, reading only in-range band entries.
+ * Shares the matrix representation while recomputing the product for each current iterate.
+ * Returns one caller-owned vector and retains no input or output.
+ * Names the scaled symmetric product and its upper-band traversal.
  */
 function curvature(
   s: HumanQuadraticBand.IScaled,

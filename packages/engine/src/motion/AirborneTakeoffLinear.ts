@@ -86,13 +86,13 @@ export namespace AirborneTakeoffLinear {
    * @param b Three right-hand-side components, read only.
    * @returns A fresh solution, or null for non-finite inputs or a matrix the engine's singularity test rejects.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States row orientation, the right-hand side, input ownership and the nullable result.
-   * @evidence contracts/development/implementation.md#principled-implementation Admits finite entries, then delegates the unchanged Cramer solve and determinant-to-column-norm rejection to AutoMovieSolidVector.solve3; this is not a conditioning or error certificate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Check finiteness, copy three columns and the right-hand side, then delegate.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the shooting solver's prior finite and singular behavior without a clamp, damping term or alternate numeric policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and storage for the fixed three-by-three system.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One adapter serves both the linearized takeoff start and every Newton correction; the determinant algebra remains engine-owned.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Input rows and right-hand side are never mutated or retained; only fresh triples reach the engine solver, and only its fresh result escapes.
+   * States row orientation, the right-hand side, input ownership and the nullable result.
+   * Admits finite entries, then delegates the unchanged Cramer solve and determinant-to-column-norm rejection to AutoMovieSolidVector.solve3; this is not a conditioning or error certificate.
+   * Check finiteness, copy three columns and the right-hand side, then delegate.
+   * Preserves the shooting solver's prior finite and singular behavior without a clamp, damping term or alternate numeric policy.
+   * Constant work and storage for the fixed three-by-three system.
+   * One adapter serves both the linearized takeoff start and every Newton correction; the determinant algebra remains engine-owned.
+   * Input rows and right-hand side are never mutated or retained; only fresh triples reach the engine solver, and only its fresh result escapes.
    */
   export function solve(
     a: readonly number[][],
