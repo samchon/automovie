@@ -67,11 +67,6 @@ export interface IAutoMovieMotionCoupling {
 }
 /**
  * Companion types of {@link IAutoMovieMotionCoupling}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the one member type.
- * @evidence contracts/development/design.md#principled-representation A coupled contact as the contact window's own part and kind between two people.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The contact record the coupling lists.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the contact window's unions.
  */
 export namespace IAutoMovieMotionCoupling {
   /**

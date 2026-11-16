@@ -156,10 +156,24 @@ export namespace AutoMovieMotionMeeting {
     couple?(roles: readonly IRole[], instants: ITiming): ICoupling;
   }
 
-  /** How one role of a meeting bears another (`IAutoMovieMotionCoupling`, #3437). */
+  /**
+   * How one role of a meeting bears another (`IAutoMovieMotionCoupling`, #3437).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the shared coupling record used by a meeting's couple callback.
+   * @evidence contracts/development/design.md#principled-representation Preserves the coupling owner's bearer-relative frames, metre and kilogram units, and contact load shares without changing their invariants.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A meeting-facing alias of the one coupling owner, used by declaration callbacks and carried meetings.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no fields, casts or independent coupling contract.
+   */
   export type ICoupling = IAutoMovieMotionCoupling;
 
-  /** One contact of a borne body on its bearer (`IAutoMovieMotionCoupling.IContact`). */
+  /**
+   * One contact of a borne body on its bearer (`IAutoMovieMotionCoupling.IContact`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the shared contact record a meeting's coupling lists.
+   * @evidence contracts/development/design.md#principled-representation Preserves the owner's sided body part, regions, role, contact kind and dimensionless load share; numeric load validity remains a runtime premise.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the coupling's contact owner for meeting declarations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias keeps the contact vocabulary and fields identical to their owner.
+   */
   export type ICoupledContact = IAutoMovieMotionCoupling.IContact;
   /**
    * The film seconds a meeting holds over, as the composition states them:

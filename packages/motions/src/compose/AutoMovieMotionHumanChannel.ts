@@ -80,6 +80,11 @@ export namespace AutoMovieMotionHumanChannel {
    * own (#3445): a thumb typing while the other four digits of the same
    * hand keep holding a phone. A claim of a hand's channel covers its five
    * digits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the independent digit claim and its coverage by a whole-hand claim.
+   * @evidence contracts/development/design.md#principled-representation The closed, sided digit vocabulary of IHumanPosture; ownership has no unit or timebase.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the posture's digit owner for composition claims and yields.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias preserves the existing vocabulary without a parallel list or widened string.
    */
   export type Digit = IHumanPosture.Digit;
 
@@ -88,6 +93,11 @@ export namespace AutoMovieMotionHumanChannel {
    * or `trunkTurn`, the spine and the chest turned about the pelvis held on
    * its support (#3491): a carrier that keeps the trunk on a saddle or a
    * moving floor yields its turn to an act that aims from it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three claim forms and the supported trunk turn above a held pelvis.
+   * @evidence contracts/development/design.md#principled-representation A closed union of posture ownership units; channel and digit membership are type-checked, while composition checks overlapping claims.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Extends channel ownership only with the digit and trunk-turn claims current overlays use.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the channel and digit owners; trunkTurn owns the TURN bones rather than an alternate posture representation.
    */
   export type Claim = AutoMovieMotionHumanChannel | Digit | "trunkTurn";
 

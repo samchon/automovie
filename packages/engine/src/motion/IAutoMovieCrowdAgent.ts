@@ -35,11 +35,6 @@ export interface IAutoMovieCrowdAgent {
 
 /**
  * Companion types of {@link IAutoMovieCrowdAgent}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states its members' units.
- * @evidence contracts/development/design.md#principled-representation An obstacle is a convex footprint, fixed in the world or carried by a motion; a course is a state read by time; a contact is two discs that met.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the pass reads and returns.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A moving obstacle's footprint is in its own frame and placed by its motion, so a still one needs no motion.
  */
 export namespace IAutoMovieCrowdAgent {
   /**
@@ -54,7 +49,19 @@ export namespace IAutoMovieCrowdAgent {
     /** A convex footprint's corners in order: world metres without a motion, its own frame (x to its left, z ahead) with one; `y` is not read. */
     footprint: readonly IAutoMovieVector3[];
 
-    /** Where it is and which way it faces at a film second; still when absent. Pure. */
+    /**
+     * Pure placement at a film second: world position in metres and yaw in
+     * degrees. The footprint stays fixed in world space when absent. The
+     * reader also samples neighbouring instants to estimate velocity.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States purity, timebase, output units, absence and neighbouring-time reads.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback declaration; its supplied function owns the placement method.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No callback body is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature computes no placement.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The callback's implementation owns its evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no evaluations or cache.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires and retains no resources.
+     */
     motion?: (seconds: number) => { position: IAutoMovieVector3; yaw: number };
   }
 
@@ -67,7 +74,18 @@ export namespace IAutoMovieCrowdAgent {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No arrival is invented: an agent that does not arrive reads null.
    */
   export interface ICourse {
-    /** Its position and velocity at a film second, held at the pass's ends outside it. */
+    /**
+     * World position in metres and velocity in metres per second at a film
+     * second, held at the pass's ends outside it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the timebase, result frames and units, and held-end behavior.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A course-reader signature; the steering pass's supplied function owns sampling.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No sampling body is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration computes no trajectory state.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Evaluation cost belongs to the supplied reader.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature owns no trajectory memo or coordinated reads.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature retains no trajectory or handle.
+     */
     at: (seconds: number) => {
       position: IAutoMovieVector3;
       velocity: IAutoMovieVector3;

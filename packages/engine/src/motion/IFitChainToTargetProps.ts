@@ -91,6 +91,14 @@ export interface IFitChainToTargetProps {
    * swivel circle chosen by a cost of the joints), and `bend` is not read.
    * The fit reports the value it chose by (`IAutoMovieSeededChainFit.value`).
    * Omitted, `bend` is the hint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three quaternion frames, non-negative score, task priority, reported value and absence behavior; the score's scale is the caller's.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A candidate-score callback declaration; its caller owns the strain method.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No strain callback body is declared here.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature computes no candidate score.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The supplied callback owns its per-candidate evaluation cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature owns no candidate cache or shared evaluation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires and retains nothing.
    */
   strain?: (
     upper: IAutoMovieQuaternion,
