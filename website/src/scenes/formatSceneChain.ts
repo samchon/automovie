@@ -10,8 +10,8 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
  * `with`, each mutual action after them with `next`; the laws the
  * performance registers; each placed archetype as a prop through
  * `HumanObject.prop`, with the person and bone it starts worn on; and the
- * input `HumanPerformance` is built from, as `PlaygroundPerformance` builds
- * it, ending in the one line `const performance = new
+ * authored impulses. It shows the input `HumanPerformance` is built from,
+ * as `PlaygroundPerformance` builds it, ending in the one line `const performance = new
  * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
  * archetype that carries it, and an opening as `HumanObstacle.apertures`.
  * Each person's body is read from `bodies`, declared as the `IHumanBody`
@@ -167,6 +167,9 @@ export function formatSceneChain(
     ),
     "  ],",
     "  composition: scene.node,",
+    ...(composition.forces === undefined
+      ? []
+      : [`  forces: ${value(composition.forces)},`]),
     ...(objects.length === 0 ? [] : ["  props,"]),
     ...(names.laws.length === 0 ? [] : ["  laws,"]),
     "};",
