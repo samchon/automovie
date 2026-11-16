@@ -14,6 +14,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { walkFoot } from "./walkFoot";
 import { walkHipTwist } from "./walkHipTwist";
@@ -259,6 +260,7 @@ export namespace walkReach {
    *   degrees; `walkLeg.ROCKER` when absent. A gait gives less while it
    *   starts and stops: a foot that is not stepping keeps its heel down until
    *   its ankle can bend no further.
+   * @param resolution Optional exact FK loan from this synchronous person observation; only the actual hip read borrows it.
    * @returns The pelvis and each stance as reached.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States frames, units, claim replacement, rocker onset and both returned stances.
@@ -277,12 +279,13 @@ export namespace walkReach {
     feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
     rocker: number = walkLeg.ROCKER,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IGround {
     const {
       yaw,
       pivots,
       hips: joints,
-    }: IPelvis = pelvis(body, root, planned, hips, feet);
+    }: IPelvis = pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution(resolution)());
     const hip: (side: "left" | "right", drop: number) => IAutoMovieVector3 = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };

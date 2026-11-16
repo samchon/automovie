@@ -2,6 +2,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -293,6 +294,8 @@ export namespace knee {
     // The shown leg as capsules tapered between the girths at its joints,
     // fitted on the knee's free course (`StrikingWeapon.leg`): the thigh, the
     // shank and the foot.
+    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture =>
+      free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution);
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb: leg,
@@ -302,7 +305,7 @@ export namespace knee {
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,
-          (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture => free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution),
+          course,
           side,
           seconds,
         ),
@@ -371,15 +374,14 @@ export namespace knee {
       // impact, with the solve's own status; the performer's own displayed
       // bones read the entry's (`StrikingWeapon`).
       const g: KneeGeometry.IGeometry = geometry();
-      const bones = poseBones(
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const frame: resolveAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, side === "left" ? "kneeLeft" : "kneeRight");
+      const bones: ReturnType<typeof poseBones> = poseBones(
         body,
-        resolveHumanPosture(body, free(impact, t0 + impact)),
+        resolveHumanPosture.seeded(body, free(impact, t0 + impact, true, resolution), undefined, undefined, resolution).pose,
+        resolution(), new Set<AutoMovieHumanoidBone>([frame.bone]),
       );
-      const reached: IAutoMovieVector3 = StrikingBody.region(
-        body,
-        bones,
-        side === "left" ? "kneeLeft" : "kneeRight",
-      ).point;
+      const reached: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
       return {
         limb: side === "left" ? "leftFoot" : "rightFoot",
         offset: { x: 0, y: 0, z: 0 },

@@ -1,6 +1,6 @@
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * The arm carriage of a stepping take (`HumanArmSwing.carriage`), read over
@@ -21,6 +21,8 @@ export namespace walkCarriage {
    * @param events The take's named instants, seconds.
    * @param duration The take's seconds.
    * @param posture The take's posture before the carriage.
+   * @param resolution Optional same-person FK loan for the actual synchronous phase observations.
+   * @param projection Optional genuine same-body ROM loan, never retained in the numeric carriage.
    * @returns Degrees of abduction per arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -35,7 +37,9 @@ export namespace walkCarriage {
     body: IHumanBody,
     events: readonly { name: string; seconds: number }[],
     duration: number,
-    posture: (seconds: number) => IHumanPosture,
+    posture: IHumanActionPlan["posture"],
+    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IHumanActionPlan["posture"]>[3],
   ): Record<"left" | "right", number> {
     const left: number[] = events
       .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))
@@ -52,6 +56,8 @@ export namespace walkCarriage {
       ),
       posture,
       ["left", "right"],
+      resolution,
+      projection,
     );
   }
 }

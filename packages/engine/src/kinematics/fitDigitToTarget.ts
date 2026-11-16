@@ -108,6 +108,7 @@ export function fitDigitToTarget(
   const topology: IAutoMovieSkeletonTopology =
     input.topology ?? indexSkeletonTopology(input.skeleton);
   const prepared: ReturnType<typeof preparePoseResolution> = input.prepared ?? preparePoseResolution();
+  let fixedPose: ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]> | undefined;
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     input.effector.bone,
   ]);
@@ -127,7 +128,8 @@ export function fitDigitToTarget(
           topology,
           prepared,
         )
-      : input.rig.resolve(pose, prepared, demand);
+      : pose !== input.pose ? input.rig.resolve(pose, prepared, demand)
+        : (fixedPose ??= input.rig.preparePose(pose, requested, prepared)).resolve([], demand);
   const coupling: number | null = input.coupling ?? null;
   const target: IAutoMovieVector3 = softTarget(input, readBones);
 
@@ -159,7 +161,6 @@ export function fitDigitToTarget(
   const others: IAutoMovieJointPose[] = input.pose.joints.filter(
     (j: IAutoMovieJointPose): boolean => !input.bones.includes(j.bone),
   );
-  let fixedPose: ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]> | undefined;
 
   // The digit's joints for a vector of variables, projected into the range.
   const joints: (x: readonly number[]) => IAutoMovieJointPose[] = (x: readonly number[]): IAutoMovieJointPose[] =>

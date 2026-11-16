@@ -48,7 +48,8 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  *
  * Crown metadata is prepared once for the entry. Each sampled headroom
  * search owns a lazy exact-FK workspace across that sample's flexion
- * bisection. The workspace and posed readings end with the search; refusal
+ * bisection and its actual sitting query. Runtime sitting observations
+ * borrow their synchronous parent's FK/ROM sources. The workspace and posed readings end with the search or current query; refusal
  * diagnostics reuse its measured maximum-duck excess.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search, refusals and first-pass limits, together with fixed crown metadata, synchronous sample-workspace lifetime and exact diagnostic reuse without a measured speedup claim.
@@ -178,8 +179,15 @@ export namespace HumanTravelCar {
             rotation: HumanFrame.turn(turn * minimumJerk.share(Math.min(1, u))),
           },
         );
-      const undocked = (t: number): IHumanPosture =>
-        t <= sat ? down.posture(t) : swung((t - sat) / SWING);
+      const undocked: IHumanActionPlan["posture"] = (
+        t: number,
+        channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture =>
+        t <= sat
+          ? down.posture(t, channels, resolution, projection)
+          : swung((t - sat) / SWING);
 
       // The duck each sampled instant needs, by bisection on the spine's added flexion.
       const top: number = through.at.y + through.height - CLEAR;
@@ -199,13 +207,13 @@ export namespace HumanTravelCar {
               },
             };
       };
-      const crownOf: ReturnType<typeof HumanTrunk.prepareRegion> =
-        HumanTrunk.prepareRegion(body, "crown");
+      const crownOf: ReturnType<typeof HumanTrunk.preparePoint> =
+        HumanTrunk.preparePoint(body, "crown");
       const over = (
         posture: IHumanPosture,
         resolution: ReturnType<typeof prepareHumanPoseResolution>,
       ): number => {
-        const crown: IAutoMovieVector3 = crownOf(posture, resolution).point;
+        const crown: IAutoMovieVector3 = crownOf(posture, resolution);
         const beyond: number =
           (crown.x - through.at.x) * out.x + (crown.z - through.at.z) * out.z;
         return beyond > HEAD ? -Infinity : crown.y - top;
@@ -213,9 +221,9 @@ export namespace HumanTravelCar {
       const needs: { at: number; degrees: number }[] = [];
       for (let k: number = 0; k <= SAMPLES; ++k) {
         const t: number = (k / SAMPLES) * duration;
-        const posture: IHumanPosture = undocked(t);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution();
+        const posture: IHumanPosture = undocked(t, undefined, resolution);
         if (!(over(posture, resolution) > 0)) continue;
         const excess: number = over(ducked(posture, DUCK), resolution);
         if (excess > 0)
@@ -293,9 +301,17 @@ export namespace HumanTravelCar {
         contacts,
         ...(down.contact === undefined ? {} : { contact: down.contact }),
         base: { kind: "seated", seat },
-        posture: (t: number): IHumanPosture => {
+        posture: (
+          t: number,
+          channels?: Parameters<IHumanActionPlan["posture"]>[1],
+          resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+          projection?: Parameters<IHumanActionPlan["posture"]>[3],
+        ): IHumanPosture => {
           const at: number = Math.min(duration, Math.max(0, t));
-          return ducked(undocked(at), duck(at));
+          return ducked(
+            undocked(at, channels, resolution, projection),
+            duck(at),
+          );
         },
       };
     },

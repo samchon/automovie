@@ -49,6 +49,12 @@ export namespace HumanPerformancePlace {
   /**
    * The schedule's timing law: plan the intent from the state its person is
    * in. A trial plans and returns the timing without placing anything.
+   * Participant registry/body/entry metadata is fixed for this action context,
+   * so its private per-subject reader templates share closures until context
+   * release. Every performer lookup still checks existence and returns a fresh
+   * wrapper; every reader still observes actual seconds/plans/stops/invalidation.
+   * At most the context's requested known participants are retained, with no
+   * pose, frame, time-result history or operation FK/projector stored there.
    */
   export function place(
     self: HumanPerformanceState,
@@ -170,6 +176,7 @@ export namespace HumanPerformancePlace {
     ).length;
     const body = person.performer.body;
     const carried: Map<number, IHumanPosture> = new Map();
+    let performers: Map<string, IHumanActionContext.IPerformer> | undefined;
     const context: IHumanActionContext<never> = {
       subject: intent.subject,
       body,
@@ -283,7 +290,9 @@ export namespace HumanPerformancePlace {
             [...self.people.keys()],
             named(subject, "performer"),
           );
-        return {
+        const cached: IHumanActionContext.IPerformer | undefined = performers?.get(subject);
+        if (cached !== undefined) return { ...cached };
+        const reader: IHumanActionContext.IPerformer = {
           body: HumanPerformanceRead.person(self, subject).performer.body,
           // The performer's own body is read as it entered the action, as
           // a `self` target is: its displayed bones at an instant of this
@@ -313,6 +322,8 @@ export namespace HumanPerformancePlace {
             return HumanPerformanceRead.posture(self, subject, seconds);
           },
         };
+        (performers ??= new Map()).set(subject, reader);
+        return { ...reader };
       },
       prop: (subject: string): IHumanActionContext.IProp => {
         const prop: IHumanProp | undefined = self.props.get(subject);

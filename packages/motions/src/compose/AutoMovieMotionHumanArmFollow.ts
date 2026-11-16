@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmDifferential } from "../posture/HumanArmDifferential";
 import { HumanArmGeometry } from "../posture/HumanArmGeometry";
@@ -9,6 +10,8 @@ import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
@@ -47,27 +50,30 @@ export namespace AutoMovieMotionHumanArmFollow {
    * @param span The span's instants.
    * @param plan The planned arm.
    * @param before The posture so far at any second.
-   * @returns The arm at a second.
+   * @returns The arm at a second, optionally borrowing same-body FK and genuine ROM metadata only while its missing grid steps are filled.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the start, the step, its two bounds, the release after the hold and how a second between frames is read.
    * @evidence contracts/development/implementation.md#principled-implementation Error-driven feedback on a feed-forward plan by differential inverse kinematics (damped least squares), rate-limited by the audit's travel bound and kept by the planner's own clearance reading (`HumanArmTrajectoryModel.invalid`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One grid filled in order; per frame one error, one Jacobian, one step, its two bounds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero error gives a zero step, not a small one; the correction is never moved faster than the bound to catch up, and starts and ends at zero.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per grid frame of the hold: two goal reads, one frame, the Jacobian's forward placements (two per free coordinate) and a three-by-three solve, none when the goal has not moved.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanArmPlanned.moved`, `HumanArmDifferential.step`, `HumanArmGeometry`, `HumanArmTrajectoryContext` and `HumanArmTrajectoryModel.invalid`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function keeps the grid's corrections, one per frame of the hold and its release.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses moved/differential/geometry/model owners and one fixed same-body/side context builder. Each actual step lends its FK/genuine ROM metadata through before and both goal observations, optionally borrowing the current caller's metadata; all times, frames, goals and clearance queries remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function keeps the original numeric correction grid plus fixed body/side setup readers until release. Query metadata enters as invocation arguments, ends with that invocation and is never assigned to a retained cell or returned context; no query pose or new time-result history enters the prepared context builder.
    */
   export function follower(
     body: IHumanBody,
     carry: AutoMovieMotionHumanArmPlanned.IPlanned,
     span: AutoMovieMotionHumanArmPlanned.ISpan,
     plan: HumanArmTrajectory.Trajectory,
-    before: (seconds: number) => IHumanPosture,
-  ): (seconds: number) => HumanArmClearance.IArm {
+    before: IHumanActionPlan["posture"],
+  ): (seconds: number, source?: Parameters<IHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IHumanActionPlan["posture"]>[3]) => HumanArmClearance.IArm {
     const setup: HumanArmGeometry.ISetup = HumanArmGeometry.prepare(
       body,
       carry.side,
     );
+    const contextOf: ReturnType<typeof HumanArmTrajectoryContext.prepare> =
+      HumanArmTrajectoryContext.prepare(body, [carry.side]);
     const zero: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
     const corrections: number[][] = [zero];
     let settled: boolean = false;
@@ -81,18 +87,22 @@ export namespace AutoMovieMotionHumanArmFollow {
       c.every((v: number): boolean => v === 0);
 
     // One more frame of the grid: the correction stepped toward its target.
-    const next = (): void => {
+    const next = (source?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3]): void => {
       const j: number = corrections.length;
       const t: number = at(j);
       const previous: number[] = corrections[j - 1]!;
-      const posture: IHumanPosture = before(t);
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        projection ?? prepareHumanPostureProjection(body);
+      const posture: IHumanPosture = before(t, undefined, resolution, project);
       const here: number[] = HumanArmGeometry.encode(setup, plan(t));
       const there: number[] = HumanArmGeometry.encode(setup, plan(at(j - 1)));
       const read:
         | ReturnType<typeof AutoMovieMotionHumanArmPlanned.moved>
         | undefined =
         t < span.relax
-          ? AutoMovieMotionHumanArmPlanned.moved(body, carry, posture, t)
+          ? AutoMovieMotionHumanArmPlanned.moved(body, carry, posture, t, resolution, project)
           : undefined;
       if (
         read !== undefined &&
@@ -103,7 +113,7 @@ export namespace AutoMovieMotionHumanArmFollow {
         return;
       }
       const context: HumanArmTrajectoryModel.IContext =
-        HumanArmTrajectoryContext.of({
+        contextOf({
           body,
           times: [t],
           bases: [
@@ -113,6 +123,8 @@ export namespace AutoMovieMotionHumanArmFollow {
                 carry,
                 posture,
                 span.relax,
+                resolution,
+                project,
               ).base,
           ],
           arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
@@ -189,14 +201,15 @@ export namespace AutoMovieMotionHumanArmFollow {
       )
         settled = true;
     };
-    return (seconds: number): HumanArmClearance.IArm => {
+    return (seconds: number, source?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3]): HumanArmClearance.IArm => {
       if (seconds <= span.ready) return plan(seconds);
       while (
         !settled &&
         at(corrections.length - 1) < seconds &&
         at(corrections.length) <= span.end
       )
-        next();
+        next(source, projection);
       const last: number = corrections.length - 1;
       const correction: readonly number[] =
         seconds >= at(last)

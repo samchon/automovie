@@ -8,6 +8,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 
@@ -52,8 +53,8 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The circles once, then one root per hand per point set.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points the arms do not reach at `LEAN` leave the hands short, which the contact audit reports; only the spine flexes, and the pelvis's roll forward that carries most of a rower's or a cyclist's tilt (Agius et al. 2023, Bioengineering 10:774, section 4.1) is not modelled.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three FK trials request only shoulder positions, with the first also requesting elbows/wrists to measure reach; the remaining per-instant root calculation is unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous sample helper owns the trials' exact dependency reader; the two shoulders share the same fixed Cramer rows and denominator while point-dependent determinants remain fresh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sample helper releases its reader on return or throw; the returned evaluator retains one circle of three vectors and one reach scalar per holding hand, without a reader or query history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous sample helper owns exact FK, genuine ROM metadata and two fixed output-name readers while all three actual poses are projected; shoulders share Cramer rows/denominator while point-dependent determinants remain fresh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sample helper releases all FK/name readers and bounded ROM metadata on return or throw; the evaluator keeps only one circle of three vectors and one reach scalar per hand, without a reader or query history.
    */
   export function reach(
     body: IHumanBody,
@@ -81,8 +82,9 @@ export namespace HumanMountReach {
     );
     const circles: Map<"left" | "right", ICircle> = new Map(
       sides.map((side: "left" | "right"): ["left" | "right", ICircle] => {
-        const at = (k: number): IAutoMovieVector3 =>
-          read[k]!.get(`${side}UpperArm`)!.worldPosition;
+        const at: (k: number) => IAutoMovieVector3 = (
+          k: number,
+        ): IAutoMovieVector3 => read[k]!.get(`${side}UpperArm`)!.worldPosition;
         const elbow: IAutoMovieVector3 = read[0]!.get(
           `${side}LowerArm`,
         )!.worldPosition;
@@ -141,6 +143,8 @@ export namespace HumanMountReach {
   ): ReturnType<typeof poseBones>[] {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
     const shoulders: Set<AutoMovieHumanoidBone> = new Set(
       sides.map(
         (side: "left" | "right"): AutoMovieHumanoidBone => `${side}UpperArm`,
@@ -151,20 +155,24 @@ export namespace HumanMountReach {
       measured.add(`${side}LowerArm`);
       measured.add(`${side}Hand`);
     }
+    const shoulderRead: ReturnType<typeof poseBones.prepare> =
+      poseBones.prepare(body, shoulders);
+    const measuredRead: ReturnType<typeof poseBones.prepare> =
+      poseBones.prepare(body, measured);
     return angles.map(
-      (degrees: number, index: number): ReturnType<typeof poseBones> =>
-        poseBones(
-          body,
+      (degrees: number, index: number): ReturnType<typeof poseBones> => {
+        const pose: ReturnType<typeof resolveHumanPosture> =
           resolveHumanPosture.seeded(
             body,
             { ...HumanMountRider.leant(seated, degrees), limbs: {} },
             undefined,
             undefined,
             prepared,
-          ).pose,
-          prepared(),
-          index === 0 ? measured : shoulders,
-        ),
+            undefined,
+            projection,
+          ).pose;
+        return (index === 0 ? measuredRead : shoulderRead)(pose, prepared());
+      },
     );
   }
 
@@ -199,7 +207,9 @@ export namespace HumanMountReach {
     const rows: [number, number, number][] = angles.map(
       (t: number): [number, number, number] => [1, Math.cos(t), Math.sin(t)],
     );
-    const det = (m: readonly (readonly number[])[]): number =>
+    const det: (m: readonly (readonly number[])[]) => number = (
+      m: readonly (readonly number[])[],
+    ): number =>
       m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
       m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
       m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
@@ -211,7 +221,9 @@ export namespace HumanMountReach {
         IAutoMovieVector3,
       ],
     ): Omit<ICircle, "reach"> => {
-      const solve = (axis: "x" | "y" | "z"): [number, number, number] =>
+      const solve: (axis: "x" | "y" | "z") => [number, number, number] = (
+        axis: "x" | "y" | "z",
+      ): [number, number, number] =>
         [0, 1, 2].map(
           (column: number): number =>
             det(

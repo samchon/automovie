@@ -4,10 +4,7 @@ import {
   minimumJerk,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -30,9 +27,8 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
-import { HumanTrunk } from "./HumanTrunk";
+import { prepareSitLowering } from "./prepareSitLowering";
 import { seated } from "./seated";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
@@ -87,7 +83,7 @@ import { sitPlace } from "./sitPlace";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan prepares fixed descent intervals/socket deltas/final joint entries once; current base lowering and carried thigh-goal callbacks borrow composition FK/ROM sources only within each synchronous evaluation, keeping every actual root, joint and hand fit current.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace sit {
@@ -204,11 +200,6 @@ export namespace sit {
       ...stand.relaxed(body),
       ...standUpright.of(body).joints,
     };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][];
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";
@@ -247,6 +238,20 @@ export namespace sit {
         ? { ...limbs, leftLeg: { ...limbs.leftLeg!, planted: false } }
         : limbs;
     };
+    const lowered: ReturnType<typeof prepareSitLowering> = prepareSitLowering({
+      body,
+      yaw: yaw0,
+      turn,
+      descent,
+      contact,
+      peak,
+      start,
+      goal,
+      joints: relaxed,
+      final,
+      feet,
+      legs: legsAt,
+    });
     const contacts: IHumanContactWindow[] = [
       {
         part: "leftFoot",
@@ -304,10 +309,14 @@ export namespace sit {
       contacts,
       contact,
       base: { kind: "seated", seat },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return sitHands(
-          lowered(t, travel(t)),
+          lowered(t, travel(t), resolution),
           (side: "left" | "right"): number => hand(side, t),
         );
       },
@@ -329,69 +338,21 @@ export namespace sit {
         to: duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         weight: (seconds: number): number => hand(side, seconds),
-        goal: (posture: IHumanPosture): IHumanPosture.IGoal =>
+        goal: (
+          posture: IHumanPosture,
+          _seconds: number,
+          resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+          projection?: Parameters<IHumanActionPlan["posture"]>[3],
+        ): IHumanPosture.IGoal =>
           rest === undefined
-            ? seated.hands(body, posture, side)[`${side}Arm`]!
+            ? seated.hands(body, posture, side, resolution, projection)[
+                `${side}Arm`
+              ]!
             : seated.armrest(body, posture, side, rest, seat.yaw),
         span: span(side),
         together,
       });
     };
-
-    /** The body at a second with its seat socket a share of the way back to the seat, its arms hanging. */
-    function lowered(t: number, back: number): IHumanPosture {
-      const across: number = minimumJerk.share(t / (0.7 * descent));
-      const down: number = minimumJerk.share(
-        (t - 0.1 * descent) / (contact - 0.1 * descent),
-      );
-      const socket: IAutoMovieVector3 = {
-        x: start.x + (goal.x - start.x) * back,
-        y: start.y + (goal.y - start.y) * down,
-        z: start.z + (goal.z - start.z) * back,
-      };
-      const settle: number = minimumJerk.share(
-        (t - 0.6 * descent) / (0.4 * descent),
-      );
-      const pitch: number =
-        t < 0.6 * descent
-          ? peak * minimumJerk.share(t / (0.45 * descent))
-          : peak + (final.pitch - peak) * settle;
-      const yaw: number = yaw0 + turn * across;
-      const joints: IHumanPosture["joints"] = { ...relaxed };
-      for (const [bone, a] of finish) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          was[0] + a[0] * settle,
-          was[1] + a[1] * settle,
-          was[2] + a[2] * settle,
-        ];
-      }
-      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-        joints,
-        pitch,
-        HumanTrunk.pelvisLimit(
-          body,
-          seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
-          yaw,
-          feet,
-        ),
-      );
-      const root: IAutoMovieVector3 = seated.root(body, socket, {
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-      });
-      return resolveHumanPosture.lower(body, {
-        root,
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-        joints: tilt.joints,
-        limbs: legsAt(root, yaw, t),
-      });
-    }
 
     /** When a hand leaves its hanging rest and when it rests: on its armrest from 20 % of the descent to contact, on its thigh from contact to seated; it stays there. */
     function span(

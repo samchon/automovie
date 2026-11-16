@@ -275,7 +275,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     const aimed = (a: number, t: number): IHumanPosture.IGoal => {
       let found: IHumanPosture.IGoal | undefined = goals[a]!.get(t);
       if (found === undefined)
-        goals[a]!.set(t, (found = AutoMovieMotionHumanArmObservation.aim(carries[a]!, at(t).posture, t)));
+        goals[a]!.set(t, (found = AutoMovieMotionHumanArmObservation.aim(carries[a]!, at(t).posture, t, resolution, projection)));
       return found;
     };
     const fits: Map<number, AutoMovieMotionHumanArmAngles.IAngles>[] = carries.map(

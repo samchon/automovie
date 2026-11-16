@@ -135,6 +135,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     if (!(level > 1e-6))
       return { facing: place.normal, lean: 0, tilt: 0, bend: hint };
+    const read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
     let nearest: AutoMovieMotionHumanDrinkingArm.INearest | undefined;
     const found: IDrink | undefined = least(
       (lean: number): IDrink | undefined =>
@@ -150,6 +151,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
             nearest = AutoMovieMotionHumanDrinkingArm.nearer(nearest, arm, at);
           },
           after,
+          read,
         ),
     );
     if (found !== undefined) return found;
@@ -250,6 +252,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     rotation: IAutoMovieQuaternion,
     after?: IAfter,
   ): IHeld {
+    const read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
     const laid: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       posture,
@@ -297,10 +300,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
             hint,
             "upright",
           );
-          return AutoMovieMotionHumanDrinkingArm.read(
-            body,
+          return read(
             phase.posture,
-            side,
             {
               ...there,
               rotation: turned,
@@ -317,10 +318,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
           );
         };
         const arm: AutoMovieMotionHumanDrinkingArm.IArm =
-          AutoMovieMotionHumanDrinkingArm.read(
-            body,
+          read(
             posture,
-            side,
             goal,
             false,
             axis,
@@ -332,10 +331,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
         );
         return holds(arm) &&
           holds(
-            AutoMovieMotionHumanDrinkingArm.read(
-              body,
+            read(
               posture,
-              side,
               goal,
               true,
               axis,
@@ -388,6 +385,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     lean: number,
     seen: (arm: AutoMovieMotionHumanDrinkingArm.IArm, at: string) => void,
     after?: IAfter,
+    read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
   ): IDrink | undefined {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     // The vessel's axis in the hand: the effector's along axis, which an
@@ -449,10 +447,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
       level,
     )) {
       const arm: AutoMovieMotionHumanDrinkingArm.IArm =
-        AutoMovieMotionHumanDrinkingArm.read(
-          body,
+        read(
           posture,
-          side,
           goal(facing),
           false,
           axis,
@@ -468,10 +464,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
     }
     if (best === undefined) return undefined;
     const shown: AutoMovieMotionHumanDrinkingArm.IArm =
-      AutoMovieMotionHumanDrinkingArm.read(
-        body,
+      read(
         posture,
-        side,
         goal(best),
         true,
         axis,
@@ -480,10 +474,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
     // the region moves with the head.
     return holds(shown) &&
       (after === undefined ||
-        AutoMovieMotionHumanDrinkingArm.read(
-          body,
+        read(
           after.posture,
-          side,
           goal(best, after.posture, after.place),
           true,
           axis,

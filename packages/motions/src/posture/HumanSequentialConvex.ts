@@ -315,6 +315,7 @@ export namespace HumanSequentialConvex {
     let penalty: number = options.penalties[0]!;
     let collapsed: boolean = false;
     let reason: Reason = "rounds";
+
     // A steered solve starts at the continued penalty when there is one, the first otherwise.
     const first: number =
       options.from !== undefined ? options.from : options.penalties[0]!;
@@ -361,6 +362,7 @@ export namespace HumanSequentialConvex {
             ended = "model";
             break;
           }
+
           // The chosen trial also selects its producer's correction data;
           // steering may have solved another violation-only model last.
           let trial: X = step.trial;
@@ -401,6 +403,7 @@ export namespace HumanSequentialConvex {
             if (settled) ended = flat ? "model" : "step";
             break;
           }
+
           // A rejected proposal that cannot move the current feasible
           // iterate by the caller's resolution is numerical no progress.
           // It is not an objective-error or stationarity certificate; an
@@ -478,6 +481,7 @@ export namespace HumanSequentialConvex {
       for (let k: number = 0; k < STEERING.increases && !enough(step); ++k)
         grow();
     }
+
     // Their (5.14) (p. 10) asks the model's decrease to be a share of the
     // penalty times the step's reduction of the violation; a step that
     // reduces none asks nothing of the penalty.

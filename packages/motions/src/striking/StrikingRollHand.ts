@@ -26,7 +26,7 @@ import { StrikingStrain } from "./StrikingStrain";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed candidate-grid producer owns tool/axis geometry; each returned invocation owns its actual shoulder, ranks, stable sort and physical chooser. StrikingRoll.hand is the one-shot facade and fixed-axis insertion can retain the same producer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original grid entries, rank penalty, strict ordering, refusal handling, TRIED count and refinement freedoms remain. No pose, rank, shoulder, fitted result or chosen angle is reused; frame outputs are fresh and a changing posture callback is evaluated for every original candidate.
  * @evidence contracts/development/implementation.md#efficient-algorithms G fixed grid entries prepare O(G) rigid alignment/offset readers once. Each query retains O(G) actual ranking and sorting plus the original numerical fit/refinement cost; grid frame placement is constant subtraction and fresh copying, while nongrid refinement geometry is computed normally. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicitly fixed body/tool/back/axis/cone scalar geometry determines grid orientations and offsets. Exact angle keys reuse only these fixed readers; signed zero has a separate key, and no changing point/posture/time or contact answer is retained.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicitly fixed body/tool/back/axis/cone scalar geometry determines grid orientations and offsets. A genuine fixed raw-shoulder demand also shares only its canonical name/rig preparation, recomputing every actual posture's authored admission and FK. Exact angle keys reuse only these fixed readers; signed zero has a separate key, and no changing point/posture/time or contact answer is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enclosing one-shot search or fixed-axis action owns G angle records and G rigid readers, bounded by its original cone grid; nongrid refinements are not retained. Each query releases ranks, temporary frames and FK/direct-pose workspaces on return or failure, and the output retains no reader or history.
  */
 export function StrikingRollHand(
@@ -42,8 +42,9 @@ export function StrikingRollHand(
     along, Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
   ));
   const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}UpperArm`]);
+  const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(context.body, shoulderBones);
   const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture, undefined, undefined, shoulderBones).get(`${tool.side}UpperArm`)!.worldPosition;
+    shoulderAt(posture).get(`${tool.side}UpperArm`)!.worldPosition;
   const rigid = (values: readonly number[]): ReturnType<typeof StrikingHeld.prepareHand> => {
     const [tilt, around, turn] = values as readonly [number, number, number];
     const run: IAutoMovieVector3 = Quaternion.rotateVector(

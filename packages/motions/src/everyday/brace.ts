@@ -29,6 +29,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
@@ -122,8 +123,8 @@ export namespace brace {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, the 10 degree lean, the 0.55 reach share and the 0.4 s step with its 3 cm lift are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation; each posture costs one leg solve, one bone resolve for the hanging palms and a two-hand solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The step, set root and lean prepare once per instance. Palm requests bind their unchanged sternum bone-name demand once, while each actual posture still receives canonical selective fitting and full ordered FK admission with its own synchronous workspace.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, feet, set root, parameters and one fixed-name FK preparation until release. Every request releases its dynamic FK workspace and fresh map on return or failure; no queried pose or per-time history is retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Step, set root, lean and sternum name demand prepare once. The arm planner lends synchronous FK/ROM prerequisites through prior to actual lowering/selective sternum fitting, and ordinary posture queries can lend their parent FK source to lowering. Calls without loans keep local preparation, with every joint/goal current.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns body/feet/root/parameters and fixed name demand. Prior borrows FK/projector and runtime posture borrows FK only through synchronous return; no loan enters posture/request data. Standalone workspaces/fresh maps release locally, without a queried-pose history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -275,7 +276,10 @@ export namespace brace {
 
     // The posture without its arms at a second: the root, lean and legs on
     // the set curve, and the hands opened flat once the brace begins.
-    const bodyAt: (seconds: number) => IHumanPosture = (seconds: number): IHumanPosture => {
+    const bodyAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (
+      seconds: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       const s: number = minimumJerk.share(t / SET);
       const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
@@ -295,14 +299,12 @@ export namespace brace {
         if (!(side === "left" ? leftFoot : rightFoot).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
-      const posture: IHumanPosture = resolveHumanPosture.lower(body, {
-        root,
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-        joints: tilt.joints,
-        limbs: legs,
-      });
+      const posture: IHumanPosture = resolveHumanPosture.lower(
+        body,
+        { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: legs },
+        resolveHumanPosture.KNEE,
+        resolution,
+      );
       return s <= 0
         ? posture
         : {
@@ -344,16 +346,18 @@ export namespace brace {
     const aheadOffset: IAutoMovieVector3 = Vector3.add(Vector3.scale(toward, reach), {
       x: 0, y: catching ? -0.1 * m.stature : 0, z: 0,
     });
-    const requests: (posture: IHumanPosture) => AutoMovieMotionHumanArm.ISided[] = (
+    const requests: (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => AutoMovieMotionHumanArm.ISided[] = (
       posture: IHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): AutoMovieMotionHumanArm.ISided[] => {
       // Canonical demand selection keeps admission intact and omits limb
       // fits only when it proves they cannot move the sternum's ancestry.
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const readResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-        body, posture, undefined, {}, resolution, sternumBones,
+        body, posture, undefined, {}, readResolution, sternumBones, projection,
       ).pose;
-      const bones: ReturnType<typeof poseBones> = readSternum(pose, resolution());
+      const bones: ReturnType<typeof poseBones> = readSternum(pose, readResolution());
       const sternum: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
         region,
         bones.get(region.bone)!,
@@ -389,11 +393,16 @@ export namespace brace {
         ["left", "right"],
         entryArms,
         entryArms,
-        (at: number): gestureHands.IPrior => {
-          const posture: IHumanPosture = bodyAt(at);
+        (
+          at: number,
+          _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+          resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+          projection?: Parameters<IHumanActionPlan["posture"]>[3],
+        ): gestureHands.IPrior => {
+          const posture: IHumanPosture = bodyAt(at, resolution);
           return {
             posture,
-            requests: requests(posture),
+            requests: requests(posture, resolution, projection),
             envelope: envelope(at),
           };
         },
@@ -436,8 +445,11 @@ export namespace brace {
       duration,
       events: [{ name: "set", share: SET / duration }],
       contacts,
-      posture: (seconds: number): IHumanPosture =>
-        gestureHands.written(bodyAt(seconds), arms, seconds),
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      ): IHumanPosture => gestureHands.written(bodyAt(seconds, resolution), arms, seconds),
     };
   }
 }

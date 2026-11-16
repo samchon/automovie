@@ -28,8 +28,9 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
  * goals, because inverse kinematics moves the limbs alone. So a gaze, a
  * self-touch or a hand rest can read where the face or the hip is from the
  * posture directly, at the cost of one forward-kinematics pass and none of
- * the limb fits. Limb bones in the result stand at their set or clinical-zero
- * angles and must not be read.
+ * the limb fits. Other limb frames stand at authored or clinical-zero angles,
+ * rather than fitted goals. A limb root's position (a shoulder joint) is valid
+ * when every ancestor is goal-independent; its own articulation remains raw.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which bones and carried regions are valid, why limb goals are skipped, and each helper's world-metre or degree convention and caller premises.
  * @evidence contracts/development/design.md#principled-representation Groups canonical trunk FK, lumbopelvic inclination and trunk-surface readings over the existing body and posture types; points use world metres, angles use degrees and normals are unit directions. Positive limb lengths, valid trunk regions and nonzero ray directions remain caller premises.
@@ -68,6 +69,28 @@ export namespace HumanTrunk {
       typeof resolution === "function" ? resolution() : resolution,
       requested,
     );
+  }
+
+  /**
+   * Prepare fixed raw trunk-bone demand for changing authored postures.
+   *
+   * @param body The unchanged canonical body.
+   * @param requested Actual names to snapshot; inspect goal-independent frames or origins such as shoulder joint positions, rather than fitted limb articulation.
+   * @returns Fresh demanded frames per actual posture, optionally borrowing that synchronous query's exact FK workspace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/name demand, changing raw authored posture, valid-frame boundary, ignored limb goals and fresh map/frame ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Each query uses resolve's same authored joint list and whole-body root turn, then the genuine body-bound poseBones.prepare producer; no limb goal or ROM clamp is introduced.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-name producer feeds the existing authored pose owner; region and point preparations share this same raw-bone reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint receives original ordered admission, including unrequested/stray records. No canonical-name guess, external indices, resolved flag, pose answer or changed raw policy bypasses FK.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Name lookup/sorting prepares once across Q probes; every probe retains O(J) current joint admission, demanded ancestor FK and fresh returned records. Unrequested transforms remain omitted and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body and captured actual name membership establish fixed demand; each current posture/root/joint value is assembled and resolved normally. An optional synchronous workspace shares only exact checked dynamic dependencies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning operation/plan retains body and bounded name metadata until release. No posture, world frame, query result, borrowed dynamic workspace or time history enters the closure; every map/frame is caller-owned.
+   */
+  export function prepareResolve(body: IHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>):
+    (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      read(authored(body, posture, posture.joints), typeof resolution === "function" ? resolution() : resolution);
   }
 
   /**
@@ -244,15 +267,39 @@ export namespace HumanTrunk {
     region: AutoMovieHumanoidRegion,
   ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => ISurface {
     const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, new Set([frame.bone]));
+    const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
     return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): ISurface => {
-      const bones: ReturnType<typeof read> = read(
-        authored(body, posture, posture.joints),
-        typeof resolution === "function" ? resolution() : resolution,
-      );
+      const bones: ReturnType<typeof read> = read(posture, resolution);
       const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
         resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
       return { point: placed.point, normal: placed.normal };
+    };
+  }
+
+  /**
+   * Prepare one fixed region's world point for changing authored postures.
+   *
+   * @param body The unchanged body owning the actual region and canonical rig.
+   * @param region The fixed trunk/head/hip region; limb goals remain ignored.
+   * @returns A fresh world-metre point reader, optionally borrowing its current synchronous operation's exact FK workspace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/region, changing raw authored posture, ignored limb goals, fresh world-metre point and optional synchronous FK borrowing.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same actual region frame, raw authored pose and canonical demanded FK as prepareRegion, then the engine's point observation shared with full surface placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed frame and poseBones.prepare reader feed current authored admission and the engine's single local-to-world point owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint remains admitted in order; root turn, region bone/point and original arithmetic stay unchanged. No normal, target proxy, guessed head point, cached posture or acceptance value is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepares actual bone-name indexing once, retains O(J) current joint admission and demanded ancestor FK, and omits unused normal/forward rotations plus the full surface wrapper on every point-only probe. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body, region frame and actual bone demand are shared. Every current posture is assembled and resolved normally; optional borrowed FK rows reuse only exact checked dynamic dependencies within the current operation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fixed frame/body/name metadata until plan/operation release; each current map/workspace ends with its synchronous query and only the fresh point escapes, without pose, target or time history.
+   */
+  export function preparePoint(
+    body: IHumanBody,
+    region: AutoMovieHumanoidRegion,
+  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieVector3 {
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+    const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieVector3 => {
+      const bones: ReturnType<typeof read> = read(posture, resolution);
+      return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
     };
   }
 

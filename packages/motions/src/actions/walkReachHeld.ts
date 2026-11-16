@@ -7,6 +7,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { walkFoot } from "./walkFoot";
 import { walkReachStance } from "./walkReachStance";
 import { walkReach } from "./walkReach";
@@ -126,6 +127,7 @@ export namespace walkReachHeld {
    * @param hips The pelvis joint's clinical angles, degrees.
    * @param feet Each foot as scheduled.
    * @param course The course read at the second: its drop, metres, each foot's pitch and turn and the trunk's tilt, degrees.
+   * @param resolution Optional exact FK source borrowed only by this synchronous pelvis placement.
    * @returns The pelvis and each stance as held.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States world root/foot inputs, clinical hips, course drop/angles and the held result.
@@ -133,8 +135,8 @@ export namespace walkReachHeld {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pelvis reading and tilt precede a two-foot loop delegated to the existing stance-rocker owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the course's actual drop, pitches, turns and trunk without refitting the trajectory or changing a contact.
    * @evidence contracts/development/implementation.md#efficient-algorithms One existing pelvis solve and at most two stance readers per query, with no full-body fit or time-keyed result cache in this helper.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical pelvis and rocker owners; the supplied course is the same synchronous sample consumed by the trunk writer.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh ground records and retains no state after the synchronous query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical pelvis and rocker owners; the supplied course is the same synchronous sample consumed by the trunk writer. An optional parent FK source reaches pelvis's actual hip reading, sharing only dependency-checked transform prerequisites.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh ground records and retains neither the optional FK source nor any query state after synchronous return or throw.
    */
   export function held(
     body: IHumanBody,
@@ -148,12 +150,16 @@ export namespace walkReachHeld {
       turn: Record<"left" | "right", number>;
       trunk: { pitch: number; roll: number };
     },
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): walkReach.IGround {
     const {
       yaw,
       pivots,
       hips: upright,
-    }: walkReach.IPelvis = walkReach.pelvis(body, root, planned, hips, feet);
+    }: walkReach.IPelvis = walkReach.pelvis(
+      body, root, planned, hips, feet,
+      typeof resolution === "function" ? resolution() : resolution,
+    );
     const lowered: IAutoMovieVector3 = { ...root, y: root.y - course.drop };
     const tilted: ReturnType<typeof tilt> = tilt(
       body,

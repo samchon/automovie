@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
@@ -38,17 +39,24 @@ export interface IAutoMovieMotionHumanArmCarry {
    *
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start.
+   * @param resolution Optional same-body FK metadata borrowed only during this invocation.
+   * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
    * @returns The goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each argument and when the function is called.
    * @evidence contracts/development/implementation.md#principled-implementation A goal that rides on the trunk is a function of the posture so far, evaluated when the row is written.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is used as returned, with no second form for a fixed goal.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms carried performs each original fallback/attitude-end goal read, while Planned reads and stores each actual refinement-time target once in its existing query map; target-specific FK and fits remain with the callback.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work carried and Observation forward same-body FK/genuine ROM metadata; braceOnThigh and touch callbacks consume it for current actual observations. Different postures, targets and instants retain independent calculations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains the goal callback; query metadata is borrowed only until that invocation returns or throws and never enters returned goals or retained planning state.
    */
-  goal(posture: IHumanPosture, seconds: number): IHumanPosture.IGoal;
+  goal(
+    posture: IHumanPosture,
+    seconds: number,
+    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IHumanActionPlan["posture"]>[3],
+  ): IHumanPosture.IGoal;
 
   /**
    * How far the arm is from its held angles to its goal.
@@ -60,9 +68,9 @@ export interface IAutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `carry` clamps the result to [0, 1] instead of trusting the member.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms carried invokes the actual scalar callback once per write; stated evaluates its original named-search samples when no explicit span exists, retaining the supplied callback's cost and effects.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Current seconds always reach the supplied time course; no sampled weight cache substitutes for its actual clock/envelope calculation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains the scalar callback with props until release; each returned number is consumed directly and adds no query history or resource.
    */
   weight(seconds: number): number;
 
@@ -76,17 +84,24 @@ export interface IAutoMovieMotionHumanArmCarry {
    *
    * @param posture The posture so far at the second.
    * @param seconds Seconds since the action's start.
+   * @param resolution Optional same-body FK metadata borrowed only during this invocation.
+   * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
    * @returns The goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is perceived, when, why, and the default.
    * @evidence contracts/development/implementation.md#principled-implementation A reach is planned from what is perceived when it is planned (a reaction time behind), never from a later instant.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read by `AutoMovieMotionHumanArmPlanned.planned` at plan time.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read only at plan time; the hold's tracking reads `goal`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planned reads each perceived arm/time once through its existing target map; tracked feedback still performs its actual current/perceived callback pair per grid step.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Observation selects this callback before goal and forwards only explicit same-body invocation metadata; the perception adapter keeps its original reaction instant rather than substituting a later target.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The carry retains the callback and existing numeric planned goals; no borrowed FK getter or ROM projector enters a goal, context or retained perception closure.
    */
-  perceived?(posture: IHumanPosture, seconds: number): IHumanPosture.IGoal;
+  perceived?(
+    posture: IHumanPosture,
+    seconds: number,
+    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IHumanActionPlan["posture"]>[3],
+  ): IHumanPosture.IGoal;
 
   /** Whether the planned arm follows its goal on the hold, a person who moves: the plan with a correction toward `goal` read at each second, moved within the audit's travel bound (`AutoMovieMotionHumanArmFollow.follower`); the plan alone when absent. */
   tracked?: boolean;
@@ -124,9 +139,9 @@ export interface IAutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#principled-implementation A blend of the wrist's angles does not hold a world attitude, since the forearm turns under it; solving the hand on the arm as carried does.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither end is touched, so the carry still starts at the held angles and arrives at the goal.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An interior carried write retains all three actual end-hand observations and invokes this attitude callback once before the native held solve; endpoint writes avoid these unnecessary observations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The enclosing write shares its explicit same-body FK/ROM metadata across actual hand observations and held solve; the attitude callback receives only original numeric rotations and weight, with no world-attitude result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive owns this optional callback until release; its invocation returns one rotation and receives no metadata reader, process or retained query history.
    */
   attitude?(
     posture: IHumanPosture,

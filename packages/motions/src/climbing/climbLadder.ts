@@ -10,7 +10,6 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -25,6 +24,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanLadder } from "./HumanLadder";
+import { climbLadderHands } from "./climbLadderHands";
 
 /**
  * Climbing a vertical fixed ladder from the floor before it, in the
@@ -230,10 +230,7 @@ export namespace climbLadder {
     const direction: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
     const directional: HumanFrame.IPrepared = HumanFrame.prepare(direction);
     const normal: IAutoMovieVector3 = HumanFrame.point(direction, { x: 0, y: 0, z: -1 });
-    const hands: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>> = {
-      left: AutoMovieMotionHumanTarget.prepareHand(body, "left", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
-      right: AutoMovieMotionHumanTarget.prepareHand(body, "right", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
-    };
+    const handGoal: ReturnType<typeof climbLadderHands> = climbLadderHands(body, normal);
     const rootAlong: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: 0, y: 0, z: ladder.ahead - BACK * (m.thigh + m.shank),
     });
@@ -302,6 +299,7 @@ export namespace climbLadder {
       posture: IHumanPosture,
       feet: Record<"left" | "right", HumanFoot.IPlacement>,
       levels: Record<"left" | "right", ReturnType<typeof level>>,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): IHumanPosture {
       const key: string | undefined = levels.left.moving || levels.right.moving
         ? undefined : `${levels.left.index}:${levels.right.index}`;
@@ -313,7 +311,7 @@ export namespace climbLadder {
       const limbs: IHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(body, placed, side, feet[side], !levels[side].moving);
-      const lowered: IHumanPosture = resolveHumanPosture.lower(body, { ...placed, limbs });
+      const lowered: IHumanPosture = resolveHumanPosture.lower(body, { ...placed, limbs }, undefined, resolution);
       if (key !== undefined) supports.set(key, { root: { ...lowered.root }, limbs: structuredClone(lowered.limbs) });
       return { ...lowered, root: { ...lowered.root }, limbs: structuredClone(lowered.limbs) };
     }
@@ -323,7 +321,7 @@ export namespace climbLadder {
       reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (posture: IHumanPosture, seconds: number, _before?: IAutoMovieMotionHumanPrimitive.Reader, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
         const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
           left: flat("left"),
           right: flat("right"),
@@ -355,7 +353,7 @@ export namespace climbLadder {
             : b;
         }
 
-        return stance(posture, feet, footLevels);
+        return stance(posture, feet, footLevels, resolution);
       },
     };
     const arms: IAutoMovieMotionHumanPrimitive = {
@@ -393,12 +391,9 @@ export namespace climbLadder {
                 ),
               )
             : grip;
-          const target: ReturnType<typeof AutoMovieMotionHumanTarget.hand> = hands[side](lowered, lifted);
-          limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(
-            body,
-            side,
-            target,
-          );
+          const support: readonly [number, number] | undefined = at.moving && !footLevels.left.moving && !footLevels.right.moving
+            ? [footLevels.left.index, footLevels.right.index] : undefined;
+          limbs[`${side}Arm`] = handGoal(side, lowered, lifted, support);
           if (key !== undefined) heldArms[side].set(key, structuredClone(limbs[`${side}Arm`]!));
         }
         const gripped: IHumanPosture = {

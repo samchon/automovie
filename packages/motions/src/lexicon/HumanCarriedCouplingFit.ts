@@ -17,7 +17,6 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanQuadraticProgram as QP } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
@@ -91,7 +90,7 @@ export namespace HumanCarriedCouplingFit {
    * @evidence contracts/development/implementation.md#principled-implementation The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty (Nocedal and Wright's Algorithm 4.1 schedule), each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end; it settles at the square root of machine epsilon of the arm. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Ranges, gaps, one minimisation, the placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The resting contact is kept exact and every angle stays within its range: the legs within the range table, the trunk within full forward bending, the lowering within a squat; a hold still beyond its arm is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Where upright and the carry's own legs reach, one placement; otherwise eleven placements per linearization, with stance FK shared. Penalty steering reprices current rows without repeating those placements; radius retries update intervals on one admitted P/q/A and build trial vectors only when consumed. Actual QP work and acceptance remain current; no speedup is measured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Where upright and the carry's own legs reach, one placement; otherwise at most eleven per linearization, with stance FK shared. Each actual registration/gap pair shares its one borne FK map. Steering reprices rows without another geometric pass, radius retries update intervals and discarded trial vectors stay lazy. Actual QP/acceptance remain current; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed range weights own one curvature per objective flag. At the same x/e/objective, gap slopes, P/q/A and row order are penalty-independent, so fresh penalty shells share their numeric preparation while resetting warm state; only radius retries share a shell's actual iterates. Stance, rigid turn, ranges and palm goals still use their original owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fit owns its stance map, two small curvatures and the current linearization/preparation. Repriced shells share those fixed data without a history chain and release their warm state on replacement; the returned placement closes only over two points and a turn.
    */
@@ -188,7 +187,7 @@ export namespace HumanCarriedCouplingFit {
     const gaps = (x: readonly number[]): number[] => {
       const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         stood(x);
-      const placed: IFit = HumanCarriedCouplingRigid.fit(
+      const registration: HumanCarriedCouplingRigid.IRead = HumanCarriedCouplingRigid.read(
         bearer,
         theirs,
         borne,
@@ -200,8 +199,8 @@ export namespace HumanCarriedCouplingFit {
           depth: x[4]!,
         },
       );
-      const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        HumanTrunk.resolve(borne, HumanCarriedCouplingPose.key(row, legsOf(x)));
+      const placed: IFit = registration.fit;
+      const mine: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = registration.bones;
       return sides.map((side: "left" | "right"): number => {
         const k: number = side === "left" ? 0 : 1;
         const surface: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =

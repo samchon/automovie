@@ -12,16 +12,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
-import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -30,7 +27,9 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
+import type { IAutoMovieMotionHumanArmCarry } from "./IAutoMovieMotionHumanArmCarry";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
+import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
 
 /**
  * The touch stroke: one hand effector brought onto a surface region, moved on
@@ -61,132 +60,14 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  */
 export namespace AutoMovieMotionHumanTouch {
   /**
-   * One touch.
+   * The touch's clock, effector, region and contact declaration.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The phrase clock, the effector, the region as a frame of the posture and the kind with its repetitions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `touch` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The region is a frame function, so a partner's region and the performer's own fit one member.
+   * @evidence contracts/development/common.md#meaningful-documentation The dedicated record owner documents each original member and optional default.
+   * @evidence contracts/development/design.md#principled-representation Retains the existing action-local seconds, world frames and declared contact fields unchanged.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This compatibility name refers to the sole touch record consumed by the generator and its action laws.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The inherited record keeps the original interface declaration and its augmentation surface without duplicating its members.
    */
-  export interface ITouch {
-    /** The body. */
-    body: IHumanBody;
-
-    /** A phrase clock: arrive by `ready`, repeat from `strokeStart` to `strokeEnd`, leave from `relax`. */
-    clock: AutoMovieMotionClock.IClock;
-
-    /** The hand. */
-    side: HumanHand.Side;
-
-    /** The arm's angles before and after the touch. */
-    rest: AutoMovieMotionHumanArm.IAngles;
-
-    /** The effector. */
-    effector: AutoMovieMotionHumanTouchEffector.IEffector;
-
-    /**
-     * The region at a second.
-     *
-     * @param posture The posture written so far in this frame.
-     * @param seconds Seconds since the action's start.
-     * @returns The region's point in world metres and its unit normal, pointing away from the surface.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point and the sense of the normal.
-     * @evidence contracts/development/implementation.md#principled-implementation The region is read on the posture so far, so a region on a moving partner or on the performer's own body is followed frame by frame.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the surface frame's two quantities; the touch builds its lift and travel on them.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The normal is required, so the lift's direction is never guessed from the point alone.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    region(
-      posture: IHumanPosture,
-      seconds: number,
-    ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
-
-    /** The kind. */
-    kind: AutoMovieMotionHumanTouchForm.Kind;
-
-    /** How many repetitions; a positive whole number. */
-    count: number;
-
-    /** The travel's direction; `up` when absent. */
-    tangent?: AutoMovieMotionHumanTouchForm.Tangent;
-
-    /** The effector's stand-off from the region along its normal beyond the skin's pad, metres; 0 when absent. */
-    standoff?: number;
-
-    /** Factor on the lift and the travel; 1 when absent. */
-    extent?: number;
-
-    /** The elbow's bend hint, world, on the entry posture; carried with the root. */
-    bend: IAutoMovieVector3;
-
-    /** The arm laid on the region at the entry (`laid`), which every second's fit is held to; no reference when absent. */
-    reference?: NonNullable<IHumanPosture.IGoal["reference"]>;
-
-    /** What the effector's along axis lies on: the travel's tangent, or `arm`, the direction away from the elbow across the region (`AutoMovieMotionHumanTouchPath.lay`), or `reach`, for an effector that meets its place end on: its facing axis runs from the elbow straight to the place (`AutoMovieMotionHumanTouchPath.reach`) and its along axis lies on the world's up, or `upright`, the world's up as a held vessel stands, the effector facing against `facing`; the tangent when absent. */
-    lay?: "tangent" | "arm" | "reach" | "upright";
-
-    /** The hand's rotation the stroke keeps, world, on the entry posture, turned with the posture's heading: a held tool laid as the grasp chosen for its use presents it (`HumanGraspUse.presented`), so only its point moves. The effector is laid by `lay` when absent. */
-    held?: IAutoMovieQuaternion;
-
-    /** With `upright`, the level world direction the effector faces against (`AutoMovieMotionHumanTouchUpright`); the region's level normal when absent. */
-    facing?: IAutoMovieVector3;
-
-    /** With `upright` or `held`, how far the vessel leans toward the region at the face, degrees (`AutoMovieMotionHumanTouchUpright.tip`): the goal holds it so leaned, so the arm is carried toward the arm that holds it at the lips, while the hand's attitude on the way (`AutoMovieMotionHumanDrinkingArm.carried`) carries it as it is laid or held, tipped over the last `TIP` of the carry's progress and righted over the first `TIP` of the way back; no lean when absent. */
-    lean?: number;
-
-    /** Where the elbow lies while the hand is on the region, which `arm` lays the effector from: the place of least strain (`natural`) or `level` with the shoulder; `natural` when absent. */
-    elbow?: "natural" | "level";
-
-    /** With `reach`, the elbow's place the effector runs from (`settled`), world, on the entry posture; carried with the root. Read from the body's measures when absent. */
-    from?: IAutoMovieVector3;
-
-    /** The entry posture the hint was solved on. */
-    entry: Pick<IHumanPosture, "root" | "yaw">;
-
-    /** What the hand bears on while it is on the region; no window when absent, nor when a held tool's point touches a person (the tool touches them, not the hand, so the hand's fingers are read against the body like any other part). */
-    contact?: IHumanContactWindow.Support;
-
-    /** `keep` leaves the fingers as the base holds them, as a hand that grips a prop must; they take the effector's shape when absent. */
-    fingers?: "keep";
-
-    /** The arm's segments that lie on a person's segment while the hand is on the region, each declared as a contact from `ready` to `relax` (a self-hug's forearm on the other forearm or on the chest); none when absent. */
-    rests?: readonly AutoMovieMotionHumanTouchContacts.IRest[];
-
-    /** The arms of a touch with two hands, planned as one trajectory (`AutoMovieMotionHumanArmPlanned.ITogether`); this arm alone when absent. */
-    together?: AutoMovieMotionHumanArmPlanned.ITogether;
-
-    /** The radius about its site the hand may land within on the region, metres: the site's own, or the region's extent; the audit's contact skin when absent. */
-    disc?: number;
-
-    /** The region and the colliders as a plan perceives them, for a touch of another person (`AutoMovieMotionHumanArm.ICarry.perceived`); the hand then follows the person on the hold. */
-    perceived?: Pick<ITouch, "region" | "others">;
-
-    /** The performer's own bone the region rides, for a region of the performer, so a region on the other arm of the touch rides that arm as it is planned. */
-    on?: AutoMovieHumanoidBone;
-
-    /**
-     * Another body's placed colliders the arm keeps clear of at a second (`IHumanPosture.IGoal.clear`), and the ones it lays the hand on (`IHumanPosture.IGoal.rests`); none when absent.
-     *
-     * @param posture The posture written so far in this frame.
-     * @param seconds Seconds since the action's start.
-     * @returns The colliders, placed in the world, kept clear of and rested on.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the result's frame and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation A partner moves, so their colliders are read at the second the goal is written.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One query, written into the arm's goal.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The colliders are the profile's, placed by the partner's displayed bones.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
-     */
-    others?(
-      posture: IHumanPosture,
-      seconds: number,
-    ): Pick<IHumanPosture.IGoal, "clear" | "rests">;
-  }
+  export interface ITouch extends IAutoMovieMotionHumanTouch {}
 
   /**
    * A region of a target as a frame: a person's region or a prop's point
@@ -215,6 +96,7 @@ export namespace AutoMovieMotionHumanTouch {
     seconds: number,
     posture: IHumanPosture,
     entry: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    resolution?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[2],
   ): Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
     if (target.kind === "self") {
       const frame = context.body.surfaces.regions[target.region];
@@ -232,6 +114,7 @@ export namespace AutoMovieMotionHumanTouch {
       seconds,
       posture,
       AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+      resolution,
     );
   }
 
@@ -298,7 +181,7 @@ export namespace AutoMovieMotionHumanTouch {
                 props,
                 // The lean's share shown at a weight: none until the last `TIP`.
                 (weight: number): number =>
-                  minimumJerk(Math.max(0, (weight - (1 - TIP)) / TIP)).s,
+                  minimumJerk.share(Math.max(0, (weight - (1 - TIP)) / TIP)),
               ),
             }),
       },
@@ -379,12 +262,12 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The constants once, then one region read, the offsets and one effector goal per second.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift, the travel and the stand-off are shares of the hand; a count that is not whole throws.
    * @evidence contracts/development/implementation.md#efficient-algorithms One region read per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector's goal, the laid directions and the form's tangent.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function closes over its props and one hint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the effector, laid direction and tangent owners. A last exact repetition count shares only admitted wave constants while the actual current clock callback remains per sample. Current FK/genuine ROM metadata is forwarded to region/collider callbacks for that invocation only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function retains props, fixed entry-frame hints and at most one count-bound wave reader until release. Query metadata remains callback arguments and never enters the retained reader or returned goal; no time/result history is stored.
    */
   export function goal(
     props: ITouch,
-  ): (posture: IHumanPosture, seconds: number) => IHumanPosture.IGoal {
+  ): IAutoMovieMotionHumanArmCarry["goal"] {
     HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
     const form: AutoMovieMotionHumanTouchForm.IForm =
@@ -400,8 +283,17 @@ export namespace AutoMovieMotionHumanTouch {
     const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
     const from: IAutoMovieVector3 | undefined =
       props.from === undefined ? undefined : HumanFrame.local(held, props.from);
-    return (posture: IHumanPosture, seconds: number): IHumanPosture.IGoal => {
-      const place = props.region(posture, seconds);
+    let wave: { count: number; read: (seconds: number) => number } | undefined;
+    const oscillation = (seconds: number): number => {
+      if (wave === undefined || wave.count !== props.count)
+        wave = { count: props.count,
+          read: AutoMovieMotionClock.prepareWave(clock, ["strokeStart", "strokeEnd"], props.count) };
+      return wave.read(seconds);
+    };
+    return (posture: IHumanPosture, seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmCarry["goal"]>[3]): IHumanPosture.IGoal => {
+      const place: ReturnType<ITouch["region"]> = props.region(posture, seconds, resolution, projection);
       const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
       const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
         normal,
@@ -417,12 +309,7 @@ export namespace AutoMovieMotionHumanTouch {
           ? 0
           : form.travel *
             hand *
-            AutoMovieMotionClock.wave(
-              clock,
-              ["strokeStart", "strokeEnd"],
-              props.count,
-              seconds,
-            );
+            oscillation(seconds);
       // The vessel as it is held at the lips: the arm is carried toward the
       // arm that holds it there, the one the drinking search admitted, and
       // the vessel's own tip on the way is the hand's attitude's (`TIP`,
@@ -488,7 +375,7 @@ export namespace AutoMovieMotionHumanTouch {
         ...(props.reference === undefined
           ? {}
           : { reference: props.reference }),
-        ...props.others?.(posture, seconds),
+        ...props.others?.(posture, seconds, resolution, projection),
       };
     };
   }

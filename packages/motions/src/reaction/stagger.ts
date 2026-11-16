@@ -176,8 +176,8 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
    * @evidence contracts/development/implementation.md#efficient-algorithms One original recovery search serves a successful plan; a refusal retains the original full speed-limit search. Entry mass/sole preparation and the three-centre bending observation run once per plan, with each step's declared stance ends shared and actual per-time settlement/reach preserved.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing recovery, feet, arm and causal-target owners. The same body and complete entry establish bending/entry-geometry equivalence for the first recovery and its refusal's speed search; only the scalar part of each minimum-jerk arm envelope is requested, with the original quintic arithmetic.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and two bending vectors until release; temporary refusal search preparation/results end on throw, without a global entry or solved-pose history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses recovery/feet/arm/causal-target owners. The same complete entry shares bending/geometry with a refusal's search; arm envelopes request only original quintic values. Current composition FK reaches settled hips, and FK/ROM loans reach actual arm-swing fitting/clearance, without reusing another time's fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds recovery, feet and two bending vectors; refusal search data end on throw. Each writer borrows dynamic composition FK/ROM only through its synchronous call, never in returned posture data, endpoint/bow caches or a global solved-pose history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -264,8 +264,13 @@ export namespace stagger {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const { feet: scheduled, settled, reached, reading }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds);
+      write: (
+        posture: IHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      ): IHumanPosture => {
+        const { feet: scheduled, settled, reached, reading }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           // The knee points over the foot's own heading.
@@ -326,7 +331,13 @@ export namespace stagger {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (
+        posture: IHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const more: number = raised(seconds);
         const abducted: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles = (
           side: "left" | "right",
@@ -347,6 +358,8 @@ export namespace stagger {
             0,
           ),
           ["left", "right"],
+          resolution,
+          projection,
         );
       },
     };

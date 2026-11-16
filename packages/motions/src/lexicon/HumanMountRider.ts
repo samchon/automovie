@@ -19,6 +19,8 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
 
@@ -146,6 +148,8 @@ export namespace HumanMountRider {
    * @param grip The held point and its outward unit normal, world, the unit axis the grip runs along when it has one, its radius, metres, when the object states one, and the side of the axis the fingers lie on (the sign of the axis crossed with the normal) when a hold keeps the side it was taken from; the side the body faces when absent.
    * @param share 0 where the joints hold the hand to 1 holding.
    * @param closed The finger joints of the hand closed on the grip; none leaves the fingers as they are.
+   * @param resolution Optional exact FK reader or lazy supplier borrowed only for this synchronous partial hold.
+   * @param projection Optional genuine same-body ROM metadata projector borrowed from this same operation.
    * @returns The arm's goal and the hand's finger joints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
@@ -153,8 +157,8 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass while the hand is on its way and none once it holds.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied synchronous FK reader serves the complete canonical resolve and final hand frame; a genuine same-body projector shares only ROM metadata while every current joint/goal still resolves. Fixed relaxed shape tables serve only scalar finger interpolation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrowed FK/ROM loans end on return or throw and are never stored in goals or plans. Two immutable side-only relaxed shapes are bounded module data; current maps and targets do not persist.
    */
   export function hold(
     body: IHumanBody,
@@ -169,6 +173,8 @@ export namespace HumanMountRider {
     },
     share: number,
     closed: IHumanPosture["joints"],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): { arm: IHumanPosture.IGoal; fingers: IHumanPosture["joints"] } {
     const s: number = Math.min(1, Math.max(0, share));
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -207,16 +213,30 @@ export namespace HumanMountRider {
       const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
       delete limbs.leftArm;
       delete limbs.rightArm;
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
       const hand: IAutoMovieResolvedBone = poseBones(
         body,
-        resolveHumanPosture(body, { ...posture, limbs }),
-        undefined,
+        resolveHumanPosture.seeded(
+          body,
+          { ...posture, limbs },
+          undefined,
+          undefined,
+          read,
+          undefined,
+          projection,
+        ).pose,
+        read(),
         new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
       ).get(`${side}Hand`)!;
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
     }
-    const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    let relaxed: IHumanPosture["joints"] | undefined = RELAXED[side];
+    if (relaxed === undefined) {
+      relaxed = HumanHand.shape(side, "relaxed");
+      RELAXED[side] = relaxed;
+    }
     const closing: IHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
       const from: readonly [number, number, number] = relaxed[bone] ?? [
@@ -363,3 +383,6 @@ export namespace HumanMountRider {
       : HumanMountReach.reach(body, seated, sides)(points);
   }
 }
+
+/** At most two lazily acquired canonical finger maps; hold emits fresh tuples from their numbers. */
+const RELAXED: Partial<Record<"left" | "right", IHumanPosture["joints"]>> = {};

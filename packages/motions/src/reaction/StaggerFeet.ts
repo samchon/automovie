@@ -129,6 +129,7 @@ export class StaggerFeet {
    * @param seconds Seconds since the push.
    * @param feet The scheduled feet at that second.
    * @param reading This course's reading at that same second; read here when absent.
+   * @param resolution Optional exact FK source borrowed by the same synchronous settlement.
    * @returns The held pelvis, feet and contacts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the time, feet and exact same-course/same-second premise of a supplied reading.
@@ -136,8 +137,8 @@ export class StaggerFeet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read or borrow the course sample, construct the frame, hold the feet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new fit, tolerance, time memo or posed-result cache is introduced.
    * @evidence contracts/development/implementation.md#efficient-algorithms A supplied sample avoids duplicate interpolation, and the shared root formula avoids building an unused preliminary pelvis; held-foot work is unchanged and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work solve lends its same synchronous course reading; other callers retain the original default read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This operation retains neither the supplied reading nor its result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work solve lends its same synchronous course reading and optional parent FK source to actual held-pelvis placement; other callers retain original local preparation and default interpolation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the supplied reading/FK source nor its result after return; no loan enters this instance's endpoint, bow or swing preparation.
    */
   public settle(
     seconds: number,
@@ -146,6 +147,7 @@ export class StaggerFeet {
       this.course(),
       seconds,
     ),
+    resolution?: Parameters<typeof walkReachHeld.held>[6],
   ): walkReach.IGround {
     const entry: IHumanPosture = this.posture;
     return walkReachHeld.held(
@@ -155,6 +157,7 @@ export class StaggerFeet {
       entry.joints.hips ?? [0, 0, 0],
       feet,
       reading,
+      resolution,
     );
   }
 
@@ -209,6 +212,7 @@ export class StaggerFeet {
    * (`walkReach.swing`), alongside the same course reading the trunk uses.
    *
    * @param seconds Seconds since the push.
+   * @param resolution Optional parent FK source borrowed only by this synchronous settlement.
    * @returns The scheduled, settled and reached feet and their course reading.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the common clock and each part of the result.
@@ -216,10 +220,10 @@ export class StaggerFeet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One schedule, course read and settlement precede at most two swings. The instance supplies fixed body-only reach preparation; walkReachHeld, walkFoot and walkReach own the actual physical calculations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unchanged foot and leg owners still perform every fit; the returned reading is not memoized by time.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(s) fixed-step scans, one course lookup and two-foot settlement/reach, plus any first-demand bow search documented by scheduled; the returned trunk reading avoids another interpolation and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Two body-only reach readers prepared at construction serve the same immutable body, and settle borrows this exact same-second course reading also returned to stagger's trunk writer; all current-time feet are calculated afresh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record belongs to this synchronous writer evaluation. Two body-only reach readers release with the plan alongside scheduled's O(s) endpoint/swing/bow preparation; no arbitrary-time posed state or external handle is retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body-only reach readers serve the fixed body. settle borrows this exact same-second reading and optional parent FK source; the reading also serves the trunk writer, and all current-time feet remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result belongs to this evaluation. Fixed reach/endpoint/swing/bow preparation releases with the plan; the dynamic FK loan ends with settlement and never enters those retained records or a returned callback.
    */
-  public solve(seconds: number): {
+  public solve(seconds: number, resolution?: Parameters<typeof walkReachHeld.held>[6]): {
     feet: Record<"left" | "right", walkFoot.IScheduled>;
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
@@ -231,7 +235,7 @@ export class StaggerFeet {
       this.course(),
       seconds,
     );
-    const settled: walkReach.IGround = this.settle(seconds, feet, reading);
+    const settled: walkReach.IGround = this.settle(seconds, feet, reading, resolution);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
     };

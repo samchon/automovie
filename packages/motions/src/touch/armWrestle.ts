@@ -21,6 +21,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanTrunkTurn } from "../posture/HumanTrunkTurn";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -118,8 +119,8 @@ export namespace armWrestle {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared geometry, the lean, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that cannot close the distance throws; the sway is a fixed sine, not a draw, so the two roles stay together.
    * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves and one posture resolve per five degrees up to the asked pin at plan time; constant work per frame before the posture resolve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow's trunk pitch, the trunk resolver, the posture resolver and the arm carry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan, the geometry and the entry's arm angles.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow, trunk, full posture resolver and arm carry. The original twenty-four lean probes share one fixed raw-shoulder demand. Pin trials share one genuine unchanged-body ROM projector and prepared elbow FK demand; every changed pin angle still solves the complete pose and keeps rival clearance.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its base, geometry and entry arm angles. Planning-only exact FK, genuine ROM metadata and prepared elbow readers end on return or refusal; returned evaluators retain none of those workspaces.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -144,12 +145,10 @@ export namespace armWrestle {
       from: "UpperArm" | "LowerArm",
       to: "LowerArm" | "Hand",
     ): number =>
-      Vector3.length(
-        Vector3.subtract(
+      Vector3.distance(
           of.rest.get(`${side}${to}`)!,
           of.rest.get(`${side}${from}`)!,
-        ),
-      );
+        );
     const upperArm: number = span(body, "UpperArm", "LowerArm");
     const forearm: number = span(body, "LowerArm", "Hand");
 
@@ -207,14 +206,13 @@ export namespace armWrestle {
     // the arm only as the force between the two bends it (#3439): the
     // loser's trunk takes the torque its shoulder resists with, and bends
     // toward the pin until its stiffness holds it (`HumanForceTrunk`).
+    const shoulders: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(body, shoulderBones);
     const short = (pitch: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          HumanTrunk.resolve(body, leaned(pitch, entry), undefined, resolution, shoulderBones).get(`${side}UpperArm`)!
+      Vector3.distance(
+          shoulders(leaned(pitch, entry), resolution).get(`${side}UpperArm`)!
             .worldPosition,
           elbow,
-        ),
-      ) - upperArm;
+        ) - upperArm;
     let low: number = -20;
     let high: number = 70;
     let below: number = short(low);
@@ -257,18 +255,17 @@ export namespace armWrestle {
     // that slides its elbow along the top has left it too.
     const asked: number = p.pin ?? PIN;
     HumanBound.within("pin", asked, 0, 90);
+    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const elbows: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, elbowBones);
     const off = (degrees: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          poseBones(
-            body,
-            resolveHumanPosture.seeded(body, set(entry, degrees, 1), undefined, {}, resolution).pose,
+      Vector3.distance(
+          elbows(
+            resolveHumanPosture.seeded(body, set(entry, degrees, 1), undefined, {}, resolution, undefined,
+              projection ??= prepareHumanPostureProjection(body)).pose,
             resolution(),
-            elbowBones,
           ).get(`${side}LowerArm`)!.worldPosition,
           elbow,
-        ),
-      );
+        );
     const upright: number = off(0);
     const pinGap: number = off(asked);
     if (!(pinGap <= upright + HELD)) {
@@ -276,8 +273,8 @@ export namespace armWrestle {
       // shoulder's distance to the elbow's place and the upper arm's
       // clinical angles, upright and at the asked angle.
       const read = (degrees: number): string => {
-        const pose = resolveHumanPosture(body, set(entry, degrees, 1));
-        const shoulder: IAutoMovieVector3 = poseBones(body, pose).get(
+        const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(body, set(entry, degrees, 1), undefined, {}, resolution, undefined, projection).pose;
+        const shoulder: IAutoMovieVector3 = poseBones(body, pose, resolution(), shoulderBones).get(
           `${side}UpperArm`,
         )!.worldPosition;
         const joint = pose.joints.find(
@@ -286,7 +283,7 @@ export namespace armWrestle {
         const at: IAutoMovieVector3 = wrist(degrees);
         const v = (q: IAutoMovieVector3): string =>
           `(${q.x.toFixed(4)}, ${q.y.toFixed(4)}, ${q.z.toFixed(4)})`;
-        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(Vector3.length(Vector3.subtract(shoulder, elbow)) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
+        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(Vector3.distance(shoulder, elbow) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
       };
       let most: number = 0;
       for (let degrees: number = 5; degrees < asked; degrees += 5)
@@ -314,17 +311,15 @@ export namespace armWrestle {
     );
     const arrive: number = Math.max(
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(Vector3.subtract(wrist(0), from)),
+        Vector3.distance(wrist(0), from),
       ),
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(
-          Vector3.subtract(
+        Vector3.distance(
             theirs,
             other
               .bones(context.start, requested)
               .get(`${side}Hand`)!.worldPosition,
           ),
-        ),
       ),
     );
     const go: number = arrive + 0.3;

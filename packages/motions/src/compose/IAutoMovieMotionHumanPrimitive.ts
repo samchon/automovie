@@ -53,6 +53,8 @@ export interface IAutoMovieMotionHumanPrimitive {
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start, in [`from`, `to`].
    * @param before The posture so far at any second of the action: the base and earlier primitives, optionally restricted to explicitly requested channels. A movement planned once over its span reads it, so its plan is a constant of the action; absent where no action composes the primitive.
+   * @param resolution Optional exact FK source borrowed only during this same-body synchronous write; never retain it in a plan, output or callback.
+   * @param projection Optional genuine same-body direct ROM projector, used only for actual current solves during this write.
    * @returns The posture; fields outside the claimed channels are ignored.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the posture and the seconds it is given, that the seconds lie in the primitive's window and that fields outside the claimed channels are ignored.
@@ -67,6 +69,8 @@ export interface IAutoMovieMotionHumanPrimitive {
     posture: IHumanPosture,
     seconds: number,
     before?: IAutoMovieMotionHumanPrimitive.Reader,
+    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IHumanActionPlan["posture"]>[3],
   ): IHumanPosture;
 
   /**

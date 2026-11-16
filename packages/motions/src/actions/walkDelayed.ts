@@ -52,7 +52,7 @@ export function walkDelayed(
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: wait + plan.contact }),
-    posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture =>
-      plan.posture(Math.max(0, seconds - wait), channels),
+    posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture =>
+      plan.posture(Math.max(0, seconds - wait), channels, resolution, projection),
   };
 }

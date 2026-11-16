@@ -196,8 +196,8 @@ export namespace StrikingBlade {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The base, then the tool's frame at a second, then the two arm goals written on the base's posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow hint is the arm's least-strain place with the hanging arm as its named fallback; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One lazy decisive-pose fit establishes the existing arm reference. Each time read computes its actual base/path/goals and at most one demanded shoulder/chest trunk map shared by frame carrying and elbow carrying; final physical limb fits remain with the displayed evaluator. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint, fixed hand-angle and hand-local tool contact/limit geometry stays per plan; every actual frame still creates fresh wrist goals and task records. one explicit posture invocation shares only its exact current body's trunk between its two readers, and decisive-pose fit/read-back may share equal scalar FK prerequisites synchronously.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing stroke/base/entry, fixed hand/reference data and at most one lazy scalar-only tool-goal producer; each current trunk map and decisive FK reader ends on return or throw, with no time-history cache or retained evaluation scope.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint, fixed hand-angle and hand-local tool contact/limit geometry stays per plan; every actual frame still creates fresh wrist goals and task records. One lazy genuine raw-trunk demand binds only fixed chest/shoulder names for the plan. Every current authored posture is still admitted and resolved; one explicit posture invocation shares only its exact current body's trunk between its two readers, and decisive-pose fit/read-back may share equal scalar FK prerequisites synchronously.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing stroke/base/entry, fixed hand/reference data and at most one lazy scalar-only tool-goal producer and one lazy fixed-name raw-trunk producer; each current trunk map and decisive FK reader ends on return or throw, with no time-history cache or retained evaluation scope.
    */
   export function plan(
     context: IHumanActionContext,
@@ -208,6 +208,9 @@ export namespace StrikingBlade {
     const duration: number = clock.duration;
     const other: HumanHand.Side = tool.side === "left" ? "right" : "left";
     const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["chest", `${tool.side}UpperArm`]);
+    let trunkReader: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
+    const trunkAt: ReturnType<typeof HumanTrunk.prepareResolve> = (posture: IHumanPosture, resolution?: Parameters<typeof HumanTrunk.resolve>[3]): ReturnType<typeof HumanTrunk.resolve> =>
+      (trunkReader ??= HumanTrunk.prepareResolve(body, trunkBones))(posture, resolution);
     const handBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}Hand`]);
     const elbowBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}LowerArm`]);
     const base: IHumanActionPlan = StrikingAdvance.base(context, stroke);
@@ -244,7 +247,7 @@ export namespace StrikingBlade {
         ? clock.progress("start", "ready", seconds)
         : clock.envelope(["start", "ready"], ["relax", "end"], seconds);
     const shoulderOf = (posture: IHumanPosture, read?: () => ReturnType<typeof HumanTrunk.resolve>): IAutoMovieVector3 =>
-      (read?.() ?? HumanTrunk.resolve(body, posture, undefined, undefined, trunkBones)).get(`${tool.side}UpperArm`)!
+      (read?.() ?? trunkAt(posture)).get(`${tool.side}UpperArm`)!
         .worldPosition;
 
     // The holding shoulder where the stroke starts and where it lands.
@@ -317,11 +320,7 @@ export namespace StrikingBlade {
     let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const carried = (posture: IHumanPosture, read?: () => ReturnType<typeof HumanTrunk.resolve>): IAutoMovieVector3 => {
       reference();
-      const bones: ReturnType<typeof HumanTrunk.resolve> = read?.() ?? HumanTrunk.resolve(
-        body,
-        posture,
-        undefined, undefined, trunkBones,
-      );
+      const bones: ReturnType<typeof HumanTrunk.resolve> = read?.() ?? trunkAt(posture);
       return Vector3.add(
         bones.get(`${tool.side}UpperArm`)!.worldPosition,
         Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
@@ -338,11 +337,7 @@ export namespace StrikingBlade {
           ? context.entry.posture.limbs[`${tool.side}Arm`]
           : undefined;
       if (entered?.reference !== undefined) {
-        const at: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
-          body,
-          context.entry.posture,
-          undefined, undefined, trunkBones,
-        );
+        const at: ReturnType<typeof HumanTrunk.resolve> = trunkAt(context.entry.posture);
         hint = Quaternion.rotateVector(
           Quaternion.inverse(at.get("chest")!.worldRotation),
           Vector3.subtract(
@@ -382,11 +377,7 @@ export namespace StrikingBlade {
       const elbow: IAutoMovieVector3 = poseBones(body, posed, resolution(), elbowBones).get(
         `${tool.side}LowerArm`,
       )!.worldPosition;
-      const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
-        body,
-        stood,
-        undefined, resolution, trunkBones,
-      );
+      const bones: ReturnType<typeof HumanTrunk.resolve> = trunkAt(stood, resolution);
       hint = Quaternion.rotateVector(
         Quaternion.inverse(bones.get("chest")!.worldRotation),
         Vector3.subtract(
@@ -413,7 +404,7 @@ export namespace StrikingBlade {
         );
         let trunk: ReturnType<typeof HumanTrunk.resolve> | undefined;
         const read: () => ReturnType<typeof HumanTrunk.resolve> = (): ReturnType<typeof HumanTrunk.resolve> =>
-          (trunk ??= HumanTrunk.resolve(body, posture, undefined, undefined, trunkBones));
+          (trunk ??= trunkAt(posture));
         const at: StrikingHeld.IHandFrame = frame(posture, t, read);
         const first: IHumanPosture.IGoal = goalFor(at);
         const limbs: IHumanPosture["limbs"] = {

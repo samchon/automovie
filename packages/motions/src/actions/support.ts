@@ -16,6 +16,8 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanBodyFit } from "../posture/HumanBodyFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
@@ -108,9 +110,9 @@ export namespace support {
    * @evidence contracts/development/implementation.md#principled-implementation Each key is the whole-body fit on its contacts, seeded from the key before; a transition key holds both stances' contacts at once; the course between keys is a minimum-jerk blend of each joint on its range.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys are solved once and each fixed interval is prepared, then a posture reads its surrounding keys and that interval's actual interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two fits per stance after the first, three for a step, remain once at plan time; each fixed interval prepares its joint pairs/common pin and measures its fixed source point once, while every posture retains current ROM interpolation, achieved-point solve and floor reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved keys, contact order and completed entry-time contact places define immutable interval geometry; prepared intervals share only those fixed inputs and source-point measurements, with no current pose or floor-result reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its keys and one finite preparation per adjacent interval until release; those intervals retain fixed endpoint metadata/source points but no queried time, current pose or FK workspace.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two fits per stance after the first, three for a step, remain once at plan time. A query finds its active interval in O(log K) for K ordered keys, keeping the last-equal boundary rule; fixed pairs/common pin/source point prepare once, while current ROM interpolation, achieved-point solve and floor reading remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved keys and contact order define immutable interval geometry; entry-target/source-point observations share only within one schedule generation and settle clears them. Current posture calls forward parent FK/ROM loans to actual contact/floor observations, with every current solve retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns keys and one finite preparation per adjacent interval until release. Intervals retain fixed endpoint metadata and at most one source/target record until settle, without current poses, queried times or borrowed FK/ROM workspaces.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -388,10 +390,23 @@ export namespace support {
         share: k.seconds / duration,
       })),
       contacts: supportWindows.of(context, stances, keys, duration),
-      posture: (t: number): IHumanPosture => {
+      settle: (): void => {
+        for (const interval of intervals) interval.settle();
+      },
+      posture: (
+        t: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: ReturnType<typeof prepareHumanPostureProjection>,
+      ): IHumanPosture => {
         const s: number = Math.min(duration, Math.max(0, t));
         let k: number = 0;
-        while (k + 1 < keys.length - 1 && keys[k + 1]!.seconds <= s) k++;
+        let hi: number = keys.length - 2;
+        while (k < hi) {
+          const mid: number = Math.ceil((k + hi) / 2);
+          if (keys[mid]!.seconds <= s) k = mid;
+          else hi = mid - 1;
+        }
         const a: IKey = keys[k]!;
         const b: IKey = keys[Math.min(k + 1, keys.length - 1)]!;
         const span: number = b.seconds - a.seconds;
@@ -404,7 +419,7 @@ export namespace support {
         // on their colliders; raised contacts keep their world height,
         // bounded by floor nonpenetration. This single pivot does not
         // constrain every other held contact along the course.
-        return intervals[k]!(w);
+        return intervals[k]!.write(w, resolution, projection);
       },
     };
   }

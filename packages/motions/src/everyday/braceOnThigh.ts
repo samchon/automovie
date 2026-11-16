@@ -27,8 +27,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry with one goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.6 share toward the knee is provisional, the bend law's brace point.
  * @evidence contracts/development/implementation.md#efficient-algorithms Requests only the braced thigh and knee from canonical resolution/FK. The common resolver retains complete direct-joint admission and falls back to its full fitting path for dependencies its selective contract cannot prove irrelevant.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side fix the thigh region and compile requested bone names once per primitive. Each synchronous goal lends one exact FK workspace to its actual selective fit and subsequent current bone reading, without sharing fitted answers across seconds.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments, one fixed name-demand preparation/set and surface reference. Every goal's dynamic FK workspace and fresh map release on return or failure; no time history or posed-result cache is kept.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side fix the region and compile requested names once. Each actual goal borrows its carrier's optional FK/ROM prerequisites through selective seeded fitting and current bone placement; without a loan it creates the original local workspace. No fitted answer is shared across seconds.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds fixed arguments/name demand/surface metadata only. Goal calls borrow dynamic FK/projector only until synchronous return or throw, and local workspaces/maps end there too; neither loan enters returned goal data, the primitive or a time-history cache.
  */
 export function braceOnThigh(
   body: IHumanBody,
@@ -50,10 +50,15 @@ export function braceOnThigh(
     to: duration,
     rest,
     weight,
-    goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    goal: (
+      posture: IHumanPosture,
+      _seconds: number,
+      source?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    ): IHumanPosture.IGoal => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-        body, posture, undefined, {}, resolution, requested,
+        body, posture, undefined, {}, resolution, requested, projection,
       ).pose;
       const bones: ReturnType<typeof poseBones> = readLeg(pose, resolution());
       const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;

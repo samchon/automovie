@@ -243,6 +243,8 @@ export namespace punch {
     // girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
+    const course: StrikingWeapon.Course = (at: number, _channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture =>
+      geometry().posture(Math.min(duration, Math.max(0, at - context.start)), resolution);
     const chain: StrikingWeapon.IChain = {
       ids: ["upperArm", "forearm", "fist"],
       limb,
@@ -252,10 +254,7 @@ export namespace punch {
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.arm(
           context.body,
-          (at: number): IHumanPosture =>
-            geometry().posture(
-              Math.min(duration, Math.max(0, at - context.start)),
-            ),
+          course,
           side,
           seconds,
         ),

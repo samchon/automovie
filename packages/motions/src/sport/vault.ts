@@ -67,22 +67,20 @@ export namespace vault {
    * @evidence contracts/development/implementation.md#principled-implementation The top's point from the prop's frame at the start, and the hands' place taken into the prop's frame to compare with its width along X and its depth along Z.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The surface record, then the handspring.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A place off the top is refused, never moved onto it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the handspring's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the workout's support reading and the handspring's plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual entry prop-frame read and first-match affordance lookup supply point, rotation and extents together, instead of repeating frame evaluation/lookup; the delegated handspring retains all original stations and searches. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work WorkoutSupport.placed owns this exact source observation; top placement, local extent check and delegated hand support use the same actual frame/primary metadata, without a time or pose cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary placed record and construction-only extent callback release with planning return/throw; the handspring owns its resulting support/geometry plan and no independent source-frame history or workspace is retained here.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const top: IAutoMovieVector3 = WorkoutSupport.at(context, {
+    const surface: ReturnType<typeof WorkoutSupport.placed> = WorkoutSupport.placed(context, {
       prop: context.params.on,
       affordance: "surface",
     });
-    const read: IHumanActionContext.IProp = context.prop(context.params.on);
-    const rotation: IAutoMovieQuaternion = read.frame(context.start).rotation;
-    const declared: IAutoMovieAffordance | undefined = (
-      read.prop.affordances ?? []
-    ).find((a: IAutoMovieAffordance): boolean => a.id === "surface");
+    const top: IAutoMovieVector3 = surface.point;
+    const rotation: IAutoMovieQuaternion = surface.frame.rotation;
+    const declared: IAutoMovieAffordance = surface.affordance;
     return handspring.over(context, {
       height: top.y,
       support: { kind: "prop", subject: context.params.on },
@@ -91,8 +89,8 @@ export namespace vault {
           Quaternion.inverse(rotation),
           Vector3.subtract(point, top),
         );
-        const width: number = declared?.width ?? Infinity;
-        const depth: number = declared?.depth ?? Infinity;
+        const width: number = declared.width ?? Infinity;
+        const depth: number = declared.depth ?? Infinity;
         if (Math.abs(local.x) > width / 2 || Math.abs(local.z) > depth / 2)
           throw new HumanRefusal({
             kind: "reach",

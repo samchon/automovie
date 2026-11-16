@@ -455,8 +455,8 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed chain/neutral preparation precedes the original actual target admission and ranked numerical owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep, candidate, overshoot, score, legality bound or refinement is omitted or reused as a result.
    * @evidence contracts/development/implementation.md#efficient-algorithms One chain FK/preparation serves Q original target/rank sweeps; all of each actual sweep's numerical work remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller-owned unchanged body/posture/root/heading/side and scoring context establish equivalent geometry; differing wrists, rotations and ranks still execute independently.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one chain/collider record and neutral angles until release; no FK reader, target result, sampled pose or global history is retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller-owned unchanged body/profile/rig/ROM, rootXYZ/yaw/pitch/roll/side and scoring context establish equivalent geometry; differing wrists/rotations/ranks execute independently. An authored support-state plan may retain only a finite context set whose private immutable source coordinates are proved by those states, without inferring equivalence from time or a mutable posture identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous search or bounded authored support-state plan owns one chain/collider record and neutral angles per exact fixed state until release. Actual query closures/candidates stay local; no FK reader, target result, sampled pose or global history is retained.
    */
   export function prepare(
     props: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,

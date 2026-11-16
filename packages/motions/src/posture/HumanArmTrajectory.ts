@@ -136,7 +136,7 @@ export namespace HumanArmTrajectory {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Planning stays in this builder; a module-private factory creates each returned reader from the original setup list, final times, solved coordinates and arm index, outside the builder's lexical environment.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every grid instant, split, optimiser call, acceptance/refusal and playback expression; no cloning, freezing, weakened constraint or sampled pose shortcut changes input ownership.
    * @evidence contracts/development/implementation.md#efficient-algorithms Builds the original duration-scaled fine grid and waypoint contexts, retaining all actual optimisation/refinement work and its peak populations. Playback still performs one Hermite query and one arm conversion; the factory adds one fixed-size call per arm, with no measured time or heap-byte claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing continued contexts reuse matching waypoint records during planning. Playback borrows the same setup/time/coordinate references and keeps its original late arm-index lookups; each requested second still computes its actual arm.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One genuine fixed body/ordered-side setup builder serves original, fine and refined contexts; every current frame/site remains actual and continued contexts reuse only matching waypoint records. Playback borrows the same setup/time/coordinate references and keeps its original late arm-index lookups; each requested second still computes its actual arm.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers explicitly retain only the setup list, final times, coordinate arrays and their arm index; setups still borrow the body and rig metadata. The problem/read/refinement callbacks, fine context and time/goal/waypoint maps are not passed to the playback factory. This is an explicit ownership boundary, not a measured heap reduction or a bound on the optimiser's peak populations.
    */
   export function solve(
@@ -148,7 +148,10 @@ export namespace HumanArmTrajectory {
       ? (t: readonly number[]): IProblem => mirrored(read(t))
       : read;
     let problem: IProblem = leftFirst(first) ? mirrored(first) : first;
-    let context: M.IContext = HumanArmTrajectoryContext.of(problem);
+    const contextOf: ReturnType<typeof HumanArmTrajectoryContext.prepare> =
+      HumanArmTrajectoryContext.prepare(problem.body,
+        problem.arms.map((arm: IProblem["arms"][number]): "left" | "right" => arm.side));
+    let context: M.IContext = contextOf(problem);
     // The frame grid over the span, the instants between waypoints are read at.
     const start: number = times[0]!;
     const end: number = times[times.length - 1]!;
@@ -156,7 +159,7 @@ export namespace HumanArmTrajectory {
     for (let j: number = 1; start + j * STEP < end - 1e-9; ++j)
       grid.push(start + j * STEP);
     grid.push(end);
-    const fine: M.IContext = HumanArmTrajectoryContext.of(
+    const fine: M.IContext = contextOf(
       reading(grid),
       context,
     );
@@ -189,7 +192,7 @@ export namespace HumanArmTrajectory {
 
       // The waypoints kept from the last reading keep what its context
       // built on them; only the new ones are read.
-      context = HumanArmTrajectoryContext.of(problem, context);
+      context = contextOf(problem, context);
       return carried;
     };
     let seed: number[][][] = HumanArmSeed.seed(problem, context);

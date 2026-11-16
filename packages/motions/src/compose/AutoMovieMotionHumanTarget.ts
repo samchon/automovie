@@ -14,6 +14,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
@@ -198,7 +199,7 @@ export namespace AutoMovieMotionHumanTarget {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per case of the target union.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A `none` that states a line or a range keeps the virtual opponent it asks for instead of the default; a limb's self region throws instead of reading an unsolved bone.
    * @evidence contracts/development/implementation.md#efficient-algorithms One aim or one forward-kinematics pass per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `IHumanActionContext.aim`, `HumanTrunk.region` and `fallback`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to aim, HumanTrunk.region and fallback. A self-region may synchronously borrow its parent's same-body FK metadata; the actual raw posture and region are still read normally.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function resolve(
@@ -207,6 +208,7 @@ export namespace AutoMovieMotionHumanTarget {
     seconds: number,
     posture: IHumanPosture,
     place: IDefault,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IPlace {
     if (target === undefined) return fallback(context.body, posture, place);
     switch (target.kind) {
@@ -226,7 +228,7 @@ export namespace AutoMovieMotionHumanTarget {
             fix: "aim at a region of the trunk or the head",
           });
         return {
-          ...HumanTrunk.region(context.body, posture, target.region),
+          ...HumanTrunk.region(context.body, posture, target.region, resolution),
           solid: true,
         };
       }

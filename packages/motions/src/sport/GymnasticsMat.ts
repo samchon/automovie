@@ -51,8 +51,8 @@ export namespace GymnasticsMat {
    * @evidence contracts/development/implementation.md#principled-implementation Joint space blended on minimum-jerk progress, the tip to the nearest supine tip, the root height from the shapes' rest and the root's floor place from the centre carried by the engine's `carriedRate`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one centre, one rest per instant.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare J joint start/difference triples once; each query interpolates them and resolves one canonical bone map for its actual COM and collider reduction, removing the second full FK. Shape bounds and phase timing remain unchanged; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The invariant joint union and differences belong to this landing. COM and floor rest consume the same query's canonical map through prepareGymnasticsFrame; changed joints/headings still prepare their own geometry. An optional explicit parent workspace shares only exactly unchanged FK prerequisites with downstream consumers.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare J start/difference triples and their exact u=1 arithmetic once. The literal constant HOLD phase copies those raw triples, while every query still performs ordinary actual ROM/FK/COM/floor evaluation with one shared canonical map. No shape bound or phase time changes; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the authored interpolation prefix is fixed: the private joint union/start/delta and exact clipped u=1 endpoint. Fresh triples isolate returned mutations, and all actual body/ROM/profile/context work remains current. COM/floor share one query map and optional synchronous FK/projector loans share only prerequisites.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original inputs and O(J) copied tracks. Query frame, bone map and floor reader release on return/throw; optional FK/projector loans stay with the synchronous parent and neither enters the returned posture, frame floor callback or retained landing closure.
    */
   export function lie(props: {
@@ -85,18 +85,23 @@ export namespace GymnasticsMat {
     ]) as Set<AutoMovieHumanoidBone>) {
       const a: readonly [number, number, number] = from.joints[bone] ?? [0, 0, 0];
       const b: readonly [number, number, number] = lain.joints[bone] ?? [0, 0, 0];
-      tracks.push({ bone, from: [a[0], a[1], a[2]], delta: [b[0] - a[0], b[1] - a[1], b[2] - a[2]] });
+      const source: readonly [number, number, number] = [a[0], a[1], a[2]];
+      const delta: readonly [number, number, number] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+      tracks.push({ bone, from: source, delta, settled: [source[0] + delta[0] * 1, source[1] + delta[1] * 1, source[2] + delta[2] * 1] });
     }
     return (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const u: number = minimumJerk.share(t / SETTLE);
+      const resting: boolean = t === SETTLE;
       const joints: IHumanPosture["joints"] = {};
       for (const track of tracks) {
-        joints[track.bone] = [
-          track.from[0] + track.delta[0] * u,
-          track.from[1] + track.delta[1] * u,
-          track.from[2] + track.delta[2] * u,
-        ];
+        joints[track.bone] = resting
+          ? [track.settled[0], track.settled[1], track.settled[2]]
+          : [
+              track.from[0] + track.delta[0] * u,
+              track.from[1] + track.delta[1] * u,
+              track.from[2] + track.delta[2] * u,
+            ];
       }
       const posed: IHumanPosture = {
         ...from,
@@ -134,4 +139,7 @@ interface JointTrack {
 
   /** The landing value minus the initial value, degrees. */
   delta: readonly [number, number, number];
+
+  /** Original interpolation at literal u=1, preserving endpoint rounding rather than substituting target angles. */
+  settled: readonly [number, number, number];
 }

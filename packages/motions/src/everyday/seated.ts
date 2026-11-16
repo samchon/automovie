@@ -7,6 +7,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seatedHands } from "./seatedHands";
 
@@ -267,14 +269,18 @@ export namespace seated {
    * @param body The body.
    * @param posture The posture with its leg goals.
    * @param side One hand when supplied; both when absent.
+   * @param resolution Optional same-query FK source, released with this observation.
+   * @param projection Optional genuine same-query ROM source; actual joints still project.
    * @returns Arm goals.
    */
   export function hands(
     body: IHumanBody,
     posture: IHumanPosture,
     side?: "left" | "right",
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture["limbs"] {
-    return seatedHands.hands(body, posture, side);
+    return seatedHands.hands(body, posture, side, resolution, projection);
   }
 
   /**
@@ -287,14 +293,18 @@ export namespace seated {
    * @param body The body.
    * @param posture The posture with its legs placed and no arm goals.
    * @param share 0 hanging to 1 on the thighs.
+   * @param resolution Optional same-query FK source, released with this placement.
+   * @param projection Optional genuine same-query ROM source; actual joints still project.
    * @returns The posture with arm goals, or unchanged at 0.
    */
   export function arms(
     body: IHumanBody,
     posture: IHumanPosture,
     share: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
-    return seatedHands.arms(body, posture, share);
+    return seatedHands.arms(body, posture, share, resolution, projection);
   }
 
   /**
@@ -308,6 +318,8 @@ export namespace seated {
    * @param rests The seat's armrests, world metres; none when absent.
    * @param yaw The seat's heading, degrees.
    * @param share 0 hanging to 1 resting.
+   * @param resolution Optional exact FK source borrowed only for this synchronous placement.
+   * @param projection Optional genuine same-body ROM metadata from that placement.
    * @returns The posture with arm goals, or unchanged at 0; a hand on an armrest bears once it is down.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the hands rest and when.
@@ -315,7 +327,7 @@ export namespace seated {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner of seated hand placements.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the chosen call costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work seatedHands shares one pose solve between thigh targets and their hanging origins, without retaining it across postures.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work seatedHands shares one pose solve between thigh targets and hanging origins, forwarding optional current-query FK/ROM sources to actual admission/fit and FK without retaining them across postures.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rested(
@@ -324,8 +336,18 @@ export namespace seated {
     rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
     yaw: number,
     share: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
-    return seatedHands.rested(body, posture, rests, yaw, share);
+    return seatedHands.rested(
+      body,
+      posture,
+      rests,
+      yaw,
+      share,
+      resolution,
+      projection,
+    );
   }
 
   /**

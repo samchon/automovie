@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -26,7 +26,7 @@ import { StrikingStance } from "./StrikingStance";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded trunk read feeds both sides' goals; the stance facade keeps the public entry while this owner holds guard placement and its exact FK prerequisites.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coached coefficient and vector operation is unchanged. Demand selects the actual region-carrying bones plus both shoulders, while authored joint/clamp admission and output freshness remain with their owners.
  * @evidence contracts/development/implementation.md#efficient-algorithms Without supplied frames, FK admits all joints but returns only four region owners and two shoulders plus their ancestry. One supplied operation reader shares equal scalar prerequisites with lowering/other reads; two side computations remain constant work and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied map must describe this exact body/posture, and a supplied reader belongs to the same synchronous person evaluation. Both gloves share the actual completed trunk read; no pose/time answer is retained.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied map must describe this exact body/posture, and a supplied reader belongs to the same synchronous person evaluation. Both gloves share the actual completed trunk read, and chin placement requests only the world point it consumes; jaw and face normals retain their original surface owner. No pose/time answer is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The unchanged body's weak metadata owner retains at most six requested names; each fresh trunk map and optional borrowed reader end on return or throw. Returned goals own their new vectors and retain no map, getter or query history.
  */
 export function StrikingGuard(
@@ -41,7 +41,8 @@ export function StrikingGuard(
     body, posture, resolution, StrikingGuardBones(body),
   );
   const m: IHumanBody["measure"] = body.measure;
-  const chin: IAutoMovieVector3 = StrikingBody.region(body, bones, "chin").point;
+  const chinFrame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions.chin;
+  const chin: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(chinFrame, bones.get(chinFrame.bone)!);
   const forward: IAutoMovieVector3 = horizontal(StrikingBody.region(body, bones, "face").normal);
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};

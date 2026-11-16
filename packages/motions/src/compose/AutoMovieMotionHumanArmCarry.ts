@@ -267,7 +267,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group/action; each write reads its cubic or carry, with no carry solve at weights 0/1. An interior attitude still evaluates all three actual hand-end postures, but canonical observations can omit only proven independent goals/digits and FK outputs only the hand; the final held solve retains its physical work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. Each interior write lends one exact FK getter to its three hand observations and final held solve, sharing scalar prerequisites only; distinct posture/goal requests remain actual solves.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. A synchronous write borrows its host FK/ROM loans for actual fallback carry and hand observations/held solve; standalone writes own lazy metadata. Only exact prerequisites share, while distinct posture/goal requests remain actual solves.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A write's hand-demand set and lazy exact reader end on return/throw; no returned posture or stored plan captures them, and no time/result history is added.
    */
   export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
@@ -301,7 +301,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       }
       return group.solved.get(props.side)!;
     };
-    let follow: ((seconds: number) => HumanArmClearance.IArm) | undefined;
+    let follow: ReturnType<typeof AutoMovieMotionHumanArmFollow.follower> | undefined;
     return {
       channels: [limb],
       reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
@@ -326,6 +326,8 @@ export namespace AutoMovieMotionHumanArmCarry {
         posture: IHumanPosture,
         seconds: number,
         before?: (seconds: number) => IHumanPosture,
+        source?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
       ): IHumanPosture => {
         const weight: number = props.weight(seconds);
         let out: IHumanPosture;
@@ -343,7 +345,7 @@ export namespace AutoMovieMotionHumanArmCarry {
                 span!,
                 planned(so),
                 so,
-              ))(at)
+              ))(at, source, projection)
             : planned(so)(at);
         const placed = (on: HumanArmClearance.IArm): IHumanPosture => {
           const joints: IHumanPosture["joints"] = { ...posture.joints };
@@ -364,10 +366,13 @@ export namespace AutoMovieMotionHumanArmCarry {
             props.body,
             resolveHumanPosture.rebased(posture, {
               ...posture,
-              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds, source, projection) },
             }),
             { [props.side]: props.rest },
             weight,
+            undefined,
+            source,
+            projection,
           );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;
@@ -379,13 +384,13 @@ export namespace AutoMovieMotionHumanArmCarry {
         const requested: ReadonlySet<AutoMovieHumanoidBone> =
           new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
+          prepareHumanPoseResolution(source);
         const hand: (at: IHumanPosture) => IAutoMovieQuaternion =
           (at: IHumanPosture): IAutoMovieQuaternion =>
           poseBones(
             props.body,
             resolveHumanPosture.seeded(props.body, at, undefined, undefined,
-              resolution, requested).pose,
+              resolution, requested, projection).pose,
             resolution(),
             requested,
           ).get(
@@ -395,7 +400,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
           : resolveHumanPosture.rebased(posture, {
               ...posture,
-              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds, resolution, projection) },
             });
         return HumanHandAttitude.held(
           props.body,
@@ -405,11 +410,13 @@ export namespace AutoMovieMotionHumanArmCarry {
             posture,
             seconds,
             hand(out),
-            hand(carry(props.body, posture, { [props.side]: props.rest }, 0)),
+            hand(carry(props.body, posture, { [props.side]: props.rest }, 0,
+              undefined, resolution, projection)),
             hand(ended),
             weight,
           ),
           resolution,
+          projection,
         );
       },
     };

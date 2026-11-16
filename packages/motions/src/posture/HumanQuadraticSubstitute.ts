@@ -14,10 +14,10 @@ import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace"
  * @returns Whether every final solution component is finite; the flag does not admit or clamp a value.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Standard forward substitution solves U-transpose then backward substitution solves U; compatible dimensions and a finite nonsingular Cholesky factor are the existing caller premises.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the same two ordered sweeps for Band and active polishing; forward reads exact contiguous coefficient copies, while backward emits final-value finiteness and optional componentwise relaxation at their producer.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the same two sweeps for Band and polishing; forward reads exact contiguous copies and backward emits finite status/relaxation. With band zero, components are independent, so both unchanged divisions emit each final value in one pass.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every original term, subtraction/division association, band limit and diagonal use without a new numerical guard or skipped coefficient.
- * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, takes O(n*w) time and O(1) auxiliary storage; final scalar emission avoids another complete ADMM relaxation walk, while row lengths encode both traversal bounds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads unchanged upper/forward copies across right-hand sides, preserving every original term and order, including zeros/nonfinite propagation. Final values supply finiteness and independent-component relaxation immediately, without a stored answer or reciprocal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, takes O(n*w) time and O(1) auxiliary storage; final scalar emission avoids another relaxation walk, and band zero avoids a separate intermediate vector write/read and second diagonal load.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads unchanged upper/forward copies across right-hand sides, preserving all terms and zero/nonfinite propagation. Band-zero components use exactly (b[i]/Uii)/Uii, with no reciprocal or cross-component dependency. Final values supply finite status and independent relaxation immediately; no solved values are retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays and changes only caller-owned x plus optional distinct relaxed; retains no input, matrix, state or resource after returning.
  * @evidence contracts/development/common.md#meaningful-documentation States the factored equation, upper/forward mappings, matching-factor and relaxation-nonaliasing premises, finite flag and output ownership.
  */
@@ -30,6 +30,18 @@ export function HumanQuadraticSubstitute(
 ): boolean {
   const n: number = factor.n;
   const u: Float64Array[] = factor.system;
+  if (factor.band === 0) {
+    let finite: boolean = true;
+    for (let i: number = 0; i < n; ++i) {
+      const diagonal: number = u[i]![0]!;
+      const value: number = b[i]! / diagonal / diagonal;
+      x[i] = value;
+      if (!Number.isFinite(value)) finite = false;
+      if (relaxed !== undefined)
+        relaxed[i] = alpha * value + (1 - alpha) * relaxed[i]!;
+    }
+    return finite;
+  }
   const forward: Float64Array = factor.forward;
   const starts: Float64Array = factor.forwardStart;
   for (let i: number = 0; i < n; ++i) {

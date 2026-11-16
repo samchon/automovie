@@ -22,6 +22,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspJudgement } from "./HumanGraspJudgement";
 
 /**
  * The key pose a grasp taken to wear a thing must also hold
@@ -190,16 +191,7 @@ export namespace HumanGraspWorn {
       bend: hang,
       // Judged as dress judges it: the fitted hand's wear socket off the
       // region it is worn on.
-      judge: wornJudge(side, socket, site),
+      judge: HumanGraspJudgement.point(side, socket, site),
     };
   }
-}
-
-/** Isolate returned judgement from the synchronous worn-turn search's context. */
-function wornJudge(side: HumanHand.Side, socket: IAutoMovieVector3, site: IAutoMovieVector3): NonNullable<HumanGrasp.IKey["judge"]> {
-  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number => {
-    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    return Vector3.length(Vector3.subtract(Vector3.add(hand.worldPosition,
-      Quaternion.rotateVector(hand.worldRotation, socket)), site));
-  };
 }

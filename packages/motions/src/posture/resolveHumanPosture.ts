@@ -61,7 +61,7 @@ import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States canonical defaults, root/ROM/limb/digit order, observational-frame limits, actual cold preparation, raw-demand transport, per-leg validation and fixed-base candidate ownership; companion docs give each coordinate, seed, attachment and fallback convention.
  * @evidence contracts/development/implementation.md#principled-implementation Ordinary resolution clamps direct joints before the original range-clamped pole-hint IK. Prepared translation is equivariant only after exact raw/root/chain/ancestor and live rig/ROM checks; rebased provenance alone proves no result. A fixed-base operation projects fixed direct inputs once while every varying complete limb/digit request still solves normally.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure assembleHumanPosture owns assembly/admission, refitHumanPosture and HumanDigitFit own actual solves, selectors own proven observational omissions, HumanPosturePreparation owns private issued proof, and prepareHumanPostureBase owns fixed search snapshots; the companion methods delegate to those owners.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Assembly owns fresh direct records/root and admission; internal refit applies owned chain edits, digit fitting retains its original owner, and selectors/proof/fixed-base owners remain separate. Native seeded transfers its fresh assembly, explicit base/refit sources copy once, and no-goal refit retains its original borrowed-pose contract.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public resolved flag, achieved-target substitution, relaxed ROM/acceptance or prior-time result is accepted. Original raw goals remain auditable; unsupported/changed dependencies, base and near context retain their original solve. Weak issued provenance and independently mutable result copies prevent forged or changed public outputs from certifying another request.
  * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary work scales with rig/joints and actual selected search sizes. Explicit observations omit only proven irrelevant fits; checked source transport replaces a duplicate eligible solve with linear scalar checking/copying, and fixed-base search removes repeated assembly/projection while preserving live memory reads. Every retained target/search remains actual and speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-operation FK readers share exact scalar prerequisites. Whole-source and individual free-leg reuse require issued provenance plus current raw/ancestor/rig/table equivalence; fixed-base preparation requires unchanged fixed coordinates/body and actual complete varying goals. Existing mirror/root-frame/grid memory policy remains unchanged, and copies or mismatches fall back normally.
@@ -146,9 +146,9 @@ export namespace resolveHumanPosture {
     const limbs: IHumanPosture["limbs"] = requested === undefined || Object.keys(near).length !== 0
       ? posture.limbs
       : selectHumanPostureGoals(body, posture, requested);
-    const fitted: ISeeded = refit(body, reused?.fitted.pose ?? assembled.pose, limbs, near, readResolution);
+    const fitted: ISeeded = refitHumanPosture(body, reused?.fitted.pose ?? assembled.pose, limbs, near, readResolution);
     // The digits reach from the hands the arms placed (`HumanDigitFit`).
-    return {
+    const result: ISeeded = {
       ...fitted,
       ...(reused === undefined ? {} : {
         seeds: { ...reused.fitted.seeds, ...fitted.seeds },
@@ -156,6 +156,7 @@ export namespace resolveHumanPosture {
       }),
       pose: HumanDigitFit.fitted(body, fitted.pose, posture.digits, readResolution, requested),
     };
+    return base === undefined ? result : structuredClone(result);
   }
 
   /**
@@ -187,7 +188,9 @@ export namespace resolveHumanPosture {
   }
 
   /** Observe an issued source through fresh FK only; no private pose escapes or unused public pose is copied. */
-  export const preparedBones: typeof HumanPosturePreparation.bones = HumanPosturePreparation.bones;
+  export function preparedBones(...args: Parameters<typeof HumanPosturePreparation.bones>): ReturnType<typeof HumanPosturePreparation.bones> {
+    return HumanPosturePreparation.bones(...args);
+  }
 
   /**
    * Prepare fixed direct coordinates for one complete-goal candidate search.
@@ -280,7 +283,8 @@ export namespace resolveHumanPosture {
     near: INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): ISeeded {
-    return refitHumanPosture(body, pose, limbs, near, resolution);
+    const fitted: ISeeded = refitHumanPosture(body, pose, limbs, near, resolution);
+    return fitted.pose === pose ? fitted : structuredClone(fitted);
   }
 
   /**

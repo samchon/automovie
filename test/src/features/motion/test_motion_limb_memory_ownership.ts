@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import type { IAutoMovieResolvedBone, IAutoMovieSeededChainFit } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanLimbFitFrame,
@@ -30,11 +30,19 @@ import { vclose } from "../internal/vclose";
  *    independent-output/input ownership and target. No cache read/insert is
  *    counted. A structurally extended unrelated clinical record retains its
  *    ordinary nested data instead of being rebuilt from known angles only.
+ *    Two ordered head records retain distinct metadata and compare against
+ *    the direct public limb fit, independently of the refit/patch path.
+ * 4. A separate metadata-free source changes an untouched head by1e-14
+ *    degrees. Both inputs have the original same1e-12-grid key. A hit must
+ *    issue the first exact head value, nulls, property order and complete
+ *    joint sequence. Disabled memory instead retains the current source.
+ *    Undefined or missing required clinical axes are refused before FK,
+ *    even when the requested hand does not depend on the malformed head.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines input/cache/issued ownership, actual strain metadata, structural joint extension, public memory switch lifetime and original metre/angle bounds in three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public resolveHumanPosture.refit with enabled and disabled memory, edits every returned mutable category, observes real per-body hit/miss counts, original source scalars/annotation, retained earlier poison, independent new wrappers/arrays, actual wrist contact and full canonical FK/joint/seed/value replay.
- * @evidence contracts/development/testing.md#independent-expectations The authored world point rises4cm and moves5cm forward from the canonical hand and must remain within0.001m. A remembered pure fit changes no clinical coordinate or world frame at the existing1e-9 comparison bound; copied pre-edit numerical values supplement that physical target. Source ownership requires exact scalar preservation, and the independently authored annotation label/sequence must survive verbatim with separate nested ownership.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers first miss versus repeated hits, enabled versus actual direct disabled fits, root translation/rotation/scale, fitted and unrelated joints, nested foreign metadata, seed/value and old-output edits. Fresh body identities isolate each mode; no global geometry, table or shared fixture is mutated.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines input/cache/issued ownership, actual strain metadata, structural joint extension, exact retained GRID-equivalent scalar/property representation, malformed-axis refusal, public memory switch lifetime and original metre/angle bounds in four scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public resolveHumanPosture.refit with enabled and disabled memory, edits every returned mutable category, observes real per-body hit/miss counts, original source scalars/annotation, retained earlier poison, independent new wrappers/arrays, actual wrist contact and full canonical FK/joint/seed/value replay. A separate scalar-only pair proves a real hit retains exact cached values/property presence rather than materializing current GRID-equivalent untouched input.
+ * @evidence contracts/development/testing.md#independent-expectations The authored world point rises4cm and moves5cm forward from the canonical hand and must remain within0.001m. Public limbSeeded directly calls the underlying fit without the refit/patch path and supplies supplementary original clinical order, geometry, seed and value at1e-9. Independently authored duplicate-head labels/sequences must survive in order with separate ownership. The established1e-12 key merges a1e-14 head perturbation, while the original first-result contract retains its exact7 degrees, null fields and authored field order. Object.is adds no numeric tolerance. Required F/A/T axes admit finite numbers or null, so undefined and absence must both refuse rather than creating a cache fixture outside the input domain.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers first miss/repeated hits, enabled/disabled refits versus independent direct limb fitting, root translation/rotation/scale, full joint-array order with duplicate unrelated rows, nested foreign metadata, scalar-only GRID-equivalent source variation, valid null versus undefined/missing refusal, seed/value and old-output edits. Fresh body identities isolate each mode; no global geometry, table or shared fixture is mutated.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit borrows immutable canonical geometry through fresh body wrappers and owns source poses/goals/annotations. It uses public resolver/statistics/switch/FK APIs, restores enabled memory in finally, and adds no internal import, test-only export, foreign replacement, host or compiler.
  */
 export function test_motion_limb_memory_ownership(): void {
@@ -49,6 +57,9 @@ export function test_motion_limb_memory_ownership(): void {
         annotation: { label: "owned-input", sequence: [2, 3] } };
       source.joints = source.joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
         joint.bone === "head" ? marker : joint);
+      const duplicate: IMarkedJoint = { bone: "head", flexion: 9, abduction: 0, twist: 0,
+        annotation: { label: "later-input", sequence: [5, 8] } };
+      source.joints.push(duplicate);
       const original: IAutoMoviePose = structuredClone(source);
       const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, source);
       const wrist: IAutoMovieVector3 = rest.get("rightHand")!.worldPosition;
@@ -57,9 +68,12 @@ export function test_motion_limb_memory_ownership(): void {
         bend: { ...rest.get("rightLowerArm")!.worldPosition },
         rotation: { ...rest.get("rightHand")!.worldRotation }, elbow: "strain",
       };
+      const direct: IAutoMovieSeededChainFit = resolveHumanPosture.limbSeeded(body, source, "rightArm", goal);
+      const pristine: resolveHumanPosture.ISeeded = structuredClone({
+        pose: direct.pose, seeds: { rightArm: direct.seed }, values: { rightArm: direct.value },
+      });
       resolveHumanPosture.memory(enabled);
       const first: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
-      const pristine: resolveHumanPosture.ISeeded = structuredClone(first);
       verify(body, first, pristine, goal);
       let previous: resolveHumanPosture.ISeeded = first;
       for (let replay: number = 0; replay < 2; replay++) {
@@ -93,6 +107,15 @@ export function test_motion_limb_memory_ownership(): void {
           head.annotation.sequence[0] === 2 && head.annotation.sequence[1] === 3 &&
           oldHead.annotation.label === "poisoned-output" && oldHead.annotation.sequence.length === 3,
         );
+        const ordered: IAutoMovieJointPose[] = current.pose.joints.filter(
+          (joint: IAutoMovieJointPose): boolean => joint.bone === "head");
+        TestValidator.predicate("the complete numeric order recipe retains both distinct unrelated records",
+          ordered.length === 2 && ordered.every((joint: IAutoMovieJointPose, index: number): boolean =>
+            marked(joint) && joint.annotation.label === ["owned-input", "later-input"][index] &&
+            joint.annotation.sequence.length === 2 &&
+            joint.annotation.sequence.every((value: number, slot: number): boolean =>
+              value === [[2, 3], [5, 8]][index]![slot])),
+        );
         TestValidator.predicate("new reads cannot repair caller-owned earlier poison",
           previous.pose.root!.translation.x === 123 && previous.pose.root!.rotation.w === 0 &&
           previous.pose.root!.scale.y === 8 && previous.seeds.rightArm?.swivel === 12345 &&
@@ -102,8 +125,67 @@ export function test_motion_limb_memory_ownership(): void {
       }
       unchanged(source, original);
     }
+    scalarGrid(shared);
   } finally {
     resolveHumanPosture.memory(true);
+  }
+}
+
+/** Preserve the original exact cached scalar representation inside a GRID-equivalent key. */
+function scalarGrid(shared: IHumanBody): void {
+  const body: IHumanBody = { ...shared };
+  const source: IAutoMoviePose = resolveHumanPosture(body, {
+    root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
+  });
+  const head: IAutoMovieJointPose = { twist: null, bone: "head", abduction: null, flexion: 7 };
+  source.joints = source.joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+    joint.bone === "head" ? head : joint);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, source);
+  const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
+  const goal: IHumanPosture.IGoal = { point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
+    bend: { ...bones.get("rightLowerArm")!.worldPosition } };
+  resolveHumanPosture.memory(true);
+  const first: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
+  const next: IAutoMoviePose = structuredClone(source);
+  const nextHead: IAutoMovieJointPose = next.joints.find(
+    (joint: IAutoMovieJointPose): boolean => joint.bone === "head")!;
+  nextHead.flexion = 7 + 1e-14;
+  const before: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+  const hit: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
+  const after: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+  const storedHead: IAutoMovieJointPose = hit.pose.joints.find(
+    (joint: IAutoMovieJointPose): boolean => joint.bone === "head")!;
+  TestValidator.predicate("GRID-equivalent scalar input is a genuine hit with the first exact representation",
+    after.hits > before.hits && after.misses === before.misses && Object.is(storedHead.flexion, 7) &&
+    storedHead.abduction === null && storedHead.twist === null && Object.is(nextHead.flexion, 7 + 1e-14),
+  );
+  TestValidator.equals("cached scalar field insertion order survives patch materialization", Object.keys(storedHead),
+    ["twist", "bone", "abduction", "flexion"]);
+  TestValidator.equals("GRID-equivalent hits retain the complete first full-fit joint sequence",
+    hit.pose.joints.map((joint: IAutoMovieJointPose): AutoMovieHumanoidBone => joint.bone),
+    first.pose.joints.map((joint: IAutoMovieJointPose): AutoMovieHumanoidBone => joint.bone));
+  const displayed: IAutoMovieVector3 = poseBones(body, hit.pose).get("rightHand")!.worldPosition;
+  TestValidator.predicate("exact scalar cache representation keeps the original wrist contact",
+    Math.hypot(displayed.x - goal.point.x, displayed.y - goal.point.y, displayed.z - goal.point.z) <= 0.001);
+  resolveHumanPosture.memory(false);
+  const cold: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
+  const coldHead: IAutoMovieJointPose = cold.pose.joints.find(
+    (joint: IAutoMovieJointPose): boolean => joint.bone === "head")!;
+  TestValidator.predicate("disabled memory keeps the actual second scalar source instead of the first snapshot",
+    Object.is(coldHead.flexion, 7 + 1e-14) && coldHead.abduction === null && coldHead.twist === null);
+  for (const missing of [false, true]) {
+    const malformed: IAutoMoviePose = structuredClone(source);
+    const malformedHead: IAutoMovieJointPose = malformed.joints.find(
+      (joint: IAutoMovieJointPose): boolean => joint.bone === "head")!;
+    if (missing) Reflect.deleteProperty(malformedHead, "abduction");
+    else Object.defineProperty(malformedHead, "abduction", { value: undefined });
+    let refused: boolean = false;
+    try {
+      poseBones(body, malformed, undefined, new Set<AutoMovieHumanoidBone>(["rightHand"]));
+    } catch (error) {
+      refused = error instanceof Error && error.message.includes("abduction") && error.message.includes("finite");
+    }
+    TestValidator.predicate(`required clinical axis remains refused when ${missing ? "absent" : "own undefined"}`, refused);
   }
 }
 
@@ -127,13 +209,12 @@ function poison(result: resolveHumanPosture.ISeeded): void {
   result.pose.root!.rotation.w = 0;
   result.pose.root!.scale.y = 8;
   result.pose.joints.find((joint: IAutoMovieJointPose): boolean => joint.bone === "rightUpperArm")!.flexion = 111;
-  const head: IAutoMovieJointPose | undefined = result.pose.joints.find(
-    (joint: IAutoMovieJointPose): boolean => joint.bone === "head");
-  if (marked(head)) {
-    head.flexion = 88;
-    head.annotation.label = "poisoned-output";
-    head.annotation.sequence.push(999);
-  }
+  for (const head of result.pose.joints.filter((joint: IAutoMovieJointPose): boolean => joint.bone === "head"))
+    if (marked(head)) {
+      head.flexion = 88;
+      head.annotation.label = "poisoned-output";
+      head.annotation.sequence.push(999);
+    }
   if (result.seeds.rightArm !== null && result.seeds.rightArm !== undefined) {
     result.seeds.rightArm.swivel = 12345;
     result.seeds.rightArm.branch = 678;
@@ -154,11 +235,13 @@ function unchanged(actual: IAutoMoviePose, expected: IAutoMoviePose): void {
     (["x", "y", "z", "w"] as const).every((axis: "x" | "y" | "z" | "w"): boolean =>
       Object.is(actual.root!.rotation[axis], expected.root!.rotation[axis])),
   );
-  const head: IAutoMovieJointPose | undefined = actual.joints.find(
+  const heads: IAutoMovieJointPose[] = actual.joints.filter(
     (joint: IAutoMovieJointPose): boolean => joint.bone === "head");
   TestValidator.predicate("source metadata remains the independently authored original",
-    marked(head) && head.annotation.label === "owned-input" && head.annotation.sequence.length === 2 &&
-    head.annotation.sequence[0] === 2 && head.annotation.sequence[1] === 3,
+    heads.length === 2 && heads.every((head: IAutoMovieJointPose, index: number): boolean =>
+      marked(head) && head.annotation.label === ["owned-input", "later-input"][index] &&
+      head.annotation.sequence.length === 2 && head.annotation.sequence.every(
+        (value: number, slot: number): boolean => value === [[2, 3], [5, 8]][index]![slot])),
   );
 }
 

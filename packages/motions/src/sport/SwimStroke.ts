@@ -252,7 +252,7 @@ export namespace SwimStroke {
       duration,
       events,
       contacts: [],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         if (held !== undefined) return structuredClone(held);
         const t: number = Math.min(duration, Math.max(0, seconds));
         let within: number = t - Math.floor(t / period) * period;
@@ -281,6 +281,8 @@ export namespace SwimStroke {
             z: props.entry.root.z + along.z * stroke.speed * t,
           },
           HIP_BONES,
+          resolution,
+          projection,
         );
       },
     };

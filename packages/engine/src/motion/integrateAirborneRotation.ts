@@ -59,13 +59,13 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @returns The flight's orientation, read by time.
  * @throws {Error} For an invalid failure scope or error budget, a refused trajectory interval or step, or a shape/history reduction failure.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States conservation, root/relative decomposition, sources, frames and translation/heading invariance. Namespace history documents pure root-frame bones, the unchanged millisecond central difference and quadratic boundary correction, exact I/h memo, four numeric nodes and separate raw/prepared-model lifetime; rate reads root-frame angular velocity and ICachedHistory.clear releases all transient numeric preparation.
+ * @evidence contracts/development/common.md#meaningful-documentation States conservation, root/relative decomposition, sources, frames and translation/heading invariance. Namespace history documents pure root-frame bones, unchanged millisecond central differences/boundary correction, exact I/h and operation-owned numeric mass nodes with O(N*S) retention, and separate raw/prepared-model lifetime; clear releases all transient numeric preparation.
  * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia; the inverse is applied through its principal frame, exact for a symmetric positive-definite tensor. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame. An explicitly requested dense momentum defect reconstructs R(I omega+h), retaining actual inertia anisotropy and cancellation instead of inferring a physical budget from the local orientation error.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give. Only this operation's matching symbol scope permits enriching a numeric failure; foreign history errors retain their identity, message and metadata, even when they have the same error class.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new right-hand sides per step; adaptive cost follows the owning stepper's trial-stage and dense-probe populations. Each right-hand side reads one history instant and does linear work in requested variation directions, without a separately integrated derivative. Explicit dense physical control adds one history read and fixed-size momentum reconstruction per controller probe. One flat rate array receives tangent components directly; an indexed loop reads each tangent's scalar coordinates without a callback or tangent record, and cross terms keep their original association without intermediate cross/difference records. Inverse applications divide their exclusively owned local rotated vector in place before rotating it back.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's shape-only inertia and relative momentum across stages and shooting trials. Engine-created histories additionally share the principal inverse with dense reconstruction under private owner registration and copied Object.is quaternion checks. General histories retain one solve-local previous-value inverse. All tangent columns use the physical rate's same principal inverse, and changed times or actual coordinates still compute their own prerequisites.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the right-hand side's scope from numeric trajectory records and tangent count only. Accepted-step count remains unbounded under adaptation. A general history's fallback owns one copied quaternion/inverse record released on return or throw. Engine-created histories own O(N) exact-query I/h and lazy inverse numerics plus four O(S) numeric mass-part reductions until clear; raw bones and full canonical poses are released after posing and never enter those caches.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the RHS scope from numeric trajectory/tangent count only; accepted-step count remains unbounded under adaptation. A general history's fallback owns one copied quaternion/inverse until return/throw. An engine history with N exact queries and S parts owns O(N) I/h/inverses and at most 3N+6 numeric mass nodes, O(N*S), until clear. Raw bones/full poses are released after posing and never enter those maps.
  */
 export function integrateAirborneRotation(
   props: integrateAirborneRotation.IProps,
@@ -276,10 +276,10 @@ export namespace integrateAirborneRotation {
    * It is the same seconds-to-root-frame-instant reader, with a clear operation for its numeric memo.
    * Extends the history callback with cache lifetime ownership; clear forgets computed values without changing the pure shape or the values a new read computes.
    * The history factory produces it and HumanPerformanceFlight clears it in finally after solving or refusal; general uncached IHistory callbacks remain unchanged.
-   * Shares IHistory instead of duplicating the callback contract; the exact I/h memo has no cap or time grid, while posed numeric parts have one four-node stencil bound.
+   * Shares IHistory instead of duplicating the callback contract; exact I/h and numeric mass nodes have no eviction cap or rounded time grid and belong only to this pure history operation.
    */
   export type ICachedHistory = IHistory & {
-    /** Release I/h instants, four numeric mass nodes, boundary moments and inverse preparation; a new query recomputes them while completed flights remain valid. */
+    /** Release all I/h instants, numeric mass nodes, boundary moments and inverse preparation; a new query recomputes them while completed flights remain valid. */
     clear(): void;
   };
 
@@ -324,11 +324,11 @@ export namespace integrateAirborneRotation {
    * momentum are computed once and kept by its exact second for the
    * history's lifetime. Each reduction poses the parts once at each distinct
    * instant, sharing their transformed centres with the mass-weighted centre.
-   * The four most recently read exact nodes share their posed mass parts
-   * across overlapping stencils. This is one boundary stencil's maximum
-   * numeric footprint, with no full pose or raw bone map retained. Evicted
-   * nodes are recomputed normally. The two fixed boundary stencils separately
-   * share their numeric moments across queries.
+   * Exact nodes share their sufficient numeric mass parts across all
+   * overlapping stencils, stages and shooting trials of this history. The
+   * first demand reads the actual pure shape; later exact-node demands use
+   * those same numbers without retaining a full pose or raw bone map. The
+   * two fixed boundary stencils separately share their numeric moments.
    *
    * Given the flight's span, the three-point stencil slides up to its
    * boundary and then stays inside it. At a requested instant `t` away
@@ -340,7 +340,7 @@ export namespace integrateAirborneRotation {
    * For continuous interval momenta this adds no switch-induced value jump.
    * An actual shape jump at a boundary can propagate through this stencil.
    *
-   * @param model The body's mass model, or an admitted planning-owned mass snapshot released separately after this history is cleared.
+   * @param model The body's unchanged mass model for this reuse epoch, or an admitted planning-owned snapshot released separately after this history is cleared.
    * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned): the composed shape without the flight's rotation. Pure, and read up to `DELTA` outside the flight, or up to `2 DELTA` inside it at its ends when `span` is given.
    * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
    * @returns The history.
@@ -348,10 +348,10 @@ export namespace integrateAirborneRotation {
    * States root-frame shape, millisecond central difference, unchanged boundary correction, exact-time memo and separate prepared-model ownership.
    * AirborneShapeHistory reduces the same physical tensor and two-pose momentum with the unchanged stencil and quadratic boundary correction; only I and h enter the flight ODE.
    * The public history entry selects the established DELTA and delegates memo, stencil and model reduction to one history owner.
-   * Every new exact query reads its actual pure shape; no time grid, shape interpolation, stencil reduction or tolerance change is introduced.
-   * A new query needs at most four posed nodes and O(S) mass work. A bounded exact-node hit avoids its shape/IK/FK read, and a prepared model reuses unchanged intrinsic transforms and quaternion differences. Every new/evicted time and every current orbital term and tensor sum remains evaluated.
-   * Exact time under one unchanged model, pure shape and span identifies equivalent I/h and numeric mass parts. Four recent exact nodes share overlapping stencils and fixed boundary moments are separately shared; no time is rounded. A prepared token supplies both model reducers without unrelated-model pairing.
-   * The history owns O(N) numeric I/h instants, at most two boundary moments and four O(S) numeric mass-part reductions. clear explicitly releases all and unregisters lazy inverse records; raw bone maps and full canonical poses are never retained. An optional prepared model is borrowed and its caller separately releases its O(S) state.
+   * Every first demanded exact mass node reads its actual pure shape; no time grid, shape interpolation, stencil reduction or tolerance change is introduced.
+   * A new query uses at most four distinct numeric nodes and O(S) mass work. Each exact node performs shape/IK/FK only on its first demand, even when other queries separate repeated endpoint reads; actual current orbital terms, tensor sums and physical checks remain unchanged.
+   * Exact time under one unchanged model, pure shape and span identifies equivalent I/h and numeric mass parts across this operation. Fixed boundary moments are separately shared; no time is rounded. A prepared token supplies both model reducers without unrelated-model pairing, and no shooting target or IK answer enters node storage.
+   * For N distinct I/h queries and S fixed model parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two boundary moments. Private moment vectors share 3S numeric fields after exact checks, leaving 8S+3 per node; map keys/object/array overhead depend on runtime. clear releases every node/shared vector/map/inverse registration; no raw bone map/full pose is retained. The caller separately releases its borrowed O(S) model.
    */
   export function history(
     model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,

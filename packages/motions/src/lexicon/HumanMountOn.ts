@@ -86,7 +86,7 @@ export namespace HumanMountOn {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse, time the climb, place the feet's ends, find when each foot leaves and bears, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rest out of the seated leg's reach is not clamped onto: the foot hangs, as the seat's `footrests` doc declares. The timing shares and the constants of `HumanMount` are provisional and named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the climb at 60 Hz three times, each step one forward-kinematics pass of the pelvis; a posture costs one such pass and the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The feet's ends and instants are computed once per instance. Each current posture lends optional parent FK/ROM metadata through seated.arms to actual thigh/wrist observations, with all current joint admission and relevant fits retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
   export function plan(
@@ -412,7 +412,12 @@ export namespace HumanMountOn {
       contacts,
       contact: touch,
       base: { kind: "seated", seat },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
         const standing: IHumanPosture["limbs"] = legged(frame.root, floor);
@@ -456,6 +461,8 @@ export namespace HumanMountOn {
           body,
           { ...frame, roll: 0, limbs },
           minimumJerk.share((t - 0.5 * climb) / (0.5 * climb)),
+          resolution,
+          projection,
         );
       },
     };

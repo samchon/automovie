@@ -39,6 +39,6 @@ export function StrikingStrain(
       ),
       Vector3.scale(Quaternion.rotateVector(frame.rotation, fingers), forearm),
     );
-    return Math.abs(Vector3.length(Vector3.subtract(elbow, shoulder)) - upperArm);
+    return Math.abs(Vector3.distance(elbow, shoulder) - upperArm);
   };
 }

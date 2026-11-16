@@ -20,6 +20,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { prepareRiseFeet } from "./prepareRiseFeet";
+import { riseRested } from "./riseRested";
 import { seated } from "./seated";
 
 /**
@@ -86,7 +87,7 @@ import { seated } from "./seated";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan prepares its unchanged foot course once. Both current rise branches delegate raw hip lowering and hand resting to riseRested, sharing only synchronous parent FK/ROM prerequisites while every changing posture/fit remains evaluated.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace rise {
@@ -403,7 +404,12 @@ export namespace rise {
       ],
       contacts,
       base: { kind: "standing" },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const joints: IHumanPosture["joints"] = { ...relaxed };
         if (t < prepared) {
@@ -416,19 +422,21 @@ export namespace rise {
             pitch: pitch0,
             roll: 0,
           });
-          return seated.rested(
+          return riseRested(
             body,
-            resolveHumanPosture.lower(body, {
+            {
               root,
               yaw,
               pitch: pitch0,
               roll: 0,
               joints,
               limbs: legsAt(root, t),
-            }),
+            },
             rests,
             yaw,
             1,
+            resolution,
+            projection,
           );
         }
         const u: number = t - prepared;
@@ -462,20 +470,22 @@ export namespace rise {
           pitch: tilt.pitch,
           roll: 0,
         });
-        const posture: IHumanPosture = resolveHumanPosture.lower(body, {
+        const posture: IHumanPosture = {
           root,
           yaw,
           pitch: tilt.pitch,
           roll: 0,
           joints: tilt.joints,
           limbs: legged(root, drawn),
-        });
-        return seated.rested(
+        };
+        return riseRested(
           body,
           posture,
           rests,
           yaw,
           1 - minimumJerk.share((u - away) / (0.3 * rising)),
+          resolution,
+          projection,
         );
       },
     };

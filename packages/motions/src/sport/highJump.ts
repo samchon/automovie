@@ -372,12 +372,13 @@ export namespace highJump {
         const frame: IPreparedGymnasticsFrame = frameAt(t, floorResolution, floorProjection);
         return frame.posture.root.y - frame.floor();
       };
-      if (!(lowest(rising) > surface))
+      const apexLowest: number = lowest(rising);
+      if (!(apexLowest > surface))
         throw new HumanRefusal({
           kind: "reach",
           axis: "bar",
           value: bar,
-          reason: `at the apex the body's lowest point is at ${lowest(rising).toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
+          reason: `at the apex the body's lowest point is at ${apexLowest.toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
           fix: "raise the bar, or land on a lower surface",
         });
       const fallen: number = GymnasticsFlight.fall(c0.y, v.y, surface)!;

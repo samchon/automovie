@@ -81,6 +81,8 @@ export namespace GymnasticsFlight {
    *
    * @param body The body.
    * @param posture The posture, with or without limb goals.
+   * @param resolution Optional exact FK source borrowed only during this synchronous solve.
+   * @param projection Optional genuine same-body ROM projector borrowed only during this synchronous solve.
    * @returns The raw view with actual clinical joints and no limb goals; other raw fields, including any digit/rotation demands, remain unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and what is kept.
@@ -88,14 +90,16 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve once and use frozenView's joint-copy owner, shared with freeze's paired COM/canonical observation without allocating its unused pair wrapper.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One resolution, linear in bones.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ordinary wrapper and paired canonical-pose consumer share freeze's actual resolution/joint-copy owner, without a second target or solved flag.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ordinary and paired views share the actual resolver/frozenView owners. Optional synchronous FK/projector loans reuse only equal dependencies/static ROM metadata while every complete demand retains ordinary admission; no target substitute or solved flag is accepted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fresh joint table/triples and original borrowed raw fields escape. FK/projector loans stay with the synchronous lender, never entering a result, retained callback, pose history or pair wrapper.
    */
   export function frozen(
     body: IHumanBody,
     posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
-    return frozenView(posture, resolveHumanPosture(body, posture));
+    return frozenView(posture, resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution, undefined, projection).pose);
   }
 
   /**

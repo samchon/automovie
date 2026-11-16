@@ -386,8 +386,7 @@ export namespace HumanForceThrow {
     }
     const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[at];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-      .point;
+    return resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
   }
 
   /** A vector's component by index. */

@@ -21,7 +21,8 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
-import { HumanGrasp } from "./HumanGrasp";
+import type { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 import { HumanClaspClearance } from "./HumanClaspClearance";
 
@@ -187,8 +188,8 @@ export namespace HumanClasp {
    * @evidence contracts/development/implementation.md#principled-implementation Retains every original grasp/stroke fit and the same admitted-band, reciprocal phalanx/forearm clearance and tie-cost ranking of candidate pairs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit and admit each person's turns, prepare only admitted candidate geometry, then evaluate the original pair loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn, pump endpoint, band, contact query, subject order or acceptance bound changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each body prepares one palm offset and five lazily admitted digit chains; candidate FK outputs only the eighteen observed side/arm/digit frames. For A and B admitted candidates, geometry placement is O(A+B) while all original O(AB) pair distance work remains. No runtime speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/side fixes palm and capsule geometry during this synchronous search. Each admitted pose determines one segment list and forearm reader used by its actual opposite candidates; no distance or fit result is shared across differing poses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each body shares one fixed direct base/FK preparation across thirteen independent turn searches, one palm offset and five lazily admitted digit chains; candidate FK outputs only the eighteen observed side/arm/digit frames. For A and B admitted candidates, geometry placement is O(A+B) while all original O(AB) pair distance work remains. No runtime speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/posture/side/hint fixes direct assembly, palm and capsule geometry during this synchronous search; every turn still runs its original complete grasp/stroke fits. Each admitted pose determines one segment list and forearm reader for opposite candidates; no distance or fit result is shared across differing goals.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry/readers and arrays end with the synchronous search; the returned plain chosen reach records retain no reader or search maps.
    */
   export function choose(
@@ -208,6 +209,7 @@ export namespace HumanClasp {
         posture,
         side,
       );
+      const search: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(hand.body, posture, side, bend);
       const facing: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: hand.fingers,
         palm: hand.palm,
@@ -215,11 +217,7 @@ export namespace HumanClasp {
       const palm: IAutoMovieVector3 = HumanHand.offset(hand.body, side, "palm", "flat").point;
       return TURNS.map(
         (turn: number): HumanGrasp.IReach =>
-          HumanGrasp.reachable(
-            hand.body,
-            posture,
-            side,
-            bend,
+          search(
             (angle: number): HumanHand.IWrist =>
               placeHumanHandSurface(
                 palm,

@@ -293,7 +293,7 @@ export namespace HumanQuadraticBand {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the hard-row delta and its support, unscaling only the bound selected by the current delta sign; rejects a missing separating direction, then checks its transpose product norm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Excludes soft rows because their penalties permit interval violations; keeps the existing epsilon and honest infinite-bound support behavior.
    * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(m+Z+n) without new vectors, reusing before and transpose; exceptional multiplier changes may restore and visit R original row entries through the solve-local owner.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes the certificate from current iterates/intervals, omitting only unused opposite-bound divisions and both divisions for a zero or unordered delta. Before is disposable after this check and the next check copies current multipliers before another certificate reads it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes current hard-row deltas. Exact zero adds neither support nor a new nonnegative maximum, so its norm/support work is omitted after storing it. Only the sign-selected bound is unscaled; NaN remains in the norm's original rejection path. Before is disposable, and the next check copies current multipliers before another certificate reads it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes only solve-local before and transpose scratch, zeroes soft-row deltas and returns a boolean without retaining data.
    * @evidence contracts/development/common.md#meaningful-documentation States the certificate inequalities, original units, soft-row exclusion and behavior for absent bounds or a zero direction.
    */
@@ -314,6 +314,7 @@ export namespace HumanQuadraticBand {
       }
       const v: number = (s.e[r]! * (y[r]! - before[r]!)) / s.c;
       delta[r] = v;
+      if (v === 0) continue;
       size = Math.max(size, Math.abs(v));
       if (v > 0) {
         const u: number = s.hi[r]! / s.e[r]!;
@@ -324,6 +325,7 @@ export namespace HumanQuadraticBand {
       }
     }
     if (!(size > 0) || !(support < -epsilon * size)) return false;
+
     // Aᵀδy unscaled: D⁻¹ Āᵀ E⁻¹ δy.
     const aty: Float64Array = work.transpose;
     aty.fill(0);

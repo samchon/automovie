@@ -99,7 +99,7 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#principled-implementation Delegates every neutral hull's face preparation to physicalHullFaces in the original segment/shape order.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One neutral-list pass prepares geometry without constructing a current pose.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every hull and its original points array, without precomputing a motion answer or changing the hull algorithm.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds one shape pass to the delegated first-use hull-face costs; already prepared hulls use their owning numeric cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Visits every shape and delegates its first-use hull topology cost. Cold neutral metadata additionally costs O(B+S), and the first actual mirrored lists copy their V vertices; warm lists/hulls share their completed preparation without repeating either construction.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the existing per-body neutral metadata and the existing hull-face owner's per-points preparation; current posed queries remain fresh.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Introduces no new cache population: the moved neutral WeakMap and hull owner's existing cache keep their established body/points lifetimes.
    * @evidence contracts/development/common.md#meaningful-documentation States what is prepared, traversal order, delegated geometry cost and absence of posed-result retention.

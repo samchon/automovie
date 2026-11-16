@@ -348,9 +348,7 @@ export namespace StrikingRoll {
         HumanHand.offset(context.body, tool.side, "grip").point,
       ),
     );
-    const distance: number = Vector3.length(
-      Vector3.subtract(wrist, shoulder(context, tool.side, posture)),
-    );
+    const distance: number = Vector3.distance(wrist, shoulder(context, tool.side, posture));
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
     if (distance > limit)

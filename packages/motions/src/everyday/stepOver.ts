@@ -261,7 +261,7 @@ export namespace stepOver {
           ),
         },
       ],
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
         const limbs: IHumanPosture["limbs"] = {};
@@ -283,7 +283,7 @@ export namespace stepOver {
         }
         // The trunk carries a walk's forward inclination over the step, the
         // pelvis's share tipping the body about the hips.
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         let posture: IHumanPosture = resolveHumanPosture.lower(
           body,
           AutoMovieMotionHumanLean.pivot(
@@ -343,7 +343,7 @@ export namespace stepOver {
           Record<"left" | "right", { ankle: number; short: number }>
         > = {};
         for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
-          const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested).pose, resolution(), requested);
+          const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested, projection).pose, resolution(), requested);
           const next: IHumanPosture["limbs"] = { ...posture.limbs };
           let moved: boolean = false;
           for (const side of lifted) {

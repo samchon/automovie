@@ -258,10 +258,10 @@ export namespace HumanTravelLeaf {
               taking,
               bendLower.REACH * arm,
             );
-      const base: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
+      const base: IHumanActionPlan["posture"] = (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture =>
         lowered === null
-          ? standing.posture(t)
-          : lowered.at(minimumJerk.share(Math.min(1, t / TAKE)));
+          ? standing.posture(t, channels, resolution, projection)
+          : lowered.at(minimumJerk.share(Math.min(1, t / TAKE)), resolution, projection);
 
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
@@ -313,15 +313,17 @@ export namespace HumanTravelLeaf {
               return { point: wristAt(t, base(t), target), normal: target.normal };
             },
           });
-      const shown: (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]) => IHumanPosture = (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture => {
-        if (walked === null) return base(t);
+      const shown: IHumanActionPlan["posture"] = (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        if (walked === null) return base(t, channels, resolution, projection);
         const walking: IHumanPosture = walked.posture(
           Math.min(walked.duration, t),
           lowered === null ? channels : undefined,
+          resolution,
+          projection,
         );
         return lowered === null
           ? walking
-          : lowered.lower(walking, minimumJerk.share(Math.min(1, t / TAKE)));
+          : lowered.lower(walking, minimumJerk.share(Math.min(1, t / TAKE)), resolution, projection);
       };
 
       // A swing the walk cannot follow is refused with the largest followed.
@@ -399,10 +401,10 @@ export namespace HumanTravelLeaf {
         ...standing,
         events: [{ name: "taken", share: TAKE / seconds }],
         contacts,
-        posture: (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture => {
+        posture: (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
           const at: number = Math.min(seconds, Math.max(0, t));
           const heldDemand: boolean = channels === undefined || channels.includes(`${side}Arm`) || channels.includes(`${side}Hand`);
-          const posture: IHumanPosture = shown(at, heldDemand ? undefined : channels);
+          const posture: IHumanPosture = shown(at, heldDemand ? undefined : channels, resolution, projection);
           if (!heldDemand) return posture;
           const held: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
@@ -412,6 +414,8 @@ export namespace HumanTravelLeaf {
               grip(context.start + at),
               minimumJerk.share(Math.min(1, at / TAKE)),
               closed,
+              resolution,
+              projection,
             );
           return {
             ...posture,

@@ -15,6 +15,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareSupportContactForm } from "./prepareSupportContactForm";
 import { supportContactOnFloor } from "./supportContactOnFloor";
@@ -256,6 +257,8 @@ export namespace supportContact {
    * @param posture The candidate posture.
    * @param contact The contact.
    * @param aimed Its target, world metres, or null on an unnamed floor place.
+   * @param resolution Optional exact FK source borrowed only for this current query.
+   * @param projection Optional genuine same-body ROM metadata from that query.
    * @returns The contact point, world metres.
    * @evidence contracts/development/common.md#meaningful-documentation States the shared datum and its frame.
    * @evidence contracts/development/implementation.md#principled-implementation A rigid point is its bone origin plus its rotated local offset, taken from the fit's own form.
@@ -270,8 +273,16 @@ export namespace supportContact {
     posture: IHumanPosture,
     contact: HumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3 {
-    return points(body, posture, [{ contact, at: aimed }])[0]!;
+    return points(
+      body,
+      posture,
+      [{ contact, at: aimed }],
+      resolution,
+      projection,
+    )[0]!;
   }
 
   /**
@@ -279,18 +290,20 @@ export namespace supportContact {
    * order. Its actual canonical observation and FK are shared within this
    * synchronous call; each local contact offset keeps the form's owner.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged candidate/body, ordered world-metre outputs, shared synchronous observation and canonical contact offsets.
+   * @evidence contracts/development/common.md#meaningful-documentation States unchanged candidate/body, ordered world-metre outputs, shared synchronous observation and canonical contact offsets; optional FK/ROM inputs are current-query loans only.
    * @evidence contracts/development/implementation.md#principled-implementation Builds each original contact form and transforms its exact local offset through the actual resolved target bone, with the resolver's existing observational-demand guards.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms determine one demanded-bone set, one canonical solve/FK supplies those frames, then one ordered transform pass emits the points.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All target offsets, authored admission, relevant limb/digit fits and unsupported-context full fallbacks remain canonical; no declared target substitutes for an achieved bone point.
    * @evidence contracts/development/implementation.md#efficient-algorithms N contacts share one candidate pose/FK instead of N repeated solves; point-only forms demand no unused quiet-foot-normal solve, only target frames and ancestry are requested, and an empty request performs no solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All contacts observe exactly this same unchanged candidate/body in one synchronous operation. The current map, metadata reader and prepared form do not escape or serve a different posture.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All contacts observe exactly this same unchanged candidate/body in one synchronous operation. Optional parent FK/ROM sources share only exact prerequisites; every current joint/fit remains canonical, and the current map, metadata reader and prepared form do not escape.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources N target records, one bounded name set and current bone map end with this call or throw; only N fresh world points return and no workspace, posed result or history is retained.
    */
   export function points(
     body: IHumanBody,
     posture: IHumanPosture,
     contacts: readonly IPoint[],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3[] {
     if (contacts.length === 0) return [];
     const form: ReturnType<typeof prepareSupportContactForm> =
@@ -304,8 +317,8 @@ export namespace supportContact {
         (target: HumanBodyFit.ITarget): AutoMovieHumanoidBone => target.bone,
       ),
     );
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture.seeded(
@@ -313,10 +326,11 @@ export namespace supportContact {
         posture,
         undefined,
         undefined,
-        resolution,
+        read,
         requested,
+        projection,
       ).pose,
-      resolution(),
+      read(),
       requested,
     );
     return targets.map((target: HumanBodyFit.ITarget): IAutoMovieVector3 => {

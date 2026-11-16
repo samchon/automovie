@@ -7,6 +7,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
@@ -43,6 +44,7 @@ export namespace bendLower {
    * @param pitch Trunk inclination, degrees, shared by the lumbopelvic rhythm.
    * @param share How far down, 0 to 1.
    * @param back How far the hips move back for balance, metres.
+   * @param resolution Optional exact FK source borrowed only by this call's actual raw-pelvis hip observation; this lowering operation performs no ROM projection.
    * @returns The lowered posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, moved and pitched, each parameter's unit and range, and the squat's heel lift in the implementation comments.
@@ -50,7 +52,7 @@ export namespace bendLower {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture transform shared by the plan, the balance solve and the reach bisection; the inclination split, foot pivot and leg solve are imported from their owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HIPS and HEEL are named provisional shares; no body or case is special-cased. The pelvis limit is read over the lifted ankles, so the hip stays within its flexion range and the foot holds its contact through the squat.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one trunk incline, at most two foot pivots and one leg-lowering solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function; callers that need the same lowered posture call it once per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous parent FK source may share exact raw-pelvis hip dependencies with the current evaluation; every current hip/root/plant and scalar lowering remains calculated, without a retained lowered pose or a new ROM policy.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function lower(
@@ -60,6 +62,7 @@ export namespace bendLower {
     pitch: number,
     share: number,
     back: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
@@ -126,15 +129,20 @@ export namespace bendLower {
     // With the heels up the toes bend at their joints and stay flat on the floor.
     const toes: IHumanPosture["joints"] =
       heel > 0 ? { leftToes: [heel, 0, 0], rightToes: [heel, 0, 0] } : {};
-    return resolveHumanPosture.lower(body, {
-      ...tipped,
-      joints: { ...joints, ...toes },
-      limbs,
-      root: Vector3.subtract(
-        goal,
-        Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
-      ),
-    });
+    return resolveHumanPosture.lower(
+      body,
+      {
+        ...tipped,
+        joints: { ...joints, ...toes },
+        limbs,
+        root: Vector3.subtract(
+          goal,
+          Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
+        ),
+      },
+      undefined,
+      resolution,
+    );
   }
 
   /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */

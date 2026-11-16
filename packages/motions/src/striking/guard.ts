@@ -183,8 +183,8 @@ export namespace guard {
 
     // Each foot's swing window, the rear first; a foot already in place stays.
     const moving: Record<"left" | "right", boolean> = {
-      left: Vector3.length(Vector3.subtract(from.left.ankle, to.left.ankle)) > 0.01,
-      right: Vector3.length(Vector3.subtract(from.right.ankle, to.right.ankle)) > 0.01,
+      left: Vector3.distance(from.left.ankle, to.left.ankle) > 0.01,
+      right: Vector3.distance(from.right.ankle, to.right.ankle) > 0.01,
     };
     const first: readonly [number, number] = [0, 0.3];
     const second: readonly [number, number] = [0.25, 0.55];

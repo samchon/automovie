@@ -76,14 +76,17 @@ interface IBinding {
 export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
   const ctx: IAutoMovieActorContext = props.ctx;
   if (props.kind === "reach" && ctx.rig === undefined) return null;
+
   const world: IAutoMovieVector3 | null = props.kind === "reach"
     ? props.resolveTarget(props.action.to, props.nodes, props.action.start)
     : props.action.at === undefined ? null
       : props.resolveTarget(props.action.at, props.nodes, props.action.start);
   if (world === null) return null;
+
   const duration: number = props.kind === "reach"
     ? props.action.duration === "auto" ? 0.6 : props.action.duration
     : props.duration;
+
   const liveBone: boolean = props.kind === "reach"
     ? props.action.to.kind === "bone" : props.action.at?.kind === "bone";
   if (liveBone || (props.actorFrameAt?.(props.actor, props.action.start) ?? null) !== null) {
@@ -107,6 +110,7 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
       },
     });
   }
+
   const pose: IAutoMoviePose | null = reachPose(
     ctx.rig!,
     props.kind === "reach" ? props.action.hand : "right",
@@ -114,6 +118,7 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
     ctx.restFrames,
   );
   if (pose === null) return null;
+
   return props.kind === "strike"
     ? createActorJabClip(`${props.actor}:strike`, ctx.skeleton, pose, duration)
     : createActorExtendClip(`${props.actor}:${props.kind}`, ctx.skeleton, pose, duration);
@@ -131,6 +136,7 @@ function prepareRead(): IReach {
     if (binding === undefined || binding.skeleton !== skeleton ||
       binding.side !== side || binding.restFrames !== restFrames)
       binding = { skeleton, side, restFrames, read: reachPose.prepare(skeleton, side, restFrames) };
+
     return binding.read(target);
   };
 }

@@ -304,12 +304,10 @@ export namespace StrikingHeld {
     back: number,
   ): number {
     const off = (behind: number): number =>
-      Vector3.length(
-        Vector3.subtract(
+      Vector3.distance(
           point(tool, fitted, behind),
           point(tool, asked, behind),
-        ),
-      );
+        );
     return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 

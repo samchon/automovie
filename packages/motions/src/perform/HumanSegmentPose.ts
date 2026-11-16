@@ -118,7 +118,7 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates layers, overlay/carry fits, stopped weapons, transition offset, range clamps and final planted refits in their original order; rate samples continue the cut's own seeds rather than unrelated evaluation history. The performer's rig stays unchanged during this synchronous evaluation, so its repeated clamps may share prepared metadata.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlay sets and nearby seeds still receive separate fits; no clamp, contact solve, transition sample or tolerance is removed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is O(H), with at most two lazy plan-side drive scans and a two-side riding set per shown evaluation; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). Cold final plants retain attachment-order checks but omit unused nearby keys and tuple arrays. The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is one O(H) ordered pass with at most two lazy plan-side drive scans and four scalar side states; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). Cold final plants retain attachment-order checks but omit unused nearby keys and tuple arrays. The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit same-body preparation shares ROM metadata and lazy exact FK prerequisites across raw action calls, synchronous layer contexts, overlays/carries/stops, final plants and transition samples. Actual projections, goals and near fits remain separate; observational omission belongs only to conservative dependency proofs. Offset capture also shares its unchanged-rig codec without sharing numerical conversions.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation; no returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
    */
@@ -167,31 +167,7 @@ export namespace HumanSegmentPose {
         prepared.clamp,
       );
 
-      // A hold rides an action entered before its takeover even past that
-      // action's cut, as transition sources and entry states require.
-      const driven: Partial<Record<"left" | "right", boolean>> = {};
-      const held: HumanSegment.IHeld[] = person.holds.filter(
-        (h: HumanSegment.IHeld): boolean =>
-          h.source !== segment &&
-          h.from <= t &&
-          (t < h.until ||
-            (h.riding === true
-              ? t < h.until + HumanSegment.FADE
-              : segment.entryTime < h.until)) &&
-          !(driven[h.side] ??= HumanSegment.drives(segment.plan, h.side)),
-      );
-
-      // Through an overlay's takeover fade, the outgoing riding hold wins
-      // over later holds of that hand. The body without the overlay still
-      // carries it; the new hold carries thereafter and through the way out.
-      const riding: Set<"left" | "right"> = new Set();
-      const borne: HumanSegment.IHeld[] = held.filter(
-        (h: HumanSegment.IHeld): boolean => {
-          const earlier: boolean = riding.has(h.side);
-          if (h.riding === true) riding.add(h.side);
-          return !earlier;
-        },
-      );
+      const borne: HumanSegment.IHeld[] = HumanSegmentCarry.borne(person, segment, t);
       if (borne.length !== 0) {
         const joints: IHumanPosture["joints"] = { ...written.joints };
         for (const h of borne) Object.assign(joints, h.fingers);

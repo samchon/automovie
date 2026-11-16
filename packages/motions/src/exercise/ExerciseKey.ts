@@ -436,6 +436,8 @@ export namespace ExerciseKey {
    * @param pin The bones, or the grip sockets, that bear.
    * @param place Where their mean stays, world metres.
    * @param requested Optional output demand containing every pin bone, or its socket's bone; omitted, the full raw trunk read is retained.
+   * @param resolution Optional same-person FK reader/supplier borrowed only by this actual pin observation.
+   * @param projection Optional genuine same-body ROM projector; every actual direct joint still passes canonical admission.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the result keeps.
@@ -453,10 +455,13 @@ export namespace ExerciseKey {
     pin: readonly Pin[],
     place: IAutoMovieVector3,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    resolution?: Parameters<typeof StrikingBody.trunk>[2],
+    projection?: Parameters<typeof StrikingBody.trunk>[4],
   ): IHumanPosture {
     const free: IHumanPosture = posed(key, yaw);
     const offset: IAutoMovieVector3 = mean(body, free, pin,
-      requested === undefined ? undefined : StrikingBody.trunk(body, free, undefined, requested),
+      requested === undefined && resolution === undefined && projection === undefined
+        ? undefined : StrikingBody.trunk(body, free, resolution, requested, projection),
     );
     return {
       ...free,

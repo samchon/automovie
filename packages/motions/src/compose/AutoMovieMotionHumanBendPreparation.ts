@@ -41,7 +41,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original candidate/refinement and exact-zero legality condition remains, with no elbow result reused across wrists.
      * @evidence contracts/development/implementation.md#efficient-algorithms Reuses fixed chain/FK preparation while retaining the original bounded numerical sweep per actual wrist/rotation.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/trunk/side share geometry only; each changed wrist/rotation is independently ranked and solved.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning synchronous search releases its one fixed chain/collider context; each call returns a candidate/fallback point and stores no query result or external handle.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning selector or bounded authored support-state plan releases its fixed chain/collider context; each call returns a candidate/fallback point and stores no query result or external handle.
      */
     solve: (goal: IGoal) => IAutoMovieVector3;
 
@@ -54,7 +54,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This remains a distinct sweep from solve; its candidate, side band and refinement are never replaced by solve's chosen score.
      * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry is reused, while every actual differently ranked sweep retains its original bounded cost.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body/trunk/side geometry is shared; every requested wrist/rotation/hint still determines its own rank and result.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed synchronous operation owns one geometry reader until release; this method retains no wrist, hint, score, result history or handle.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed selector or bounded authored support-state plan owns one geometry context until release; this method retains no wrist, hint, score, result history or handle.
      */
     strain: (goal: IGoal, bend: IAutoMovieVector3) => number;
   }
@@ -67,8 +67,8 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared search is shared by the original solve and strain adapters, retaining one numerical sweep owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original exact-zero legality, error text, fallback rule and Infinity result are copied without threshold, candidate or sampling changes.
    * @evidence contracts/development/implementation.md#efficient-algorithms For Q requested sweeps the one chain/FK/neutral preparation replaces Q identical preparations; each actual sweep and its refinements still execute.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes unchanged body/profile/trunk/root/heading/side through its synchronous selector; differing goals and ranks share no solved answer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The selector owns one chain/collider/neutral context and releases it on return or throw; no operation FK reader, pose sample history or external handle escapes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes unchanged body/profile/rig/ROM and rootXYZ/yaw/pitch/roll/side; differing goals/ranks share no answer. A finite authored support-state plan may retain contexts only when exact state ownership proves those inputs, privately immutable coordinates prevent output aliasing, and changed fixed geometry creates another context.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The selector or bounded authored support-state plan owns each chain/collider/neutral context until release. Body and original fallback geometry remain borrowed and unchanged; no operation FK reader, query wrist/result, pose sample history or external handle escapes.
    */
   export function of(
     fixed: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,

@@ -188,7 +188,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * @evidence contracts/development/implementation.md#principled-implementation Solved by the posture resolver itself, so the reference is an arm the fit can return; its forearm twist is then kept `MARGIN` inside the forearm's range, since a reference at a range's end asks the fit to hold the joint at its limit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve, one read and one clamp.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forearm whose range is narrower than twice the margin keeps the solved twist.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and its reference reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and reference reading; a synchronous parent may lend same-body FK/genuine ROM metadata to this actual complete fit, without retaining or substituting its solution.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -197,13 +197,15 @@ export namespace AutoMovieMotionHumanTouchLaid {
     posture: IHumanPosture,
     side: HumanHand.Side,
     goal: IHumanPosture.IGoal,
+    source?: Parameters<typeof resolveHumanPosture.seeded>[4],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): NonNullable<IHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const solved: IHumanPosture.IReference = resolveHumanPosture.reference(
-      resolveHumanPosture(body, {
+      resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
         ...posture,
         limbs: { ...posture.limbs, [limb]: goal },
-      }),
+      }), undefined, undefined, source, undefined, projection).pose,
       limb,
     );
 

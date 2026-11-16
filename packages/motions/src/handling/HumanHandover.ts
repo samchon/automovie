@@ -185,7 +185,7 @@ export namespace HumanHandover {
    * @evidence contracts/development/implementation.md#principled-implementation The same mutual exchange point translates the held prop, and the original full grasp search ranks each receiver turn against both the offered grip and its actual upright carry key.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Incoming frame, mutual goal and offered frame precede one receiver grip search and the original timing policy.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All candidate turns, actual coupled fits, original required keys, strict comparisons, mass-dependent transfer and refusal paths remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed receiver carry wrist and hanging elbow are read once rather than once per reached candidate key; the incoming point uses the narrow prepared grasp frame and only the offered target wraps colliders. Every actual numerical candidate fit remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed receiver carry wrist/hanging elbow are read once rather than once per reached candidate key. Incoming handle translation reads only its actual point without unused axes/width; the offered target still reads exact width and wraps required colliders. Every actual candidate fit remains; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged prop/handle/frame family and receiver standing body establish fixed geometry; each candidate retains its actual wrist rotation, keys and scores without a result cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local grasp preparation and carry geometry live through this synchronous search; the result retains existing frame, target, wrist, reference and scalar timing records, with no search workspace, FK reader, candidate history or handle.
    */
@@ -206,12 +206,12 @@ export namespace HumanHandover {
     // Where: the receiving grip on the mutual goal, the prop turned as held,
     // its middle at the exchange share of the mean sternum height.
     const handle: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(input.prop, input.handle);
-    const atStart: HumanGrasp.IFrame = handle.frame(input.frame);
+    const atStart: IAutoMovieVector3 = handle.point(input.frame);
     const meet: IAutoMovieVector3 =
       input.meet ??
       resolveAutoMovieMutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
         .point;
-    const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart.point);
+    const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart);
     const offered: IHumanProp.IFrame = {
       position: Vector3.add(input.frame.position, shift),
       rotation: input.frame.rotation,

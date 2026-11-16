@@ -407,12 +407,13 @@ export namespace poleVault {
     const down: number = ((): number => {
       const [floorResolution, floorProjection]: [ReturnType<typeof preparePoseResolution>, ReturnType<typeof prepareHumanPostureProjection>] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
       const lowest: (t: number) => number = (t: number): number => GymnasticsFlight.lowest(body, flying(t), floorResolution, floorProjection);
-      if (!(lowest(0) > surface))
+      const releaseLowest: number = lowest(0);
+      if (!(releaseLowest > surface))
         throw new HumanRefusal({
           kind: "reach",
           axis: "on",
           value: surface,
-          reason: `at the release the body's lowest point is at ${lowest(0).toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
+          reason: `at the release the body's lowest point is at ${releaseLowest.toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
           fix: "land on a lower surface, or run faster",
         });
       const fallen: number = GymnasticsFlight.fall(cr.y, velocity.y, surface)!;

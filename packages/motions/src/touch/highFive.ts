@@ -226,7 +226,7 @@ export namespace highFive {
           "relaxed",
         ).point;
         const reach: number = AutoMovieMotionHumanTiming.transport(
-          Vector3.length(Vector3.subtract(contacts.meet!, from)),
+          Vector3.distance(contacts.meet!, from),
         );
         return { ready: reach, stroke: reach, relax: reach + REBOUND };
       },
@@ -290,8 +290,7 @@ export namespace highFive {
     // rest: the hand leaves only its own reach's time before it.
     const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose);
     const own: number = p.window === undefined ? 0 : AutoMovieMotionHumanTiming.transport(
-      Vector3.length(
-        Vector3.subtract(
+      Vector3.distance(
           paired.point,
           HumanHand.frame(
             body,
@@ -301,7 +300,6 @@ export namespace highFive {
             "relaxed",
           ).point,
         ),
-      ),
     );
     const lead: number =
       p.window === undefined

@@ -109,9 +109,9 @@ export namespace relayPass {
    * @evidence contracts/development/implementation.md#principled-implementation The outgoing hand is a place of the runner's own frame, carried with the run; the incoming wrist is the outgoing palm less the baton's end as the hand holds it; both arms are carried from the run's own arm angles at each second by the pass's envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The clock, the role's goal, the envelope, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant too early is refused with the earliest one; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Inactive pass windows return the carrier directly; partial blends retain their original solves, and full share skips the unused carrier-angle solve. Incoming contact requests only the partner hand frame read by the actual palm, preserving its complete display pipeline.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the carrier, the hand goals, the arm carry and the worn prop.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the baton's offset.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Inactive pass windows return the carrier directly; partial blends retain their original solves, and full share skips the unused carrier-angle solve. Each active current posture shares one yaw transform across its original axes/point/bend. Incoming contact requests only partner hand output and point-only palm geometry, omitting two unused direction rotations. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Current-person FK/ROM loans pass through complete carrier, actual shoulder/baseline observations and arm carry. Exact unchanged partner-body identity permits one local palm reader; opaque partner lookup, film second and displayed bones remain current and use that other person's own pipeline.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns base/baton geometry and one last immutable partner-body point reader, replaced on body change. Optional current-person FK/ROM inputs are borrowed only during the call; no loan, current bones/point, pose/time history or handle enters the plan or outputs.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -136,7 +136,7 @@ export namespace relayPass {
     let end: IAutoMovieVector3 | undefined;
     if (p.baton !== undefined && p.role === "incoming") {
       const read: IHumanActionContext.IProp = context.prop(p.baton);
-      const point = p.end === undefined ? undefined : read.prop.points[p.end];
+      const point: IHumanProp["points"][string] | undefined = p.end === undefined ? undefined : read.prop.points[p.end];
       if (point === undefined)
         throw new HumanRefusal({
           kind: "affordance",
@@ -160,7 +160,7 @@ export namespace relayPass {
     }
 
     // The pass's weight at a second: in over `REACH` before `at`, out after.
-    const weight = (t: number): number =>
+    const weight: (t: number) => number = (t: number): number =>
       t < at - REACH
         ? 0
         : t < at
@@ -170,18 +170,20 @@ export namespace relayPass {
             : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
     // The hand's goal at a second, on the run's posture there.
-    const goal = (
+    let palmReader: { body: IHumanActionContext["body"]; read: ReturnType<typeof HumanHand.preparePoint> } | undefined;
+    const goal: (posture: IHumanPosture, t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => AutoMovieMotionHumanArm.ISided = (
       posture: IHumanPosture,
       t: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): AutoMovieMotionHumanArm.ISided => {
-      const frame: HumanFrame.IFrame = {
+      const frame: HumanFrame.IPrepared = HumanFrame.prepare({
         origin: { x: 0, y: 0, z: 0 },
         yaw: posture.yaw,
-      };
-      const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
-        Vector3.normalize(HumanFrame.point(frame, { x, y, z }));
+      });
+      const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 =>
+        Vector3.normalize(frame.direction({ x, y, z }));
       const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
-        body, posture, undefined, undefined,
+        body, posture, undefined, resolution,
         shoulderBones,
       ).get(
         `${side}UpperArm`,
@@ -198,7 +200,7 @@ export namespace relayPass {
           shape: "flat",
           point: Vector3.add(
             shoulder,
-            HumanFrame.point(frame, {
+            frame.direction({
               x: 0,
               y: -BACK.down * arm,
               z: -BACK.back * arm,
@@ -207,7 +209,7 @@ export namespace relayPass {
           rotation,
           bend: Vector3.add(
             shoulder,
-            HumanFrame.point(frame, {
+            frame.direction({
               x: sign * 0.3 * body.measure.upperArm,
               y: -0.5 * body.measure.upperArm,
               z: 0,
@@ -219,13 +221,9 @@ export namespace relayPass {
       const partner: IHumanActionContext.IPerformer = context.performer(
         p.partner,
       );
-      const palm: IAutoMovieVector3 = HumanHand.frame(
-        partner.body,
-        partner.bones(context.start + t, palmBones),
-        side,
-        "palm",
-        "flat",
-      ).point;
+      if (palmReader === undefined || palmReader.body !== partner.body)
+        palmReader = { body: partner.body, read: HumanHand.preparePoint(partner.body, side, "palm", "flat") };
+      const palm: IAutoMovieVector3 = palmReader.read(partner.bones(context.start + t, palmBones));
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: dir(0, 0, 1),
         palm: dir(-sign, 0, 0),
@@ -241,7 +239,7 @@ export namespace relayPass {
         rotation,
         bend: Vector3.add(
           shoulder,
-          HumanFrame.point(frame, {
+          frame.direction({
             x: sign * 0.3 * body.measure.upperArm,
             y: -0.6 * body.measure.upperArm,
             z: 0,
@@ -273,16 +271,19 @@ export namespace relayPass {
             ],
           }
         : {}),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = base.posture(t);
+        const posture: IHumanPosture = base.posture(t, undefined, resolution, projection);
         const w: number = weight(t);
         if (w <= 0) return posture;
-        const reaching: IHumanPosture = handGoals(body, posture, [goal(posture, t)]);
+        const reaching: IHumanPosture = handGoals(body, posture, [goal(posture, t, resolution)]);
         if (w >= 1) return reaching;
         const run: AutoMovieMotionHumanArm.IAngles =
           AutoMovieMotionHumanArm.angles(
-            resolveHumanPosture(body, posture),
+            resolveHumanPosture.seeded(body, posture, undefined, undefined,
+              resolution, undefined, projection).pose,
             side,
           );
         return AutoMovieMotionHumanArm.carry(
@@ -290,6 +291,9 @@ export namespace relayPass {
           reaching,
           { [side]: run },
           w,
+          undefined,
+          resolution,
+          projection,
         );
       },
     };

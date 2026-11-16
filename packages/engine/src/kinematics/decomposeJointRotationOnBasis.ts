@@ -22,6 +22,11 @@ const RAD2DEG: number = 180 / Math.PI;
 /** Quaternion components in their existing finite-admission order. */
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 
+/** Three lazy successful affine readings, independent of every quaternion/chart. */
+type IClinicalReaders = Readonly<Record<
+  keyof IAutoMovieResolvedJointAngles, ReturnType<typeof toClinicalAngle.prepare>
+>>;
+
 /**
  * Projected cosine at or below which the gimbal convention pins one outer
  * angle: the square root of the binary64 unit roundoff, about 1.5e-8.
@@ -77,25 +82,31 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  * @param domain Bone and resolved ROM that choose among equivalent charts;
  *   omitted or with a `null` constraint, the principal chart is returned.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the caller must have done to the basis, why the split exists, that the conventions are `decomposeJointRotation`'s, what is thrown and what an unnormalized basis silently gives.
+ * @evidence contracts/development/common.md#meaningful-documentation States the caller's prior basis admission, shared inverse conventions, error/invalid-basis behavior and optional domain. prepareQueries documents unchanged rig metadata, no constructor numerical admission, original first-use clinical ordering, independent query readers and fresh outputs/release lifetime.
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads each angle's sine and projected cosine through atan2; a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Among the principal chart, the alternate chart and each angle's full-turn alias nearest its range, the least ROM overshoot wins, and every candidate is the same rotation. Nonnegative fault distances prove that an exact zero score is an unbeatable lower bound under the existing strict-improvement tie rule. A constraint's `swingTwist` is set aside while the readings are ranked, since both readings of one rotation lie equally inside such a gate; the three-angle box ranks them, so the reading a pose reports stays the one it always was.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The inverse owns extraction, handedness, clinical lift and chart choice. Private clinical/align/lift helpers take their actual frame/domain arguments instead of per-call closures; scoring, aliases and frame arithmetic stay with their existing owners, and decomposeJointRotation admits the basis before this inverse.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, and no bone is special-cased. Only exact zero terminates further alias construction and score comparisons; quaternion/frame admission and both clinical chart conversions retain their original order. Pure numeric aliases that cannot improve the nonnegative fault lower bound need not be built, and no tolerance or projected answer is substituted. Immutable metadata reuse recognizes only the normalizer's actual owned records, never caller-controlled freeze state, descriptors or matching values.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, fixed dot products and at most three overshoot scores remain constant work. Scoring stops before alias construction at the exact zero lower bound, saving up to two three-coordinate alias records, six whole-turn calculations, two fault scans and their temporary joint records. An indexed two-chart loop also omits its candidate-array allocation. Both clinical charts are still converted before scoring. Handedness hits avoid component arrays, and the normalizer's own immutable records additionally avoid nine component comparisons; each cold miss adds one weak ownership lookup. Ordinary bases retain nine comparisons. Box hits avoid key arrays/comparison closures; misses add one key-count array and metadata record. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller supplies its already admitted basis. Existing weak handedness preparation uses the normalizer's private exact-identity provenance for its frozen own-data outputs; all other bases, including wrappers, copies, inherited records, user-frozen data and accessors, keep the original component reads and Object.is comparisons. No descriptor probe, added numeric read or exception catch changes that admission boundary. Matching own key names/count and field identities detect constraint shape or member replacement. Every incoming quaternion is decomposed normally.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh angles. Existing weak maps retain at most one nine-scalar handedness snapshot, signed twist vector and borrowed immutable-owner flag per live basis, and one borrowed-member box copy with one key-count metadata record per live gated constraint. The normalizer owns weak provenance of its created bases; no pose, quaternion result, callback, handle or task is retained here.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The direct entry and prepared query readers share one extraction owner; clinical/align/lift helpers receive actual frame/domain and optional affine readers instead of per-call closures. Frame arithmetic remains with toClinicalAngle's direct/prepared owners, scoring/aliases keep their existing owners and decomposeJointRotation admits the basis before this inverse.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair and no bone is special-cased. Only exact zero terminates further alias construction/scoring; quaternion admission and both applicable clinical chart conversions keep their original order. prepareQueries reads no numerical input at construction, shares successful affine operands only under declared unchanged frame lifetime and admits replaced axis-frame objects at their next actual conversion. Failed admission installs no successful reading. No quaternion, extracted angle, alias, score or target result crosses queries. Pure numeric aliases that cannot improve zero need not be built, and no tolerance/projected answer is substituted. Weak handedness provenance recognizes only the normalizer's actual owned records, never caller-controlled freeze/descriptors or matching values.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, fixed dot products and at most three overshoot scores remain constant work. Scoring stops before alias construction at exact zero, saving up to two aliases, six whole-turn calculations, two fault scans/temporary joints and the former candidate-array allocation. Both applicable clinical charts still convert before scoring. Prepared native-source queries share three lazy affine readers, removing repeated sign/neutral admission for up to six actual conversions while retaining every multiply/add and coordinate lookup. Handedness hits avoid component arrays; normalizer-owned immutable records additionally avoid nine comparisons. Ordinary bases retain nine comparisons. Box hits avoid key arrays/comparison closures; misses add one key-count array/metadata record. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller supplies its already admitted basis. Explicit prepareQueries additionally shares only three completed toClinicalAngle affine preparations across independent readers, as actual native-source jointsOf consumes; every quaternion still extracts/ranks its own charts. Existing weak handedness uses the normalizer's private exact provenance; wrappers/copies/inherited/user-frozen/accessor bases keep original reads/Object.is comparisons. No descriptor probe, extra numeric admission read or catch changes that boundary. Matching own key names/count and field identities detect constraint shape/member replacement; no target-dependent answer is reused.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Outputs are fresh local angles. A prepared source borrows basis/frame/domain, owns three lazy affine closures with at most one frame/two scalars each and creates one stateless closure per independent query; release those with the source/query. Direct calls retain no such preparation. Existing weak maps keep at most one nine-scalar handedness snapshot/signed twist vector/owner flag per basis and one borrowed-member box/key-count record per gated constraint; normalizer provenance remains weak. No quaternion, extracted coordinate, alias, score, output history, handle or task is retained.
  */
-export const decomposeJointRotationOnBasis: (
+export function decomposeJointRotationOnBasis(
   q: IAutoMovieQuaternion,
   basis: IAutoMovieJointAxes,
   frame?: IAutoMovieRestFrame | undefined,
   domain?: IAutoMovieJointRotationDomain | undefined,
-) => IAutoMovieResolvedJointAngles = (
+): IAutoMovieResolvedJointAngles {
+  return extract(q, basis, frame, domain);
+}
+
+/** All actual quaternion admission, extraction, clinical lift and chart selection. */
+function extract(
   q: IAutoMovieQuaternion,
   basis: IAutoMovieJointAxes,
   frame?: IAutoMovieRestFrame,
   domain?: IAutoMovieJointRotationDomain,
-): IAutoMovieResolvedJointAngles => {
+  readers?: IClinicalReaders,
+): IAutoMovieResolvedJointAngles {
   assertFiniteQuaternion(q);
 
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
@@ -130,6 +141,7 @@ export const decomposeJointRotationOnBasis: (
         handed,
         frame,
         domain,
+        readers,
       );
     }
     return lift(
@@ -144,6 +156,7 @@ export const decomposeJointRotationOnBasis: (
       handed,
       frame,
       domain,
+      readers,
     );
   }
 
@@ -168,6 +181,7 @@ export const decomposeJointRotationOnBasis: (
       handed,
       frame,
       domain,
+      readers,
     );
   }
 
@@ -181,15 +195,55 @@ export const decomposeJointRotationOnBasis: (
     handed,
     frame,
     domain,
+    readers,
   );
-};
+}
+
+/**
+ * Fixed-rig metadata for independent inverse queries.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines an already-admitted unchanged basis/frame/domain, no constructor numerical admission, original first-use frame errors and query-local extraction/chart/output ownership.
+ * @evidence contracts/development/design.md#principled-representation Only three successful affine sign/neutral readings depend on the fixed clinical frame; quaternion components, extracted angles, aliases and ROM rankings remain local to each actual inverse call.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepareQueries serves actual native reach jointsOf upper/lower readers and the fixed-rig projector's stateless raw-reference inverse without changing raw four-argument decomposition or exposing metadata/result getters.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller freeze or dynamic target identity establishes reuse. The raw owner still admits axes before OnBasis, and prepared callers supply that same admitted basis at their original numerical site; no quaternion, branch, alias or target result crosses queries.
+ */
+export namespace decomposeJointRotationOnBasis {
+  /**
+   * Borrow one unchanged admitted basis/frame/domain and return independent
+   * stateless readers. Construction reads no numerical input. Every actual q still
+   * receives finite admission, extraction and principal/alternate clinical
+   * conversion in the original order; only successful affine metadata is shared.
+   * A fixed operation may reuse its stateless reader; release it with the source.
+   * Outputs remain fresh and local, with no target-specific state in a reader.
+   */
+  export function prepareQueries(
+    basis: IAutoMovieJointAxes,
+    frame?: IAutoMovieRestFrame,
+    domain?: IAutoMovieJointRotationDomain,
+  ): () => (q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles {
+    const readers: IClinicalReaders = {
+      flexion: toClinicalAngle.prepare(),
+      abduction: toClinicalAngle.prepare(),
+      twist: toClinicalAngle.prepare(),
+    };
+    return (): (q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles =>
+      (q: IAutoMovieQuaternion): IAutoMovieResolvedJointAngles =>
+        extract(q, basis, frame, domain, readers);
+  }
+}
 
 /** Lift the three numerical rig angles through the unchanged clinical frame. */
 function clinical(
   rig: IAutoMovieResolvedJointAngles,
   frame: IAutoMovieRestFrame | undefined,
+  readers: IClinicalReaders | undefined,
 ): IAutoMovieResolvedJointAngles {
   // toClinicalAngle only returns null for a null input; these are numbers.
+  if (readers !== undefined) return {
+    flexion: readers.flexion(rig.flexion, frame?.flexion)!,
+    abduction: readers.abduction(rig.abduction, frame?.abduction)!,
+    twist: readers.twist(rig.twist, frame?.twist)!,
+  };
   return {
     flexion: toClinicalAngle(rig.flexion, frame?.flexion)!,
     abduction: toClinicalAngle(rig.abduction, frame?.abduction)!,
@@ -216,8 +270,9 @@ function lift(
   handed: 1 | -1,
   frame: IAutoMovieRestFrame | undefined,
   domain: IAutoMovieJointRotationDomain | undefined,
+  readers: IClinicalReaders | undefined,
 ): IAutoMovieResolvedJointAngles {
-  const principal: IAutoMovieResolvedJointAngles = clinical(rig, frame);
+  const principal: IAutoMovieResolvedJointAngles = clinical(rig, frame, readers);
   if (domain === undefined || domain.constraint === null) return principal;
 
   // Both Euler readings of one rotation share its swing-twist status; the
@@ -226,6 +281,7 @@ function lift(
   const alternate: IAutoMovieResolvedJointAngles = clinical(
     alternateRigJointAngles(rig, basis.twistPlacement, handed),
     frame,
+    readers,
   );
   let selected: IAutoMovieResolvedJointAngles = principal;
   let overshoot: number = jointRomOvershoot(

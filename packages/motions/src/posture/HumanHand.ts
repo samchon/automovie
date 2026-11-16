@@ -468,6 +468,13 @@ export namespace HumanHand {
   export function frameBones(body: IHumanBody, side: Side, surface: Surface): ReadonlySet<AutoMovieHumanoidBone> {
     return readHumanHandFrame.bones(body, side, surface, digital(surface));
   }
+
+  /** Prepare fixed body/side/surface/form point geometry; current bones return fresh points, while digits keep complete original frame seating. */
+  export function preparePoint(body: IHumanBody, side: Side, surface: Surface,
+    form: Shape = "relaxed"): ReturnType<typeof readHumanHandFrame.preparePoint> {
+    return readHumanHandFrame.preparePoint(body, side, surface,
+      (): IFrame => offset(body, side, surface, form), digital(surface));
+  }
 }
 
 /** Canonical left rest directions; inverse admission remains lazy and world-first. */

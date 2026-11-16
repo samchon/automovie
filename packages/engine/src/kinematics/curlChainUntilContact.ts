@@ -73,9 +73,9 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/development/implementation.md#principled-implementation GraspIt!'s auto-grasp stopping rule (Miller and Allen 2004) evaluated proximal to distal, with exact segment distances and a bracket-then-bisect search on forward kinematics of the engine's own resolver.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over chains and joints sharing one gap function; distances and the box search are local helpers.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance counts a gap as contact: a joint stops on the positive side of the first non-positive gap, and an unreached object leaves the joint at its range limit with the positive gap reported.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every original range/step and 30 bisection probe remains. An explicitly prepared immutable rig admits every authored joint and computes only each active chain's ancestor closure; raw inputs retain the full resolvePose walk. Direct map insertion omits full-bone tuple arrays, and fixed collider transforms are prepared once for all changing segments.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One operation reader shares only exact unchanged FK dependencies across actual trial poses. A supplied rig belongs to the caller's same unchanged skeleton/axes/frames/topology; fixed admitted collider frames share their existing lazy distance readers. Angles, changed segments, contact queries, brackets and final gaps are never reused as results.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy reader, one reader per fixed collider and each current chain's demanded set/maps live only until this synchronous closure returns or throws; the returned pose and chain reports retain none of them.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every original range/step and 30 bisection probe remains. With an explicit immutable rig, each chain's first actual trial admits the current unique-map pose once and binds its output demand; later trials admit only its E existing current-chain records in original map order instead of J records. All actual FK/contact work remains. Raw inputs retain the full resolvePose walk; fixed collider transforms prepare once. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied rig fixes unchanged skeleton/axes/frames/topology. A per-chain source is created only after the original first trial edit, preserving admission order and overwrite behavior; prior-chain commits and fixed root/non-chain records then remain unchanged. Every later complete current-chain edit list is actually admitted, while absent future bones stay absent. Contact queries, brackets, angles and final gaps are never reused as results.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy operation reader and fixed-collider readers live until this closure returns or throws. Each chain releases one fixed-source workspace, demanded set and bounded current-chain order before the next chain; no workspace, FK reader, queried pose/time history or handle escapes in the returned pose/reports.
  */
 export function curlChainUntilContact(
   input: curlChainUntilContact.IInput,
@@ -84,7 +84,7 @@ export function curlChainUntilContact(
   if (!(step > 0)) throw new Error("A curl step must be positive");
   for (const collider of input.colliders) validate(collider.shape);
   const distances: ReturnType<typeof physicalShapeSegmentDistance.prepare>[] =
-    input.colliders.map((collider: curlChainUntilContact.ICollider) =>
+    input.colliders.map((collider: curlChainUntilContact.ICollider): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
       physicalShapeSegmentDistance.prepare(collider.frame, collider.shape));
   let operation: ReturnType<typeof preparePoseResolution> | undefined;
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
@@ -94,7 +94,7 @@ export function curlChainUntilContact(
       ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
     ),
   );
-  const pose = (): IAutoMoviePose => ({
+  const pose: () => IAutoMoviePose = (): IAutoMoviePose => ({
     ...input.pose,
     joints: [...joints.values()],
   });
@@ -105,10 +105,12 @@ export function curlChainUntilContact(
       throw new Error("A curled chain's radius must be positive");
     const flexion: number[] = [];
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(chain.bones);
+    let fixed: ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]> | undefined;
+    const edited: AutoMovieHumanoidBone[] = [];
 
     // The gap of the phalanges from the k-th onward under the current angles
     // with joint k at a trial flexion.
-    const gap = (k: number, angle: number): number => {
+    const gap: (k: number, angle: number) => number = (k: number, angle: number): number => {
       const bone: AutoMovieHumanoidBone = chain.bones[k]!;
       const previous: IAutoMovieJointPose | undefined = joints.get(bone);
       joints.set(bone, {
@@ -118,16 +120,29 @@ export function curlChainUntilContact(
         twist: previous?.twist ?? 0,
       });
       operation ??= preparePoseResolution();
-      const frames: IAutoMovieResolvedBone[] = input.resolution === undefined
-        ? resolvePose(
-            pose(),
-            input.skeleton,
-            input.jointAxes,
-            input.restFrames,
-            input.topology,
-            operation,
-          )
-        : input.resolution.resolve(pose(), operation, requested);
+      let frames: IAutoMovieResolvedBone[];
+      if (input.resolution === undefined)
+        frames = resolvePose(pose(), input.skeleton, input.jointAxes,
+          input.restFrames, input.topology, operation);
+      else if (fixed === undefined) {
+
+        // Admit the first actual trial, after its original overwrite. Earlier
+        // admission could expose an initial record that this trial replaces.
+        fixed = input.resolution.preparePose(pose(), requested, operation);
+        for (const name of joints.keys()) if (requested.has(name)) edited.push(name);
+        frames = fixed.resolve([]);
+      } else {
+
+        // Existing records keep their global map positions; newly encountered
+        // chain joints append there. Never manufacture absent future records.
+        if (!edited.includes(bone)) edited.push(bone);
+        const edits: IAutoMovieJointPose[] = [];
+        for (const name of edited) {
+          const joint: IAutoMovieJointPose | undefined = joints.get(name);
+          if (joint !== undefined) edits.push(joint);
+        }
+        frames = fixed.resolve(edits);
+      }
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
       for (const frame of frames) resolved.set(frame.bone, frame);
       if (previous === undefined) joints.delete(bone);
@@ -268,7 +283,7 @@ export namespace curlChainUntilContact {
     /** Topology of the same skeleton, reused across evaluations. */
     topology?: IAutoMovieSkeletonTopology;
 
-    /** Explicit immutable rig prepared from this same skeleton, axes, rest frames and topology; absent, raw full-walk resolution preserves live-input behavior. */
+    /** Explicit immutable rig of this same skeleton/axes/frames/topology. The synchronous curl fixes root and non-current-chain records; each chain prepares its actual first trial then admits complete current-chain edits. Absent, raw full-walk resolution preserves live-input behavior. */
     resolution?: prepareSkeletonPoseResolution.IRig;
   }
 

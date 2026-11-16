@@ -140,7 +140,7 @@ export namespace StrikingStroke {
     let span: number = d.contact - begin;
     if (!(span > 0))
       throw new Error("A strike's delivery ends after it begins");
-    const length: number = Vector3.length(Vector3.subtract(d.impact, from));
+    const length: number = Vector3.distance(d.impact, from);
     const through: IAutoMovieVector3 = Vector3.add(
       d.impact,
       Vector3.scale(Vector3.normalize(d.direction), length * (1 / s - 1)),
@@ -149,7 +149,7 @@ export namespace StrikingStroke {
     // over that speed; it starts that share of itself before the contact.
     if (d.peak !== undefined) {
       const fast: number =
-        (u * 1.875 * Vector3.length(Vector3.subtract(through, from))) / d.peak;
+        (u * 1.875 * Vector3.distance(through, from)) / d.peak;
       if (fast < span) {
         begin = d.contact - fast;
         span = fast;
@@ -313,13 +313,12 @@ export namespace StrikingStroke {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The recoil, the free path and the stop as closures, composed into the shown path.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a nested read during a scan sees the free path, as documented in its comment.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the original ordered units per evaluation; every original duration/normalized-time admission remains, including inactive units. Actual path readers request position only, omitting unused derivative polynomials and velocity/acceleration/state records; the unchanged scan spends its samples once and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second are memoised so every evaluation order gives the same stop.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and the scan state, released with the stroke.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second retain their original memo policy. Each current tracker query's readonly units are spread directly into the path's own mutable combined list, avoiding a second intermediate copy without retaining or mutating the producer's units.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and original scan state until stroke release. Current correction arrays are borrowed only while constructing operation-owned unit lists; no producer array, new time history or mutable scratch list is retained.
    */
   export function create(input: IInput): IStroke {
-    const corrections = (seconds: number): superposeMinimumJerk.IUnit[] => [
-      ...(input.tracker?.units(seconds) ?? []),
-    ];
+    const corrections: (seconds: number) => readonly superposeMinimumJerk.IUnit[] = (seconds: number): readonly superposeMinimumJerk.IUnit[] =>
+      input.tracker?.units(seconds) ?? EMPTY_UNITS;
 
     // The return from a point at a second: straight, or out through the
     // re-chamber point on two overlapping units (Flash and Hogan's via-point
@@ -452,3 +451,6 @@ export namespace StrikingStroke {
     };
   }
 }
+
+/** Shared absence of correction units; consumers only spread this private readonly list. */
+const EMPTY_UNITS: readonly superposeMinimumJerk.IUnit[] = [];

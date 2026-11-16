@@ -354,10 +354,10 @@ export namespace walkStanceCourse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
    * @evidence contracts/development/design.md#principled-representation The problem a sequential convex method convexifies: TrajOpt's soft rows over the course's own cost, constraints and linear rows.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The start, the evaluation, the subproblem, the step, the tolerance and the record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the course's own sweep, rows and record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The original namespace entry remains an augmentable interface; IWalkStanceProblem owns the same start/evaluation/model/step/tolerance/record contracts without duplicating their members.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves the original interface declaration kind and reuses the course's own sweep, rows and record; inheritance introduces no alternate solver or physical result marker.
    */
-  export type IProblem = IWalkStanceProblem;
+  export interface IProblem extends IWalkStanceProblem {}
 
   /**
    * A course read at a second, linearly between its knots.

@@ -20,6 +20,7 @@ import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanJointRom } from "./prepareHumanJointRom";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
 /**
  * The room a forearm needs beside its own trunk and beside the other arm.
@@ -437,6 +438,8 @@ export namespace HumanArmClearance {
    * @param body The body.
    * @param posture The posture, the arms' joints set and their goals absent.
    * @param sides The arms to keep clear.
+   * @param source Optional exact FK source borrowed only for this synchronous same-body operation.
+   * @param projection Optional genuine same-body ROM projector; every actual joint still projects normally.
    * @returns The posture with the arms' upper arm joints let out.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which arms, against what allowance and what is written back.
@@ -444,15 +447,17 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve, then one bisection per arm in the pose the arms before it were written into; the least abduction is continuous in time where the room is, so the swing has no jump a local search between frames would leave.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per call, one room reading for an arm already clear and about twelve for one that is not; the stance's room is solved once per body and arm.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `room` and `posed`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance rooms are kept per live body in a `WeakMap`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to HumanArmSwing.of, forwarding only explicit same-operation FK/ROM loans through native full fitting and actual room observations without candidate-result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the existing numeric stance rooms persist weakly per body; current FK/ROM loans end with the synchronous owner and enter no returned posture or cache.
    */
   export function swung(
     body: IHumanBody,
     posture: IHumanPosture,
     sides: readonly ("left" | "right")[],
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
-    return HumanArmSwing.of(body, posture, sides);
+    return HumanArmSwing.of(body, posture, sides, source, projection);
   }
 }
 

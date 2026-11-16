@@ -19,6 +19,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -107,7 +108,7 @@ export namespace legTouch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The place, the balance, the leg's goal, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knee out of the thigh's reach throws with the distance; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms The four original balance solves and four knee root-update rounds remain. Each new shift still runs the complete physical posture fit, then requests only the measured hip FK output. Its completed hip feeds that candidate's residual, next update and final direction instead of repeating the same candidate solve; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One synchronous search reader shares only exact FK prerequisites, and an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One synchronous search borrows exact FK prerequisites, genuine same-body ROM metadata and fixed hip-name preparation; an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning-only FK reader and initial/current hip vectors end with synchronous search or refusal. The plan retains its original base, solved goal and physical shift only; no reader, pose map or search history enters its evaluator.
    */
   export function plan(
@@ -168,22 +169,21 @@ export namespace legTouch {
 
     // The leg's two lengths are this body's own, between its rest joints: the
     // knee falls on its place only on the circle those lengths allow.
-    const thigh: number = Vector3.length(
-      Vector3.subtract(rest("LowerLeg"), rest("UpperLeg")),
-    );
-    const shank: number = Vector3.length(
-      Vector3.subtract(rest("Foot"), rest("LowerLeg")),
-    );
+    const thigh: number = Vector3.distance(rest("LowerLeg"), rest("UpperLeg"));
+    const shank: number = Vector3.distance(rest("Foot"), rest("LowerLeg"));
     const turned = (local: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(foot.rotation, local);
     // The hip as the body displays it under a shift: the pelvis is fitted
     // over the planted leg, so the hip is read, not carried with the root.
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]);
+    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
     const hip = (by: IAutoMovieVector3): IAutoMovieVector3 =>
-      poseBones(body,
-        resolveHumanPosture.seeded(body, moved(entry, by), undefined, {}, resolution).pose,
-        resolution(), requested).get(`${side}UpperLeg`)!.worldPosition;
+      frames(
+        resolveHumanPosture.seeded(body, moved(entry, by), undefined, {}, resolution, undefined,
+          projection ??= prepareHumanPostureProjection(body)).pose,
+        resolution()).get(`${side}UpperLeg`)!.worldPosition;
     let shift: IAutoMovieVector3 = over;
     let goal: IHumanPosture.IGoal;
     if (part === "knee") {
@@ -215,20 +215,20 @@ export namespace legTouch {
         shift = Vector3.add(shift, Vector3.scale(line, far));
         current = hip(shift);
         residual = Math.abs(
-          Vector3.length(Vector3.subtract(knee, current)) - thigh,
+          Vector3.distance(knee, current) - thigh,
         );
-        if (!(Vector3.length(Vector3.subtract(shift, over)) <= SHIFT)) break;
+        if (!(Vector3.distance(shift, over) <= SHIFT)) break;
       }
       if (
-        !(Vector3.length(Vector3.subtract(shift, over)) <= SHIFT) ||
+        !(Vector3.distance(shift, over) <= SHIFT) ||
         !(residual <= 0.005)
       )
         throw new HumanRefusal({
           kind: "reach",
           axis: "target",
-          value: `${(Vector3.length(Vector3.subtract(knee, initial)) * 1000).toFixed(0)} mm`,
+          value: `${(Vector3.distance(knee, initial) * 1000).toFixed(0)} mm`,
           feasible: { kind: "alternatives", values: ["a nearer place"] },
-          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(Vector3.subtract(knee, initial)) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
+          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.distance(knee, initial) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
           fix: "stand nearer the place, or aim the knee at a place at the hip's height or below",
         });
       const line: IAutoMovieVector3 = Vector3.normalize(
@@ -260,7 +260,7 @@ export namespace legTouch {
     const reach: number =
       1.5 *
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(Vector3.subtract(goal.point, foot.ankle)),
+        Vector3.distance(goal.point, foot.ankle),
       );
     const relax: number = reach + hold;
     const duration: number = relax + reach;

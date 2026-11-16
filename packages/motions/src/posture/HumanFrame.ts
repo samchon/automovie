@@ -15,7 +15,7 @@ import type {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines canonical left/up/forward coordinates, world-metre origin and degree heading, including a prepared immutable frame for repeated conversions.
  * @evidence contracts/development/design.md#principled-representation Represents one horizontal rigid transform using the existing vector/quaternion types and explicit degree heading.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Existing point/local/direction-heading helpers serve motion laws; prepare binds repeated typing/crossed-arm transforms, and preparePoint binds a fixed knee offset under each recovery knot's yaw for actual leg-fit probes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Existing point/local/direction-heading helpers serve motion laws. prepare binds repeated fixed-frame conversions, preparePoint binds recovery knee offsets, and prepareLerp serves the jump's four actual local point/bend paths without an intermediate vector.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Introduces no second coordinate convention, body dimensions, pose result, contact tolerance or scene-specific branch.
  */
 export namespace HumanFrame {
@@ -150,6 +150,53 @@ export namespace HumanFrame {
       y: origin.y + y,
       z: origin.z - xs + zc,
     });
+  }
+
+  /**
+   * Prepare a local segment under one fixed heading, then transform each
+   * actual interpolated point without allocating its local vector.
+   *
+   * @param frame The copied default world-metre origin and heading in degrees.
+   * @param from The copied local left/up/forward starting point, metres.
+   * @param to The copied local endpoint, metres.
+   * @returns A fresh world point for a share, optional current world origin and optional added local height in metres. Shares extrapolate outside [0,1]; absent height performs no extra addition.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed local endpoints/heading, copied default translation, actual share/origin/height inputs, metre/degree units, extrapolation and fresh output.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates each original a+(b-a)*share local component, then explicit localY+height when supplied, then point's origin.x+x*cos+z*sin, origin.y+y and origin.z-x*sin+z*cos grouping in that order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copied endpoint/delta and heading coefficients precede one scalar point reader; existing point/prepare readers keep their original vector input and arithmetic.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not transform endpoints before interpolation, regroup world sums, clamp the share, add zero for an absent height or replace any sampled goal with an earlier output.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation/storage and one fresh world-vector allocation per query; the actual jump consumer omits one discarded local vector and three repeated endpoint subtractions while retaining every interpolation/transform operation. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit copied frame/endpoints prove fixed coefficients; changing share/origin/lift is evaluated anew. Source mutation cannot alter the snapshot, and changed heading/endpoints require a different reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure holds only copied origin/endpoint coefficients until released, without a source frame/vector, body, query history, returned vector or external handle.
+   */
+  export function prepareLerp(
+    frame: IFrame,
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+  ): (share: number, origin?: IAutoMovieVector3, liftY?: number) => IAutoMovieVector3 {
+    const origin: IAutoMovieVector3 = {
+      x: frame.origin.x, y: frame.origin.y, z: frame.origin.z,
+    };
+    const radians: number = (frame.yaw * Math.PI) / 180;
+    const cosine: number = Math.cos(radians);
+    const sine: number = Math.sin(radians);
+    const ax: number = from.x;
+    const ay: number = from.y;
+    const az: number = from.z;
+    const dx: number = to.x - ax;
+    const dy: number = to.y - ay;
+    const dz: number = to.z - az;
+    return (share: number, at: IAutoMovieVector3 = origin, liftY?: number): IAutoMovieVector3 => {
+      const x: number = ax + dx * share;
+      const y: number = ay + dy * share;
+      const z: number = az + dz * share;
+      const raised: number = liftY === undefined ? y : y + liftY;
+      return {
+        x: at.x + x * cosine + z * sine,
+        y: at.y + raised,
+        z: at.z - x * sine + z * cosine,
+      };
+    };
   }
 
   /**

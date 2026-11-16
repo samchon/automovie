@@ -14,7 +14,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanSegment } from "./HumanSegment";
+import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
@@ -25,10 +25,47 @@ import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and what it reads from its siblings.
  * @evidence contracts/development/design.md#principled-representation One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One carry-goal reader with private frame capture, using HumanSegment's existing held/carry records and an optional operation-owned FK source.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Ordered carried-hold selection and one carry-goal reader with private frame capture use HumanSegment's existing held/carry records and an optional operation-owned FK source.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the sibling owners; nothing is duplicated between them.
  */
 export namespace HumanSegmentCarry {
+  /**
+   * Select the original active holds that ride a carrier at this film second.
+   * Earlier riding holds retain priority through their takeover fade.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines exact source/window/drive exclusions and ordered per-hand riding priority; returns a fresh array of original held references.
+   * @evidence contracts/development/implementation.md#principled-implementation The original active-window filter and subsequent riding-priority filter are independent ordered passes over unchanged internal hold records, so one pass can carry the same two side states without changing their decisions.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Active-window admission precedes lazy per-side drive lookup, then the original first-riding-hold priority; carry-frame capture remains separate in carries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains inclusive starts, strict ends, source exclusion, riding fade and older-carrier cutoff exactly. Internal held producers own the closed two-side domain; no hold, contact or source pose is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(H) hold traversal and at most two original plan drive scans replace two arrays/passes and a set/object. Empty holds allocate only the fresh returned array and perform no drive/contact lookup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only a fixed plan's per-side drive result is shared within this call; current hold windows and riding order are read at each exact second without retained selection or pose results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four scalar side states end with the call. The returned fresh array borrows the original holds, retains no reader or process, and lives only as long as its displayed evaluation.
+   */
+  export function borne(person: HumanSegment.IPerson, segment: HumanSegment.ISegment,
+    seconds: number): HumanSegment.IHeld[] {
+    const out: HumanSegment.IHeld[] = [];
+    let left: boolean | undefined;
+    let right: boolean | undefined;
+    let ridingLeft: boolean = false;
+    let ridingRight: boolean = false;
+    for (const held of person.holds) {
+      if (!(held.source !== segment && held.from <= seconds &&
+        (seconds < held.until || (held.riding === true
+          ? seconds < held.until + HumanSegment.FADE : segment.entryTime < held.until)))) continue;
+      const driven: boolean = held.side === "left"
+        ? (left ??= HumanSegment.drives(segment.plan, held.side))
+        : (right ??= HumanSegment.drives(segment.plan, held.side));
+      if (driven) continue;
+      const earlier: boolean = held.side === "left" ? ridingLeft : ridingRight;
+      if (held.riding === true) {
+        if (held.side === "left") ridingLeft = true;
+        else ridingRight = true;
+      }
+      if (!earlier) out.push(held);
+    }
+    return out;
+  }
+
   /**
    * The arm goals that carry held props on a pose: each holding hand rides
    * the chest with the offset it had when its action ended, the

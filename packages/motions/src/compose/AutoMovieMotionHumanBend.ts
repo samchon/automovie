@@ -267,8 +267,8 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The preparation adapter exposes the two existing queries over one fixed search context.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original numerical sweep/refinement, fallback, refusal and exact-zero legality rule remains.
    * @evidence contracts/development/implementation.md#efficient-algorithms One real chain/FK preparation serves all Q differently ranked queries while their actual numerical sweeps remain unchanged.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/profile/posture/root/heading/side scope shares geometry only; no target or candidate answer is reused.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous selector owns one prepared context until return or throw; it retains no FK reader, pose/time history or external handle.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/profile/rig/ROM and rootXYZ/yaw/pitch/roll/side share geometry only. A bounded authored support-state plan may own a context only when its state proves those exact fixed inputs and supplies privately immutable coordinates; differing current wrists/rotations still run their original sweeps.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous selector or bounded authored support-state plan owns its fixed chain/collider/neutral context until release. It retains original body/fallback geometry but no query wrist, result, FK reader, pose/time history or external handle; changing fixed source requires a new context.
    */
   export function prepare(
     fixed: Pick<ISolve, "body" | "posture" | "side">,

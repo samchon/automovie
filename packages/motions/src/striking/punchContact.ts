@@ -165,8 +165,8 @@ export namespace punchContact {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the turned and lowered shoulder, the fist, the tracking, then the step-in and the arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no place on the line brings within the band is not stepped toward; a feint does not step.
    * @evidence contracts/development/implementation.md#efficient-algorithms Trunk/entry FK and clamp metadata remain O(B+J), plus actual joint/digit work; each canonical Map removes B entry tuples and their array. After the tracker-unit query, K arrived units form K fresh corrections, with bounded reach work only for new arrivals and the existing lazy room scan. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's topology for its same unchanged skeleton while resolving trunk and entry transforms afresh; each arrival's reach is also kept in reaches for this geometry, indexed by the tracker's ordered corrections.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned correction closure holds its context, tracker, entry bone map, room result, one launch reach and at most one reach per tracker correction; this operation-local state is released with the geometry, without a global cache or resource handle.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's topology for its unchanged skeleton while resolving current transforms afresh. The fixed tangent target keeps one lazily resolved participant, local frame and actual bone-name demand, yet every seconds query reads fresh bone frames and only its world point. Each arrival's reach remains indexed by the tracker's original correction order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned correction closure holds its context, tracker, entry bone map, room result, optional fixed tangent-target participant/frame/name set, one launch reach and at most one reach per tracker correction; this operation-local state is released with the geometry, without a global cache or resource handle.
    */
   export function solve(
     context: IHumanActionContext<punch.IParams>,
@@ -185,19 +185,19 @@ export namespace punchContact {
       side === "left" ? "fistLeft" : "fistRight";
     const at: AutoMovieMotionTarget = p.at;
     let varied: resolveAutoMovieHumanoidSurfaces.IFrame | undefined;
+    let variedBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
+    let partner: IHumanActionContext.IPerformer | undefined;
     const aim: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
     ): IAutoMovieVector3 => {
       if (tangent !== undefined && at.kind === "person") {
-        const other: IHumanActionContext.IPerformer = context.performer(
-          at.subject,
-        );
+        const other: IHumanActionContext.IPerformer = (partner ??= context.performer(at.subject));
         const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
           (varied ??= StrikingBody.frame(other.body, at.region, tangent));
-        return resolveAutoMovieHumanoidSurfaces.place(
+        return resolveAutoMovieHumanoidSurfaces.point(
           frame,
-          other.bones(seconds, new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
-        ).point;
+          other.bones(seconds, variedBones ??= new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
+        );
       }
       return StrikingTarget.aim(
         context,

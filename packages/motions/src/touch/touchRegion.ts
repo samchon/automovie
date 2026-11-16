@@ -7,6 +7,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanTouch } from "../compose/IAutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
@@ -48,8 +49,8 @@ export namespace touchRegion {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One site, one shoulder, one closure over them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The other hand's region is never moved by the first hand's site.
    * @evidence contracts/development/implementation.md#efficient-algorithms One leg resolve per frame, and only for a leg's region under a lean.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates region/site geometry to its owners. Each actual leaning-leg query lends one synchronous exact FK reader to its original leg fits and selected-region read-back; no pose or time result is retained.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan reader closes over entry bones, shoulder, fixed site and at most one selected-bone set; each leaning-leg query owns one exact FK workspace until return or throw, and only the actual frame escapes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates region/site geometry to its owners. A caller may lend genuine same-body ROM metadata and exact FK to each current region observation. Fixed leaning-leg names prepare once; every actual leaning-leg query still runs its original fits and fresh selected-region read-back, no pose or time result is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan reader closes over entry bones, shoulder, fixed site and at most one selected-bone set and genuine fixed-demand producer; borrowed ROM/FK remain within the current query until return or throw, and only the actual frame escapes.
    */
   export function reader(
     context: Pick<
@@ -63,7 +64,7 @@ export namespace touchRegion {
   ): (
     target: AutoMovieMotionTarget,
     legs: boolean,
-  ) => (posture: IHumanPosture, seconds: number) => touchSite.IFrame {
+  ) => IAutoMovieMotionHumanTouch["region"] {
     const body: IHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
@@ -86,25 +87,30 @@ export namespace touchRegion {
       along = touchSite.span(context, target.subject, target.point, site.along);
     }
     return (
-        aimed: AutoMovieMotionTarget,
-        legs: boolean,
-      ): ((posture: IHumanPosture, seconds: number) => touchSite.IFrame) =>
-      {
-        const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-          legs && aimed.kind === "self" && onLeg(body, aimed)
-            ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
-            : undefined;
-        return (posture: IHumanPosture, seconds: number): touchSite.IFrame => {
+      aimed: AutoMovieMotionTarget,
+      legs: boolean,
+    ): IAutoMovieMotionHumanTouch["region"] => {
+      const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+        legs && aimed.kind === "self" && onLeg(body, aimed)
+          ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
+          : undefined;
+      const frames: ReturnType<typeof poseBones.prepare> | undefined =
+        requested === undefined ? undefined : poseBones.prepare(body, requested);
+      return (
+        posture: IHumanPosture,
+        seconds: number,
+        source?: Parameters<IAutoMovieMotionHumanTouch["region"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanTouch["region"]>[3],
+      ): touchSite.IFrame => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
-          requested === undefined ? undefined : prepareHumanPoseResolution();
+          requested === undefined ? undefined : prepareHumanPoseResolution(source);
         const frame: touchSite.IFrame = AutoMovieMotionHumanTouch.region(
           context,
           aimed,
           context.start + seconds,
           posture,
           requested !== undefined
-            ? poseBones(
-                body,
+            ? frames!(
                 resolveHumanPosture.seeded(body, {
                   ...posture,
                   limbs: {
@@ -115,11 +121,11 @@ export namespace touchRegion {
                       ? {}
                       : { rightLeg: posture.limbs.rightLeg }),
                   },
-                }, undefined, {}, resolution, requested).pose,
+                }, undefined, {}, resolution, requested, projection).pose,
                 resolution?.(),
-                requested,
               )
             : bones,
+          resolution ?? source,
         );
         if (sited === undefined || aimed !== target) return frame;
         return along === undefined

@@ -142,7 +142,7 @@ export namespace pushSled {
    * @evidence contracts/development/implementation.md#principled-implementation The handles are read on the prop's frame at the start; each hand's place on its handle is taken into the leaning chest's frame where the hands arrive and carried with it after, so the load follows the trunk through the grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The handles, the lean, the chest-held places, the contacts, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds refuse; a missing handle refuses with the prop's handles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One current chest read carries both hands; settled frames skip the unused carrier baseline solve. Each fixed sample prepares its chest/base once, each hand binds its FK names and fixed fist alignment once, and original tried/refined grasps retain every actual elbow/coupled fit until original cost pruning stops them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One current chest read carries both hands; settled frames skip the unused carrier baseline solve. Each fixed sample prepares its chest/base once, each hand binds its FK names, fixed fist alignment and point-only grip reader once. Actual contact judgements omit unused normal/forward rotations; all original elbow/coupled fits and cost pruning remain. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact turn/position pairs share their completed grasp only within one unchanged taking posture; the winning grasp is reused. Fixed sample bases share only clamp/root preparation, each candidate still fitting its own full goals, and one operation FK reader serves a hand's actual candidate evaluations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and chosen holds/arrival transform; candidate maps, fixed-sample bases and operation FK readers belong only to the synchronous grasp search and no returned posture captures them.
    */
@@ -266,11 +266,12 @@ export namespace pushSled {
     );
     type Grasp = { point: IAutoMovieVector3; hold: Hold; off: number };
     type Held = { hold: Hold; off: number };
-    const take = (side: HumanHand.Side): Held => {
+    const take: (side: HumanHand.Side) => Held = (side: HumanHand.Side): Held => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
         AutoMovieMotionHumanBend.prepare({ body, posture: taking, side });
       const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(hands[side]);
+      const gripAt: ReturnType<typeof HumanHand.preparePoint> = HumanHand.preparePoint(body, side, "grip", "fist");
       const { frame: at, symmetry, length } = grips[side];
       const grasps: Map<number, Map<number, Grasp>> = new Map();
 
@@ -278,7 +279,7 @@ export namespace pushSled {
       // it with, its elbow toward its place of least joint strain
       // (`AutoMovieMotionHumanBend.solve`), and how far the fitted fist is
       // off the point.
-      const grasp = (values: readonly number[]): Grasp => {
+      const grasp: (values: readonly number[]) => Grasp = (values: readonly number[]): Grasp => {
         const previous: Grasp | undefined = grasps.get(values[0]!)?.get(values[1]!);
         if (previous !== undefined) return previous;
         const point: IAutoMovieVector3 = Vector3.add(
@@ -312,7 +313,7 @@ export namespace pushSled {
           },
           off: Vector3.length(
             Vector3.subtract(
-              HumanHand.frame(body, bones, side, "grip", "fist").point,
+              gripAt(bones),
               point,
             ),
           ),
@@ -358,13 +359,7 @@ export namespace pushSled {
             const carried: Hold = frame.hold(taken.hold);
             yield Vector3.length(
               Vector3.subtract(
-                HumanHand.frame(
-                  body,
-                  fit(posture, side, carried, resolution),
-                  side,
-                  "grip",
-                  "fist",
-                ).point,
+                gripAt(fit(posture, side, carried, resolution)),
                 Vector3.add(
                   carried.wrist.point,
                   Quaternion.rotateVector(

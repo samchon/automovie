@@ -25,6 +25,8 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { GymnasticsFlight } from "./GymnasticsFlight";
@@ -196,8 +198,8 @@ export namespace handspring {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the table, the release, the rate, the timing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rate past the bound or a landing no rate reaches is refused, never clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Demanded spoke FK per table row, two-hand-only surface observation and forty unchanged bisection steps of closed-form fall times remain. The fixed arched flight prepares one canonical local COM/projected articulation; each flight query rotates that offset and copies original joints without another FK/mass scan or eligible projection. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses wheel/flight owners, jump landing durations and standing plan. Three fixed key pairs prepare their ordered blend unions once; only the immutable arched flight shares local COM and checked projected joints, while changing supported shapes retain their actual row computations. Landing lowering may explicitly borrow its synchronous parent's exact FK workspace.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table, body mass model, three fixed key-pair readers and one copied arched flight articulation/local COM. Returned postures own fresh joint records; an optional borrowed reader stays with its synchronous query caller and never enters the plan or output evidence.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing wheel/flight/landing owners remain. Three fixed key pairs prepare once; fixed arched flight shares local COM/projected joints while every supported row still evaluates. Both original release-angle COM observations borrow one scoped FK/projector source, and landing lowering may borrow its synchronous parent's exact FK workspace.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its table/model, three key-pair readers and fixed arched articulation/local COM. Release-query FK/projector sources end with their IIFE and only centre/slope numbers escape. Output joints are fresh; optional parent loans stay synchronous and never enter a plan or output evidence.
    */
   export function over(
     context: IHumanActionContext<IParams>,
@@ -294,15 +296,14 @@ export namespace handspring {
     );
 
     // The release: the centre and its change with the angle, per degree.
-    const cr: IAutoMovieVector3 = GymnasticsFlight.centre(
-      body,
-      model,
-      placedAt(RELEASE),
-    );
-    const slope: IAutoMovieVector3 = Vector3.subtract(
-      cr,
-      GymnasticsFlight.centre(body, model, placedAt(RELEASE - 1)),
-    );
+    const launch: { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } = ((): { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+      const centre: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, placedAt(RELEASE), read, projection);
+      return { centre, slope: Vector3.subtract(centre, GymnasticsFlight.centre(body, model, placedAt(RELEASE - 1), read, projection)) };
+    })();
+    const cr: IAutoMovieVector3 = launch.centre;
+    const slope: IAutoMovieVector3 = launch.slope;
 
     // The landing's centre height: the arched body at `LAND` stood on its
     // ankles.
@@ -336,8 +337,9 @@ export namespace handspring {
     // flight more time; the floor has no other surface, so a floor
     // handspring is refused on the base it is thrown from.
     const bound: number = salto.RATE * 360;
-    if (miss(bound) < 0) {
-      const reached: number = miss(bound) + turn;
+    const boundMiss: number = miss(bound);
+    if (boundMiss < 0) {
+      const reached: number = boundMiss + turn;
       const prop: boolean = surface.support.kind === "prop";
       throw new HumanRefusal({
         kind: prop ? "reach" : "base",

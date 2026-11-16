@@ -12,6 +12,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -128,8 +129,8 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fits the body and reads the blow's heading once, then evaluates each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
    * @evidence contracts/development/implementation.md#efficient-algorithms One phase/fold evaluation, one demanded trunk resolution and one collider pass per posture; the original three 16-step fit bisections remain. Fixed named phase intervals and entry-frame transforms prepare once, and the two planning-only measures share exact FK preparation without a runtime speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The writer shares one actual fold across floor/trunk/joints; a planning IIFE lends one exact FK workspace and genuine static ROM projector to standing then seated measures, retaining every actual joint projection. Fixed entry yaw/initial ankle establish frame equivalence; clock preparation guards native methods and otherwise preserves live callbacks. Floor/root/joint owners and settle's heading reset remain unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed frame/phase coefficients and one heading cleared on settle. Fit's reader and the planning IIFE's FK/projector loans release before plan return; every time evaluation creates its actual measure locally, without retaining either loan, a sampled pose or query history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The writer shares one actual fold across floor/trunk/joints and lends incoming composition FK/ROM metadata to its actual floor measure. A planning IIFE shares one FK/projector across standing then seated reads, with every joint still projected. Fixed entry yaw/ankle establish frame equivalence; clock guards preserve live callbacks and settle still resets heading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed frame/phase coefficients and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current composition call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -247,7 +248,13 @@ export namespace knockdown {
           ],
           from: 0,
           to: duration,
-          write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+          write: (
+            posture: IHumanPosture,
+            seconds: number,
+            _before?: IAutoMovieMotionHumanPrimitive.Reader,
+            resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+            projection?: Parameters<IHumanActionPlan["posture"]>[3],
+          ): IHumanPosture => {
             const turn: number = angle(heading() - entry.yaw);
             const share: number = sit(seconds);
             const folded: KnockdownFloor.IFold = KnockdownFloor.fold(
@@ -258,6 +265,8 @@ export namespace knockdown {
             const now: KnockdownFloor.IMeasure = KnockdownFloor.measure(
               body,
               folded,
+              resolution,
+              projection,
             );
             const landed: boolean = seconds >= SEATED;
             const world: IAutoMovieVector3 = Vector3.add(

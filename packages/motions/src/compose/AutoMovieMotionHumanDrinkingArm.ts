@@ -21,6 +21,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
@@ -158,6 +159,8 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @param goal The arm's goal, whose rotation lays the vessel's axis.
    * @param referred Whether the fit is held to the goal's own reference (`AutoMovieMotionHumanTouchLaid.reference`), as a touch stroke holds it, or fitted on the posture alone.
    * @param axis The vessel's axis in the hand's frame, whose reached direction the tilt measures against the asked one; without it the tilt is how far the reached hand carries the direction the goal stands on the world's up.
+   * @param source Optional same-body FK metadata borrowed through both actual fits and final observation.
+   * @param projection Optional genuine same-body ROM projector borrowed by both actual fits.
    * @returns The readings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fit, both ways of solving it and the result.
@@ -165,7 +168,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve, one bone read and four readings.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The readings are the resolver's fit within the joints' ranges, never the asked goal.
    * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the actual arm fit and referred reference fit; canonical selection omits only proven unrelated digit goals and final FK requests upper/lower arm, hand and hip frames. Every direct joint is still admitted, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local exact reader connects the actual canonical fit and its demanded FK; resolver source provenance is retained only for its exact free-leg dependency checks. Joint constraints and referred reference retain their owning implementations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local exact reader connects the referred reference, actual canonical fit and demanded FK; a parent may lend same-body FK/genuine ROM metadata. Source provenance retains only exact free-leg checks, and all actual fits/admission remain with their owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The four-name demand and lazy exact FK preparation end on synchronous return/throw; the scalar result retains no pose, reader or candidate history.
    */
   export function read(
@@ -175,12 +178,14 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     goal: IHumanPosture.IGoal,
     referred: boolean,
     axis?: IAutoMovieVector3,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): IArm {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
     ]);
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
       ...posture,
       limbs: {
@@ -193,11 +198,13 @@ export namespace AutoMovieMotionHumanDrinkingArm {
                 posture,
                 side,
                 goal,
+                resolution,
+                projection,
               ),
             }
           : goal,
       },
-    }), undefined, undefined, resolution, requested).pose;
+    }), undefined, undefined, resolution, requested, projection).pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
@@ -244,6 +251,25 @@ export namespace AutoMovieMotionHumanDrinkingArm {
           ? Infinity
           : Math.min(twist - range.min, range.max - twist),
     };
+  }
+
+  /**
+   * Prepare actual arm observations for one synchronous unchanged-body search.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Binds body/side and borrowed rig metadata only until the candidate search returns or throws; each posture/goal/reference/axis still produces an actual numeric reading.
+   * @evidence contracts/development/implementation.md#principled-implementation All candidates use one unchanged rig while their goals vary, so native FK/ROM preparation can share without sharing a solved candidate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One genuine FK getter and ROM projector feed the existing read owner; no alternative fit or admission path is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every candidate, referred reference fit, authored projection, IK and physical bound; no time or goal result cache is added.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Across Q observations one O(B+D) rig preparation replaces Q repetitions, while all actual joint projection, fitting and selected FK remain; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/side and unchanged rig/canonical mappings establish only metadata equivalence; changed postures/goals still execute read independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one getter/projector until completion or throw; its callback retains no candidate pose, goal or query history and never enters the returned drinking answer.
+   */
+  export function prepareRead(body: IHumanBody, side: HumanHand.Side):
+    (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3) => IArm {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+    return (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3): IArm =>
+      read(body, posture, side, goal, referred, axis, resolution, projection);
   }
 
   /**

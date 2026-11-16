@@ -100,8 +100,8 @@ export namespace punchGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, contact window and record types.
    */
   export interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IHumanPosture;
+    /** The complete posture at seconds since the start; an optional exact FK supplier is borrowed only for this synchronous observation and never retained. */
+    posture(seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture;
 
     /** The feet's contact windows. */
     contacts: IHumanContactWindow[];
@@ -123,9 +123,9 @@ export namespace punchGeometry {
    * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the wrist through the solved contact point, and the mix of the arm's launch and contact solutions anchors every goal of the stroke at full weight.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The contact, the footwork, the stroke, the composed posture, then the record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A feint is shown to its declared share and never into a person's guard; the stroke decides no stop the performance has not made.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the footwork's fit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each posture preserves actual footwork, guard and full arm/rival fits. Weapon observations may borrow one synchronous exact FK supplier through footwork, guard and final fit; no speedup is measured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The arm's reference solution at the contact is resolved once and reused by every posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the contact, the footwork, the stroke and one reference, released with the plan's geometry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds contact, footwork, stroke and per-reach reference values until geometry release. Borrowed exact FK suppliers belong only to one posture invocation and never enter the retained references or plan.
    */
   export function build(
     context: IHumanActionContext<punch.IParams>,
@@ -361,11 +361,12 @@ export namespace punchGeometry {
         base: punchFootwork.IFootwork["base"];
         hint: (clock: number) => IAutoMovieVector3;
       },
+      source?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IHumanPosture => {
       const reference: IHumanPosture.IReference | undefined =
         bare === undefined ? anchored(clock) : undefined;
       const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const posture: IHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
       const guard: ReturnType<typeof StrikingStance.guard> = guardAt(posture, resolution);
       const elbow: IAutoMovieVector3 = Vector3.lerp(
@@ -439,10 +440,10 @@ export namespace punchGeometry {
         },
         stop: stroke.stop,
       },
-      posture: (t: number): IHumanPosture => {
+      posture: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
         const at: number | undefined = stroke.stop(t0 + t);
         if (at === undefined || t <= at - t0)
-          return compose(t, stroke.end(t0 + t));
+          return compose(t, stroke.end(t0 + t), t, undefined, resolution);
 
         // Held for the dwell, then the approach is retraced on a minimum-jerk
         // clock, the wrist carried onto the guard it returns to.
@@ -458,7 +459,7 @@ export namespace punchGeometry {
             stroke.free(t0 + clock),
             Vector3.scale(Vector3.subtract(guardEnd().point, origin), w),
           ),
-          clock,
+          clock, undefined, resolution,
         );
       },
     };

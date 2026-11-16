@@ -136,7 +136,7 @@ export namespace handshakeMeeting {
    * @evidence contracts/development/implementation.md#principled-implementation The meeting is read through the context, so the first partner planned computes it and the other reads that record; the finger line is the first ordered partner's, turned for the second; the lean is this partner's least lean that brings the point within its arm, the target first (`HumanSeatedReach.need`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the meeting, two points back to the world, one lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing partner leans none, so its plan is the standing one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting per pair; one bisection for a seated partner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting per pair and one original bisection for a seated partner. Entry FK emits only the actual shoulder for standing, adding exactly the original seated spine/hip/chest/neck/left-thigh observations when a seat bears the role; every authored joint is still admitted.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's meeting reader, `HumanFrame.point` and `HumanSeatedReach.need`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure reading.
    */
@@ -162,9 +162,17 @@ export namespace handshakeMeeting {
       HumanFrame.point(shared.frame, shared.contacts.along!),
       point,
     );
+    const seated: boolean = context.entry.supports.some(
+      (support: IHumanEntryState.ISupport): boolean => support.kind === "seat");
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, ...(seated
+        ? ["hips", "chest", "neck", "leftUpperLeg", "leftLowerLeg", ...HumanSeatedReach.SPINE] as const : []),
+    ]);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
+      undefined,
+      requested,
     );
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -184,9 +192,7 @@ export namespace handshakeMeeting {
           body: context.body,
           posture: context.entry.posture,
           bones,
-          seated: context.entry.supports.some(
-            (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
-          ),
+          seated,
         },
         shoulder,
         point,

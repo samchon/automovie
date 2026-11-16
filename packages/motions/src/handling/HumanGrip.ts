@@ -331,7 +331,7 @@ export namespace HumanGrip {
    * @evidence contracts/development/implementation.md#principled-implementation Each reading admits every supplied joint through canonical FK, then uses the original rigid distal-tip placement and Euclidean distance; invariant capsule chains are acquired lazily at their original first tip use and reused for later shapes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two capsule chains and demanded distal bones precede the shape-to-pose conversion and shared tip reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied angle is admitted in source order and every actual shape is evaluated; no interpolated aperture, reduced search or guessed tip is used.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches occur once for T shape readings; each reading admits J joints and computes only the two distal ancestor closures, with unchanged dependency math shared by one operation reader.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches and actual thumb/index FK demand binding occur once for T shape readings; each reading admits J joints and computes only the two distal ancestor closures, with unchanged dependency math shared by one operation reader.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, side, profile and skeleton remain unchanged throughout the synchronous caller's search; differing joint values invalidate FK through its exact dependency reader and still compute their own distances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases two chains and one lazy FK reader with its synchronous aperture search; the builder must not be stored in a returned plan or frame history and no global cache is added.
    */
@@ -346,6 +346,7 @@ export namespace HumanGrip {
     ]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
+    const readTips: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
     return (joints: IHumanPosture["joints"]): number => {
       const pose: IAutoMoviePose = {
         skeleton: body.skeleton.id,
@@ -357,7 +358,7 @@ export namespace HumanGrip {
         })),
       };
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, pose, resolution(), requested);
+        readTips(pose, resolution());
       const tip: (digit: "Thumb" | "Index") => IAutoMovieVector3 = (digit: "Thumb" | "Index"): IAutoMovieVector3 => {
         const prepared: curlChainUntilContact.IChain = digit === "Thumb"
           ? (thumb ??= chain(body, side, digit)) : (index ??= chain(body, side, digit));

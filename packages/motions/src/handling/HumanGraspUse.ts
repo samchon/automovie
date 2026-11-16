@@ -20,6 +20,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspDemand } from "./HumanGraspDemand";
+import { HumanGraspJudgement } from "./HumanGraspJudgement";
 import { HumanGraspWorn } from "./HumanGraspWorn";
 import { HumanGraspUsePreparation } from "./HumanGraspUsePreparation";
 
@@ -300,7 +301,7 @@ export namespace HumanGraspUse {
         posture: context.entry.posture,
         wrist,
         bend: hang,
-        judge: surfaceJudge(side, offset, site!),
+        judge: HumanGraspJudgement.point(side, offset, site!),
       };
     };
 
@@ -357,13 +358,4 @@ export namespace HumanGraspUse {
     clear = undefined;
     return selected;
   }
-}
-
-/** Retain only the actual scalar surface geometry in the returned key's judge. */
-function surfaceJudge(side: HumanHand.Side, offset: IAutoMovieVector3, site: IAutoMovieVector3): NonNullable<HumanGrasp.IKey["judge"]> {
-  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number => {
-    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    return Vector3.length(Vector3.subtract(Vector3.add(hand.worldPosition,
-      Quaternion.rotateVector(hand.worldRotation, offset)), site));
-  };
 }

@@ -20,16 +20,20 @@ import { vclose } from "../internal/vclose";
  *    root rate (0,0,2), independently of the requested exact time.
  * 2. Queries at 0 then DELTA share their overlapping shape nodes. The first
  *    needs {-DELTA,0,DELTA}, the second only adds 2DELTA; a repeated exact
- *    instant needs no shape read. Mutating a returned raw bone cannot change
- *    the already reduced numeric node.
+ *    instant needs no shape read. After two distant stencils introduce six
+ *    other nodes, a new 2DELTA stencil still needs only its new 3DELTA node.
+ *    Pure fixed shape and history ownership establish exact node equivalence
+ *    for the whole epoch, so an arbitrary four-node eviction bound cannot
+ *    force required shape/IK work again. Mutating a returned raw bone cannot
+ *    change the already reduced numeric node.
  * 3. Clearing the history releases both instant and posed-node reuse, so the
  *    next query evaluates all three actual stencil nodes again. A separate
  *    history with the same model and shape owns a separate epoch.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States root-frame SI moments, angular rate, exact millisecond stencil overlap, raw-bone isolation and clear/separate-epoch lifetimes in three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public history/rate/clear with raw and prepared models, checks physical principal moments and relative/root angular rates, observes owned pure shape calls at exact overlapping nodes, mutates only issued raw bones and requires post-clear/separate-history recomputation.
- * @evidence contracts/development/testing.md#independent-expectations A single centre-fixed part has no orbital momentum and spin Iz*omega=5*2=10. Subtracting it from world/body Z momentum20 and dividing Iz5 gives root rate2. The declared central stencil sets mathematically share 0 and DELTA and introduce only2DELTA, independent of the node cache's representation; existing DELTA is used without changing its1e-3 specification.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers raw versus admitted prepared models, changing/repeated exact query times, actual overlap versus a separate epoch, raw endpoint mutation, explicit clear and reconstruction. Boundary correction and full flight momentum acceptance retain their existing specifications and are not relaxed here.
+ * @evidence contracts/development/common.md#meaningful-documentation States root-frame SI moments, angular rate, exact millisecond stencil overlap across adjacent and distant reads, whole-owner reuse reason, raw-bone isolation and clear/separate-epoch lifetimes in three scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public history/rate/clear with raw and prepared models, checks physical principal moments and relative/root angular rates, observes owned pure shape calls at exact overlapping nodes after more than four intervening nodes, mutates only issued raw bones and requires post-clear/separate-history recomputation.
+ * @evidence contracts/development/testing.md#independent-expectations A single centre-fixed part has no orbital momentum and spin Iz*omega=5*2=10. Subtracting it from world/body Z momentum20 and dividing Iz5 gives root rate2. The declared central stencil sets share 0/DELTA then DELTA/2DELTA and introduce only one endpoint per adjacent new query, even after the disjoint32DELTA/64DELTA stencils. This derives required reads from exact dependency sets and the pure operation lifetime rather than cache capacity; existing DELTA remains1e-3.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers raw versus admitted prepared models, changing/repeated exact query times, adjacent and distant-node reuse versus a separate epoch, raw endpoint mutation, explicit clear and reconstruction. Boundary correction and full flight momentum acceptance retain their existing specifications and are not relaxed here.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns the single-part model, pure shape callback, counters and issued bones. It starts no numerical run until invoked by the existing runner, and no renderer/compiler/foreign replacement is involved; prepared model and histories release in finally.
  */
 export function test_motion_prepared_shape_history(): void {
@@ -65,11 +69,16 @@ export function test_motion_prepared_shape_history(): void {
       TestValidator.equals("adjacent exact stencil shares only its overlapping nodes", reads, 4);
       physical(history(0));
       TestValidator.equals("exact numeric instant replay performs no shape work", reads, 4);
+      physical(history(32 * F.DELTA));
+      physical(history(64 * F.DELTA));
+      TestValidator.equals("two disjoint distant stencils add their six required exact nodes", reads, 10);
+      physical(history(2 * F.DELTA));
+      TestValidator.equals("a new stencil reuses old numeric endpoints across the whole history lifetime", reads, 11);
       history.clear();
-      physical(history(0));
-      TestValidator.equals("clear releases every posed and instant reading", reads, 7);
-      physical(separate(0));
-      TestValidator.equals("a different history has its own shape epoch", reads, 10);
+      physical(history(2 * F.DELTA));
+      TestValidator.equals("clear releases every old distant and adjacent numeric node", reads, 14);
+      physical(separate(2 * F.DELTA));
+      TestValidator.equals("a different history has its own shape epoch", reads, 17);
     } finally {
       history.clear();
       separate.clear();

@@ -27,6 +27,7 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { kissPose } from "./kissPose";
 
 /**
  * A kiss while standing: the lips brought to a partner's region (a cheek, the
@@ -155,9 +156,9 @@ export namespace kiss {
    * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains and a stance bears the body, the least heel raise that closes it; the lean and the neck are fitted again after each.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One miss function, a sagittal grid and two line searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The miss is returned, never hidden; the ranges are the lean's, the neck's and the ankle's working ranges (provisional).
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most four sagittal grids of 273 forward-kinematics passes and two line searches at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, rise, head-share and trunk-region owners; one exact FK reader shares equal scalar prerequisites across this synchronous grid while every candidate and mouth distance is evaluated normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grid owns one lazy FK reader until solve returns or throws; only selected angles and miss escape, with no posture, FK reader or candidate history retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original sagittal-grid and line-search candidate at plan time. Fixed mouth demand and heading/twist metadata are prepared once, same-raise groups share their actual foot lift, and each candidate computes raw authored mouth FK and point only; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, rise, head-share and trunk-region owners. The fixed entry heading/backward offset and head twist are prepared once; each generated least group has one unchanged raise and explicitly shares its actual lift. A genuine prepared mouth reader shares only fixed region/rig demand, while every candidate and mouth distance still runs with an exact synchronous FK reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grid owns one lazy FK reader, fixed pose/mouth producers and current group's lift vector until solve returns or throws; only selected angles and miss escape, with no posture, FK reader or candidate history retained.
    */
   export function solve(
     context: Pick<IHumanActionContext, "body">,
@@ -171,22 +172,20 @@ export namespace kiss {
     const body: IHumanActionContext["body"] = context.body;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const miss = (s: Omit<ISolved, "miss">): number =>
-      Vector3.length(
-        Vector3.subtract(
-          HumanTrunk.region(
-            body,
-            posed(body, entry, stance, s, twist, behind),
-            "mouth",
-            resolution,
-          ).point,
+    const postureAt: ReturnType<typeof kissPose> = kissPose(body, entry, stance, twist, behind);
+    const mouth: ReturnType<typeof HumanTrunk.preparePoint> = HumanTrunk.preparePoint(body, "mouth");
+    const miss = (s: Omit<ISolved, "miss">, raised?: IAutoMovieVector3): number =>
+      Vector3.distance(
+          mouth(postureAt(s, raised), resolution),
           at,
-        ),
-      );
+        );
     const least = (candidates: Omit<ISolved, "miss">[]): ISolved => {
       let best: ISolved | null = null;
+      // Coarse, refined and roll groups each preserve their source raise.
+      const first: Omit<ISolved, "miss"> | undefined = candidates[0];
+      const raised: IAutoMovieVector3 | undefined = first === undefined ? undefined : AutoMovieMotionHumanRise.lift(body, stance, first.raise);
       for (const c of candidates) {
-        const m: number = miss(c);
+        const m: number = miss(c, raised);
         if (best === null || m < best.miss) best = { ...c, miss: m };
       }
       return best!;
@@ -235,54 +234,6 @@ export namespace kiss {
     return sagittal(
       raised.find((c: ISolved): boolean => c.miss <= closest + NEAR / 5)!,
     );
-  }
-
-  /** A standing posture risen on its toes, its hips moved back along the heading, leaned from the hips, the head flexed and turned. */
-  function posed(
-    body: IHumanActionContext["body"],
-    entry: IHumanPosture,
-    stance: AutoMovieMotionHumanRise.Stance,
-    s: Pick<ISolved, "pitch" | "roll" | "flexion" | "raise">,
-    twist: number,
-    behind: number,
-  ): IHumanPosture {
-    const yaw: number = (entry.yaw * Math.PI) / 180;
-    const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
-      body,
-      {
-        ...entry,
-        root: Vector3.add(
-          Vector3.add(
-            entry.root,
-            AutoMovieMotionHumanRise.lift(body, stance, s.raise),
-          ),
-          { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind },
-        ),
-      },
-      { pitch: s.pitch, roll: s.roll },
-    );
-    const head = AutoMovieMotionHumanHead.share(0, s.flexion);
-    const turn = AutoMovieMotionHumanHead.share(2, twist);
-    // The plan adds the flexion and the turn to what the neck and the head
-    // hold, so the solve reads them added too.
-    const held = (bone: "neck" | "head"): readonly [number, number, number] =>
-      leaned.joints[bone] ?? [0, 0, 0];
-    return {
-      ...leaned,
-      joints: {
-        ...leaned.joints,
-        neck: [
-          held("neck")[0] + head.neck![0],
-          held("neck")[1],
-          held("neck")[2] + turn.neck![2],
-        ],
-        head: [
-          held("head")[0] + head.head![0],
-          held("head")[1],
-          held("head")[2] + turn.head![2],
-        ],
-      },
-    };
   }
 
   /**
@@ -402,9 +353,7 @@ export namespace kiss {
       behind === 0
         ? first
         : solve(context, entry, stance, twist, at, seated, behind);
-    const travel: number = Vector3.length(
-      Vector3.subtract(HumanTrunk.region(body, entry, "mouth").point, at),
-    );
+    const travel: number = Vector3.distance(HumanTrunk.region(body, entry, "mouth").point, at);
     const approach: number = AutoMovieMotionHumanTiming.transport(travel);
     const timed: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({

@@ -11,6 +11,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
 import type { IWalkGait } from "./IWalkGait";
 import type { IWalkParams } from "./IWalkParams";
@@ -286,7 +287,9 @@ export namespace walk {
       feet: Record<"left" | "right", walkFoot.IScheduled>,
       amount: number = steps.amount(t),
       hips: readonly [number, number, number] = pelvis(t, steps.phase(t), amount),
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): walkReach.IGround {
+      const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution(resolution)();
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
         const swing: walkFoot.IScheduled["swing"] = feet[side].swing;
@@ -298,8 +301,8 @@ export namespace walk {
           const key: string = `${side}:${swing.off}`;
           let held: [number, number] | undefined = flights.get(key);
           if (held === undefined) {
-            const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
-            held = [reaching(side, swing, 0, resolution), reaching(side, swing, 1, resolution)];
+            const sampled: ReturnType<typeof preparePoseResolution> = read ?? preparePoseResolution();
+            held = [reaching(side, swing, 0, sampled), reaching(side, swing, 1, sampled)];
             flights.set(key, held);
           }
           claims[side] = runStance.airborne(held, swing.u);
@@ -309,16 +312,16 @@ export namespace walk {
         const key: string = `${side}:${swing.off}`;
         let descent: walkDescent.IPlan | undefined = descents.get(key);
         if (descent === undefined) {
-          const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+          const sampled: ReturnType<typeof preparePoseResolution> = read ?? preparePoseResolution();
           descent = walkDescent.plan((u: number): number =>
-            reaching(side, swing, u, resolution),
+            reaching(side, swing, u, sampled),
           );
           descents.set(key, descent);
         }
         claims[side] = walkDescent.claim(
           descent,
           swing.u,
-          reaching(side, swing, swing.u),
+          reaching(side, swing, swing.u, read),
           -walkReach.CLAIM,
         );
       }
@@ -332,18 +335,19 @@ export namespace walk {
 
         // The forefoot rocker is a stepping foot's: it comes in with the gait and goes with it, so a walk stands flat where it starts and stops.
         walkLeg.ROCKER * amount,
+        read,
       );
     }
     // A foot's stance as reached at a swing's end, memoised by its second: every sample of that swing reads the same three.
     const ends: Map<string, walkFoot.IEnd> = new Map();
-    const end: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd => {
+    const end: (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => walkFoot.IEnd = (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): walkFoot.IEnd => {
       const key: string = `${side}:${t}`;
       let out: walkFoot.IEnd | undefined = ends.get(key);
       if (out === undefined) {
         out = settle(t, {
           left: steps.foot("left", t),
           right: steps.foot("right", t),
-        }).feet[side];
+        }, undefined, undefined, resolution).feet[side];
         ends.set(key, out);
       }
       return out;
@@ -355,6 +359,7 @@ export namespace walk {
       legs: readonly ("left" | "right")[],
       phase: number,
       amount: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): {
       feet: Record<"left" | "right", walkFoot.IScheduled>;
       hips: readonly [number, number, number];
@@ -366,7 +371,7 @@ export namespace walk {
         right: steps.foot("right", t),
       };
       const hips: readonly [number, number, number] = pelvis(t, phase, amount);
-      const settled: walkReach.IGround = settle(t, feet, amount, hips);
+      const settled: walkReach.IGround = settle(t, feet, amount, hips, resolution);
       const reached: Record<"left" | "right", walkFoot.IEnd> = {} as Record<"left" | "right", walkFoot.IEnd>;
       for (const side of ["left", "right"] as const) {
         const swing: walkFoot.IScheduled["swing"] = feet[side].swing;
@@ -380,7 +385,7 @@ export namespace walk {
         }
         reached[side] = (ranged[side] ??= walkReach.prepareSwing(body, side))(
           settled,
-          reachedSwing(side, swing, swing.u),
+          reachedSwing(side, swing, swing.u, resolution),
         );
       }
       return { feet, hips, settled, reached };
@@ -396,16 +401,19 @@ export namespace walk {
       duration,
       events,
       contacts,
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const legs: readonly ("left" | "right")[] = channels === undefined
           ? walkReach.SIDES
           : walkReach.SIDES.filter((side: "left" | "right"): boolean => channels.includes(`${side}Leg`));
-        const posture: IHumanPosture = unswung(seconds, legs, channels);
+        const posture: IHumanPosture = unswung(seconds, legs, channels, resolution);
         if (channels !== undefined && !channels.includes("leftArm") && !channels.includes("rightArm"))
           return posture;
         return HumanArmSwing.carry(
           posture,
-          (carried ??= walkCarriage.of(body, steps.events, duration, unswung)),
+          (carried ??= walkCarriage.of(body, steps.events, duration,
+            (at: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], read?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => unswung(at, undefined, undefined, read),
+            resolution, projection)),
         );
       },
     };

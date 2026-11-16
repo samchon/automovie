@@ -148,7 +148,7 @@ export namespace KickGeometry {
       ...(p.accuracy === undefined ? {} : { accuracy: p.accuracy }),
       direction,
       radius: m.shankRadius,
-      distance: Vector3.length(Vector3.subtract(first, feet[side].ankle)),
+      distance: Vector3.distance(first, feet[side].ankle),
       seconds: impact - prep,
     });
     const tracker: StrikingAim.ITracker = StrikingAim.track(

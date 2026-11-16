@@ -296,6 +296,7 @@ export namespace climbStairs {
     function reached(
       posture: IHumanPosture,
       feet: Record<"left" | "right", HumanFoot.IPlacement>,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): IAutoMovieVector3 {
       return resolveHumanPosture.lower(body, {
         ...posture,
@@ -316,7 +317,7 @@ export namespace climbStairs {
             true,
           ),
         },
-      }).root;
+      }, undefined, resolution).root;
     }
     const stance: IAutoMovieVector3[] = [standing.root];
     {
@@ -405,7 +406,7 @@ export namespace climbStairs {
       reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (posture: IHumanPosture, seconds: number, _before?: IAutoMovieMotionHumanPrimitive.Reader, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
         const placed: IHumanPosture = AutoMovieMotionHumanLean.pivot(
           body,
           {
@@ -425,7 +426,7 @@ export namespace climbStairs {
         const root: IAutoMovieVector3 = reached(placed, {
           left: feet.left.placement,
           right: feet.right.placement,
-        });
+        }, resolution);
         // A swinging foot keeps its ball on the path: where the ankle's
         // range keeps the sole from lying flat (a deep step up), the heel
         // rises about the ball and the forefoot leads onto the tread.

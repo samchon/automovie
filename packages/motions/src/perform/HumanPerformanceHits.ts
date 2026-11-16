@@ -61,7 +61,7 @@ export namespace HumanPerformanceHits {
    * @evidence contracts/development/implementation.md#principled-implementation Actual melee stops, blast impulse geometry and prop-flight contacts produce the existing shared interaction records; time/id sorting defines deterministic order.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three private producer readers feed one sort and optional target filter.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps central-difference velocity, provisional profile segment mass, nearest surface/region and producer outcomes; a complete-axis melee read changes no physical acceptance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes actual producer queries and O(H log H) sorting for H hits; target filtering is O(H). A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads. R canonical region-entry pairs are prepared once per unchanged body instead of allocated at every nearest-region query; every actual point placement/distance and strict first-minimum comparison still executes through the shared point owner, omitting only unused normal/forward rotations and their result wrapper.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes actual producer queries and O(H log H) sorting for H hits; target filtering is O(H). A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads. R canonical region-entry pairs are prepared once per unchanged body instead of allocated at every nearest-region query; every actual point placement/distance and strict first-minimum comparison still executes through the shared point owner, omitting only unused normal/forward rotations and their result wrapper. Scalar distance retains the same ordinary/extreme/nonfinite norm branches without a displacement allocation, and first-minimum selection retains only its current name and scalar instead of allocating a record per improvement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing weak performance result is used only outside resolving; resolving always rebuilds from current state. Registered capsule constructor metadata shares its head/tail source only within one exact contact-time read. The body producer fixes region order and bone-local surface frames, so only that immutable entry table is shared; current posed bones and world region points are never retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak performance keys retain H immutable hit records for that placed performance; temporary producer arrays and endpoint frames end after the build. A separate weak body key owns only its R fixed region-name/local-frame pairs until body release; no pose, world point, endpoint history or external resource is retained.
    */
@@ -257,7 +257,8 @@ export namespace HumanPerformanceHits {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     point: IAutoMovieVector3,
   ): AutoMovieHumanoidRegion | undefined {
-    let best: { region: AutoMovieHumanoidRegion; distance: number } | undefined;
+    let best: AutoMovieHumanoidRegion | undefined;
+    let nearest: number = Infinity;
     for (const [region, frame] of regionFrames(body)) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
       if (bone === undefined) continue;
@@ -265,11 +266,13 @@ export namespace HumanPerformanceHits {
         frame,
         bone,
       );
-      const distance: number = Vector3.length(Vector3.subtract(at, point));
-      if (best === undefined || distance < best.distance)
-        best = { region, distance };
+      const distance: number = Vector3.distance(at, point);
+      if (best === undefined || distance < nearest) {
+        best = region;
+        nearest = distance;
+      }
     }
-    return best?.region;
+    return best;
   }
 
   /** Fixed canonical region order and bone-local frames, never world-posed answers. */

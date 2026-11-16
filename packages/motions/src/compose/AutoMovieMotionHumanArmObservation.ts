@@ -149,6 +149,8 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param carry The arm.
    * @param posture The posture so far at the second.
    * @param seconds The second, on the hold.
+   * @param source Optional same-body FK metadata borrowed through the solve and both goal callbacks.
+   * @param projection Optional genuine same-body ROM metadata borrowed through the solve and goal callbacks.
    * @returns The sites' difference, metres, the contact in the hand's frame, and the base the arm is read against.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two sites, the pose they are read on and when the result is zero.
@@ -164,25 +166,27 @@ export namespace AutoMovieMotionHumanArmObservation {
     carry: AutoMovieMotionHumanArmPlanned.IPlanned,
     posture: IHumanPosture,
     seconds: number,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): {
     error: IAutoMovieVector3;
     contact: IAutoMovieVector3;
     base: HumanArmTrajectory.IProblem["bases"][number];
   } {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${carry.side}Arm`];
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
       ...posture,
       limbs,
-    }), undefined, undefined, resolution).pose;
-    const goal: IHumanPosture.IGoal = carry.goal(posture, seconds);
+    }), undefined, undefined, resolution, undefined, projection).pose;
+    const goal: IHumanPosture.IGoal = carry.goal(posture, seconds, resolution, projection);
     const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal, resolution);
     const then: HumanArmTrajectory.ISite = site(
       body,
       pose,
       carry,
-      aim(carry, posture, seconds),
+      aim(carry, posture, seconds, resolution, projection),
       resolution,
     );
     return {
@@ -194,20 +198,22 @@ export namespace AutoMovieMotionHumanArmObservation {
   /**
    * Read the goal as the action plan perceives it at this local second.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the perceived callback's precedence and the actual posture/local seconds passed through.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines perceived callback precedence and forwards the actual posture/local seconds plus optional same-body FK/genuine ROM metadata for this synchronous invocation only.
    * @evidence contracts/development/implementation.md#principled-implementation The carry explicitly supplies a perceived goal for planning; when absent its ordinary actual goal defines the same target.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional callback selection and one invocation share this rule between planner and feedback observation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No returned goal, reaction time or posture is altered and no callback result is cached here.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant dispatch plus the actual supplied target's work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The reader coordinates no retained completed work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The parent may lend same-body FK and genuine ROM metadata to the actual callback; no callback result, pose or query history is shared.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns the callback's original goal ownership.
    */
   export function aim(
     carry: AutoMovieMotionHumanArmPlanned.IPlanned,
     posture: IHumanPosture,
     seconds: number,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): IHumanPosture.IGoal {
-    return (carry.perceived ?? carry.goal)(posture, seconds);
+    return (carry.perceived ?? carry.goal)(posture, seconds, source, projection);
   }
 
   /**

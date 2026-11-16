@@ -37,9 +37,12 @@ export function stretchQuadriceps(props: {
   forward: IAutoMovieVector3;
   least: number;
 }): IAutoMovieVector3 {
-  const m = props.body.measure;
+  const m: IHumanBody["measure"] = props.body.measure;
   // A segment hanging straight down, turned back by an angle.
-  const turned = (length: number, degrees: number): IAutoMovieVector3 => {
+  const turned: (length: number, degrees: number) => IAutoMovieVector3 = (
+    length: number,
+    degrees: number,
+  ): IAutoMovieVector3 => {
     const angle: number = (degrees * Math.PI) / 180;
     return Vector3.add(
       Vector3.scale(props.forward, -Math.sin(angle) * length),
@@ -48,7 +51,10 @@ export function stretchQuadriceps(props: {
   };
   const hanging: IAutoMovieVector3 = turned(m.thigh, 0);
   const reach: number = m.upperArm + m.forearm;
-  const ankle = (flexion: number, extension: number): IAutoMovieVector3 =>
+  const ankle: (flexion: number, extension: number) => IAutoMovieVector3 = (
+    flexion: number,
+    extension: number,
+  ): IAutoMovieVector3 =>
     Vector3.add(
       Vector3.add(
         props.hip,
@@ -56,7 +62,9 @@ export function stretchQuadriceps(props: {
       ),
       turned(m.shank, extension + flexion),
     );
-  const reached = (point: IAutoMovieVector3): boolean =>
+  const reached: (point: IAutoMovieVector3) => boolean = (
+    point: IAutoMovieVector3,
+  ): boolean =>
     Vector3.length(Vector3.subtract(point, props.shoulder)) <= reach;
   const knee: number = Math.max(
     props.least,

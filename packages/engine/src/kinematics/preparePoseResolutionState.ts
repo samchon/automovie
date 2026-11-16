@@ -293,10 +293,10 @@ function createState(
     rootRotation: IDENTITY, rootTranslation: ORIGIN, rootRevision: 0 };
 }
 
-/** Snapshot all changed root operands before committing either private dependency. */
+/** Read root translation/rotation in raw FK order, then snapshot before either commit. */
 function setRoot(state: IState, pose: IAutoMoviePose): void {
-  const rotation: IAutoMovieQuaternion = pose.root?.rotation ?? IDENTITY;
   const translation: IAutoMovieVector3 = pose.root?.translation ?? ORIGIN;
+  const rotation: IAutoMovieQuaternion = pose.root?.rotation ?? IDENTITY;
   const sameRotationInput: boolean = PoseResolutionSnapshot.sameQuaternion(state.rootRotation, rotation);
   const sameTranslationInput: boolean = PoseResolutionSnapshot.sameVector(state.rootTranslation, translation);
   if (sameRotationInput && sameTranslationInput) return;

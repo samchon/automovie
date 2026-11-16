@@ -16,10 +16,10 @@ import { Vector3 } from "../math/Vector3";
  * @throws {Error} For an unknown runtime shape kind; admission of numeric geometry remains the caller's responsibility.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States supported geometry, admitted transforms, world metres and fresh full bounds. Namespace lowest returns only the same world minimum Y for floor readers; it retains no point, frame or result and leaves each full/collected-hull path unchanged.
- * @evidence contracts/development/implementation.md#principled-implementation Composes the parent and shape transforms, then uses exact sphere/capsule/box axis extents or the rotated hull vertices' extrema in the existing arithmetic order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The pose facade and lowest compose the same actual frame. FromFrame owns full bounds and optional hull-point transfer; lowest reads just the corresponding Y expression without unused coordinate/extrema records. Both remain with the geometry's one package owner.
+ * @evidence contracts/development/implementation.md#principled-implementation Composes the needed parent/shape frame components, then uses exact sphere/capsule/box axis extents or rotated hull vertex extrema in the existing arithmetic order; sphere orientation cannot change an axis extent.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The pose facade and lowest compose only the actual frame components their geometry needs. FromFrame owns full bounds and optional hull-point transfer; both full sphere entries share sphereBounds, and lowest reads only the corresponding Y expression. All remain with the geometry's one owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every shape formula, component extremum, unknown-kind failure and lack of numeric admission here; bounds are not replaced with support-candidate minima or a new tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). Full hull bounds keep scalar extrema and materialize only each rotated point needed by full coordinates/optional transfer. Lowest composes centre Y with rotateVectorY without centre/offset vectors, and uses the same scalar owner for axes/vertices without unused coordinates/maxima. A sphere needs no composed shape orientation. Collector outputs alone retain O(V) points; both paths share fixed unit axes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). The full facade adds parent translation into its exclusively owned rotated offset, avoiding another centre record. Full hulls keep scalar extrema; full spheres share six direct expressions without an unused quaternion/extent. Lowest uses rotateVectorY without unused records/coordinates/maxima. Collector outputs alone retain O(V) points; both paths share fixed unit axes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entries use the same fromFrame equations; current composed-frame readers may additionally adopt each fresh rotated hull point only after its extrema are consumed, avoiding a second identical rotation. Legacy calls always freshly read inputs and request no point transfer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps no pose, shape, frame or result globally; min/max are fresh and independent of adopted hull points, whose ownership transfers only after every bounds component has consumed them.
  */
@@ -27,10 +27,12 @@ export function physicalShapeBounds(
   pose: P.ITransform,
   shape: P.IShape,
 ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } {
-  const center: IAutoMovieVector3 = Vector3.add(
-    pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
-  );
+  // The rotated offset is fresh, so translation can reuse its storage.
+  const center: IAutoMovieVector3 = Quaternion.rotateVector(pose.rotation, shape.transform.position);
+  center.x = pose.position.x + center.x;
+  center.y = pose.position.y + center.y;
+  center.z = pose.position.z + center.z;
+  if (shape.kind === "sphere") return sphereBounds(center, shape.radius);
   const rotation: P.ITransform["rotation"] = Quaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
@@ -103,10 +105,10 @@ export namespace physicalShapeBounds {
     shape: P.IShape,
     takeHullPoint?: (point: IAutoMovieVector3) => void,
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } {
-    let extent: IAutoMovieVector3;
     if (shape.kind === "sphere")
-      extent = { x: shape.radius, y: shape.radius, z: shape.radius };
-    else if (shape.kind === "capsule") {
+      return sphereBounds(center, shape.radius);
+    let extent: IAutoMovieVector3;
+    if (shape.kind === "capsule") {
       const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
       extent = {
         x: Math.abs(axis.x) * shape.halfLength + shape.radius,
@@ -162,6 +164,17 @@ export namespace physicalShapeBounds {
       max: Vector3.add(center, extent),
     };
   }
+}
+
+/** A sphere's six original centre-plus/minus-radius expressions need no orientation. */
+function sphereBounds(
+  center: IAutoMovieVector3,
+  radius: number,
+): { min: IAutoMovieVector3; max: IAutoMovieVector3 } {
+  return {
+    min: { x: center.x - radius, y: center.y - radius, z: center.z - radius },
+    max: { x: center.x + radius, y: center.y + radius, z: center.z + radius },
+  };
 }
 
 /** Fixed unit directions are read without mutation by quaternion rotation. */

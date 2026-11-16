@@ -70,7 +70,7 @@ export namespace HumanMountOff {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the side, place the standing feet, time the descent, find when each foot leaves and lands, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The side defaults to the left only for a seat the entered sit names as astride; after any other entry the composition states it. The timing shares and the constants of `HumanMount` are provisional and named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning scans the time at 60 Hz three times, each step one forward-kinematics pass of the pelvis; a posture costs one such pass and the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The floor places and the feet's instants are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The floor places and foot instants are computed once per instance. Current hand-resting observations borrow parent FK/ROM metadata through seated.arms only during the synchronous posture call, retaining actual joint admission and all relevant fits.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
    */
   export function plan(
@@ -313,7 +313,12 @@ export namespace HumanMountOff {
       ],
       contacts,
       base: { kind: "standing" },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
         const standing: IHumanPosture["limbs"] = legged(frame.root, landing);
@@ -352,6 +357,8 @@ export namespace HumanMountOff {
           body,
           { ...frame, roll: 0, limbs },
           1 - minimumJerk.share(t / (0.3 * duration)),
+          resolution,
+          projection,
         );
       },
     };

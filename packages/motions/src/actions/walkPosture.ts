@@ -4,6 +4,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -49,8 +50,8 @@ export function walkPosture(
   arms: number,
   elbows: number,
   steps: walkSteps.IPlan,
-  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number) => ISettled,
-): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[]) => IHumanPosture {
+  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => ISettled,
+): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IHumanPosture {
   let upright: standUpright.IAlignment | undefined;
   let relaxed: IHumanPosture["joints"] | undefined;
   let abduction: number | undefined;
@@ -63,12 +64,13 @@ export function walkPosture(
     seconds: number,
     legs: readonly ("left" | "right")[] = walkReach.SIDES,
     channels?: readonly AutoMovieMotionHumanChannel[],
+    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
   ): IHumanPosture => {
     const t: number = Math.min(steps.duration, Math.max(0, seconds));
     const phase: number = steps.phase(t);
     const amount: number = steps.amount(t);
     const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-    const { feet, hips, settled, reached }: ISettled = solve(t, legs, phase, amount);
+    const { feet, hips, settled, reached }: ISettled = solve(t, legs, phase, amount, resolution);
     const root: IAutoMovieVector3 = settled.root;
     const yaw: number = settled.yaw;
 

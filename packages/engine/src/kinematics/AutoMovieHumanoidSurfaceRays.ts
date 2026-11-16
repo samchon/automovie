@@ -79,27 +79,22 @@ export namespace AutoMovieHumanoidSurfaceRays {
     frame: P.ITransform,
     shape: P.IShape,
   ): Exit {
-    const centre: IAutoMovieVector3 = Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, shape.transform.position),
-    );
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      frame.rotation,
-      shape.transform.rotation,
-    );
+    const centre: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, shape.transform.position);
+    centre.x = frame.position.x + centre.x;
+    centre.y = frame.position.y + centre.y;
+    centre.z = frame.position.z + centre.z;
     if (shape.kind === "sphere")
       return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => sphereExit(origin, d, centre, shape.radius);
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, shape.transform.rotation);
     if (shape.kind === "capsule") {
       const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
         x: 0,
         y: 1,
         z: 0,
       });
-      const a: IAutoMovieVector3 = Vector3.subtract(
-        centre,
-        Vector3.scale(axis, shape.halfLength),
-      );
-      const b: IAutoMovieVector3 = Vector3.add(centre, Vector3.scale(axis, shape.halfLength));
+      const halfAxis: IAutoMovieVector3 = Vector3.scale(axis, shape.halfLength);
+      const a: IAutoMovieVector3 = Vector3.subtract(centre, halfAxis);
+      const b: IAutoMovieVector3 = Vector3.add(centre, halfAxis);
       return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => {
         let far: number = Math.max(
           sphereExit(origin, d, a, shape.radius),
@@ -219,7 +214,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
    * @evidence contracts/development/implementation.md#principled-implementation The rest pose resolved once; bounds are the union of the colliders' exact bounds; a ray's exit is the farthest exit over the segment's convex colliders, its normal that collider's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest pose and first-name index serve the bundle; lazy bounds and fixed rest-shape exit/physical-normal reader pairs keep invariant geometry separate from every current station, ray and normal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bone, segment or hit still throws. Every current ray tests all original colliders with the same discriminants, plane/slab order, BOUNDARY and 1e-12 branches; only fixed frames, capsule axes/endpoints and hull planes are prepared.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose and O(S) index precede lazy segment bounds/exits. Fixed rest transforms/capsule ends serve rays; only a winning normal's first point prepares its axis/inverse/planes. Local-frame conversion compares four copied rest quaternion coordinates before reusing its inverse. Hull bounds rotate V points once per segment; actual rays retain all collider/face work and returned bounds copy six coordinates.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose and O(S) index precede lazy bounds/exits. Each fixed exit composes centre in its owned rotated offset without another vector, and a sphere omits unused orientation. Fixed rest geometry serves rays; only winning normals prepare axes/inverses/planes. Local conversion compares four copied quaternion coordinates before inverse reuse. Hull bounds rotate V points once; actual rays retain collider/face work and bounds copy six coordinates.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged rig/profile epoch proves equal bounds and shape frames; a genuine profile-bound handle can share exact extrema from preceding measurement. Local inverses additionally compare all four actual rest quaternion coordinates with Object.is, recomputing after an edited at result. Duplicate precedence, every ray/point/direction and outward normal remain current.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bundle owns O(B) rest data/copied inverse keys, O(S) names/bounds and one fixed exit per queried collider. A normal reader is acquired only after that collider wins. The caller releases all on completion or throw; no query point/result enters these maps and no body-global pose or ray history is retained.
    */

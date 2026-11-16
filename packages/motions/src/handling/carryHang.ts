@@ -87,9 +87,9 @@ export namespace carryHang {
    * @evidence contracts/development/implementation.md#principled-implementation Each wrist is a place below its shoulder on the posture of each second, the hand turned as it holds the prop at the start, and the arm carried there from the carrier's own arm by the settle's envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Sides, duration, the held fingers, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive length throws; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each active frame demands only the carrying shoulders' trunk FK; the carrier's full posture is resolved for baseline arm angles only during the settle, since carry returns the goal posture unchanged at share one. Empty carries read only their base posture.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry hand turns and finger tuples are prepared once; each changing carrier posture still supplies the original shoulder placement and actual settle solve.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the hands' rotations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each active frame demands only carrying shoulders and shares one yaw transform across both wrist/bend placements. The carrier's full posture supplies baseline arm angles only during settle, since carry returns the goal body unchanged at share one. Empty carries read only their base body; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry hand turns and finger tuples prepare once; each changing carrier posture still supplies its original shoulder and settle solve. Optional same-person FK/ROM loans pass through the complete carrier, raw shoulder FK, actual baseline seeded solve and carry without changing their source policies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original base/hand geometry; optional current-call FK/ROM inputs are borrowed only synchronously and never retained in the plan, goals, returned posture or a time history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -151,13 +151,16 @@ export namespace carryHang {
               `${side}Hand` as const,
             ]),
           }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = base.posture(t);
+        const posture: IHumanPosture = base.posture(t, undefined, resolution, projection);
         if (sides.length === 0) return posture;
         const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
         const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          HumanTrunk.resolve(body, posture, undefined, undefined, shoulders);
+          HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
+        const heading: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw });
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const side of sides) {
@@ -167,27 +170,28 @@ export namespace carryHang {
           const sign: number = side === "left" ? 1 : -1;
           limbs[`${side}Arm`] = {
             point: {
-              ...HumanFrame.point(
-                { origin: shoulder, yaw: posture.yaw },
+              ...heading.point(
                 { x: sign * OUT * body.measure.shoulderHalfWidth, y: 0, z: 0 },
+                shoulder,
               ),
               y: shoulder.y - HANG * arm,
             },
             rotation: turns[side]!,
-            bend: HumanFrame.point(
-              { origin: shoulder, yaw: posture.yaw },
+            bend: heading.point(
               {
                 x: sign * 0.2 * body.measure.upperArm,
                 y: -0.5 * arm,
                 z: -0.1 * arm,
               },
+              shoulder,
             ),
           };
           Object.assign(joints, fingers[side]);
         }
         const carrying: IHumanPosture = { ...posture, joints, limbs };
         if (share >= 1) return carrying;
-        const walked: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(body, posture);
+        const walked: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(body,
+          posture, undefined, undefined, resolution, undefined, projection).pose;
         const run: Partial<
           Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
         > = Object.fromEntries(
@@ -201,6 +205,9 @@ export namespace carryHang {
           carrying,
           run,
           share,
+          undefined,
+          resolution,
+          projection,
         );
       },
     };

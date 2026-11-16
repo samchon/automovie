@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchPath } from "../compose/AutoMovieMotionHumanTouchPath";
+import type { IAutoMovieMotionHumanTouch } from "../compose/IAutoMovieMotionHumanTouch";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanPerception } from "../law/HumanPerception";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -62,7 +63,7 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure clock-window comparison performs no repeated geometry preparation or physical query.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function holding(
@@ -123,20 +124,25 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the reading.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader closes over its two readings.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Forwards only the current caller's genuine same-body ROM and exact FK loans to the selected actual region reader; the ready/relax branch, exact seconds and target reader stay unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains only its two callbacks and fixed window values; each forwarded ROM/FK loan belongs to the current synchronous query and is never retained.
    */
   export function region(
     clock: AutoMovieMotionClock.IClock,
-    perceived: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
-    held: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
-  ): (posture: IHumanPosture, seconds: number) => touchSite.IFrame {
+    perceived: IAutoMovieMotionHumanTouch["region"],
+    held: IAutoMovieMotionHumanTouch["region"],
+  ): IAutoMovieMotionHumanTouch["region"] {
     const ready: number = clock.at("ready");
     const relax: number = clock.at("relax");
-    return (posture: IHumanPosture, seconds: number): touchSite.IFrame =>
+    return (
+      posture: IHumanPosture,
+      seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanTouch["region"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanTouch["region"]>[3],
+    ): touchSite.IFrame =>
       seconds > ready && seconds < relax
-        ? held(posture, seconds)
-        : perceived(posture, seconds);
+        ? held(posture, seconds, resolution, projection)
+        : perceived(posture, seconds, resolution, projection);
   }
 
   /**
@@ -222,9 +228,9 @@ export namespace touchHold {
     context: Pick<IHumanActionContext, "performer" | "start">,
     target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: AutoMovieMotionClock.IClock,
-    perceived: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
+    perceived: IAutoMovieMotionHumanTouch["region"],
   ): {
-    region: (posture: IHumanPosture, seconds: number) => touchSite.IFrame;
+    region: IAutoMovieMotionHumanTouch["region"];
     others: (
       posture: IHumanPosture,
       seconds: number,
@@ -233,8 +239,12 @@ export namespace touchHold {
     const at: number = clock.at("start");
     const colliders: ReturnType<typeof others> = others(context, target, clock);
     return {
-      region: (posture: IHumanPosture): touchSite.IFrame =>
-        perceived(posture, at),
+      region: (
+        posture: IHumanPosture,
+        _seconds: number,
+        resolution?: Parameters<IAutoMovieMotionHumanTouch["region"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanTouch["region"]>[3],
+      ): touchSite.IFrame => perceived(posture, at, resolution, projection),
       others: (
         posture: IHumanPosture,
       ): { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] } =>

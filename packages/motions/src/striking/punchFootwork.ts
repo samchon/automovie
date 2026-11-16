@@ -167,7 +167,7 @@ export namespace punchFootwork {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The feet's travel first, then the posture per second, then the contact windows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A planted foot is never moved by the trunk's clock; the stance keeps its length when a step is arrested.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the lower body's fit.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each posture is a different second; the geometry that holds the footwork is built once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once; each actual posture shares only its own repeated opening/dragging phase values between the two identical lift factors. Changed seconds and arrest/derivative evaluations remain independent, with no new phase or pose history.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the entry's two foot placements, released with the geometry.
    */
   export function create(props: IProps): IFootwork {
@@ -261,10 +261,10 @@ export namespace punchFootwork {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const followed: number = follow(t);
-      const firstLift: number = stepping ? lift * 4 * out(t) * (1 - out(t)) : 0;
-      const nextLift: number = stepping
-        ? lift * 4 * dragged(t) * (1 - dragged(t))
-        : 0;
+      const opening: number = stepping ? out(t) : 0;
+      const dragging: number = stepping ? dragged(t) : 0;
+      const firstLift: number = stepping ? lift * 4 * opening * (1 - opening) : 0;
+      const nextLift: number = stepping ? lift * 4 * dragging * (1 - dragging) : 0;
       const leadFoot: HumanFoot.IPlacement = StrikingTarget.slide(
         feet[lead],
         line,

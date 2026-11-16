@@ -34,15 +34,15 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @param axes The mid bone's axes, below any skeleton-declared override.
  * @param rotation Requested model-frame effector rotation.
  * @param rig Optional lazy workspace rig under the same source, prepared frames and clinical mappings; target results remain scorer-local.
- * @returns A per-fit scorer of bone-local upper/lower rotations. Its optional third input is the exact completed (prepared upper world * this upper) * fixed lower frame for the same candidate.
+ * @returns A per-fit scorer of bone-local upper/lower rotations. Keep each candidate unchanged through its synchronous call; scalar edits between calls are reread. Its optional third input is the exact completed (prepared upper world * this upper) * fixed lower frame for the same candidate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines degree-valued displayed error, fixed intermediate frame, shared final split/projection, immutable fit premises and actual residual reporting.
  * @evidence contracts/development/implementation.md#principled-implementation Prepared FK composes the candidate's exact completed prefix or recomputes it in the original grouping. solveDistalTwist and prepareJointRotationProjection are final display's same owners, and the selected raw effector composition is reused before the original world normalization and angle read.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Per-fit bases, clamps and projection precede one candidate closure. It reads lower angles once per shared quaternion record, applies the shared split and projection, and scores the shown world rotation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Per-fit bases, clamps and projection precede one candidate closure. It reads lower angles once per unchanged scalar quaternion, commits only successful readings, applies the shared split/projection and scores the shown world rotation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Skeleton axes/ROM and the last authored effector match full FK. No forced-zero residual or claim that the five distal candidates globally solve the combined joints replaces actual composition.
  * @evidence contracts/development/implementation.md#efficient-algorithms Standalone setup is O(B+J); a workspace rig shares fixed lookup/basis/clamp/projector data across its target fits. A non-distal candidate queries once. A distal candidate makes at most five twist-score queries; its winning projection also serves final display whenever the recomputed local demand is component-identical, otherwise one final query runs. Eligible queries score at most nineteen unique actual articulations; generic fallback retains four sweeps and at most 528 recompositions. Chain FK/final world-error work remains, and runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares admitted bases, clamps, held raw/inverse, fixed effector data and projector. This target scorer shares one immutable lower record's clinical/raw/untwisted readings and one exact-angle composer while every actual angle/frame check and fresh product remains. A supplied upper prefix belongs to this candidate. The selected distal score's raw projected articulation is reused only after its actual clamped lower joint is recomposed and all four resulting local-demand components match with Object.is; otherwise the final query still runs. Final world composition/normalization/error use the original requested rotation. No candidate or target answer crosses scorers.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target fit releases its scorer, latest lower clinical joint/raw/untwisted readings and standalone held raw/inverse readings; each is constant-size. Shared source-held raw/inverse and projector remain owned by the caller's workspace. Same-query paired projection avoids another raw composition without retaining an answer across queries; no global handle or growing result cache exists.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares admitted bases, clamps, held raw/inverse, fixed effector data and projector. This scorer reuses lower clinical/raw/untwisted readings only after all four current components match its private Object.is snapshot, preserving signed zero and mutable caller-record updates. It commits that snapshot only after successful decomposition and non-distal clamp/composition, so a failure cannot identify old data as current. Angle/frame admissions and fresh products remain. Distal projection reuse additionally requires an exactly identical recomputed local demand; final world error still uses the original requested rotation, without an answer crossing scorers.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target fit releases its scorer, private four-scalar lower snapshot, latest lower clinical/raw/untwisted readings and standalone held raw/inverse data; each is constant-size and the caller's lower quaternion record is not retained. Shared source-held data/projector remain the workspace's. Paired projection is same-query only, with no global handle or growing result cache.
  */
 export function fitHingedRotationError(
   props: IFitChainToTargetProps,
@@ -106,8 +106,9 @@ export function fitHingedRotationError(
     effector: clampEffector,
   };
 
-  // Bend candidates can share one immutable lower quaternion record.
-  let seen: IAutoMovieQuaternion | undefined;
+  // Own the successful scalar snapshot, so reused caller records can change
+  // between queries and a failed conversion cannot mark old data as current.
+  let lowerComponents: readonly [number, number, number, number] | undefined;
   let lowerJoint: IAutoMovieJointPose | undefined;
   let clamped: IAutoMovieQuaternion | undefined;
   let heldRotation: IAutoMovieQuaternion | undefined;
@@ -168,22 +169,30 @@ export function fitHingedRotationError(
       Quaternion.multiply(prepared.upper.worldRotation, upper),
       prepared.lowerRotation,
     );
-    if (seen !== lower || lowerJoint === undefined) {
-      seen = lower;
+    const x: number = lower.x;
+    const y: number = lower.y;
+    const z: number = lower.z;
+    const w: number = lower.w;
+    if (lowerJoint === undefined || lowerComponents === undefined ||
+      !Object.is(lowerComponents[0], x) || !Object.is(lowerComponents[1], y) ||
+      !Object.is(lowerComponents[2], z) || !Object.is(lowerComponents[3], w)) {
       const angles: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
         lower,
         lowerBasis,
         lowerFrame,
         prepared.lowerDomain,
       );
-      lowerJoint = { bone: props.chain.lower, ...angles };
-      lowerReadings = undefined;
-      clamped =
+      const admitted: IAutoMovieJointPose = { bone: props.chain.lower, ...angles };
+      const nextClamped: IAutoMovieQuaternion | undefined =
         lowerBasis.twistPlacement === "distal"
           ? undefined
           : lowerRotation(
-              clampLower({ ...lowerJoint }),
+              clampLower({ ...admitted }),
             );
+      lowerJoint = admitted;
+      lowerReadings = undefined;
+      clamped = nextClamped;
+      lowerComponents = [x, y, z, w];
     }
     const joint: IAutoMovieJointPose = lowerJoint;
     let projected: solveDistalTwist.IProjection | undefined;

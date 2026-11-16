@@ -280,6 +280,7 @@ function create(
   const d: Float64Array = new Float64Array(n).fill(1);
   const e: Float64Array = new Float64Array(m).fill(1);
   let c: number = 1;
+
   // These buffers never enter a numeric core. The first fill/set of every
   // pass overwrites them completely, including after a failed preparation.
   const scaling: HumanQuadraticPreparation.IPrepared["scaling"] =

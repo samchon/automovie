@@ -22,9 +22,6 @@ type ICachedHistory = integrateAirborneRotation.ICachedHistory;
 /** Only actual numeric instants issued by this factory have prepared ownership. */
 const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> = new WeakMap();
 
-/** One boundary stencil needs the query, its shifted centre and its two ends. */
-const STENCIL_NODES: number = 4;
-
 /** One shape epoch can share an unchanged adjacent principal rotation. */
 interface IPrincipalOwner {
   /** An uncomputed instant initially points at its existing history owner. */
@@ -66,16 +63,17 @@ interface IPrincipalTensor {
  *
  * Difference is the existing central half-interval in seconds. A span moves
  * its stencil inside the flight and preserves the quadratic one-sided
- * correction at either boundary. An optional prepared model is borrowed;
- * its caller releases it after clearing this history, including on refusal.
+ * correction at either boundary. The model and pure shape stay unchanged
+ * throughout the reuse epoch. An optional prepared model is borrowed; its
+ * caller releases it after clearing this history, including on refusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, difference seconds, boundary correction and separate history/model ownership. Namespace inverse reads only factory-issued instants, returns undefined for a general history output, validates copied principal coordinates and lends an immutable root-to-principal value to the ODE/dense consumers.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and principal-axis owners and the same two-pose rigid-body momentum formula; boundary correction retains the derivative of the quadratic interpolant with the unchanged difference interval.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the model's pose and interval reducers together, then share one bounded exact-node reader and momentum reducer across numeric history queries.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact time reads the actual pure shape; no interpolation, time quantization, reduced stencil or changed physical check replaces evaluation. A private issued-instant registration alone proves only provenance: inverse additionally checks all four actual quaternion coordinates, never trusting a public prepared flag.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each query needs at most four numeric posed nodes and O(S) mass work; a four-node LRU hit omits repeated shape/IK/FK. One exact last 3x3 tensor additionally avoids repeated Jacobi work after nine Object.is matches, without omitting the current tensor sum or relative-momentum stencil. Shape suppliers may request mass-bearing FK and prepared models share unchanged transforms; runtime gains remain unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under one unchanged shape/model/span identifies I/h; four recent posed nodes share stencil overlap and fixed boundaries share momenta. A copied last tensor proves equal principal numbers only after all nine actual entries match, with fresh returned vectors and invalidation before a failed solve. Issued-instant inverse provenance separately checks copied quaternion coordinates. Every changed/evicted value computes normally and no momentum/target answer is reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources History owns O(N) I/h instants and weak inverse registrations, two boundary moments, four O(S) numeric mass nodes and one fixed-size tensor/principal record. clear unregisters N instants, clears all maps and drops both last numeric records; no full pose or raw bone map is retained. A borrowed model separately owns O(S) state released by its planning caller.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the model's pose and interval reducers together, then share one exact numeric-node reader and momentum reducer across this history's entire operation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every first demanded exact shape node evaluates the actual pure shape; no interpolation, time quantization, reduced stencil or changed physical check replaces it. Only numeric mass parts and their centre survive that read. Private issued-instant provenance plus actual quaternion checks, never a public prepared flag, establish inverse reuse.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each query uses at most four distinct numeric nodes and O(S) mass work. Across N distinct I/h queries, at most 3N+6 exact nodes each perform shape/IK/FK once, including repeated endpoints separated by other queries/trials. One last exact 3x3 tensor can additionally omit Jacobi after nine matches; actual sums/stencils remain. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under this unchanged pure shape/model/span fixes numeric mass parts and I/h, sharing any previous endpoint without an eviction distance. The private nodes additionally share owned principal-moment vectors only after three Object.is matches; changed moments receive another vector rather than changing old nodes. No node part escapes through public pose/instant outputs. Tensor/principal keys and physical reductions remain unchanged; no shooting target, raw pose or IK answer is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources For N queries and S fixed model parts, history owns at most 3N+6 numeric mass nodes, O(N*S), plus O(N) I/h/inverses, two boundary moments and one last tensor. Shared private moments cost 3S numeric fields; each node retains 8S+3 remaining fields, before map keys/object/array overhead whose heap bytes depend on runtime. clear empties every node/map/shared-moment list and unregisters instants; no raw bone map/full pose survives posing. Its caller separately releases the O(S) model.
  */
 export function AirborneShapeHistory(
   model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -85,6 +83,7 @@ export function AirborneShapeHistory(
 ): ICachedHistory {
   const instants: Map<number, IInstant> = new Map();
   const poses: Map<number, resolveAutoMovieMomentum.IPosed> = new Map();
+  const intrinsicMoments: (IAutoMovieVector3 | undefined)[] = [];
   const principal: IPrincipalOwner = { kind: "owner" };
   let previousTensor: IPrincipalTensor | undefined;
   const delta: number = span === undefined
@@ -164,21 +163,31 @@ export function AirborneShapeHistory(
     { central: IAutoMovieVector3; change: IAutoMovieVector3 }
   > = new Map();
 
-  // Keep only one stencil's sufficient numeric footprint. A shared exact
-  // endpoint needs neither another displayed solve nor another FK, while
-  // every new or evicted time still reads its actual shape.
+  // A pure shape's sufficient numeric node belongs to this entire history,
+  // including endpoints revisited after other stages or shooting trials.
+  // Raw bones and canonical poses do not enter this operation-owned map.
   const read: (at: number) => resolveAutoMovieMomentum.IPosed = (
     at: number,
   ): resolveAutoMovieMomentum.IPosed => {
     const known: resolveAutoMovieMomentum.IPosed | undefined = poses.get(at);
-    if (known !== undefined) {
-      poses.delete(at);
-      poses.set(at, known);
-      return known;
-    }
+    if (known !== undefined) return known;
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shape(at);
     const posed: resolveAutoMovieMomentum.IPosed = pose(bones);
-    if (poses.size === STENCIL_NODES) poses.delete(poses.keys().next().value!);
+
+    // Nodes never escape this history. Their fixed moments can share a
+    // private numeric copy, while public pose outputs keep their isolation.
+    intrinsicMoments.length = posed.parts.length;
+    for (let i: number = 0; i < posed.parts.length; i++) {
+      const part: resolveAutoMovieMomentum.IPosed["parts"][number] = posed.parts[i]!;
+      let fixed: IAutoMovieVector3 | undefined = intrinsicMoments[i];
+      if (fixed === undefined ||
+          !Object.is(fixed.x, part.inertia.x) || !Object.is(fixed.y, part.inertia.y) ||
+          !Object.is(fixed.z, part.inertia.z)) {
+        fixed = { x: part.inertia.x, y: part.inertia.y, z: part.inertia.z };
+        intrinsicMoments[i] = fixed;
+      }
+      part.inertia = fixed;
+    }
     poses.set(at, posed);
     return posed;
   };
@@ -238,6 +247,7 @@ export function AirborneShapeHistory(
       for (const instant of instants.values()) PRINCIPAL.delete(instant);
       instants.clear();
       poses.clear();
+      intrinsicMoments.length = 0;
       boundaries.clear();
       principal.previous = undefined;
       previousTensor = undefined;

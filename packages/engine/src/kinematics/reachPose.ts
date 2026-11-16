@@ -22,6 +22,7 @@ import { decomposeJointRotation } from "./decomposeJointRotation";
 import { hingedArmArticulation } from "./hingedArmArticulation";
 import { hingedArmSwivel } from "./hingedArmSwivel";
 import { jointRomOvershoot } from "./jointRomOvershoot";
+import { prepareReachJointResolution } from "./prepareReachJointResolution";
 import { resolvePose } from "./resolvePose";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
@@ -52,6 +53,9 @@ interface ISource {
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ) => [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint];
+
+  /** Genuine fixed-clinical source factory; every solve receives independent inverse readers. */
+  jointsFactory?: ReturnType<typeof prepareReachJointResolution>;
 
   /** Actual fixed chain data and its genuine lazy geometric preparation, only for explicit prepare. */
   hingeSource?: {
@@ -101,7 +105,7 @@ interface ISource {
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; an impossible reach returns its least-overshoot pose for the gate to report rather than a clamped one, and every refusal is a structural or geometric fact about the rig.
  * @evidence contracts/development/common.md#meaningful-documentation States clinical output, axis/frame defaults, every null/refusal case and model-metre target units. prepare below defines actual first-source admission, unchanged rig/mapping lifetime, failure retry, complete original candidate search and fresh results.
  * @evidence contracts/development/implementation.md#efficient-algorithms Raw calls retain three bone searches, diagnosis, merged axes and full B-bone rest FK before at most 720 coarse candidates plus the original bounded refinements, each with two clinical decompositions/scorings. prepare shares actual source setup and lazy span/inverse arithmetic once; each target still creates independent geometric readers and all original candidates. Runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit prepare owns actual shoulder FK, merged axes, fixed source records/constraints, clinical lift and genuine hingedArmSwivel source preparation for one unchanged rig/side/frame scope. Each target creates its own matching prepared target; no score or pose crosses solves. Structural null is source diagnosis, never a target miss, and failed source production installs no reading.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit prepare owns actual shoulder FK, fixed source records/constraints and genuine hingedArmSwivel preparation. Its clinical source factory admits each basis at first actual candidate and shares only fixed affine metadata, creating independent inverse readers per target. Each target also creates matching geometric readers; no score or pose crosses solves. Structural null is source diagnosis and failed source production installs no reading.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Raw source/candidates end with the call. A prepared closure borrows fixed rig/frame inputs and owns one actual source result until its synchronous bake ends; it retains no target/history or previous output pose. Every result owns fresh joints, and the native baker returns only numeric keyframes without the preparation.
  */
 export function reachPose(
@@ -146,7 +150,8 @@ export namespace reachPose {
     let source: ISource | null | undefined;
     return (target: IAutoMovieVector3): IAutoMoviePose | null => {
       if (source === undefined) {
-        const reading: ISource | null = sourceOf(skeleton, side, restFrames);
+        const reading: ISource | null = sourceOf(skeleton, side, restFrames, prepareReachJointResolution);
+
         if (reading !== null) {
           const chain: Omit<hingedArmSwivel.IChain, "target" | "range"> = {
             upper: reading.upper,
@@ -169,6 +174,7 @@ function sourceOf(
   skeleton: IAutoMovieSkeleton,
   side: "left" | "right",
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+  prepareJoints?: typeof prepareReachJointResolution,
 ): ISource | null {
   if (side !== "left" && side !== "right") return null;
 
@@ -187,6 +193,7 @@ function sourceOf(
   const upperBone: IAutoMovieBone | undefined = declared(upperName);
   const lowerBone: IAutoMovieBone | undefined = declared(lowerName);
   const handBone: IAutoMovieBone | undefined = declared(handName);
+
   // The solve rotates the hand's rest offset in the lower arm's frame and the
   // lower arm's offset in the upper arm's frame, so they must be one chain.
   if (
@@ -250,13 +257,20 @@ function sourceOf(
   ];
 
   return { skeleton, upper, lowerBone, handBone, lowerAxes,
-    upperConstraint, lowerConstraint, jointsOf };
+    upperConstraint, lowerConstraint, jointsOf,
+    ...(prepareJoints === undefined ? {} : { jointsFactory: prepareJoints({
+      upper: { bone: upperName, axes: upperAxes, constraint: upperConstraint },
+      lower: { bone: lowerName, axes: lowerAxes, constraint: lowerConstraint },
+      frames: restFrames,
+    }) }),
+  };
 }
 
 /** Run every original target/candidate decision on the actual fixed source data. */
 function solve(source: ISource, target: IAutoMovieVector3): IAutoMoviePose | null {
   const { skeleton, upper, lowerBone, handBone, lowerAxes,
-    upperConstraint, lowerConstraint, jointsOf }: ISource = source;
+    upperConstraint, lowerConstraint }: ISource = source;
+  const jointsOf: ISource["jointsOf"] = source.jointsFactory?.() ?? source.jointsOf;
 
   const chain: Omit<hingedArmSwivel.IChain, "target" | "range"> = source.hingeSource?.chain ?? {
     upper,
@@ -270,6 +284,7 @@ function solve(source: ISource, target: IAutoMovieVector3): IAutoMoviePose | nul
     hingedArmArticulation({
       ...chain,
       target,
+
       // Scored through the same clinical decomposition the result is reported
       // in, so the candidate the solver picks is the candidate `validatePose`
       // will grade.

@@ -26,10 +26,10 @@ import { physicalHullFaces } from "./physicalHullFaces";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each kind's normal, edge blend and borrowed fallback. Namespace prepare binds one unchanged admitted frame/shape, prepares only at first actual point and releases its callback with surface resolution; direct calls continue to read mutable current geometry freshly.
  * @evidence contracts/development/implementation.md#principled-implementation A sphere's and a capsule's exact gradient; a polytope's normal as the gradient of the log-sum-exp smooth maximum of its face planes' signed heights, continuous across edges and dominated by the nearest face farther from edges.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One private normal calculation serves direct calls and the prepared callback, with one branch per kind and one plane-list rule. The prepared reader only lends fixed centre/rotation, capsule axis, inverse and planes; the stateless radial helper preserves the same query threshold/fallback without a per-call closure.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One private normal calculation serves direct and prepared calls. Centre composition shares its fresh rotated offset's storage; a sphere returns before unused orientation composition. The prepared reader lends only demanded centre/rotation/axis/inverse/planes, while radial retains the same current-point threshold/fallback.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weights are taken relative to the highest plane, so none overflows; a degenerate normal falls back instead of normalising a zero vector.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work PhysicalHullFaces, quaternion/vector owners and six fixed box normals remain shared. Direct calls read current transforms/extents anew. An explicit prepare caller holds its frame/shape unchanged, allowing exact centre/rotation/axis/inverse/planes to serve actual changing points without caching a normal, fallback, height or weight.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each polytope query computes every current height and exponential in original order, scalar weighted sums and one final vector; two indexed passes omit per-query callbacks. Prepared geometry pays frame/axis/inverse/box-plane construction once and overwrites one reader-owned height workspace rather than allocating another F-element array per point. Direct calls retain no state; SurfaceRays consumes the prepared normals.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each polytope query computes all heights/exponentials in original order, scalar sums and one final vector without callbacks. Centre and capsule-axis point composition each reuse their owned offset instead of another vector; spheres omit unused orientation. Prepared geometry pays demanded frame/axis/inverse/planes once without a wrapper and overwrites one height workspace. Direct calls retain no state; SurfaceRays consumes the prepared normals.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct temporaries release on return. A prepared callback owns one numeric frame, optional axis/inverse, O(F) planes and one O(F) height workspace until its operation ends. Every present plane height is overwritten at each point; no point, fallback, normal result or query population is retained. Only six unit normals live for the module; outputs remain fresh except the original borrowed fallback.
  */
 export function physicalShapeNormal(
@@ -52,8 +52,8 @@ export function physicalShapeNormal(
 export namespace physicalShapeNormal {
   /**
    * Read normals on one unchanged admitted frame/shape during an operation.
-   * The first actual point lazily prepares its composed frame and the kind's
-   * axis/inverse/planes. Every later point retains original radial checks,
+   * The first actual point lazily prepares its needed centre/rotation and
+   * kind's axis/inverse/planes. Every later point retains original radial checks,
    * plane heights, exponential weights, summation order and normalization.
    * Release the callback after surface resolution; geometry edits require
    * another reader. It owns O(F) fixed planes and overwritten height scratch
@@ -96,8 +96,11 @@ const BOUNDARY: number = 1e-9;
 
 /** Fixed metadata and overwritten scalar scratch; no query point or output is retained. */
 interface IPrepared {
-  /** Actual parent/local centre and principal rotation, prepared on first normal demand. */
-  frame?: { centre: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+  /** Actual parent/local centre, prepared at the first normal demand. */
+  centre?: IAutoMovieVector3;
+
+  /** Actual composed rotation, unused by a sphere's radial normal. */
+  rotation?: IAutoMovieQuaternion;
 
   /** Capsule length direction in the query's common frame. */
   axis?: IAutoMovieVector3;
@@ -120,17 +123,14 @@ function normal(
   fallback: IAutoMovieVector3,
   prepared?: IPrepared,
 ): IAutoMovieVector3 {
-  const centre: IAutoMovieVector3 = prepared?.frame?.centre ?? Vector3.add(
-    frame.position,
-    Quaternion.rotateVector(frame.rotation, shape.transform.position),
-  );
-  const rotation: IAutoMovieQuaternion = prepared?.frame?.rotation ?? Quaternion.multiply(
+  const centre: IAutoMovieVector3 = prepared?.centre ?? centreOfShape(frame, shape);
+  if (prepared !== undefined && prepared.centre === undefined) prepared.centre = centre;
+  if (shape.kind === "sphere") return radial(point, centre, fallback);
+  const rotation: IAutoMovieQuaternion = prepared?.rotation ?? Quaternion.multiply(
     frame.rotation,
     shape.transform.rotation,
   );
-  if (prepared !== undefined && prepared.frame === undefined)
-    prepared.frame = { centre, rotation };
-  if (shape.kind === "sphere") return radial(point, centre, fallback);
+  if (prepared !== undefined && prepared.rotation === undefined) prepared.rotation = rotation;
   if (shape.kind === "capsule") {
     const axis: IAutoMovieVector3 = prepared?.axis ?? Quaternion.rotateVector(rotation, {
       x: 0,
@@ -145,7 +145,11 @@ function normal(
         Vector3.dot(Vector3.subtract(point, centre), axis),
       ),
     );
-    return radial(point, Vector3.add(centre, Vector3.scale(axis, along)), fallback);
+    const middle: IAutoMovieVector3 = Vector3.scale(axis, along);
+    middle.x = centre.x + middle.x;
+    middle.y = centre.y + middle.y;
+    middle.z = centre.z + middle.z;
+    return radial(point, middle, fallback);
   }
   const inverse: IAutoMovieQuaternion = prepared?.inverse ?? Quaternion.inverse(rotation);
   if (prepared !== undefined && prepared.inverse === undefined) prepared.inverse = inverse;
@@ -194,5 +198,14 @@ function normal(
 function radial(point: IAutoMovieVector3, from: IAutoMovieVector3, fallback: IAutoMovieVector3): IAutoMovieVector3 {
   const r: IAutoMovieVector3 = Vector3.subtract(point, from);
   return Vector3.length(r) > BOUNDARY ? Vector3.normalize(r) : fallback;
+}
+
+/** The rotated offset is exclusively owned, so parent translation needs no second vector. */
+function centreOfShape(frame: P.ITransform, shape: P.IShape): IAutoMovieVector3 {
+  const centre: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, shape.transform.position);
+  centre.x = frame.position.x + centre.x;
+  centre.y = frame.position.y + centre.y;
+  centre.z = frame.position.z + centre.z;
+  return centre;
 }
 
