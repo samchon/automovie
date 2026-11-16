@@ -14,7 +14,7 @@ The model's accepted inputs and output limits determine how scenes become reques
 2. Write the [shared description](diffusion/prompts.md#shared-description).
 3. Prepare the canon references under [image](../image/SKILL.md).
 4. Plan each scene's [requests](requests.md).
-5. Prepare any shot frame a request takes under [image](../image/conditioning.md#shot-frames).
+5. Prepare any shot frame a request takes under [image](../image/diffusion/conditioning.md#shot-frames).
 6. Decide each request's sound under [audio](../audio/generated-sound.md).
 7. Write each request's [prompt](diffusion/prompts.md).
 8. Submit, inspect and adopt takes under [generation](generation.md).

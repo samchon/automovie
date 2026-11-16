@@ -6,7 +6,7 @@ The chosen model determines how the motion hint reaches it. Each method preserve
 
 Edit or restyle the hint video when positions, timing and camera must follow it closely while surfaces change. An edit can zoom or recenter the frame; state that framing holds and check by overlay.
 
-Use the hint as a reference video when appearance matters more than exact placement. Motion and camera are followed loosely, with [keyframe images](../../image/conditioning.md#shot-frames) holding appearance at their instants. Wording distinguishes editing from referencing and says what each reference supplies.
+Use the hint as a reference video when appearance matters more than exact placement. Motion and camera are followed loosely, with [keyframe images](../../image/diffusion/conditioning.md#shot-frames) holding appearance at their instants. Wording distinguishes editing from referencing and says what each reference supplies.
 
 ## Layout and control adapters
 

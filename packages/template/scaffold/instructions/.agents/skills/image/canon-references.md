@@ -4,7 +4,7 @@ Canon references are a subject's frozen images, the source of its look for every
 
 ## Views
 
-For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Give each subject the number and form of references that guide sets, within its size and aspect limits. Many models cap images per request rather than per subject, so make only the views the shots' subjects need.
+For a generated film, choose the [video model](../video/SKILL.md) first; its guide determines reference views and limits. Budget the request's inputs across its subjects, making only the views the shots need.
 
 Where the guide sets none, give each character separate images, one person in each, sharp, with the face unobstructed, on a plain background with flat light and the canonical wardrobe:
 
@@ -18,9 +18,9 @@ Where the chosen model's terms reject references with real human faces or minors
 
 ## Prompts
 
-Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the video prompts' [shared description](../video/diffusion/prompts.md#shared-description) uses the same words, and the same words keep the same subject in both. Name each garment and its color every time, because references carry a face more surely than clothes. [Prompting](prompting.md) owns the rest of the prompt.
+Use the subject's record wording and the film's medium or rendering style, shared with the video prompts' [description](../video/diffusion/prompts.md#shared-description). Name each garment and its color alongside the references. [Prompting](diffusion/prompting.md) owns the rest of the request.
 
-A canon reference or plate needs no render beside its prompt, except where [control images](conditioning.md#control-images) set one.
+A canon reference or plate needs no render beside its prompt, except where [control images](diffusion/conditioning.md#control-images) set one.
 
 ## States
 
