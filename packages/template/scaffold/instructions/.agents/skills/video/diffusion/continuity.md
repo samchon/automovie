@@ -14,7 +14,7 @@ An extend mode often takes no hint and keeps only the last frame or seconds as c
 
 Give every request the same canon references and the [shared description](prompts.md#shared-description), because each request knows nothing of the last. Rely on the references for identity, never on a seed, which [media records](../../production/media-records.md#records) explains does not reproduce a file.
 
-Where the model offers an element or subject, bind a character's references into it; some models accept only photoreal people there. For a character that recurs across many requests, a [custom checkpoint](models.md) can also take a [character LoRA](../../image/consistency.md#character-lora) trained on the frozen canon references and accepted shot frames or takes, never on the coarse hint. A character's generated voice is kept under [generated sound](../../audio/generated-sound.md).
+Where the model offers an element or subject, bind a character's references into it; some models accept only photoreal people there. For a character that recurs across many requests, a [custom checkpoint](models.md#layout-and-structural-control) can also take a [character LoRA](../../image/consistency.md#character-lora) trained on the frozen canon references and accepted shot frames or takes, never on the coarse hint. A character's generated voice is kept under [generated sound](../../audio/generated-sound.md).
 
 ## Seams
 
