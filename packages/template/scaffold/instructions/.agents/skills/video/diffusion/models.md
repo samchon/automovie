@@ -17,7 +17,9 @@ These current models show how differently a model takes the motion hint, sets [a
 | DiffusionRenderer, open weights | Base color, normal, depth, roughness and metallic channels, with an HDR environment map for light | None; it keeps the channels and computes the light | Not documented | [Repository](https://github.com/nv-tlabs/diffusion-renderer) |
 | Wan VACE, open weights | Depth, pose, scribble, flow, layout or mask channels | Each channel's strength and masks | Extension from the previous clip's first or last frames | [VACE](https://github.com/ali-vilab/VACE), [Wan2.1](https://github.com/Wan-Video/Wan2.1) |
 
-Hosted models take the hint as RGB video at most and derive any other channel from it themselves; open models with control adapters also take rendered depth, edge or pose videos.
+The selected endpoint decides which channels reach the model: some services accept only RGB video and estimate controls internally, while others accept rendered depth, edge or pose videos.
+
+A custom checkpoint and compatible character LoRA are another option when references give too little control over appearance or a suitable LoRA already exists. An image checkpoint such as Pony V6 XL needs a compatible video module such as [AnimateDiff SDXL](https://github.com/guoyww/AnimateDiff/blob/sdxl/README.md). Run locally or through a hosted ComfyUI API such as [ComfyDeploy](https://docs.comfydeploy.com/docs/api/inputs), checking the combination under [model documentation](SKILL.md#model-documentation) and identity on actual takes under [first path](../generation.md#first-path).
 
 Read each model's terms and usage policy before adopting it: territory limits, rejected reference content such as real faces or minors, [billing and suspension for refused jobs](https://docs.dev.runwayml.com/api-details/moderation/), revenue thresholds and labeling duties for open weights, and the price per second.
 
