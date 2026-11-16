@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanAuditContact } from "./AutoMovieMotionHumanAuditCon
 import { AutoMovieMotionHumanAuditPartner } from "./AutoMovieMotionHumanAuditPartner";
 import { AutoMovieMotionHumanAuditRange } from "./AutoMovieMotionHumanAuditRange";
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
+import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
 import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
@@ -42,8 +43,14 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  *   of mass stays over them.
  * - `skate`, `loose`, `afloat`: a foot the motion shows on the floor does
  *   not skate, and a declared plant is neither loose nor afloat.
+ * - `statics`: while a held body's bearing contacts all declare their load,
+ *   the load-weighted contact centre lies under the centre of mass within
+ *   2 % of stature (`AutoMovieMotionHumanAuditStatics`).
  * - `range`: every joint stays within its range of motion, within
  *   `ROM_TOLERANCE` (0.01 degrees).
+ * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further
+ *   than an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`),
+ *   within `ROM_TOLERANCE`.
  * - `turn`: no bone spins more than 5 turns a second between frames.
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
@@ -99,6 +106,14 @@ export namespace HumanVerdicts {
 
     /** The bounds that do not hold, performer by performer in the order they were given. */
     findings: IFinding[];
+
+    /**
+     * The flights still in the air at the film's end (#3479), each as
+     * `prop@launch-second`: allowed, since a shot into the distance is
+     * legitimate, and so reported apart from the findings. `of` always
+     * fills it; absent from a report built by hand.
+     */
+    unended?: string[];
   }
 
   /**
@@ -216,6 +231,26 @@ export namespace HumanVerdicts {
               ? AutoMovieMotionHumanAuditContact.HEIGHT
               : AutoMovieMotionHumanAuditContact.SPEED,
           );
+        measured(
+          who,
+          who,
+          "statics",
+          AutoMovieMotionHumanAuditStatics.measure(
+            motion,
+            who,
+            person.body,
+            rate,
+          ),
+          AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
+        );
+        measured(
+          who,
+          who,
+          "unloaded",
+          AutoMovieMotionHumanAuditRange.unloaded(motion, posed, who, rate)
+            .overshoot,
+          ROM_TOLERANCE,
+        );
       }
       measured(
         who,
@@ -246,7 +281,17 @@ export namespace HumanVerdicts {
           ).worst,
           SKIN,
         );
-    return { clean: findings.length === 0, findings };
+
+    // Every launched prop's flights, those still airborne at the end apart.
+    const launched: Set<string> = new Set();
+    for (const person of people)
+      for (const s of performance.segments(person.subject))
+        for (const l of s.plan.launches ?? []) launched.add(l.prop);
+    const unended: string[] = [];
+    for (const prop of launched)
+      for (const f of performance.flights(prop))
+        if (f.end === Infinity) unended.push(`${prop}@${f.launch.toFixed(3)}`);
+    return { clean: findings.length === 0, findings, unended };
   }
 
   /**

@@ -1,21 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, person, scene, to }: typeof SceneBuild = SceneBuild;
-
-/**
- * A ball resting on the floor, as a kick's target: its centre a football's
- * radius up (0.11 m), ahead of where the support foot plants.
- *
- * @param x To the left of a person facing +Z, metres.
- * @param z Forward, metres.
- * @returns The target.
- */
-const ball = (x: number, z: number): Record<string, unknown> => ({
-  kind: "point",
-  at: { x, y: 0.11, z },
-  frame: "world",
-});
+const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
 
 /** The sport scenes composed from the lexicon's sport families of #3392. */
 export const SCENES_GAMES: readonly IScene[] = [
@@ -58,6 +44,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { pit: "pitcher", bat: "batter", cat: "catcher", fie: "fielder" },
       needs: [],
+      refusedUntil: 3552,
       view: "side",
     },
     "baseball",
@@ -92,6 +79,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { v1: "libero", v2: "setter", v3: "hitter", v4: "blocker" },
       needs: [],
+      refusedUntil: 3550,
     },
     "volleyball",
     [
@@ -119,7 +107,7 @@ export const SCENES_GAMES: readonly IScene[] = [
     [
       person("kic", "m1", 0, 0, 0, [
         act("dash", { to: to(0, 1) }),
-        act("kickRight", { ball: ball(0, 1.3) }),
+        act("kickRight", { ball: "ball" }),
       ]),
       person("kee", "m2", 0, 11, 180, [
         act("crouch", { hold: 0.5 }),
@@ -131,6 +119,8 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("slidingTackle"),
       ]),
     ],
+    // The ball on the spot, ahead of where the kicker's run ends.
+    [object("ball", "createBall", "football", 0, 1.3)],
   ),
   scene(
     {
@@ -195,7 +185,7 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("aSkip"),
         act("buttKicks"),
         act("strides", { to: to(-1.5, 0) }),
-        act("fosburyFlop", { to: to(0, 0), bar: 1.2 }),
+        act("fosburyFlop", { to: to(0, 0), bar: "bar" }),
       ]),
       person("pv", "m1", -6, 3, 90, [
         act("bSkip"),
@@ -204,6 +194,13 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("leap", { to: to(-4, 3) }),
         act("dash", { to: to(-1, 3) }),
       ]),
+    ],
+    // The uprights across the jumper's run along +X, the crossbar at the
+    // 1.2 m the scene jumped before, between the take-off and the landing.
+    [
+      object("bar", "createHighJump", "highJump", -0.6, 0, 90, 0, {
+        height: 1.2,
+      }),
     ],
   ),
   scene(
@@ -257,6 +254,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { w1: "winner", w2: "runner-up", w3: "third" },
       needs: [],
+      refusedUntil: 3553,
     },
     "victory",
     [
@@ -293,10 +291,16 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("run", { to: to(0, 3), pace: "jog" }),
       ]),
       person("ca", "f1", 0, 5, 180, [
-        act("catchObject", { from: "th", hands: "two" }),
+        act("catchObject", { from: "th", hands: "two", ball: "handball" }),
         act("jump", { to: to(0, 4.6) }),
       ]),
-      person("ki", "m2", 2, 2, 270, [act("kickBall", { ball: ball(1.7, 2) })]),
+      person("ki", "m2", 2, 2, 270, [act("kickBall", { ball: "football" })]),
+    ],
+    // The ball caught lies at the thrower's feet, as the throw is mimed; the
+    // ball kicked lies ahead of the kicker.
+    [
+      object("handball", "createBall", "handball", 0, 0.3),
+      object("football", "createBall", "football", 1.7, 2),
     ],
   ),
   scene(
@@ -308,6 +312,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { k1: "student", k2: "student", k3: "student" },
       needs: [],
+      refusedUntil: 3552,
     },
     "forms",
     [

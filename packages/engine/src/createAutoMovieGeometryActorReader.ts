@@ -14,6 +14,7 @@ import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES"
 import { resolvePose } from "./kinematics/resolvePose";
 import { sampleMotion } from "./motion/sampleMotion";
 import { sampleClipSequence } from "./resolve/sampleClipSequence";
+import { Transform } from "./math/Transform";
 
 /**
  * Read actor roots, bones and pose summaries from borrowed compiled shots at shot-local seconds; ambiguous actors and unresolved records throw.
@@ -125,7 +126,7 @@ const resolveSelector: (
     spatial.poseRoot === null
       ? bone.worldPosition
       : placeTransformedPoint(
-          { ...spatial.poseRoot, scale: { x: 1, y: 1, z: 1 } },
+          Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
           bone.worldPosition,
         );
   return placeTransformedPoint(spatial.nodeTransform, rootPoint);

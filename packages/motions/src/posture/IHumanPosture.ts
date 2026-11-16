@@ -44,12 +44,35 @@ export interface IHumanPosture {
 
   /** Limb goals solved by inverse kinematics. */
   limbs: Partial<Record<IHumanPosture.Limb, IHumanPosture.IGoal>>;
+
+  /**
+   * A rigid turn of the whole posture about a world point, applied after
+   * the heading: the root's position and rotation and every world limb goal
+   * (its point, its bend and its rotation) go round `about` by `turn`, while
+   * a goal attached to a bone (`on`) moves with its bone. It carries the
+   * orientations the heading's Euler angles cannot blend or read back, such
+   * as a somersault through the vertical or a twist about the long axis of a
+   * pitched body, so `yaw`, `pitch` and `roll` keep meaning the facing a law
+   * reads on the floor plan. Absent for no turn. A planted world goal cannot
+   * go round with the body and is refused with it
+   * (`turnHumanPosture`).
+   */
+  rotation?: IHumanPosture.IRotation;
+
+  /**
+   * Digit goals, each solved by the digit's own inverse kinematics after
+   * every limb, so the arm places the hand first and the digit reaches from
+   * there (`HumanDigitFit`): a fingertip on a key, a thumb pad on a phone's
+   * screen. A digit with a goal takes the fit's angles instead of `joints`.
+   * None when absent.
+   */
+  digits?: Partial<Record<IHumanPosture.Digit, IHumanPosture.IDigitGoal>>;
 }
 /**
  * Companion types of {@link IHumanPosture}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation World-frame goals with a bend hint and an optional end rotation, the inputs of two-bone IK with a pole vector.
+ * @evidence contracts/development/design.md#principled-representation World-frame goals with a bend hint and an optional end rotation, the inputs of two-bone IK with a pole vector; a digit goal is a surface of the distal phalanx on a point with an optional facing.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What laws write and the resolver reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions.
  */
@@ -68,6 +91,15 @@ export namespace IHumanPosture {
     /** A world point the middle joint (elbow or knee) bends toward. */
     bend: IAutoMovieVector3;
 
+    /**
+     * Where an arm's elbow goes when the law leaves it to the body:
+     * `"strain"` takes, among the places that leave the hand's rotation
+     * error least, the one where the arm strains least, read from the fit's
+     * own sweep (`AutoMovieMotionHumanBend.strainOf`), with `bend` serving only
+     * where no place is legal. Absent, `bend` decides; a leg ignores it.
+     */
+    elbow?: "strain";
+
     /** The hand's or foot's world rotation from its rest, when the law sets it. */
     rotation?: IAutoMovieQuaternion;
 
@@ -82,6 +114,9 @@ export namespace IHumanPosture {
      * foot pivots on its ball.
      */
     contact?: IAutoMovieVector3;
+
+    /** Points in the end joint's own frame whose world positions must remain within their bounds of the asked frame. Requires rotation. These hard task limits accompany the contact when a path is planned; a held tool names both ends of its working line. */
+    limits?: readonly IPointLimit[];
 
     /**
      * The bone the goal is attached to, when it moves with the body rather
@@ -133,6 +168,68 @@ export namespace IHumanPosture {
      * (`HumanArmClearance`). Ignored on a leg.
      */
     rests?: readonly HumanColliders.IPlaced[];
+  }
+
+  /**
+   * A point of the effector whose asked place bounds a task's rigid pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the local point and world displacement bound with their units.
+   * @evidence contracts/development/design.md#principled-representation A rigid effector point plus a Euclidean tolerance against the goal's asked world frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by limb goals and trajectory sites; no separate tool constraint type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The law supplies its physical bound and the planner reserves its numerical allowance inside it.
+   */
+  export interface IPointLimit {
+    /** The point from the end joint in its own frame, metres. */
+    contact: IAutoMovieVector3;
+
+    /** The largest displacement from where the goal's point and rotation place it, metres. */
+    bound: number;
+  }
+
+  /** A rigid turn of a whole posture about a world point. */
+  export interface IRotation {
+    /** The point that stays, world metres; normally the centre of mass. */
+    about: IAutoMovieVector3;
+
+    /** The turn, a unit quaternion in the world frame, applied after the heading. */
+    turn: IAutoMovieQuaternion;
+  }
+
+  /** A digit of a hand, by side: the thumb or a finger. */
+  export type Digit = (typeof DIGITS)[number];
+
+  /** The digits of {@link Digit}, as data, the left hand's first, each thumb to little finger. */
+  export const DIGITS = [
+    "leftThumb",
+    "leftIndex",
+    "leftMiddle",
+    "leftRing",
+    "leftLittle",
+    "rightThumb",
+    "rightIndex",
+    "rightMiddle",
+    "rightRing",
+    "rightLittle",
+  ] as const;
+
+  /** One digit's goal: a surface of its distal phalanx on a point. */
+  export interface IDigitGoal {
+    /** Where the surface goes, world metres, or in the posed frame of `on` when given. */
+    point: IAutoMovieVector3;
+
+    /** The outward normal of the surface touched, world (or `on`'s posed frame); the digit's surface is turned to face against it. Any direction when absent. */
+    normal?: IAutoMovieVector3;
+
+    /** Which surface of the digit: its tip or its pad. */
+    surface: "tip" | "pad";
+
+    /**
+     * The bone the goal rides, when it moves with the body: `point` and
+     * `normal` are then in its posed frame, read from the pose as fitted, so
+     * a fingertip on the other hand's palm stays there. A goal on a prop is
+     * written by its law in the world from the prop's frame at the instant.
+     */
+    on?: AutoMovieHumanoidBone;
   }
 
   /** A limb's reference solution: its upper and lower bones' clinical degrees. */

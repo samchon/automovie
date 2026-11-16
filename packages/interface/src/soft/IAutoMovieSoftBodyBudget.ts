@@ -47,6 +47,9 @@ export interface IAutoMovieSoftBodyBudget {
   /** Constraint gathers a worst-case seek costs. */
   worstCaseGathers: number;
 
+  /** Segment pairs a worst-case seek checks for a cord's contact with itself: every pair of segments that share no particle, once per sweep and step; zero for a body that does not declare it. The grid usually checks far fewer, but no lower bound holds for a cord coiled on itself. */
+  worstCaseSelfContactPairs?: number;
+
   /**
    * Authored travel estimate `dt · referenceSpeed / shortestStructuralRestLength`, required to be at most `1` by domain admission. The shortest-edge Infinity sentinel yields `0`, including no-edge lattices and direct-square distance overflow. It uses declared speed and lattice spacing rather than observed motion or collider thickness, so an admitted ratio does not certify continuous collision avoidance.
    */

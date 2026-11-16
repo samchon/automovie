@@ -31,8 +31,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * to side.
  *
  * Scenarios, the carrier walking 2 m, read at five instants 0.35 s apart
- * from 0.5 s after the carry is taken up (the lift into a carry is not
- * planned yet, so the take-up is a transition and not part of the hold;
+ * from 0.5 s after the carry is taken up (these fixtures request no explicit
+ * lift, so the take-up is a transition and not part of the hold;
  * the carried root is solved onto the carrier at every instant by one
  * rule, so a fault is systematic and five instants across more than a
  * stride show it, which keeps ten films near a minute):
@@ -56,8 +56,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. With the lean layer scheduled over the piggyback (`HumanCarriedLean`,
  *    20 degrees forward, the family's stated provisional size), the
  *    carrier's chest tips 20 degrees farther forward than without it,
- *    within 1 degree, at three instants of the walk, and its turn about the
- *    vertical, the walk's counter-rotation, differs by at most 1 degree:
+ *    within 1 degree, at three instants of the walk, and its turn against
+ *    the hips, the walk's counter-rotation, differs by at most 1 degree:
  *    the lean is summed onto the walk's trunk and takes nothing from it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds two-person performances through the public chain and overlay and reads both displayed bodies; a carried body that drifts off the carrier, a carrier whose hands do not hold, or an accepted self-carry fails.
@@ -81,6 +81,8 @@ export function test_human_motion_carried_carries(): void {
     armpitDrag: ["upperBack", "abdomen"],
     collarDrag: ["nape", "thighFrontLeft"],
     ankleDrag: ["calfLeft", "thighFrontRight"],
+    waistLift: ["abdomen", "sternum"],
+    overheadLift: ["abdomen", "nape"],
   };
   const complaints: string[] = [];
   const stage = (
@@ -233,12 +235,20 @@ export function test_human_motion_carried_carries(): void {
       const up: IAutoMovieVector3 = chest(film, seconds, { x: 0, y: 1, z: 0 });
       return (Math.atan2(up.z, up.y) * 180) / Math.PI;
     };
+    // The walk's turn of the chest is read against its hips, so the whole
+    // body's pitch, which turns both, leaves it as the walk holds it.
     const turn = (film: HumanPerformance): number => {
-      const side: IAutoMovieVector3 = chest(film, seconds, {
-        x: 1,
-        y: 0,
-        z: 0,
-      });
+      const bones = HumanSignature.bones(
+        HumanSignature.of(film, "a", held.bodies.a, 0),
+        seconds,
+      );
+      const side: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.multiply(
+          Quaternion.inverse(bones.get("hips")!.worldRotation),
+          bones.get("chest")!.worldRotation,
+        ),
+        { x: 1, y: 0, z: 0 },
+      );
       return (Math.atan2(-side.z, side.x) * 180) / Math.PI;
     };
     const forward: number = tip(leaned.film) - tip(held.film);

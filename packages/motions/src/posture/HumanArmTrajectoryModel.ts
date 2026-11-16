@@ -5,8 +5,13 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
+import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
+import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The objective and the constraints of an arms' trajectory
@@ -22,7 +27,8 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * where the arm's range cannot meet it (`IHumanPosture.IGoal.contact`).
  *
  * Constraints, met by TrajOpt's exact l1 penalty: on the hold the hand's
- * contact on its site's disc; every collider probe of the arm (the tangle
+ * contact on its site's disc and each declared effector point within its
+ * physical displacement bound; every collider probe of the arm (the tangle
  * audit's corners) no deeper in any shape than its allowance at every
  * waypoint, and the arm's axis spheres swept between two waypoints no
  * deeper (the sphere's motion is a capsule, TrajOpt's continuous check);
@@ -43,6 +49,8 @@ export namespace HumanArmTrajectoryModel {
     contact: IAutoMovieVector3;
     /** The hand's world rotation on the site; free when absent. */
     rotation?: IAutoMovieQuaternion;
+    /** The effector's hard point-displacement limits, in the same local frame as contact. */
+    limits?: IHumanPosture.IGoal["limits"];
     /** The radius of the region's disc about the point the contact may land in, metres. */
     disc: number;
     /**
@@ -114,7 +122,7 @@ export namespace HumanArmTrajectoryModel {
     bounds: ([number, number] | null)[][];
     /** The depth a probe may keep against a shape at a waypoint, metres (negative inside). */
     allowed: (a: number, k: number, probe: number, shape: number) => number;
-    /** The same between a probe of one arm and a collider of the other (`G.colliders`), the collider's bone for a declared rest. */
+    /** The same between a probe of one arm and a collider of the other (`S.colliders`), the collider's bone for a declared rest. */
     between: (
       a: number,
       k: number,
@@ -124,7 +132,7 @@ export namespace HumanArmTrajectoryModel {
     ) => number;
     /** Whether a segment of one arm and a segment of the other hold one object together at a waypoint: each segment in its arm's declared grasp, over the action, as the hands close on the object, hold it and part from it. Such a pair is the allowed-collision set of the shared grasp (as a motion planner's allowed-collision matrix excuses the links that grasp an object through its approach and retreat); clearance against the body stays. */
     grasped: (a: number, k: number, own: Segment, other: Segment) => boolean;
-    /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`G.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
+    /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`S.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
     inside: (a: number, k: number, corner: number, shape: number) => number;
     /** Whether an arm's segment lies on a bone at a waypoint, a declared rest (`IRest`). */
     lying: (
@@ -233,21 +241,9 @@ export namespace HumanArmTrajectoryModel {
     return out;
   }
 
-  /**
-   * The radius of an arm's chart disc in coordinate units: the chart's
-   * unit disc, widened to the rest and the back arm's own swing.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @returns The radius.
-   */
-  export function swing(c: IContext, a: number): number {
-    return Math.max(
-      G.SCALE,
-      Math.hypot(c.rest[a]![0]!, c.rest[a]![1]!),
-      Math.hypot(c.back[a]![0]!, c.back[a]![1]!),
-    );
-  }
+  /** The chart radius owned by HumanArmTrajectoryInvalid.swing. */
+  export const swing: typeof HumanArmTrajectoryInvalid.swing =
+    HumanArmTrajectoryInvalid.swing;
 
   /**
    * The objective and the constraints' violations at an iterate.
@@ -316,27 +312,25 @@ export namespace HumanArmTrajectoryModel {
           }
       for (let k: number = 0; k + 1 < n; ++k) {
         here = k;
+        // A probe's travel is read against the arm's own base, so a carried
+        // body's travel is never charged to the arm (`HumanArmTrajectoryTravel`).
+        const travel = (p: number): number =>
+          1000 *
+          Vector3.length(
+            V.step(
+              c.frames[a]![k]!,
+              c.frames[a]![k + 1]!,
+              placed[a]![k]!.probes[p]![0],
+              placed[a]![k + 1]!.probes[p]![0],
+            ),
+          );
         for (const p of c.still ? [] : T.PATH) {
-          const s: number =
-            1000 *
-            Vector3.length(
-              Vector3.subtract(
-                placed[a]![k + 1]!.probes[p]![0],
-                placed[a]![k]!.probes[p]![0],
-              ),
-            );
+          const s: number = travel(p);
           objective += T.LENGTH * s * s;
         }
         const dt: number = times[k + 1]! - times[k]!;
         for (const p of c.still ? [] : T.SPEED) {
-          const step: number =
-            1000 *
-            Vector3.length(
-              Vector3.subtract(
-                placed[a]![k + 1]!.probes[p]![0],
-                placed[a]![k]!.probes[p]![0],
-              ),
-            );
+          const step: number = travel(p);
           note(
             step - 1000 * SPEED_LIMIT * dt,
             "duration",
@@ -351,7 +345,7 @@ export namespace HumanArmTrajectoryModel {
         ) {
           const [pa, r]: readonly [IAutoMovieVector3, number] =
             placed[a]![k]!.probes[probe]!;
-          for (const shape of G.near(c.frames[a]![k]!, pa, r + T.REACH)) {
+          for (const shape of S.near(c.frames[a]![k]!, pa, r + T.REACH)) {
             // The probe's motion relative to the shape, which may move too.
             const pb: IAutoMovieVector3 = P.relative(
               c,
@@ -366,7 +360,7 @@ export namespace HumanArmTrajectoryModel {
               c.allowed(a, k + 1, probe, shape),
             );
             const short: number =
-              1000 * (lower - (G.gap(c.frames[a]![k]!, shape, pa, pb) - r));
+              1000 * (lower - (S.gap(c.frames[a]![k]!, shape, pa, pb) - r));
             note(
               short,
               "region",
@@ -419,6 +413,13 @@ export namespace HumanArmTrajectoryModel {
               `the hand ${(-lift).toFixed(1)} mm inside its site at ${times[k]!.toFixed(3)} s`,
           );
           objective += T.LIFT * lift * lift;
+          for (const limit of L.of(site, at, placed[a]![k]!))
+            note(
+              limit.distance - limit.allowance,
+              "target",
+              () =>
+                `a task point ${limit.distance.toFixed(1)} mm off its asked place at ${times[k]!.toFixed(3)} s`,
+            );
           if (site.rotation !== undefined) {
             const turned: number = P.angle(
               at.rotation ?? site.rotation,
@@ -485,63 +486,7 @@ export namespace HumanArmTrajectoryModel {
     return { placed, objective, violation, worst, pairs };
   }
 
-  /**
-   * How far the arms' configuration at a waypoint passes the tangle audit's
-   * clearance (with the skin `evaluate` refuses past) or a joint's range:
-   * the configuration is valid where this is within `TOLERANCE`. One reading
-   * serves the path planner's validity and the trajectory's refusal.
-   *
-   * @param c The context.
-   * @param k The waypoint whose base and allowances it is read against.
-   * @param q Each arm's coordinates.
-   * @returns The largest excess, millimetres or coordinate units, and what it is.
-   */
-  export function invalid(
-    c: IContext,
-    k: number,
-    q: readonly (readonly number[])[],
-  ): { value: number; what: string } {
-    const placed: G.IPlaced[] = q.map(
-      (v: readonly number[], a: number): G.IPlaced =>
-        G.placed(c.setups[a]!, c.frames[a]![k]!, v),
-    );
-    let worst: { value: number; what: string } = { value: -Infinity, what: "" };
-    const note = (value: number, what: () => string): void => {
-      if (value > worst.value) worst = { value, what: what() };
-    };
-    q.forEach((v: readonly number[], a: number): void => {
-      for (const pair of P.deepest(c, a, k, placed[a]!).values())
-        note(
-          pair.short - T.SKIN,
-          () =>
-            `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape}`,
-        );
-      for (const pair of P.embedded(c, a, k, placed[a]!).values())
-        note(
-          pair.short - T.SKIN,
-          () =>
-            `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone}`,
-        );
-      c.free[a]!.forEach((d: number): void => {
-        const b: [number, number] | null | undefined = c.bounds[a]![d];
-        if (b !== null && b !== undefined)
-          note(
-            Math.max(b[0] - v[d]!, v[d]! - b[1]),
-            () => `coordinate ${d} out of its range`,
-          );
-      });
-      note(
-        Math.hypot(v[0]!, v[1]!) - swing(c, a),
-        () => "the swing out of its chart",
-      );
-    });
-    if (q.length === 2)
-      for (const pair of P.crossing(c, k, placed[0]!, placed[1]!).values())
-        note(
-          pair.short - T.SKIN,
-          () =>
-            `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone}`,
-        );
-    return worst;
-  }
+  /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */
+  export const invalid: typeof HumanArmTrajectoryInvalid.of =
+    HumanArmTrajectoryInvalid.of;
 }

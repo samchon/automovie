@@ -2,6 +2,7 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
+  Transform,
   resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
@@ -9,13 +10,14 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieJointPose,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
  * The trunk and head of a posture placed in the world without solving its
@@ -65,11 +67,15 @@ export namespace HumanTrunk {
       resolvePose(
         {
           skeleton: body.skeleton.id,
-          root: {
-            translation: posture.root,
-            rotation: resolveHumanPosture.heading(posture),
-            scale: { x: 1, y: 1, z: 1 },
-          },
+          // A whole-body rotation turns the root as the resolver turns it
+          // (`turnHumanPosture`); the limb goals are not read here.
+          root: ((): IAutoMovieTransform => {
+            const turned: turnHumanPosture.ITurned = turnHumanPosture({
+              ...posture,
+              limbs: {},
+            });
+            return Transform.of(turned.position, turned.rotation);
+          })(),
           joints: list,
         },
         body.skeleton,

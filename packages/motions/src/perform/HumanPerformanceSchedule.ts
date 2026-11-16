@@ -13,6 +13,9 @@ import type {
 
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanResponse } from "../skill/HumanResponse";
+import { HumanSkill } from "../skill/HumanSkill";
+import { HumanHitTrack } from "./HumanHitTrack";
 import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -68,6 +71,11 @@ export namespace HumanPerformanceSchedule {
           placed: { start: number; duration: number },
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
+        // A struck subject's hits are a track computed from what is placed.
+        instants: (
+          of: string,
+        ): readonly resolveAutoMovieSchedule.ICue[] | undefined =>
+          HumanHitTrack.instants(self, of),
         cues: {
           ...self.cues,
           ...Object.fromEntries(
@@ -94,7 +102,8 @@ export namespace HumanPerformanceSchedule {
               self,
               intent,
               instant,
-              target,
+              target +
+                HumanPerformanceSchedule.latency(self, intent, context, where),
               context,
               where,
             );
@@ -222,6 +231,57 @@ export namespace HumanPerformanceSchedule {
       });
     }
     return start;
+  }
+
+  /**
+   * The drawn latency a synced action waits after its instant
+   * (`HumanChainCore.ISync.latency`), 0 for an action synced without one: the
+   * performer's own draw (`HumanResponse.latency`), keyed by the performer,
+   * the action's id, its occurrence and `latency`, and warned when the cue
+   * track holds the instant's preparatory word (`HumanCue.orders`).
+   */
+  export function latency(
+    self: HumanPerformanceState,
+    intent: IAutoMovieIntent,
+    context: resolveAutoMovieSchedule.IAlignment,
+    where: HumanRefusal.IWhere,
+  ): number {
+    const raw: unknown = intent.parameters?.latency;
+    const kind: HumanResponse.Latency | undefined =
+      raw === "reaction"
+        ? "reaction"
+        : typeof raw === "object" &&
+            raw !== null &&
+            "mean" in raw &&
+            "spread" in raw
+          ? { mean: Number(raw.mean), spread: Number(raw.spread) }
+          : undefined;
+    if (kind === undefined) return 0;
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
+    const event: string | undefined = context.anchor.event;
+    const index: number = context.anchor.index ?? 0;
+    const warned: boolean =
+      event !== undefined &&
+      context.anchor.instants.filter(
+        (cue: resolveAutoMovieSchedule.ICue): boolean =>
+          cue.name === `${event}Caution`,
+      ).length > index;
+    return HumanResponse.latency(
+      person.skill,
+      HumanSkill.stream(
+        person.skill,
+        intent.subject,
+        intent.anchor ?? intent.capability,
+        where.instance,
+        "latency",
+      ),
+      kind,
+      warned,
+      person.performer.attributes,
+    );
   }
 
   /** The share of the latest segment's active span at which a proximity cut happens. */

@@ -31,15 +31,17 @@ import { HumanRideHands } from "./HumanRideHands";
  * or stirrups) and then rides it: the seated posture is carried rigidly
  * with the support, turning, leaning and pitching as it does, the seat and
  * each foot that rested on it bearing on it, so nothing slides in the
- * support's frame. The arms, the hands and the head are yielded, so
- * steering, holding on, waving and looking are actions performed over the
- * ride. Register `HumanRide.ride` to use it.
+ * support's frame. The arms, the hands, the head and the trunk's turn are
+ * yielded, so steering, holding on, waving, looking and aiming from the
+ * saddle are actions performed over the ride. Register `HumanRide.ride` to use it.
  *
  * With `rising` the rider posts to a trot, by a stride time or on the
  * strides of a cue track; with `feet` each foot stays on a part that moves
  * within the support, a pedal on its crank or a stirrup; with `hands` each
- * hand holds a grip, a rein or a wheel's rim and follows it the same way.
- * First pass: the rider
+ * hand holds a grip, a rein or a wheel's rim and follows it the same way,
+ * the trunk leaning forward at each instant as far as the hands need to
+ * reach what they hold (`HumanMountReach.reach`), as a fixed-seat rower
+ * leans to the catch the oar's handle comes to. First pass: the rider
  * leans exactly as the support does and absorbs no bump, a pedalling foot
  * keeps its pitch to the frame except where the leg would run short and it
  * points down about its ball (`HumanMountRider`), and mounting and dismounting are the
@@ -113,7 +115,14 @@ export namespace HumanRide {
     interrupts: {
       any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     },
-    yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
+    yields: [
+      "head",
+      "leftHand",
+      "rightHand",
+      "leftArm",
+      "rightArm",
+      "trunkTurn",
+    ],
     plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
       const { on, seconds }: IParams = context.params;
       if (!(seconds > 0))
@@ -350,7 +359,7 @@ export namespace HumanRide {
           const out: IHumanPosture = {
             ...HumanMountRider.leant(
               carried,
-              lean * minimumJerk(Math.min(1, at / TAKE)).s,
+              lean(film, now) * minimumJerk(Math.min(1, at / TAKE)).s,
             ),
             limbs,
             root: {

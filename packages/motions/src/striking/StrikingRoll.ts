@@ -82,16 +82,14 @@ export namespace StrikingRoll {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...goal,
-            bend: AutoMovieMotionHumanBend.solve({
-              body: context.body,
+
+            // The goal leaves the elbow to the body (`StrikingHeld.goal`);
+            // the hanging arm's place serves where nothing is legal.
+            bend: AutoMovieMotionHumanBend.hang(
+              context.body,
               posture,
-              side: tool.side,
-              point: goal.point,
-              ...(goal.rotation === undefined
-                ? {}
-                : { rotation: goal.rotation }),
-              fallback: "hang",
-            }),
+              tool.side,
+            ),
           },
         },
       }),
@@ -132,10 +130,15 @@ export namespace StrikingRoll {
     at: IAutoMovieVector3,
     axis: IAutoMovieVector3,
     cone: number,
-    posture: IHumanPosture,
+    posture:
+      | IHumanPosture
+      | ((frame: StrikingHeld.IHandFrame) => IHumanPosture),
   ): StrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
-    const from: IAutoMovieVector3 = shoulder(context, tool.side, posture);
+    const from: IAutoMovieVector3 | undefined =
+      typeof posture === "function"
+        ? undefined
+        : shoulder(context, tool.side, posture);
     const aside: IAutoMovieVector3 = Vector3.normalize(
       Vector3.cross(
         along,
@@ -161,15 +164,34 @@ export namespace StrikingRoll {
         ),
       );
     };
+    // A candidate whose companion contact cannot be reached has infinite
+    // cost in this constrained search; it must not abort the other poses.
+    const rank = (values: readonly number[]): number => {
+      const posed: StrikingHeld.IHandFrame = frame(values);
+      try {
+        return strained(
+          context,
+          tool,
+          posed,
+          from ??
+            shoulder(
+              context,
+              tool.side,
+              typeof posture === "function" ? posture(posed) : posture,
+            ),
+        );
+      } catch (error) {
+        if (error instanceof HumanRefusal) return Infinity;
+        throw error;
+      }
+    };
     const candidates: { values: number[]; rank: number }[] = [];
     for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
       for (let around: number = 0; around < 360; around += 45) {
         for (let turn: number = 0; turn < 360; turn += 30)
           candidates.push({
             values: [tilt, around, turn],
-            rank:
-              strained(context, tool, frame([tilt, around, turn]), from) +
-              (0.1 * tilt * Math.PI) / 180,
+            rank: rank([tilt, around, turn]) + (0.1 * tilt * Math.PI) / 180,
           });
         if (tilt === 0) break;
       }
@@ -264,9 +286,23 @@ export namespace StrikingRoll {
       HumanFreedomChoice.chosen({
         tried,
         freedoms,
-        judge: (values: readonly number[]): number[] => [
-          miss(context, tool, frame(values), back, posture),
-        ],
+        judge: (values: readonly number[]): number[] => {
+          const posed: StrikingHeld.IHandFrame = frame(values);
+          try {
+            return [
+              miss(
+                context,
+                tool,
+                posed,
+                back,
+                typeof posture === "function" ? posture(posed) : posture,
+              ),
+            ];
+          } catch (error) {
+            if (error instanceof HumanRefusal) return [Infinity];
+            throw error;
+          }
+        },
       }).values,
     );
   }
@@ -285,8 +321,10 @@ export namespace StrikingRoll {
     /** The point of the tool the pose keeps, metres behind its working point. */
     back: number;
 
-    /** The body as it stands at the decisive instant. */
-    posture: IHumanPosture;
+    /** The body at the decisive instant, or its goals for each candidate frame when another hand supports that frame's tool. */
+    posture:
+      | IHumanPosture
+      | ((frame: StrikingHeld.IHandFrame) => IHumanPosture);
   }
 
   /**

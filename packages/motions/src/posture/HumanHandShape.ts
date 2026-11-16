@@ -61,7 +61,11 @@ export namespace HumanHandShape {
       const curled: boolean =
         form === "fist" || (form === "point" && digit !== "Index");
       for (const segment of ["Proximal", "Intermediate", "Distal"]) {
-        if (curled) set(`${digit}${segment}`, segment === "Proximal" ? 85 : 95);
+        if (curled)
+          set(
+            `${digit}${segment}`,
+            segment === "Proximal" ? 85 : segment === "Intermediate" ? 95 : 90,
+          );
         else if (form !== "relaxed") set(`${digit}${segment}`, 0);
         // The position of rest on a finger whose zero is straight: the
         // body's rest pose no longer carries a curl of its own.
@@ -129,7 +133,7 @@ export namespace HumanHandShape {
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, what is returned and that the angles are provisional.
    * @evidence contracts/development/implementation.md#principled-implementation Each digit is straight, folded as in the fist, or bent to the angles its shape names; a spread or a crossing is the proximal joint's abduction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table of digit states per shape and one loop that writes them.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold is the fist's own (85 and 95 degrees), so an emblem's folded fingers match the working shape.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold is the fist's own (85, 95 and 90 degrees), so an emblem's folded fingers match the working shape.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -187,7 +191,9 @@ export namespace HumanHandShape {
                   ? 0
                   : segment === "Proximal"
                     ? 85
-                    : 95;
+                    : segment === "Intermediate"
+                      ? 95
+                      : 90;
         out[bone] = [hooked, lean, 0];
       }
     });
@@ -324,25 +330,26 @@ export namespace HumanHandShape {
   }
 
   /**
-   * The index fingertip's frame from the wrist under a hand shape with its
+   * A digit's tip or pad frame from the wrist under a hand shape with its
    * fingers curled by a further flexion, in the hand's rest frame, by
    * forward kinematics of that hand alone: the frame a touch lays on its
    * region when its kind curls the fingers (`AutoMovieMotionHumanTouchForm`),
-   * as the hand is displayed. A scratch's 30 degrees draw the tip 76 mm back
-   * from where it lies flat and turn its pad 90 degrees.
+   * as the hand is displayed. A scratch's 30 degrees draw the index tip 76
+   * mm back from where it lies flat and turn its pad 90 degrees.
    *
    * @param body The body.
    * @param side The hand.
    * @param form The hand shape.
    * @param curl Extra flexion of the fingers over the shape, degrees; the thumb keeps its own.
+   * @param surface The digit surface; the index fingertip when omitted.
    * @returns The frame, its point measured from the wrist joint.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the curl's reading and the measured defect.
-   * @evidence contracts/development/implementation.md#principled-implementation The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the tip read on the distal phalanx's region.
+   * @evidence contracts/development/implementation.md#principled-implementation The shape's angles plus the curl on the fingers, as `AutoMovieMotionHumanHand` displays them, posed by forward kinematics, the surface read on its distal phalanx's region.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, one region placement and one change of frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The curl is not added to the thumb, whose flexion closes across the palm.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered per body, side, shape and curl.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per body, side, shape and curl.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered per body, side, surface, shape and curl.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per body, side, surface, shape and curl.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is weak in the body.
    */
   export function tip(
@@ -350,8 +357,9 @@ export namespace HumanHandShape {
     side: HumanHand.Side,
     form: HumanHand.Shape,
     curl: number,
+    surface: HumanHand.DigitSurface = "indexTip",
   ): HumanHand.IFrame {
-    const key: string = `${side}:${form}:${curl}`;
+    const key: string = `${side}:${surface}:${form}:${curl}`;
     let memo: Map<string, HumanHand.IFrame> | undefined = TIPS.get(body);
     if (memo === undefined) {
       memo = new Map();
@@ -373,7 +381,7 @@ export namespace HumanHandShape {
     );
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
     const region =
-      body.surfaces.regions[`indexTip${Side}` as AutoMovieHumanoidRegion];
+      body.surfaces.regions[`${surface}${Side}` as AutoMovieHumanoidRegion];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       region,
       bones.get(region.bone)!,
@@ -396,5 +404,5 @@ export namespace HumanHandShape {
   }
 }
 
-/** Index fingertip frames by body, keyed by side, shape and curl. */
+/** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
 const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();

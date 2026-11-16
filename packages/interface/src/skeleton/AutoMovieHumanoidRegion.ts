@@ -7,8 +7,9 @@
  * posterior trunk with the hypochondriac regions over the liver (right) and
  * spleen (left) and the lumbar regions over the kidneys, and the limbs by
  * segment and aspect. Paired regions carry their side, the body's own left
- * or right. Contact points the body itself presents (the palm, the index
- * fingertip, the sole, the heel, the seat) are regions too, so another body
+ * or right. Contact points the body itself presents (the palm, the tip and
+ * the pad of every digit, the sole, the heel, the seat) are regions too, so
+ * a key, a string, another body
  * or an object can be aimed at them. Each region is anchored to one humanoid bone and resolved to a
  * point and an outward normal on that bone's collision shapes by the engine,
  * so the same name serves a generated Human, an imported character or a
@@ -75,6 +76,24 @@ export type AutoMovieHumanoidRegion =
   | "handBackRight"
   | "indexTipLeft"
   | "indexTipRight"
+  | "thumbTipLeft"
+  | "thumbTipRight"
+  | "thumbPadLeft"
+  | "thumbPadRight"
+  | "indexPadLeft"
+  | "indexPadRight"
+  | "middleTipLeft"
+  | "middleTipRight"
+  | "middlePadLeft"
+  | "middlePadRight"
+  | "ringTipLeft"
+  | "ringTipRight"
+  | "ringPadLeft"
+  | "ringPadRight"
+  | "littleTipLeft"
+  | "littleTipRight"
+  | "littlePadLeft"
+  | "littlePadRight"
   | "thighFrontLeft"
   | "thighFrontRight"
   | "thighOuterLeft"

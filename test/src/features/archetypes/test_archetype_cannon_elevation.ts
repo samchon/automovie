@@ -51,34 +51,51 @@ export function test_archetype_cannon_elevation(): void {
   for (let degrees: number = -8; degrees <= 12; degrees++) {
     // Exercise the advertised endpoints exactly; their physical values are
     // checked independently below, without assuming identical roundoff order.
-    const screw: number = degrees === -8
-      ? -gun.affordance("screw").reverse!
-      : degrees === 12
-        ? gun.affordance("screw").travel!
-        : (sinking(degrees) / PITCH) * 360;
+    const screw: number =
+      degrees === -8
+        ? -gun.affordance("screw").reverse!
+        : degrees === 12
+          ? gun.affordance("screw").travel!
+          : (sinking(degrees) / PITCH) * 360;
     const posed: Archetype<createCannon.Affordance, createCannon.Dimension> =
       gun.articulate({ screw });
-    const byElevation: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      gun.articulate({ elevation: degrees });
+    const byElevation: Archetype<
+      createCannon.Affordance,
+      createCannon.Dimension
+    > = gun.articulate({ elevation: degrees });
     if (
       Math.abs(posed.travel("elevation") - degrees) > 1e-9 ||
       Math.abs(byElevation.travel("screw") - screw) > 1e-6
     )
-      findings.push(`at ${degrees} the two inputs do not describe one coupling`);
+      findings.push(
+        `at ${degrees} the two inputs do not describe one coupling`,
+      );
     const launch: createCannon.ILaunch = createCannon.launch(gun, { screw });
-    if (Math.abs(launch.direction.y - Math.sin((degrees * Math.PI) / 180)) > 1e-9)
-      findings.push(`at ${degrees} the screw-driven launch has the wrong direction`);
+    if (
+      Math.abs(launch.direction.y - Math.sin((degrees * Math.PI) / 180)) > 1e-9
+    )
+      findings.push(
+        `at ${degrees} the screw-driven launch has the wrong direction`,
+      );
     const sunk: number = posed.travel("screwRise");
     const turned: number = posed.travel("screw");
     if (Math.abs(sunk - sinking(degrees)) > 1e-9)
-      findings.push(`at ${degrees} the screw sinks ${sunk}, not ${sinking(degrees)}`);
+      findings.push(
+        `at ${degrees} the screw sinks ${sunk}, not ${sinking(degrees)}`,
+      );
     if (Math.abs(turned - (sinking(degrees) / PITCH) * 360) > 1e-6)
       findings.push(`at ${degrees} the handle turns ${turned} degrees`);
     const top: number = archetypeExtent(posed, "y", ["screw"]).high;
     if (Math.abs(top0 - top - sinking(degrees)) > 1e-6)
-      findings.push(`at ${degrees} the screw's head misses the ring reference height`);
-    if (Math.abs(posed.affordance("screw").frame.translation.y -
-      (gun.affordance("screw").frame.translation.y - sinking(degrees))) > 1e-9)
+      findings.push(
+        `at ${degrees} the screw's head misses the ring reference height`,
+      );
+    if (
+      Math.abs(
+        posed.affordance("screw").frame.translation.y -
+          (gun.affordance("screw").frame.translation.y - sinking(degrees)),
+      ) > 1e-9
+    )
       findings.push(`at ${degrees} the handle does not ride the screw's head`);
     const rise: IAutoMovieVector3 = ArchetypeFrame.axis(
       posed.affordance("muzzle").frame,
@@ -104,7 +121,8 @@ export function test_archetype_cannon_elevation(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal)) findings.push("two inputs drive the same screw");
+  if (!(refused instanceof ArchetypeRefusal))
+    findings.push("two inputs drive the same screw");
   TestValidator.equals(
     "the screw drives the elevation and preserves desired-elevation inputs",
     findings,

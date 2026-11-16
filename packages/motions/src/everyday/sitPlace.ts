@@ -79,7 +79,7 @@ export namespace sitPlace {
       );
       const d: number = Vector3.length(Vector3.subtract(feet[side], hip));
       if (d > longest || d < shortest) {
-        const dy: number = hip.y - m.ankleHeight;
+        const dy: number = hip.y - feet[side].y;
         const near: number = Math.sqrt(
           Math.max(0, shortest * shortest - dy * dy),
         );

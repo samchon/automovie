@@ -61,6 +61,9 @@ export namespace IPlaygroundComposition {
 
     /** The person and bone it is worn on at the start, such as a sword in its scabbard at the hip, until a hand draws it; resting where it is placed when absent. */
     worn?: IPlaygroundComposition.IWorn;
+
+    /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IHumanProp.fixed`); a free object when absent. */
+    fixed?: boolean;
   }
 
   /** A rotation as a unit quaternion. */

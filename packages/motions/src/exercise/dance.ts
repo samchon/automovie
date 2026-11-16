@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, type resolveAutoMovieSchedule } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
@@ -12,6 +12,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -29,6 +30,11 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * at `k 60 / bpm` seconds, 120 bpm when absent (people resonate near 120
  * bpm, van Noorden and Moelants 1999; the spontaneous locomotor tempo is
  * near 2 Hz, MacDougall and Moore 2005). Each beat is an event `beat{k}`.
+ * Locked to a cue track (`lock`, #3378), the beats are the track's instants
+ * instead: the first on the track's first beat at or after the start, the
+ * rest at the mean interval of the track's beats, so footfalls land on a
+ * score's beats whatever its tempo (a tempo that drifts within the step is
+ * followed at its mean, a first pass).
  *
  * - Bounce: the knees give on every beat, the hips lowest on the beat by 1
  *   % of the stature (provisional; vertical bounce follows the rhythm,
@@ -107,6 +113,15 @@ export namespace dance {
     /** How many beats; 8 when absent. */
     beats?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
+    /**
+     * A cue track to lock the beats to (#3340, #3378): beat `k` falls on the
+     * track's `k`-th instant named `event` (`beat` when absent) at or after the
+     * action's start, and the tempo is the mean interval of those instants,
+     * so `bpm` is not read. The track is the performance's input, never
+     * audio. Unlocked, the beats follow `bpm` from one period after the start.
+     */
+    lock?: { of: string; event?: string };
+
     /** The foot that steps first; `right` when absent. */
     side?: "left" | "right";
 
@@ -141,14 +156,47 @@ export namespace dance {
     HumanBound.whole("beats", beats);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const period: number = 60 / bpm;
+    // The beats: the locked track's instants from the start, at their mean
+    // interval, or the tempo's from one period after the start.
+    const locked: readonly number[] | null =
+      p.lock === undefined
+        ? null
+        : context
+            .cue(p.lock.of)
+            .filter(
+              (c: resolveAutoMovieSchedule.ICue): boolean =>
+                c.name === (p.lock!.event ?? "beat") &&
+                c.seconds >= context.start - 1e-9,
+            )
+            .slice(0, beats)
+            .map(
+              (c: resolveAutoMovieSchedule.ICue): number =>
+                c.seconds - context.start,
+            );
+    if (locked !== null && locked.length < Math.min(2, beats))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "lock",
+        value: p.lock,
+        feasible: null,
+        reason: `the track ${p.lock!.of} has ${locked.length} ${p.lock!.event ?? "beat"} instants after the step starts, fewer than the ${Math.min(2, beats)} a tempo needs`,
+        fix: "lock to a track with beats after the step's start, or give bpm instead",
+      });
+    const period: number =
+      locked === null
+        ? 60 / bpm
+        : locked.length < 2
+          ? locked[0]!
+          : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
+    const lead: number = locked === null ? period : locked[0]!;
+    const beatAt = (k: number): number => lead + (k - 1) * period;
     const instants: AutoMovieMotionClock.IInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
-      instants.push({ name: `beat${k}`, seconds: k * period });
-    const duration: number = (beats + 1) * period;
+      instants.push({ name: `beat${k}`, seconds: beatAt(k) });
+    const duration: number = beatAt(beats) + period;
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       duration,
-      [...instants, { name: "relax", seconds: beats * period }],
+      [...instants, { name: "relax", seconds: beatAt(beats) }],
     );
     const entry: IHumanPosture = context.entry.posture;
     const leftward: IAutoMovieVector3 = HumanFrame.point(
@@ -196,7 +244,7 @@ export namespace dance {
               y:
                 -depth *
                 settle(s) *
-                (0.5 + 0.5 * Math.cos((2 * Math.PI * s) / period)),
+                (0.5 + 0.5 * Math.cos((2 * Math.PI * (s - lead)) / period)),
               z: 0,
             }),
           ),
@@ -220,12 +268,12 @@ export namespace dance {
           (stance.left.ankle.y + stance.right.ankle.y) / 2;
         const ease = (u: number): number => u * u * (3 - 2 * u);
         const side = (s: number): number =>
-          s <= period
-            ? ease(s / period)
-            : s >= beats * period
+          s <= lead
+            ? ease(s / lead)
+            : s >= beatAt(beats)
               ? Math.cos(Math.PI * (beats - 1)) *
-                (1 - ease(Math.min(1, (s - beats * period) / period)))
-              : Math.cos((Math.PI * (s - period)) / period);
+                (1 - ease(Math.min(1, (s - beatAt(beats)) / period)))
+              : Math.cos((Math.PI * (s - lead)) / period);
         primitives.push(
           root((s: number): IAutoMovieVector3 => {
             const x: number = first * half * side(s);
@@ -273,7 +321,7 @@ export namespace dance {
               z: count < 3 ? d : 0,
             };
           }
-          falls.push({ foot, beat: k * period, at: offset[foot] });
+          falls.push({ foot, beat: beatAt(k), at: offset[foot] });
         }
         const lateral = (
           foot: "left" | "right",

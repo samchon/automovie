@@ -28,10 +28,15 @@ import { seededValue } from "./math/seededValue";
  * point takes the target layout's own dressing, so a finished re-form stands
  * exactly where a unit designed in the target layout would.
  *
+ * A design laid in blocks (`blocks`) places a slot by its block's layout,
+ * turned by the block's facing and moved by its offset in the unit's frame,
+ * before the same heading and relief; a re-form reads the one layout and is
+ * not applied to blocks.
+ *
  * Throws a `RangeError` for a slot that is not a safe integer in
  * `[0, count)`.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Closed-form row/file, square-root wedge row, arc angle or uniform-area scatter placement plus seeded dressing supplies each local point; optional previous/default design and target points blend before rest yaw and terrain relief. Unit cue translation/heading composes later through placeFormationSlot; fixed affine yaw itself does not distinguish local from equivalent world-point interpolation.
+ * @evidence contracts/development/implementation.md#principled-implementation Closed-form row/file, square-root wedge row, arc angle or uniform-area scatter placement plus seeded dressing supplies each local point; a design laid in blocks takes the point from its block's layout and seed, turned by the block's facing with the same planar rotation and moved by its offset; optional previous/default design and target points blend before rest yaw and terrain relief. Unit cue translation/heading composes later through placeFormationSlot; fixed affine yaw itself does not distinguish local from equivalent world-point interpolation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One public entry shares local layout/dressing helpers for the optional previous arrangement, default design and target; sequential reform changes its origin without adding another placement or dressing formula.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No layout or consumer is special-cased; scatter has no dressing because its layout declares none, and a missing reform is the designed arrangement rather than a fallback.
  * @evidence contracts/development/common.md#meaningful-documentation States frame order, relief, fromLayout/design origin, target dressing, shared consumers and invalid-slot RangeError; omitted fromLayout preserves the existing design-to-target call convention.
@@ -56,13 +61,20 @@ export const formationSlotPosition: (
     throw new RangeError(
       `Formation "${formation.id}" slot ${slot} is outside 0..${formation.count - 1}.`,
     );
-  const origin: ILocalPoint = localFormationPoint(
-    formation,
-    slot,
-    reform?.fromLayout ?? formation.layout,
-  );
+  // A design laid in blocks places the slot by its block's layout, then the block's facing and offset in the design's frame.
+  const blocked: ILocalPoint | null =
+    formation.blocks === undefined || formation.blocks.length === 0
+      ? null
+      : blockPoint(formation, slot);
+  const origin: ILocalPoint =
+    blocked ??
+    localFormationPoint(
+      formation,
+      slot,
+      reform?.fromLayout ?? formation.layout,
+    );
   const point: ILocalPoint =
-    reform === null
+    reform === null || blocked !== null
       ? origin
       : blendLocalPoints(
           origin,
@@ -78,6 +90,41 @@ export const formationSlotPosition: (
     x,
     y: formation.anchor.y + formationGroundRelief(formation, { x, z }),
     z,
+  };
+};
+
+/**
+ * A slot's point in a design laid in blocks: its block's own point by the
+ * block's layout (and the block's seed, the design's when absent), turned by
+ * the block's facing as the design's facing turns a point, and moved by its
+ * offset. A slot beyond the blocks' counts takes the last block's place in
+ * order, which the slot range check above already rules out.
+ */
+const blockPoint = (
+  formation: IAutoMovieFormationPlacement,
+  slot: number,
+): ILocalPoint => {
+  const blocks: NonNullable<IAutoMovieFormationPlacement["blocks"]> =
+    formation.blocks!;
+  let within: number = slot;
+  let b: number = 0;
+  while (b + 1 < blocks.length && within >= blocks[b]!.count) {
+    within -= blocks[b]!.count;
+    ++b;
+  }
+  const block: NonNullable<IAutoMovieFormationPlacement["blocks"]>[number] =
+    blocks[b]!;
+  const own: ILocalPoint = localFormationPoint(
+    { ...formation, count: block.count, seed: block.seed ?? formation.seed },
+    within,
+    block.layout,
+  );
+  const radians: number = ((block.facing ?? 0) * Math.PI) / 180;
+  const cosine: number = Math.cos(radians);
+  const sine: number = Math.sin(radians);
+  return {
+    x: (block.offset?.lateral ?? 0) + own.x * cosine + own.z * sine,
+    z: (block.offset?.depth ?? 0) - own.x * sine + own.z * cosine,
   };
 };
 

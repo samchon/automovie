@@ -63,9 +63,10 @@ export namespace WorkoutEquipment {
 
   /** A straight body on its hands and toes at a pitch, the arms hanging to the hands. */
   const prone =
-    (elbow: number, drop: number) =>
+    (body: IHumanBody, elbow: number, drop: number) =>
     (pitch: number): ExerciseKey.IKey =>
-      ExerciseKey.of(
+      ExerciseKey.from(
+        body,
         { pitch, neck: -20 },
         { toes: 70, shoulder: pitch - drop, elbow, wrist: -90 },
       );
@@ -89,12 +90,13 @@ export namespace WorkoutEquipment {
   export const DROP: number = 30;
 
   /** The body lying flat on its back, its root at the origin, heading along `+Z`. */
-  const flat = (): IHumanPosture =>
-    ExerciseKey.posed(ExerciseKey.of({ pitch: -90 }, {}), 0);
+  const flat = (body: IHumanBody): IHumanPosture =>
+    ExerciseKey.posed(ExerciseKey.from(body, { pitch: -90 }, {}), 0);
 
   /** How high the back's joint is above what the back lies on. */
   const backed = (body: IHumanBody): number =>
-    knockdown.rest(body, flat()) + ExerciseKey.mean(body, flat(), BACK).y;
+    knockdown.rest(body, flat(body)) +
+    ExerciseKey.mean(body, flat(body), BACK).y;
 
   /** Degrees to radians. */
   const rad = (degrees: number): number => (degrees * Math.PI) / 180;
@@ -117,7 +119,7 @@ export namespace WorkoutEquipment {
     body: IHumanBody,
     support: number | undefined,
   ): ExerciseKey.IKey[] => {
-    const lying: IHumanPosture = flat();
+    const lying: IHumanPosture = flat(body);
     const pivot: IAutoMovieVector3 = ExerciseKey.mean(body, lying, BACK);
     const hip: IAutoMovieVector3 = ExerciseKey.mean(body, lying, HIPS);
     const along: number = Math.abs(hip.z - pivot.z);
@@ -189,7 +191,8 @@ export namespace WorkoutEquipment {
         ),
       );
     return [
-      ExerciseKey.of(
+      ExerciseKey.from(
+        body,
         { pitch: -90 + sunk },
         {
           hip: raised + sunk,
@@ -198,7 +201,11 @@ export namespace WorkoutEquipment {
           elbow: 30,
         },
       ),
-      ExerciseKey.of({ pitch: -90 + locked }, { knee: 90 - locked, elbow: 30 }),
+      ExerciseKey.from(
+        body,
+        { pitch: -90 + locked },
+        { knee: 90 - locked, elbow: 30 },
+      ),
     ];
   };
 
@@ -236,13 +243,25 @@ export namespace WorkoutEquipment {
           (Math.acos(1 - height / body.measure.thigh) * 180) / Math.PI;
         return [
           WorkoutKind.step(
-            ExerciseKey.of({}, { elbow: 20 }, {}, { hip: bent, knee: bent }),
+            ExerciseKey.from(
+              body,
+              {},
+              { elbow: 20 },
+              {},
+              { hip: bent, knee: bent },
+            ),
             1,
             "lower",
             "down",
           ),
           WorkoutKind.step(
-            ExerciseKey.of({}, { elbow: 20 }, { hip: 15, knee: 30 }, {}),
+            ExerciseKey.from(
+              body,
+              {},
+              { elbow: 20 },
+              { hip: 15, knee: 30 },
+              {},
+            ),
             1,
             "step",
             "up",
@@ -271,7 +290,7 @@ export namespace WorkoutEquipment {
             high(body, support) +
               WorkoutFloor.REACH *
                 (body.measure.upperArm + body.measure.forearm),
-            prone(5, 0),
+            prone(body, 5, 0),
           ),
           1,
           "press",
@@ -281,7 +300,7 @@ export namespace WorkoutEquipment {
           WorkoutFloor.pitched(
             body,
             high(body, support) + body.measure.forearm,
-            prone(100, 60),
+            prone(body, 100, 60),
           ),
           1,
           "lower",
@@ -312,7 +331,7 @@ export namespace WorkoutEquipment {
             WorkoutFloor.REACH *
               (body.measure.upperArm + body.measure.forearm) -
               high(body, support),
-            prone(5, 0),
+            prone(body, 5, 0),
           ),
           1,
           "press",
@@ -322,7 +341,7 @@ export namespace WorkoutEquipment {
           WorkoutFloor.pitched(
             body,
             body.measure.forearm - high(body, support),
-            prone(100, 60),
+            prone(body, 100, 60),
           ),
           1,
           "lower",

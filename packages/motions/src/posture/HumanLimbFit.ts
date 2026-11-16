@@ -2,9 +2,11 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
+  type IAutoMovieSeededChainFit,
+  type IAutoMovieSwivelNear,
   Quaternion,
   Vector3,
-  fitChainToTarget,
+  fitSeededChainToTarget,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -16,10 +18,13 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
+import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
+import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
@@ -85,24 +90,13 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * Turn the memory of limb fits off or on again. Off, every fit is solved
-   * afresh and nothing is kept, which is what a check of the memory against
-   * the solver compares with; it is on unless turned off.
+   * Turn the memory of limb fits off or on again (`HumanLimbFitMemory.memory`).
    *
    * @param on Whether fits are remembered.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each setting does and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation One switch read by every remembered fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One assignment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Off keeps nothing, so a comparison reads the solver alone.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The fits kept are bounded by `remembered`.
    */
   export function memory(on: boolean): void {
-    REMEMBERING.on = on;
+    HumanLimbFitMemory.memory(on);
   }
-
   /**
    * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
    * its point and bend carried from the bone's posed frame to the world
@@ -192,13 +186,20 @@ export namespace HumanLimbFit {
    * original's to the bit: the solver's rounding is not sign-symmetric, and
    * each side solved on its own parted them by up to 6.4e-14 degrees.
    *
+   * With `near`, the fit continues a nearby one (`IAutoMovieSwivelNear`):
+   * every pass refines that seed instead of sweeping the swivel. The seed
+   * returned is the kept pass's, in the frame the limb is solved in (a left
+   * limb's in its mirror image), which is the frame a `near` for the same
+   * limb is read in.
+   *
    * @param body The performer's body.
    * @param pose The pose before the fit.
    * @param limb The limb.
    * @param attached Its goal, attached or not.
    * @param placed The arms already placed, whose room the arm keeps.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
-   * @returns The pose with the limb fitted.
+   * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
+   * @returns The pose with the limb fitted, and the seed that continues it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fit, the re-aim with its sources and bounds, the attachment and the clearance.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
@@ -215,20 +216,22 @@ export namespace HumanLimbFit {
     attached: IHumanPosture.IGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
-  ): IAutoMoviePose {
+    near?: IAutoMovieSwivelNear,
+  ): IAutoMovieSeededChainFit {
     // A left limb is fitted as the right limb in the mirror image of its
     // world, so the two sides are mirror images to the bit.
-    if (limb.startsWith("left"))
-      return mirrored(
-        fit(
-          body,
-          mirrored(pose),
-          opposite(limb),
-          reflected(attached),
-          placed.map(other),
-          rival === undefined ? undefined : HumanArmMirror.flip(rival),
-        ),
+    if (limb.startsWith("left")) {
+      const image: IAutoMovieSeededChainFit = fit(
+        body,
+        HumanLimbMirror.pose(pose),
+        HumanLimbMirror.limb(limb),
+        HumanLimbMirror.goal(attached),
+        placed.map(HumanLimbMirror.side),
+        rival === undefined ? undefined : HumanArmMirror.flip(rival),
+        near,
       );
+      return { ...image, pose: HumanLimbMirror.pose(image.pose) };
+    }
     const goal: IHumanPosture.IGoal = world(body, pose, limb, attached);
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
@@ -257,7 +260,14 @@ export namespace HumanLimbFit {
               goal.bend,
               attached.rests ?? [],
             );
-    let fitted: IAutoMoviePose = once(body, pose, limb, goal, clear);
+    let fitted: IAutoMovieSeededChainFit = once(
+      body,
+      pose,
+      limb,
+      goal,
+      clear,
+      near,
+    );
     if (goal.contact === undefined || goal.rotation === undefined)
       return fitted;
     const leg: boolean = limb.endsWith("Leg");
@@ -278,14 +288,18 @@ export namespace HumanLimbFit {
     // wrist, turns a small change of the hand into a large one of the joint's
     // place, and a mixed step may then land far off), and its last pass is
     // then no better than any other, so the nearest one is the one kept.
-    let nearest: { fitted: IAutoMoviePose; miss: number; toes: number } = {
+    let nearest: {
+      fitted: IAutoMovieSeededChainFit;
+      miss: number;
+      toes: number;
+    } = {
       fitted,
       miss: Infinity,
       toes: 0,
     };
     for (let i: number = 0; i < REAIM_PASSES; i++) {
       const reached: IAutoMovieQuaternion = resolvePose(
-        fitted,
+        fitted.pose,
         body.skeleton,
         HUMANOID_JOINT_AXES,
         HUMANOID_REST_FRAME,
@@ -322,43 +336,28 @@ export namespace HumanLimbFit {
       }
       last = { image: off.ankle, miss };
       point = next;
-      fitted = once(body, pose, limb, { ...goal, point }, clear);
+      fitted = once(body, pose, limb, { ...goal, point }, clear, near);
     }
     fitted = nearest.fitted;
     toes = nearest.toes;
     if (!leg || toes === 0) return fitted;
     const bone: AutoMovieHumanoidBone = `${side}Toes`;
     return {
-      ...fitted,
-      joints: fitted.joints.map(
-        (j: IAutoMovieJointPose): IAutoMovieJointPose =>
-          j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j,
-      ),
+      pose: {
+        ...fitted.pose,
+        joints: fitted.pose.joints.map(
+          (j: IAutoMovieJointPose): IAutoMovieJointPose =>
+            j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j,
+        ),
+      },
+      seed: fitted.seed,
+      ...(fitted.value === undefined ? {} : { value: fitted.value }),
     };
   }
 
   /**
-   * The fit of one limb, remembered: the same body, the same pose before the
-   * fit, the same limb, goal and arms placed before it give the same fit, so
-   * it is solved once and read again. A plan's own posture and the displayed
-   * pose of the same instant ask the same fit, and so does every instant of a
-   * held pose; an arm's fit with its clearance search is most of what a
-   * displayed pose costs.
-   *
-   * The fit is a pure function of exactly what the key holds: the limb, the
-   * arms placed before it, the whole goal (point, bend, rotation, contact,
-   * planted, the bone it is attached to, the reference with its weight, and
-   * the other bodies' colliders it keeps clear of, each with its frame and
-   * shapes) and the pose before the fit (its root's translation, rotation
-   * and scale and every joint's angles, which is where the trunk, the other
-   * limbs already fitted and any layer have left the body). The body itself,
-   * with its skeleton, topology, ranges and shapes, is the memory's owner.
-   * Nothing else is read: the solver draws nothing and keeps no state.
-   *
-   * Each body keeps its last `FIT_MEMORY` fits, the least recently read
-   * dropped first, and a body no longer held drops them all. A left limb's
-   * fit is kept under its mirror's key, the right limb's (`fit`), so a fit
-   * and its mirror image are one entry.
+   * The fit of one limb, remembered by every input it is a pure function of
+   * (`HumanLimbFitMemory.remembered`).
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -366,15 +365,8 @@ export namespace HumanLimbFit {
    * @param goal Its goal, attached or not.
    * @param placed The arms already placed.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
-   * @returns The pose with the limb fitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States why a fit can be remembered, exactly what its key holds and how much is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation The key is every input of a pure function; the body owns its fits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup, one insertion in recency order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing the fit reads is left out of the key.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A map read in place of a fit, the key linear in the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit of an instant already solved is read again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last `FIT_MEMORY` fits, least recently read dropped first, in a weak map that lets them go with the body.
+   * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
+   * @returns The pose with the limb fitted, and the seed that continues it.
    */
   export function remembered(
     body: IHumanBody,
@@ -383,42 +375,28 @@ export namespace HumanLimbFit {
     goal: IHumanPosture.IGoal,
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
-  ): IAutoMoviePose {
-    if (!REMEMBERING.on) return fit(body, pose, limb, goal, placed, rival);
-    // A left limb's fit is its mirror's, remembered under the right limb's
-    // key, so a fit and its mirror image share one entry.
-    if (limb.startsWith("left"))
-      return mirrored(
-        remembered(
-          body,
-          mirrored(pose),
-          opposite(limb),
-          reflected(goal),
-          placed.map(other),
-          rival === undefined ? undefined : HumanArmMirror.flip(rival),
-        ),
-      );
-    const key: string = JSON.stringify([
+    near?: IAutoMovieSwivelNear,
+  ): IAutoMovieSeededChainFit {
+    return HumanLimbFitMemory.remembered(
+      body,
+      pose,
       limb,
-      placed,
-      rival ?? null,
       goal,
-      pose.root,
-      pose.joints,
-    ]);
-    let fits: Map<string, IAutoMoviePose> | undefined = FITS.get(body);
-    if (fits === undefined) {
-      fits = new Map();
-      FITS.set(body, fits);
-    }
-    let out: IAutoMoviePose | undefined = fits.get(key);
-    if (out === undefined) out = fit(body, pose, limb, goal, placed, rival);
-    else fits.delete(key);
-    fits.set(key, out);
-    if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
-    return out;
+      placed,
+      rival,
+      near,
+    );
   }
 
+  /**
+   * A limb goal's mirror image (`HumanLimbMirror.goal`).
+   *
+   * @param goal The goal.
+   * @returns Its mirror image.
+   */
+  export function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
+    return HumanLimbMirror.goal(goal);
+  }
   /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
   const REAIM_TOLERANCE: number = 2e-5;
 
@@ -432,111 +410,21 @@ export namespace HumanLimbFit {
    */
   const REAIM_PASSES: number = 16;
 
-  /** The limb fits remembered, by body. */
-  const FITS: WeakMap<IHumanBody, Map<string, IAutoMoviePose>> = new WeakMap();
-
-  /** Whether limb fits are remembered (`memory`). */
-  const REMEMBERING: { on: boolean } = { on: true };
-
-  /**
-   * How many limb fits a body keeps: the least power of two at which the
-   * worst scene measured solves no fit twice.
-   *
-   * The contact scan (`HumanPerformanceContacts`) reads every body at each
-   * 120 Hz step of every strike's window, again after each stop it commits,
-   * and a display reads them once more. So a body's working set is the fits
-   * of every strike window it is read in. The worst scene measured is the
-   * website's boxing class: four performers over 13.4 s, 9,956 distinct
-   * fits across the four bodies. Fits it solved again after dropping them:
-   * - 512: 7,258 of 17,214;
-   * - 2,048: 4;
-   * - 4,096: none.
-   *
-   * Measured again once a left fit became its mirror's, read under the
-   * right limb's key, on the same composition with the test fixture's
-   * bodies (the coach m-large, the members f-small, m-average and
-   * f-average), planned and then read at 24 Hz: 32,633 fit reads, 17,366
-   * distinct fits, and solved again after dropping them 7,567 at 512, 5,009
-   * at 1,024, 127 at 2,048 and none at 4,096, as before the change (17,365
-   * distinct). A scene's left and right fits are rarely each other's exact
-   * mirror, so the shared key changes the working set by one fit here, and
-   * 4,096 stays the least power of two that solves none twice.
-   */
-  const FIT_MEMORY: number = 4096;
-
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
   type IObstruction = (
     mid: IAutoMovieVector3,
     end: IAutoMovieVector3,
   ) => number;
 
-  /** A pose's mirror image in the median plane (`HumanArmMirror.mirrored`), its own inverse. */
-  function mirrored(pose: IAutoMoviePose): IAutoMoviePose {
-    return HumanArmMirror.mirrored({ pose, others: [] }).pose;
-  }
-
-  /**
-   * A limb goal's mirror image: its points and its contact with their
-   * lateral component negated (world, or local to the bone it is attached
-   * to, which a median-plane mirror maps alike), its rotation mirrored, the
-   * bone it rides and the colliders it keeps clear of or lies on taken to
-   * the other side. A reference's clinical angles are a side's own, so the
-   * mirrored limb reads them as they are.
-   *
-   * @param goal The goal.
-   * @returns Its mirror image.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and why the reference is not.
-   * @evidence contracts/development/implementation.md#principled-implementation The median-plane reflection of each of the goal's parts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record, one line per part.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part a fit reads is mirrored.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per part.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmMirror`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
-    return {
-      ...goal,
-      point: HumanArmMirror.flip(goal.point),
-      bend: HumanArmMirror.flip(goal.bend),
-      ...(goal.rotation === undefined
-        ? {}
-        : { rotation: HumanArmMirror.turn(goal.rotation) }),
-      ...(goal.contact === undefined
-        ? {}
-        : { contact: HumanArmMirror.flip(goal.contact) }),
-      ...(goal.on === undefined
-        ? {}
-        : { on: HumanArmMirror.opposite(goal.on) }),
-      ...(goal.clear === undefined
-        ? {}
-        : { clear: goal.clear.map(HumanArmMirror.reflected) }),
-      ...(goal.rests === undefined
-        ? {}
-        : { rests: goal.rests.map(HumanArmMirror.reflected) }),
-    };
-  }
-
-  /** The same limb on the other side. */
-  function opposite(limb: IHumanPosture.Limb): IHumanPosture.Limb {
-    return (
-      limb.startsWith("left") ? `right${limb.slice(4)}` : `left${limb.slice(5)}`
-    ) as IHumanPosture.Limb;
-  }
-
-  /** The other side. */
-  function other(side: "left" | "right"): "left" | "right" {
-    return side === "left" ? "right" : "left";
-  }
-
-  /** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given. */
+  /** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given, continued from `near` when one is given. */
   function once(
     body: IHumanBody,
     pose: IAutoMoviePose,
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
     obstruction?: IObstruction,
-  ): IAutoMoviePose {
+    near?: IAutoMovieSwivelNear,
+  ): IAutoMovieSeededChainFit {
     const bones: IChain = chain(limb);
     const angles = (
       bone: AutoMovieHumanoidBone,
@@ -547,7 +435,19 @@ export namespace HumanLimbFit {
       abduction: of[1],
       twist: of[2],
     });
-    return fitChainToTarget({
+    // An elbow left to the body (`IHumanPosture.IGoal.elbow`) takes, among the
+    // swivels whose hand error is least, the one of least strain the fit's own
+    // sweep reads (`AutoMovieMotionHumanBend.strainOf`), task first (Nakamura;
+    // Siciliano and Slotine 1991); a continued fit keeps its seed's side.
+    const strain: ReturnType<typeof AutoMovieMotionHumanBend.strainOf> =
+      goal.elbow === "strain" && near === undefined && limb.endsWith("Arm")
+        ? AutoMovieMotionHumanBend.strainOf({
+            body,
+            side: limb.startsWith("left") ? "left" : "right",
+            rotation: goal.rotation,
+          })
+        : null;
+    return fitSeededChainToTarget({
       skeleton: body.skeleton,
       pose,
       chain: bones,
@@ -557,6 +457,8 @@ export namespace HumanLimbFit {
         ? {}
         : { effectorRotation: goal.rotation }),
       ...(obstruction === undefined ? {} : { obstruction }),
+      ...(near === undefined ? {} : { near }),
+      ...(strain === null ? {} : { strain }),
       // A reference of no weight decides nothing, so it is left out entirely.
       ...(goal.reference === undefined || goal.reference.weight === 0
         ? {}

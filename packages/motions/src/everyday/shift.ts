@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -13,27 +14,28 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { seated } from "./seated";
 
 /**
- * Shifting along a bench while seated: the seat socket lifts at most 3 cm
- * (provisional), slides sideways along the seat by the requested distance
- * and sets down again, while the feet stay planted and the hands stay on the
- * thighs.
+ * Shifting along a bench while seated: the seat socket slides sideways
+ * along the seat by the requested distance, while the feet stay planted and
+ * the hands stay on the thighs.
  *
  * The goal is the socket's path; the root follows with the seated pitch kept,
  * and the legs and hands are solved by inverse kinematics. A seated person
- * edges along by unweighting the buttocks briefly; the lift follows
- * `0.03 sin(pi s)` metres over the slide's minimum-jerk share `s`, and the
- * slide lasts `0.6 + |d|` seconds for `d` metres (provisional). The feet do
- * not step, so a shift is limited to what the planted legs allow sideways:
- * 0.35 thigh lengths, which turns each thigh about 19 degrees in abduction
- * or adduction, inside their 30 degree range (provisional); a longer shift is
- * refused and takes several shifts, as people edge along a bench a few tens
- * of centimetres at a time.
+ * edges along by unweighting the buttocks, not by lifting them off: the
+ * seat bears throughout, sliding, so the body never stands on its feet
+ * alone with its centre of mass behind them, and the socket keeps to the
+ * seat on the slide's minimum-jerk share `s`; the slide lasts `0.6 + |d|`
+ * seconds for `d` metres (provisional). The feet do not step, so a shift is
+ * limited to what the planted legs allow sideways: 0.35 thigh lengths, which
+ * turns each thigh about 19 degrees in abduction or adduction, inside their
+ * 30 degree range (provisional); a longer shift is refused and takes several
+ * shifts, as people edge along a bench a few tens of centimetres at a time.
  *
  * On a seat above 1.2 of the popliteal height, where a foot is off the
  * floor, the shift is refused: getting off and sitting down again moves
  * the body there.
  *
- * Events `seatOff` and `seatContact`.
+ * Events `seatOff` (the buttocks unweighted as the slide starts) and
+ * `seatContact` (bearing fully again as it ends).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
@@ -67,9 +69,6 @@ export namespace shift {
     seconds?: number;
   }
 
-  /** Lift of the socket, metres (provisional). */
-  export const LIFT: number = 0.03;
-
   /**
    * Plan a shift.
    *
@@ -93,15 +92,16 @@ export namespace shift {
       });
     const entry: IHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
+    const under: number = seated.floor(body, context.entry);
 
     // The shift pushes off the feet planted on the floor, which a high seat takes off it.
     if (
-      start.y / seated.popliteal(body) > seated.RATIO[1] &&
+      (start.y - under) / seated.popliteal(body) > seated.RATIO[1] &&
       (["left", "right"] as const).some(
         (side: "left" | "right"): boolean =>
           !context.entry.feet[side].planted ||
           context.entry.feet[side].ankle.y >
-            body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
+            under + body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
       )
     )
       throw new HumanRefusal({
@@ -127,6 +127,12 @@ export namespace shift {
     const set: number = 0.85 * slide;
     return {
       duration,
+      // A shift slides along the seat it was entered on and stays seated on
+      // it (#3363: a base transition declares the base it ends in).
+      base:
+        context.entry.base.kind === "seated"
+          ? context.entry.base
+          : { kind: "seated" },
       events: [
         { name: "seatOff", share: lift / duration },
         { name: "seatContact", share: set / duration },
@@ -137,28 +143,21 @@ export namespace shift {
           kind: "plant",
           from: 0,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(context, "leftFoot"),
         },
         {
           part: "rightFoot",
           kind: "plant",
           from: 0,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(context, "rightFoot"),
         },
         {
           part: "seat",
           kind: "seat",
           from: 0,
-          to: lift / duration,
-          support: { kind: "ground" },
-        },
-        {
-          part: "seat",
-          kind: "seat",
-          from: set / duration,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.contact(context, "seat"),
         },
       ],
       posture: (seconds: number): IHumanPosture => {
@@ -166,7 +165,7 @@ export namespace shift {
         const s: number = minimumJerk(t / slide).s;
         const socket: IAutoMovieVector3 = {
           x: start.x + (goal.x - start.x) * s,
-          y: start.y + LIFT * Math.sin(Math.PI * s),
+          y: start.y,
           z: start.z + (goal.z - start.z) * s,
         };
         const root: IAutoMovieVector3 = seated.root(body, socket, entry);

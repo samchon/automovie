@@ -198,11 +198,12 @@ const wall = (
  * worked on its work point, a stir in a saucepan on the bench before the
  * body; and a table top 0.225 m below the
  * elbow wiped three times; a hat or spectacles (`createWearable`) taken up
- * from hip height before the right hand and put on.
+ * from hip height before the right hand and put on; the bottle taken up and
+ * let go of where the hand holds it (`release`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and each staging with its numbers.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Twelve laws, the ones that handle a thing or a partner's hand.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Thirteen laws, the ones that handle a thing or a partner's hand.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A left row mirrors the whole staging rather than reaching across the body.
  */
 export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
@@ -234,6 +235,22 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
         .act("pickUp", { prop: "bottle", handle: "low", hand })
         .act("putDown", { prop: "bottle", at, yaw: 0, hand }),
       [bottle(at)],
+    );
+  },
+  // The kernel release: the bottle taken up, then let go of where the hand
+  // holds it, so it drops from the open hand (#3479).
+  release: (
+    pick: motionHumanLawSweep.Pick,
+    a: IHumanBody,
+  ): motionHumanLawSweep.IScene => {
+    const hand: string = pick("hand") ?? "right";
+    return S.solo(
+      a,
+      S.chain()
+        .act("stand", { seconds: 0.4, sway: 0 })
+        .act("pickUp", { prop: "bottle", handle: "low", hand })
+        .act("release", { hand }),
+      [bottle(place(a, hand))],
     );
   },
   handOver: handing,

@@ -80,6 +80,33 @@ export interface IFitChainToTargetProps {
   bend?: IAutoMovieVector3;
 
   /**
+   * A hinged chain's strain of a candidate, non-negative: the candidate's
+   * bone-local root and mid rotations and the mid bone's world rotation. When
+   * given, a hinged chain's swivels are ranked by task priority (Siciliano
+   * and Slotine 1991): legality, then the effector's rotation error, two
+   * errors within the joints' tolerance being one, then the turn from
+   * `referencePose` when one is given, else this strain, so the
+   * elbow takes its place of least strain among the swivels that turn the
+   * hand best (Tolani, Goswami and Badler 2000: the elbow's place on its
+   * swivel circle chosen by a cost of the joints), and `bend` is not read.
+   * The fit reports the value it chose by (`IAutoMovieSeededChainFit.value`).
+   * Omitted, `bend` is the hint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three quaternion frames, non-negative score, task priority, reported value and absence behavior; the score's scale is the caller's.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A candidate-score callback declaration; its caller owns the strain method.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No strain callback body is declared here.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature computes no candidate score.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The supplied callback owns its per-candidate evaluation cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature owns no candidate cache or shared evaluation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires and retains nothing.
+   */
+  strain?: (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+    lowerWorld: IAutoMovieQuaternion,
+  ) => number;
+
+  /**
    * The effector's model-frame rotation, as `resolvePose` reports world
    * rotations; omitted, the effector keeps the pose's own angles.
    */

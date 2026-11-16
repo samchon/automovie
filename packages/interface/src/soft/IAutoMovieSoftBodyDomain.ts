@@ -1,5 +1,6 @@
 import { IAutoMovieSoftAnchor } from "./IAutoMovieSoftAnchor";
 import { IAutoMovieSoftCollider } from "./IAutoMovieSoftCollider";
+import { IAutoMovieSoftContact } from "./IAutoMovieSoftContact";
 import { IAutoMovieSoftLattice } from "./IAutoMovieSoftLattice";
 import { IAutoMovieSoftNamedState } from "./IAutoMovieSoftNamedState";
 import { IAutoMovieSoftSolver } from "./IAutoMovieSoftSolver";
@@ -10,7 +11,7 @@ import { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
  *
  * A building can bind the domain through {@link IAutoMovieSoftFurnishing}; the solver also accepts domains without architecture ownership.
  *
- * Lattice particles carry mass and velocity; row, column, diagonal and second-neighbour distance constraints resist stretching, shearing and folding. The CPU reference solver provides no finite-element shell, self-collision, friction or anisotropic air drag.
+ * Lattice particles carry mass and velocity; row, column, diagonal and second-neighbour distance constraints resist stretching, shearing and folding, weighted by relaxation stiffness or, when the solver declares compliance, as compliant constraints (XPBD). With `contact`, colliders exert Coulomb friction and a cord keeps its segments apart; the CPU reference solver provides no finite-element shell, cloth-on-cloth contact or anisotropic air drag.
  *
  * Particle arrays use row-major index `row * lattice.columns + column`. World-space rest positions supply orientation; lattice axes are not fixed to world axes.
  *
@@ -18,8 +19,8 @@ import { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
  *
  * @evidence contracts/development/design.md#principled-representation simulateSoftBody uses fixed-step position prediction and Jacobi distance projection on an authored lattice, with rest lengths measured from rest coordinates and zero inverse mass at anchors.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The independent domain owns solver inputs; architecture furnishing references it rather than changing the cloth algorithm according to its room.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tier has no self-collision or friction solve. Collider projection is discrete and ordered, and the declared referenceSpeed travel bound does not clamp measured speed or prove continuous collision avoidance.
- * @evidence contracts/development/common.md#meaningful-documentation Members specify row-major arrays, world metre coordinates, kilogram masses, hard anchors, named boundary states and the unsupported self-collision request.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The tier has no cloth-on-cloth contact; a cord's self-contact and friction are optional and absent by default. Collider projection is discrete and ordered, and the declared referenceSpeed travel bound does not clamp measured speed or prove continuous collision avoidance.
+ * @evidence contracts/development/common.md#meaningful-documentation Members specify row-major arrays, world metre coordinates, kilogram masses, hard anchors, named boundary states, the optional contact record and which self-collision requests are evaluated.
  */
 export interface IAutoMovieSoftBodyDomain {
   /** Schema version. */
@@ -70,9 +71,14 @@ export interface IAutoMovieSoftBodyDomain {
   wind: IAutoMovieSoftWind | null;
 
   /**
-   * Whether the author is asking for cloth-on-cloth contact.
+   * Whether the author is asking for contact of the body with itself.
    *
-   * Furnishing lowering reports this request as unsupported and returns the rest configuration; the solver tier does not evaluate cloth-on-cloth contact.
+   * On a cord, a one-wide lattice with `contact` declared, the solver keeps every two segments that share no particle apart by twice the cord's radius, with friction (a coil, a knot). Cloth on cloth is not evaluated: furnishing lowering reports the request as unsupported and returns the rest configuration, and a sheet with `contact` that asks for it is refused.
    */
   selfCollision: boolean;
+
+  /**
+   * The body's thickness and its Coulomb friction, for a cord's contact with itself and friction at every collider. Absent or null keeps the frictionless solve with no self-contact.
+   */
+  contact?: IAutoMovieSoftContact | null;
 }

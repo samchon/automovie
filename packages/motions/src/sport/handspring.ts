@@ -28,6 +28,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsWheel } from "./GymnasticsWheel";
+import { handspringKeys } from "./handspringKeys";
 import { salto } from "./salto";
 
 /**
@@ -39,8 +40,8 @@ import { salto } from "./salto";
  *
  * 1. Supported: the body rolls as a wheel (`GymnasticsWheel`) over its feet,
  *    its leading foot and its two hands, its shape going from standing to
- *    the lunge `REACHED` by the angle `REACH` and from there to the arched
- *    line `ARCHED` by `RELEASE`, where the hands leave. The angle grows
+ *    the lunge `lunged` by the angle `REACH` and from there to the arched
+ *    line `arched` by `RELEASE`, where the hands leave. The angle grows
  *    with constant angular acceleration from rest, so it arrives at the
  *    release with the rate the flight keeps.
  * 2. Flight: the centre of mass follows the parabola of the velocity the
@@ -95,19 +96,21 @@ export namespace handspring {
   /** The tip at which the feet come down, degrees: arched, the trunk 30 degrees behind upright (provisional). */
   export const LAND: number = 330;
 
-  /** The lunge, the left leg leading: the leading leg bent under the body, the other stretched behind, the arms overhead (provisional angles). */
-  export const REACHED: ExerciseKey.IKey = ExerciseKey.of(
-    { neck: -15 },
-    { shoulder: 175, raise: 10, elbow: 0 },
-    { hip: 90, knee: 45, ankle: 15 },
-    { hip: -15, knee: 0, ankle: -20 },
-  );
+  /**
+   * The body-dependent lunge with the left leg leading, constructed by
+   * `handspringKeys.lunged` with the law's existing provisional angles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape, its leading side and the constructor that owns it.
+   */
+  export const lunged: typeof handspringKeys.lunged = handspringKeys.lunged;
 
-  /** The arched line of the support and the flight: legs together, the back arched, the arms overhead (provisional angles). */
-  export const ARCHED: ExerciseKey.IKey = ExerciseKey.of(
-    { spine: [-10, 0, 0], chest: [-10, 0, 0] },
-    { hip: -10, knee: 0, ankle: 0, shoulder: 175, raise: 10, elbow: 0 },
-  );
+  /**
+   * The body-dependent arched line of the wheel and flight, constructed by
+   * `handspringKeys.arched` with the law's existing provisional angles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape, its uses and the constructor that owns it.
+   */
+  export const arched: typeof handspringKeys.arched = handspringKeys.arched;
 
   /** The angle between two rows of the wheel's table, degrees. */
   const STEP: number = 5;
@@ -203,17 +206,19 @@ export namespace handspring {
     const yaw: number = standing.yaw;
     const ease = (x: number): number => minimumJerk(x).s;
     const reached: ExerciseKey.IKey = left
-      ? REACHED
-      : ExerciseKey.mirror(REACHED);
+      ? lunged(body)
+      : ExerciseKey.mirror(lunged(body));
+    const line: ExerciseKey.IKey = arched(body);
+    const stood: ExerciseKey.IKey = ExerciseKey.standing(body);
 
     // The shape at an angle of forward tip.
     const shaped = (angle: number): IHumanPosture => ({
       ...ExerciseKey.posed(
         angle <= REACH
-          ? ExerciseKey.blend(ExerciseKey.STOOD, reached, ease(angle / REACH))
+          ? ExerciseKey.blend(stood, reached, ease(angle / REACH))
           : ExerciseKey.blend(
               reached,
-              ARCHED,
+              line,
               ease((angle - REACH) / (RELEASE - REACH)),
             ),
         yaw,
@@ -297,7 +302,7 @@ export namespace handspring {
     // The landing's centre height: the arched body at `LAND` stood on its
     // ankles.
     const landing: IHumanPosture = {
-      ...ExerciseKey.posed(ARCHED, yaw),
+      ...ExerciseKey.posed(line, yaw),
       pitch: LAND,
     };
     const feet: IAutoMovieVector3 = ExerciseKey.mean(body, landing, [
@@ -374,7 +379,7 @@ export namespace handspring {
       GymnasticsFlight.placed(
         body,
         model,
-        { ...ExerciseKey.posed(ARCHED, yaw), pitch: RELEASE + rate * t },
+        { ...ExerciseKey.posed(line, yaw), pitch: RELEASE + rate * t },
         GymnasticsFlight.at(cr, velocity, t),
       );
 
@@ -432,10 +437,7 @@ export namespace handspring {
           planted: true,
         };
       return resolveHumanPosture.lower(body, {
-        ...ExerciseKey.posed(
-          ExerciseKey.blend(ARCHED, ExerciseKey.STOOD, u),
-          yaw,
-        ),
+        ...ExerciseKey.posed(ExerciseKey.blend(line, stood, u), yaw),
         // The same tip as the flight's, written below a whole turn so the
         // landing ends at 0 and the next action does not unwind a turn.
         pitch: (LAND - 360) * (1 - u),

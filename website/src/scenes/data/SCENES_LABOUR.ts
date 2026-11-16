@@ -24,7 +24,7 @@ export const SCENES_LABOUR: readonly IScene[] = [
       id: "kitchen-and-yard",
       title: "Kitchen and yard",
       summary:
-        "Closing time at an inn, every load and tool mimed: a cook stirs at the stove counter, a server scrubs the bar, a porter carries a bag in one hand and then hauls a heavy load in both, and a stable hand hurls a throw overarm to him.",
+        "Closing time at an inn, the loads mimed: a cook takes a spoon up and stirs a pan at the stove counter, a server scrubs the bar, a porter carries a bag in one hand and then hauls a heavy load in both, and a stable hand hurls a throw overarm to him.",
       setting: "work",
       roles: { kat: "cook", lev: "server", mak: "porter", nel: "stable hand" },
       needs: [],
@@ -32,7 +32,15 @@ export const SCENES_LABOUR: readonly IScene[] = [
     "kitchen-and-yard",
     [
       person("kat", "f1", -2, 0, 0, [
-        act("stir", { on: point(-2, SceneBuild.COUNTER_TOP + 0.1, 0.45) }),
+        act("pickUp", {
+          prop: "spoon",
+          handle: "grip",
+          use: { tip: "face", line: "square" },
+        }),
+        act("stir", {
+          prop: "spoon",
+          on: { kind: "prop", subject: "pan", point: "inside" },
+        }),
       ]),
       person("lev", "m2", 0, 0.12, 0, [
         act("scrub", { on: point(0, SceneBuild.COUNTER_TOP, 0.45) }),
@@ -47,6 +55,30 @@ export const SCENES_LABOUR: readonly IScene[] = [
     ],
     [
       object("stove", "createTable", "counter", -2, 0.6, 180),
+      object(
+        "pan",
+        "createVessel",
+        "saucepan",
+        -1.95,
+        0.5,
+        0,
+        SceneBuild.COUNTER_TOP,
+      ),
+      // The spoon lies level on the counter by the pan, its bowl toward the
+      // far side: `createTool` stands a tool along +Y from the butt of its
+      // handle, so it is turned a quarter turn about +X.
+      {
+        ...object(
+          "spoon",
+          "createTool",
+          "spoon",
+          -2.2,
+          0.34,
+          0,
+          SceneBuild.COUNTER_TOP,
+        ),
+        rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
+      },
       object("bar", "createTable", "counter", 0, 0.65, 180),
     ],
   ),

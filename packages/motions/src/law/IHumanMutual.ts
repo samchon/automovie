@@ -28,12 +28,14 @@ export interface IHumanMutual<Params = object, Role extends string = string> {
    * @param role The role.
    * @param params The shared parameters.
    * @param cast Who performs each role, by subject id.
+   * @param anchor The joined action's anchor, when the author gave one: each role's action is anchored `${anchor}.${role}`, so a role can name another's instants (a catch reads its throw). Absent when the author gave none.
    * @returns The action's name and its own parameters.
    */
   act(
     role: Role,
     params: Params,
     cast: Readonly<Record<Role, string>>,
+    anchor?: string,
   ): IHumanMutual.IAct;
 }
 /**

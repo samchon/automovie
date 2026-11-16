@@ -1,6 +1,7 @@
 import type { jump } from "./actions/jump";
 import type { run } from "./actions/run";
 import type { stand } from "./actions/stand";
+import type { support } from "./actions/support";
 import type { walk } from "./actions/walk";
 import type { operate } from "./affordance/operate";
 import type { kickBall } from "./ballStrike/kickBall";
@@ -31,10 +32,12 @@ import type { clinch } from "./grappling/clinch";
 import type { handOver } from "./handling/handOver";
 import type { handshake } from "./handling/handshake";
 import type { pickUp } from "./handling/pickUp";
+import type { pushPull } from "./handling/pushPull";
 import type { putDown } from "./handling/putDown";
 import type { receive } from "./handling/receive";
 import type { flinch } from "./reaction/flinch";
 import type { knockdown } from "./reaction/knockdown";
+import type { perturb } from "./reaction/perturb";
 import type { stagger } from "./reaction/stagger";
 import type { athletics } from "./sport/athletics";
 import type { ballSport } from "./sport/ballSport";
@@ -53,6 +56,7 @@ import type { useTool } from "./tasks/useTool";
 import type { wipe } from "./tasks/wipe";
 import type { climbStairs } from "./terrain/climbStairs";
 import type { catchObject } from "./throwing/catchObject";
+import type { release } from "./throwing/release";
 import type { throwObject } from "./throwing/throwObject";
 import type { highFive } from "./touch/highFive";
 import type { kiss } from "./touch/kiss";
@@ -122,6 +126,9 @@ export interface IHumanActionParams {
   /** Going down to lie supine. */
   knockdown: knockdown.IParams;
 
+  /** Respond to the impulses on the body by their outcome (#3430). */
+  perturb: perturb.IParams;
+
   /** A knee strike. */
   knee: knee.IParams;
 
@@ -182,6 +189,9 @@ export interface IHumanActionParams {
   /** Catching an object. */
   catchObject: catchObject.IParams;
 
+  /** Letting go of a held prop. */
+  release: release.IParams;
+
   /** Operating a mechanism. */
   operate: operate.IParams;
 
@@ -190,6 +200,9 @@ export interface IHumanActionParams {
 
   /** Getting up from the floor. */
   getUp: getUp.IParams;
+
+  /** Moving the body's weight across a sequence of supports. */
+  support: support.IParams;
 
   /** Crawling. */
   crawl: crawl.IParams;
@@ -214,6 +227,9 @@ export interface IHumanActionParams {
 
   /** Walking with a load. */
   carry: carry.IParams;
+
+  /** Pushing, pulling or dragging a heavy load by its handles. */
+  pushPull: pushPull.IParams;
 
   /** A kiss. */
   kiss: kiss.IParams;

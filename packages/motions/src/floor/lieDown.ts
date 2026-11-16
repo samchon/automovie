@@ -17,6 +17,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
@@ -248,7 +249,7 @@ export namespace lieDown {
     const folds: floorSeat.Kind | undefined = FOLDED[position];
     const keys: IPose[] = [
       entered === null
-        ? { pitch: 0, roll: 0, joints: stand.RELAXED }
+        ? { pitch: 0, roll: 0, joints: stand.relaxed(body) }
         : { pitch: entered.pitch, roll: entered.roll, joints: entered.joints },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
     ];
@@ -390,7 +391,12 @@ export namespace lieDown {
       contact: "settled",
       primitives: [lying],
     });
-    return sitting ? { ...planned, base: { kind: "seated" } } : planned;
+    // Down on the floor the body lies; a lie that stops sitting up is seated
+    // (#3363: a base transition declares the base it ends in).
+    return {
+      ...planned,
+      base: sitting ? { kind: "seated" } : { kind: "lying" },
+    };
   }
 
   /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
@@ -430,7 +436,11 @@ export namespace lieDown {
     },
     down?: "left" | "right",
   ): IPose {
-    const joints: AutoMovieMotionHumanJoints.Angles = { ...stand.RELAXED };
+    // The hands at rest; every arm angle is the posture's own below.
+    const joints: AutoMovieMotionHumanJoints.Angles = {
+      ...HumanHand.shape("left", "relaxed"),
+      ...HumanHand.shape("right", "relaxed"),
+    };
     for (const side of ["left", "right"] as const) {
       joints[`${side}UpperLeg`] = [
         a.hip,

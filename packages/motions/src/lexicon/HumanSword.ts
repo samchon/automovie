@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import type { tags } from "typia";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -20,9 +20,9 @@ import { StrikingAdvance } from "../striking/StrikingAdvance";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
-import { StrikingSkill } from "../striking/StrikingSkill";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanSwordLanding } from "./HumanSwordLanding";
+import { HumanSwordTiming } from "./HumanSwordTiming";
 
 /**
  * Blade work with the blade as the effector: the cut on the eight lines,
@@ -70,6 +70,9 @@ export namespace HumanSword {
 
     /** See `tip`. */
     edge?: string;
+
+    /** How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549). */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** Where a cut comes from, as the performer sees it: `forehand` is the blade hand's side. */
@@ -373,35 +376,8 @@ export namespace HumanSword {
   /** The bisections of an advance's travel down to the least that reaches: the full travel's 2^-20, under a micrometre. */
   const TRAVEL_BISECTIONS: number = 20;
 
-  /** The clock of an attack: its attack lasts as a minimum-jerk unit of the path's length at the peak speed. `carried` is the part of that length an advancing body covers: the body arrives at rest (a whole unit) while an arrested point arrives at its peak (half a unit), so the two speeds peak apart and the attack is timed on the greatest of their sum. */
-  export const timed = (
-    context: IHumanActionContext<IAttack>,
-    length: number,
-    speed: number,
-    follow: number,
-    carried: number = 0,
-  ): AutoMovieMotionClock.IClock => {
-    const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
-    let peak: number = 1.875 * length;
-    for (let i: number = 1; carried > 0 && i <= 50; i++)
-      peak = Math.max(
-        peak,
-        (length - carried) * rate(i / 100) + carried * rate(i / 50),
-      );
-    const attack: number = HumanSkill.jitter(
-      context.skill,
-      context.random("attack"),
-      Math.max(0.12, peak / speed),
-    );
-    const recovery: number = StrikingSkill.recovery(context.skill);
-    return AutoMovieMotionClock.phrase({
-      prepare: 0.3 * recovery,
-      attack,
-      follow: follow * attack,
-      hold: 0.08,
-      retract: 0.4 * recovery,
-    });
-  };
+  /** The clock of an attack (`HumanSwordTiming.timed`). */
+  export const timed: typeof HumanSwordTiming.timed = HumanSwordTiming.timed;
 
   /** The share of its path an attack runs: all of it, a feint's shown share, or a parried attack's stop. */
   export const stopped = (params: IAttack): number => {

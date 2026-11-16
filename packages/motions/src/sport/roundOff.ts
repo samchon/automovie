@@ -75,11 +75,28 @@ export namespace roundOff {
   /** The angle past the handstand over which the legs close and the second quarter turn is made, degrees (provisional). */
   export const SNAP: number = 120;
 
-  /** The landing shape: the legs together, the knees bent and the arms still up (provisional angles). */
-  export const LANDED: ExerciseKey.IKey = ExerciseKey.of(
-    {},
-    { ...ExerciseKey.stood(0, 30, 15), shoulder: 150, elbow: 5 },
-  );
+  /**
+   * The landing shape on a body: the legs together, the knees bent and the
+   * arms still up (provisional angles).
+   *
+   * @param body The body.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from` and `ExerciseKey.stood`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function landed(body: IHumanBody): ExerciseKey.IKey {
+    return ExerciseKey.from(
+      body,
+      {},
+      { ...ExerciseKey.stood(0, 30, 15), shoulder: 150, elbow: 5 },
+    );
+  }
 
   /**
    * Parameters.
@@ -105,7 +122,7 @@ export namespace roundOff {
    * @throws {HumanRefusal} When the seconds are not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The shape at an angle is the cartwheel's wheel in the first half and closes to `LANDED` in the second; its heading turns by the quarter turns; the wheel table rolls it over both feet, each foot, each hand and both feet again.
+   * @evidence contracts/development/implementation.md#principled-implementation The shape at an angle is the cartwheel's wheel in the first half and closes to `landed` in the second; its heading turns by the quarter turns; the wheel table rolls it over both feet, each foot, each hand and both feet again.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape by angle, the table, the angle by time, the supports from the table.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The final posture is returned with no roll, the same body as a whole wheel, so the next action does not unwind it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per row of the table, and one per evaluated second.
@@ -140,13 +157,13 @@ export namespace roundOff {
       ...ExerciseKey.posed(
         angle <= 180
           ? ExerciseKey.blend(
-              ExerciseKey.STOOD,
-              cartwheel.WHEEL,
+              ExerciseKey.standing(body),
+              cartwheel.wheel(body),
               ease(angle / cartwheel.SHAPE),
             )
           : ExerciseKey.blend(
-              cartwheel.WHEEL,
-              LANDED,
+              cartwheel.wheel(body),
+              landed(body),
               ease((angle - 180) / SNAP),
             ),
         standing.yaw + turn(angle),

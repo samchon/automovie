@@ -202,7 +202,8 @@ export namespace workout {
       phases.push({ name: from, seconds });
       spans.push({ from, a, b });
     };
-    span("enter", kind.enter, ExerciseKey.STOOD, first.key);
+    const stood: ExerciseKey.IKey = ExerciseKey.standing(body);
+    span("enter", kind.enter, stood, first.key);
     let last: ExerciseKey.IKey = first.key;
     for (let r: number = 1; r <= reps; r++) {
       for (let i: number = 1; i <= route.length; i++) {
@@ -217,8 +218,8 @@ export namespace workout {
         last = key;
       }
     }
-    if (!stay) span("release", kind.enter, last, ExerciseKey.STOOD);
-    const left: ExerciseKey.IKey = stay ? last : ExerciseKey.STOOD;
+    if (!stay) span("release", kind.enter, last, stood);
+    const left: ExerciseKey.IKey = stay ? last : stood;
     span("relax", 0, left, left);
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
@@ -271,13 +272,7 @@ export namespace workout {
       if (kind.anchor === "stance") return footed(placed);
       // How far the body is on its support: carried there from standing.
       const down: number =
-        s.a === ExerciseKey.STOOD
-          ? s.b === ExerciseKey.STOOD
-            ? 0
-            : u
-          : s.b === ExerciseKey.STOOD
-            ? 1 - u
-            : 1;
+        s.a === stood ? (s.b === stood ? 0 : u) : s.b === stood ? 1 - u : 1;
       if (down >= 1) return placed;
       const carried: IHumanPosture = {
         ...placed,
@@ -312,7 +307,7 @@ export namespace workout {
         sunk(
           ExerciseKey.pinned(
             body,
-            s.a === ExerciseKey.STOOD ? s.b : s.a,
+            s.a === stood ? s.b : s.a,
             yaw,
             kind.pin,
             at,

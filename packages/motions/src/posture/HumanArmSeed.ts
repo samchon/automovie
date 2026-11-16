@@ -25,12 +25,14 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * restarts, Beeson and Ames 2015, "TRAC-IK", Humanoids). The hold's later
  * waypoints carry it by the sites' motion (differential inverse kinematics,
  * the map the follower uses), and the trajectory's optimiser solves them.
- * The reach is RRT-Connect's path in the arms' joint
- * space from the rest arms to the hold's first configuration
+ * The reach is RRT-Connect's path in the arms' joint space, indexed by the
+ * share of the reach, from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
- * last, each valid by the one reading the trajectory refuses by
- * (`HumanArmTrajectoryModel.invalid`). A reach waypoint lies along its path
- * by the share of the reach the carry has made at its second.
+ * last, each state valid by the one reading the trajectory refuses by
+ * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, so
+ * every state is read where it happens (time-indexed RRT-Connect, EXOTica). A
+ * reach waypoint is the path's state at the share the carry has made at its
+ * second.
  */
 export namespace HumanArmSeed {
   /** What the seed reads. */
@@ -63,31 +65,70 @@ export namespace HumanArmSeed {
     const last: number = holds[holds.length - 1]!;
     const hold: number[][][] = goal(problem, context, first, last);
     const space: ISpace = sampler(context);
-    const path = (from: number[][], to: number[][], k: number): number[][] => {
+    // A path from an end of the action to the hold, through the waypoints
+    // `passes` from that end's to the hold's: each configuration carries its
+    // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
+    // and is valid where that share puts it, at the waypoint whose share is
+    // nearest, so the rest arm is read where it rests and the hold where it
+    // holds (time-indexed RRT-Connect, `HumanArmConnect`).
+    const path = (
+      from: number[][],
+      to: number[][],
+      passes: readonly number[],
+    ): number[][] => {
+      const k: number = passes[passes.length - 1]!;
+      const shares: number[] = passes.map((j: number, i: number): number =>
+        i === 0
+          ? 0
+          : i === passes.length - 1
+            ? 1
+            : Math.min(1, Math.max(0, problem.share(times[j]!))),
+      );
+      const dims: number = from.length * G.DIMENSIONS;
+      const where: (s: number) => number = (s: number): number => {
+        let best: number = 0;
+        shares.forEach((v: number, i: number): void => {
+          if (Math.abs(v - s) < Math.abs(shares[best]! - s)) best = i;
+        });
+        return passes[best]!;
+      };
       const found: number[][] | null = HumanArmConnect.connect({
-        start: from.flat(),
-        goal: to.flat(),
-        sample: space.sample,
+        start: [...from.flat(), 0],
+        goal: [...to.flat(), 1],
+        sample: (random: () => number): number[] => [
+          ...space.sample(random),
+          random(),
+        ],
         valid: (q: readonly number[]): boolean =>
-          M.invalid(context, k, split(q)).value <= M.TOLERANCE,
+          M.invalid(context, where(q[dims]!), split(q.slice(0, dims))).value <=
+          M.TOLERANCE,
         extent: space.extent,
+        rising: dims,
       });
       if (found === null)
         throw new HumanRefusal({
           kind: "reach",
           axis: "region",
-          value: M.invalid(context, k, from).value,
+          value: M.invalid(context, passes[0]!, from).value,
           feasible: null,
           reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s`,
           fix: "put the hand on a site its arm reaches with the body clear",
         });
       return found;
     };
-    const reach: number[][] = path(context.rest, hold[0]!, first);
+    const span: (a: number, b: number) => number[] = (
+      a: number,
+      b: number,
+    ): number[] =>
+      Array.from(
+        { length: b - a + 1 },
+        (_: unknown, i: number): number => a + i,
+      );
+    const reach: number[][] = path(context.rest, hold[0]!, span(0, first));
     // A hold that lasts to the end has no return to join.
     const back: number[][] = context.open
       ? []
-      : path(context.back, hold[hold.length - 1]!, last);
+      : path(context.back, hold[hold.length - 1]!, span(last, n - 1).reverse());
     return problem.arms.map(
       (_: IProblem["arms"][number], a: number): number[][] =>
         times.map((t: number, k: number): number[] => {
@@ -349,24 +390,23 @@ export namespace HumanArmSeed {
     return out;
   }
 
-  /** The configuration a share of a path's length along it. */
+  /** The configuration of a path, without its share coordinate, where its share (its last coordinate, rising along it) reaches a value. */
   function at(path: readonly (readonly number[])[], share: number): number[] {
-    const lengths: number[] = [0];
+    const s: (q: readonly number[]) => number = (
+      q: readonly number[],
+    ): number => q[q.length - 1]!;
     for (let i: number = 1; i < path.length; ++i)
-      lengths.push(
-        lengths[i - 1]! + HumanArmConnect.distance(path[i - 1]!, path[i]!),
-      );
-    const target: number = share * lengths[lengths.length - 1]!;
-    for (let i: number = 1; i < path.length; ++i)
-      if (target <= lengths[i]! || i === path.length - 1) {
-        const piece: number = lengths[i]! - lengths[i - 1]!;
+      if (share <= s(path[i]!) || i === path.length - 1) {
+        const piece: number = s(path[i]!) - s(path[i - 1]!);
         return HumanArmConnect.lerp(
           path[i - 1]!,
           path[i]!,
-          piece > 0 ? Math.min(1, (target - lengths[i - 1]!) / piece) : 1,
-        );
+          piece > 0
+            ? Math.min(1, Math.max(0, (share - s(path[i - 1]!)) / piece))
+            : 1,
+        ).slice(0, -1);
       }
-    return [...path[0]!];
+    return path[0]!.slice(0, -1);
   }
 }
 

@@ -2,7 +2,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
@@ -98,7 +97,7 @@ export namespace HumanFirearmReady {
     low: boolean;
 
     /** The body as it stands at the decisive instant. */
-    posture: IHumanPosture;
+    posture: StrikingRoll.IChoice["posture"];
   }
 
   /**

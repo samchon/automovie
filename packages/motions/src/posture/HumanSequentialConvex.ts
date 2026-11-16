@@ -123,7 +123,9 @@ export namespace HumanSequentialConvex {
    * Why a solve stopped, read off its last convexification: `model`, the
    * model's predicted decrease under `ISchedule.improved` or within its own
    * accuracy (`IStep.accuracy`); `step`, a step taken under
-   * `ISchedule.least`; `collapsed`, no step taken, the region fallen under
+   * `ISchedule.least`, or a rejected proposal under it at an already feasible
+   * iterate (numerical no progress, not a stationarity certificate);
+   * `collapsed`, no step taken, the region fallen under
    * `ISchedule.least` or the tries spent; `rounds`, the convexifications ran
    * out (`IOptions.rounds`) with steps still being taken.
    */
@@ -301,7 +303,8 @@ export namespace HumanSequentialConvex {
         let model: IModel<X> = problem.convexify(x, current, mu, radius, true);
         let pending: IStep<X> | undefined;
         if (steer) {
-          const steered = steering(problem, x, current, mu, radius, model);
+          const steered: { mu: number; model: IModel<X>; step: IStep<X> } =
+            steering(problem, x, current, mu, radius, model);
           mu = steered.mu;
           model = steered.model;
           pending = steered.step;
@@ -327,7 +330,7 @@ export namespace HumanSequentialConvex {
             ended = "model";
             break;
           }
-          const gain = (reading: E): number =>
+          const gain: (reading: E) => number = (reading: E): number =>
             step.predicted > 0
               ? (merit - (reading.objective + mu * reading.violation)) /
                 step.predicted
@@ -370,6 +373,16 @@ export namespace HumanSequentialConvex {
             if (settled) ended = flat ? "model" : "step";
             break;
           }
+          // A rejected proposal that cannot move the current feasible
+          // iterate by the caller's resolution is numerical no progress.
+          // It is not an objective-error or stationarity certificate; an
+          // infeasible iterate must still be reported as a collapse.
+          if (step.length < s.least && problem.feasible(current)) {
+            told = true;
+            settled = true;
+            ended = "step";
+            break;
+          }
           radius *= s.shrink;
           if (radius < s.least) {
             settled = true;
@@ -406,14 +419,14 @@ export namespace HumanSequentialConvex {
     let mu: number = penalty;
     let model: IModel<X> = first;
     let step: IStep<X> = model.solve(radius);
-    const reduced = (d: IStep<X>): number => {
+    const reduced: (d: IStep<X>) => number = (d: IStep<X>): number => {
       if (d.violation === undefined)
         throw new Error(
           "A steered penalty needs each step's linearised violation",
         );
       return current.violation - d.violation;
     };
-    const grow = (): void => {
+    const grow: () => void = (): void => {
       mu *= STEERING.increase;
       model = problem.convexify(x, current, mu, radius, true);
       step = model.solve(radius);
@@ -428,7 +441,7 @@ export namespace HumanSequentialConvex {
       const best: IStep<X> = problem
         .convexify(x, current, mu, radius, false)
         .solve(radius);
-      const enough = (d: IStep<X>): boolean =>
+      const enough: (d: IStep<X>) => boolean = (d: IStep<X>): boolean =>
         best.met === true
           ? d.met === true
           : reduced(d) >= STEERING.feasibility * reduced(best);

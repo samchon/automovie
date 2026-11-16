@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
@@ -22,15 +23,16 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  *    cut short between samples.
  * 2. The arms pass the refusal's own reading between them
  *    (`HumanArmTrajectoryModel.invalid`: the probes' and the body's corners'
- *    depths, the two arms' crossings and the ranges). An interval is
- *    certified without that reading where every surface probe (the tangle
- *    audit's corners, which the optimiser reads only at waypoints) travels,
- *    relative to each collider it is near, no farther than the clearance it
- *    keeps at one end before the path is refused
+ *    depths, the two arms' crossings and the ranges). The forward surface
+ *    reading alone is spared where every surface probe (the tangle audit's
+ *    corners) travels in each nearby collider's actual rigid frame no farther
+ *    than its clearance at one end before the path is refused
  *    (`HumanArmTrajectoryTerms.SKIN`), a probe farther than the pairs' reach
  *    from every collider no farther than that reach; an interval the bound
  *    cannot certify, a hand resting or sliding on the skin, is read at each
- *    inner instant on the arms' interpolant.
+ *    inner instant on the arms' interpolant. Reverse corners, crossings,
+ *    hard task points and ranges are always read at those inner instants:
+ *    a bound on forward probes proves none of those constraints.
  *
  * An interval whose site strays or whose reading fails at an inner instant
  * is split at its middle, and an interval of less than two frames is never
@@ -56,7 +58,7 @@ export namespace HumanArmRefine {
    * @returns The intervals to split, ascending.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what an interval must bound and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A continuous check's pipeline: conservative advancement certifies an interval whose probes' motion bounds stay below their clearance, and the exact reading is taken only where it cannot; the site's interpolant is compared with the site itself.
+   * @evidence contracts/development/implementation.md#principled-implementation Conservative advancement spares only forward pairs whose relative motion stays within their clearance; reverse pairs, crossings, hard task points and ranges are checked at every actual inner waypoint, and the site's interpolant against the site itself.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over intervals; per interval the site reading, then the probes'.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every arm, every surface probe and every instant of the frame grid inside an interval is read; an interval below two frames is left as it is, never forced.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per interval one placement per arm and inner instant; the probes' pairs are read at the interval's ends only.
@@ -79,14 +81,15 @@ export namespace HumanArmRefine {
         if (t > from + 1e-9 && t < to - 1e-9) inner.push(g);
       });
       if (inner.length === 0) continue;
-      if (
-        strayed(c, fine, k, inner) ||
-        (!x.every((_: readonly (readonly number[])[], a: number): boolean =>
-          certified(c, fine, x, a, k, inner),
-        ) &&
-          tangled(c, fine, x, inner))
-      )
+      if (strayed(c, fine, k, inner)) {
         out.push(k);
+        continue;
+      }
+      const forwardCertified: boolean = x.every(
+        (_: readonly (readonly number[])[], a: number): boolean =>
+          certified(c, fine, x, a, k, inner),
+      );
+      if (tangled(c, fine, x, inner, forwardCertified)) out.push(k);
     }
     return out;
   }
@@ -211,9 +214,9 @@ function certified(
   const ends: G.IPlaced[] = [k, k + 1].map(
     (j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
   );
-  const screens: G.IScreen[] = [k, k + 1].map(
-    (j: number, e: number): G.IScreen =>
-      G.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
+  const screens: S.IScreen[] = [k, k + 1].map(
+    (j: number, e: number): S.IScreen =>
+      S.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
   );
   const clear = (end: 0 | 1, probe: number): boolean => {
     const j: number = k + end;
@@ -221,7 +224,7 @@ function certified(
     const placed: G.IPlaced = ends[end]!;
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     const part: number = frame.segments[probe - G.SURFACE]!;
-    const near: number[] = G.nearby(
+    const near: number[] = S.nearby(
       frame,
       placed,
       probe,
@@ -229,7 +232,7 @@ function certified(
       screens[end],
     ).filter((shape: number): boolean => {
       const other: number = frame.shapes[shape]!.part;
-      return !(part >= 0 && other >= 0 && frame.related[part]![other]!);
+      return frame.related[part]?.[other] !== true;
     });
     // Far from every collider: the pairs' reach is the probe's clearance.
     if (near.length === 0)
@@ -240,23 +243,23 @@ function certified(
     return near.every((shape: number): boolean => {
       const short: number =
         1000 *
-        (c.allowed(a, j, probe, shape) - (G.gap(frame, shape, p, p) - r));
+        (c.allowed(a, j, probe, shape) - (S.gap(frame, shape, p, p) - r));
       const slack: number = (T.SKIN + T.TOLERANCE - short) / 1000;
-      const centre: IAutoMovieVector3 = frame.shapes[shape]!.centre;
       return inner.every((g: number, i: number): boolean => {
         const there: G.IShape | undefined = fine.frames[a]![g]!.shapes[shape];
-        const moved: IAutoMovieVector3 =
-          there === undefined || there.bone !== frame.shapes[shape]!.bone
-            ? { x: 0, y: 0, z: 0 }
-            : Vector3.subtract(there.centre, centre);
-        return (
-          Vector3.length(
-            Vector3.subtract(
-              Vector3.subtract(inside[i]!.probes[probe]![0], p),
-              moved,
-            ),
-          ) <= slack
-        );
+        const here: G.IShape = frame.shapes[shape]!;
+        if (
+          there === undefined ||
+          there.bone !== here.bone ||
+          there.part !== here.part
+        )
+          return false;
+        const relative: IAutoMovieVector3 = S.relative(
+          here,
+          there,
+          inside[i]!.probes[probe]![0],
+        ).point;
+        return Vector3.length(Vector3.subtract(relative, p)) <= slack;
       });
     });
   };
@@ -271,6 +274,7 @@ function tangled(
   fine: M.IContext,
   x: readonly (readonly (readonly number[])[])[],
   inner: readonly number[],
+  forwardCertified: boolean,
 ): boolean {
   return inner.some(
     (g: number): boolean =>
@@ -280,6 +284,7 @@ function tangled(
         x.map((arm: readonly (readonly number[])[]): number[] =>
           HumanArmRefine.hermite(c.times, arm, fine.times[g]!),
         ),
+        forwardCertified,
       ).value > M.TOLERANCE,
   );
 }

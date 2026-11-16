@@ -25,13 +25,14 @@ export namespace PlaygroundObjects {
     seat(model: object, placement: IPlacement, id?: string): unknown;
   }
 
-  /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame. */
-  type IPlacement =
+  /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame, either as a fixture or not. */
+  type IPlacement = (
     | { at: { x: number; y: number; z: number }; yaw: number }
     | {
         position: { x: number; y: number; z: number };
         rotation: IPlaygroundComposition.IQuaternion;
-      };
+      }
+  ) & { fixed?: boolean };
 
   /** The packages' exports by name, for the members only some releases have. */
   const MOTIONS: Readonly<Record<string, unknown>> = motions as Readonly<
@@ -181,16 +182,20 @@ export namespace PlaygroundObjects {
     return MOTIONS["HumanObject"] as IHumanObject;
   }
 
-  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `HumanObject.Placement` takes. */
+  /** Where an object rests: a heading on its floor point, or its whole rotation as a world frame, the two forms `HumanObject.Placement` takes, and whether it is a fixture. */
   function placement(object: IPlaygroundComposition.IObject): IPlacement {
+    const fixed: { fixed?: boolean } =
+      object.fixed === true ? { fixed: true } : {};
     return object.rotation === undefined
       ? {
           at: { x: object.x, y: object.y ?? 0, z: object.z },
           yaw: object.yaw,
+          ...fixed,
         }
       : {
           position: { x: object.x, y: object.y ?? 0, z: object.z },
           rotation: object.rotation,
+          ...fixed,
         };
   }
 }

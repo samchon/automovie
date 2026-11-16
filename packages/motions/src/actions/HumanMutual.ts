@@ -1,7 +1,10 @@
 import type { handOver } from "../handling/handOver";
 import type { handshake } from "../handling/handshake";
 import type { IHumanMutual } from "../law/IHumanMutual";
+import type { catchObject } from "../throwing/catchObject";
+import type { throwObject } from "../throwing/throwObject";
 import type { highFive } from "../touch/highFive";
+import type { kiss } from "../touch/kiss";
 
 /**
  * The vocabulary's mutual actions, for `HumanChain.mutual`.
@@ -76,5 +79,84 @@ export namespace HumanMutual {
               ...(params.hand === undefined ? {} : { giverHand: params.hand }),
             },
           },
+  };
+
+  /**
+   * One person kisses another: the kisser performs `kiss` on the partner's
+   * region; the kissed turns its gaze to the kisser's face with `look`,
+   * the eyes and head meeting the approach as people do when kissed, while
+   * its body stands.
+   */
+  export const kiss: IHumanMutual<
+    Omit<kiss.IParams, "partner">,
+    "kisser" | "kissed"
+  > = {
+    name: "kiss",
+    roles: ["kisser", "kissed"],
+    act: (
+      role: "kisser" | "kissed",
+      params: Omit<kiss.IParams, "partner">,
+      cast: Readonly<Record<"kisser" | "kissed", string>>,
+    ): IHumanMutual.IAct =>
+      role === "kisser"
+        ? { name: "kiss", params: { ...params, partner: cast.kissed } }
+        : {
+            name: "look",
+            params: {
+              target: { kind: "person", subject: cast.kisser, region: "face" },
+            },
+          },
+  };
+
+  /**
+   * One person throws a ball to another, who catches it: the thrower
+   * performs `throwObject` at the catcher's right palm with the ball it
+   * holds, and the catcher `catchObject` of that throw, read through the
+   * joined anchor (`${anchor}.thrower`), so the catch plans from the throw's
+   * own flight. The join needs an anchor for that reason.
+   */
+  export const pass: IHumanMutual<
+    Omit<catchObject.IParams, "from"> &
+      Pick<throwObject.IParams, "style" | "manner">,
+    "thrower" | "catcher"
+  > = {
+    name: "pass",
+    roles: ["thrower", "catcher"],
+    act: (
+      role: "thrower" | "catcher",
+      params: Omit<catchObject.IParams, "from"> &
+        Pick<throwObject.IParams, "style" | "manner">,
+      cast: Readonly<Record<"thrower" | "catcher", string>>,
+      anchor?: string,
+    ): IHumanMutual.IAct => {
+      if (anchor === undefined)
+        throw new Error(
+          "a pass joins a catch to its throw by the anchor; give HumanChain.mutual an anchor",
+        );
+      return role === "thrower"
+        ? {
+            name: "throwObject",
+            params: {
+              at: {
+                kind: "person",
+                subject: cast.catcher,
+                region: params.side === "left" ? "palmLeft" : "palmRight",
+              },
+              prop: params.ball,
+              ...(params.style === undefined ? {} : { style: params.style }),
+              ...(params.manner === undefined ? {} : { manner: params.manner }),
+            },
+          }
+        : {
+            name: "catchObject",
+            params: {
+              from: `${anchor}.thrower`,
+              ball: params.ball,
+              ...(params.hands === undefined ? {} : { hands: params.hands }),
+              ...(params.side === undefined ? {} : { side: params.side }),
+              ...(params.glove === undefined ? {} : { glove: params.glove }),
+            },
+          };
+    },
   };
 }

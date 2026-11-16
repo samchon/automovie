@@ -32,6 +32,7 @@ import { validateCameraClearanceEnvelope } from "./staging/validateCameraClearan
 import { validateCameraDepthPrecision } from "./staging/validateCameraDepthPrecision";
 import { validateFogPlacement } from "./staging/validateFogPlacement";
 import { validateLightPlacementShape } from "./staging/validateLightPlacementShape";
+import { Transform } from "../math/Transform";
 
 /** World up, the axis an actor's `facingDeg` turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -407,11 +408,7 @@ export function stageScene(
       (actor: IAutoMovieStageActor): IAutoMovieSceneNode => ({
         id: actor.node,
         model: cast.get(actor.node)!.modelRef ?? actor.node,
-        transform: {
-          translation: actor.position,
-          rotation: Quaternion.fromAxisAngle(UP, actor.facingDeg),
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        transform: Transform.of(actor.position, Quaternion.fromAxisAngle(UP, actor.facingDeg)),
         motion: null,
         pose: null,
       }),
@@ -432,11 +429,7 @@ export function stageScene(
     (camera: IAutoMovieStageCamera): IAutoMovieCamera => {
       return {
         id: camera.node,
-        transform: {
-          translation: camera.position,
-          rotation: lookRotation(cameraDirections.get(camera)!),
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        transform: Transform.of(camera.position, lookRotation(cameraDirections.get(camera)!)),
         fovY: camera.fovDeg,
         near: camera.near,
         far: camera.far,

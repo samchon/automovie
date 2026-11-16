@@ -59,7 +59,8 @@ const sitting = (a: IHumanBody, params: object = {}): HumanChain =>
 /**
  * The stages of the laws that reshape the body where it stands: looking,
  * gesturing, resting the hands, bracing, bending, crouching, kneeling, lying
- * down, sitting, shifting on a seat, rising and typing.
+ * down, moving across supports, getting up from the floor, sitting,
+ * shifting on a seat, rising and typing.
  *
  * A look and a pointing gesture aim at a point 1 m to the side and 2 m ahead
  * at shoulder height. A bend reaches for a point 0.15 m to the hand's side,
@@ -72,7 +73,7 @@ const sitting = (a: IHumanBody, params: object = {}): HumanChain =>
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and every staging choice with its source.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Twelve laws, the ones performed in place.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Fourteen laws, the ones performed in place.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A row that needs a companion parameter (a face region needs the face-touching gesture) states it; nothing else is special-cased.
  */
 export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
@@ -176,6 +177,37 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     a: IHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("lieDown", S.set(pick, "position"))),
+  support: (
+    _pick: motionHumanLawSweep.Pick,
+    a: IHumanBody,
+  ): motionHumanLawSweep.IScene =>
+    S.solo(
+      a,
+      S.chain().act("support", {
+        stances: [
+          {
+            contacts: [
+              { part: "leftFoot", kind: "bear" },
+              { part: "rightFoot", kind: "bear" },
+            ],
+          },
+          {
+            contacts: [
+              { part: "leftFoot", kind: "bear" },
+              { part: "rightFoot", kind: "bear" },
+              { part: "leftHand", kind: "bear" },
+              { part: "rightHand", kind: "bear" },
+            ],
+          },
+          {
+            contacts: [
+              { part: "leftFoot", kind: "bear" },
+              { part: "rightFoot", kind: "bear" },
+            ],
+          },
+        ],
+      }),
+    ),
   getUp: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,

@@ -3,11 +3,17 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { run } from "../actions/run";
 import { walk } from "../actions/walk";
+import { walkCadence } from "../actions/walkCadence";
+import { walkStation } from "../actions/walkStation";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
+import type { IHumanDrillRegulation } from "./IHumanDrillRegulation";
 
 /**
  * Named ways of going somewhere on foot; the composition gives the
@@ -122,21 +128,55 @@ export namespace HumanGait {
     arms: { shoulder: 2, elbow: 30, swing: 0 },
   };
 
+  /** What a march leaves to the composition: the walk's, and the regulation and time it marches at. */
+  export interface IMarch extends IParams {
+    /** The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent. */
+    regulation?: IHumanDrillRegulation.Name;
+
+    /** The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent. */
+    time?: string;
+  }
+
   /** A march: the drill step at the drill cadence, the arms swung straight. */
-  export const march: IHumanActionLaw<IParams> = styled(
+  export const march: IHumanActionLaw<IMarch> = styled(
     "march",
-    (context: IHumanActionContext<IParams>): walk.IGait => {
+    (context: IHumanActionContext<IMarch>): walk.IGait => {
       const l: number = context.body.measure.hipHeight;
 
-      // The whole number of steps nearest the way in drill steps, taken at the cadence: the step and the speed follow from them.
-      const way: number = distance(context);
+      // The cadence and the drill step: the regulation's time, or the beat track's period when the march keeps step to one.
+      const drill: { cadence: number; step: number } = regulated(
+        context.params,
+      );
+      const beats: number[] =
+        context.params.cadence === undefined
+          ? []
+          : walkCadence.beats(context, context.params.cadence);
+      const cadence: number =
+        beats.length < 2 ? drill.cadence : 60 / walkCadence.period(beats);
+
+      // The whole number of steps nearest the way in drill steps, taken at the cadence: the step and the speed follow from them. A march keeping station takes as many steps as the cadence fits in the station's span, and the step gives.
+      const resolved: IHumanActionContext<IMarch> =
+        walkStation.resolve(context);
+      const way: number = distance(resolved);
+      const station: IHumanFormation.IStation | undefined =
+        context.params.station;
+      const count: number =
+        station === undefined
+          ? Math.max(2, Math.round(way / (drill.step * l)))
+          : Math.max(
+              2,
+              Math.round(
+                ((walkStation.rests(context, station) - context.start) *
+                  cadence) /
+                  60,
+              ),
+            );
       // The stepping plan measures the way along its own path; 2 % of slack
       // keeps it on this count of steps. Its period is the longest step at
       // the speed (`WalkPace`), so the speed is the slack step's at the
       // cadence, and the drill step itself is taken at the cadence.
-      const step: number =
-        (1.02 * way) / Math.max(2, Math.round(way / (MARCH.step * l)));
-      const speed: number = (step * MARCH.cadence) / 60;
+      const step: number = (1.02 * way) / count;
+      const speed: number = (step * cadence) / 60;
       return {
         ...walk.walking((speed * speed) / (AutoMovieGravity.STANDARD * l)),
         step: (): number => step / l,
@@ -381,6 +421,29 @@ function mood(
     },
     lean: HumanGait.MOODS[name],
   };
+}
+
+/** A march's cadence and step in hip heights: its regulation's time and pace, or TC 3-21.5's quick time. */
+function regulated(params: HumanGait.IMarch): {
+  cadence: number;
+  step: number;
+} {
+  if (params.regulation === undefined)
+    return { cadence: HumanGait.MARCH.cadence, step: HumanGait.MARCH.step };
+  const row: IHumanDrillRegulation = HUMAN_DRILL_CADENCES[params.regulation];
+  const names: string[] = Object.keys(row.times);
+  const time: string = params.time ?? names[0] ?? "";
+  const cadence: number | undefined = row.times[time];
+  if (cadence === undefined)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "time",
+      value: time,
+      feasible: { kind: "alternatives", values: names },
+      reason: `the ${params.regulation} regulation has no ${time} time`,
+      fix: "march at one of the regulation's times",
+    });
+  return { cadence, step: row.pace / 0.93 };
 }
 
 /** A walk in a gait of its own, under a name: the walk's cuts and yields, planned by its stepping plan. */

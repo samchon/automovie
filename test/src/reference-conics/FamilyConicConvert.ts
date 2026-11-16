@@ -99,7 +99,7 @@ export namespace FamilyConicConvert {
     /** The source's own hollows under its convex hull deeper than the tolerance, measured before fairing (`hollows`). */
     hollows: IHollow[];
 
-    /** Crest candidates: where the faired section stands outside the section faired at twice the cutoff, deeper than the tolerance (umps). */
+    /** Crest candidates: where the faired section stands outside the section faired at twice the cutoff, deeper than the tolerance (`bumps`). */
     bumps: IHollow[];
   }
 

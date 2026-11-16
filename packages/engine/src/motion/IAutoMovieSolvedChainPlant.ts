@@ -39,4 +39,7 @@ export interface IAutoMovieSolvedChainPlant {
    * for a candidate of another chain.
    */
   seed?: IAutoMovieSwivelSeed;
+
+  /** What a hinged chain's candidate fitted with a strain scored (`IAutoMovieSeededChainFit.value`); absent otherwise. */
+  value?: { overshoot: number; error: number; strain: number };
 }

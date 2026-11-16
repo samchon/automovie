@@ -17,6 +17,7 @@ import { footprintInteriorPoint } from "../space/footprintInteriorPoint";
 import { surfaceFootprint } from "../space/surfaceFootprint";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 import { setPieceMatrix } from "./staging/setPieceMatrix";
+import { Transform } from "../math/Transform";
 
 /**
  * The world frame a placement relation anchors to, or `null` when it has none.
@@ -123,15 +124,11 @@ export function propAnchorFrame(props: {
         surfaceFootprint(entry.surface),
       );
       if (anchor === null) return null;
-      return {
-        translation: {
+      return Transform.of({
           x: anchor.x,
           y: surfaceHeightAt(entry.surface, anchor.x, anchor.z),
           z: anchor.z,
-        },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      };
+        }, { x: 0, y: 0, z: 0, w: 1 });
     }
   }
 }

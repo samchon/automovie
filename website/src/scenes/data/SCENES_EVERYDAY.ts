@@ -182,6 +182,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     takes: SceneTakes.of(FALL),
     camera: { view: "three-quarter" },
     needs: [],
+    refusedUntil: 3544,
   },
   {
     id: "lineup",

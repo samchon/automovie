@@ -90,7 +90,11 @@ export namespace AutoMovieScheduleWalk {
     of: string,
   ): readonly resolveAutoMovieSchedule.ICue[] | undefined {
     const entry: IAutoMovieSchedule.IEntry | undefined = walk.anchored.get(of);
-    if (entry === undefined) return walk.tracks.get(of);
+
+    // A name that is no anchor and no fixed track may be a track the laws
+    // compute from what is placed so far (a struck person's hits).
+    if (entry === undefined)
+      return walk.tracks.get(of) ?? walk.laws.instants?.(of, walk.entries);
     const events: readonly resolveAutoMovieSchedule.ICue[] = entry.events ?? [];
     const named: (name: string) => boolean = (name: string): boolean =>
       events.some(

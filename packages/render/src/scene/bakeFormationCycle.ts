@@ -1,7 +1,8 @@
 import { autoMovieModelGaits, gaitMotion } from "@automovie/engine";
 import type {
   IAutoMovieGait,
-  IAutoMovieMotion,
+  IAutoMovieKeyframe,
+  IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import * as THREE from "three";
@@ -9,6 +10,7 @@ import * as THREE from "three";
 import { AUTOMOVIE_FORMATION_CYCLE_SAMPLES } from "./AUTOMOVIE_FORMATION_CYCLE_SAMPLES.js";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
+import type { IAutoMovieFormationPoseTake } from "./IAutoMovieFormationPoseTake.js";
 import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
 import { applyPose } from "./applyPose.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
@@ -23,7 +25,8 @@ import { formationCycleStride } from "./formationCycleStride.js";
  * rest-space vertex to where the cycle puts it. The object is left at the last
  * sampled pose; callers extract geometry before baking, never after.
  *
- * The pose comes from {@link gaitMotion}, whose keyframe `i` of `samples` sits
+ * The poses are the given pose takes (`IBakeFormationCycleProps.takes`, a
+ * performed member's cycle) or, without them, come from {@link gaitMotion}, whose keyframe `i` of `samples` sits
  * exactly at cycle position `i / samples`, and is applied through the same
  * {@link applyPose} used by named performers. This bake passes default
  * joint axes and no clinical rest frames; a caller using different explicit
@@ -48,9 +51,37 @@ export const bakeFormationCycle: (
   input: IBakeFormationCycleProps,
 ): IAutoMovieFormationCycle | null => {
   const skeleton: IAutoMovieSkeleton | null = input.model.skeleton;
-  const gaits: readonly IAutoMovieGait[] = autoMovieModelGaits(input.model);
-  if (skeleton === null || gaits.length === 0) return null;
-  const samples: number = input.samples ?? AUTOMOVIE_FORMATION_CYCLE_SAMPLES;
+  if (skeleton === null) return null;
+
+  // The cycles to bake: the given pose tables, or each gait of the model synthesised at even phases.
+  const samples: number =
+    input.takes?.[0]?.poses.length ??
+    input.samples ??
+    AUTOMOVIE_FORMATION_CYCLE_SAMPLES;
+  const sources: readonly IAutoMovieFormationPoseTake[] =
+    input.takes ??
+    autoMovieModelGaits(input.model).map(
+      (gait: IAutoMovieGait): IAutoMovieFormationPoseTake => ({
+        gait: gait.name,
+        periodSeconds: gait.period,
+        poses: gaitMotion(
+          `${input.model.id}:${gait.name}`,
+          skeleton.id,
+          gait,
+          samples,
+        ).keyframes.map((k: IAutoMovieKeyframe): IAutoMoviePose => k.pose),
+      }),
+    );
+  if (sources.length === 0) return null;
+  if (
+    sources.some(
+      (t: IAutoMovieFormationPoseTake): boolean =>
+        t.poses.length !== samples || samples < 1,
+    )
+  )
+    throw new Error(
+      "bakeFormationCycle: every pose take holds the same positive count of poses",
+    );
   const rest: THREE.Matrix4[] = input.parts.map(
     (
       part: THREE.Mesh<
@@ -101,9 +132,9 @@ export const bakeFormationCycle: (
         matrices: Float32Array<ArrayBuffer>;
         texture: THREE.DataTexture;
       }[] =>
-        gaits.map(
+        sources.map(
           (
-            gait: IAutoMovieGait,
+            take: IAutoMovieFormationPoseTake,
           ): {
             gait: string;
             strideMeters: number;
@@ -111,12 +142,6 @@ export const bakeFormationCycle: (
             matrices: Float32Array<ArrayBuffer>;
             texture: THREE.DataTexture;
           } => {
-            const clip: IAutoMovieMotion = gaitMotion(
-              `${input.model.id}:${gait.name}`,
-              skeleton.id,
-              gait,
-              samples,
-            );
             const matrices: Float32Array<ArrayBuffer> = new Float32Array(
               input.parts.length * 3 * samples * 4,
             );
@@ -125,7 +150,7 @@ export const bakeFormationCycle: (
             );
             const posed: THREE.Matrix4 = new THREE.Matrix4();
             for (let sample: number = 0; sample < samples; ++sample) {
-              applyPose(input.built, clip.keyframes[sample]!.pose, skeleton);
+              applyPose(input.built, take.poses[sample]!, skeleton);
               input.built.object.updateMatrixWorld(true);
               input.parts.forEach(
                 (
@@ -175,9 +200,9 @@ export const bakeFormationCycle: (
             texture.colorSpace = THREE.NoColorSpace;
             texture.needsUpdate = true;
             return {
-              gait: gait.name,
-              strideMeters: formationCycleStride(tracks),
-              periodSeconds: gait.period,
+              gait: take.gait,
+              strideMeters: take.strideMeters ?? formationCycleStride(tracks),
+              periodSeconds: take.periodSeconds,
               matrices,
               texture,
             };

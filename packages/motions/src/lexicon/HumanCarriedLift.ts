@@ -1,5 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { Quaternion, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -8,7 +11,10 @@ import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
 /**
@@ -18,11 +24,13 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  * where the carrier has brought it.
  *
  * Both are a blend on minimum-jerk progress between two whole postures: the
- * root travels straight between them, the heading, the tilt and the joints
- * go with it, and the carry's own posture keeps following the carrier
+ * displayed root travels straight between them, its quaternion follows
+ * the shortest rotation and the joints go with it, and the carry's own posture keeps following the carrier
  * meanwhile, so the body arrives on a carrier who walks. The carried body's
  * contact with the carrier is declared only between the two, while it
- * rests there.
+ * rests there, and the feet plant on the floor through the lift and from
+ * the set-down's start, so the floor bears the body until the carrier does
+ * and again before the carrier lets go (#3437).
  *
  * First pass: the body is carried through the blend by nothing that is
  * shown (the carrier's hands arrive by `bearing`'s own take-up, and no hand
@@ -56,8 +64,8 @@ export namespace HumanCarriedLift {
    * @throws {HumanRefusal} When a phase is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it. Both ends' displayed roots include their whole-body rotations (`turnHumanPosture`); their positions are blended linearly and their rotations by quaternion slerp, represented as a correction after the blended Euler heading, so a rotation carried outside those angles cannot disappear when a phase starts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold and the feet's floor windows around it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution of the carry and one blend over the joints per evaluated second of a phase; the entry is resolved once.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
@@ -107,17 +115,34 @@ export namespace HumanCarriedLift {
         ];
       }
       const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-      return {
+      const a: turnHumanPosture.ITurned = turnHumanPosture(from);
+      const b: turnHumanPosture.ITurned = turnHumanPosture(to);
+      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+        a.rotation,
+        b.rotation,
+        w,
+      );
+      const blended: IHumanPosture = {
         root: {
-          x: from.root.x + (to.root.x - from.root.x) * w,
-          y: from.root.y + (to.root.y - from.root.y) * w,
-          z: from.root.z + (to.root.z - from.root.z) * w,
+          x: a.position.x + (b.position.x - a.position.x) * w,
+          y: a.position.y + (b.position.y - a.position.y) * w,
+          z: a.position.z + (b.position.z - a.position.z) * w,
         },
         yaw: from.yaw + turn * w,
         pitch: from.pitch + (to.pitch - from.pitch) * w,
         roll: from.roll + (to.roll - from.roll) * w,
         joints,
         limbs: {},
+      };
+      return {
+        ...blended,
+        rotation: {
+          about: blended.root,
+          turn: Quaternion.multiply(
+            rotation,
+            Quaternion.inverse(resolveHumanPosture.heading(blended)),
+          ),
+        },
       };
     };
     return {
@@ -127,13 +152,45 @@ export namespace HumanCarriedLift {
         { name: "lifted", share: lift / plan.duration },
         { name: "setDown", share: 1 - setDown / plan.duration },
       ],
-      contacts: plan.contacts.map(
-        (window: IHumanContactWindow): IHumanContactWindow => ({
-          ...window,
-          from: Math.max(window.from, lift / plan.duration),
-          to: Math.min(window.to, 1 - setDown / plan.duration),
-        }),
-      ),
+      contacts: [
+        ...plan.contacts.map(
+          (window: IHumanContactWindow): IHumanContactWindow => ({
+            ...window,
+            from: Math.max(window.from, lift / plan.duration),
+            to: Math.min(window.to, 1 - setDown / plan.duration),
+          }),
+        ),
+
+        // The floor bears the feet until the carrier bears the body, and
+        // again from the set-down's start: each support is released only as
+        // the next one takes the weight (#3437, a support sequence of #3435).
+        ...(["leftFoot", "rightFoot"] as const).flatMap(
+          (part: "leftFoot" | "rightFoot"): IHumanContactWindow[] => [
+            ...(lift > 0
+              ? [
+                  {
+                    part,
+                    kind: "plant" as const,
+                    from: 0,
+                    to: lift / plan.duration,
+                    support: { kind: "ground" as const },
+                  },
+                ]
+              : []),
+            ...(setDown > 0
+              ? [
+                  {
+                    part,
+                    kind: "plant" as const,
+                    from: 1 - setDown / plan.duration,
+                    to: 1,
+                    support: { kind: "ground" as const },
+                  },
+                ]
+              : []),
+          ],
+        ),
+      ],
       posture: (at: number): IHumanPosture => {
         const held: IHumanPosture = plan.posture(at);
         if (lift > 0 && at < lift) {
@@ -151,7 +208,7 @@ export namespace HumanCarriedLift {
                 {
                   ...stood,
                   root: { x: held.root.x, y: stood.root.y, z: held.root.z },
-                  yaw: held.yaw,
+                  yaw: HumanFrame.heading(turnHumanPosture(held).rotation),
                 },
                 w,
               );

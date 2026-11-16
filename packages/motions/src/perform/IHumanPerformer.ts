@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { HumanAttribute } from "../ensemble/HumanAttribute";
 import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 
 /**
@@ -27,4 +28,12 @@ export interface IHumanPerformer {
 
   /** Skill. */
   proficiency: IAutoMovieProficiency;
+
+  /**
+   * The person's group attributes, each in [0, 1], drawn by an ensemble
+   * (`HumanEnsemble.performers`) or given; an attribute absent reads as its
+   * neutral value, which the reader of `HUMAN_ATTRIBUTE_EFFECTS` names.
+   * Laws and layers read them from their context; none changes an outcome.
+   */
+  attributes?: Readonly<Partial<Record<HumanAttribute.Name, number>>>;
 }

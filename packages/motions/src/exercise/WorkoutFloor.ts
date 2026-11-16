@@ -1,5 +1,6 @@
 import { physicalShapeBounds } from "@automovie/engine";
 
+import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -142,25 +143,33 @@ export namespace WorkoutFloor {
     return key((upright + side) / 2);
   }
 
-  /** The top of a push-up: a straight body on the toes and the straight arms; the hands `raise` degrees out. */
-  const top = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey =>
+  /** The top of a push-up: a straight body on the toes and the straight arms; the hands `raise` degrees out, the relaxed arm's abduction when unstated (`stand.abduction`). */
+  const top = (
+    body: IHumanBody,
+    raise: number = stand.abduction(body),
+  ): ExerciseKey.IKey =>
     pitched(
       body,
       REACH * (body.measure.upperArm + body.measure.forearm),
       (pitch: number): ExerciseKey.IKey =>
-        ExerciseKey.of(
+        ExerciseKey.from(
+          body,
           { pitch, neck: -20 },
           { toes: 70, shoulder: pitch, raise, elbow: 5, wrist: -90 },
         ),
     );
 
-  /** The bottom of a push-up: the same line lowered until the upper arms are level, the shoulders at the elbows' height over upright forearms (NSCA's description of the bottom position). */
-  const bottom = (body: IHumanBody, raise: number = 5): ExerciseKey.IKey =>
+  /** The bottom of a push-up: the same line lowered until the upper arms are level, the shoulders at the elbows' height over upright forearms (NSCA's description of the bottom position); the hands `raise` degrees out as at the top. */
+  const bottom = (
+    body: IHumanBody,
+    raise: number = stand.abduction(body),
+  ): ExerciseKey.IKey =>
     pitched(
       body,
       body.measure.forearm,
       (pitch: number): ExerciseKey.IKey =>
-        ExerciseKey.of(
+        ExerciseKey.from(
+          body,
           { pitch, neck: -25 },
           { toes: 70, shoulder: pitch - 60, raise, elbow: 100, wrist: -90 },
         ),
@@ -248,7 +257,8 @@ export namespace WorkoutFloor {
         return [
           WorkoutKind.step(up, 0.3, "back", "extended"),
           WorkoutKind.step(
-            ExerciseKey.of(
+            ExerciseKey.from(
+              body,
               { pitch: up.pitch, neck: -20 },
               { toes: 70, shoulder: up.pitch, elbow: 5, wrist: -90 },
               {},
@@ -276,7 +286,8 @@ export namespace WorkoutFloor {
       reps: 3,
       route: (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 60, neck: -30 },
             {
               hip: 150,
@@ -305,9 +316,10 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 2,
       reps: 1,
-      route: (): WorkoutKind.IStep[] => [
+      route: (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.pose(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 140, neck: 10 },
             { hip: 105, ankle: 35, shoulder: 175, elbow: 3, wrist: -50 },
           ),
@@ -329,9 +341,10 @@ export namespace WorkoutFloor {
       ],
       enter: 2.4,
       reps: 1,
-      route: (): WorkoutKind.IStep[] => [
+      route: (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 88, neck: -10 },
             { ankle: -45, shoulder: -10, raise: 20, elbow: 140, wrist: -80 },
           ),
@@ -340,7 +353,8 @@ export namespace WorkoutFloor {
           "prone",
         ),
         WorkoutKind.pose(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 78, spine: [-20, 0, 0], chest: [-20, 0, 0], neck: -25 },
             {
               hip: -10,

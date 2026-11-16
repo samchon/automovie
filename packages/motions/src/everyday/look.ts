@@ -216,16 +216,40 @@ export namespace look {
     random: IAutoMovieRandom,
     cue: "seen" | "signal",
   ): number {
-    const mu: number =
-      HumanSkill.quantity(skill, "reaction", 0.26, 0.22) -
-      (cue === "signal" ? 0.04 : 0);
-    const sigma: number = HumanSkill.quantity(skill, "reaction", 0.035, 0.025);
-    const tau: number = HumanSkill.quantity(skill, "reaction", 0.07, 0.04);
-    const exponential: number =
-      -tau * Math.log(Math.max(1e-12, 1 - random.float(2)));
     return Math.max(
       0.1,
-      mu + sigma * HumanSkill.normal(random, 0) + exponential,
+      HumanSkill.reaction(reactionLaw(skill, cue), random, 0),
     );
+  }
+
+  /**
+   * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s
+   * to 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the
+   * `reaction` axis (provisional), mu 40 ms lower for an acoustic cue
+   * (Welford 1980).
+   *
+   * @param skill The skill; its `reaction` axis scales the parameters.
+   * @param cue Visual or acoustic.
+   * @returns The parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each parameter's range, the acoustic advantage and that the values are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation Each parameter read on the reaction axis between its novice and elite values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three quantity reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function reactionLaw(
+    skill: HumanSkill.ISkill,
+    cue: "seen" | "signal",
+  ): { mu: number; sigma: number; tau: number } {
+    return {
+      mu:
+        HumanSkill.quantity(skill, "reaction", 0.26, 0.22) -
+        (cue === "signal" ? 0.04 : 0),
+      sigma: HumanSkill.quantity(skill, "reaction", 0.035, 0.025),
+      tau: HumanSkill.quantity(skill, "reaction", 0.07, 0.04),
+    };
   }
 }

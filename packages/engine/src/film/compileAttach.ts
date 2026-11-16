@@ -16,13 +16,10 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { Transform } from "../math/Transform";
 
 /** The child rides the bone directly: origin on the bone, no extra offset. */
-const IDENTITY_OFFSET: IAutoMovieTransform = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
+const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
 
 /**
  * Bake the `attachTo` verb into the child object's follow clip, the per-frame realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop on a saddle). The child is not a rig, so, like a projectile, it moves by a node clip of translation and rotation tracks, not a pose motion.

@@ -316,7 +316,8 @@ export namespace HumanHeldUse {
       });
 
     // The turn about the handle the other arm reaches best with the tool
-    // at its use, and the elbow's hint there, carried with the body.
+    // at its use, and the elbow the arm takes there, carried with the body
+    // as the place it falls back to where no place is legal.
     const entry: IHumanPosture = context.entry.posture;
     const used: HumanGrasp.ITarget = target(props.key.wrist);
     const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
@@ -329,14 +330,7 @@ export namespace HumanHeldUse {
     );
     const hint: IAutoMovieVector3 = HumanFrame.local(
       { origin: entry.root, yaw: entry.yaw },
-      AutoMovieMotionHumanBend.solve({
-        body,
-        posture: entry,
-        side: other,
-        point: chosen.wrist.point,
-        rotation: chosen.wrist.rotation,
-        fallback: "hang",
-      }),
+      poseBones(body, chosen.pose).get(`${other}LowerArm`)!.worldPosition,
     );
     // The other hand's reach, hold and return, as its weight states them.
     const span: AutoMovieMotionHumanArm.ISpan | undefined =
@@ -374,6 +368,10 @@ export namespace HumanHeldUse {
               { origin: posture.root, yaw: posture.yaw },
               hint,
             ),
+
+            // The elbow is left to the body, on the grasp's own side
+            // (`reference`): the one place an elbow is chosen.
+            elbow: "strain",
             reference: chosen.reference,
           };
         },

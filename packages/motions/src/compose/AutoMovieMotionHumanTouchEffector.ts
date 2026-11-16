@@ -294,8 +294,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     admit(effector);
     if (effector.tool !== undefined) return 0;
     const bones = new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>();
-    const own: AutoMovieHumanoidBone =
-      effector.surface === "indexTip" ? `${side}IndexDistal` : `${side}Hand`;
+    const own: AutoMovieHumanoidBone = HumanHand.bone(side, effector.surface);
     const rest: IAutoMovieVector3 | undefined = body.rest.get(own);
     if (rest !== undefined)
       bones.set(own, {
@@ -317,7 +316,9 @@ export namespace AutoMovieMotionHumanTouchEffector {
   /**
    * The hand shapes whose posed hand an effector's contact lies on, by hand
    * surface: a palm contact is the palm laid flat, a fist's is the fist, the
-   * index fingertip's is the finger held out flat or pointing, and the
+   * index fingertip's and pad's are the finger held out flat or pointing,
+   * every other digit's tip and pad are the digit held out straight in a
+   * flat hand (the point curls them into the fist), and the
    * back of the hand and the wrist are outermost in every shape. A grip
    * without a tool is the fist round a handle, its contact the fist's own
    * surface along its facing. A held tool's tip lies
@@ -330,8 +331,17 @@ export namespace AutoMovieMotionHumanTouchEffector {
     grip: ["fist"],
     fist: ["fist"],
     indexTip: ["flat", "point"],
+    indexPad: ["flat", "point"],
     handBack: HumanHand.SHAPES,
     wrist: HumanHand.SHAPES,
+    thumbTip: ["flat"],
+    thumbPad: ["flat"],
+    middleTip: ["flat"],
+    middlePad: ["flat"],
+    ringTip: ["flat"],
+    ringPad: ["flat"],
+    littleTip: ["flat"],
+    littlePad: ["flat"],
   };
 
   /**

@@ -8,19 +8,25 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
+  IAutoMovieInteractionEvent,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { HumanBlast } from "./HumanBlast";
+import type { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { IHumanProp } from "./IHumanProp";
@@ -66,7 +72,7 @@ export class HumanPerformance {
   public readonly performers: readonly IHumanPerformer[];
 
   /** Everything the performance resolved, which its readers share. */
-  private readonly state: HumanPerformanceState;
+  private readonly resolved: HumanPerformanceState;
 
   /**
    * Resolve a performance.
@@ -74,10 +80,10 @@ export class HumanPerformance {
    * @param input The chain seed, the performers, the props and the composition.
    */
   public constructor(input: HumanPerformance.IInput) {
-    this.state = HumanPerformanceState.of(input);
-    this.schedule = this.state.schedule;
-    this.duration = this.state.duration;
-    this.performers = this.state.performers;
+    this.resolved = HumanPerformanceState.of(input);
+    this.schedule = this.resolved.schedule;
+    this.duration = this.resolved.duration;
+    this.performers = this.resolved.performers;
   }
 
   /**
@@ -88,7 +94,7 @@ export class HumanPerformance {
    * @returns The pose.
    */
   public pose(subject: string, seconds: number): IAutoMoviePose {
-    return HumanPerformanceRead.pose(this.state, subject, seconds);
+    return HumanPerformanceRead.pose(this.resolved, subject, seconds);
   }
 
   /**
@@ -100,7 +106,7 @@ export class HumanPerformance {
    * @returns The posture.
    */
   public posture(subject: string, seconds: number): IHumanPosture {
-    return HumanPerformanceRead.posture(this.state, subject, seconds);
+    return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
   /**
@@ -114,7 +120,7 @@ export class HumanPerformance {
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return HumanPerformanceRead.bones(this.state, subject, seconds);
+    return HumanPerformanceRead.bones(this.resolved, subject, seconds);
   }
 
   /**
@@ -129,15 +135,102 @@ export class HumanPerformance {
    * captured at the grip's start instead of authored. When grips overlap (a
    * handover), the one that closed last carries the prop. A hold an action
    * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
-   * takes that hand over. Released props stay where the last grip to end
-   * released them; falling is the physics layer's.
+   * takes that hand over. A released prop stays where the last grip to end
+   * released it, unless an action launched it: then it flies from the launch
+   * and rests where it struck (`HumanPropFlight`) until a later grip takes it.
    *
    * @param subject The prop.
    * @param seconds Film seconds.
    * @returns Its frame.
    */
   public prop(subject: string, seconds: number): IHumanProp.IFrame {
-    return HumanPerformanceRead.prop(this.state, subject, seconds);
+    return HumanPerformanceRead.prop(this.resolved, subject, seconds);
+  }
+
+  /**
+   * One input per coupled degree of freedom a prop's acts or tracks have
+   * moved by a film second (`HumanPerformanceObject.state`), in the latest
+   * begun writer's coordinate. A later writer of another coordinate of the
+   * same degree replaces the old one; after its end its last travel holds.
+   * A degree absent from the record starts at its leader's zero.
+   *
+   * @param subject The prop.
+   * @param seconds Film seconds.
+   * @returns Travel by articulation id, in each articulation's own unit.
+   */
+  public state(subject: string, seconds: number): Record<string, number> {
+    const prop: IHumanProp | undefined = this.resolved.props.get(subject);
+    if (prop === undefined)
+      throw HumanPerformanceRead.missing("prop", subject, [
+        ...this.resolved.props.keys(),
+      ]);
+    return HumanPerformanceObject.state(this.resolved, prop, seconds);
+  }
+
+  /**
+   * A prop's flights in film order (`HumanPropFlight`): each launch an
+   * action published, its engine flight and its first contact, for audits
+   * and the hit record.
+   *
+   * @param subject The prop.
+   * @returns The flights; none for a prop never launched.
+   */
+  public flights(subject: string): readonly HumanPropFlight.IFlight[] {
+    return HumanPropFlight.flights(this.resolved, subject);
+  }
+
+  /**
+   * Every hit of the performance in time order, or those on one person or
+   * prop (`HumanPerformanceHits`): melee stops, blasts and flights' first
+   * contacts, each as the one shared interaction record.
+   *
+   * @param subject The struck person or prop; every hit when absent.
+   * @returns The hits.
+   */
+  public hits(subject?: string): readonly IAutoMovieInteractionEvent[] {
+    return HumanPerformanceHits.hits(this.resolved, subject);
+  }
+
+  /**
+   * A soft prop's particle positions at a film second: its lattice solved
+   * once over the performance from the displayed poses at its domain's
+   * fixed step, and read between the two steps around the second, so a seek
+   * costs no solve and every frame rate reads the same state
+   * (`HumanPerformanceSoft`).
+   *
+   * @param subject The soft prop.
+   * @param seconds Film seconds.
+   * @returns World metres, row-major `[x, y, z, ...]`.
+   * @throws {HumanRefusal} When the prop is not soft or the performance outlasts its domain's step budget.
+   */
+  public soft(subject: string, seconds: number): number[] {
+    return HumanPerformanceSoft.at(this.resolved, subject, seconds);
+  }
+
+  /**
+   * The force a soft prop pulls a gripping hand with at a film second
+   * (`HumanPerformanceSoft.load`): the compliant solver's force on the
+   * particle the hand holds, held over its step.
+   *
+   * @param subject The soft prop.
+   * @param person The gripping person.
+   * @param side The hand.
+   * @param seconds Film seconds.
+   * @returns Newtons on the hand, world frame; zero when the hand does not hold the prop or its domain declares no compliance.
+   */
+  public softLoad(
+    subject: string,
+    person: string,
+    side: "left" | "right",
+    seconds: number,
+  ): IAutoMovieVector3 {
+    return HumanPerformanceSoft.load(
+      this.resolved,
+      subject,
+      person,
+      side,
+      seconds,
+    );
   }
 
   /**
@@ -149,7 +242,7 @@ export class HumanPerformance {
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
   public instant(at: IHumanLayer.Instant): number {
-    return HumanPerformanceLayers.instant(this.state, at);
+    return HumanPerformanceLayers.instant(this.resolved, at);
   }
 
   /**
@@ -159,7 +252,7 @@ export class HumanPerformance {
    * @returns The segments.
    */
   public segments(subject: string): readonly HumanSegment.ISegment[] {
-    return HumanPerformanceRead.segments(this.state, subject);
+    return HumanPerformanceRead.segments(this.resolved, subject);
   }
 
   /**
@@ -170,7 +263,7 @@ export class HumanPerformance {
    * @returns The overlays.
    */
   public overlays(subject: string): readonly HumanSegment.IOverlay[] {
-    return HumanPerformanceRead.overlays(this.state, subject);
+    return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 
   /**
@@ -178,22 +271,15 @@ export class HumanPerformance {
    *
    * @param target The target.
    * @param seconds Film seconds.
-   * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, and their own body and bones, for `self`.
+   * @param frame The aiming person's own frame and body, including their optional subject id so a carried or mounted prop is read on the supplied bones, as a self target is.
    * @returns The aim.
    */
   public aim(
     target: AutoMovieMotionTarget,
     seconds: number,
-    frame: {
-      root: IAutoMovieVector3;
-      yaw: number;
-      heights: Record<"low" | "middle" | "high", number>;
-      range: number;
-      body: IHumanBody;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    },
+    frame: HumanPerformanceAim.IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    return HumanPerformanceAim.aim(this.state, target, seconds, frame);
+    return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
   }
 }
 
@@ -258,11 +344,25 @@ export namespace HumanPerformance {
     cues?: Readonly<Record<string, readonly resolveAutoMovieSchedule.ICue[]>>;
 
     /**
+     * Forces on the performers (#3429): impulses at an instant and forces
+     * sustained over a span, read by the reactions the composition places
+     * (`IHumanActionContext.forces`). A force starts no action. None when
+     * absent.
+     */
+    forces?: readonly HumanForce.IForce[];
+
+    /**
      * What stands in the performers' way: the scene's walls and solid
      * objects with their openings (`HumanObstacle`). A law that moves a body
      * across the floor reads them through its context and refuses a path
      * through a solid; none when absent, and then every path is free.
      */
     obstacles?: readonly HumanObstacle.IObstacle[];
+
+    /**
+     * Blasts in the scene: each gives a hit to every person within its
+     * radius at its instant (`HumanBlast`, `hits`). None when absent.
+     */
+    blasts?: readonly HumanBlast.IBlast[];
   }
 }

@@ -10,11 +10,8 @@ import {
 import { addPositiveModulo } from "../math/addPositiveModulo";
 import { positiveModulo } from "../math/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";
-
-const IDENTITY_ROOT: Pick<IAutoMovieTransform, "rotation" | "scale"> = {
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
+import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 
 /** Wrap a cycle position into `[0, 1)`. */
 const wrap01: (x: number) => number = (x: number): number =>
@@ -37,15 +34,14 @@ const gaitRoot: (
     throw new Error("gait root bob center must be finite");
 
   const cycle: number = wrap01(time / gait.period + rootBob.phase);
-  return {
-    translation: {
+  return Transform.of(
+    {
       x: 0,
       y: rootBob.center + rootBob.amplitude * Math.sin(cycle * Math.PI * 2),
       z: 0,
     },
-    rotation: { ...IDENTITY_ROOT.rotation },
-    scale: { ...IDENTITY_ROOT.scale },
-  };
+    Quaternion.identity(),
+  );
 };
 
 const gaitJoints: (

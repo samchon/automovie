@@ -317,8 +317,10 @@ export namespace climbStairs {
                 ...root,
                 y:
                   root.y +
-                  Math.max(sign * now.left.level, sign * now.right.level) *
-                    stairs.riser,
+                  Math.abs(
+                    now.left.placement.ankle.y - now.right.placement.ankle.y,
+                  ) /
+                    2,
               },
             },
             { left: now.left.placement, right: now.right.placement },

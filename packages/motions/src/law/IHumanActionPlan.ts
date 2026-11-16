@@ -1,7 +1,11 @@
-import type { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieProjectile,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -36,7 +40,14 @@ export interface IHumanActionPlan {
    * primitives over a base: what an overlay takes from its carrier. Absent
    * for a plan that writes the whole body.
    */
-  channels?: readonly AutoMovieMotionHumanChannel[];
+  channels?: readonly AutoMovieMotionHumanChannel.Claim[];
+
+  /**
+   * What this instance lets an overlay take, where its parameters decide it
+   * apart from its law (`IHumanActionLaw.yields`): a carry in one hand
+   * yields its free arm, one in both hands none. The law's when absent.
+   */
+  yields?: readonly AutoMovieMotionHumanChannel.Claim[];
 
   /**
    * The base the action leaves the body on at its end, declared by an
@@ -104,6 +115,32 @@ export interface IHumanActionPlan {
   wears?: readonly IHumanActionPlan.IWear[];
 
   /**
+   * Props this action sets on another prop's socket: an arrow nocked on a
+   * bow's string. From its instant the prop rides that socket, posed where
+   * the other prop's articulations put it at every second (the arrow drawn
+   * with the string), until a later grip takes it off: a prop parented to a
+   * socket in the scene graph, as a worn prop is to a bone.
+   */
+  mounts?: readonly IHumanActionPlan.IMount[];
+
+  /**
+   * Articulations of props this action moves: a door's hinge the hand
+   * swings, a trigger it presses, a slider it draws. Each writes the travel
+   * of one articulation over a window of the action; the performance poses
+   * the prop by them (`HumanPerformance.state`), and after a drive ends its
+   * last travel holds. A drive writes travel only, never the prop's frame.
+   */
+  drives?: readonly IHumanActionPlan.IDrive[];
+
+  /**
+   * Props this action sets flying: a thrown bottle at the hand's opening, an
+   * arrow at the loose, a ball at the trigger's break. From its second the
+   * prop leaves every grip and flies from the launch's point and velocity
+   * until its flight ends (`HumanPerformance.flights`).
+   */
+  launches?: readonly IHumanActionPlan.ILaunch[];
+
+  /**
    * Hands this action drives with no contact window, such as a wave or a
    * point. A hand with a contact window is driven anyway. An action that
    * drives a held hand without taking its prop over is refused.
@@ -137,6 +174,27 @@ export interface IHumanActionPlan {
    * Absent, the strike is aimed at the region's own point.
    */
   aimed?: resolveAutoMovieHumanoidSurfaces.ITangent;
+
+  /**
+   * The span in which the body flies, touching nothing, and the angular
+   * momentum it flies with (#3427). The performance turns the composed body
+   * through it after placement (`HumanPerformanceFlight`): the shape the
+   * carrier, its overlays and its layers give, integrated by conserved
+   * angular momentum, handed back through `airborne`. Absent for an action
+   * with no flight, or one whose flight does not turn.
+   */
+  flight?: IHumanActionPlan.IFlight;
+
+  /**
+   * Receive the flight's whole-body rotation, once, after placement and the
+   * contacts and before any pose is shown, like `stop`: between take-off and
+   * touchdown the plan then returns its posture with that `rotation`
+   * (`IHumanPosture.rotation`). It changes the pose only, never the
+   * duration, the events or the decisive instant.
+   *
+   * @param rotation The rotation at a second of this action, seconds since its start.
+   */
+  airborne?(rotation: (seconds: number) => IHumanPosture.IRotation): void;
 }
 /**
  * Companion types of {@link IHumanActionPlan}.
@@ -147,6 +205,49 @@ export interface IHumanActionPlan {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses clinical joint triples.
  */
 export namespace IHumanActionPlan {
+  /** A flight: its span and the angular momentum it turns by. */
+  export interface IFlight {
+    /** Take-off, a share of the action's duration. */
+    from: number;
+
+    /** Touchdown, a share of the action's duration, after `from`. */
+    to: number;
+
+    /**
+     * The whole-body angular momentum about the centre of mass: given, world
+     * kg m²/s, or solved from the turns the flight must make
+     * (`solveAirborneTakeoff`).
+     */
+    momentum: IFlightMomentum | IFlightTurns;
+  }
+
+  /** A flight's momentum given outright. */
+  export interface IFlightMomentum {
+    /** The discriminator. */
+    kind: "momentum";
+
+    /** World kg m²/s about the centre of mass. */
+    momentum: IAutoMovieVector3;
+  }
+
+  /** A flight's momentum solved from the turns it must make. */
+  export interface IFlightTurns {
+    /** The discriminator. */
+    kind: "turns";
+
+    /** Somersault turns about the somersault axis, signed (positive tips the head forward). */
+    somersault: number;
+
+    /** Twist turns about the long axis, signed by the right-hand rule about the body's up. */
+    twist: number;
+
+    /** The somersault frame in the root's frame at take-off (a side salto turns it a quarter about the long axis); the root's own axes when absent. */
+    frame?: IAutoMovieQuaternion;
+
+    /** The largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot (`HumanPerformanceFlight`). */
+    maximum?: number;
+  }
+
   /** A striking surface on its free path. */
   export interface IWeapon {
     /** Id, unique within the plan. */
@@ -214,6 +315,9 @@ export namespace IHumanActionPlan {
     /** The affordance id of its working point: a blade's point, a muzzle, a hammer's face. */
     tip: string;
 
+    /** The affordance the working line runs from toward the tip, when two points define it. */
+    from?: string;
+
     /** The affordance id of its edge or sighting direction, where it has one. */
     edge?: string;
   }
@@ -228,6 +332,66 @@ export namespace IHumanActionPlan {
 
     /** Share of this action from which the prop is worn. */
     from: number;
+  }
+
+  /** A prop set on another prop's socket. */
+  export interface IMount {
+    /** The prop's subject. */
+    prop: string;
+
+    /** The prop it is set on. */
+    onto: string;
+
+    /** The socket affordance of `onto` it rides. */
+    point: string;
+
+    /** Share of this action from which the prop rides the socket. */
+    from: number;
+  }
+
+  /** An articulation of a prop driven by the action. */
+  export interface IDrive {
+    /** The prop's subject id. */
+    prop: string;
+
+    /** The articulation affordance driven. */
+    articulation: string;
+
+    /** Share of this action from which it drives. */
+    from: number;
+
+    /** Share of this action until which it drives. */
+    to: number;
+
+    /**
+     * The articulation's travel at a second of the action, in its own unit
+     * (degrees for a turning kind, metres otherwise). Pure.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns The travel.
+     */
+    travel(seconds: number): number;
+  }
+
+  /** A prop launched by the action. */
+  export interface ILaunch {
+    /** The prop that flies: a held prop the hand lets go, or one the action sets on its way. */
+    prop: string;
+
+    /** Seconds from the action's start. */
+    seconds: number;
+
+    /** World metres at launch: where the prop's own origin is. */
+    point: IAutoMovieVector3;
+
+    /** World metres per second at launch, any carrier's velocity included. */
+    velocity: IAutoMovieVector3;
+
+    /** The prop's rotation at launch, prop to world; its displayed rotation then when absent. */
+    rotation?: IAutoMovieQuaternion;
+
+    /** How it turns in flight (`IAutoMovieProjectile.attitude`); its launch rotation kept when absent. */
+    attitude?: IAutoMovieProjectile.Attitude;
   }
 
   /** A prop left held in one hand. */

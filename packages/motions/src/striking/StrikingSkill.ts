@@ -223,11 +223,7 @@ export namespace StrikingSkill {
     random: IAutoMovieRandom,
     index: number,
   ): number {
-    const r: IReaction = reactionLaw(skill);
-    const exponential: number =
-      -r.tau * Math.log(Math.max(1e-12, 1 - random.float(index + 2)));
-    const draw: number =
-      r.mu + r.sigma * HumanSkill.normal(random, index) + exponential;
+    const draw: number = HumanSkill.reaction(reactionLaw(skill), random, index);
     const [low, high] = reactionBand(skill);
     return Math.min(high, Math.max(low, draw));
   }

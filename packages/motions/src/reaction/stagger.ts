@@ -1,71 +1,129 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { walkStanceCourse } from "../actions/walkStanceCourse";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
+import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
+import { StaggerFeet } from "./StaggerFeet";
+import { staggerBounds } from "./staggerBounds";
+import { staggerKnots } from "./staggerKnots";
+import { staggerLimit } from "./staggerLimit";
+import { staggerRecover } from "./staggerRecover";
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
- * one unplanned step catches it.
+ * recovery steps catch it.
  *
- * The step follows the extrapolated centre of mass (Hof, Gazendam and Sinke
- * 2005, J Biomech 38:1): a body moving at `v` over a pendulum of length `l`
- * stays balanced only if the base reaches `x + v / omega0`, `omega0 =
- * sqrt(g / l)`, so the stepping foot lands that far along the push from the
- * centre of mass plus the foot's own half length as margin, and the root
- * travels there and settles. The pendulum length is the hip height, a
- * standing body's centre-of-mass height to a few centimetres (Winter,
- * Biomechanics and Motor Control of Human Movement, ch. 4). The stepping foot
- * is the one whose step crosses least: the foot on the push's side, or the
- * rear foot for a push backward. The step lands at 0.35 s, inside the 0.3 to
- * 0.4 s reactive-step times of perturbation studies (Maki and McIlroy 1997,
- * Phys Ther 77:488), and the body settles by 0.8 s.
+ * The centre of mass moves over the floor as an inverted pendulum of Hof's
+ * leg length, 1.34 hip heights (Hof, Gazendam and Sinke 2005, J Biomech
+ * 38:1), from the blow's speed along the push, its centre of pressure always
+ * as near the extrapolated centre of mass `x + v / omega0`, `omega0 = sqrt(g
+ * / l)`, as the bearing feet reach: on it, which holds it, or at the nearest
+ * point of their outline, from which it runs on (Hof 2008, Hum Mov Sci
+ * 27:112). Each recovery step chooses its time and its place within measured
+ * bounds, as capture-point stepping does (Koolen et al. 2012, Int J Robot Res
+ * 31:1094; Griffin et al. 2017): the weight shifts onto the stance foot over
+ * both feet, the foot swings in its direction's step time and lands the sole
+ * point it lands on as near the extrapolated centre of mass as its reachable
+ * footstep region allows, and the body is caught once the extrapolated
+ * centre of mass lies inside the base the two feet make. The region is the
+ * stance foot's: within its direction's longest recovery step of where the
+ * foot stood beside the stance foot, and inside the legs' own reachable set
+ * from the pelvis the centre of mass carries at the landing, the trunk free
+ * to tilt, the landing foot to turn out and the two legs clear of each other
+ * as the tangle audit reads them (`walkStanceCourse`, `walkLegClearance`); a
+ * step past it shortens toward the stance foot. The legs may cross: a
+ * footstep planner's region on the stepping foot's own side of the stance
+ * foot (Deits and Tedrake 2014) keeps a walking robot's legs apart, but it
+ * forbids the crossover step people take in most lateral recoveries, so it
+ * is not this region. Every order of the feet over up to four steps is tried,
+ * the fewest steps first, so capture is monotone in the push's speed; the
+ * order preferred alternates its feet forward and backward (Maki and McIlroy
+ * 1997), beginning with the foot further along the push, the rear foot for a
+ * push backward, and pushed sideways begins with the leg the push unloads,
+ * which crosses in front of or behind the loaded one (Maki, McIlroy and
+ * Perry 1996: 96% of lateral stepping responses), the loaded leg's
+ * side-step being the other order. The bounds are those of younger
+ * adults at the threshold of balance recovery: an 82 ms reaction and a 138
+ * ms weight shift before the first step (Cyr, Moglo and Smeesters 2005),
+ * steps of 238, 176 and 193 ms and up to 0.59, 0.38 and 0.42 statures
+ * forward, sideways and backward (Telonio, Cyr, Moglo and Smeesters 2005),
+ * read between those directions on an ellipse; the leg a sideways push
+ * unloads leaves the floor 20% sooner and swings 70% longer than a forward
+ * or backward step (Maki, McIlroy and Perry 1996, `LATERAL`). A foot
+ * stepping forward strikes with its heel and
+ * one stepping backward lands on its forefoot (Grasso, Bianchi and
+ * Lacquaniti 1998). A push four steps do not catch is a fall, as people take
+ * up to four recovery steps (Debelle, Maganaris and O'Brien 2021): it is
+ * refused, naming the fastest push the body catches that way.
  *
- * A push whose capture step would exceed one leg length cannot be caught in
- * one step; the law rejects it, naming the knockdown instead.
+ * Once caught, the other foot closes at the entry's stance width, as far
+ * ahead or behind as stands the middle of the two ankles under the caught
+ * point as the entry stood over its own. The extrapolated centre of mass
+ * then tracks a minimum-jerk course to where the body stood over its feet,
+ * its centre of pressure placed by the divergent component's tracking law
+ * inside the base (Englsberger, Ott and Albu-Schaffer 2015), and the centre
+ * of mass follows it, `x' = omega0 (xi - x)`, until both rest within a
+ * millimetre.
  *
- * The action is rows over the stance it was entered in: one clock with the
- * `tipped` and `caught` instants, a sway whose hips are thrown along the push
- * ahead of the stepping foot and slow uniformly to rest over the middle of
- * the feet as the step lands, while the body above them tips with the push
- * and rights itself, the two legs on their feet and the two arms held as the
- * entry left them. Without a blow's source the push comes from a place ahead
- * of the performer, so the body staggers backward. The step's time is a
- * reflex and no manner changes it; the manner's tempo scales the time the
- * body takes to right itself after the step.
+ * The body over its feet is one stance course (`walkStanceCourse`): the
+ * pelvis's drop, each planted foot's pitch about its ball and its turn on
+ * the floor, and the trunk's tilt about the hips, as one trajectory
+ * optimisation, the pelvis carrying the centre of mass on its course less
+ * the shift the trunk's tilt makes of it. The legs' reach, the hip's
+ * extension and rotation and the ankle's range are its constraints, with the
+ * feet bearing the centre of pressure and the caught extrapolated centre of
+ * mass, so a backward landing carries the pelvis back over the rear foot by
+ * bending the trunk against the fall, the hip strategy (Horak and Nashner
+ * 1986, J Neurophysiol 55:1369), because the ranges ask for it rather than
+ * by a rule. A stance whose leg leans further to its side than the ankle's
+ * 25 degrees rolls onto its edge; a stepping foot first rises clear of the
+ * floor by the minimum toe clearance of walking (`walkFoot.CLEARANCE`,
+ * Killeen et al. 2017), over the share of its swing a walking foot takes to set down
+ * from that height, then swings as a walking foot swings (`walkFoot.swing`)
+ * to the stance it lands in, held inside its leg's ranges and as high over
+ * the floor as its swing carries it (`walkReach.swing`), so it leaves and
+ * joins its stances where they stand.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the capture rule with its sources, the stepping foot, the timing, the refusal and how the action is composed.
+ * Both
+ * arms abduct as balance reactions, 9.4 degrees from 154 ms after the push
+ * (the mean of the two arms' abduction within 200 ms of a backward release,
+ * 10.7 and 8.0 degrees, at its measured onset; Weerdesteyn, Laing and
+ * Robinovitch 2008, Exp Brain Res 186:571), held through the steps and let
+ * down as the body settles, each let out further where it would pass into
+ * the body (`HumanArmSwing.of`). The steps, the catch and the settling are
+ * the body's dynamics, which no manner changes; the manner's tempo scales
+ * the righting.
+ *
+ * The push is read where its source is as the plan begins, the causal read
+ * a reaction makes (`ReactionSource`).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the pendulum, the centre of pressure, the step rule and its measured bounds, the further steps and their bound, the closing step, the settling, the feet, the trunk, the arms and the push's read, each with its source.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a plan composed of part primitives on one clock, with plant windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing and size constants, the plan and the capture distance the tests check against.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, foot, target, clock and primitive types; the step scales with each body's hip height and foot.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the landing time `perturb` reads and the plan; the bounds are `staggerBounds`', the recovery `staggerRecover`'s, its limit `staggerLimit`'s and its feet `StaggerFeet`'s.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, foot, gait, target, clock, balance and primitive owners; the steps scale with each body's pendulum, feet and stature.
  */
 export namespace stagger {
   /** The action's name. */
@@ -98,121 +156,48 @@ export namespace stagger {
     /** The centre of mass's speed after the blow, m/s. */
     speed: number;
 
-    /** How it is performed: the tempo scales the righting after the step. */
+    /** How it is performed: the tempo scales the trunk's righting after the last step. */
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** The capture step's landing, a measured reactive-step time. */
-  export const LANDING: AutoMovieMotionHumanTiming.Span = {
-    seconds: 0.35,
-    source: "Maki and McIlroy 1997, Phys Ther 77:488",
-  };
-
-  /** The righting after the step at a neutral manner (provisional). */
-  export const RIGHTING: AutoMovieMotionHumanTiming.Span = {
-    pause: "beat",
-    scale: 1.125,
-  };
-
-  /** The trunk's tip with the push (provisional). */
-  export const TIP: AutoMovieMotionHumanRange.Amount = {
-    level: "light",
-    scale: 0.9,
-  };
-
-  /** The stepping foot's clearance, as a share of the stature (provisional). */
-  export const CLEARANCE: number = 0.02;
-
-  /**
-   * The capture step's length from the centre of mass: the extrapolated
-   * centre of mass's lead `v / sqrt(g / l)` plus a margin.
-   *
-   * @param speed The centre of mass's speed, m/s.
-   * @param height The pendulum length, metres.
-   * @param margin The margin beyond the extrapolated centre, metres.
-   * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the formula and every unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated centre of mass for an inverted pendulum, its eigenfrequency the engine's (`resolveAutoMovieCenterOfMass.frequency`, standard gravity).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function capture(
-    speed: number,
-    height: number,
-    margin: number,
-  ): number {
-    return speed / resolveAutoMovieCenterOfMass.frequency(height) + margin;
-  }
+  /** A forward recovery step's landing after the push (`staggerBounds.LANDING`), the step's time `perturb` reads. */
+  export const LANDING: AutoMovieMotionHumanTiming.Span = staggerBounds.LANDING;
 
   /**
    * Plan a stagger.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the speed is not positive, the capture step exceeds one leg, or the manner is out of range.
+   * @throws {Error} When the speed is not positive or the manner is out of range.
+   * @throws {HumanRefusal} `parameter` on `speed` when no `STEPS` recovery steps catch the push: a fall, with the fastest push the body catches that way.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The capture step lands at the extrapolated centre of mass plus half a foot along the push; the hips slow uniformly to rest over the middle of the feet as the step lands, and the trunk tips and rights itself on the clock's envelope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and three rows; the push is read once.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An uncapturable push throws and names the knockdown instead of shortening the step; the tip angle and the clearance are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The push, the stepping foot and the landing are computed once per plan and dropped on settle.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached geometry, cleared by settle and released with the plan.
+   * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum (`staggerRecover`); the feet, the pelvis and the trunk on one stance course under the legs' ranges (`StaggerFeet`); the arms abducted from their measured onset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One recovery search and two posture solves per plan; per posture one pelvis settling and a swing's hold, with each step's two stance ends memoised.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `staggerRecover`, `staggerLimit`, `StaggerFeet`, `HumanArmSwing` and `ReactionSource`; the push, its recovery and the trunk's shift of the centre of mass are read once per plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the recovery and its feet, released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
+    const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION } =
+      staggerBounds;
     const p: IParams = context.params;
     if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
     const body = context.body;
-    const m = body.measure;
-    const reach: number = capture(p.speed, m.hipHeight, m.footLength / 2);
-    if (reach > m.thigh + m.shank)
-      throw new Error(
-        `A ${p.speed} m/s push needs a ${reach.toFixed(2)} m step, beyond one leg; use a knockdown`,
-      );
     const entry: IHumanPosture = context.entry.posture;
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const righting: number =
+      AutoMovieMotionManner.of(context, p.manner).tempo *
+      AutoMovieMotionHumanTiming.seconds(RIGHTING);
 
-    // The tip and the step are the body's reflex; only the righting after
-    // the step follows the manner's tempo.
-    const landing: number = AutoMovieMotionHumanTiming.seconds(LANDING);
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of(
-        landing + AutoMovieMotionHumanTiming.seconds(RIGHTING),
-        [
-          { name: "tipped", seconds: 0.5 * landing },
-          { name: "caught", seconds: landing },
-          { name: "stroke", seconds: landing },
-          { name: "relax", seconds: landing },
-        ],
-      ),
-      AutoMovieMotionManner.of(context, p.manner),
-      { holds: [], fixed: [AutoMovieMotionClock.START, "tipped"] },
-    );
-    const duration: number = clock.duration;
-    const landed: number = clock.at("caught");
-    const START: string = AutoMovieMotionClock.START;
-    const END: string = AutoMovieMotionClock.END;
-
-    // The push, the stepping foot and where it lands, read once per run.
-    let built:
-      | {
-          push: IAutoMovieVector3;
-          local: IAutoMovieVector3;
-          stepper: "left" | "right";
-          landing: IAutoMovieVector3;
-          travel: number;
-        }
-      | undefined;
-    const geometry = () => {
-      if (built !== undefined) return built;
-      const push: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
+    // The push, read where its source is as the plan begins, the causal read
+    // a reaction makes (`ReactionSource`), and the recovery it asks for; a
+    // push no `STEPS` steps catch is a fall, refused with the fastest push
+    // this body catches that way.
+    const push: IAutoMovieVector3 = Vector3.normalize({
+      ...AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
           context,
           p.from,
@@ -222,97 +207,140 @@ export namespace stagger {
         ),
         entry.root,
         entry.yaw,
-      );
-      const along = (side: "left" | "right"): number =>
-        Vector3.dot(Vector3.subtract(feet[side].ankle, entry.root), push);
-      const stepper: "left" | "right" =
-        along("left") > along("right") ? "left" : "right";
-      const landing: IAutoMovieVector3 = Vector3.add(
-        feet[stepper].ankle,
-        Vector3.scale(push, Math.max(0, reach - along(stepper))),
-      );
-      // The hips end over the middle of the two ankles, where both legs
-      // lean alike and each ankle needs the least of its range.
-      const hips: IAutoMovieVector3 = Vector3.add(
-        entry.root,
-        Quaternion.rotateVector(
-          resolveHumanPosture.heading(entry),
-          body.rest.get("hips")!,
-        ),
-      );
-      const centre: IAutoMovieVector3 = Vector3.scale(
-        Vector3.add(landing, feet[stepper === "left" ? "right" : "left"].ankle),
-        0.5,
-      );
-      built = {
+      ),
+      y: 0,
+    });
+    const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
+      body,
+      context.entry,
+      push,
+      p.speed,
+      righting,
+    );
+    if (recovery === null) {
+      const caught: number = staggerLimit.of(
+        body,
+        context.entry,
         push,
-        local: HumanFrame.local(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-          push,
-        ),
-        stepper,
-        landing,
-        travel: Math.max(
-          0,
-          Vector3.dot(Vector3.subtract(centre, hips), { ...push, y: 0 }),
-        ),
-      };
-      return built;
-    };
-
-    // The feet at a second: the stepping foot travels to its landing on a
-    // low arc and the other stays.
-    const placed = (
-      seconds: number,
-    ): Record<"left" | "right", HumanFoot.IPlacement> => {
-      const { stepper, landing } = geometry();
-      const s: number = clock.progress(START, "caught", seconds);
-      const moved: HumanFoot.IPlacement = {
-        ankle: {
-          ...Vector3.lerp(feet[stepper].ankle, landing, s),
-          y:
-            feet[stepper].ankle.y +
-            (seconds < landed ? CLEARANCE * m.stature * 4 * s * (1 - s) : 0),
-        },
-        rotation: feet[stepper].rotation,
-      };
-      return stepper === "left"
-        ? { left: moved, right: feet.right }
-        : { left: feet.left, right: moved };
-    };
-    const lean: number = AutoMovieMotionHumanRange.lean(TIP);
-    const tip = (seconds: number): number =>
-      lean * clock.envelope([START, "tipped"], ["relax", END], seconds);
+        p.speed,
+      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "speed",
+        value: p.speed,
+        feasible: { kind: "range", minimum: 0, maximum: caught, unit: "m/s" },
+        reason: `a ${p.speed} m/s push this way is a fall: no ${STEPS} recovery steps within a person's measured step times and lengths and the legs' ranges catch it; this body catches up to ${caught.toFixed(2)} m/s pushed this way, to a centimetre per second, every push over the ${VERIFIED} m/s below it verified at every ${RESOLUTION} m/s`,
+        fix: `push no harder than ${caught.toFixed(2)} m/s, or play the fall`,
+      });
+    }
+    // The first step's landing, the instant the clock names the catch by.
+    const swing: number = recovery.steps[0]!.land;
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
+      recovery.settled,
+      [
+        { name: "tipped", seconds: 0.5 * swing },
+        { name: "caught", seconds: swing },
+        { name: "stroke", seconds: swing },
+        { name: "relax", seconds: swing },
+      ],
+    );
+    const duration: number = clock.duration;
+    const last = (): number => recovery.steps.at(-1)!.land;
+    const feet: StaggerFeet = new StaggerFeet(
+      body,
+      context.entry,
+      recovery,
+      staggerKnots.bending(body, context.entry),
+    );
     const legs: IAutoMovieMotionHumanPrimitive = {
-      channels: ["leftLeg", "rightLeg"],
+      channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const { stepper } = geometry();
-        return {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            ...StrikingStance.legs(body, placed(seconds), {
-              left: stepper !== "left" || seconds >= landed,
-              right: stepper !== "right" || seconds >= landed,
-            }),
+        const { feet: scheduled, settled, reached } = feet.solve(seconds);
+        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        for (const side of ["left", "right"] as const) {
+          // The knee points over the foot's own heading.
+          const knee: IAutoMovieVector3 = staggerKnots.kneePole(
+            body,
+            settled.root,
+            settled.yaw,
+            side,
+            HumanFoot.heading(reached[side].rotation),
+          );
+          limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
+            point: reached[side].ankle,
+            bend: knee,
+            rotation: reached[side].rotation,
+            ...(scheduled[side].swing === undefined
+              ? { planted: true, contact: settled.contacts[side] }
+              : {}),
+          };
+        }
+        // The trunk tilts about the hips as the course bends it, so the legs
+        // stay on their feet.
+        return AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: settled.root,
+            yaw: settled.yaw,
+            joints: {
+              ...posture.joints,
+              leftToes: [reached.left.toes, 0, 0],
+              rightToes: [reached.right.toes, 0, 0],
+            },
+            limbs,
           },
-        };
+          walkStanceCourse.at(feet.course(), seconds).trunk,
+        );
       },
     };
-    // The arms keep the angles the entry held: a stagger has no time to
-    // place them, so a guard stays a guard and hanging arms stay hanging.
+    // Both arms abduct from the entry's angles as balance reactions and come
+    // down as the body settles, each let out further where it would pass
+    // into the body (`HumanArmSwing.of`).
     const held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+    };
+    const onset: number = AutoMovieMotionHumanTiming.seconds(ONSET);
+    const raised = (seconds: number): number => {
+      const end: number = last();
+      const rise: number = minimumJerk(
+        Math.min(1, Math.max(0, (seconds - onset) / (swing - onset))),
+      ).s;
+      const fall: number = minimumJerk(
+        Math.min(1, Math.max(0, (seconds - end) / (duration - end))),
+      ).s;
+      return ABDUCTION * Math.max(0, rise - fall);
     };
     const arms: IAutoMovieMotionHumanPrimitive = {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture): IHumanPosture =>
-        AutoMovieMotionHumanArm.carry(body, posture, held, 0),
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const more: number = raised(seconds);
+        const abducted = (
+          side: "left" | "right",
+        ): AutoMovieMotionHumanArm.IAngles => ({
+          ...held[side],
+          upper: [
+            held[side].upper[0],
+            held[side].upper[1] + more,
+            held[side].upper[2],
+          ],
+        });
+        return HumanArmSwing.of(
+          body,
+          AutoMovieMotionHumanArm.carry(
+            body,
+            posture,
+            { left: abducted("left"), right: abducted("right") },
+            0,
+          ),
+          ["left", "right"],
+        );
+      },
     };
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
@@ -324,60 +352,37 @@ export namespace stagger {
           joints: entry.joints,
           limbs: {},
         }),
-        settle: (): void => {
-          built = undefined;
-        },
       },
       clock,
-      primitives: [
-        // The push throws the hips ahead of the stepping foot: they slow
-        // uniformly and come to rest over the middle of the feet as the step
-        // lands, while the body above them tips with the push and rights
-        // itself once the step has caught it; the root's height keeps both
-        // legs on their feet.
-        AutoMovieMotionHumanLean.sway({
-          body,
-          from: 0,
-          to: duration,
-          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
-            pitch: tip(seconds) * geometry().local.z,
-            roll: -tip(seconds) * geometry().local.x,
-          }),
-          shift: (seconds: number): IAutoMovieVector3 => {
-            const { local, travel } = geometry();
-            const left: number = 1 - clock.linear(START, "caught", seconds);
-            return Vector3.scale(local, travel * (1 - left * left));
-          },
-          legs: (
-            seconds: number,
-          ): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> =>
-            StrikingStance.legs(body, placed(seconds)),
-        }),
-        legs,
-        arms,
-      ],
+      primitives: [legs, arms],
     });
     return {
       ...composed,
       get contacts(): IHumanContactWindow[] {
-        const { stepper } = geometry();
-        const other: "left" | "right" = stepper === "left" ? "right" : "left";
-        return [
-          {
-            part: `${other}Foot`,
+        const out: IHumanContactWindow[] = [];
+        for (const side of ["left", "right"] as const) {
+          let from: number = 0;
+          for (const step of recovery.steps) {
+            if (step.side !== side) continue;
+            if (step.start > from)
+              out.push({
+                part: `${side}Foot`,
+                kind: "plant",
+                from: from / duration,
+                to: step.start / duration,
+                support: { kind: "ground" },
+              });
+            from = step.land;
+          }
+          out.push({
+            part: `${side}Foot`,
             kind: "plant",
-            from: 0,
+            from: Math.min(1, from / duration),
             to: 1,
             support: { kind: "ground" },
-          },
-          {
-            part: `${stepper}Foot`,
-            kind: "plant",
-            from: landed / duration,
-            to: 1,
-            support: { kind: "ground" },
-          },
-        ];
+          });
+        }
+        return out;
       },
     };
   }

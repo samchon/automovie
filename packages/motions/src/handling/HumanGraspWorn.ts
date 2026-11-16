@@ -45,7 +45,7 @@ export namespace HumanGraspWorn {
    * @returns The key, with its judge: the fitted hand's wear socket off the region, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is hinted at its place of least joint strain (`AutoMovieMotionHumanBend.solve`), never placed by a share of the arm.
+   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the least hand error, then the least strain, read from the fit's own sweep; never placed by a share of the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's offset, the key of a turn, its fitted miss, one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The judge is the quantity `dress` judges, never a mix of degrees and millimetres.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each turn is fitted once, kept in a map, however often the search returns to it; a thing not round is fitted at its one turn.
@@ -106,27 +106,14 @@ export namespace HumanGraspWorn {
         rotation,
       };
     };
-    // The elbow's hint at a turn's key: the place of least joint strain for
-    // that wrist (`AutoMovieMotionHumanBend.solve`), solved once per turn.
-    const hints: Map<number, IAutoMovieVector3> = new Map();
-    const hinted = (
-      degrees: number,
-      wrist: HumanHand.IWrist,
-    ): IAutoMovieVector3 => {
-      let found: IAutoMovieVector3 | undefined = hints.get(degrees);
-      if (found === undefined) {
-        found = AutoMovieMotionHumanBend.solve({
-          body: context.body,
-          posture: context.entry.posture,
-          side: props.side,
-          point: wrist.point,
-          rotation: wrist.rotation,
-          fallback: "hang",
-        });
-        hints.set(degrees, found);
-      }
-      return found;
-    };
+    // A turn's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the
+    // fit takes the least hand error, then the least strain, in its own
+    // sweep; the hanging arm's place is only where no place is legal.
+    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      context.body,
+      context.entry.posture,
+      props.side,
+    );
 
     // How far the arm, fitted to the key within its ranges, leaves the
     // wear socket off the region, metres, and how far the closed hand
@@ -142,7 +129,8 @@ export namespace HumanGraspWorn {
       limbs[`${props.side}Arm`] = {
         point: wrist.point,
         rotation: wrist.rotation,
-        bend: hinted(degrees, wrist),
+        bend: hang,
+        elbow: "strain",
       };
       const hand: IAutoMovieResolvedBone = poseBones(
         context.body,
@@ -185,7 +173,7 @@ export namespace HumanGraspWorn {
     return {
       posture: context.entry.posture,
       wrist: chosen,
-      bend: hinted(turned, chosen),
+      bend: hang,
       // Judged as dress judges it: the fitted hand's wear socket off the
       // region it is worn on.
       judge: (

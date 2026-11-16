@@ -10,6 +10,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUse } from "./HumanGraspUse";
 import type { pickUp } from "./pickUp";
 import { pickUpPosture } from "./pickUpPosture";
@@ -91,19 +92,91 @@ export namespace pickUpSearch {
     // Without a use, the hand takes the grip as the archetype declares it:
     // never tilted, and turned about the wrapped axis only as far as the
     // grip is the same turned (`IAutoMovieAffordance.symmetry`).
-    const tilts: readonly number[] =
-      context.params.use === undefined ? [0] : HumanGraspUse.OBLIQUE;
-    const turnsAsked: readonly number[] =
-      context.params.use === undefined
-        ? TURNS[
-            context
-              .prop(context.params.prop)
-              .prop.affordances?.find(
-                (a: IAutoMovieAffordance): boolean =>
-                  a.id === context.params.handle,
-              )?.symmetry ?? "none"
-          ]
-        : HumanGraspUse.AROUND;
+    const declared: readonly number[] =
+      TURNS[
+        context
+          .prop(context.params.prop)
+          .prop.affordances?.find(
+            (a: IAutoMovieAffordance): boolean =>
+              a.id === context.params.handle,
+          )?.symmetry ?? "none"
+      ];
+    // The keys a grip must hold besides the grasp: the lifted pose, any
+    // use's pose, and every pose the performer's next action on the prop
+    // demands of it (`HumanGraspDemand`), asked from the body the pick up
+    // ends in, its stance straightened back up.
+    const demands: IHumanActionContext["demands"] = context.demands;
+    const after: IHumanPosture = stance.at(0);
+    // What a grip must hold: every judged key within its own bound (the
+    // demanding action's, or the held tool's for a use), measured as the
+    // worst judgement's share of its bound; the grasp's and the lift's are
+    // unjudged.
+    const required: Parameters<typeof HumanGrasp.reachable>[8] =
+      context.params.use === undefined && demands === undefined
+        ? undefined
+        : {
+            bound: 1,
+            measure: (
+              _keys: readonly number[],
+              judged: readonly number[],
+              bounds: readonly number[],
+            ): number =>
+              judged.reduce(
+                (worst: number, j: number, i: number): number =>
+                  Number.isNaN(j)
+                    ? worst
+                    : Math.max(
+                        worst,
+                        j /
+                          (Number.isFinite(bounds[i])
+                            ? bounds[i]!
+                            : StrikingRoll.MISS),
+                      ),
+                0,
+              ),
+          };
+    // The keys of a candidate, built only as the search reaches them: the
+    // lifted pose, any use's pose, then the next action's demands, whose
+    // grip is read for this candidate alone.
+    const stroke = function* (
+      wrist: HumanHand.IWrist,
+      shown: HumanHand.IWrist,
+    ): Generator<HumanGrasp.IKey> {
+      if (lift > 0)
+        yield {
+          posture: held,
+          // Lifted, the hand keeps the rotation it shows at the grasp, as
+          // the lift holds it (`HumanHandAttitude`).
+          wrist: {
+            point: { ...wrist.point, y: wrist.point.y + lift },
+            rotation: shown.rotation,
+          },
+          bend,
+        };
+      if (context.params.use !== undefined)
+        yield HumanGraspUse.presented({
+          context,
+          prop: context.params.prop,
+          handle: context.params.handle,
+          side,
+          // The tool is rigid in the hand the arm shows at the grasp, which
+          // may differ from the hand asked: the fingers close on it where it
+          // is shown.
+          wrist: shown,
+          use: context.params.use,
+        });
+      if (demands !== undefined)
+        for (const demand of demands(
+          HumanGraspDemand.grip(
+            context,
+            context.params.prop,
+            side,
+            shown,
+            after,
+          ),
+        ))
+          yield HumanGraspDemand.key(body, demand);
+    };
     // A grasp whose wrist lies beyond the straight arm is tried only when
     // every one does: the choice and the refusal below read the same reach,
     // so a grip a millimetre beyond it is never chosen over one within it for
@@ -111,63 +184,39 @@ export namespace pickUpSearch {
     // only while all its tilts were within reach fell back to every turn when
     // none kept all seven, and a glass across the body was refused a grip
     // 9 mm beyond the arm while others lay within it.
+    const search = (
+      tilts: readonly number[],
+      turns: readonly number[],
+    ): HumanGrasp.IReach =>
+      HumanGrasp.reachable(
+        body,
+        held,
+        side,
+        bend,
+        goal,
+        tilts,
+        stroke,
+        turns,
+        // A grasp that holds every judged key comes before any that does
+        // not, whatever else each costs.
+        required,
+        pickUpPosture.reaches(context, side, held),
+      );
 
-    const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
-      body,
-      held,
-      side,
-      bend,
-      goal,
-      tilts,
-      (wrist: HumanHand.IWrist, shown: HumanHand.IWrist): HumanGrasp.IKey[] => [
-        ...(lift > 0
-          ? [
-              {
-                posture: held,
-                // Lifted, the hand keeps the rotation it shows at the grasp,
-                // as the lift holds it (`HumanHandAttitude`).
-                wrist: {
-                  point: { ...wrist.point, y: wrist.point.y + lift },
-                  rotation: shown.rotation,
-                },
-                bend,
-              },
-            ]
-          : []),
-        ...(context.params.use === undefined
-          ? []
-          : [
-              HumanGraspUse.presented({
-                context,
-                prop: context.params.prop,
-                handle: context.params.handle,
-                side,
-
-                // The tool is rigid in the hand the arm shows at the grasp,
-                // which may differ from the hand asked: the fingers close
-                // on it where it is shown.
-                wrist: shown,
-                use: context.params.use,
-              }),
-            ]),
-      ],
-
-      // A grasp for a use may have to come from the far side of the handle.
-      turnsAsked,
-
-      // A grasp that holds the use's pose comes before any that does not,
-      // whatever else each costs; the use's pose is the stroke's last key.
-      context.params.use === undefined
-        ? undefined
-        : {
-            bound: StrikingRoll.MISS,
-            measure: (
-              _keys: readonly number[],
-              judged: readonly number[],
-            ): number => judged[judged.length - 1] ?? Number.NaN,
-          },
-      pickUpPosture.reaches(context, side, held),
-    );
+    // A use may need the far side of the handle, so it searches every turn
+    // and tilt. A next action's demands are asked of the grip as declared
+    // first, and the search widens only when no declared grip holds them.
+    const chosen: HumanGrasp.IReach =
+      context.params.use !== undefined
+        ? search(HumanGraspUse.OBLIQUE, HumanGraspUse.AROUND)
+        : ((): HumanGrasp.IReach => {
+            const first: HumanGrasp.IReach = search([0], declared);
+            return required === undefined ||
+              required.measure(first.keys, first.judged, first.bounds) <=
+                required.bound
+              ? first
+              : search(HumanGraspUse.OBLIQUE, HumanGraspUse.AROUND);
+          })();
     return { chosen, bend, stance };
   }
 }

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieBody,
   IAutoMoviePhysicalProfile,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -35,6 +36,18 @@ export namespace HumanObject {
 
     /** Its colliders in its own space, for a hand to close on. */
     shapes?(): IAutoMoviePhysicalProfile.IShape[];
+
+    /**
+     * The object with its articulations at stated travels, for an object
+     * whose parts move (an archetype's `articulate`); a rigid object has none.
+     *
+     * @param state Travel by articulation id.
+     * @returns The posed object.
+     */
+    articulate?(state: Readonly<Record<string, number>>): IModel;
+
+    /** Its physical data (an archetype's model body); none when absent or null. */
+    body?: IAutoMovieBody | null;
   }
 
   /**
@@ -87,7 +100,8 @@ export namespace HumanObject {
    * @param placement Where it rests before any hand takes it.
    * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
    * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
-   * @returns The prop.
+   * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
+   * @returns The prop, posed by its drives and tracks when the object articulates (`IHumanProp.articulate`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
    * @evidence contracts/development/implementation.md#principled-implementation A contact frame's translation is its point and its rotated `+Y` its outward normal, the affordance record's own convention.
@@ -103,6 +117,7 @@ export namespace HumanObject {
     placement: Placement,
     motion?: (seconds: number) => Placement,
     contact?: (id: string, seconds: number) => IAutoMovieTransform,
+    tracks?: readonly IHumanProp.ITrack[],
   ): IHumanProp {
     const affordances: readonly IAutoMovieAffordance[] =
       model.affordances ?? [];
@@ -132,6 +147,27 @@ export namespace HumanObject {
       affordances,
       ...(placement.fixed === true ? { fixed: true } : {}),
       ...(shapes === undefined ? {} : { shapes }),
+      ...(tracks === undefined || tracks.length === 0 ? {} : { tracks }),
+      ...(model.body === undefined || model.body === null
+        ? {}
+        : { body: model.body }),
+
+      // An object whose parts move is posed by the performance's state.
+      ...(model.articulate === undefined
+        ? {}
+        : {
+            articulate: (
+              state: Readonly<Record<string, number>>,
+            ): IHumanProp.IPosed => {
+              const posed: IModel = model.articulate!(state);
+              const moved: IAutoMoviePhysicalProfile.IShape[] | undefined =
+                posed.shapes?.();
+              return {
+                affordances: posed.affordances ?? [],
+                ...(moved === undefined ? {} : { shapes: moved }),
+              };
+            },
+          }),
       ...(motion === undefined
         ? {}
         : {

@@ -9,21 +9,26 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
-import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
+import { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
+import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -152,18 +157,24 @@ export namespace HumanPerformancePlace {
           law.accepts,
           law.family,
         );
-    const entry = HumanSegment.entry(person, previous, start);
+
+    // The inertialization the cut into this action decays over, the
+    // tolerance its entry state is read to; none for an overlay.
+    const blend: number | undefined = over ? undefined : (row?.blend ?? 0.25);
+    const entry = HumanSegment.entry(person, previous, start, blend);
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
     const body = person.performer.body;
-    const range: number = 0.9 * (body.measure.thigh + body.measure.shank);
     const carried: Map<number, IHumanPosture> = new Map();
     const context: IHumanActionContext<never> = {
       subject: intent.subject,
       body,
       params: params as never,
       skill: person.skill,
+      ...(person.performer.attributes === undefined
+        ? {}
+        : { attributes: person.performer.attributes }),
       entry,
       start,
       ...(over && previous !== undefined
@@ -187,23 +198,37 @@ export namespace HumanPerformancePlace {
                 }
                 return posture;
               },
+              // The prop the carrier plants on, the support the overlay rides.
+              ...((): { support?: IHumanContactWindow.Support } => {
+                const plant: IHumanContactWindow | undefined =
+                  previous.plan.contacts.find(
+                    (c: IHumanContactWindow): boolean =>
+                      c.kind === "plant" && c.support.kind !== "ground",
+                  );
+                return plant === undefined ? {} : { support: plant.support };
+              })(),
             },
           }
         : {}),
       aim: (target: AutoMovieMotionTarget, seconds: number) =>
-        HumanPerformanceAim.aim(self, target, seconds, {
-          root: entry.posture.root,
-          yaw: entry.posture.yaw,
-          heights: {
-            low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-            middle: body.measure.chestHeight,
-            high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-          },
-          range,
-          body,
-          bones: () => poseBones(body, entry.pose),
-          subject: intent.subject,
-        }),
+        HumanPerformanceAim.aim(
+          self,
+          target,
+          seconds,
+          HumanPerformanceAim.frame(
+            body,
+            entry.posture,
+            () => poseBones(body, entry.pose),
+            intent.subject,
+          ),
+        ),
+      forces: (from: number, to: number): readonly HumanForce.IForce[] =>
+        HumanForce.within(
+          self.forces,
+          intent.subject,
+          start + from,
+          start + to,
+        ),
       random: (channel: string) =>
         HumanSkill.stream(
           person.skill,
@@ -263,6 +288,16 @@ export namespace HumanPerformancePlace {
               seconds,
               named(subject, "performer"),
             ),
+          posture: (seconds: number): IHumanPosture => {
+            // The same rule as the root's: refused beyond what is placed.
+            HumanPerformanceRead.root(
+              self,
+              subject,
+              seconds,
+              named(subject, "performer"),
+            );
+            return HumanPerformanceRead.posture(self, subject, seconds);
+          },
         };
       },
       prop: (subject: string): IHumanActionContext.IProp => {
@@ -278,82 +313,17 @@ export namespace HumanPerformancePlace {
           prop,
           frame: (seconds: number): IHumanProp.IFrame =>
             HumanPerformanceRead.prop(self, subject, seconds),
+          state: (seconds: number): Readonly<Record<string, number>> =>
+            HumanPerformanceObject.state(self, prop, seconds),
         };
       },
-      meeting: (
-        kind: AutoMovieMotionMeeting.IKind,
-        role: string,
-        partner?:
-          | IHumanActionContext.IPartner
-          | readonly IHumanActionContext.IPartner[],
-        window?: AutoMovieMotionMeeting.IWindow,
-      ): AutoMovieMotionMeeting.IMeeting => {
-        const own: AutoMovieMotionMeeting.IRole = {
-          name: role,
-          subject: intent.subject,
-          body,
-          posture: entry.posture,
-          bones: poseBones(body, entry.pose),
-        };
-        const others: readonly IHumanActionContext.IPartner[] =
-          partner === undefined
-            ? []
-            : "subject" in partner
-              ? [partner]
-              : partner;
-        if (others.length === 0)
-          return AutoMovieMotionMeeting.of(kind, [own], context, window);
-
-        // The role planned first computes the meeting; every other reads
-        // that record while it still lies ahead of its own start. The key
-        // names the whole cast in one order, so each role finds it.
-        const key: string = `${kind.name}|${[
-          intent.subject,
-          ...others.map(
-            (other: IHumanActionContext.IPartner): string => other.subject,
-          ),
-        ]
-          .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-          .join("|")}|${window?.from ?? ""}|${window?.to ?? ""}`;
-        const kept = self.meetings.get(key);
-        if (
-          kept !== undefined &&
-          kept.subject !== intent.subject &&
-          kept.meeting.instants.relax > context.start
-        )
-          return kept.meeting;
-        const meeting: AutoMovieMotionMeeting.IMeeting =
-          AutoMovieMotionMeeting.of(
-            kind,
-            [
-              own,
-              ...others.map(
-                (
-                  other: IHumanActionContext.IPartner,
-                ): AutoMovieMotionMeeting.IRole => ({
-                  name: other.role,
-                  subject: other.subject,
-                  body: HumanPerformanceRead.person(self, other.subject)
-                    .performer.body,
-                  posture: HumanPerformanceRead.posture(
-                    self,
-                    other.subject,
-                    context.start,
-                  ),
-                  bones: HumanPerformanceRead.bones(
-                    self,
-                    other.subject,
-                    context.start,
-                  ),
-                }),
-              ),
-            ],
-            context,
-            window,
-          );
-        self.meetings.set(key, { subject: intent.subject, meeting });
-        return meeting;
-      },
+      meeting: HumanPerformanceMeeting.reader(
+        self,
+        intent.subject,
+        body,
+        entry,
+        start,
+      ),
       action: (anchor: string): IHumanActionContext.IPlaced => {
         const placed = self.anchors.get(anchor);
         if (placed === undefined)
@@ -380,12 +350,23 @@ export namespace HumanPerformancePlace {
         };
       },
     };
-    let plan = law.plan(context);
+    // What the performer's next action on a prop demands of a grip this one
+    // chooses (`HumanPerformanceAhead`); an overlay leaves the body's grips
+    // to its carrier.
+    if (!over)
+      context.demands = HumanPerformanceAhead.reader(
+        self,
+        context,
+        person.segments.length,
+      );
+    // A plan too fast for the speed bound is replanned slower by its own
+    // refusal's factor (`HumanPerformanceTempo`).
+    let plan = HumanPerformanceTempo.plan(law, context);
     const share: number =
       row === undefined ? 0 : HumanSegment.share(row.entry, plan);
     if (share > 0) {
       context.start = start - share * plan.duration;
-      plan = law.plan(context);
+      plan = HumanPerformanceTempo.plan(law, context);
     }
 
     // The timing the schedule reads: the part of the plan left after the
@@ -459,7 +440,7 @@ export namespace HumanPerformancePlace {
           ? undefined
           : {
               kind: row?.kind ?? "inertialize",
-              blend: row?.blend ?? 0.25,
+              blend: blend!,
               source: previous,
               cut: start,
             },

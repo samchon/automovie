@@ -70,7 +70,7 @@ export namespace HumanGraspReach {
    * @param tilts The tilts tried at each turn; only the authored one when absent.
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
-   * @param required What a grip must hold before its cost counts: a measure of its per-key errors and judgements (the grasp's, then each stroke key's, `IKey.judge`) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors, judgements and the bounds the keys hold their judgements to (the grasp's, then each stroke key's, `IKey.judge` and `IKey.bound`; `NaN` where none) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all (a pick-up's wrist within the straight arm's reach, which it refuses beyond): a candidate it refuses is tried only when it refuses every one, so a cheaper fit never wins a grip the caller must then refuse. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
@@ -84,17 +84,27 @@ export namespace HumanGraspReach {
     stroke?: (
       wrist: HumanHand.IWrist,
       shown: HumanHand.IWrist,
-    ) => readonly HumanGrasp.IKey[],
+    ) => Iterable<HumanGrasp.IKey>,
     turns: readonly number[] = HumanGrasp.TURNS,
     required?: {
       bound: number;
-      measure: (keys: readonly number[], judged: readonly number[]) => number;
+      measure: (
+        keys: readonly number[],
+        judged: readonly number[],
+        bounds: readonly number[],
+      ) => number;
     },
     admits?: (wrist: HumanHand.IWrist) => boolean,
   ): HumanGrasp.IReach {
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    // One key pose fitted: the pose and the error the arm leaves there, the
-    // rotation in degrees plus the position in millimetres.
+    // One key pose fitted, its elbow left to the body (`elbow`): the pose and
+    // the error the arm leaves there, the rotation in degrees plus the
+    // position in millimetres. The rotation is the fit's own optimal value
+    // where it reports one: the least hand error over the arm's legal
+    // swivels, continuous in the key (Berge's maximum theorem), where a
+    // quantity read at the chosen swivel jumps wherever two swivels trade
+    // places. The elbow's departure from `bend` is measured for the report and
+    // costs nothing.
     const fit = (
       key: HumanGrasp.IKey,
       reference: IHumanPosture.IReference | undefined,
@@ -105,18 +115,29 @@ export namespace HumanGraspReach {
       departure: number;
       judged: number;
     } => {
-      const pose: IAutoMoviePose = resolveHumanPosture(body, {
-        ...key.posture,
-        limbs: {
-          ...key.posture.limbs,
-          [limb]: {
-            point: key.wrist.point,
-            rotation: key.wrist.rotation,
-            bend: key.bend,
-            ...(reference === undefined ? {} : { reference }),
+      // A key another action asks is fitted as that action fits its pose:
+      // its own goal, on its own arm solution, not the grasp's.
+      const anchored: IHumanPosture.IReference | undefined =
+        key.reference === false ? undefined : reference;
+      const resolved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+        body,
+        {
+          ...key.posture,
+          limbs: {
+            ...key.posture.limbs,
+            [limb]: {
+              ...(key.goal ?? {
+                point: key.wrist.point,
+                rotation: key.wrist.rotation,
+                bend: key.bend,
+                elbow: "strain",
+              }),
+              ...(anchored === undefined ? {} : { reference: anchored }),
+            },
           },
         },
-      });
+      );
+      const pose: IAutoMoviePose = resolved.pose;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, pose);
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
@@ -169,7 +190,8 @@ export namespace HumanGraspReach {
         pose,
         shown: { point: hand.worldPosition, rotation: hand.worldRotation },
         miss:
-          (2 * Math.acos(dot) * 180) / Math.PI +
+          (resolved.values[limb]?.error ??
+            (2 * Math.acos(dot) * 180) / Math.PI) +
           1000 *
             Vector3.length(
               Vector3.subtract(hand.worldPosition, key.wrist.point),
@@ -221,7 +243,7 @@ export namespace HumanGraspReach {
         wrist,
         grasp,
         preference,
-        floor: grasp.miss + grasp.departure + preference,
+        floor: grasp.miss + preference,
       });
     }
     candidates.sort(
@@ -238,21 +260,25 @@ export namespace HumanGraspReach {
       let beaten: boolean = false;
       const keys: number[] = [grasp.miss];
       const judged: number[] = [Number.NaN];
+      const bounds: number[] = [Number.NaN];
+      // The keys are built as they are reached, so a key a candidate never
+      // reaches, beaten by an earlier one, is never built.
       for (const key of stroke?.(wrist, grasp.shown) ?? []) {
         const fitted = fit(key, reference);
         keys.push(fitted.miss);
         judged.push(fitted.judged);
+        bounds.push(key.bound ?? Number.NaN);
         miss = Math.max(miss, fitted.miss);
         departure = Math.max(departure, fitted.departure);
-        if (held && miss + departure + preference >= least) {
+        if (held && miss + preference >= least) {
           beaten = true;
           break;
         }
       }
       if (beaten) continue;
-      const cost: number = miss + departure + preference;
+      const cost: number = miss + preference;
       const measured: number =
-        required === undefined ? 0 : required.measure(keys, judged);
+        required === undefined ? 0 : required.measure(keys, judged, bounds);
       const holds: boolean =
         required === undefined || measured <= required.bound;
       if (
@@ -273,6 +299,7 @@ export namespace HumanGraspReach {
           departure,
           keys,
           judged,
+          bounds,
           pose: grasp.pose,
         };
       }

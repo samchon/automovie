@@ -40,9 +40,11 @@
  * - `climbStairs`: climbing a flight of stairs up or down, step over step or step by step.
  * - `throwObject`: throwing a held object overarm, underarm or as a toss along a ballistic path to a target.
  * - `catchObject`: catching a thrown object where its path enters the reach, giving with it and holding it.
+ * - `release`: a hand opening on what it holds, the prop leaving with the hand's velocity.
  * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
  * - `getUp`: getting up from the floor to standing, from the back, the front or the hands and knees, symmetrically or by rolling over.
+ * - `support`: moving the body's weight across a sequence of supports (feet, hands, knees, the seat or the trunk), each stance's new supports bearing before the old ones let go.
  * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern, the bear crawl on hands and feet, or the inchworm.
  * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
  * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
@@ -51,6 +53,7 @@
  * - `wipe`: wiping a level surface with the flat palm in circles.
  * - `dress`: putting on a hat or a pair of glasses with both hands.
  * - `carry`: walking while carrying a load in one hand, a box in both, a child on the hip, or pushing a cart.
+ * - `pushPull`: a heavy load moved by its two handles, pushed ahead, pulled walking backward or dragged behind, or pressed and not moved.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
  * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
@@ -82,6 +85,7 @@ export type HumanActionName =
   | "flinch"
   | "stagger"
   | "knockdown"
+  | "perturb"
   | "knee"
   | "sit"
   | "rise"
@@ -102,9 +106,11 @@ export type HumanActionName =
   | "climbStairs"
   | "throwObject"
   | "catchObject"
+  | "release"
   | "operate"
   | "lieDown"
   | "getUp"
+  | "support"
   | "crawl"
   | "climbLadder"
   | "clinch"
@@ -113,6 +119,7 @@ export type HumanActionName =
   | "wipe"
   | "dress"
   | "carry"
+  | "pushPull"
   | "kiss"
   | "highFive"
   | "selfAction"

@@ -26,7 +26,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * one a sled push takes (`INCLINES`). A handle between two of them takes the
  * incline between theirs in proportion; a handle below the hip continues the
  * hip-to-midway slope, up to `RANGE`; above the shoulder keeps the
- * shoulder's; and never less than the push's own `lean`.
+ * shoulder's; and never less than the push's own `lean`. An incline asked
+ * outright (a haul at a declared load, `pushPullLean`) replaces all of it.
  *
  * The body then sinks onto bent knees as far as brings each wrist within the
  * arm's reach from its shoulder at the highest the walk raises it (`rise`),
@@ -34,7 +35,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is solved, from which measurement and how a handle between or beyond them is read.
  * @evidence contracts/development/design.md#principled-representation The stance is an incline in degrees from the vertical and a sink in metres, the two values `AutoMovieMotionHumanTrunk.sunk` takes; the handle heights are the body's own hip and shoulder heights, as the study placed them at each subject's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The measured table, its bound, the reading rate, the stance and its solver, read by `pushSled` alone.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The measured table, its bound, the reading rate, the stance and its solver, read by `pushSled`, and the floor, read by it and by `pushPull`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sled is named; the handles are the frames the law reads.
  */
 export namespace pushSledStance {
@@ -67,6 +68,7 @@ export namespace pushSledStance {
    * @param feet Each foot at the entry, whose lower sole is the floor.
    * @param handles Each hand's handle frame.
    * @param lean The least incline, degrees from the vertical.
+   * @param incline The incline asked outright, degrees from the vertical, negative leaning back, which replaces the measured one and `lean` (a haul at a declared load, `pushPullLean`); the measured one when absent.
    * @returns The stance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -84,21 +86,13 @@ export namespace pushSledStance {
     feet: IHumanEntryState["feet"],
     handles: Record<HumanHand.Side, HumanHand.IFrame>,
     lean: number,
+    incline?: number,
   ): IStance {
     const standing: IHumanPosture = walk.posture(settle);
 
     // The floor under the entry's lower sole, and how far the walk raises
     // the body above where it takes the handles, read at the display rate.
-    const floor: number = Math.min(
-      ...(["left", "right"] as const).map(
-        (foot: HumanHand.Side): number =>
-          feet[foot].ankle.y +
-          Quaternion.rotateVector(
-            feet[foot].rotation,
-            HumanFoot.offset(body, foot, "sole"),
-          ).y,
-      ),
-    );
+    const floor: number = pushSledStance.floor(body, feet);
     let rise: number = 0;
     for (let t: number = settle; t <= walk.duration; t += 1 / RATE)
       rise = Math.max(rise, walk.posture(t).root.y - standing.root.y);
@@ -122,7 +116,8 @@ export namespace pushSledStance {
         : height >= midway
           ? between(midway, shoulder, INCLINES.midway, INCLINES.shoulder)
           : between(hip, midway, INCLINES.hip, INCLINES.midway);
-    const incline: number = Math.min(RANGE, Math.max(lean, measured));
+    const inclined: number =
+      incline ?? Math.min(RANGE, Math.max(lean, measured));
 
     // The sink that keeps each wrist within reach of its risen shoulder.
     const reach: number = body.measure.upperArm + body.measure.forearm;
@@ -131,7 +126,7 @@ export namespace pushSledStance {
         body,
         resolveHumanPosture(
           body,
-          AutoMovieMotionHumanTrunk.sunk(body, standing, 0, incline, 0),
+          AutoMovieMotionHumanTrunk.sunk(body, standing, 0, inclined, 0),
         ),
       );
     let sink: number = 0;
@@ -147,6 +142,38 @@ export namespace pushSledStance {
           at.y + rise - asked[side].y - Math.sqrt(reach * reach - flat * flat),
         );
     }
-    return { incline, sink };
+    return { incline: inclined, sink };
+  }
+
+  /**
+   * The floor a push stands on: the height of the entry's lower sole, world
+   * metres, from which a handle's height is read.
+   *
+   * @param body The body.
+   * @param feet Each foot at the entry.
+   * @returns The floor's height, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Each sole is its foot's own offset carried by the ankle's frame; the lower one is the floor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One minimum over the two feet.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No floor height is assumed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one floor the stance and a haul's handle height read (`pushPull`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function floor(
+    body: IHumanBody,
+    feet: IHumanEntryState["feet"],
+  ): number {
+    return Math.min(
+      ...(["left", "right"] as const).map(
+        (foot: HumanHand.Side): number =>
+          feet[foot].ankle.y +
+          Quaternion.rotateVector(
+            feet[foot].rotation,
+            HumanFoot.offset(body, foot, "sole"),
+          ).y,
+      ),
+    );
   }
 }

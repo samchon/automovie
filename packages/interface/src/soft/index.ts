@@ -34,6 +34,8 @@ export * from "./IAutoMovieSoftBodyBudget";
 export * from "./IAutoMovieSoftBodySurface";
 export * from "./IAutoMovieSoftBounds";
 export * from "./IAutoMovieSoftCollider";
+export * from "./IAutoMovieSoftCompliance";
+export * from "./IAutoMovieSoftContact";
 export * from "./IAutoMovieSoftLattice";
 export * from "./IAutoMovieSoftNamedState";
 export * from "./IAutoMovieSoftSolver";

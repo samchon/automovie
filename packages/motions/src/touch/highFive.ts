@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -17,13 +17,17 @@ import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHuma
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanHeld } from "../handling/HumanHeld";
+import { handshake } from "../handling/handshake";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { HumanSeatedReach } from "./HumanSeatedReach";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -31,9 +35,18 @@ import { poseBones } from "../posture/poseBones";
  * shared instant (#3284), the mutual goal the handshake uses
  * (`AutoMovieMotionMeeting`).
  *
- * The meeting point lies on the floor midpoint of the two performers, at the
- * mean of their crown heights for a high five, of their waist heights for a
- * low five and of their chest heights for a fist bump (provisional). Each
+ * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal`
+ * on both acting arms as the handshake reads them, `handshake.arm`, as the
+ * handover does): the action prefers the mean of the two crown heights for a
+ * high five, of their waist heights for a low five and of their chest
+ * heights for a fist bump (provisional), and the point lies at that height
+ * where both arms are the same share of their comfortable reaches, moved
+ * down or up only as far as both arms' reach demands. Partners of unequal
+ * stature therefore meet where the shorter one can reach. Seated partners
+ * whose arms alone fall short lean their trunks forward over the seat, the
+ * arm's target first, in equal shares of each hip's flexion room
+ * (`HumanSeatedReach`, Chan and Dubey 1995); partners no point lies within
+ * both arms of, leaned as far as they can, are refused, never stretched. Each
  * role's hand reaches it in the free-space transport time of its distance
  * (`AutoMovieMotionHumanTiming.transport`); the pair meets when the slower
  * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
@@ -127,10 +140,10 @@ export namespace highFive {
    * @returns The kind.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the variant's geometry and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact on the roles' floor midpoint at the mean of their named heights; each role's natural timing the free-space transport of its hand to it.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact is the pair's mutual goal at the mean of their named heights, inside both arms' reach; each role's natural timing the free-space transport of its hand to it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record with a placement and a timing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Heights are named body heights; the default place is used only when a role is alone.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the target heights, `HumanHand.frame` and the timing owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Heights are named body heights; a pair no point lies within both arms of is refused, never stretched; the default place is used only when a role is alone.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the target heights, the engine's mutual goal, the handshake's arm, `HumanHand.frame` and the timing owner.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two roles, constant work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -145,16 +158,64 @@ export namespace highFive {
       roles: ["slapper", "slapper"],
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => {
-        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-        for (const r of roles)
-          sum = Vector3.add(sum, {
-            x: r.posture.root.x,
-            y:
+        const arms: resolveAutoMovieMutualGoal.ISide[] = roles.map(
+          (r: AutoMovieMotionMeeting.IRole): resolveAutoMovieMutualGoal.ISide =>
+            handshake.arm(
+              r.body,
+              side,
+              r.bones.get(`${side}UpperArm`)!.worldPosition,
+            ),
+        );
+        // The grid's height is a standing body's; a seated body's is that
+        // height lowered by as much as its acting shoulder, leaned as the
+        // reach leans it, sits below the standing body's.
+        const preferred = (
+          leaned: readonly resolveAutoMovieMutualGoal.ISide[],
+        ): number =>
+          roles.reduce(
+            (sum: number, r: AutoMovieMotionMeeting.IRole, k: number): number =>
+              sum +
               AutoMovieMotionHumanTargetGrid.height(r.body, height) *
-              r.body.measure.stature,
-            z: r.posture.root.z,
+                r.body.measure.stature -
+              (r.seated === true
+                ? r.body.rest.get(`${side}UpperArm`)!.y - leaned[k]!.shoulder.y
+                : 0),
+            0,
+          ) / roles.length;
+        // The engine refuses a pair no point lies within both arms of; its
+        // message names the shoulder gap the pair can close.
+        // A seated pair leans its trunks over the seat when the arms
+        // alone fall short (`HumanSeatedReach`).
+        try {
+          return {
+            meet: HumanSeatedReach.goal(
+              [roles[0]!, roles[1]!],
+              [arms[0]!, arms[1]!],
+              (
+                a: resolveAutoMovieMutualGoal.ISide,
+                b: resolveAutoMovieMutualGoal.ISide,
+              ): IAutoMovieVector3 =>
+                resolveAutoMovieMutualGoal({
+                  a,
+                  b,
+                  height: preferred([a, b]),
+                }).point,
+            ),
+          };
+        } catch (error: unknown) {
+          const span: IAutoMovieVector3 = Vector3.subtract(
+            arms[1]!.shoulder,
+            arms[0]!.shoulder,
+          );
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "partner",
+            value: Math.hypot(span.x, span.z),
+            feasible: null,
+            reason: error instanceof Error ? error.message : String(error),
+            fix: "stand the partners within reach of each other",
           });
-        return { meet: Vector3.scale(sum, 1 / roles.length) };
+        }
       },
       timing: (role, contacts) => {
         const from: IAutoMovieVector3 = HumanHand.frame(
@@ -177,6 +238,7 @@ export namespace highFive {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {HumanRefusal} A `reach` refusal on `partner` when no point lies within both partners' arms.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan; the law's doc gives the geometry and timing.
    * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand, or the point of the prop it holds stood upright on its steadiest side (`HumanHeld`), is a press of the touch stroke on the meeting point.
@@ -308,8 +370,49 @@ export namespace highFive {
       lay,
       facing,
     );
+    // Seated, the trunk leans forward over the seat as far as this arm
+    // needs to reach the meeting, the arm's target first
+    // (`HumanSeatedReach.need`); standing, it leans none.
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      context.entry.pose,
+    );
+    const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
+      HumanSeatedReach.need(
+      {
+        name: "slapper",
+        subject: context.subject,
+        body,
+        posture: entry,
+        bones,
+        seated: context.entry.supports.some(
+          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+        ),
+      },
+      bones.get(`${side}UpperArm`)!.worldPosition,
+      place.point,
+      handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
+        .limit,
+    );
+    const under: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      clock.duration,
+    );
     const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      base:
+        lean.share === 0
+          ? under
+          : {
+              ...under,
+              posture: (seconds: number): IHumanPosture =>
+                HumanSeatedReach.posed(
+                  body,
+                  under.posture(seconds),
+                  lean.joints,
+                  lean.share *
+                    clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+                ),
+            },
       clock,
       primitives: AutoMovieMotionHumanTouch.touch({
         body,

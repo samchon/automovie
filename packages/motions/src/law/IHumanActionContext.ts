@@ -12,11 +12,15 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import type { HumanAttribute } from "../ensemble/HumanAttribute";
+import type { HumanForce } from "../perform/HumanForce";
 import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
+import type { IHumanActionLaw } from "./IHumanActionLaw";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
+import type { IHumanContactWindow } from "./IHumanContactWindow";
 import type { IHumanEntryState } from "./IHumanEntryState";
 
 /**
@@ -45,11 +49,27 @@ export interface IHumanActionContext<P = object> {
   /** The performer's resolved skill. */
   skill: HumanSkill.ISkill;
 
+  /**
+   * The performer's group attributes (`IHumanPerformer.attributes`), each in
+   * [0, 1]; an attribute absent, or the whole record absent, reads as its
+   * neutral value.
+   */
+  attributes?: Readonly<Partial<Record<HumanAttribute.Name, number>>>;
+
   /** The state the action is entered from. */
   entry: IHumanEntryState;
 
   /** Film second of the action's time zero. */
   start: number;
+
+  /**
+   * A factor on every span of the action that physics does not fix, over
+   * its manner's own tempo (`AutoMovieMotionManner.of`): 1 when absent, and
+   * more where the action is replanned to take the time its planned motion
+   * needs within the speed bound (Hollerbach 1984's time scaling, applied
+   * where the action is placed).
+   */
+  tempo?: number;
 
   /**
    * The action this one is performed over, when it is an overlay: a wave
@@ -156,6 +176,32 @@ export interface IHumanActionContext<P = object> {
   obstacles(): readonly HumanObstacle.IObstacle[];
 
   /**
+   * The forces on this performer in a span of this action
+   * (`HumanPerformance.IInput.forces`, #3429): impulses and sustained
+   * forces, known before the action plans because they are inputs. A
+   * reaction reads them to size its response; none acts by itself. Absent on
+   * a context built outside a performance.
+   *
+   * @param from Seconds since the action's start.
+   * @param to Seconds since the action's start, at least `from`.
+   * @returns The forces, in the order the performance was given them.
+   */
+  forces?(from: number, to: number): readonly HumanForce.IForce[];
+
+  /**
+   * What the performer's next action on a prop demands of a grip this action
+   * is choosing (`IHumanActionLaw.demands`): the poses that action will hold
+   * the prop in, so a grasp is chosen for them as well as for its own reach.
+   * The action asked is the first later one of the performer that names the
+   * prop among its parameters; an action that asks nothing, or none, gives
+   * none. Absent on an overlay and on a context built outside a performance.
+   *
+   * @param grip The grip being weighed, with the posture this action leaves the body in with it.
+   * @returns The poses demanded of it.
+   */
+  demands?(grip: IHumanActionLaw.IGrip): readonly IHumanActionLaw.IDemand[];
+
+  /**
    * This instance's draw stream for one channel.
    *
    * @param channel The quantity drawn.
@@ -220,6 +266,18 @@ export namespace IHumanActionContext {
      * @throws {HumanRefusal} A `participant` refusal when the second lies after their last placed action while later actions of theirs are still to be placed.
      */
     root(seconds: number): IRoot;
+
+    /**
+     * Their placed posture at a film second, read under the same rule as
+     * `root`: the posture their active action writes, before layers and the
+     * decaying offset of a cut. An instanced member displays it moved
+     * (`instance`). Absent where the context reads no placed path.
+     *
+     * @param seconds Film seconds.
+     * @returns Their posture.
+     * @throws {HumanRefusal} As `root` does.
+     */
+    posture?(seconds: number): IHumanPosture;
   }
 
   /** Another performer of a meeting and the role they take in it. */
@@ -252,6 +310,14 @@ export namespace IHumanActionContext {
      * @returns The carrier's posture at that instant; its last posture once it has ended.
      */
     posture(seconds: number): IHumanPosture;
+
+    /**
+     * What the carrier stands on when it is not the ground: the first prop
+     * its plan plants a foot on (a stance on a cart's bed), so an overlay
+     * that begins with it is carried by that prop (`HumanSupportFrame`).
+     * Absent on the ground.
+     */
+    support?: IHumanContactWindow.Support;
   }
 
   /** A prop and its displayed frame. */
@@ -266,6 +332,18 @@ export namespace IHumanActionContext {
      * @returns The frame.
      */
     frame(seconds: number): IHumanProp.IFrame;
+
+    /**
+     * The travel of each of its articulations an act or its own track has
+     * moved by a film second (`HumanPerformance.state`); an articulation
+     * absent from the record is at rest. Read at plan time like `frame`, so
+     * an act that operates a part starts from where the part is. Absent from
+     * a context that tracks no state, where every articulation is at rest.
+     *
+     * @param seconds Film seconds.
+     * @returns Travel by articulation id.
+     */
+    state?(seconds: number): Readonly<Record<string, number>>;
   }
 
   /** A stream shared by every repeat of an action, with one repeat's place in it. */

@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -292,21 +292,13 @@ function obstacle(box: {
       {
         id: "edge",
         kind: "ledge",
-        frame: {
-          translation: { x: 0, y: box.height, z: box.depth },
-          rotation: identity,
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        frame: Transform.of({ x: 0, y: box.height, z: box.depth }, identity),
         extent: null,
       },
       {
         id: "top",
         kind: "surface",
-        frame: {
-          translation: { x: 0, y: box.height, z: box.depth / 2 },
-          rotation: identity,
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        frame: Transform.of({ x: 0, y: box.height, z: box.depth / 2 }, identity),
         extent: null,
         depth: box.depth,
       },

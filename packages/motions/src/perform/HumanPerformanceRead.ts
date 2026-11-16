@@ -1,19 +1,17 @@
-import {
-  type IAutoMovieIntent,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
+import type {
+  IAutoMovieIntent,
+  IAutoMovieResolvedBone,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
@@ -103,7 +101,9 @@ export namespace HumanPerformanceRead {
    * with the offset it had when the grip closed, and left where the last
    * grip released it. A worn span is a grip by a bone: from the film's start
    * for a prop declared worn, from the instant an action puts it on
-   * (`IHumanActionPlan.wears`), each to the next grip that takes it off.
+   * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a
+   * prop set on another prop's socket (`IHumanActionPlan.mounts`) rides
+   * that socket the same way, posed as the other prop is.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the
@@ -147,119 +147,7 @@ export namespace HumanPerformanceRead {
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): IHumanProp.IFrame {
-    const prop: IHumanProp | undefined = self.props.get(subject);
-    if (prop === undefined)
-      throw HumanPerformanceRead.missing("prop", subject, [
-        ...self.props.keys(),
-      ]);
-    if (prop.motion !== undefined) return prop.motion(seconds);
-    const grips: HumanPerformanceState.IGrip[] = HumanPerformanceRead.grips(
-      self,
-      subject,
-    );
-    // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: HumanPerformanceState.IGrip | undefined;
-    let steady: HumanPerformanceState.IGrip | undefined;
-    let released: HumanPerformanceState.IGrip | undefined;
-    for (const g of grips) {
-      // A grip carries from after it closes; at its closing the prop is where it was.
-      if (g.from >= seconds) continue;
-      if (seconds <= g.to) {
-        // A performer's other hand on a prop that performer already holds
-        // steadies it and does not take it over: a camera's far end held
-        // with the right hand on the grip.
-        const steadies: boolean =
-          active !== undefined &&
-          active.bone === undefined &&
-          g.bone === undefined &&
-          active.subject === g.subject &&
-          active.side !== g.side;
-        if (!steadies) {
-          active = g;
-          steady = undefined;
-        } else steady = g;
-      } else if (released === undefined || g.to >= released.to) released = g;
-    }
-    const window: HumanPerformanceState.IGrip | undefined = active ?? released;
-    if (window === undefined) return prop.frame;
-    const at: number = Math.min(seconds, window.to);
-    // A window opening on a hand that already holds the prop (a put down
-    // after a pick up) keeps that grip's offset: the hand never re-seats what
-    // it holds, so no action boundary moves the prop in the hand.
-    // A worn span rides its bone; a held one, its hand's grip socket.
-    const carrier = (
-      w: HumanPerformanceState.IGrip,
-      at: number,
-    ): IHumanProp.IFrame => {
-      if (w.bone === undefined)
-        return HumanPerformanceRead.hand(self, w.subject, w.side, at);
-      const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
-        self,
-        w.subject,
-        at,
-      ).get(w.bone)!;
-      return { position: bone.worldPosition, rotation: bone.worldRotation };
-    };
-    const seat = (w: HumanPerformanceState.IGrip): IHumanProp.IFrame => {
-      if (w.offset !== undefined) return w.offset;
-      const earlier: HumanPerformanceState.IGrip | undefined =
-        w.bone !== undefined
-          ? undefined
-          : grips.find(
-              (g: HumanPerformanceState.IGrip): boolean =>
-                g !== w &&
-                g.bone === undefined &&
-                g.subject === w.subject &&
-                g.side === w.side &&
-                g.from < w.from &&
-                g.to >= w.from - 1e-6,
-            );
-      if (earlier !== undefined) return (w.offset = seat(earlier));
-      const before: IHumanProp.IFrame = HumanPerformanceRead.prop(
-        self,
-        subject,
-        w.from - 1e-6,
-      );
-      const hand: IHumanProp.IFrame = carrier(w, w.from);
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
-      return (w.offset = {
-        position: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(before.position, hand.position),
-        ),
-        rotation: Quaternion.multiply(inverse, before.rotation),
-      });
-    };
-    // Carried by the performer reading it: their own body as the read gives it.
-    const hold = (w: HumanPerformanceState.IGrip): HumanPropHold.IHand => ({
-      offset: seat(w),
-      hand:
-        own !== undefined && active !== undefined && w.subject === own.subject
-          ? HumanPropHold.frame(
-              HumanPerformanceRead.person(self, own.subject).performer.body,
-              own.bones(),
-              w,
-            )
-          : carrier(w, at),
-    });
-    // Taken in both of the performer's hands at once, it is one rigid thing
-    // between the two fists; a hand closing on it later only steadies it.
-    if (
-      steady !== undefined &&
-      window === active &&
-      Math.abs(steady.from - active.from) <= 1e-6
-    )
-      return HumanPropHold.fit(hold(window), hold(steady));
-    const { offset, hand } = hold(window);
-    return {
-      position: Vector3.add(
-        hand.position,
-        Quaternion.rotateVector(hand.rotation, offset.position),
-      ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(hand.rotation, offset.rotation),
-      ),
-    };
+    return HumanPerformanceHold.prop(self, subject, seconds, own);
   }
 
   /**
@@ -329,6 +217,20 @@ export namespace HumanPerformanceRead {
                 to: Infinity,
               });
           }
+      // A prop set on another prop's socket rides it like a worn one.
+      for (const segment of [...person.segments, ...person.overlays])
+        for (const m of segment.plan.mounts ?? [])
+          if (m.prop === subject) {
+            const from: number = segment.start + m.from * segment.plan.duration;
+            if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
+              worn.push({
+                subject: person.performer.subject,
+                side: "right",
+                mount: { prop: m.onto, point: m.point },
+                from,
+                to: Infinity,
+              });
+          }
       for (const held of person.holds)
         if (held.prop === subject)
           out.push({
@@ -359,6 +261,7 @@ export namespace HumanPerformanceRead {
                 side: c.part === "leftHand" ? "left" : "right",
                 from,
                 to,
+                ...(c.inHand === undefined ? {} : { inHand: c.inHand }),
               });
           }
     }
@@ -414,7 +317,7 @@ export namespace HumanPerformanceRead {
     );
     const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
     const left: number =
-      (self.intended.get(subject) ?? 0) - person.segments.length;
+      (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
       throw new HumanRefusal({
         kind: "participant",

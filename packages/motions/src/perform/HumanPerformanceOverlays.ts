@@ -1,7 +1,7 @@
 import type { IAutoMovieIntent, IAutoMovieSchedule } from "@automovie/engine";
 
 import type { HumanActionKey } from "../HumanActionKey";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -62,7 +62,7 @@ export namespace HumanPerformanceOverlays {
    * @throws {HumanRefusal} When the plan claims a channel the carrier does not yield, or one another overlay of the same span holds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, the result and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The claimed channels are the plan's own; the carrier's yields and the running overlays' claims bound them, and the hold of a prop passes to the overlay as it does to any placed action.
+   * @evidence contracts/development/implementation.md#principled-implementation The claimed channels are the plan's own; the carrier's yields (its instance's where its plan states them, its law's otherwise) and the running overlays' claims bound them, and the hold of a prop passes to the overlay as it does to any placed action.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two checks, one record, its registration.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both conflicts throw with the channels at fault and the repair.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the hold to `HumanPerformanceContacts.hold`.
@@ -84,12 +84,16 @@ export namespace HumanPerformanceOverlays {
     const { name, params, law, context, plan, start }: IPlanned = planned;
     // The overlay takes what its plan claims, which the carrier must yield
     // and no other overlay of the same span may hold.
-    const channels: readonly AutoMovieMotionHumanChannel[] =
+    const channels: readonly AutoMovieMotionHumanChannel.Claim[] =
       plan.channels ?? [];
-    const yielded: readonly AutoMovieMotionHumanChannel[] =
-      carrier.law.yields ?? [];
-    const kept: AutoMovieMotionHumanChannel[] = channels.filter(
-      (c: AutoMovieMotionHumanChannel): boolean => !yielded.includes(c),
+    // An instance's own yields, where its parameters decide them, before its law's.
+    const yielded: readonly AutoMovieMotionHumanChannel.Claim[] =
+      carrier.plan.yields ?? carrier.law.yields ?? [];
+    // A claimed digit is yielded with its hand; a claimed hand needs the
+    // hand itself yielded, not one of its digits.
+    const kept: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
+      (c: AutoMovieMotionHumanChannel.Claim): boolean =>
+        !AutoMovieMotionHumanChannel.claims(yielded, c),
     );
     if (kept.length !== 0)
       throw new HumanRefusal({
@@ -103,8 +107,14 @@ export namespace HumanPerformanceOverlays {
     const end: number = start + plan.duration;
     for (const other of person.overlays) {
       if (!(other.end > start + 1e-9 && other.entryTime < end - 1e-9)) continue;
-      const shared: AutoMovieMotionHumanChannel[] = channels.filter(
-        (c: AutoMovieMotionHumanChannel): boolean => other.channels.includes(c),
+      // Two claims clash when either covers the other: a hand and one of
+      // its digits, or the same digit twice; two digits of one hand do not.
+      const shared: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
+        (c: AutoMovieMotionHumanChannel.Claim): boolean =>
+          AutoMovieMotionHumanChannel.claims(other.channels, c) ||
+          other.channels.some((o: AutoMovieMotionHumanChannel.Claim): boolean =>
+            AutoMovieMotionHumanChannel.claims([c], o),
+          ),
       );
       if (shared.length !== 0)
         throw new HumanRefusal({

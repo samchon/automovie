@@ -14,6 +14,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -28,12 +29,12 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
-import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
+import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
 /**
@@ -151,7 +152,10 @@ export namespace sit {
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const seat: seated.ISeat = context.params.seat;
-    seated.check(body, seat);
+    // The seat's height is measured from the floor the feet stand on, a
+    // boat's or a stage's as well as the ground.
+    const under: number = seated.floor(body, context.entry);
+    seated.check(body, seat, under);
     const back: NonNullable<IParams["back"]> = context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
       throw new HumanRefusal({
@@ -172,8 +176,9 @@ export namespace sit {
         reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
         fix: "turn to within 20 degrees of facing away from the seat first, or turn the seat",
       });
-    if (seated.high(body, seat) || seat.astride === true)
+    if (seated.high(body, seat, under) || seat.astride === true)
       return HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn);
+    // The feet stand on that floor.
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
@@ -182,7 +187,7 @@ export namespace sit {
     const goal: IAutoMovieVector3 = seated.point(body, seat);
     sitPlace.reach(body, seat, goal, feet, sitPlace.BACKS[back].pitch);
 
-    const r: number = seated.ratio(body, seat);
+    const r: number = seated.ratio(body, seat, under);
     const descent: number =
       2 *
       (1 + 0.6 * (1 - r)) *
@@ -238,7 +243,7 @@ export namespace sit {
         kind: "plant",
         from: 0,
         to: crossed ? descent / duration : 1,
-        support: { kind: "ground" },
+        support: HumanSupportFrame.contact(context, "leftFoot"),
       },
       ...(crossed
         ? [
@@ -247,7 +252,7 @@ export namespace sit {
               kind: "plant" as const,
               from: (descent + CROSS) / duration,
               to: 1,
-              support: { kind: "ground" as const },
+              support: HumanSupportFrame.contact(context, "leftFoot"),
             },
           ]
         : []),
@@ -256,14 +261,14 @@ export namespace sit {
         kind: "plant",
         from: 0,
         to: 1,
-        support: { kind: "ground" },
+        support: HumanSupportFrame.contact(context, "rightFoot"),
       },
       {
         part: "seat",
         kind: "seat",
         from: contact / duration,
         to: 1,
-        support: { kind: "ground" },
+        support: HumanSupportFrame.of(context),
       },
     ];
 
@@ -275,7 +280,7 @@ export namespace sit {
           kind: "plant",
           from: contact / duration,
           to: 1,
-          support: { kind: "ground" },
+          support: HumanSupportFrame.of(context),
         });
     // The body lowered over its feet and onto the seat, its arms hanging and
     // its fingers straightening as each hand comes to rest.
@@ -291,7 +296,10 @@ export namespace sit {
       base: { kind: "seated", seat },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return shaped(lowered(t, travel(t)), t);
+        return sitHands(
+          lowered(t, travel(t)),
+          (side: "left" | "right"): number => hand(side, t),
+        );
       },
     };
 
@@ -340,7 +348,7 @@ export namespace sit {
           : peak + (final.pitch - peak) * settle;
       const yaw: number = yaw0 + turn * across;
       const joints: IHumanPosture["joints"] = {
-        ...stand.RELAXED,
+        ...stand.relaxed(body),
         ...upright,
       };
       for (const [bone, a] of Object.entries(final.joints) as [
@@ -399,27 +407,6 @@ export namespace sit {
     function hand(side: "left" | "right", t: number): number {
       const s: AutoMovieMotionHumanArmPlanned.ISpan = span(side);
       return minimumJerk((t - s.start) / (s.ready - s.start)).s;
-    }
-
-    /** A posture whose fingers straighten from their own to lie flat as each hand comes to rest: the hand is shaped during its transport (Jeannerod 1984). Interim: a blend to a named shape, until the resting hand's fingers are solved onto the surface they rest on as part of its contact. */
-    function shaped(posture: IHumanPosture, t: number): IHumanPosture {
-      const joints: IHumanPosture["joints"] = { ...posture.joints };
-      for (const side of ["left", "right"] as const) {
-        const s: number = hand(side, t);
-        for (const [bone, flat] of Object.entries(
-          HumanHand.shape(side, "flat"),
-        ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-          const was: readonly [number, number, number] = posture.joints[
-            bone
-          ] ?? [0, 0, 0];
-          joints[bone] = [
-            was[0] + (flat[0] - was[0]) * s,
-            was[1] + (flat[1] - was[1]) * s,
-            was[2] + (flat[2] - was[2]) * s,
-          ];
-        }
-      }
-      return { ...posture, joints };
     }
 
     // The weight stays over the feet until the seat takes it (Kralj, Jaeger

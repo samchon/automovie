@@ -65,6 +65,7 @@ export namespace AutoMovieMotionHumanGoal {
             ),
           }),
       ...(to.contact === undefined ? {} : { contact: to.contact }),
+      ...(to.limits === undefined ? {} : { limits: to.limits }),
       ...(to.on === undefined ? {} : { on: to.on }),
       ...(to.reference === undefined ? {} : { reference: to.reference }),
     };

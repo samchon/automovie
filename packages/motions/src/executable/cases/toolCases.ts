@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  Transform,
   Vector3,
   quaternionFromAutoMovieBasis,
   resolveAutoMovieHumanoidSurfaces,
@@ -161,7 +162,7 @@ function contact(
   return {
     id,
     kind,
-    frame: { translation: at, rotation, scale: { x: 1, y: 1, z: 1 } },
+    frame: Transform.of(at, rotation),
     extent: null,
     ...extra,
   };

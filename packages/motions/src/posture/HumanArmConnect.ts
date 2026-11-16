@@ -7,8 +7,25 @@
  * first sample is the goal itself, so where the straight segment is valid
  * the trees meet on it at once. The path is then shortcut, each vertex joined
  * to the farthest later one its straight segment reaches. Samples come from a
- * seeded generator, and the iterations are counted rather than timed, so a\n * query has one answer; the step and the edge's check spacing are OMPL's\n * defaults, a fifth and a hundredth of the space's extent.
+ * seeded generator, and the iterations are counted rather than timed, so a
+ * query has one answer; the step and the edge's check spacing are OMPL's
+ * defaults, a fifth and a hundredth of the space's extent.
  *
+ * A query whose validity changes along the path, as a body moves while an
+ * arm reaches, indexes its configurations by a coordinate that rises from
+ * the start to the goal (`IQuery.rising`), and each state is valid or not
+ * where that coordinate puts it: the time-indexed RRT-Connect of EXOTica
+ * (ipab-slmc/exotica, `time_indexed_rrt_connect`), whose start tree grows
+ * only forward in time and whose goal tree only backward, by directional
+ * distances that refuse the other way.
+ *
+ * A start the validity reading refuses (an arm shown a hair deeper in the
+ * body than the planner's margin lets a state lie) is repaired as MoveIt's
+ * start-state adapter repairs it (`FixStartStateCollision`): a valid state
+ * is drawn near it, each coordinate perturbed by up to `JIGGLE` of the
+ * space's extent, `ATTEMPTS` times at most, and the path leaves the start
+ * for that state, the planner growing its tree from there; a start no draw
+ * repairs has no path.
  */
 export namespace HumanArmConnect {
   /** A query. */
@@ -23,38 +40,71 @@ export namespace HumanArmConnect {
     valid: (q: readonly number[]) => boolean;
     /** The space's largest extent, coordinate units. */
     extent: number;
+    /** The index of the coordinate that rises from the start to the goal along every edge; none when absent. */
+    rising?: number;
   }
 
   /**
    * The path from the start to the goal.
    *
    * @param query The query.
-   * @returns The path's vertices from the start to the goal, or `null` when the start or the goal is invalid or the trees did not meet.
+   * @returns The path's vertices from the start to the goal, or `null` when the goal is invalid, the start is invalid and no draw near it repairs it, or the trees did not meet.
    */
   export function connect(query: IQuery): number[][] | null {
-    if (!query.valid(query.start) || !query.valid(query.goal)) return null;
+    if (!query.valid(query.goal)) return null;
     const range: number = RANGE * query.extent;
     const resolution: number = RESOLUTION * query.extent;
     const random: () => number = generator(SEED);
+    const fixed: boolean = !query.valid(query.start);
+    const root: number[] | undefined = fixed
+      ? repaired(query, random)
+      : [...query.start];
+    if (root === undefined) return null;
+
+    // A repaired start's path leaves the start itself for the repaired state.
+    const leave = (path: number[][]): number[][] =>
+      fixed ? [[...query.start], ...path] : path;
     const clear = (a: readonly number[], b: readonly number[]): boolean => {
       const steps: number = Math.ceil(distance(a, b) / resolution);
       for (let i: number = 1; i <= steps; ++i)
         if (!query.valid(lerp(a, b, i / steps))) return false;
       return true;
     };
-    const from: ITree = { nodes: [[...query.start]], parent: [-1] };
-    const to: ITree = { nodes: [[...query.goal]], parent: [-1] };
+    const from: ITree = {
+      nodes: [root],
+      parent: [-1],
+      forward: true,
+    };
+    const to: ITree = {
+      nodes: [[...query.goal]],
+      parent: [-1],
+      forward: false,
+    };
+
+    // An edge of a tree runs the way its tree grows in the rising
+    // coordinate: up from the start, down from the goal.
+    const admits = (
+      tree: ITree,
+      node: readonly number[],
+      q: readonly number[],
+    ): boolean =>
+      query.rising === undefined ||
+      (tree.forward
+        ? q[query.rising]! > node[query.rising]!
+        : q[query.rising]! < node[query.rising]!);
     // Extend a tree one step toward a configuration.
     const extend = (tree: ITree, q: readonly number[]): Status => {
       let near: number = 0;
       let least: number = Infinity;
       tree.nodes.forEach((node: readonly number[], i: number): void => {
+        if (!admits(tree, node, q)) return;
         const d: number = distance(node, q);
         if (d < least) {
           least = d;
           near = i;
         }
       });
+      if (least === Infinity) return "trapped";
       const reached: boolean = least <= range;
       const next: number[] = reached
         ? [...q]
@@ -73,11 +123,33 @@ export namespace HumanArmConnect {
         let status: Status;
         do status = extend(b, made);
         while (status === "advanced");
-        if (status === "reached") return shortcut(joined(from, to), clear);
+        if (status === "reached")
+          return leave(shortcut(joined(from, to), clear));
       }
       [a, b] = [b, a];
     }
     return null;
+  }
+
+  /**
+   * A valid state near an invalid start, MoveIt's start-state repair: each
+   * coordinate but the rising one moved by a uniform draw of up to `JIGGLE`'s
+   * share of the space's extent either way, the first valid draw of at most
+   * `ATTEMPTS` kept.
+   *
+   * @param query The query.
+   * @param random The query's generator.
+   * @returns The state, or undefined when no draw is valid.
+   */
+  function repaired(query: IQuery, random: () => number): number[] | undefined {
+    const reach: number = JIGGLE * query.extent;
+    for (let i: number = 0; i < ATTEMPTS; ++i) {
+      const q: number[] = query.start.map((v: number, d: number): number =>
+        d === query.rising ? v : v + (2 * random() - 1) * reach,
+      );
+      if (query.valid(q)) return q;
+    }
+    return undefined;
   }
 
   /** The path through the two trees' last vertices, which coincide: the start tree's from its root, then the goal tree's to its root. */
@@ -157,10 +229,11 @@ export namespace HumanArmConnect {
 /** What extending a tree toward a configuration did: reached it, moved a step toward it, or was stopped by an invalid edge. */
 type Status = "reached" | "advanced" | "trapped";
 
-/** A tree: its vertices and each one's parent, -1 at the root. */
+/** A tree: its vertices, each one's parent, -1 at the root, and whether it grows from the start. */
 interface ITree {
   nodes: number[][];
   parent: number[];
+  forward: boolean;
 }
 
 /** A step of a tree toward a sample, a share of the space's extent: OMPL's default range. */
@@ -168,6 +241,12 @@ const RANGE: number = 0.2;
 
 /** The spacing of the validity checks along an edge, a share of the space's extent: OMPL's longest valid segment. */
 const RESOLUTION: number = 0.01;
+
+/** How far a repaired start's coordinates may move, a share of the space's extent: MoveIt's `FixStartStateCollision` default `jiggle_fraction`. */
+const JIGGLE: number = 0.02;
+
+/** The draws a start's repair tries: MoveIt's `FixStartStateCollision` default `max_sampling_attempts`. */
+const ATTEMPTS: number = 100;
 
 /** Iterations before the query is given up. */
 const ITERATIONS: number = 1000;

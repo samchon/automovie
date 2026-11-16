@@ -56,7 +56,7 @@ import { toRigAngle } from "../rom/toRigAngle";
  * @evidence contracts/development/implementation.md#principled-implementation The effector's twist is read exactly as its decomposition reads it, so the solution leaves it nothing to drop; a vector turned about an axis is Rodrigues' formula, linear in the cosine and sine of the turn, so the condition is a first-order trigonometric equation with a closed-form solution; every solution is weighed by the rotation the clamped effector then shows.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One equation, its two solutions and one choice among a handful of candidates.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every twist is clamped to the rig's range, so none past pronation or supination is returned; with no solution the range's nearer end or the start is taken by the same measure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: a few compositions and at most five decompositions, cheap enough for every swivel the limb fit ranks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: a few compositions and at most five decompositions, cheap enough for every swivel the limb fit ranks; each distinct clamped twist is read once (the start not again, a candidate clamped onto a twist already read not at all), and a start the effector shows within `TIE` ends the search, since nothing can beat or tie it nearer.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Composes and decomposes on the caller's normalized bases and reads the rig's own angle maps (`toRigAngle`, `toClinicalAngle`).
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -226,7 +226,18 @@ export function solveDistalTwist(props: {
   // nearest to the start.
   let chosen: number = start;
   let least: number = missed(start);
+
+  // A start the effector shows within TIE can be neither beaten, since no
+  // miss is below zero, nor tied by a twist nearer to itself.
+  if (least <= TIE && at(start).twist === start) return at(start);
+
+  // A candidate that clamps to a twist already read is the same pose: the
+  // same miss, never strictly nearer, so it is not read again.
+  const read: Set<number> = new Set([at(start).twist ?? 0]);
   for (const t of candidates) {
+    const clamped: number = at(t).twist ?? 0;
+    if (read.has(clamped)) continue;
+    read.add(clamped);
     const m: number = missed(t);
     if (
       m < least - TIE ||

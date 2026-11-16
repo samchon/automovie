@@ -192,7 +192,7 @@ export namespace crawl {
     const sides = ["left", "right"] as const;
     const wrists = crawlFrame.wrists(body, standing, forward);
     const posed = (share: number, degrees: number, hike: number = 0) =>
-      crawlFrame.posed(yaw, share, degrees, hike, -40);
+      crawlFrame.posed(body, yaw, share, degrees, hike, -40);
     const rootFor = (tilted: IHumanPosture, hips: IAutoMovieVector3) =>
       crawlFrame.rootFor(body, tilted, hips);
 
@@ -452,22 +452,24 @@ export namespace crawl {
               crawling,
             ),
     };
-    // The plant windows of the hands, from where they land, and of a bear
-    // crawl's feet, each planted while its knee is, the first with the hands.
+    // The hands bear from landing. Each foot keeps its standing contact
+    // through the descent, then bears while its knee is in stance, in both
+    // the kneeling and the bear crawl: rolling onto the toes does not unload it.
     const contacts: IHumanContactWindow[] = [];
     const bearing: (readonly [IHumanContactWindow["part"], Limb])[] = [
       ["leftHand", "leftHand"],
       ["rightHand", "rightHand"],
-      ...(bear
-        ? ([
-            ["leftFoot", "leftKnee"],
-            ["rightFoot", "rightKnee"],
-          ] as const)
-        : []),
+      ["leftFoot", "leftKnee"],
+      ["rightFoot", "rightKnee"],
     ];
     for (const [part, limb] of bearing)
       for (let k: number = 0; k <= cycles; k++) {
-        const from: number = k === 0 ? handsDown : lift(limb, k) + swing;
+        const from: number =
+          k === 0
+            ? part.endsWith("Foot")
+              ? 0
+              : handsDown
+            : lift(limb, k) + swing;
         const to: number = k === cycles ? duration : lift(limb, k + 1);
         contacts.push({
           part,

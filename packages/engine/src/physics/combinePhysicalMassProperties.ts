@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalInertiaTensor } from "./physicalInertiaTensor";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
 /**
@@ -74,44 +74,7 @@ export function combinePhysicalMassProperties(
   );
   if (![centerOfMass.x, centerOfMass.y, centerOfMass.z].every(Number.isFinite))
     throw new Error("Aggregate centre exceeds finite arithmetic");
-  const basis: IAutoMovieVector3[] = [
-    { x: 1, y: 0, z: 0 },
-    { x: 0, y: 1, z: 0 },
-    { x: 0, y: 0, z: 1 },
-  ];
-  const axes: ("x" | "y" | "z")[] = ["x", "y", "z"];
-  const tensor: number[][] = Array.from({ length: 3 }, (): number[] => [
-    0, 0, 0,
-  ]);
-  for (const part of parts) {
-    const rotated: IAutoMovieVector3[] = basis.map(
-      (axis: (typeof basis)[number]): IAutoMovieVector3 =>
-        Quaternion.rotateVector(part.inertiaRotation, axis),
-    );
-    const displacement: IAutoMovieVector3 = Vector3.subtract(
-      part.centerOfMass,
-      centerOfMass,
-    );
-    for (let row: number = 0; row < 3; row++)
-      for (let column: number = 0; column < 3; column++) {
-        tensor[row]![column]! +=
-          rotated.reduce(
-            (
-              sum: number,
-              direction: IAutoMovieVector3,
-              index: number,
-            ): number =>
-              sum +
-              part.inertia[axes[index]!] *
-                direction[axes[row]!] *
-                direction[axes[column]!],
-            0,
-          ) +
-          part.mass *
-            ((row === column ? Vector3.dot(displacement, displacement) : 0) -
-              displacement[axes[row]!] * displacement[axes[column]!]);
-      }
-  }
+  const tensor: number[][] = physicalInertiaTensor(parts, centerOfMass);
   if (!tensor.flat().every(Number.isFinite))
     throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
 

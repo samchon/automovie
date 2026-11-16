@@ -21,6 +21,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanSkill } from "../skill/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
 
 /**
@@ -36,7 +37,9 @@ import { SwimStroke } from "./SwimStroke";
  * - Front crawl: prone with the hips a chest's half depth under the plane, or
  *   as much higher as the breath needs, gliding ahead at 1 m/s (provisional).
  *   The body rolls 45 degrees (provisional) about its long axis toward each
- *   arm as it recovers. The shoulder turns one way round: its abduction
+ *   arm as it recovers, a whole-body rotation about the hips
+ *   (`IHumanPosture.rotation`, #3423) so the pelvis keeps the stroke's own
+ *   joints. The shoulder turns one way round: its abduction
  *   runs from 180 degrees overhead to 0 at the hip and back, in front of the
  *   trunk for the pull (45 degrees of flexion at its middle, the elbow bent
  *   40) and behind it for the recovery (20 degrees of extension, the elbow
@@ -44,9 +47,10 @@ import { SwimStroke } from "./SwimStroke";
  *   hangs under the elbow clear of the plane; all provisional). Each arm
  *   pulls from overhead to the
  *   hip over 60 % of the cycle and recovers over the water, elbow high, in
- *   the rest (provisional shares). The arms are half a cycle apart, Chollet
- *   et al. 2000's opposition (index of coordination 0); a novice's
- *   catch-up is not drafted. Six kicks per cycle (provisional) and a breath
+ *   the rest (provisional shares). The arms are apart by the propulsive share
+ *   less the index of coordination, which runs from a novice's catch-up to an
+ *   elite's near-opposition with the `sequencing` skill (Chollet et al. 2000
+ *   as #3254 reads them; `PROPULSIVE`, `COORDINATION`). Six kicks per cycle (provisional) and a breath
  *   to the right once a cycle, the head turned 70 degrees (provisional) on
  *   the rolled trunk as the right arm recovers, which brings the mouth 2 cm
  *   (provisional) over the plane: there is no bow wave whose trough a real
@@ -84,6 +88,25 @@ export namespace swim {
 
   /** The pull's share of the crawl cycle (provisional). */
   export const PULL: number = 0.6;
+
+  /**
+   * The crawl's propulsive share of a cycle, the pull and push that end each
+   * arm's pull: 0.465, Chollet, Chalies and Chatard 2000's share at 100 m
+   * pace, as #3254 reads it in their abstract.
+   */
+  export const PROPULSIVE: number = 0.465;
+
+  /**
+   * The crawl's index of coordination, the lag from one arm's propulsion's
+   * end to the other's start as a share of the cycle, negated: a novice's
+   * catch-up and an elite's near-opposition (-6.07 % and -1.76 % by level,
+   * Chollet et al. 2000 as #3254 reads them), read on the `sequencing` skill
+   * axis.
+   */
+  export const COORDINATION: { novice: number; elite: number } = {
+    novice: -0.0607,
+    elite: -0.0176,
+  };
 
   /** The crawl's body roll toward a recovering arm, degrees (provisional). */
   export const ROLL: number = 45;
@@ -156,12 +179,23 @@ export namespace swim {
       });
     const period: number =
       (p.kind === "frontCrawl" ? CYCLE : 1) * modifiers.tempo;
+    // The left arm's entry follows the right's by the share the index of
+    // coordination leaves: its propulsion starts that index's lag after the
+    // right's ends (#3378).
+    const lag: number =
+      PROPULSIVE -
+      HumanSkill.quantity(
+        context.skill,
+        "sequencing",
+        COORDINATION.novice,
+        COORDINATION.elite,
+      );
     const instants: AutoMovieMotionClock.IInstant[] = [];
     for (let i: number = 0; i < cycles; i++)
       if (p.kind === "frontCrawl") {
         instants.push(
           { name: `entryRight${i + 1}`, seconds: i * period },
-          { name: `entryLeft${i + 1}`, seconds: (i + 0.5) * period },
+          { name: `entryLeft${i + 1}`, seconds: (i + lag) * period },
           {
             name: `breath${i + 1}`,
             seconds: (i + PULL + (1 - PULL) / 2) * period,
@@ -188,10 +222,29 @@ export namespace swim {
 
     // The root floats: upright with the mouth above the plane, or prone with the hips under it.
     const prone: boolean = p.kind === "frontCrawl";
-    // The body's roll about its long axis, a twist of the pelvis: toward the right at the right arm's mid recovery.
+    // The body's roll about its long axis, a whole-body rotation about the
+    // hips (#3423): toward the right at the right arm's mid recovery.
     const roll = (s: number): number =>
       -ROLL *
       Math.sin(2 * Math.PI * (phase(s) - (PULL + (1 - PULL) / 2) + 0.25));
+    const rolled = (
+      posture: IHumanPosture,
+      degrees: number,
+      about: IAutoMovieVector3,
+    ): IHumanPosture => ({
+      ...posture,
+      rotation: {
+        about,
+        turn: Quaternion.fromAxisAngle(
+          Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+            x: 0,
+            y: 1,
+            z: 0,
+          }),
+          degrees,
+        ),
+      },
+    });
     const turned = (
       joints: IHumanPosture["joints"],
       w: number,
@@ -210,14 +263,15 @@ export namespace swim {
       const breath: IHumanPosture = {
         ...entry,
         pitch: entry.pitch + 90,
-        joints: { ...turned(entry.joints, 1), hips: [0, 0, -ROLL] },
+        joints: turned(entry.joints, 1),
       };
       const hips: IAutoMovieVector3 = Vector3.add(
         breath.root,
         Quaternion.rotateVector(resolveHumanPosture.heading(breath), hipsRest),
       );
       const rise: number =
-        HumanTrunk.region(body, breath, "mouth").point.y - hips.y;
+        HumanTrunk.region(body, rolled(breath, -ROLL, hips), "mouth").point.y -
+        hips.y;
       return Math.min(m.chestDepth / 2, rise - CLEAR);
     })();
     primitives.push({
@@ -233,22 +287,25 @@ export namespace swim {
         const pitched: IHumanPosture = {
           ...posture,
           pitch: posture.pitch + 90,
-          joints: { ...posture.joints, hips: [0, 0, roll(s)] },
         };
         const hips: IAutoMovieVector3 = Vector3.add(
           { x: entry.root.x, y: water - depth, z: entry.root.z },
           Vector3.scale(forward, (1.0 * s) / modifiers.tempo),
         );
-        return {
-          ...pitched,
-          root: Vector3.subtract(
-            hips,
-            Quaternion.rotateVector(
-              resolveHumanPosture.heading(pitched),
-              hipsRest,
+        return rolled(
+          {
+            ...pitched,
+            root: Vector3.subtract(
+              hips,
+              Quaternion.rotateVector(
+                resolveHumanPosture.heading(pitched),
+                hipsRest,
+              ),
             ),
-          ),
-        };
+          },
+          roll(s),
+          hips,
+        );
       },
     });
 
@@ -299,7 +356,7 @@ export namespace swim {
             0,
             duration,
             (_: IHumanPosture, s: number) => {
-              const u: number = phase(s, side === "right" ? 0 : 0.5);
+              const u: number = phase(s, side === "right" ? 0 : -lag);
               if (u < PULL) {
                 const w: number = u / PULL;
                 return {

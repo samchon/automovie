@@ -37,6 +37,7 @@ import { touchHold } from "./touchHold";
 import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
+import { touchSide } from "./touchSide";
 import type { touchSite } from "./touchSite";
 
 /**
@@ -121,7 +122,7 @@ export namespace touch {
     /** The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow. */
     with?: With;
 
-    /** The hand; `right` when absent. */
+    /** The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`). */
     side?: HumanHand.Side;
 
     /** Where on the region the first hand lands (`touchSite`): an offset, a place the seed draws, or the place a rule chooses; the region's own point when absent. */
@@ -206,7 +207,11 @@ export namespace touch {
     const standoff: number = (p.clear ?? 0) * body.measure.hand;
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const first: HumanHand.Side = p.side ?? "right";
+    // The part of the hand that touches; the hand is the author's, or the
+    // one whose arm reaches the region with the least strain (	ouchSide).
+    const touching: AutoMovieMotionHumanTouchEffector.IEffector =
+      AutoMovieMotionHumanTouchForm.curled(EFFECTORS[p.with ?? "palm"], kind);
+    const first: HumanHand.Side = touchSide.of(context, touching);
     const resting = AutoMovieMotionHumanTouchContacts.sided(
       p.rests,
       first,
@@ -217,10 +222,7 @@ export namespace touch {
     // The hand part that touches, or the point of the prop the hand holds.
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
       p.prop === undefined
-        ? AutoMovieMotionHumanTouchForm.curled(
-            EFFECTORS[p.with ?? "palm"],
-            kind,
-          )
+        ? touching
         : HumanHeld.effector(
             context,
             { effector: EFFECTORS[p.with ?? "palm"] },

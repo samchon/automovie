@@ -7,6 +7,7 @@ import type { IScenarioExecutionAssessment } from "./IScenarioExecutionAssessmen
 import { assessScenarioExecution } from "./scenarioExecution";
 import { prepareScenarioFilter } from "./scenarioSelection";
 
+/** Run the selected scenarios, report completed failures immediately, and exit with their combined verdict. */
 async function main(): Promise<void> {
   // Static dependencies have loaded; selected unit discovery and execution
   // follow this owned-process marker. Compiler/launcher time remains separate.
@@ -47,6 +48,11 @@ async function main(): Promise<void> {
       console.log(
         `${mark} ${exec.name} ${chalk.gray(`(${result.timingLabel})`)}`,
       );
+
+      // A later scenario can stall; completed failures must remain readable
+      // without repeating the scenarios that already finished.
+      if (result.passed === false)
+        console.log({ assertion: exec.error, timing: result.timingFailure });
     },
     filter,
   });
@@ -68,13 +74,7 @@ async function main(): Promise<void> {
 
   if (failures.length !== 0) {
     console.log(chalk.red(`\n${failures.length} FAILED:`));
-    for (const f of failures) {
-      console.log(chalk.red(`\n● ${f.execution.name}`));
-      console.log({
-        assertion: f.execution.error,
-        timing: f.timingFailure,
-      });
-    }
+    for (const f of failures) console.log(chalk.red(`\n● ${f.execution.name}`));
     process.exit(1);
   }
   console.log(chalk.green("All tests passed."));

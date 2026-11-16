@@ -70,11 +70,24 @@ export namespace cartwheel {
   /** The angle over which the body takes the wheel's shape and leaves it, degrees (provisional). */
   export const SHAPE: number = 45;
 
-  /** The wheel's shape: the arms raised wide overhead, the legs straddled (provisional angles). */
-  export const WHEEL: ExerciseKey.IKey = ExerciseKey.of(
-    {},
-    { spread: 35, raise: 150, elbow: 3 },
-  );
+  /**
+   * The wheel's shape on a body: the arms raised wide overhead, the legs
+   * straddled (provisional angles).
+   *
+   * @param body The body.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function wheel(body: IHumanBody): ExerciseKey.IKey {
+    return ExerciseKey.from(body, {}, { spread: 35, raise: 150, elbow: 3 });
+  }
 
   /**
    * Parameters.
@@ -135,8 +148,8 @@ export namespace cartwheel {
     const shaped = (angle: number): IHumanPosture => ({
       ...ExerciseKey.posed(
         ExerciseKey.blend(
-          ExerciseKey.STOOD,
-          WHEEL,
+          ExerciseKey.standing(body),
+          wheel(body),
           ease(Math.min(angle, 360 - angle) / SHAPE),
         ),
         standing.yaw,
@@ -158,7 +171,7 @@ export namespace cartwheel {
         support: { kind: "ground" },
       }),
     );
-    const wheel: GymnasticsWheel.IWheel = GymnasticsWheel.roll({
+    const rolling: GymnasticsWheel.IWheel = GymnasticsWheel.roll({
       body,
       shaped,
       spokes,
@@ -171,7 +184,7 @@ export namespace cartwheel {
     const when = (angle: number): number =>
       GymnasticsWheel.when(angle, 360, duration);
     const contacts: IHumanContactWindow[] = GymnasticsWheel.contacts(
-      wheel,
+      rolling,
       spokes,
       (angle: number): number => when(angle) / duration,
     );
@@ -201,9 +214,9 @@ export namespace cartwheel {
       contact: when(180),
       posture: (seconds: number): IHumanPosture => {
         if (seconds >= duration)
-          return { ...shaped(0), root: wheel.rows.at(-1)!.root };
+          return { ...shaped(0), root: rolling.rows.at(-1)!.root };
         const angle: number = 360 * ease(seconds / duration);
-        return { ...shaped(angle), root: wheel.root(angle) };
+        return { ...shaped(angle), root: rolling.root(angle) };
       },
     };
   }

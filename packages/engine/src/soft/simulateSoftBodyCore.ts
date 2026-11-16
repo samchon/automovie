@@ -1,24 +1,34 @@
 import {
+  IAutoMovieSoftAnchor,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
+  IAutoMovieSoftCompliance,
+  IAutoMovieSoftContact,
   IAutoMovieSoftWind,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
+import { IAutoMovieSoftBodyObserver } from "./IAutoMovieSoftBodyObserver";
 import { IAutoMovieSoftBodyResolvedAnchor } from "./IAutoMovieSoftBodyResolvedAnchor";
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
+import { applySoftBodyFriction } from "./applySoftBodyFriction";
 import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";
 import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
+import { projectSoftCordSelfContact } from "./projectSoftCordSelfContact";
+import { softBodyHeldLoads } from "./softBodyHeldLoads";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
+import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
 
 /** Integrate an admitted cloth lattice from its authored rest boundary to one absolute fixed step.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Damped prediction, ordered simultaneous Jacobi constraint gathers and discrete collider escape form the existing position-based scheme. Anchors have zero inverse mass and prescribed targets; domain admission and complete moving samples are caller premises. Nonfinite integrated arrays throw, without proving universal stability or collision freedom.
+ * Without declared compliance and contact the solve is the plain position-based one, operation for operation. With compliance, each sweep projects the lattice's edges as compliant constraints with their own multipliers (`solveSoftBodyCompliantSweep`); with contact, a collider's push is followed by Coulomb friction (`applySoftBodyFriction`) and a cord that asks for self-collision keeps its segments apart after each sweep (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as released regains its mass for that step, leaving with the velocity its target last moved at. An observer reads every completed step, with the force each held particle bears when the solve is compliant.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Damped prediction, ordered simultaneous Jacobi constraint gathers or XPBD Gauss-Seidel sweeps (Macklin, Müller and Chentanez 2016), discrete collider escape with optional position-based friction (Macklin et al. 2014) and cord self-contact form the scheme. Anchors have zero inverse mass and prescribed targets while held; domain admission and complete moving samples are caller premises. Nonfinite integrated arrays throw, without proving universal stability or collision freedom.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Static and moving-boundary public wrappers delegate to one core, sharing rest-target setup, lattice topology, fold ordering and contact geometry without changing their admission APIs.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every seek replays the fixed clock from rest; no fixture state, adaptive timestep, concealed self-collision pass or substituted moving target changes the declared trajectory.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every seek replays the fixed clock from rest; no fixture state, adaptive timestep, undeclared self-collision pass or substituted moving target changes the declared trajectory. Self-contact and friction run only when the domain declares contact.
  * @evidence contracts/development/common.md#meaningful-documentation States absolute replay, caller admission, fixed-order stages and nonfinite failure rather than claiming every admitted large arithmetic input is safe.
  * @evidence contracts/development/implementation.md#efficient-algorithms For P particles, I sweeps, K target steps, C colliders, B moving capsules and A anchors, setup is O(P+A+S+T) for S states and T selected targets, each step is O(P*I+P*(C+B)+P*A) in the moving-anchor find path, with O(P) working arrays plus supplied boundary storage.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest lengths, valences, inverse masses and static targets are built once and reused across all steps/sweeps in this solve; changing domains, states or complete boundary sequences starts a new replay, without cross-call cache equivalence.
@@ -29,11 +39,13 @@ export const simulateSoftBodyCore: (
   step: number,
   state: string | null,
   boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null,
+  observer?: IAutoMovieSoftBodyObserver | null,
 ) => IAutoMovieSoftBodyState = (
   domain: IAutoMovieSoftBodyDomain,
   step: number,
   state: string | null,
   boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null,
+  observer: IAutoMovieSoftBodyObserver | null = null,
 ): IAutoMovieSoftBodyState => {
   if (!Number.isInteger(step) || step < 0)
     throw new Error(
@@ -97,6 +109,36 @@ export const simulateSoftBodyCore: (
       }
     }
 
+  // The compliant solve (XPBD) when the domain declares compliance, with one
+  // multiplier per particle and neighbour slot, reset at every step; the
+  // plain weighted sweeps otherwise, unchanged.
+  const declared: IAutoMovieSoftCompliance | null =
+    domain.solver.compliance ?? null;
+  const compliance: readonly number[] | null =
+    declared === null
+      ? null
+      : [declared.structural, declared.shear, declared.bend];
+  const lambda: Float64Array<ArrayBuffer> | null =
+    compliance === null
+      ? null
+      : new Float64Array(count * SOFT_BODY_NEIGHBOURS.length);
+  const contact: IAutoMovieSoftContact | null = domain.contact ?? null;
+  const friction: number = contact?.friction ?? 0;
+  const cord: boolean =
+    contact !== null && domain.selfCollision && (columns === 1 || rows === 1);
+  const before: [number, number, number] = [0, 0, 0];
+
+  // A moving anchor a boundary releases regains its mass and leaves with
+  // the velocity its target last moved at, so a dropped corner keeps the
+  // hand's motion instead of starting from rest.
+  const moving: number[] = domain.anchors
+    .filter(
+      (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
+    )
+    .map((anchor: IAutoMovieSoftAnchor): number => anchor.particle);
+  const carried: Float64Array<ArrayBuffer> = new Float64Array(count * 3);
+  const free: Uint8Array<ArrayBuffer> = new Uint8Array(count);
+
   const gravity: IAutoMovieVector3 = domain.solver.gravity;
   const draught: IAutoMovieVector3 = windAxis(domain);
   let contacts: number = 0;
@@ -104,7 +146,24 @@ export const simulateSoftBodyCore: (
   for (let index: number = 0; index < step; ++index) {
     const boundary: IAutoMovieSoftBodyBoundarySample | null =
       boundaries?.[index + 1] ?? null;
-    if (boundary !== null) applyResolvedAnchors(position, boundary.anchors);
+    if (boundary !== null) {
+      for (const anchor of boundary.anchors) {
+        const base: number = anchor.particle * 3;
+        carried[base] = (anchor.position.x - position[base]) / dt;
+        carried[base + 1] = (anchor.position.y - position[base + 1]) / dt;
+        carried[base + 2] = (anchor.position.z - position[base + 2]) / dt;
+      }
+      applyResolvedAnchors(position, boundary.anchors);
+      const released: ReadonlySet<number> = new Set(boundary.released ?? []);
+      for (const particle of moving) {
+        const now: number = released.has(particle) ? 1 : 0;
+        if (now === 1 && free[particle] === 0)
+          for (let axis: number = 0; axis < 3; ++axis)
+            velocity[particle * 3 + axis] = carried[particle * 3 + axis];
+        free[particle] = now;
+        inverseMass[particle] = now === 1 ? 1 / domain.mass[particle] : 0;
+      }
+    }
     const gust: number = windAcceleration(domain, index * dt);
     contacts = 0;
 
@@ -132,23 +191,49 @@ export const simulateSoftBodyCore: (
       predicted[base + 2] = position[base + 2] + velocity[base + 2] * dt;
     }
 
+    if (lambda !== null) lambda.fill(0);
     for (let sweep: number = 0; sweep < domain.solver.iterations; ++sweep) {
-      gatherSoftBodyCorrections({
-        columns,
-        rows,
-        predicted,
-        correction,
-        inverseMass,
-        valence,
-        restLength,
-        stiffness,
-      });
-      for (let value: number = 0; value < predicted.length; ++value)
-        predicted[value] += correction[value];
+      if (lambda !== null)
+        solveSoftBodyCompliantSweep({
+          columns,
+          rows,
+          predicted,
+          inverseMass,
+          restLength,
+          compliance: compliance!,
+          lambda,
+          dt,
+        });
+      else {
+        gatherSoftBodyCorrections({
+          columns,
+          rows,
+          predicted,
+          correction,
+          inverseMass,
+          valence,
+          restLength,
+          stiffness,
+        });
+        for (let value: number = 0; value < predicted.length; ++value)
+          predicted[value] += correction[value];
+      }
+      if (cord)
+        projectSoftCordSelfContact({
+          count,
+          position,
+          predicted,
+          inverseMass,
+          radius: contact!.thickness,
+          friction,
+        });
     }
 
     for (let particle: number = 0; particle < count; ++particle) {
       if (inverseMass[particle] === 0) continue;
+      before[0] = predicted[particle * 3];
+      before[1] = predicted[particle * 3 + 1];
+      before[2] = predicted[particle * 3 + 2];
       contacts = projectSoftBodyContacts(
         domain.colliders,
         boundary?.capsules ?? null,
@@ -156,6 +241,14 @@ export const simulateSoftBodyCore: (
         particle,
         contacts,
       );
+      if (friction > 0)
+        applySoftBodyFriction({
+          particle,
+          position,
+          predicted,
+          before,
+          friction,
+        });
     }
 
     for (let particle: number = 0; particle < count; ++particle) {
@@ -181,6 +274,22 @@ export const simulateSoftBodyCore: (
       throw new Error(
         `soft body "${domain.id}" produced a non-finite state at step ${index + 1}`,
       );
+    observer?.step(
+      index + 1,
+      position,
+      velocity,
+      lambda === null
+        ? EMPTY
+        : softBodyHeldLoads({
+            columns,
+            rows,
+            position,
+            inverseMass,
+            restLength,
+            lambda,
+            dt,
+          }),
+    );
   }
 
   let maxSpeed: number = 0;
@@ -231,6 +340,9 @@ export const simulateSoftBodyCore: (
     contacts,
   };
 };
+
+/** The loads of a solve with no multipliers to read them from. */
+const EMPTY: ReadonlyMap<number, IAutoMovieVector3> = new Map();
 
 /** Overwrite each resolved hard target in the working position buffer, leaving unrelated particles untouched. */
 const applyResolvedAnchors: (

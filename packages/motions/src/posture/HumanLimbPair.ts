@@ -1,4 +1,10 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieSeededChainFit,
+  type IAutoMovieSwivelNear,
+  type IAutoMovieSwivelSeed,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -37,6 +43,12 @@ import { poseBones } from "./poseBones";
  * image so solve one problem and give mirror images to the bit, and a
  * posture that is its own mirror image is its own representative.
  *
+ * Each arm's own fit may continue a nearby one (`IAutoMovieSwivelNear`),
+ * and reports the seed it was chosen at. Either representative solves an
+ * arm the same way, as the right arm in its own side's frame
+ * (`HumanLimbFit.fit`), so an arm's seed and its `near` are that arm's
+ * whichever representative is taken.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the two stages, when the second runs, what it minimises and how its symmetry is made.
  * @evidence contracts/development/design.md#principled-representation Two interacting arms are one problem; the canonical form under the mirror is a representative of the pair's orbit.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by `resolveHumanPosture` for two arms with goals.
@@ -49,7 +61,8 @@ export namespace HumanLimbPair {
    * @param body The body.
    * @param pose The pose before the arms, its legs fitted.
    * @param goals Each arm's goal.
-   * @returns The pose with both arms fitted.
+   * @param near Each arm's nearby fit to continue, if any.
+   * @returns The pose with both arms fitted, and the seed each arm's own fit was chosen at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear; a coupled still solve where they meet, on the pair's canonical representative under the mirror.
@@ -63,7 +76,10 @@ export namespace HumanLimbPair {
     body: IHumanBody,
     pose: IAutoMoviePose,
     goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
-  ): IAutoMoviePose {
+    near: Readonly<
+      Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
+    > = {},
+  ): IFitted {
     const mirrored: IAutoMoviePose = HumanArmMirror.mirrored({
       pose,
       others: [],
@@ -94,12 +110,37 @@ export namespace HumanLimbPair {
         g.left,
         g.right,
       ]);
-    return key(pose, goals) <= key(mirrored, image)
-      ? solved(body, pose, goals)
-      : HumanArmMirror.mirrored({
-          pose: solved(body, mirrored, image),
-          others: [],
-        }).pose;
+    if (key(pose, goals) <= key(mirrored, image))
+      return solved(body, pose, goals, near);
+    // The image's left arm is this pose's right arm, solved alike.
+    const out: IFitted = solved(body, mirrored, image, {
+      ...(near.right === undefined ? {} : { left: near.right }),
+      ...(near.left === undefined ? {} : { right: near.left }),
+    });
+    return {
+      pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
+      seeds: { left: out.seeds.right, right: out.seeds.left },
+      values: { left: out.values.right, right: out.values.left },
+    };
+  }
+
+  /**
+   * Both arms fitted, with the seed each arm's own fit was chosen at.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
+   * @evidence contracts/development/design.md#principled-representation The pose and one seed per arm, null where the fit has none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieSwivelSeed`.
+   */
+  export interface IFitted {
+    /** The pose with both arms fitted. */
+    pose: IAutoMoviePose;
+
+    /** Each arm's seed. */
+    seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null>;
+
+    /** Each arm's own fit's value (`IAutoMovieSeededChainFit.value`); absent where the coupled solve replaced the arms' own fits. */
+    values: Record<"left" | "right", IAutoMovieSeededChainFit["value"]>;
   }
 }
 
@@ -108,7 +149,8 @@ function solved(
   body: IHumanBody,
   pose: IAutoMoviePose,
   goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
-): IAutoMoviePose {
+  near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
+): HumanLimbPair.IFitted {
   const world = (limb: "leftArm" | "rightArm"): IHumanPosture.IGoal =>
     HumanLimbFit.world(
       body,
@@ -116,7 +158,7 @@ function solved(
       limb,
       goals[limb === "leftArm" ? "left" : "right"],
     );
-  const own = {
+  const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
     left: HumanLimbFit.remembered(
       body,
       pose,
@@ -124,6 +166,7 @@ function solved(
       goals.left,
       [],
       world("rightArm").point,
+      near.left,
     ),
     right: HumanLimbFit.remembered(
       body,
@@ -132,7 +175,12 @@ function solved(
       goals.right,
       [],
       world("leftArm").point,
+      near.right,
     ),
+  };
+  const seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null> = {
+    left: own.left.seed,
+    right: own.right.seed,
   };
   const arm = (
     p: IAutoMoviePose,
@@ -153,8 +201,8 @@ function solved(
     };
   };
   const fits: Record<"left" | "right", HumanArmClearance.IArm> = {
-    left: arm(own.left, "left"),
-    right: arm(own.right, "right"),
+    left: arm(own.left.pose, "left"),
+    right: arm(own.right.pose, "right"),
   };
   const both: IAutoMoviePose = HumanArmClearance.posed(
     HumanArmClearance.posed(pose, "left", fits.left),
@@ -184,7 +232,12 @@ function solved(
       ) > 0
     );
   };
-  if (!meets("left") && !meets("right")) return both;
+  if (!meets("left") && !meets("right"))
+    return {
+      pose: both,
+      seeds,
+      values: { left: own.left.value, right: own.right.value },
+    };
 
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
@@ -245,5 +298,5 @@ function solved(
       G.arm(context.setups[a]!, result.x[a]![1]!),
     );
   });
-  return out;
+  return { pose: out, seeds, values: { left: undefined, right: undefined } };
 }

@@ -42,8 +42,8 @@ import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
  * apex and kept to the touchdown. The two overlap from the take-off on; turning them one after
  * the other, each in a fraction of the rise, spun the body upright to
  * inverted in a frame or two.
- * The arch is keyed: the joints go from the take-off's to `ARCHED` at the
- * apex and to `PIKED`, the legs lifted, after it. The body comes down when
+ * The arch is keyed: the joints go from the take-off's to `arched` at the
+ * apex and to `piked`, the legs lifted, after it. The body comes down when
  * the lowest of its shapes reaches the landing surface, and lies on its
  * back there (`GymnasticsMat`).
  *
@@ -94,17 +94,51 @@ export namespace highJump {
    */
   export const RISE: number = 5.05;
 
-  /** The arch over the bar: the back and the hips extended, the head back, the knees bent, the arms by the sides (provisional angles). */
-  export const ARCHED: ExerciseKey.IKey = ExerciseKey.of(
-    { spine: [-25, 0, 0], chest: [-20, 0, 0], neck: -30 },
-    { hip: -20, knee: 80, ankle: -20, shoulder: 10, raise: 15, elbow: 20 },
-  );
+  /**
+   * The arch over the bar on a body: the back and the hips extended, the
+   * head back, the knees bent, the arms by the sides (provisional angles).
+   *
+   * @param body The body.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function arched(body: IHumanBody): ExerciseKey.IKey {
+    return ExerciseKey.from(
+      body,
+      { spine: [-25, 0, 0], chest: [-20, 0, 0], neck: -30 },
+      { hip: -20, knee: 80, ankle: -20, shoulder: 10, raise: 15, elbow: 20 },
+    );
+  }
 
-  /** The legs lifted clear after the hips pass (provisional angles). */
-  export const PIKED: ExerciseKey.IKey = ExerciseKey.of(
-    { spine: [10, 0, 0], neck: 30 },
-    { hip: 80, knee: 10, ankle: -20, shoulder: 10, raise: 15, elbow: 20 },
-  );
+  /**
+   * The legs lifted clear after the hips pass, on a body (provisional
+   * angles).
+   *
+   * @param body The body.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function piked(body: IHumanBody): ExerciseKey.IKey {
+    return ExerciseKey.from(
+      body,
+      { spine: [10, 0, 0], neck: 30 },
+      { hip: 80, knee: 10, ankle: -20, shoulder: 10, raise: 15, elbow: 20 },
+    );
+  }
 
   /**
    * Parameters.
@@ -299,11 +333,13 @@ export namespace highJump {
     const spin: number = 90 / (rising - ramp / 2);
     const somersault = (t: number): number =>
       t < ramp ? (spin * t * t) / (2 * ramp) : spin * (t - ramp / 2);
+    const arch: ExerciseKey.IKey = arched(body);
+    const pike: ExerciseKey.IKey = piked(body);
     const flying = (t: number): IHumanPosture => {
       const key: ExerciseKey.IKey =
         t <= rising
-          ? ExerciseKey.blend(start, ARCHED, ease(t / rising))
-          : ExerciseKey.blend(ARCHED, PIKED, ease((t - rising) / rising));
+          ? ExerciseKey.blend(start, arch, ease(t / rising))
+          : ExerciseKey.blend(arch, pike, ease((t - rising) / rising));
       return GymnasticsFlight.placed(
         body,
         model,

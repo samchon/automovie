@@ -1,9 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -15,6 +14,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
 import { StrikingHeld } from "./StrikingHeld";
+import { StrikingSupport } from "./StrikingSupport";
 
 /**
  * The stroke of a held tool, shared by every blade and firearm action: the
@@ -224,7 +224,6 @@ export namespace StrikingBlade {
       tool.prop === undefined
         ? HumanHand.shape(tool.side, "fist")
         : (StrikingHeld.holds(context, tool)[0]?.fingers ?? {});
-    const bare: StrikingHeld.ITool = StrikingHeld.of(context, other);
 
     // How far the tool is from the entry hold to its path, in [0, 1].
     const present = (seconds: number): number =>
@@ -291,19 +290,6 @@ export namespace StrikingBlade {
         rotation: Quaternion.slerp(held.rotation, at.rotation, weight),
       };
     };
-    const bend = (
-      posture: IHumanPosture,
-      side: HumanHand.Side,
-      goal: Pick<IHumanPosture.IGoal, "point" | "rotation">,
-    ): IAutoMovieVector3 =>
-      AutoMovieMotionHumanBend.solve({
-        body,
-        posture,
-        side,
-        point: goal.point,
-        ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
-        fallback: "hang",
-      });
 
     // The holding arm's own solution at the decisive pose, the reference of
     // every goal of the stroke, so the fit stays on one side of its choices
@@ -351,18 +337,40 @@ export namespace StrikingBlade {
         anchored = entered.reference;
         return anchored;
       }
-      const stood: IHumanPosture = turned(
-        base.posture(clock.at("stroke")),
-        stroke.turn ?? 0,
+      const decisive: StrikingHeld.IHandFrame = stroke.path(
+        stroke.stop,
+        clock.at("stroke"),
+      );
+      const stood: IHumanPosture = StrikingSupport.posture(
+        body,
+        turned(base.posture(clock.at("stroke")), stroke.turn ?? 0),
+        tool,
+        decisive,
+        stroke.support,
       );
       const goal: IHumanPosture.IGoal = StrikingHeld.goal(
         context,
         tool,
-        stroke.path(stroke.stop, clock.at("stroke")),
+        decisive,
         stroke.back,
         { x: 0, y: 0, z: 0 },
       );
-      const elbow: IAutoMovieVector3 = bend(stood, tool.side, goal);
+      // The arm at the decisive pose, its elbow left to the body
+      // (`StrikingHeld.goal`): the elbow it takes there is the hint carried
+      // on the chest, and its solution the stroke's reference.
+      const posed: IAutoMoviePose = resolveHumanPosture(body, {
+        ...stood,
+        limbs: {
+          ...stood.limbs,
+          [`${tool.side}Arm`]: {
+            ...goal,
+            bend: AutoMovieMotionHumanBend.hang(body, stood, tool.side),
+          },
+        },
+      });
+      const elbow: IAutoMovieVector3 = poseBones(body, posed).get(
+        `${tool.side}LowerArm`,
+      )!.worldPosition;
       const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
         body,
         stood,
@@ -374,16 +382,7 @@ export namespace StrikingBlade {
           bones.get(`${tool.side}UpperArm`)!.worldPosition,
         ),
       );
-      anchored = resolveHumanPosture.reference(
-        resolveHumanPosture(body, {
-          ...stood,
-          limbs: {
-            ...stood.limbs,
-            [`${tool.side}Arm`]: { ...goal, bend: elbow },
-          },
-        }),
-        `${tool.side}Arm`,
-      );
+      anchored = resolveHumanPosture.reference(posed, `${tool.side}Arm`);
       return anchored;
     };
     return {
@@ -417,50 +416,13 @@ export namespace StrikingBlade {
           },
         };
         if (stroke.support !== null) {
-          // The other hand wraps the handle at its offset in the tool's own
-          // axes, its knuckles the way the tool's other direction faces.
-          const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-            at.rotation,
-            tool.axis,
-          );
-          const edge: IAutoMovieVector3 = Quaternion.rotateVector(
-            at.rotation,
-            tool.edge,
-          );
-          const offset: IAutoMovieVector3 = stroke.support.offset;
-          const along: boolean = stroke.support.handle === "axis";
-          const second: Omit<AutoMovieMotionHumanArm.ITarget, "bend"> = {
-            surface: "grip",
-            shape: "fist",
-            ...StrikingHeld.hand(
-              bare,
-              0,
-              Vector3.add(
-                at.point,
-                Vector3.add(
-                  Vector3.add(
-                    Vector3.scale(axis, offset.x),
-                    Vector3.scale(edge, offset.y),
-                  ),
-                  Vector3.scale(Vector3.cross(axis, edge), offset.z),
-                ),
-              ),
-              along ? axis : edge,
-              along ? edge : axis,
-            ),
-          };
-          const wrist: HumanHand.IWrist = HumanHand.place(
+          limbs[`${other}Arm`] = StrikingSupport.goal(
             body,
-            other,
-            "grip",
-            second.point,
-            second.rotation,
-            "fist",
+            posture,
+            tool,
+            at,
+            stroke.support,
           );
-          limbs[`${other}Arm`] = AutoMovieMotionHumanArm.goal(body, other, {
-            ...second,
-            bend: bend(posture, other, wrist),
-          });
         }
         return {
           ...posture,

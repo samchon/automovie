@@ -33,8 +33,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "applyLipstick": {
       "$ref": "#/components/schemas/OmitIParamstask"
     },
+    "armAtSide": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphraseshapetarget"
+    },
     "armCircles": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
+    },
+    "armPhrase": {
+      "$ref": "#/components/schemas/armPhrase.IParams"
     },
     "armsCrossed": {
       "$ref": "#/components/schemas/OmitIParamsleftright"
@@ -84,6 +90,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "beat": {
       "$ref": "#/components/schemas/OmitIParryhold"
     },
+    "beckonHand": {
+      "$ref": "#/components/schemas/OmitIParamscyclesfacingmirroroffsetphraseswingtarget"
+    },
     "benchPress": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
@@ -122,6 +131,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     },
     "boxStep": {
       "$ref": "#/components/schemas/OmitIParamskind-o5"
+    },
+    "boxVault": {
+      "$ref": "#/components/schemas/OmitIParamsnever-o5"
     },
     "braceForImpact": {
       "$ref": "#/components/schemas/OmitIParamskind-o2"
@@ -183,8 +195,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "checkWatch": {
       "$ref": "#/components/schemas/OmitIParamssidetask"
     },
+    "cheekInHand": {
+      "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
+    },
     "cheekKiss": {
       "$ref": "#/components/schemas/OmitIParamsregion"
+    },
+    "cheerHands": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphrasesidetarget"
     },
     "chestStretch": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -195,11 +213,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "childsPose": {
       "$ref": "#/components/schemas/OmitIParamsholdkind-o1"
     },
+    "chinOnFist": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+    },
     "chinUp": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
     "choke": {
       "$ref": "#/components/schemas/OmitIParamscountholdkindwith"
+    },
+    "clapHands": {
+      "$ref": "#/components/schemas/OmitIParamscyclesfacingoffsetphrasesideswingtarget"
     },
     "closedHold": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -271,10 +295,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsholdkindsidewith"
     },
     "danceLead": {
-      "$ref": "#/components/schemas/OmitIParamspace"
+      "$ref": "#/components/schemas/OmitIWalkParamspace"
     },
     "dash": {
-      "$ref": "#/components/schemas/OmitIParamspace-o1"
+      "$ref": "#/components/schemas/OmitIParamspace"
     },
     "deadBug": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -290,6 +314,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     },
     "defensiveSlide": {
       "$ref": "#/components/schemas/OmitIParamsdirectionsteps"
+    },
+    "dial": {
+      "$ref": "#/components/schemas/OmitIParamsdigitside"
     },
     "dip": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -318,8 +345,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "drawFirearm": {
       "$ref": "#/components/schemas/OmitIParamshandleliftuse"
     },
+    "dressGlasses": {
+      "$ref": "#/components/schemas/OmitIParamsitem"
+    },
+    "dressHat": {
+      "$ref": "#/components/schemas/OmitIParamsitem"
+    },
     "dribble": {
       "$ref": "#/components/schemas/OmitIParamskind-o8"
+    },
+    "drinkFrom": {
+      "$ref": "#/components/schemas/OmitIParamsholdphrasepointshapesurfacetarget"
     },
     "drunk": {
       "$ref": "#/components/schemas/HumanGait.IParams"
@@ -327,13 +363,46 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "duck": {
       "$ref": "#/components/schemas/OmitIParamsdepthhold"
     },
+    "eatWith": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+    },
     "enGarde": {
       "$ref": "#/components/schemas/OmitIParamsguard"
     },
     "escort": {
       "$ref": "#/components/schemas/OmitIParamsatsidetrack"
     },
+    "faceBite": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceBrushTeeth": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceComb": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceDrink": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceEat": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
     "facepalm": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "facePhone": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceRead": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceSip": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceWashFace": {
+      "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "faceWipeMouth": {
       "$ref": "#/components/schemas/OmitIParamstask"
     },
     "fanSelf": {
@@ -343,7 +412,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsnever-o2"
     },
     "farmersWalk": {
-      "$ref": "#/components/schemas/OmitIParamsarmSwingpace"
+      "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpace"
     },
     "feint": {
       "$ref": "#/components/schemas/OmitICutfeint"
@@ -355,7 +424,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskindshape"
     },
     "fireFirearm": {
-      "$ref": "#/components/schemas/HumanWeaponFirearm.IWield"
+      "$ref": "#/components/schemas/HumanWeaponPresent.IWield"
     },
     "firmPress": {
       "$ref": "#/components/schemas/OmitIParamskindmannerwith"
@@ -378,6 +447,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "floating": {
       "$ref": "#/components/schemas/OmitIParamskind-o6"
     },
+    "foldArms": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphraseshapesidetarget"
+    },
     "follow": {
       "$ref": "#/components/schemas/OmitIParamsatsidetrack"
     },
@@ -391,13 +463,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsdirection"
     },
     "fosburyFlop": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o5"
+      "$ref": "#/components/schemas/OmitIParamsnever-o6"
+    },
+    "fret": {
+      "$ref": "#/components/schemas/OmitIParamsside"
     },
     "frontCrawl": {
       "$ref": "#/components/schemas/OmitIParamskind-o6"
     },
     "frontHandspring": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o6"
+      "$ref": "#/components/schemas/OmitIParamsnever-o7"
     },
     "frontKick": {
       "$ref": "#/components/schemas/OmitIParamslegtechnique"
@@ -414,8 +489,74 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "frontStance": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "gestureBeckon": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureBow": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureCheer": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureChinLift": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureClap": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureNod": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gesturePalmsTogether": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gesturePalmsUp": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gesturePoint": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gesturePushGlasses": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureRaiseHand": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureRubHands": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureScratchHead": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureShakeHead": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureShrug": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureSlump": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureSquareShoulders": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureStopPalm": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureThumbsDown": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureTouchFace": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "gestureWave": {
+      "$ref": "#/components/schemas/OmitIParamskind"
+    },
     "getIn": {
       "$ref": "#/components/schemas/HumanTravelCar.IParams"
+    },
+    "glassesUp": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
     },
     "gloveCatch": {
       "$ref": "#/components/schemas/OmitIParamshands"
@@ -447,6 +588,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "grabbed": {
       "$ref": "#/components/schemas/OmitIParamspartway"
     },
+    "hairCombing": {
+      "$ref": "#/components/schemas/OmitIParamsfromphraseshapesurfacetarget"
+    },
     "hairPull": {
       "$ref": "#/components/schemas/OmitIParamscountholdkindwith"
     },
@@ -456,17 +600,32 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "hammer": {
       "$ref": "#/components/schemas/OmitIParamscyclestool"
     },
+    "hammerStrokes": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+    },
     "hammerTurn": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "handBehindHead": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+    },
+    "handInPocket": {
+      "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
+    },
     "handOnHeart": {
       "$ref": "#/components/schemas/OmitIParamskindsidetargetwith"
+    },
+    "handOnHip": {
+      "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
     },
     "handsBehindHead": {
       "$ref": "#/components/schemas/OmitIParamsleftright"
     },
     "handsClasped": {
       "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "handsClaspedBehind": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphrasesidetarget"
     },
     "handsInPockets": {
       "$ref": "#/components/schemas/OmitIParamsleftright"
@@ -475,13 +634,19 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsleftright"
     },
     "handspringVault": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o7"
+      "$ref": "#/components/schemas/OmitIParamsnever-o8"
     },
     "handstand": {
       "$ref": "#/components/schemas/OmitIParamsnever"
     },
+    "handsTogetherFront": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphrasesidetarget"
+    },
     "handsUp": {
       "$ref": "#/components/schemas/OmitIParamskind"
+    },
+    "hatOnHead": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
     },
     "haul": {
       "$ref": "#/components/schemas/OmitIParamshowloadpace"
@@ -491,6 +656,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     },
     "headlock": {
       "$ref": "#/components/schemas/OmitIParamshold-o2"
+    },
+    "headScratch": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswingtarget"
     },
     "highKnees": {
       "$ref": "#/components/schemas/OmitIParamskind-o4"
@@ -504,8 +672,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "hipThrust": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "holdOn": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+    },
     "holsterFirearm": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o9"
+      "$ref": "#/components/schemas/OmitIParamsnever-o10"
     },
     "hook": {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
@@ -517,10 +688,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
     "hurl": {
-      "$ref": "#/components/schemas/OmitIParamsstyle"
+      "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
     },
     "hurry": {
-      "$ref": "#/components/schemas/OmitIParamsarmSwingpacestride"
+      "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpacestride"
     },
     "hush": {
       "$ref": "#/components/schemas/OmitIParamstask"
@@ -538,7 +709,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
     },
     "jog": {
-      "$ref": "#/components/schemas/OmitIParamspace-o1"
+      "$ref": "#/components/schemas/OmitIParamspace"
     },
     "judoBroken": {
       "$ref": "#/components/schemas/OmitIParamsdepth"
@@ -624,8 +795,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "lyingLegRaise": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "manipulate": {
+      "$ref": "#/components/schemas/manipulate.IParams"
+    },
     "march": {
-      "$ref": "#/components/schemas/HumanGait.IParams"
+      "$ref": "#/components/schemas/HumanGait.IMarch"
     },
     "mountainClimber": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -657,6 +831,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "palmsTogether": {
       "$ref": "#/components/schemas/OmitIParamskind"
     },
+    "palmUp": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget"
+    },
     "paradeRest": {
       "$ref": "#/components/schemas/OmitIParamsleftright"
     },
@@ -666,8 +843,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "passThrough": {
       "$ref": "#/components/schemas/HumanTravelDoor.IParams"
     },
+    "patOn": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+    },
     "pflug": {
       "$ref": "#/components/schemas/OmitIParamsguard"
+    },
+    "phoneToEar": {
+      "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
     },
     "photograph": {
       "$ref": "#/components/schemas/OmitIParamsgraspotherpointtask"
@@ -679,13 +862,19 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o3"
     },
     "pitch": {
-      "$ref": "#/components/schemas/OmitIParamsstyle"
+      "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
     },
     "plank": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "play": {
+      "$ref": "#/components/schemas/OmitIParamsside"
+    },
     "pnfHamstring": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
+    },
+    "pointAt": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
     },
     "poke": {
       "$ref": "#/components/schemas/OmitIParamskindwith"
@@ -694,7 +883,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
     "presentFirearm": {
-      "$ref": "#/components/schemas/HumanWeaponFirearm.IPresent"
+      "$ref": "#/components/schemas/HumanWeaponPresent.IPresent"
+    },
+    "pressOn": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
     },
     "proud": {
       "$ref": "#/components/schemas/HumanGait.IParams"
@@ -712,7 +904,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsintensitypartway"
     },
     "pushPass": {
-      "$ref": "#/components/schemas/OmitIParamsstyle"
+      "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
     },
     "pushUp": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -723,17 +915,23 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "quadStretch": {
       "$ref": "#/components/schemas/OmitIParamskind-o11"
     },
+    "raiseHandHigh": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget"
+    },
     "reachHolster": {
       "$ref": "#/components/schemas/OmitIParamsholdkindsidetargetwith"
     },
     "readingWalk": {
-      "$ref": "#/components/schemas/OmitIParamspace"
+      "$ref": "#/components/schemas/OmitIWalkParamspace"
     },
     "readyPosition": {
       "$ref": "#/components/schemas/OmitIParamskind-o9"
     },
     "recoil": {
       "$ref": "#/components/schemas/OmitIWieldnever"
+    },
+    "regrip": {
+      "$ref": "#/components/schemas/OmitIParamskind-o15"
     },
     "relayIncoming": {
       "$ref": "#/components/schemas/OmitIParamsrole"
@@ -744,8 +942,35 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "reloadFirearm": {
       "$ref": "#/components/schemas/OmitIParamscountkindsidewith"
     },
+    "restBehindHead": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restChinRest": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restClaspedBehind": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restClaspedFront": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restCrossed": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restElbowSupport": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restHip": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
+    "restPocket": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
+    },
     "restrain": {
       "$ref": "#/components/schemas/OmitIParamshold-o2"
+    },
+    "restSide": {
+      "$ref": "#/components/schemas/OmitIParamsleftright"
     },
     "retreat": {
       "$ref": "#/components/schemas/OmitIParamsdirectionsteps"
@@ -758,6 +983,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     },
     "risingBlock": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
+    },
+    "roll": {
+      "$ref": "#/components/schemas/OmitIParamskind-o15"
     },
     "romanianDeadlift": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -777,6 +1005,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "rubEyes": {
       "$ref": "#/components/schemas/OmitIParamstask"
     },
+    "rubOn": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+    },
+    "rubPalms": {
+      "$ref": "#/components/schemas/OmitIParamscyclesfacingoffsetphrasesideswingtarget"
+    },
     "russianTwist": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
@@ -789,8 +1023,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "saw": {
       "$ref": "#/components/schemas/OmitIParamstool"
     },
+    "sawStrokes": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+    },
+    "scramble": {
+      "$ref": "#/components/schemas/OmitIParamsstances"
+    },
     "scratchNape": {
       "$ref": "#/components/schemas/OmitIParamskindtargetwith"
+    },
+    "scratchOn": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
     },
     "screw": {
       "$ref": "#/components/schemas/OmitIParamstool"
@@ -801,8 +1044,23 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "seatedFold": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "selfFistPump": {
+      "$ref": "#/components/schemas/OmitIParamskind-o1"
+    },
     "selfie": {
       "$ref": "#/components/schemas/OmitIParamstask"
+    },
+    "selfNeckRoll": {
+      "$ref": "#/components/schemas/OmitIParamskind-o1"
+    },
+    "selfShoulderRoll": {
+      "$ref": "#/components/schemas/OmitIParamskind-o1"
+    },
+    "selfStretch": {
+      "$ref": "#/components/schemas/OmitIParamskind-o1"
+    },
+    "selfVictory": {
+      "$ref": "#/components/schemas/OmitIParamskind-o1"
     },
     "shakeFist": {
       "$ref": "#/components/schemas/OmitIParamskindshape"
@@ -855,6 +1113,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "sledPush": {
       "$ref": "#/components/schemas/OmitIParamsnever-o3"
     },
+    "slideOff": {
+      "$ref": "#/components/schemas/OmitIParamsstances"
+    },
     "slidingTackle": {
       "$ref": "#/components/schemas/OmitIParamskind-o14"
     },
@@ -886,7 +1147,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o9"
     },
     "sprint": {
-      "$ref": "#/components/schemas/OmitIParamspace-o1"
+      "$ref": "#/components/schemas/OmitIParamspace"
     },
     "sprintStart": {
       "$ref": "#/components/schemas/OmitIParamsnever-o1"
@@ -896,6 +1157,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     },
     "squatSit": {
       "$ref": "#/components/schemas/OmitIParamsdepthheelshold"
+    },
+    "squeezeOn": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
     },
     "stab": {
       "$ref": "#/components/schemas/OmitIAttacknever"
@@ -921,14 +1185,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "stir": {
       "$ref": "#/components/schemas/OmitIParamstool"
     },
+    "stirStrokes": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+    },
+    "stopHand": {
+      "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget"
+    },
     "strides": {
-      "$ref": "#/components/schemas/OmitIParamspace-o1"
+      "$ref": "#/components/schemas/OmitIParamspace"
+    },
+    "strokeDown": {
+      "$ref": "#/components/schemas/OmitIParamsfromphraseshapesurface"
     },
     "stroll": {
-      "$ref": "#/components/schemas/OmitIParamsarmSwingpacestride"
+      "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpacestride"
     },
     "struggle": {
       "$ref": "#/components/schemas/OmitIParamscountholdkindwith"
+    },
+    "strum": {
+      "$ref": "#/components/schemas/OmitIParamsside"
     },
     "stubOut": {
       "$ref": "#/components/schemas/OmitIParamscountkindpoint"
@@ -946,7 +1222,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsholdkind"
     },
     "swagger": {
-      "$ref": "#/components/schemas/OmitIParamsarmSwingelbowspace"
+      "$ref": "#/components/schemas/OmitIWalkParamsarmSwingelbowspace"
     },
     "sway": {
       "$ref": "#/components/schemas/OmitIParamskind-o5"
@@ -975,6 +1251,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "takeCover": {
       "$ref": "#/components/schemas/OmitIParamshold-o1"
     },
+    "tapOn": {
+      "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+    },
+    "teethBrushing": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswingtarget"
+    },
     "thighTrap": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
@@ -993,6 +1275,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "thumbsUp": {
       "$ref": "#/components/schemas/OmitIParamsaimkindshapeturn"
     },
+    "thumbText": {
+      "$ref": "#/components/schemas/OmitIParamsdigitside"
+    },
     "tiptoe": {
       "$ref": "#/components/schemas/HumanGait.IParams"
     },
@@ -1002,11 +1287,47 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "toeTouch": {
       "$ref": "#/components/schemas/OmitIParamsholdtoward"
     },
+    "toolHammer": {
+      "$ref": "#/components/schemas/OmitIParamstool"
+    },
+    "toolSaw": {
+      "$ref": "#/components/schemas/OmitIParamstool"
+    },
+    "toolScrewdriver": {
+      "$ref": "#/components/schemas/OmitIParamstool"
+    },
+    "toolStir": {
+      "$ref": "#/components/schemas/OmitIParamstool"
+    },
     "topspin": {
       "$ref": "#/components/schemas/OmitICutfrom"
     },
     "toss": {
-      "$ref": "#/components/schemas/OmitIParamsstyle"
+      "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
+    },
+    "touchHold": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchPat": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchPress": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchRub": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchScratch": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchSqueeze": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchStroke": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
+    },
+    "touchTap": {
+      "$ref": "#/components/schemas/OmitIParamskind-o16"
     },
     "traverse": {
       "$ref": "#/components/schemas/OmitIParamsdirectionsteps"
@@ -1027,7 +1348,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
     "trudge": {
-      "$ref": "#/components/schemas/OmitIParamsarmSwingpacestride"
+      "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpacestride"
+    },
+    "twist": {
+      "$ref": "#/components/schemas/OmitIParamskind-o15"
     },
     "twoHandBackhand": {
       "$ref": "#/components/schemas/OmitICutfromhands"
@@ -1035,8 +1359,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "twoHandCatch": {
       "$ref": "#/components/schemas/OmitIParamshands"
     },
+    "type": {
+      "$ref": "#/components/schemas/OmitIParamsside"
+    },
+    "typeTwoFinger": {
+      "$ref": "#/components/schemas/OmitIParamsdigitside"
+    },
     "underarmPitch": {
-      "$ref": "#/components/schemas/OmitIParamsstyle"
+      "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
     },
     "underarmTurn": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -1045,7 +1375,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
     },
     "vaultOnPole": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o8"
+      "$ref": "#/components/schemas/OmitIParamsnever-o9"
     },
     "victory": {
       "$ref": "#/components/schemas/OmitIParamskind-o1"
@@ -1077,6 +1407,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "warriorTwo": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
+    "waveHand": {
+      "$ref": "#/components/schemas/OmitIParamscyclesfacingmirroroffsetphraseswingtarget"
+    },
     "whisper": {
       "$ref": "#/components/schemas/OmitIParamsholdregion"
     },
@@ -1088,6 +1421,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     },
     "wind": {
       "$ref": "#/components/schemas/OmitIAttacknever"
+    },
+    "wipeAcross": {
+      "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+    },
+    "wipeMouthAcross": {
+      "$ref": "#/components/schemas/OmitIParamsfromphraseshapesurfacetarget"
     }
   },
   "actions": {
@@ -1239,6 +1578,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/operate.IParams",
       "description": "Operating a mechanism."
     },
+    "perturb": {
+      "$ref": "#/components/schemas/perturb.IParams",
+      "description": "Respond to the impulses on the body by their outcome (#3430)."
+    },
     "pickUp": {
       "$ref": "#/components/schemas/pickUp.IParams",
       "description": "Picking a prop up."
@@ -1246,6 +1589,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "punch": {
       "$ref": "#/components/schemas/punch.IParams",
       "description": "A punch."
+    },
+    "pushPull": {
+      "$ref": "#/components/schemas/pushPull.IParams",
+      "description": "Pushing, pulling or dragging a heavy load by its handles."
     },
     "putDown": {
       "$ref": "#/components/schemas/putDown.IParams",
@@ -1258,6 +1605,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "receive": {
       "$ref": "#/components/schemas/receive.IParams",
       "description": "Receiving a prop."
+    },
+    "release": {
+      "$ref": "#/components/schemas/release.IParams",
+      "description": "Letting go of a held prop."
     },
     "rest": {
       "$ref": "#/components/schemas/rest.IParams",
@@ -1303,12 +1654,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/stretch.IParams",
       "description": "A static stretch."
     },
+    "support": {
+      "$ref": "#/components/schemas/support.IParams",
+      "description": "Moving the body's weight across a sequence of supports."
+    },
     "swim": {
       "$ref": "#/components/schemas/swim.IParams",
       "description": "Swimming."
     },
     "throwObject": {
-      "$ref": "#/components/schemas/throwObject.IParams",
+      "$ref": "#/components/schemas/IThrowObjectParams",
       "description": "Throwing an object."
     },
     "touch": {
@@ -1324,7 +1679,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "description": "Working a tool."
     },
     "walk": {
-      "$ref": "#/components/schemas/walk.IParams",
+      "$ref": "#/components/schemas/IWalkParams",
       "description": "Walking to a floor point."
     },
     "wipe": {
@@ -1394,26 +1749,56 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "floorFall": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o18"
           },
-          "sportSwing": {
+          "support": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o19"
           },
-          "sportThrow": {
+          "sportSwing": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o20"
           },
-          "sportWorkout": {
+          "sportThrow": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o21"
           },
-          "gymnastics": {
+          "sportWorkout": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o22"
           },
-          "sword": {
+          "gymnastics": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o23"
           },
-          "weaponFirearm": {
+          "sword": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o24"
           },
-          "weaponMelee": {
+          "weaponFirearm": {
             "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o25"
+          },
+          "weaponMelee": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o26"
+          },
+          "manipulate": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o27"
+          },
+          "regrasp": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o28"
+          },
+          "upperPhrase": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o29"
+          },
+          "upperGesture": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o30"
+          },
+          "upperRest": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o31"
+          },
+          "upperTouch": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o32"
+          },
+          "upperFace": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o33"
+          },
+          "upperDress": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o34"
+          },
+          "upperTool": {
+            "$ref": "#/components/schemas/IHumanLexiconParams.Merged-o35"
           }
         },
         "required": [
@@ -1436,13 +1821,23 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "sportCarry",
           "floorRoll",
           "floorFall",
+          "support",
           "sportSwing",
           "sportThrow",
           "sportWorkout",
           "gymnastics",
           "sword",
           "weaponFirearm",
-          "weaponMelee"
+          "weaponMelee",
+          "manipulate",
+          "regrasp",
+          "upperPhrase",
+          "upperGesture",
+          "upperRest",
+          "upperTouch",
+          "upperFace",
+          "upperDress",
+          "upperTool"
         ],
         "additionalProperties": false,
         "description": "The parameters every row of the lexicon leaves open, by family and by the\nrow's export name in its namespace: what an author writes in\n`registered(row, params)`, read from the row's own law type, so a page or\na generator reads the same parameters the checker does. A row's fixed\nparameters are not among them. A row is registered under its law's\n`name`, which a type cannot read, so a reader that wants rows by name\n(`HUMAN_LEXICON_SCHEMAS`) pairs each export with its law at run time.\n\nIt is derived from `HUMAN_LEXICON_FAMILIES`: each family namespace's\nmembers that plan, keyed by their export name, each with the parameters\nits `plan` takes."
@@ -1887,6 +2282,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "hipRight"
           },
           {
+            "const": "indexPadLeft"
+          },
+          {
+            "const": "indexPadRight"
+          },
+          {
             "const": "indexTipLeft"
           },
           {
@@ -1911,10 +2312,34 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "kneeRight"
           },
           {
+            "const": "littlePadLeft"
+          },
+          {
+            "const": "littlePadRight"
+          },
+          {
+            "const": "littleTipLeft"
+          },
+          {
+            "const": "littleTipRight"
+          },
+          {
             "const": "liver"
           },
           {
             "const": "lowerBack"
+          },
+          {
+            "const": "middlePadLeft"
+          },
+          {
+            "const": "middlePadRight"
+          },
+          {
+            "const": "middleTipLeft"
+          },
+          {
+            "const": "middleTipRight"
           },
           {
             "const": "mouth"
@@ -1951,6 +2376,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           {
             "const": "ribsRight"
+          },
+          {
+            "const": "ringPadLeft"
+          },
+          {
+            "const": "ringPadRight"
+          },
+          {
+            "const": "ringTipLeft"
+          },
+          {
+            "const": "ringTipRight"
           },
           {
             "const": "seat"
@@ -2010,6 +2447,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "throat"
           },
           {
+            "const": "thumbPadLeft"
+          },
+          {
+            "const": "thumbPadRight"
+          },
+          {
+            "const": "thumbTipLeft"
+          },
+          {
+            "const": "thumbTipRight"
+          },
+          {
             "const": "upperArmLeft"
           },
           {
@@ -2025,7 +2474,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "wristRight"
           }
         ],
-        "description": "Closed vocabulary of anatomical surface regions on a humanoid body: the\nplaces another body or an object touches, strikes, grips or presents to.\n\nNames follow surface anatomy (Gray's Anatomy surface landmarks; the region\ndivisions of anatomical charts): head and face, neck, the anterior and\nposterior trunk with the hypochondriac regions over the liver (right) and\nspleen (left) and the lumbar regions over the kidneys, and the limbs by\nsegment and aspect. Paired regions carry their side, the body's own left\nor right. Contact points the body itself presents (the palm, the index\nfingertip, the sole, the heel, the seat) are regions too, so another body\nor an object can be aimed at them. Each region is anchored to one humanoid bone and resolved to a\npoint and an outward normal on that bone's collision shapes by the engine,\nso the same name serves a generated Human, an imported character or a\nparametric figure. The list grows additively; no name is ever repurposed."
+        "description": "Closed vocabulary of anatomical surface regions on a humanoid body: the\nplaces another body or an object touches, strikes, grips or presents to.\n\nNames follow surface anatomy (Gray's Anatomy surface landmarks; the region\ndivisions of anatomical charts): head and face, neck, the anterior and\nposterior trunk with the hypochondriac regions over the liver (right) and\nspleen (left) and the lumbar regions over the kidneys, and the limbs by\nsegment and aspect. Paired regions carry their side, the body's own left\nor right. Contact points the body itself presents (the palm, the tip and\nthe pad of every digit, the sole, the heel, the seat) are regions too, so\na key, a string, another body\nor an object can be aimed at them. Each region is anchored to one humanoid bone and resolved to a\npoint and an outward normal on that bone's collision shapes by the engine,\nso the same name serves a generated Human, an imported character or a\nparametric figure. The list grows additively; no name is ever repurposed."
       },
       "IAutoMovieVector3": {
         "type": "object",
@@ -2241,7 +2690,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -4082,7 +4531,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsgraspotherpointtask"
           },
           "readingWalk": {
-            "$ref": "#/components/schemas/OmitIParamspace"
+            "$ref": "#/components/schemas/OmitIWalkParamspace"
           },
           "rubEyes": {
             "$ref": "#/components/schemas/OmitIParamstask"
@@ -4240,7 +4689,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -5027,7 +5476,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamspace": {
+      "OmitIWalkParamspace": {
         "type": "object",
         "properties": {
           "to": {
@@ -5088,6 +5537,31 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
           }
         },
         "required": [
@@ -5119,6 +5593,604 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "default": 0,
         "x-unit": "degrees"
       },
+      "IHumanFormation.IStation": {
+        "type": "object",
+        "properties": {
+          "formation": {
+            "$ref": "#/components/schemas/IHumanFormation",
+            "description": "The formation."
+          },
+          "slot": {
+            "type": "number",
+            "description": "The slot kept, from 0."
+          },
+          "until": {
+            "type": "number",
+            "description": "The film second the station ends; the frame's own end when absent."
+          },
+          "dress": {
+            "type": "object",
+            "properties": {
+              "bound": {
+                "type": "number"
+              },
+              "seed": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "bound",
+              "seed"
+            ],
+            "additionalProperties": false,
+            "description": "The member's slow deviation from its slot (`HumanEnsemble.station`):\nits bound, metres, and the stream seed its lateral and depth\ndeviations are drawn from; none when absent."
+          }
+        },
+        "required": [
+          "formation",
+          "slot"
+        ],
+        "additionalProperties": false,
+        "description": "A member's station: the slot it keeps in a formation, read by the walk\nfamily's `station` (`walkStation.resolve`). The walk goes along the\nslot's way from the action's start until the frame comes to rest, or\nuntil `until`, which a guide frame must give."
+      },
+      "IHumanFormation": {
+        "type": "object",
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IHumanFormation.IBlock"
+            },
+            "description": "The blocks, in member order: block 0's members first."
+          },
+          "frame": {
+            "$ref": "#/components/schemas/IHumanFormation.Frame",
+            "description": "Where the formation's origin is and which way it faces, at any film second."
+          }
+        },
+        "required": [
+          "blocks",
+          "frame"
+        ],
+        "additionalProperties": false,
+        "description": "A formation as data: blocks of the interface's layout union, in member\norder, placed in a frame that moves.\n\nA block lays its members with its layout (the engine's\n`formationSlotPosition`, one owner of layout geometry and dressing) in its\nown frame, whose depth runs from the front rank to the rear, then is\nturned by `facing` and moved by `offset` in the formation's frame, which\nstands where `frame` puts it at every film second. A square is four\n`line` blocks faced 0, 90, 180 and 270 degrees; a battalion of companies,\na squadron of two ranks and a procession are compositions of blocks, not\nlayouts of their own.\n\nDistances are metres and angles degrees about +Y with 0 facing +Z. A\nformation's `lateral` axis is the frame's right (-X when it faces +Z), so\nfile 0 stands on its left, and its `depth` axis runs toward its rear. Every value is checked by `HumanFormation.of`."
+      },
+      "IHumanFormation.IBlock": {
+        "type": "object",
+        "properties": {
+          "layout": {
+            "$ref": "#/components/schemas/IAutoMovieFormationLayout",
+            "description": "Its layout, the interface's union."
+          },
+          "count": {
+            "type": "number",
+            "description": "How many members it holds, a positive whole number within the layout's capacity."
+          },
+          "offset": {
+            "type": "object",
+            "properties": {
+              "lateral": {
+                "type": "number"
+              },
+              "depth": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "lateral",
+              "depth"
+            ],
+            "additionalProperties": false,
+            "description": "Where its own origin stands in the formation's frame, metres; the frame's origin when absent."
+          },
+          "facing": {
+            "type": "number",
+            "description": "Which way it faces relative to the frame, degrees; 0 when absent."
+          },
+          "seed": {
+            "type": "number",
+            "description": "Its dressing's and scatter's seed, a whole number; drawn from the formation's key when absent."
+          }
+        },
+        "required": [
+          "layout",
+          "count"
+        ],
+        "additionalProperties": false,
+        "description": "One block of members."
+      },
+      "IAutoMovieFormationLayout": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "line",
+                "description": "Rectangular line enumerated across files before advancing a rank."
+              },
+              "ranks": {
+                "type": "number",
+                "description": "Integer ranks from 1 through count."
+              },
+              "files": {
+                "type": "number",
+                "description": "Integer files from 1 through count; ranks times files covers count."
+              },
+              "spacing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Left-to-right spacing between files."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Front-to-back spacing between ranks."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "Finite inter-slot spacing in meters, strictly above zero."
+              },
+              "dressing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Maximum left-to-right deviation in meters, zero or above."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Maximum front-to-back deviation in meters, zero or above."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "How far a member may stand off its exact slot, in meters.\n\nFormed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.\n\nDeviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate."
+              }
+            },
+            "required": [
+              "kind",
+              "ranks",
+              "files",
+              "spacing"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "column",
+                "description": "March column enumerated through ranks before advancing a file."
+              },
+              "ranks": {
+                "type": "number",
+                "description": "Integer ranks from 1 through count."
+              },
+              "files": {
+                "type": "number",
+                "description": "Integer files from 1 through count; ranks times files covers count."
+              },
+              "spacing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Left-to-right spacing between files."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Front-to-back spacing between ranks."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "Finite inter-slot spacing in meters, strictly above zero."
+              },
+              "dressing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Maximum left-to-right deviation in meters, zero or above."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Maximum front-to-back deviation in meters, zero or above."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "How far a member may stand off its exact slot, in meters.\n\nFormed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.\n\nDeviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate."
+              }
+            },
+            "required": [
+              "kind",
+              "ranks",
+              "files",
+              "spacing"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "wedge",
+                "description": "Wedge with successive odd-width rows containing one, three, five and further slots."
+              },
+              "depth": {
+                "type": "number",
+                "description": "Integer rows from 1 through count; depth squared must cover count."
+              },
+              "spacing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Left-to-right spacing between members in one row."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Front-to-back spacing between rows."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "Finite inter-slot spacing in meters, strictly above zero."
+              },
+              "dressing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Maximum left-to-right deviation in meters, zero or above."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Maximum front-to-back deviation in meters, zero or above."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "How far a member may stand off its exact slot, in meters.\n\nFormed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.\n\nDeviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate."
+              }
+            },
+            "required": [
+              "kind",
+              "depth",
+              "spacing"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "arc",
+                "description": "Arc layout."
+              },
+              "radius": {
+                "type": "number",
+                "description": "Finite arc radius in meters, strictly above zero."
+              },
+              "arcDegrees": {
+                "type": "number",
+                "description": "Finite covered angle, strictly above zero and at most 360 degrees."
+              },
+              "dressing": {
+                "type": "object",
+                "properties": {
+                  "lateral": {
+                    "type": "number",
+                    "description": "Maximum left-to-right deviation in meters, zero or above."
+                  },
+                  "depth": {
+                    "type": "number",
+                    "description": "Maximum front-to-back deviation in meters, zero or above."
+                  }
+                },
+                "required": [
+                  "lateral",
+                  "depth"
+                ],
+                "additionalProperties": false,
+                "description": "How far a member may stand off its exact slot, in meters.\n\nFormed troops are dressed to a tolerance, not to a lattice, and that tolerance is what makes a unit read as many people holding a line rather than one figure repeated on a grid. Omit it, or leave both numbers at zero, for exact geometry.\n\nDeviation is regenerated from the formation seed and slot index without a stored per-member displacement. Complete placement additionally depends on layout, heading, terrain and numeric implementation; seeded replay is not an independently verified cross-host crowd-byte certificate."
+              }
+            },
+            "required": [
+              "kind",
+              "radius",
+              "arcDegrees"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "scatter",
+                "description": "Seeded scatter layout."
+              },
+              "radius": {
+                "type": "number",
+                "description": "Finite scatter radius in meters, strictly above zero."
+              },
+              "seed": {
+                "type": "number",
+                "description": "Integer layout-specific seed from zero through `MAX_SAFE_INTEGER`."
+              }
+            },
+            "required": [
+              "kind",
+              "radius",
+              "seed"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "description": "A compact formation layout; individual members are derived slots."
+      },
+      "IHumanFormation.Frame": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IHumanFormation.ICourse"
+          },
+          {
+            "$ref": "#/components/schemas/IHumanFormation.IFixed"
+          },
+          {
+            "$ref": "#/components/schemas/IHumanFormation.IGuide"
+          },
+          {
+            "$ref": "#/components/schemas/IHumanFormation.IPath"
+          }
+        ],
+        "description": "Where the formation stands and faces.",
+        "discriminator": {
+          "mapping": {
+            "course": "#/components/schemas/IHumanFormation.ICourse",
+            "fixed": "#/components/schemas/IHumanFormation.IFixed",
+            "guide": "#/components/schemas/IHumanFormation.IGuide",
+            "path": "#/components/schemas/IHumanFormation.IPath"
+          },
+          "propertyName": "kind"
+        }
+      },
+      "IHumanFormation.ICourse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "course",
+            "description": "The discriminator."
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IHumanFormation.ISample"
+            },
+            "description": "The origin at film seconds, at least two, in time order; held at the ends."
+          }
+        },
+        "required": [
+          "kind",
+          "samples"
+        ],
+        "additionalProperties": false,
+        "description": "A frame that travels a planned course: samples of its origin at film\nseconds (a steered course, `HumanCrowd.steer`, or a wheel,\n`manoeuvreWheel`), read between them linearly, its heading the samples'\nown when they carry one, else the direction it moves in, kept while it\nstands."
+      },
+      "IHumanFormation.ISample": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "number",
+            "description": "The film second."
+          },
+          "x": {
+            "type": "number",
+            "description": "World metres, x."
+          },
+          "y": {
+            "type": "number",
+            "description": "World metres, y."
+          },
+          "z": {
+            "type": "number",
+            "description": "World metres, z."
+          },
+          "heading": {
+            "type": "number",
+            "description": "A course frame's heading here, degrees, unwrapped along the course, when it turns otherwise than it moves (a wheel about its pivot, `manoeuvreWheel`); the way it moves when absent. Not read on a slot's way."
+          }
+        },
+        "required": [
+          "seconds",
+          "x",
+          "y",
+          "z"
+        ],
+        "additionalProperties": false,
+        "description": "A sample of a slot's way: a floor point at a film second, the record a timed course reads."
+      },
+      "IHumanFormation.IFixed": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "fixed",
+            "description": "The discriminator."
+          },
+          "at": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "Its origin, world metres."
+          },
+          "heading": {
+            "type": "number",
+            "description": "Its heading, degrees."
+          }
+        },
+        "required": [
+          "kind",
+          "at",
+          "heading"
+        ],
+        "additionalProperties": false,
+        "description": "A frame that stands still."
+      },
+      "IHumanFormation.IGuide": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "guide",
+            "description": "The discriminator."
+          },
+          "subject": {
+            "type": "string",
+            "description": "The guide performer, composed before the members who read it."
+          }
+        },
+        "required": [
+          "kind",
+          "subject"
+        ],
+        "additionalProperties": false,
+        "description": "A frame carried by a performer: their placed root and heading."
+      },
+      "IHumanFormation.IPath": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "path",
+            "description": "The discriminator."
+          },
+          "via": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieVector3"
+            },
+            "description": "The path's corners on the floor, world metres, at least two; `y` is not read."
+          },
+          "heading": {
+            "oneOf": [
+              {
+                "const": "along"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Its heading: along the path, or a fixed heading in degrees; along when absent."
+          },
+          "start": {
+            "type": "number",
+            "description": "The film second it starts moving; 0 when absent."
+          },
+          "speed": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "marks": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/IHumanFormation.IMark"
+                    }
+                  }
+                },
+                "required": [
+                  "marks"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Its cruising speed, metres per second, stopping at the path's end; or speed marks, each the speed it changes to from a film second on, the last held until it brakes to a stop at the end."
+          },
+          "acceleration": {
+            "type": "number",
+            "description": "Its acceleration and braking, metres per second squared; `HumanFormation.ACCELERATION` when absent."
+          },
+          "turn": {
+            "type": "number",
+            "description": "Metres of path over which its heading turns at each corner, half before and half after; `HumanFormation.TURN` when absent."
+          }
+        },
+        "required": [
+          "kind",
+          "via",
+          "speed"
+        ],
+        "additionalProperties": false,
+        "description": "A frame that travels a path at authored speeds."
+      },
+      "IHumanFormation.IMark": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "number",
+            "description": "The film second the speed starts changing."
+          },
+          "speed": {
+            "type": "number",
+            "description": "The speed it changes to, metres per second, at least 0."
+          }
+        },
+        "required": [
+          "at",
+          "speed"
+        ],
+        "additionalProperties": false,
+        "description": "One speed mark of a path frame."
+      },
+      "walkCadence.ICadence": {
+        "type": "object",
+        "properties": {
+          "cue": {
+            "type": "string",
+            "description": "The cue track's name (`HumanCue.beats`), each `beat` a step."
+          },
+          "foot": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The foot that strikes on beat `index`; the left when absent, by drill custom."
+          },
+          "index": {
+            "type": "number",
+            "description": "The beat the `foot`'s first strike answers; the beat nearest it when absent."
+          }
+        },
+        "required": [
+          "cue"
+        ],
+        "additionalProperties": false,
+        "description": "A walk's cadence: the beat track it keeps step to."
+      },
       "OmitIParamskindtargetwith": {
         "type": "object",
         "properties": {
@@ -5131,7 +6203,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -5430,7 +6502,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -6413,7 +7485,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
-            "description": "How it is performed: the tempo scales the righting after the step."
+            "description": "How it is performed: the tempo scales the trunk's righting after the last step."
           }
         },
         "required": [],
@@ -6465,16 +7537,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanTravelCar.IParams"
           },
           "hurry": {
-            "$ref": "#/components/schemas/OmitIParamsarmSwingpacestride"
+            "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpacestride"
           },
           "jog": {
-            "$ref": "#/components/schemas/OmitIParamspace-o1"
+            "$ref": "#/components/schemas/OmitIParamspace"
           },
           "limp": {
             "$ref": "#/components/schemas/HumanGait.ILimp"
           },
           "march": {
-            "$ref": "#/components/schemas/HumanGait.IParams"
+            "$ref": "#/components/schemas/HumanGait.IMarch"
           },
           "openDoor": {
             "$ref": "#/components/schemas/HumanTravelLeaf.IParams"
@@ -6495,22 +7567,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanGait.IParams"
           },
           "sprint": {
-            "$ref": "#/components/schemas/OmitIParamspace-o1"
+            "$ref": "#/components/schemas/OmitIParamspace"
           },
           "stiffLimp": {
             "$ref": "#/components/schemas/HumanGait.ILimp"
           },
           "stroll": {
-            "$ref": "#/components/schemas/OmitIParamsarmSwingpacestride"
+            "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpacestride"
           },
           "swagger": {
-            "$ref": "#/components/schemas/OmitIParamsarmSwingelbowspace"
+            "$ref": "#/components/schemas/OmitIWalkParamsarmSwingelbowspace"
           },
           "tiptoe": {
             "$ref": "#/components/schemas/HumanGait.IParams"
           },
           "trudge": {
-            "$ref": "#/components/schemas/OmitIParamsarmSwingpacestride"
+            "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpacestride"
           }
         },
         "required": [
@@ -6590,6 +7662,31 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
           }
         },
         "required": [
@@ -6721,7 +7818,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "An opening through an obstacle."
       },
-      "OmitIParamsarmSwingpacestride": {
+      "OmitIWalkParamsarmSwingpacestride": {
         "type": "object",
         "properties": {
           "to": {
@@ -6774,6 +7871,31 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
           }
         },
         "required": [
@@ -6781,7 +7903,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamspace-o1": {
+      "OmitIParamspace": {
         "type": "object",
         "properties": {
           "to": {
@@ -6810,6 +7932,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "type": "number",
             "description": "Elbows held out, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the run is performed, read as a walk reads it (`walk.IParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -6871,6 +7997,31 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
+          },
           "side": {
             "oneOf": [
               {
@@ -6888,6 +8039,110 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false,
         "description": "What a limp leaves to the composition: the walk's, and the leg spared."
+      },
+      "HumanGait.IMarch": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The floor point to stop at, world metres."
+          },
+          "via": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAutoMovieVector3"
+            },
+            "description": "Floor points passed in order before `to`, world metres."
+          },
+          "face": {
+            "type": "number",
+            "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
+          },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
+          },
+          "elbows": {
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
+          },
+          "regulation": {
+            "oneOf": [
+              {
+                "const": "british1792"
+              },
+              {
+                "const": "french1791"
+              },
+              {
+                "const": "us2021"
+              }
+            ],
+            "description": "The drill regulation (`HUMAN_DRILL_CADENCES`); TC 3-21.5's quick time (`MARCH`) when absent."
+          },
+          "time": {
+            "type": "string",
+            "description": "The regulation's time by its own name (`ordinary`, `quick`...); its first time when absent."
+          }
+        },
+        "required": [
+          "to"
+        ],
+        "additionalProperties": false,
+        "description": "What a march leaves to the composition: the walk's, and the regulation and time it marches at."
       },
       "HumanTravelLeaf.IParams": {
         "type": "object",
@@ -6958,7 +8213,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "Parameters of a passage."
       },
-      "OmitIParamsarmSwingelbowspace": {
+      "OmitIWalkParamsarmSwingelbowspace": {
         "type": "object",
         "properties": {
           "to": {
@@ -7011,6 +8266,31 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "stride": {
             "$ref": "#/components/schemas/HumanUnit.Bounded",
             "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
           }
         },
         "required": [
@@ -7079,6 +8359,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanEffort.IEffort",
             "description": "Movement quality: steps, arm swing and elbow width of the walk."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk there is performed (`walk.IParams.manner`); neutral when absent."
+          },
           "avoid": {
             "type": "array",
             "items": {
@@ -7116,6 +8400,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "effort": {
             "$ref": "#/components/schemas/HumanEffort.IEffort",
             "description": "Movement quality: steps, arm swing and elbow width of the walk."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk there is performed (`walk.IParams.manner`); neutral when absent."
           },
           "avoid": {
             "type": "array",
@@ -7165,6 +8453,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "effort": {
             "$ref": "#/components/schemas/HumanEffort.IEffort",
             "description": "Movement quality: steps, arm swing and elbow width of the walk."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk there is performed (`walk.IParams.manner`); neutral when absent."
           },
           "avoid": {
             "type": "array",
@@ -7257,7 +8549,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsholdkindsidewith"
           },
           "danceLead": {
-            "$ref": "#/components/schemas/OmitIParamspace"
+            "$ref": "#/components/schemas/OmitIWalkParamspace"
           },
           "firmPress": {
             "$ref": "#/components/schemas/OmitIParamskindmannerwith"
@@ -7370,7 +8662,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -7639,6 +8931,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "effort": {
             "$ref": "#/components/schemas/HumanEffort.IEffort",
             "description": "Movement quality: steps, arm swing and elbow width of the walk."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk there is performed (`walk.IParams.manner`); neutral when absent."
           },
           "avoid": {
             "type": "array",
@@ -7933,7 +9229,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -8281,6 +9577,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The collar hand of `collarSleeve`; `right` when absent."
           },
+          "under": {
+            "type": "object",
+            "properties": {
+              "fulcrum": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "This body's region the partner turns over."
+              },
+              "on": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "The partner's region that lies on it."
+              }
+            },
+            "required": [
+              "fulcrum",
+              "on"
+            ],
+            "additionalProperties": false,
+            "description": "A throw's entry (tsukuri, #3439): through the reach the body lowers,\nits knees bending over the planted feet, until its own `fulcrum`\nregion stands at the height of the partner's `on` region, the contact\nthe throw turns the partner over; none when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
@@ -8344,7 +9659,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -8732,7 +10047,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -8996,7 +10311,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -9461,6 +10776,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The collar hand of `collarSleeve`; `right` when absent."
           },
+          "under": {
+            "type": "object",
+            "properties": {
+              "fulcrum": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "This body's region the partner turns over."
+              },
+              "on": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "The partner's region that lies on it."
+              }
+            },
+            "required": [
+              "fulcrum",
+              "on"
+            ],
+            "additionalProperties": false,
+            "description": "A throw's entry (tsukuri, #3439): through the reach the body lowers,\nits knees bending over the planted feet, until its own `fulcrum`\nregion stands at the height of the partner's `on` region, the contact\nthe throw turns the partner over; none when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
@@ -9487,7 +10821,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -9907,7 +11241,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -10769,6 +12103,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "How many beats; 8 when absent.",
             "x-unit": ""
           },
+          "lock": {
+            "type": "object",
+            "properties": {
+              "of": {
+                "type": "string"
+              },
+              "event": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "of"
+            ],
+            "additionalProperties": false,
+            "description": "A cue track to lock the beats to (#3340, #3378): beat `k` falls on the\ntrack's `k`-th instant named `event` (`beat` when absent) at or after the\naction's start, and the tempo is the mean interval of those instants,\nso `bpm` is not read. The track is the performance's input, never\naudio. Unlocked, the beats follow `bpm` from one period after the start."
+          },
           "side": {
             "oneOf": [
               {
@@ -10926,6 +12276,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "seconds": {
             "type": "number",
             "minimum": 0,
@@ -10972,6 +12326,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -11180,6 +12538,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "against": {
             "type": "string",
             "description": "The anchor of the cut or thrust it meets; a drill to `line` when absent."
@@ -11241,6 +12603,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -11448,6 +12814,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -11678,6 +13048,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "target": {
             "oneOf": [
               {
@@ -11871,6 +13245,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "against": {
             "type": "string",
             "description": "The anchor of the cut or thrust it meets; a drill to `line` when absent."
@@ -11944,7 +13322,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "gun": {
             "type": "string",
-            "description": "The held firearm's prop subject id; the bare hand when absent."
+            "description": "The held weapon's prop subject id; the bare hand when absent."
           },
           "hand": {
             "oneOf": [
@@ -11967,6 +13345,59 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "How many hands hold it; 2 when absent."
+          },
+          "tip": {
+            "type": "string",
+            "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
+          },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
+          },
+          "edge": {
+            "type": "string",
+            "description": "The weapon's sighting affordance, square to its line; `sight` when absent."
+          },
+          "anchor": {
+            "oneOf": [
+              {
+                "const": "arm"
+              },
+              {
+                "const": "cheek"
+              },
+              {
+                "const": "eye"
+              },
+              {
+                "const": "face"
+              }
+            ],
+            "description": "Where the line of aim starts on the body; the eye for a handgun and the cheek for a long gun when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own."
+          },
+          "shot": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "speed": {
+                "type": "number"
+              },
+              "lock": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "prop",
+              "speed"
+            ],
+            "additionalProperties": false,
+            "description": "What a shot launches (#3488): the prop that flies (a ball the scene\ngives), its speed out of the muzzle in m/s (the gun's muzzle\nvelocity) and the lock's time from the break to the launch in seconds\n(the gun's lock time; 0 when absent). Nothing is launched when absent."
           },
           "target": {
             "oneOf": [
@@ -12101,6 +13532,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "What it is aimed at; a place straight ahead at eye height when absent. A ready position faces it without aiming."
+          },
+          "extended": {
+            "type": "boolean",
+            "description": "Whether the presenting arm reaches straight out along the line of aim\nto its own reach, a bow arm extended to the target; otherwise the\nworking point is held the presentation's own share of the arm out.\nNot extended when absent."
           },
           "seconds": {
             "type": "number",
@@ -12375,7 +13810,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "properties": {
           "gun": {
             "type": "string",
-            "description": "The held firearm's prop subject id; the bare hand when absent."
+            "description": "The held weapon's prop subject id; the bare hand when absent."
           },
           "hand": {
             "oneOf": [
@@ -12398,6 +13833,59 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "How many hands hold it; 2 when absent."
+          },
+          "tip": {
+            "type": "string",
+            "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
+          },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
+          },
+          "edge": {
+            "type": "string",
+            "description": "The weapon's sighting affordance, square to its line; `sight` when absent."
+          },
+          "anchor": {
+            "oneOf": [
+              {
+                "const": "arm"
+              },
+              {
+                "const": "cheek"
+              },
+              {
+                "const": "eye"
+              },
+              {
+                "const": "face"
+              }
+            ],
+            "description": "Where the line of aim starts on the body; the eye for a handgun and the cheek for a long gun when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own."
+          },
+          "shot": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "speed": {
+                "type": "number"
+              },
+              "lock": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "prop",
+              "speed"
+            ],
+            "additionalProperties": false,
+            "description": "What a shot launches (#3488): the prop that flies (a ball the scene\ngives), its speed out of the muzzle in m/s (the gun's muzzle\nvelocity) and the lock's time from the break to the launch in seconds\n(the gun's lock time; 0 when absent). Nothing is launched when absent."
           }
         },
         "required": [],
@@ -12422,7 +13910,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamshowloadpace"
           },
           "hurl": {
-            "$ref": "#/components/schemas/OmitIParamsstyle"
+            "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
           },
           "pushCart": {
             "$ref": "#/components/schemas/OmitIParamshow"
@@ -12440,7 +13928,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamstool"
           },
           "toss": {
-            "$ref": "#/components/schemas/OmitIParamsstyle"
+            "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
           }
         },
         "required": [
@@ -12498,6 +13986,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The walk's pace; `normal` when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`walk.IParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -12555,6 +14047,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The loaded side for `oneHand` and `hip`; `right` when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`walk.IParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -12562,7 +14058,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamsstyle": {
+      "OmitIThrowObjectParamsstyle": {
         "type": "object",
         "properties": {
           "at": {
@@ -12580,6 +14076,83 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The throwing hand; `right` when absent."
           },
+          "prop": {
+            "type": "string",
+            "description": "The held prop thrown: it rides the hand to the release, then flies\nfrom it (`IHumanActionPlan.launches`). The empty hand throws when\nabsent, as before."
+          },
+          "angle": {
+            "type": "number",
+            "description": "The release angle above the horizontal, degrees; the style's when absent."
+          },
+          "attitude": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/throwObjectLever.ITurns"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "velocity",
+                    "description": "Nose along the velocity."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "spin",
+                    "description": "A constant spin."
+                  },
+                  "axis": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The spin axis in the body's own frame; non-zero."
+                  },
+                  "rate": {
+                    "type": "number",
+                    "description": "Degrees per second about `axis`, right-handed."
+                  },
+                  "rotation": {
+                    "$ref": "#/components/schemas/IAutoMovieQuaternion",
+                    "description": "The body's rotation at launch, body to world; identity when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "axis",
+                  "rate"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "fixed",
+                    "description": "The launch rotation kept."
+                  },
+                  "rotation": {
+                    "$ref": "#/components/schemas/IAutoMovieQuaternion",
+                    "description": "The body's rotation at launch, body to world; identity when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "How the prop turns in flight (`IAutoMovieProjectile.attitude`): along\nits velocity for a javelin; `turns` for a knife, whose spin the act\nchooses (throwObjectLever.spin); its release rotation kept when\nabsent."
+          },
+          "implement": {
+            "$ref": "#/components/schemas/throwObjectLever.IImplement",
+            "description": "The implement held in the throwing hand that lengthens the arm: a\nsling, an atlatl. The thrown prop leaves from its working point, and the\nlaunch is the lever's (`throwObjectLever`). The hand throws when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
@@ -12589,6 +14162,68 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "at"
         ],
         "additionalProperties": false
+      },
+      "throwObjectLever.ITurns": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "turns",
+            "description": "Turns chosen by the act."
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A spin the act chooses: the lever's rate rounded to whole half turns\nover the flight to the target (spin)."
+      },
+      "IAutoMovieQuaternion": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Imaginary i component."
+          },
+          "y": {
+            "type": "number",
+            "description": "Imaginary j component."
+          },
+          "z": {
+            "type": "number",
+            "description": "Imaginary k component."
+          },
+          "w": {
+            "type": "number",
+            "description": "Real (scalar) component."
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z",
+          "w"
+        ],
+        "additionalProperties": false,
+        "description": "A unit quaternion `(x, y, z, w)` describing a 3D rotation.\n\nJoint articulation is authored as semantic degrees through IAutoMovieJointPose; jointToQuaternion converts those angles to bone-local rotations, motionToClip emits general node tracks, and decomposeJointRotation reads rotations back into semantic angles during imported-motion conversion. Placement records, including IAutoMovieExplicitInstanceTransform, may carry a quaternion directly.\n\nComponent order is glTF's `(x, y, z, w)`, and Quaternion.multiply(a, b) applies b first without normalization. validateTransformScalars refuses nonfinite components and a norm more than 1e-6 from one, retaining admitted components unchanged. Direct rotateVector and matrix composition likewise do not normalize; callers needing a unit copy use Quaternion.normalize, whose zero-input convention returns identity. q and -q represent the same rotation, and no record requires either sign."
+      },
+      "throwObjectLever.IImplement": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The implement's subject id, held in the throwing hand at the throw's entry."
+          },
+          "point": {
+            "type": "string",
+            "description": "The affordance the thrown prop rides: an atlatl's spur, a sling's pouch."
+          }
+        },
+        "required": [
+          "prop",
+          "point"
+        ],
+        "additionalProperties": false,
+        "description": "An implement held in the throwing hand."
       },
       "OmitIParamstool": {
         "type": "object",
@@ -12780,6 +14415,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "overShoulder"
               },
               {
+                "const": "overheadLift"
+              },
+              {
                 "const": "piggyback"
               },
               {
@@ -12787,9 +14425,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "supportedLeft"
+              },
+              {
+                "const": "waistLift"
               }
             ],
             "description": "The carry; `piggyback` when absent."
+          },
+          "of": {
+            "type": "string",
+            "description": "The carried person's subject id: the hands then hold where the coupled carry puts that body (#3437); the carry's own places when absent."
+          },
+          "mass": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Kilograms the carried person carries besides their body, as their `borne` states it; none when absent."
+          },
+          "beside": {
+            "type": "string",
+            "description": "The other helper's subject id when two helpers carry one person (`HumanCarriedCoupling.PAIRED`): this one is the second when its carry is the other side's; none when absent."
           },
           "seconds": {
             "type": "number",
@@ -12839,6 +14493,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "overShoulder"
               },
               {
+                "const": "overheadLift"
+              },
+              {
                 "const": "piggyback"
               },
               {
@@ -12846,6 +14503,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "supportedLeft"
+              },
+              {
+                "const": "waistLift"
               }
             ],
             "description": "The carry; `piggyback` when absent."
@@ -12855,6 +14515,15 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "exclusiveMinimum": 0,
             "description": "Seconds carried, more than none; 2 when absent.",
             "x-unit": "s"
+          },
+          "mass": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Kilograms the carried person carries besides their body (a pack, gear), which the carrier bears too; none when absent."
+          },
+          "with": {
+            "type": "string",
+            "description": "A second helper's subject id, on the carry's other side (`HumanCarriedCoupling.PAIRED`: a supported walk between two helpers); none when absent."
           }
         },
         "required": [],
@@ -13290,6 +14959,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only."
+          },
+          "at": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The point a thrown ball's path passes through, world metres; required with `prop`. Read by the throw-in only."
           }
         },
         "required": [],
@@ -13415,6 +15092,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The front foot; `left` when absent."
+          },
+          "sex": {
+            "oneOf": [
+              {
+                "const": "female"
+              },
+              {
+                "const": "male"
+              }
+            ],
+            "description": "The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent."
           },
           "seconds": {
             "type": "number",
@@ -13698,7 +15386,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsnever-o2"
           },
           "farmersWalk": {
-            "$ref": "#/components/schemas/OmitIParamsarmSwingpace"
+            "$ref": "#/components/schemas/OmitIWalkParamsarmSwingpace"
           },
           "sledPush": {
             "$ref": "#/components/schemas/OmitIParamsnever-o3"
@@ -13731,7 +15419,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsarmSwingpace": {
+      "OmitIWalkParamsarmSwingpace": {
         "type": "object",
         "properties": {
           "to": {
@@ -13788,6 +15476,31 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
           }
         },
         "required": [
@@ -13817,6 +15530,50 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "lean": {
             "type": "number",
             "description": "How far the trunk leans into the load at least, degrees from the vertical in [0, `pushSledStance.RANGE`]; absent, the trunk leans as measured pushers do at the handles' height (`pushSledStance.INCLINES`), which a lean beyond it overrides."
+          },
+          "incline": {
+            "type": "number",
+            "description": "The trunk's incline from the vertical asked outright, degrees in [-`pushSledStance.RANGE`, `pushSledStance.RANGE`], negative leaning back away from the load; it replaces the measured incline and `lean` (a haul at a declared load, `pushPull`); absent, the measured one."
+          },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks (`walk.IParams.facing`), so a pull walks backward facing the load; along the way when absent."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Seconds to stand in place against the load instead of walking to `to`, the hands on the handles throughout; absent, the body walks."
+          },
+          "moves": {
+            "type": "boolean",
+            "description": "Whether the load moves with the hands; `false` presses the handles without gripping, so the load stays where it stands (a stuck door, a car that will not move); `true` when absent."
           }
         },
         "required": [
@@ -13894,6 +15651,164 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false
       },
       "IHumanLexiconParams.Merged-o19": {
+        "type": "object",
+        "properties": {
+          "scramble": {
+            "$ref": "#/components/schemas/OmitIParamsstances"
+          },
+          "slideOff": {
+            "$ref": "#/components/schemas/OmitIParamsstances"
+          }
+        },
+        "required": [
+          "scramble",
+          "slideOff"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "OmitIParamsstances": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point, metres."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "IHumanLexiconParams.Merged-o20": {
         "type": "object",
         "properties": {
           "backhandDrive": {
@@ -13975,6 +15890,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -14172,6 +16091,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "seconds": {
             "type": "number",
             "minimum": 0,
@@ -14207,6 +16130,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -14371,7 +16298,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "IHumanLexiconParams.Merged-o20": {
+      "IHumanLexiconParams.Merged-o21": {
         "type": "object",
         "properties": {
           "backSalto": {
@@ -14387,7 +16314,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsto"
           },
           "dash": {
-            "$ref": "#/components/schemas/OmitIParamspace-o1"
+            "$ref": "#/components/schemas/OmitIParamspace"
           },
           "frontSalto": {
             "$ref": "#/components/schemas/OmitIParamsway"
@@ -14405,16 +16332,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsnever-o4"
           },
           "pitch": {
-            "$ref": "#/components/schemas/OmitIParamsstyle"
+            "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
           },
           "pushPass": {
-            "$ref": "#/components/schemas/OmitIParamsstyle"
+            "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
           },
           "twoHandCatch": {
             "$ref": "#/components/schemas/OmitIParamshands"
           },
           "underarmPitch": {
-            "$ref": "#/components/schemas/OmitIParamsstyle"
+            "$ref": "#/components/schemas/OmitIThrowObjectParamsstyle"
           }
         },
         "required": [
@@ -14475,12 +16402,56 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "exclusiveMinimum": 0,
             "description": "Apex height of the flight above take-off, metres; positive.",
             "x-unit": "m"
+          },
+          "rotation": {
+            "$ref": "#/components/schemas/jumpAirborne.IRotation",
+            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The flight turns by the\nangular momentum that lands these turns on the composed body's shape\n(`HumanPerformanceFlight`), so a tuck laid over the flight turns it\nfaster. No turn when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: the manner's tempo scales the push-off, the absorption and the rise, never the flight, which gravity fixes; neutral when absent."
           }
         },
         "required": [
           "to"
         ],
         "additionalProperties": false
+      },
+      "jumpAirborne.IRotation": {
+        "type": "object",
+        "properties": {
+          "somersault": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Somersault turns, whole or half; 0 when absent.",
+            "x-unit": ""
+          },
+          "twist": {
+            "type": "number",
+            "description": "Twist turns, signed; 0 when absent.",
+            "x-unit": ""
+          },
+          "way": {
+            "oneOf": [
+              {
+                "const": "backward"
+              },
+              {
+                "const": "forward"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "Which way the somersault turns; `forward` when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "A flight's requested turns."
       },
       "OmitIParamsto": {
         "type": "object",
@@ -14679,7 +16650,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "IHumanLexiconParams.Merged-o21": {
+      "IHumanLexiconParams.Merged-o22": {
         "type": "object",
         "properties": {
           "aSkip": {
@@ -14812,7 +16783,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamskind-o13"
           },
           "strides": {
-            "$ref": "#/components/schemas/OmitIParamspace-o1"
+            "$ref": "#/components/schemas/OmitIParamspace"
           },
           "sunSalutation": {
             "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -14904,22 +16875,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "minimum": 0,
             "description": "The postural sway's RMS on each floor axis, metres; the performer's own\nwhen absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for\na stance that keeps exactly still, such as a reference scene a mirror\nor a difference is read against.",
             "x-unit": "m"
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support stood on (#3491): a cart's bed, a deck. The stance is\nplanned where the body stands at the entry and carried by the prop's\nmotion from there, its feet planted on the prop. When absent, a prop\nalready under both planted entry feet is continued; otherwise the\nfeet retain their declared entry support frames."
           }
         },
         "required": [],
         "additionalProperties": false
       },
-      "IHumanLexiconParams.Merged-o22": {
+      "IHumanLexiconParams.Merged-o23": {
         "type": "object",
         "properties": {
-          "fosburyFlop": {
+          "boxVault": {
             "$ref": "#/components/schemas/OmitIParamsnever-o5"
           },
-          "frontHandspring": {
+          "fosburyFlop": {
             "$ref": "#/components/schemas/OmitIParamsnever-o6"
           },
-          "handspringVault": {
+          "frontHandspring": {
             "$ref": "#/components/schemas/OmitIParamsnever-o7"
+          },
+          "handspringVault": {
+            "$ref": "#/components/schemas/OmitIParamsnever-o8"
           },
           "roundOffLeft": {
             "$ref": "#/components/schemas/OmitIParamslead"
@@ -14928,10 +16915,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamslead"
           },
           "vaultOnPole": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o8"
+            "$ref": "#/components/schemas/OmitIParamsnever-o9"
           }
         },
         "required": [
+          "boxVault",
           "fosburyFlop",
           "frontHandspring",
           "handspringVault",
@@ -14943,6 +16931,23 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
       },
       "OmitIParamsnever-o5": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "The box vaulted over, its subject id; its `surface` is the top the hands are set on."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "How long the landing is held, seconds; 0.5 when absent."
+          }
+        },
+        "required": [
+          "on"
+        ],
+        "additionalProperties": false
+      },
+      "OmitIParamsnever-o6": {
         "type": "object",
         "properties": {
           "to": {
@@ -14964,7 +16969,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o6": {
+      "OmitIParamsnever-o7": {
         "type": "object",
         "properties": {
           "lead": {
@@ -14982,7 +16987,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o7": {
+      "OmitIParamsnever-o8": {
         "type": "object",
         "properties": {
           "lead": {
@@ -15019,7 +17024,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o8": {
+      "OmitIParamsnever-o9": {
         "type": "object",
         "properties": {
           "pole": {
@@ -15040,7 +17045,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "IHumanLexiconParams.Merged-o23": {
+      "IHumanLexiconParams.Merged-o24": {
         "type": "object",
         "properties": {
           "cut": {
@@ -15101,6 +17106,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -15339,6 +17348,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "guard": {
             "oneOf": [
               {
@@ -15413,6 +17426,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "string",
             "description": "See `tip`."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
+          },
           "against": {
             "type": "string",
             "description": "The anchor of the cut or thrust it meets; a drill to `line` when absent."
@@ -15481,6 +17498,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -15653,20 +17674,20 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "Parameters of a cut or a thrust."
       },
-      "IHumanLexiconParams.Merged-o24": {
+      "IHumanLexiconParams.Merged-o25": {
         "type": "object",
         "properties": {
           "draw": {
             "$ref": "#/components/schemas/OmitIParamshandleliftuse"
           },
           "fire": {
-            "$ref": "#/components/schemas/HumanWeaponFirearm.IWield"
+            "$ref": "#/components/schemas/HumanWeaponPresent.IWield"
           },
           "holster": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o9"
+            "$ref": "#/components/schemas/OmitIParamsnever-o10"
           },
           "present": {
-            "$ref": "#/components/schemas/HumanWeaponFirearm.IPresent"
+            "$ref": "#/components/schemas/HumanWeaponPresent.IPresent"
           }
         },
         "required": [
@@ -15702,12 +17723,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "HumanWeaponFirearm.IWield": {
+      "HumanWeaponPresent.IWield": {
         "type": "object",
         "properties": {
           "gun": {
             "type": "string",
-            "description": "The held firearm's prop subject id; the bare hand when absent."
+            "description": "The held weapon's prop subject id; the bare hand when absent."
           },
           "hand": {
             "oneOf": [
@@ -15730,13 +17751,66 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "How many hands hold it; 2 when absent."
+          },
+          "tip": {
+            "type": "string",
+            "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
+          },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
+          },
+          "edge": {
+            "type": "string",
+            "description": "The weapon's sighting affordance, square to its line; `sight` when absent."
+          },
+          "anchor": {
+            "oneOf": [
+              {
+                "const": "arm"
+              },
+              {
+                "const": "cheek"
+              },
+              {
+                "const": "eye"
+              },
+              {
+                "const": "face"
+              }
+            ],
+            "description": "Where the line of aim starts on the body; the eye for a handgun and the cheek for a long gun when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own."
+          },
+          "shot": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "speed": {
+                "type": "number"
+              },
+              "lock": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "prop",
+              "speed"
+            ],
+            "additionalProperties": false,
+            "description": "What a shot launches (#3488): the prop that flies (a ball the scene\ngives), its speed out of the muzzle in m/s (the gun's muzzle\nvelocity) and the lock's time from the break to the launch in seconds\n(the gun's lock time; 0 when absent). Nothing is launched when absent."
           }
         },
         "required": [],
         "additionalProperties": false,
-        "description": "What every firearm action takes."
+        "description": "What every presenting action takes."
       },
-      "OmitIParamsnever-o9": {
+      "OmitIParamsnever-o10": {
         "type": "object",
         "properties": {
           "prop": {
@@ -15745,7 +17819,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
-            "description": "Where the prop's origin goes, world metres; required unless `on` is given."
+            "description": "Where the prop's origin goes, world metres; required unless `on` or `onto` is given."
           },
           "on": {
             "type": "object",
@@ -15765,6 +17839,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "additionalProperties": false,
             "description": "The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent."
+          },
+          "onto": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "point": {
+                "type": "string"
+              },
+              "via": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop",
+              "point"
+            ],
+            "additionalProperties": false,
+            "description": "The other prop's socket the prop is set on, riding it from `placed`\nas that prop's articulations pose it (an arrow nocked by its `nock` on\na bow's string, drawn back with it, `IHumanActionPlan.mounts`): the\nprop's own socket `via` laid on the other's `point`, the prop's origin\nwhen `via` is absent."
           },
           "yaw": {
             "type": "number",
@@ -15806,36 +17900,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "A rigid world frame."
       },
-      "IAutoMovieQuaternion": {
-        "type": "object",
-        "properties": {
-          "x": {
-            "type": "number",
-            "description": "Imaginary i component."
-          },
-          "y": {
-            "type": "number",
-            "description": "Imaginary j component."
-          },
-          "z": {
-            "type": "number",
-            "description": "Imaginary k component."
-          },
-          "w": {
-            "type": "number",
-            "description": "Real (scalar) component."
-          }
-        },
-        "required": [
-          "x",
-          "y",
-          "z",
-          "w"
-        ],
-        "additionalProperties": false,
-        "description": "A unit quaternion `(x, y, z, w)` describing a 3D rotation.\n\nJoint articulation is authored as semantic degrees through IAutoMovieJointPose; jointToQuaternion converts those angles to bone-local rotations, motionToClip emits general node tracks, and decomposeJointRotation reads rotations back into semantic angles during imported-motion conversion. Placement records, including IAutoMovieExplicitInstanceTransform, may carry a quaternion directly.\n\nComponent order is glTF's `(x, y, z, w)`, and Quaternion.multiply(a, b) applies b first without normalization. validateTransformScalars refuses nonfinite components and a norm more than 1e-6 from one, retaining admitted components unchanged. Direct rotateVector and matrix composition likewise do not normalize; callers needing a unit copy use Quaternion.normalize, whose zero-input convention returns identity. q and -q represent the same rotation, and no record requires either sign."
-      },
-      "HumanWeaponFirearm.IPresent": {
+      "HumanWeaponPresent.IPresent": {
         "type": "object",
         "properties": {
           "track": {
@@ -15844,7 +17909,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "gun": {
             "type": "string",
-            "description": "The held firearm's prop subject id; the bare hand when absent."
+            "description": "The held weapon's prop subject id; the bare hand when absent."
           },
           "hand": {
             "oneOf": [
@@ -15867,6 +17932,59 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "How many hands hold it; 2 when absent."
+          },
+          "tip": {
+            "type": "string",
+            "description": "The weapon's working point affordance, put on the line; `muzzle` when absent."
+          },
+          "from": {
+            "type": "string",
+            "description": "The affordance the working line runs from toward `tip`; absent, the point's declared direction supplies it."
+          },
+          "edge": {
+            "type": "string",
+            "description": "The weapon's sighting affordance, square to its line; `sight` when absent."
+          },
+          "anchor": {
+            "oneOf": [
+              {
+                "const": "arm"
+              },
+              {
+                "const": "cheek"
+              },
+              {
+                "const": "eye"
+              },
+              {
+                "const": "face"
+              }
+            ],
+            "description": "Where the line of aim starts on the body; the eye for a handgun and the cheek for a long gun when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own."
+          },
+          "shot": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "speed": {
+                "type": "number"
+              },
+              "lock": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "prop",
+              "speed"
+            ],
+            "additionalProperties": false,
+            "description": "What a shot launches (#3488): the prop that flies (a ball the scene\ngives), its speed out of the muzzle in m/s (the gun's muzzle\nvelocity) and the lock's time from the break to the launch in seconds\n(the gun's lock time; 0 when absent). Nothing is launched when absent."
           },
           "target": {
             "oneOf": [
@@ -16012,9 +18130,19 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "lowReady"
+              },
+              {
+                "const": "recover"
+              },
+              {
+                "const": "shoulder"
               }
             ],
             "description": "The carriage; `aim` when absent."
+          },
+          "extended": {
+            "type": "boolean",
+            "description": "Whether the presenting arm reaches straight out along the line of aim\nto its own reach, a bow arm extended to the target; otherwise the\nworking point is held the presentation's own share of the arm out.\nNot extended when absent."
           },
           "seconds": {
             "type": "number",
@@ -16027,7 +18155,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "Parameters of presenting the weapon."
       },
-      "IHumanLexiconParams.Merged-o25": {
+      "IHumanLexiconParams.Merged-o26": {
         "type": "object",
         "properties": {
           "clubStrike": {
@@ -16096,6 +18224,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "edge": {
             "type": "string",
             "description": "See `tip`."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own (#3549)."
           },
           "target": {
             "oneOf": [
@@ -16531,6 +18663,2542 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
+      "IHumanLexiconParams.Merged-o27": {
+        "type": "object",
+        "properties": {
+          "dial": {
+            "$ref": "#/components/schemas/OmitIParamsdigitside"
+          },
+          "fret": {
+            "$ref": "#/components/schemas/OmitIParamsside"
+          },
+          "play": {
+            "$ref": "#/components/schemas/OmitIParamsside"
+          },
+          "sequence": {
+            "$ref": "#/components/schemas/manipulate.IParams"
+          },
+          "strum": {
+            "$ref": "#/components/schemas/OmitIParamsside"
+          },
+          "thumbText": {
+            "$ref": "#/components/schemas/OmitIParamsdigitside"
+          },
+          "type": {
+            "$ref": "#/components/schemas/OmitIParamsside"
+          },
+          "typeTwoFinger": {
+            "$ref": "#/components/schemas/OmitIParamsdigitside"
+          }
+        },
+        "required": [
+          "dial",
+          "fret",
+          "play",
+          "sequence",
+          "strum",
+          "thumbText",
+          "type",
+          "typeTwoFinger"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "OmitIParamsdigitside": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The prop pressed."
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/manipulate.IContact"
+            },
+            "description": "The contacts, in order; or none with a `text`."
+          },
+          "text": {
+            "type": "string",
+            "description": "A text typed on a keyboard prop (`createKeyboard`'s `homeRow` and `keys`), instead of `contacts`."
+          }
+        },
+        "required": [
+          "prop"
+        ],
+        "additionalProperties": false
+      },
+      "manipulate.IContact": {
+        "type": "object",
+        "properties": {
+          "site": {
+            "type": "string",
+            "description": "The prop's affordance pressed."
+          },
+          "digit": {
+            "oneOf": [
+              {
+                "const": "index"
+              },
+              {
+                "const": "little"
+              },
+              {
+                "const": "middle"
+              },
+              {
+                "const": "ring"
+              },
+              {
+                "const": "thumb"
+              }
+            ],
+            "description": "The digit that presses it; the fingering chooses when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand; the act's `side` when absent, the right when both hands play."
+          },
+          "at": {
+            "type": "number",
+            "description": "Seconds from the act's start to the press; every contact gives it or none does."
+          },
+          "depth": {
+            "type": "number",
+            "description": "How far the site gives under the press, metres; the affordance's `travel`, else typing's key travel."
+          }
+        },
+        "required": [
+          "site"
+        ],
+        "additionalProperties": false,
+        "description": "One contact of the sequence."
+      },
+      "OmitIParamsside": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The prop pressed."
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/manipulate.IContact"
+            },
+            "description": "The contacts, in order; or none with a `text`."
+          },
+          "text": {
+            "type": "string",
+            "description": "A text typed on a keyboard prop (`createKeyboard`'s `homeRow` and `keys`), instead of `contacts`."
+          },
+          "digit": {
+            "oneOf": [
+              {
+                "const": "index"
+              },
+              {
+                "const": "little"
+              },
+              {
+                "const": "middle"
+              },
+              {
+                "const": "ring"
+              },
+              {
+                "const": "thumb"
+              }
+            ],
+            "description": "The digit of every contact that names none, so the fingering does not choose: a thumb texting, a forefinger dialling."
+          }
+        },
+        "required": [
+          "prop"
+        ],
+        "additionalProperties": false
+      },
+      "manipulate.IParams": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The prop pressed."
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/manipulate.IContact"
+            },
+            "description": "The contacts, in order; or none with a `text`."
+          },
+          "text": {
+            "type": "string",
+            "description": "A text typed on a keyboard prop (`createKeyboard`'s `homeRow` and `keys`), instead of `contacts`."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand when contacts do not name one, or both."
+          },
+          "digit": {
+            "oneOf": [
+              {
+                "const": "index"
+              },
+              {
+                "const": "little"
+              },
+              {
+                "const": "middle"
+              },
+              {
+                "const": "ring"
+              },
+              {
+                "const": "thumb"
+              }
+            ],
+            "description": "The digit of every contact that names none, so the fingering does not choose: a thumb texting, a forefinger dialling."
+          }
+        },
+        "required": [
+          "prop"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
+      "IHumanLexiconParams.Merged-o28": {
+        "type": "object",
+        "properties": {
+          "regrip": {
+            "$ref": "#/components/schemas/OmitIParamskind-o15"
+          },
+          "roll": {
+            "$ref": "#/components/schemas/OmitIParamskind-o15"
+          },
+          "twist": {
+            "$ref": "#/components/schemas/OmitIParamskind-o15"
+          }
+        },
+        "required": [
+          "regrip",
+          "roll",
+          "twist"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "OmitIParamskind-o15": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held object."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that holds it."
+          },
+          "axis": {
+            "type": "string",
+            "description": "A twist's axis, or a roll's object: an affordance whose translation lies on the axis and whose `+X` is its direction; a roll reads its `radius`."
+          },
+          "angle": {
+            "type": "number",
+            "description": "A twist's turn, degrees, counter-clockwise looking down the axis."
+          },
+          "to": {
+            "type": "string",
+            "description": "A regrip's new grip: the affordance the hand takes the object by."
+          }
+        },
+        "required": [
+          "prop",
+          "side"
+        ],
+        "additionalProperties": false
+      },
+      "IHumanLexiconParams.Merged-o29": {
+        "type": "object",
+        "properties": {
+          "armAtSide": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphraseshapetarget"
+          },
+          "beckonHand": {
+            "$ref": "#/components/schemas/OmitIParamscyclesfacingmirroroffsetphraseswingtarget"
+          },
+          "cheekInHand": {
+            "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
+          },
+          "cheerHands": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphrasesidetarget"
+          },
+          "chinOnFist": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+          },
+          "clapHands": {
+            "$ref": "#/components/schemas/OmitIParamscyclesfacingoffsetphrasesideswingtarget"
+          },
+          "drinkFrom": {
+            "$ref": "#/components/schemas/OmitIParamsholdphrasepointshapesurfacetarget"
+          },
+          "eatWith": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+          },
+          "foldArms": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphraseshapesidetarget"
+          },
+          "glassesUp": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+          },
+          "hairCombing": {
+            "$ref": "#/components/schemas/OmitIParamsfromphraseshapesurfacetarget"
+          },
+          "hammerStrokes": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "handBehindHead": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+          },
+          "handInPocket": {
+            "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
+          },
+          "handOnHip": {
+            "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
+          },
+          "handsClaspedBehind": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphrasesidetarget"
+          },
+          "handsTogetherFront": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdoffsetphrasesidetarget"
+          },
+          "hatOnHead": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurfacetarget"
+          },
+          "headScratch": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswingtarget"
+          },
+          "holdOn": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+          },
+          "palmUp": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget"
+          },
+          "patOn": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "phoneToEar": {
+            "$ref": "#/components/schemas/OmitIParamsholdmirrorphraseshapesurfacetarget"
+          },
+          "phrase": {
+            "$ref": "#/components/schemas/armPhrase.IParams"
+          },
+          "pointAt": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+          },
+          "pressOn": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+          },
+          "raiseHandHigh": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget"
+          },
+          "rubOn": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "rubPalms": {
+            "$ref": "#/components/schemas/OmitIParamscyclesfacingoffsetphrasesideswingtarget"
+          },
+          "sawStrokes": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "scratchOn": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "squeezeOn": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+          },
+          "stirStrokes": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "stopHand": {
+            "$ref": "#/components/schemas/OmitIParamsfacingholdmirroroffsetphrasetarget"
+          },
+          "strokeDown": {
+            "$ref": "#/components/schemas/OmitIParamsfromphraseshapesurface"
+          },
+          "tapOn": {
+            "$ref": "#/components/schemas/OmitIParamsholdphraseshapesurface"
+          },
+          "teethBrushing": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswingtarget"
+          },
+          "waveHand": {
+            "$ref": "#/components/schemas/OmitIParamscyclesfacingmirroroffsetphraseswingtarget"
+          },
+          "wipeAcross": {
+            "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswing"
+          },
+          "wipeMouthAcross": {
+            "$ref": "#/components/schemas/OmitIParamsfromphraseshapesurfacetarget"
+          }
+        },
+        "required": [
+          "armAtSide",
+          "beckonHand",
+          "cheekInHand",
+          "cheerHands",
+          "chinOnFist",
+          "clapHands",
+          "drinkFrom",
+          "eatWith",
+          "foldArms",
+          "glassesUp",
+          "hairCombing",
+          "hammerStrokes",
+          "handBehindHead",
+          "handInPocket",
+          "handOnHip",
+          "handsClaspedBehind",
+          "handsTogetherFront",
+          "hatOnHead",
+          "headScratch",
+          "holdOn",
+          "palmUp",
+          "patOn",
+          "phoneToEar",
+          "phrase",
+          "pointAt",
+          "pressOn",
+          "raiseHandHigh",
+          "rubOn",
+          "rubPalms",
+          "sawStrokes",
+          "scratchOn",
+          "squeezeOn",
+          "stirStrokes",
+          "stopHand",
+          "strokeDown",
+          "tapOn",
+          "teethBrushing",
+          "waveHand",
+          "wipeAcross",
+          "wipeMouthAcross"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "OmitIParamsfacingholdmirroroffsetphraseshapetarget": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "armPhrase.IOffset": {
+        "type": "object",
+        "properties": {
+          "out": {
+            "type": "number",
+            "description": "Away from the midline on the acting side."
+          },
+          "up": {
+            "type": "number",
+            "description": "Upward."
+          },
+          "forward": {
+            "type": "number",
+            "description": "Forward."
+          }
+        },
+        "required": [
+          "out",
+          "up",
+          "forward"
+        ],
+        "additionalProperties": false,
+        "description": "A point offset in the performer's frame by shares of the arm's length."
+      },
+      "OmitIParamscyclesfacingmirroroffsetphraseswingtarget": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "shape": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "flat"
+              },
+              {
+                "const": "point"
+              },
+              {
+                "const": "relaxed"
+              }
+            ],
+            "description": "The hand's shape; flat when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsholdmirrorphraseshapesurfacetarget": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "HumanHand.IFacing": {
+        "type": "object",
+        "properties": {
+          "fingers": {
+            "$ref": "#/components/schemas/HumanHand.Direction",
+            "description": "Where the fingers point."
+          },
+          "palm": {
+            "$ref": "#/components/schemas/HumanHand.Direction",
+            "description": "Where the palm faces; not parallel to `fingers`."
+          }
+        },
+        "required": [
+          "fingers",
+          "palm"
+        ],
+        "additionalProperties": false,
+        "description": "How a hand is turned, by named directions."
+      },
+      "HumanHand.Direction": {
+        "oneOf": [
+          {
+            "const": "back"
+          },
+          {
+            "const": "down"
+          },
+          {
+            "const": "forward"
+          },
+          {
+            "const": "in"
+          },
+          {
+            "const": "out"
+          },
+          {
+            "const": "up"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "between": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "oneOf": [
+                      {
+                        "const": "back"
+                      },
+                      {
+                        "const": "down"
+                      },
+                      {
+                        "const": "forward"
+                      },
+                      {
+                        "const": "in"
+                      },
+                      {
+                        "const": "out"
+                      },
+                      {
+                        "const": "up"
+                      }
+                    ]
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "const": "back"
+                      },
+                      {
+                        "const": "down"
+                      },
+                      {
+                        "const": "forward"
+                      },
+                      {
+                        "const": "in"
+                      },
+                      {
+                        "const": "out"
+                      },
+                      {
+                        "const": "up"
+                      }
+                    ]
+                  }
+                ],
+                "description": "The two axes; they must not be opposite.",
+                "additionalItems": false
+              },
+              "share": {
+                "type": "number",
+                "description": "How far from the first to the second, in [0, 1]."
+              }
+            },
+            "required": [
+              "between",
+              "share"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "explicit": {
+                "type": "object",
+                "properties": {
+                  "out": {
+                    "type": "number"
+                  },
+                  "up": {
+                    "type": "number"
+                  },
+                  "forward": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "out",
+                  "up",
+                  "forward"
+                ],
+                "additionalProperties": false,
+                "description": "The components."
+              },
+              "source": {
+                "type": "string",
+                "description": "A citation, or `provisional: <capture case name>`."
+              }
+            },
+            "required": [
+              "explicit",
+              "source"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "description": "A direction on one of three rungs: an axis, a share of the way between\ntwo axes, or explicit components (out, up and forward of the acting\nside; any non-zero length) with where they come from."
+      },
+      "OmitIParamsfacingholdoffsetphrasesidetarget": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "shape": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "flat"
+              },
+              {
+                "const": "point"
+              },
+              {
+                "const": "relaxed"
+              }
+            ],
+            "description": "The hand's shape; flat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsholdphraseshapesurfacetarget": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamscyclesfacingoffsetphrasesideswingtarget": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "shape": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "flat"
+              },
+              {
+                "const": "point"
+              },
+              {
+                "const": "relaxed"
+              }
+            ],
+            "description": "The hand's shape; flat when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsholdphrasepointshapesurfacetarget": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsfacingholdoffsetphraseshapesidetarget": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsfromphraseshapesurfacetarget": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamscyclesphraseshapesurfaceswing": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/AutoMovieMotionTarget",
+            "description": "Where the hand's surface goes: the visit's place, the stroke's end, the oscillation's pose."
+          },
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "OmitIParamscyclesphraseshapesurfaceswingtarget": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "OmitIParamsholdphraseshapesurface": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/AutoMovieMotionTarget",
+            "description": "Where the hand's surface goes: the visit's place, the stroke's end, the oscillation's pose."
+          },
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "OmitIParamsfacingholdmirroroffsetphrasetarget": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "shape": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "flat"
+              },
+              {
+                "const": "point"
+              },
+              {
+                "const": "relaxed"
+              }
+            ],
+            "description": "The hand's shape; flat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "armPhrase.IParams": {
+        "type": "object",
+        "properties": {
+          "phrase": {
+            "oneOf": [
+              {
+                "const": "oscillate"
+              },
+              {
+                "const": "stroke"
+              },
+              {
+                "const": "visit"
+              }
+            ],
+            "description": "The phrase."
+          },
+          "target": {
+            "$ref": "#/components/schemas/AutoMovieMotionTarget",
+            "description": "Where the hand's surface goes: the visit's place, the stroke's end, the oscillation's pose."
+          },
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "from": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "A stroke's start, by the same shares from the target's point; the target's point when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "surface": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "grip"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "indexPad"
+              },
+              {
+                "const": "indexTip"
+              },
+              {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
+                "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
+              },
+              {
+                "const": "wrist"
+              }
+            ],
+            "description": "The hand's surface brought to the target; the palm when absent."
+          },
+          "shape": {
+            "oneOf": [
+              {
+                "const": "fist"
+              },
+              {
+                "const": "flat"
+              },
+              {
+                "const": "point"
+              },
+              {
+                "const": "relaxed"
+              }
+            ],
+            "description": "The hand's shape; flat when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [
+          "phrase",
+          "target"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
+      "OmitIParamsfromphraseshapesurface": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/AutoMovieMotionTarget",
+            "description": "Where the hand's surface goes: the visit's place, the stroke's end, the oscillation's pose."
+          },
+          "offset": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "The target's point moved in the performer's frame by shares of the arm's length; none when absent."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/armPhrase.IOffset",
+            "description": "An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent."
+          },
+          "cycles": {
+            "type": "number",
+            "description": "The oscillation's cycles; 2 when absent (provisional: no measured count read)."
+          },
+          "mirror": {
+            "type": "boolean",
+            "description": "`true` when the target is written for the right hand, as a row writes\nit: a self region of a side (`hipRight`) is read on the acting arm's\nown side (`hipLeft` for the left hand, `handToFace.mirrored`), and a\nmidline region is its own mirror. The target as named when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "both"
+              },
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent."
+          },
+          "facing": {
+            "$ref": "#/components/schemas/HumanHand.IFacing",
+            "description": "How the hand is turned; against the target's normal with the fingers up when absent."
+          },
+          "hold": {
+            "oneOf": [
+              {
+                "const": "beat"
+              },
+              {
+                "const": "brief"
+              },
+              {
+                "const": "long"
+              },
+              {
+                "const": "none"
+              }
+            ],
+            "description": "A visit's hold on its place; a beat when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "The manner; neutral when absent."
+          },
+          "held": {
+            "type": "string",
+            "description": "A prop the hand holds through the phrase and keeps after it (a hammer,\na spoon, a hat on its way to the head): the phrase takes the hand's\ngrip on it over its whole span, so the prop rides the hand with the\noffset it was held by, and leaves it held. The hand must hold it at\nentry; none when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point brought to the target instead of the hand's\nsurface, one of its affordance ids (a cup's `lip` to the mouth, a\nfork's `face`); it needs `held`. The hand's surface when absent."
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "IHumanLexiconParams.Merged-o30": {
+        "type": "object",
+        "properties": {
+          "gestureBeckon": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureBow": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureCheer": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureChinLift": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureClap": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureNod": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gesturePalmsTogether": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gesturePalmsUp": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gesturePoint": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gesturePushGlasses": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureRaiseHand": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureRubHands": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureScratchHead": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureShakeHead": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureShrug": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureSlump": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureSquareShoulders": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureStopPalm": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureThumbsDown": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureTouchFace": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          },
+          "gestureWave": {
+            "$ref": "#/components/schemas/OmitIParamskind"
+          }
+        },
+        "required": [
+          "gestureBeckon",
+          "gestureBow",
+          "gestureCheer",
+          "gestureChinLift",
+          "gestureClap",
+          "gestureNod",
+          "gesturePalmsTogether",
+          "gesturePalmsUp",
+          "gesturePoint",
+          "gesturePushGlasses",
+          "gestureRaiseHand",
+          "gestureRubHands",
+          "gestureScratchHead",
+          "gestureShakeHead",
+          "gestureShrug",
+          "gestureSlump",
+          "gestureSquareShoulders",
+          "gestureStopPalm",
+          "gestureThumbsDown",
+          "gestureTouchFace",
+          "gestureWave"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "IHumanLexiconParams.Merged-o31": {
+        "type": "object",
+        "properties": {
+          "restBehindHead": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restChinRest": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restClaspedBehind": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restClaspedFront": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restCrossed": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restElbowSupport": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restHip": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restPocket": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          },
+          "restSide": {
+            "$ref": "#/components/schemas/OmitIParamsleftright"
+          }
+        },
+        "required": [
+          "restBehindHead",
+          "restChinRest",
+          "restClaspedBehind",
+          "restClaspedFront",
+          "restCrossed",
+          "restElbowSupport",
+          "restHip",
+          "restPocket",
+          "restSide"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "IHumanLexiconParams.Merged-o32": {
+        "type": "object",
+        "properties": {
+          "selfFistPump": {
+            "$ref": "#/components/schemas/OmitIParamskind-o1"
+          },
+          "selfNeckRoll": {
+            "$ref": "#/components/schemas/OmitIParamskind-o1"
+          },
+          "selfShoulderRoll": {
+            "$ref": "#/components/schemas/OmitIParamskind-o1"
+          },
+          "selfStretch": {
+            "$ref": "#/components/schemas/OmitIParamskind-o1"
+          },
+          "selfVictory": {
+            "$ref": "#/components/schemas/OmitIParamskind-o1"
+          },
+          "touchHold": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchPat": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchPress": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchRub": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchScratch": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchSqueeze": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchStroke": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          },
+          "touchTap": {
+            "$ref": "#/components/schemas/OmitIParamskind-o16"
+          }
+        },
+        "required": [
+          "selfFistPump",
+          "selfNeckRoll",
+          "selfShoulderRoll",
+          "selfStretch",
+          "selfVictory",
+          "touchHold",
+          "touchPat",
+          "touchPress",
+          "touchRub",
+          "touchScratch",
+          "touchSqueeze",
+          "touchStroke",
+          "touchTap"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "OmitIParamskind-o16": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/AutoMovieMotionTarget",
+            "description": "The region touched: a partner's (`person`) or the performer's own (`self`)."
+          },
+          "with": {
+            "oneOf": [
+              {
+                "const": "fingertips"
+              },
+              {
+                "const": "fist"
+              },
+              {
+                "const": "forefinger"
+              },
+              {
+                "const": "handBack"
+              },
+              {
+                "const": "handEdge"
+              },
+              {
+                "const": "heel"
+              },
+              {
+                "const": "palm"
+              }
+            ],
+            "description": "The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
+          },
+          "site": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "up": {
+                    "type": "number",
+                    "description": "Along the surface toward the head, metres; 0 when absent."
+                  },
+                  "out": {
+                    "type": "number",
+                    "description": "To the right of someone facing the surface, metres; 0 when absent."
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "draw": {
+                    "type": "number",
+                    "description": "The radius the seed draws the place within, metres, uniform over the disc."
+                  }
+                },
+                "required": [
+                  "draw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "rule": {
+                    "const": "reach",
+                    "description": "The rule."
+                  },
+                  "within": {
+                    "type": "number",
+                    "description": "The radius the rule chooses within, metres."
+                  }
+                },
+                "required": [
+                  "rule",
+                  "within"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "along": {
+                    "type": "number",
+                    "description": "On a prop's contact that has a length (a handle, a bar, a ledge): how far along it from its middle, as a share of that length in [-0.5, 0.5], toward the contact's own `+X`."
+                  }
+                },
+                "required": [
+                  "along"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Where on the region the first hand lands (`touchSite`): an offset, a place the seed draws, or the place a rule chooses; the region's own point when absent."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The subject id of the prop that hand holds, whose point touches in place of the hand part: a cigarette's lit end tapped on an ashtray, a pen's tip on a page. No prop when absent."
+          },
+          "point": {
+            "type": "string",
+            "description": "The held prop's point that touches, one of its affordance ids; required with `prop`."
+          },
+          "grasp": {
+            "$ref": "#/components/schemas/HumanHeldUse.IGrasp",
+            "description": "With `prop` on a region of the performer's own, the grasp the tool was\ntaken up by for its use (`pickUp`'s `handle` and `use.line`): the\nstroke holds the tool as that grasp presents it at the region\n(`HumanGraspUse.presented`, the region as the use's place) and moves\nonly its point, as a razor keeps its angle on the jaw. Absent, the\nprop's point faces into the region."
+          },
+          "clear": {
+            "type": "number",
+            "description": "A miss staged as a touch: the effector passes the region this far off its surface along its normal, in the hand's lengths, at the stroke's full speed, and no contact is declared (a stage slap). A touch that lands when absent."
+          },
+          "elbow": {
+            "oneOf": [
+              {
+                "const": "level"
+              },
+              {
+                "const": "natural"
+              }
+            ],
+            "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
+          },
+          "other": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point, metres."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
+          "count": {
+            "type": "number",
+            "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
+          },
+          "hold": {
+            "type": "number",
+            "description": "Seconds the hand stays after the repetitions; 0.4, or 1.2 for a press, a squeeze or a hold, when absent."
+          },
+          "tangent": {
+            "oneOf": [
+              {
+                "const": "across"
+              },
+              {
+                "const": "up"
+              }
+            ],
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed."
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "IHumanLexiconParams.Merged-o33": {
+        "type": "object",
+        "properties": {
+          "faceBite": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceBrushTeeth": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceComb": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceDrink": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceEat": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "facePhone": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceRead": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceSip": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceWashFace": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          },
+          "faceWipeMouth": {
+            "$ref": "#/components/schemas/OmitIParamstask"
+          }
+        },
+        "required": [
+          "faceBite",
+          "faceBrushTeeth",
+          "faceComb",
+          "faceDrink",
+          "faceEat",
+          "facePhone",
+          "faceRead",
+          "faceSip",
+          "faceWashFace",
+          "faceWipeMouth"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "IHumanLexiconParams.Merged-o34": {
+        "type": "object",
+        "properties": {
+          "dressGlasses": {
+            "$ref": "#/components/schemas/OmitIParamsitem"
+          },
+          "dressHat": {
+            "$ref": "#/components/schemas/OmitIParamsitem"
+          }
+        },
+        "required": [
+          "dressGlasses",
+          "dressHat"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
+      "OmitIParamsitem": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The wearable's prop subject, held since a pick-up: its `wear` socket is put on the head (`createWearable`'s contacts)."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that holds it; the one the entry holds it in when absent, `right` if neither."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed."
+          }
+        },
+        "required": [
+          "prop"
+        ],
+        "additionalProperties": false
+      },
+      "IHumanLexiconParams.Merged-o35": {
+        "type": "object",
+        "properties": {
+          "toolHammer": {
+            "$ref": "#/components/schemas/OmitIParamstool"
+          },
+          "toolSaw": {
+            "$ref": "#/components/schemas/OmitIParamstool"
+          },
+          "toolScrewdriver": {
+            "$ref": "#/components/schemas/OmitIParamstool"
+          },
+          "toolStir": {
+            "$ref": "#/components/schemas/OmitIParamstool"
+          }
+        },
+        "required": [
+          "toolHammer",
+          "toolSaw",
+          "toolScrewdriver",
+          "toolStir"
+        ],
+        "additionalProperties": false,
+        "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
+      },
       "IHumanActionParams": {
         "type": "object",
         "properties": {
@@ -16539,7 +21207,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "Quiet standing."
           },
           "walk": {
-            "$ref": "#/components/schemas/walk.IParams",
+            "$ref": "#/components/schemas/IWalkParams",
             "description": "Walking to a floor point."
           },
           "run": {
@@ -16597,6 +21265,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "knockdown": {
             "$ref": "#/components/schemas/knockdown.IParams",
             "description": "Going down to lie supine."
+          },
+          "perturb": {
+            "$ref": "#/components/schemas/perturb.IParams",
+            "description": "Respond to the impulses on the body by their outcome (#3430)."
           },
           "knee": {
             "$ref": "#/components/schemas/knee.IParams",
@@ -16671,12 +21343,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "Climbing stairs."
           },
           "throwObject": {
-            "$ref": "#/components/schemas/throwObject.IParams",
+            "$ref": "#/components/schemas/IThrowObjectParams",
             "description": "Throwing an object."
           },
           "catchObject": {
             "$ref": "#/components/schemas/catchObject.IParams",
             "description": "Catching an object."
+          },
+          "release": {
+            "$ref": "#/components/schemas/release.IParams",
+            "description": "Letting go of a held prop."
           },
           "operate": {
             "$ref": "#/components/schemas/operate.IParams",
@@ -16689,6 +21365,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "getUp": {
             "$ref": "#/components/schemas/getUp.IParams",
             "description": "Getting up from the floor."
+          },
+          "support": {
+            "$ref": "#/components/schemas/support.IParams",
+            "description": "Moving the body's weight across a sequence of supports."
           },
           "crawl": {
             "$ref": "#/components/schemas/crawl.IParams",
@@ -16721,6 +21401,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "carry": {
             "$ref": "#/components/schemas/carry.IParams",
             "description": "Walking with a load."
+          },
+          "pushPull": {
+            "$ref": "#/components/schemas/pushPull.IParams",
+            "description": "Pushing, pulling or dragging a heavy load by its handles."
           },
           "kiss": {
             "$ref": "#/components/schemas/kiss.IParams",
@@ -16792,6 +21476,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "flinch",
           "stagger",
           "knockdown",
+          "perturb",
           "knee",
           "sit",
           "rise",
@@ -16812,9 +21497,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "climbStairs",
           "throwObject",
           "catchObject",
+          "release",
           "operate",
           "lieDown",
           "getUp",
+          "support",
           "crawl",
           "climbLadder",
           "clinch",
@@ -16823,6 +21510,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "wipe",
           "dress",
           "carry",
+          "pushPull",
           "kiss",
           "highFive",
           "selfAction",
@@ -16854,13 +21542,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "minimum": 0,
             "description": "The postural sway's RMS on each floor axis, metres; the performer's own\nwhen absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for\na stance that keeps exactly still, such as a reference scene a mirror\nor a difference is read against.",
             "x-unit": "m"
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support stood on (#3491): a cart's bed, a deck. The stance is\nplanned where the body stands at the entry and carried by the prop's\nmotion from there, its feet planted on the prop. When absent, a prop\nalready under both planted entry feet is continued; otherwise the\nfeet retain their declared entry support frames."
           }
         },
         "required": [],
         "additionalProperties": false,
         "description": "Parameters."
       },
-      "walk.IParams": {
+      "IWalkParams": {
         "type": "object",
         "properties": {
           "to": {
@@ -16935,13 +21636,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`AutoMovieMotionManner`), a preset such as\n`weary` or `brisk` or a manner of its own: its step factor scales the\nstep with `stride`, its swing factor the arm swing with `armSwing`, and\nits tempo slows the speed at that step, so the cadence falls with it.\nNeutral when absent."
+          },
+          "station": {
+            "$ref": "#/components/schemas/IHumanFormation.IStation",
+            "description": "A formation slot to keep (`walkStation.resolve`): the walk goes along\nthe slot's way from its start until the station ends, `to` and `via`\nread from it, and a gait that draws its own tempo keeps station by\nspeed matching (`walkStation`) while a cadenced one lets its step give.\nNo station when absent."
+          },
+          "cadence": {
+            "$ref": "#/components/schemas/walkCadence.ICadence",
+            "description": "A beat track to keep step to (`walkCadence`): each heel strike answers\na beat, by the walker's drawn asynchrony and phase correction, when the\nwalker locks to it; no beat when absent."
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop"
+            ],
+            "additionalProperties": false,
+            "description": "A moving support walked on (#3491): a wagon's bed, a deck. `to` and\n`via` are read where the support stood at the walk's start, the walk is\nplanned there and carried by the support's motion, and its feet plant\non the prop. The ground when absent."
           }
         },
         "required": [
           "to"
         ],
         "additionalProperties": false,
-        "description": "Parameters."
+        "description": "The walk's parameters (`walk.IParams`): where it goes and by which way,\nhow it faces, its Effort hooks and manner, a formation slot it keeps, a\nbeat it keeps step to, and a moving support it walks on."
       },
       "run.IParams": {
         "type": "object",
@@ -16986,6 +21712,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "elbows": {
             "type": "number",
             "description": "Elbows held out, degrees in [0, 30]; 0 when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the run is performed, read as a walk reads it (`walk.IParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -17010,6 +21740,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "exclusiveMinimum": 0,
             "description": "Apex height of the flight above take-off, metres; positive.",
             "x-unit": "m"
+          },
+          "rotation": {
+            "$ref": "#/components/schemas/jumpAirborne.IRotation",
+            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The flight turns by the\nangular momentum that lands these turns on the composed body's shape\n(`HumanPerformanceFlight`), so a tuck laid over the flight turns it\nfaster. No turn when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: the manner's tempo scales the push-off, the absorption and the rise, never the flight, which gravity fixes; neutral when absent."
           }
         },
         "required": [
@@ -17083,6 +21821,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanEffort.IEffort",
             "description": "Movement quality: steps, arm swing and elbow width of the walk."
           },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk there is performed (`walk.IParams.manner`); neutral when absent."
+          },
           "avoid": {
             "type": "array",
             "items": {
@@ -17106,7 +21848,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "target"
         ],
         "additionalProperties": false,
-        "description": "Parameters of an approach: what to walk up to, the gap to stop at, the\nside to stop on, the pace, the movement quality and the people to walk\nround. Every field but the target is optional with the default its doc\nnames."
+        "description": "Parameters of an approach: what to walk up to, the gap to stop at, the\nside to stop on, the pace, the movement quality, the manner and the people\nto walk round. Every field but the target is optional with the default its doc\nnames."
       },
       "look.IParams": {
         "type": "object",
@@ -18258,7 +23000,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
-            "description": "How it is performed: the tempo scales the righting after the step."
+            "description": "How it is performed: the tempo scales the trunk's righting after the last step."
           }
         },
         "required": [
@@ -18407,6 +23149,600 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "description": "How long the body lies after landing, seconds; 1 when absent."
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
+      "perturb.IParams": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "oneOf": [
+              {
+                "const": "absorb"
+              },
+              {
+                "const": "auto"
+              },
+              {
+                "const": "fall"
+              },
+              {
+                "const": "resist"
+              },
+              {
+                "const": "step"
+              },
+              {
+                "const": "thrown"
+              },
+              {
+                "const": "yield"
+              }
+            ],
+            "description": "The outcome: decided by the impulse (`auto`), or fixed by the author and refused when the impulse cannot produce it; `auto` when absent."
+          },
+          "by": {
+            "type": "string",
+            "description": "The thrower's subject, for a `thrown` outcome (#3439)."
+          },
+          "fulcrum": {
+            "oneOf": [
+              {
+                "const": "abdomen"
+              },
+              {
+                "const": "calfLeft"
+              },
+              {
+                "const": "calfRight"
+              },
+              {
+                "const": "cheekLeft"
+              },
+              {
+                "const": "cheekRight"
+              },
+              {
+                "const": "chestLeft"
+              },
+              {
+                "const": "chestRight"
+              },
+              {
+                "const": "chin"
+              },
+              {
+                "const": "crown"
+              },
+              {
+                "const": "earLeft"
+              },
+              {
+                "const": "earRight"
+              },
+              {
+                "const": "elbowLeft"
+              },
+              {
+                "const": "elbowRight"
+              },
+              {
+                "const": "face"
+              },
+              {
+                "const": "footTopLeft"
+              },
+              {
+                "const": "footTopRight"
+              },
+              {
+                "const": "forearmLeft"
+              },
+              {
+                "const": "forearmRight"
+              },
+              {
+                "const": "forehead"
+              },
+              {
+                "const": "groin"
+              },
+              {
+                "const": "handBackLeft"
+              },
+              {
+                "const": "handBackRight"
+              },
+              {
+                "const": "headBack"
+              },
+              {
+                "const": "heelLeft"
+              },
+              {
+                "const": "heelRight"
+              },
+              {
+                "const": "hipLeft"
+              },
+              {
+                "const": "hipRight"
+              },
+              {
+                "const": "indexPadLeft"
+              },
+              {
+                "const": "indexPadRight"
+              },
+              {
+                "const": "indexTipLeft"
+              },
+              {
+                "const": "indexTipRight"
+              },
+              {
+                "const": "jawLeft"
+              },
+              {
+                "const": "jawRight"
+              },
+              {
+                "const": "kidneyLeft"
+              },
+              {
+                "const": "kidneyRight"
+              },
+              {
+                "const": "kneeLeft"
+              },
+              {
+                "const": "kneeRight"
+              },
+              {
+                "const": "littlePadLeft"
+              },
+              {
+                "const": "littlePadRight"
+              },
+              {
+                "const": "littleTipLeft"
+              },
+              {
+                "const": "littleTipRight"
+              },
+              {
+                "const": "liver"
+              },
+              {
+                "const": "lowerBack"
+              },
+              {
+                "const": "middlePadLeft"
+              },
+              {
+                "const": "middlePadRight"
+              },
+              {
+                "const": "middleTipLeft"
+              },
+              {
+                "const": "middleTipRight"
+              },
+              {
+                "const": "mouth"
+              },
+              {
+                "const": "nape"
+              },
+              {
+                "const": "neckLeft"
+              },
+              {
+                "const": "neckRight"
+              },
+              {
+                "const": "nose"
+              },
+              {
+                "const": "noseBridge"
+              },
+              {
+                "const": "palmLeft"
+              },
+              {
+                "const": "palmRight"
+              },
+              {
+                "const": "pocketFrontLeft"
+              },
+              {
+                "const": "pocketFrontRight"
+              },
+              {
+                "const": "ribsLeft"
+              },
+              {
+                "const": "ribsRight"
+              },
+              {
+                "const": "ringPadLeft"
+              },
+              {
+                "const": "ringPadRight"
+              },
+              {
+                "const": "ringTipLeft"
+              },
+              {
+                "const": "ringTipRight"
+              },
+              {
+                "const": "seat"
+              },
+              {
+                "const": "shinLeft"
+              },
+              {
+                "const": "shinRight"
+              },
+              {
+                "const": "shoulderLeft"
+              },
+              {
+                "const": "shoulderRight"
+              },
+              {
+                "const": "solarPlexus"
+              },
+              {
+                "const": "soleLeft"
+              },
+              {
+                "const": "soleRight"
+              },
+              {
+                "const": "spleen"
+              },
+              {
+                "const": "sternum"
+              },
+              {
+                "const": "templeLeft"
+              },
+              {
+                "const": "templeRight"
+              },
+              {
+                "const": "thighFrontLeft"
+              },
+              {
+                "const": "thighFrontRight"
+              },
+              {
+                "const": "thighInnerLeft"
+              },
+              {
+                "const": "thighInnerRight"
+              },
+              {
+                "const": "thighOuterLeft"
+              },
+              {
+                "const": "thighOuterRight"
+              },
+              {
+                "const": "throat"
+              },
+              {
+                "const": "thumbPadLeft"
+              },
+              {
+                "const": "thumbPadRight"
+              },
+              {
+                "const": "thumbTipLeft"
+              },
+              {
+                "const": "thumbTipRight"
+              },
+              {
+                "const": "upperArmLeft"
+              },
+              {
+                "const": "upperArmRight"
+              },
+              {
+                "const": "upperBack"
+              },
+              {
+                "const": "wristLeft"
+              },
+              {
+                "const": "wristRight"
+              }
+            ],
+            "description": "The thrower's region the body turns over, for a `thrown` outcome (#3439)."
+          },
+          "on": {
+            "oneOf": [
+              {
+                "const": "abdomen"
+              },
+              {
+                "const": "calfLeft"
+              },
+              {
+                "const": "calfRight"
+              },
+              {
+                "const": "cheekLeft"
+              },
+              {
+                "const": "cheekRight"
+              },
+              {
+                "const": "chestLeft"
+              },
+              {
+                "const": "chestRight"
+              },
+              {
+                "const": "chin"
+              },
+              {
+                "const": "crown"
+              },
+              {
+                "const": "earLeft"
+              },
+              {
+                "const": "earRight"
+              },
+              {
+                "const": "elbowLeft"
+              },
+              {
+                "const": "elbowRight"
+              },
+              {
+                "const": "face"
+              },
+              {
+                "const": "footTopLeft"
+              },
+              {
+                "const": "footTopRight"
+              },
+              {
+                "const": "forearmLeft"
+              },
+              {
+                "const": "forearmRight"
+              },
+              {
+                "const": "forehead"
+              },
+              {
+                "const": "groin"
+              },
+              {
+                "const": "handBackLeft"
+              },
+              {
+                "const": "handBackRight"
+              },
+              {
+                "const": "headBack"
+              },
+              {
+                "const": "heelLeft"
+              },
+              {
+                "const": "heelRight"
+              },
+              {
+                "const": "hipLeft"
+              },
+              {
+                "const": "hipRight"
+              },
+              {
+                "const": "indexPadLeft"
+              },
+              {
+                "const": "indexPadRight"
+              },
+              {
+                "const": "indexTipLeft"
+              },
+              {
+                "const": "indexTipRight"
+              },
+              {
+                "const": "jawLeft"
+              },
+              {
+                "const": "jawRight"
+              },
+              {
+                "const": "kidneyLeft"
+              },
+              {
+                "const": "kidneyRight"
+              },
+              {
+                "const": "kneeLeft"
+              },
+              {
+                "const": "kneeRight"
+              },
+              {
+                "const": "littlePadLeft"
+              },
+              {
+                "const": "littlePadRight"
+              },
+              {
+                "const": "littleTipLeft"
+              },
+              {
+                "const": "littleTipRight"
+              },
+              {
+                "const": "liver"
+              },
+              {
+                "const": "lowerBack"
+              },
+              {
+                "const": "middlePadLeft"
+              },
+              {
+                "const": "middlePadRight"
+              },
+              {
+                "const": "middleTipLeft"
+              },
+              {
+                "const": "middleTipRight"
+              },
+              {
+                "const": "mouth"
+              },
+              {
+                "const": "nape"
+              },
+              {
+                "const": "neckLeft"
+              },
+              {
+                "const": "neckRight"
+              },
+              {
+                "const": "nose"
+              },
+              {
+                "const": "noseBridge"
+              },
+              {
+                "const": "palmLeft"
+              },
+              {
+                "const": "palmRight"
+              },
+              {
+                "const": "pocketFrontLeft"
+              },
+              {
+                "const": "pocketFrontRight"
+              },
+              {
+                "const": "ribsLeft"
+              },
+              {
+                "const": "ribsRight"
+              },
+              {
+                "const": "ringPadLeft"
+              },
+              {
+                "const": "ringPadRight"
+              },
+              {
+                "const": "ringTipLeft"
+              },
+              {
+                "const": "ringTipRight"
+              },
+              {
+                "const": "seat"
+              },
+              {
+                "const": "shinLeft"
+              },
+              {
+                "const": "shinRight"
+              },
+              {
+                "const": "shoulderLeft"
+              },
+              {
+                "const": "shoulderRight"
+              },
+              {
+                "const": "solarPlexus"
+              },
+              {
+                "const": "soleLeft"
+              },
+              {
+                "const": "soleRight"
+              },
+              {
+                "const": "spleen"
+              },
+              {
+                "const": "sternum"
+              },
+              {
+                "const": "templeLeft"
+              },
+              {
+                "const": "templeRight"
+              },
+              {
+                "const": "thighFrontLeft"
+              },
+              {
+                "const": "thighFrontRight"
+              },
+              {
+                "const": "thighInnerLeft"
+              },
+              {
+                "const": "thighInnerRight"
+              },
+              {
+                "const": "thighOuterLeft"
+              },
+              {
+                "const": "thighOuterRight"
+              },
+              {
+                "const": "throat"
+              },
+              {
+                "const": "thumbPadLeft"
+              },
+              {
+                "const": "thumbPadRight"
+              },
+              {
+                "const": "thumbTipLeft"
+              },
+              {
+                "const": "thumbTipRight"
+              },
+              {
+                "const": "upperArmLeft"
+              },
+              {
+                "const": "upperArmRight"
+              },
+              {
+                "const": "upperBack"
+              },
+              {
+                "const": "wristLeft"
+              },
+              {
+                "const": "wristRight"
+              }
+            ],
+            "description": "The thrown body's region on the fulcrum, for a `thrown` outcome; the abdomen when absent (#3439)."
           }
         },
         "required": [],
@@ -18634,7 +23970,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "lift": {
             "type": "number",
-            "description": "How far the wrist rises after the grasp, metres; 0.1 when absent."
+            "description": "How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently."
           },
           "use": {
             "$ref": "#/components/schemas/HumanGraspUse.IUse",
@@ -18722,7 +24058,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "at": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
-            "description": "Where the prop's origin goes, world metres; required unless `on` is given."
+            "description": "Where the prop's origin goes, world metres; required unless `on` or `onto` is given."
           },
           "on": {
             "type": "object",
@@ -18742,6 +24078,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "additionalProperties": false,
             "description": "The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent."
+          },
+          "onto": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string"
+              },
+              "point": {
+                "type": "string"
+              },
+              "via": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prop",
+              "point"
+            ],
+            "additionalProperties": false,
+            "description": "The other prop's socket the prop is set on, riding it from `placed`\nas that prop's articulations pose it (an arrow nocked by its `nock` on\na bow's string, drawn back with it, `IHumanActionPlan.mounts`): the\nprop's own socket `via` laid on the other's `point`, the prop's origin\nwhen `via` is absent."
           },
           "yaw": {
             "type": "number",
@@ -18910,6 +24266,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The leading foot; `right` when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed: the manner's tempo scales the whole crossing's time, every phase keeping its share; neutral when absent."
           }
         },
         "required": [
@@ -19168,7 +24528,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The hand; `right` when absent."
+            "description": "The hand; when absent, the one whose arm reaches the region with the least strain, or the hand holding `prop` (`touchSide`)."
           },
           "site": {
             "oneOf": [
@@ -19636,6 +24996,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "hipRight"
               },
               {
+                "const": "indexPadLeft"
+              },
+              {
+                "const": "indexPadRight"
+              },
+              {
                 "const": "indexTipLeft"
               },
               {
@@ -19660,10 +25026,34 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "kneeRight"
               },
               {
+                "const": "littlePadLeft"
+              },
+              {
+                "const": "littlePadRight"
+              },
+              {
+                "const": "littleTipLeft"
+              },
+              {
+                "const": "littleTipRight"
+              },
+              {
                 "const": "liver"
               },
               {
                 "const": "lowerBack"
+              },
+              {
+                "const": "middlePadLeft"
+              },
+              {
+                "const": "middlePadRight"
+              },
+              {
+                "const": "middleTipLeft"
+              },
+              {
+                "const": "middleTipRight"
               },
               {
                 "const": "mouth"
@@ -19700,6 +25090,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "ribsRight"
+              },
+              {
+                "const": "ringPadLeft"
+              },
+              {
+                "const": "ringPadRight"
+              },
+              {
+                "const": "ringTipLeft"
+              },
+              {
+                "const": "ringTipRight"
               },
               {
                 "const": "seat"
@@ -19757,6 +25159,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "throat"
+              },
+              {
+                "const": "thumbPadLeft"
+              },
+              {
+                "const": "thumbPadRight"
+              },
+              {
+                "const": "thumbTipLeft"
+              },
+              {
+                "const": "thumbTipRight"
               },
               {
                 "const": "upperArmLeft"
@@ -19860,6 +25274,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "hipRight"
               },
               {
+                "const": "indexPadLeft"
+              },
+              {
+                "const": "indexPadRight"
+              },
+              {
                 "const": "indexTipLeft"
               },
               {
@@ -19884,10 +25304,34 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "kneeRight"
               },
               {
+                "const": "littlePadLeft"
+              },
+              {
+                "const": "littlePadRight"
+              },
+              {
+                "const": "littleTipLeft"
+              },
+              {
+                "const": "littleTipRight"
+              },
+              {
                 "const": "liver"
               },
               {
                 "const": "lowerBack"
+              },
+              {
+                "const": "middlePadLeft"
+              },
+              {
+                "const": "middlePadRight"
+              },
+              {
+                "const": "middleTipLeft"
+              },
+              {
+                "const": "middleTipRight"
               },
               {
                 "const": "mouth"
@@ -19924,6 +25368,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "ribsRight"
+              },
+              {
+                "const": "ringPadLeft"
+              },
+              {
+                "const": "ringPadRight"
+              },
+              {
+                "const": "ringTipLeft"
+              },
+              {
+                "const": "ringTipRight"
               },
               {
                 "const": "seat"
@@ -19981,6 +25437,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "throat"
+              },
+              {
+                "const": "thumbPadLeft"
+              },
+              {
+                "const": "thumbPadRight"
+              },
+              {
+                "const": "thumbTipLeft"
+              },
+              {
+                "const": "thumbTipRight"
               },
               {
                 "const": "upperArmLeft"
@@ -20101,10 +25569,37 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "handBack"
               },
               {
+                "const": "indexPad"
+              },
+              {
                 "const": "indexTip"
               },
               {
+                "const": "littlePad"
+              },
+              {
+                "const": "littleTip"
+              },
+              {
+                "const": "middlePad"
+              },
+              {
+                "const": "middleTip"
+              },
+              {
                 "const": "palm"
+              },
+              {
+                "const": "ringPad"
+              },
+              {
+                "const": "ringTip"
+              },
+              {
+                "const": "thumbPad"
+              },
+              {
+                "const": "thumbTip"
               },
               {
                 "const": "wrist"
@@ -20375,7 +25870,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "Parameters."
       },
-      "throwObject.IParams": {
+      "IThrowObjectParams": {
         "type": "object",
         "properties": {
           "at": {
@@ -20407,6 +25902,83 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The throwing hand; `right` when absent."
           },
+          "prop": {
+            "type": "string",
+            "description": "The held prop thrown: it rides the hand to the release, then flies\nfrom it (`IHumanActionPlan.launches`). The empty hand throws when\nabsent, as before."
+          },
+          "angle": {
+            "type": "number",
+            "description": "The release angle above the horizontal, degrees; the style's when absent."
+          },
+          "attitude": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "velocity",
+                    "description": "Nose along the velocity."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/components/schemas/throwObjectLever.ITurns"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "spin",
+                    "description": "A constant spin."
+                  },
+                  "axis": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The spin axis in the body's own frame; non-zero."
+                  },
+                  "rate": {
+                    "type": "number",
+                    "description": "Degrees per second about `axis`, right-handed."
+                  },
+                  "rotation": {
+                    "$ref": "#/components/schemas/IAutoMovieQuaternion",
+                    "description": "The body's rotation at launch, body to world; identity when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "axis",
+                  "rate"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "fixed",
+                    "description": "The launch rotation kept."
+                  },
+                  "rotation": {
+                    "$ref": "#/components/schemas/IAutoMovieQuaternion",
+                    "description": "The body's rotation at launch, body to world; identity when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "How the prop turns in flight (`IAutoMovieProjectile.attitude`): along\nits velocity for a javelin; `turns` for a knife, whose spin the act\nchooses (throwObjectLever.spin); its release rotation kept when\nabsent."
+          },
+          "implement": {
+            "$ref": "#/components/schemas/throwObjectLever.IImplement",
+            "description": "The implement held in the throwing hand that lengthens the arm: a\nsling, an atlatl. The thrown prop leaves from its working point, and the\nlaunch is the lever's (`throwObjectLever`). The hand throws when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
@@ -20416,7 +25988,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "at"
         ],
         "additionalProperties": false,
-        "description": "Parameters."
+        "description": "The parameters of a throw (`throwObject.IParams`)."
       },
       "catchObject.IParams": {
         "type": "object",
@@ -20463,6 +26035,58 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "Parameters."
       },
+      "release.IParams": {
+        "type": "object",
+        "properties": {
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The opening hand; `right` when absent."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The prop it lets go of; the one the hand holds at the entry when absent."
+          },
+          "launch": {
+            "type": "object",
+            "properties": {
+              "prop": {
+                "type": "string",
+                "description": "The launched prop's subject."
+              },
+              "from": {
+                "type": "string",
+                "description": "The prop's point its line starts from, such as an arrow's `nock`."
+              },
+              "to": {
+                "type": "string",
+                "description": "The point its line runs to, such as the arrow's `tip`."
+              },
+              "speed": {
+                "type": "number",
+                "description": "The launcher's speed along the line, metres per second."
+              }
+            },
+            "required": [
+              "prop",
+              "from",
+              "to",
+              "speed"
+            ],
+            "additionalProperties": false,
+            "description": "A prop launched along its own line at a launcher's speed instead of\nthe held prop's drop: an arrow on the drawn string."
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
       "operate.IParams": {
         "type": "object",
         "properties": {
@@ -20494,6 +26118,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       },
       "operate.Mechanism": {
         "oneOf": [
+          {
+            "$ref": "#/components/schemas/operateInsert.IMechanism"
+          },
           {
             "type": "object",
             "properties": {
@@ -20567,15 +26194,145 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "properties": {
               "kind": {
                 "const": "hinge",
-                "description": "A door swung about a vertical hinge line by its handle."
+                "description": "A leaf swung about its hinge line by its handle: a door, a lid, a gun's cock."
               },
               "at": {
                 "$ref": "#/components/schemas/AutoMovieMotionTarget",
                 "description": "The handle, its normal out of the leaf toward the hand."
               },
               "hinge": {
-                "$ref": "#/components/schemas/AutoMovieMotionTarget",
-                "description": "A point on the hinge line."
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "person",
+                        "description": "Discriminator."
+                      },
+                      "subject": {
+                        "type": "string",
+                        "description": "The other subject's id."
+                      },
+                      "region": {
+                        "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                        "description": "The region aimed at."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "subject",
+                      "region"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "self",
+                        "description": "Discriminator."
+                      },
+                      "region": {
+                        "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                        "description": "The region of the performer's own body."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "region"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "prop",
+                        "description": "Discriminator."
+                      },
+                      "subject": {
+                        "type": "string",
+                        "description": "The prop subject's id."
+                      },
+                      "point": {
+                        "type": "string",
+                        "description": "The prop's named point."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "subject",
+                      "point"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "point",
+                        "description": "Discriminator."
+                      },
+                      "at": {
+                        "$ref": "#/components/schemas/IAutoMovieVector3",
+                        "description": "The point, metres."
+                      },
+                      "frame": {
+                        "oneOf": [
+                          {
+                            "const": "performer"
+                          },
+                          {
+                            "const": "world"
+                          }
+                        ],
+                        "description": "The frame the point is stated in."
+                      },
+                      "normal": {
+                        "$ref": "#/components/schemas/IAutoMovieVector3",
+                        "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "at",
+                      "frame"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "none",
+                        "description": "Discriminator."
+                      },
+                      "line": {
+                        "oneOf": [
+                          {
+                            "const": "high"
+                          },
+                          {
+                            "const": "low"
+                          },
+                          {
+                            "const": "middle"
+                          }
+                        ],
+                        "description": "The virtual opponent's height line; `middle` when absent."
+                      },
+                      "range": {
+                        "type": "number",
+                        "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "A point on a vertical hinge line, a door's. Absent, the line is the\noperated prop's own hinge articulation (`operateDrive.IPart.line`):\nits point and its `+Y` axis, however it lies, a cock's cross pin."
               },
               "swing": {
                 "type": "number",
@@ -20585,13 +26342,49 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "required": [
               "kind",
               "at",
-              "hinge",
               "swing"
             ],
             "additionalProperties": false
           }
         ],
         "description": "An articulated part and how it moves."
+      },
+      "operateInsert.IMechanism": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "insert",
+            "description": "The discriminator."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The held prop's subject."
+          },
+          "tip": {
+            "type": "string",
+            "description": "The held prop's working point that leads into the socket; `tip` when absent."
+          },
+          "into": {
+            "$ref": "#/components/schemas/AutoMovieMotionTarget",
+            "description": "The socket: its mouth, its normal pointing out along the axis."
+          },
+          "depth": {
+            "type": "number",
+            "description": "How far the working point goes in, metres; positive."
+          },
+          "withdraw": {
+            "type": "boolean",
+            "description": "Whether the prop is drawn back out over the stroke's second half."
+          }
+        },
+        "required": [
+          "kind",
+          "prop",
+          "into",
+          "depth"
+        ],
+        "additionalProperties": false,
+        "description": "A held prop inserted into a socket."
       },
       "lieDown.IParams": {
         "type": "object",
@@ -20671,6 +26464,1249 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false,
         "description": "Parameters."
+      },
+      "support.IParams": {
+        "type": "object",
+        "properties": {
+          "stances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HumanSupport.IStance"
+            },
+            "description": "The stances, in order; the body enters the first from where it stands."
+          },
+          "on": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point, metres."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "The surface a row's `on` contacts touch: a box's top to vault, a ledge to scramble onto, a table's edge to slide off; refused where a contact names `on` and this is absent."
+          }
+        },
+        "required": [
+          "stances"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
+      "HumanSupport.IStance": {
+        "type": "object",
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HumanSupport.IContact"
+            },
+            "description": "The contacts, at least one."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Seconds the move into this stance takes; the planner's own when absent."
+          },
+          "turn": {
+            "type": "number",
+            "description": "The heading the stance faces, degrees about the vertical from the heading the body enters with: half a turn after a roll from the back to the front; the entry's when absent."
+          },
+          "event": {
+            "type": "string",
+            "description": "The event the stance is held at, unique in the sequence; `stance<i>` when absent."
+          },
+          "prefer": {
+            "$ref": "#/components/schemas/lieDown.IPose",
+            "description": "The posture the stance's solve stays nearest, by its whole body's tilt and its joints (degrees); the posture the body enters with when absent. A stance without targets is shaped by it: kneeling, squatting, standing."
+          }
+        },
+        "required": [
+          "contacts"
+        ],
+        "additionalProperties": false,
+        "description": "One stance: the contacts the body rests on at once."
+      },
+      "HumanSupport.IContact": {
+        "type": "object",
+        "properties": {
+          "part": {
+            "$ref": "#/components/schemas/HumanSupport.Part",
+            "description": "The part."
+          },
+          "target": {
+            "oneOf": [
+              {
+                "const": "on"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point, metres."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Where it touches: a floor point, a prop's surface, a person's region; `on`, the surface the action is given (`support.IParams.on`), the part placed on its own side of it by the body's own width; anywhere on the floor the stance's solve lays it when absent, so a stance can name the parts it rests on without a place."
+          },
+          "kind": {
+            "oneOf": [
+              {
+                "const": "bear"
+              },
+              {
+                "const": "grip"
+              }
+            ],
+            "description": "How it touches: `bear`, laid on a surface whose up it faces and pressed by the body's weight; `grip`, a hand closed on a handle, holding as well as pressing."
+          },
+          "inset": {
+            "type": "number",
+            "description": "How far in from the edge of the action's surface a contact on it (`on`) lies along the heading, as a share of the forearm and hand's length: positive onto a surface ahead of the body, negative onto one behind it; at the edge when absent."
+          },
+          "step": {
+            "type": "boolean",
+            "description": "Whether the part is set down anew in this stance, stepping from where it bore before to where the stance's solve lays it; a part that bears on from the stance before stays where it bore when absent."
+          }
+        },
+        "required": [
+          "part",
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "One contact of a stance."
+      },
+      "HumanSupport.Part": {
+        "oneOf": [
+          {
+            "const": "back"
+          },
+          {
+            "const": "front"
+          },
+          {
+            "const": "leftFoot"
+          },
+          {
+            "const": "leftHand"
+          },
+          {
+            "const": "leftKnee"
+          },
+          {
+            "const": "rightFoot"
+          },
+          {
+            "const": "rightHand"
+          },
+          {
+            "const": "rightKnee"
+          },
+          {
+            "const": "seat"
+          }
+        ],
+        "description": "A body part that bears: a foot on its ball and toes, a hand on its palm, a knee on the shin's top, the seat on the buttocks, the back or the front of the trunk lying on it."
+      },
+      "lieDown.IPose": {
+        "type": "object",
+        "properties": {
+          "pitch": {
+            "type": "number",
+            "description": "Forward tilt, degrees."
+          },
+          "roll": {
+            "type": "number",
+            "description": "Tilt toward the right, degrees."
+          },
+          "joints": {
+            "$ref": "#/components/schemas/PartialRecordAutoMovieHumanoidBonereadonlynumbernumbernumber",
+            "description": "Clinical joint angles, degrees."
+          }
+        },
+        "required": [
+          "pitch",
+          "roll",
+          "joints"
+        ],
+        "additionalProperties": false,
+        "description": "A floor posture: the whole body's tilt and its joints."
+      },
+      "PartialRecordAutoMovieHumanoidBonereadonlynumbernumbernumber": {
+        "type": "object",
+        "properties": {
+          "chest": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "head": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "hips": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "jaw": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftEye": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftFoot": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftHand": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftIndexDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftIndexIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftIndexProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftLittleDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftLittleIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftLittleProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftLowerArm": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftLowerLeg": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftMiddleDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftMiddleIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftMiddleProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftRingDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftRingIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftRingProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftShoulder": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftThumbDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftThumbMetacarpal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftThumbProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftToes": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftUpperArm": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "leftUpperLeg": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "neck": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightEye": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightFoot": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightHand": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightIndexDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightIndexIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightIndexProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightLittleDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightLittleIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightLittleProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightLowerArm": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightLowerLeg": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightMiddleDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightMiddleIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightMiddleProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightRingDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightRingIntermediate": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightRingProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightShoulder": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightThumbDistal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightThumbMetacarpal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightThumbProximal": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightToes": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightUpperArm": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "rightUpperLeg": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "spine": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          },
+          "upperChest": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "additionalItems": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
       },
       "crawl.IParams": {
         "type": "object",
@@ -20762,6 +27798,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "minimum": 0,
             "description": "Seconds the grip is held; 2 when absent.",
             "x-unit": "s"
+          },
+          "under": {
+            "type": "object",
+            "properties": {
+              "fulcrum": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "This body's region the partner turns over."
+              },
+              "on": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "The partner's region that lies on it."
+              }
+            },
+            "required": [
+              "fulcrum",
+              "on"
+            ],
+            "additionalProperties": false,
+            "description": "A throw's entry (tsukuri, #3439): through the reach the body lowers,\nits knees bending over the planted feet, until its own `fulcrum`\nregion stands at the height of the partner's `on` region, the contact\nthe throw turns the partner over; none when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21121,6 +28176,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The walk's pace; `normal` when absent."
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How the walk is performed (`walk.IParams.manner`); neutral when absent."
           }
         },
         "required": [
@@ -21146,6 +28205,73 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         ],
         "description": "How the load is held."
+      },
+      "pushPull.IParams": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The moved prop's subject id."
+          },
+          "way": {
+            "$ref": "#/components/schemas/pushPull.Way",
+            "description": "How the load is moved."
+          },
+          "to": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "Where the walk goes, world metres; required unless the load does not move."
+          },
+          "left": {
+            "type": "string",
+            "description": "The handle the left hand takes, an affordance id; `left` when absent."
+          },
+          "right": {
+            "type": "string",
+            "description": "The handle the right hand takes, an affordance id; `right` when absent."
+          },
+          "load": {
+            "oneOf": [
+              {
+                "const": "heavy"
+              },
+              {
+                "const": "light"
+              },
+              {
+                "const": "moderate"
+              }
+            ],
+            "description": "The load's declared level (`pushPullLean.Load`); `moderate` when absent."
+          },
+          "moves": {
+            "type": "boolean",
+            "description": "Whether the load moves; `false` presses it standing in place for `seconds`; `true` when absent."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Seconds the hands press a load that does not move; required then, and read only then."
+          }
+        },
+        "required": [
+          "prop",
+          "way"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
+      "pushPull.Way": {
+        "oneOf": [
+          {
+            "const": "drag"
+          },
+          {
+            "const": "pull"
+          },
+          {
+            "const": "push"
+          }
+        ],
+        "description": "How the load is moved."
       },
       "kiss.IParams": {
         "type": "object",
@@ -21460,6 +28586,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "How many beats; 8 when absent.",
             "x-unit": ""
           },
+          "lock": {
+            "type": "object",
+            "properties": {
+              "of": {
+                "type": "string"
+              },
+              "event": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "of"
+            ],
+            "additionalProperties": false,
+            "description": "A cue track to lock the beats to (#3340, #3378): beat `k` falls on the\ntrack's `k`-th instant named `event` (`beat` when absent) at or after the\naction's start, and the tempo is the mean interval of those instants,\nso `bpm` is not read. The track is the performance's input, never\naudio. Unlocked, the beats follow `bpm` from one period after the start."
+          },
           "side": {
             "oneOf": [
               {
@@ -21512,6 +28654,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The front foot; `left` when absent."
+          },
+          "sex": {
+            "oneOf": [
+              {
+                "const": "female"
+              },
+              {
+                "const": "male"
+              }
+            ],
+            "description": "The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent."
           },
           "seconds": {
             "type": "number",
@@ -21617,6 +28770,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The ball a throw-in throws, a prop the hands hold from before it (a `pickUp`); absent, the ball is implied and nothing flies. Read by the throw-in only."
+          },
+          "at": {
+            "$ref": "#/components/schemas/IAutoMovieVector3",
+            "description": "The point a thrown ball's path passes through, world metres; required with `prop`. Read by the throw-in only."
           }
         },
         "required": [

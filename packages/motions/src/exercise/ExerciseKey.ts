@@ -111,6 +111,93 @@ export namespace ExerciseKey {
     shrug?: number;
   }
 
+  /**
+   * The key of a body's relaxed standing: its arms hanging as the stand law
+   * hangs them (`stand.relaxed`), one record per body so a span can name it.
+   *
+   * @param body The body.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the key holds and why it is one record per body.
+   * @evidence contracts/development/implementation.md#principled-implementation The stand law's relaxed arms, the one owner of a hanging arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after the first call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One record per body, kept so the workout's spans compare it by identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by the body, released with it.
+   */
+  export function standing(body: IHumanBody): IKey {
+    const cached: IKey | undefined = STANDING.get(body);
+    if (cached !== undefined) return cached;
+    const key: IKey = {
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+      lift: 0,
+      joints: stand.relaxed(body),
+    };
+    STANDING.set(body, key);
+    return key;
+  }
+
+  /**
+   * A key from the whole body's part and the limbs' angles, on a body: an
+   * arm's unstated abduction and elbow are the body's relaxed ones
+   * (`stand.relaxed`).
+   *
+   * @param body The body.
+   * @param trunk The tilt, the turn, the lift and the spine.
+   * @param both The angles both sides share.
+   * @param left What the left side has instead.
+   * @param right What the right side has instead.
+   * @returns The key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Starts from the body's relaxed standing, so the fingers and every joint not named keep their standing angles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the two sides and three trunk joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent member takes the value its type states; nothing is inferred.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's relaxed standing (`standing`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function from(
+    body: IHumanBody,
+    trunk: ITrunk,
+    both: ILimb,
+    left: ILimb = {},
+    right: ILimb = {},
+  ): IKey {
+    const rest: AutoMovieMotionHumanJoints.Angles = standing(body).joints;
+    const joints: AutoMovieMotionHumanJoints.Angles = { ...rest };
+    for (const side of ["left", "right"] as const) {
+      const a: ILimb = { ...both, ...(side === "left" ? left : right) };
+      const arm: readonly [number, number, number] = rest[`${side}UpperArm`]!;
+      const elbow: readonly [number, number, number] = rest[`${side}LowerArm`]!;
+      joints[`${side}UpperLeg`] = [a.hip ?? 0, a.spread ?? 0, a.turn ?? 0];
+      joints[`${side}LowerLeg`] = [a.knee ?? 0, 0, 0];
+      joints[`${side}Foot`] = [a.ankle ?? 0, 0, 0];
+      joints[`${side}Toes`] = [a.toes ?? 0, 0, 0];
+      joints[`${side}UpperArm`] = [
+        a.shoulder ?? 0,
+        a.raise ?? arm[1],
+        a.twist ?? 0,
+      ];
+      joints[`${side}LowerArm`] = [a.elbow ?? elbow[0], 0, 0];
+      joints[`${side}Hand`] = [a.wrist ?? 0, 0, 0];
+      joints[`${side}Shoulder`] = [0, a.shrug ?? 0, 0];
+    }
+    joints.spine = trunk.spine ?? [0, 0, 0];
+    joints.chest = trunk.chest ?? [0, 0, 0];
+    joints.neck = [trunk.neck ?? 0, 0, 0];
+    return {
+      pitch: trunk.pitch ?? 0,
+      roll: trunk.roll ?? 0,
+      yaw: trunk.yaw ?? 0,
+      lift: trunk.lift ?? 0,
+      joints,
+    };
+  }
+
   /** The key of relaxed standing. */
   export const STOOD: IKey = {
     pitch: 0,
@@ -390,3 +477,6 @@ export namespace ExerciseKey {
     };
   }
 }
+
+/** Each body's relaxed standing key (`ExerciseKey.standing`). */
+const STANDING: WeakMap<IHumanBody, ExerciseKey.IKey> = new WeakMap();

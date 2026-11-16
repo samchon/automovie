@@ -48,6 +48,9 @@ export namespace HumanObstacle {
 
     /** Its openings; none when absent. */
     apertures?: readonly IAperture[];
+
+    /** Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent. */
+    motion?: (seconds: number) => { position: IAutoMovieVector3; yaw: number };
   }
 
   /** An opening through an obstacle. */

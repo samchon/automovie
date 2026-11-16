@@ -127,6 +127,9 @@ export namespace HumanMountOn {
     const hold: number = context.params.seconds ?? 1;
     HumanBound.least("seconds", hold, 0, "s");
 
+    // The seat's height above the floor the feet leave (`seated.floor`).
+    const under: number = seated.floor(body, context.entry);
+
     // A body already on the seat, as when getting off was broken off, only settles: no climb and no hop.
     const settled: boolean =
       Vector3.length(Vector3.subtract(goal, start)) < 0.1 * m.thigh;
@@ -135,7 +138,7 @@ export namespace HumanMountOn {
         ? HumanMount.SETTLE
         : Math.min(
             4,
-            2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat) - 1)),
+            2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat, under) - 1)),
           )) * AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const duration: number = climb + hold;
     const contact: number = 0.8 * climb;
@@ -164,7 +167,10 @@ export namespace HumanMountOn {
         t < 0.6 * climb
           ? HumanMount.LEAN * minimumJerk(t / (0.4 * climb)).s
           : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IHumanPosture["joints"] = { ...stand.RELAXED, ...upright };
+      const joints: IHumanPosture["joints"] = {
+        ...stand.relaxed(body),
+        ...upright,
+      };
       for (const [bone, a] of Object.entries(final.joints) as [
         AutoMovieHumanoidBone,
         readonly [number, number, number],

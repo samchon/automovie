@@ -32,18 +32,24 @@ import { TestValidator } from "@nestia/e2e";
  *    region doubling on the corrected ratio of 1: 0 to 1 to 3 in two
  *    corrections, where the model stops it settled. A correction that
  *    returns null leaves the solve as without one.
+ * 5. Without a value-error certificate, the exact minimiser's zero proposal
+ *    terminates as numerical no progress on the step. The same zero proposal
+ *    at a physically infeasible iterate remains collapsed. A rejected large
+ *    uphill proposal remains collapsed even when physically feasible.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public loop on real problems and reads its iterate, region, reason, `settled` and `collapsed`, and counts the corrections asked for; a reason misread, a collapse called settled, a correction not taken or asked for twice fails.
  * @evidence contracts/development/testing.md#independent-expectations Each iterate, region, reason and count is traced by hand from the schedule and the problem, not read from a solver's output.
- * @evidence contracts/development/testing.md#distinguishing-cases Each reason (the model's accuracy and `improved`, the step under `least`, a region under `least` and spent tries, the rounds) is paired with the same solve stopped one step short, and the correction is compared with none and with a null one.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each reason (the model's accuracy and `improved`, the step under `least`, a region under `least` and spent tries, the rounds) is paired with the same solve stopped one step short, and the correction is compared with none and with a null one; zero proposals compare physically feasible and infeasible iterates, while a large rejected step remains a collapse.
  * @evidence contracts/development/testing.md#execution-ownership In memory, milliseconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the claims and the 4 scenarios with their traced iterates, reasons and flags.
+ * @evidence contracts/development/common.md#meaningful-documentation States the claims and the 5 scenarios with their traced iterates, reasons and flags.
  */
 export function test_human_motion_core_sequential_convex(): void {
   type IEvaluation = HumanSequentialConvex.IEvaluation;
   type IProblem = HumanSequentialConvex.IProblem<number, IEvaluation>;
   type IResult = HumanSequentialConvex.IResult<number, IEvaluation>;
-  const schedule = (
+  const schedule: (
+    overrides: Partial<HumanSequentialConvex.ISchedule>,
+  ) => HumanSequentialConvex.ISchedule = (
     overrides: Partial<HumanSequentialConvex.ISchedule>,
   ): HumanSequentialConvex.ISchedule => ({
     eta: 0.1,
@@ -59,8 +65,11 @@ export function test_human_motion_core_sequential_convex(): void {
     improved: (): number => 0,
     ...overrides,
   });
-  const f = (x: number): number => (x - 3) ** 2;
-  const quadratic = (accuracy: number | undefined, miss: number): IProblem => ({
+  const f: (x: number) => number = (x: number): number => (x - 3) ** 2;
+  const quadratic: (accuracy: number | undefined, miss: number) => IProblem = (
+    accuracy: number | undefined,
+    miss: number,
+  ): IProblem => ({
     evaluate: (x: number): IEvaluation => ({ objective: f(x), violation: 0 }),
     convexify: (x: number): HumanSequentialConvex.IModel<number> => ({
       solve: (radius: number): HumanSequentialConvex.IStep<number> => {
@@ -76,7 +85,11 @@ export function test_human_motion_core_sequential_convex(): void {
     }),
     feasible: (): boolean => true,
   });
-  const solve = (
+  const solve: (
+    problem: IProblem,
+    options: Partial<HumanSequentialConvex.ISchedule>,
+    rounds: number,
+  ) => IResult = (
     problem: IProblem,
     options: Partial<HumanSequentialConvex.ISchedule>,
     rounds: number,
@@ -86,7 +99,11 @@ export function test_human_motion_core_sequential_convex(): void {
       penalties: [1],
       rounds,
     });
-  const ended = (
+  const ended: (
+    result: IResult,
+    x: number,
+    reason: HumanSequentialConvex.Reason,
+  ) => boolean = (
     result: IResult,
     x: number,
     reason: HumanSequentialConvex.Reason,
@@ -179,5 +196,29 @@ export function test_human_motion_core_sequential_convex(): void {
       0,
       "collapsed",
     ),
+  );
+  TestValidator.predicate(
+    "a feasible zero proposal needs no invented objective-error certificate",
+    ended(solve(quadratic(undefined, 0), {}, 10), 3, "step"),
+  );
+  const frozen: IProblem = {
+    evaluate: (): IEvaluation => ({ objective: 0, violation: 1 }),
+    convexify: (x: number): HumanSequentialConvex.IModel<number> => ({
+      solve: (): HumanSequentialConvex.IStep<number> => ({
+        trial: x,
+        predicted: 0,
+        length: 0,
+        full: false,
+      }),
+    }),
+    feasible: (): boolean => false,
+  };
+  TestValidator.predicate(
+    "an infeasible zero proposal stays collapsed",
+    ended(solve(frozen, {}, 10), 0, "collapsed"),
+  );
+  TestValidator.predicate(
+    "a large rejected proposal is not numerical no progress",
+    ended(solve(lying, {}, 10), 0, "collapsed"),
   );
 }

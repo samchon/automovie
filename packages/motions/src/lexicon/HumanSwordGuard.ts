@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -132,12 +133,15 @@ export namespace HumanSwordGuard {
       );
       return StrikingBlade.plan(context, {
         tool: s.tool,
-        clock: AutoMovieMotionClock.phrase({
-          prepare: set,
-          attack: 0,
-          hold: seconds - set,
-          retract: 0,
-        }),
+        clock: AutoMovieMotionManner.time(
+          AutoMovieMotionClock.phrase({
+            prepare: set,
+            attack: 0,
+            hold: seconds - set,
+            retract: 0,
+          }),
+          AutoMovieMotionManner.of(context, context.params.manner),
+        ),
         path: (): StrikingHeld.IHandFrame => pose,
         back: s.tool.length,
         support: s.support,

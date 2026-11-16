@@ -45,16 +45,19 @@ const box: IHumanProp = {
 /**
  * The stages of the laws that carry the body over the ground: standing,
  * walking, running, jumping, approaching a person, stepping over a box,
- * stairs, a ladder, crawling and carrying a load.
+ * stairs, a ladder, crawling, carrying a load and moving a heavy one by its
+ * handles.
  *
  * Every distance is the body's own or a plain staging choice: a walk of 3 m
  * and a run of 6 m straight ahead, a standing jump of 0.6 hip heights, a
  * partner 3 m ahead to approach, the 0.3 m box of the everyday captures, four
- * stairs, and the carry captures' load of 0.15 carried 2.5 m.
+ * stairs, the carry captures' load of 0.15 carried 2.5 m, and a crate with
+ * handles at the elbow's height 0.55 m ahead (behind for a drag), pushed or
+ * dragged 2.5 m or pulled 2 m back.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and every staging distance.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Ten laws, the ones whose intent is travel.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Eleven laws, the ones whose intent is travel.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row is special-cased; a parameter is passed under its own name.
  */
 export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
@@ -164,4 +167,49 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
         ...S.set(pick, "side"),
       }),
     ),
+  pushPull: (
+    pick: motionHumanLawSweep.Pick,
+    a: IHumanBody,
+  ): motionHumanLawSweep.IScene => {
+    const way: "push" | "pull" | "drag" = (pick("way") ?? "push") as
+      | "push"
+      | "pull"
+      | "drag";
+    return S.solo(
+      a,
+      S.chain().act("pushPull", {
+        prop: "crate",
+        way,
+        to: { x: 0, y: 0, z: way === "pull" ? -2 : 2.5 },
+        ...S.set(pick, "load"),
+      }),
+      [crate(a, way === "drag" ? -0.55 : 0.55)],
+    );
+  },
 };
+
+/** A crate on the floor `ahead` metres along +Z, with two handles 0.5 m apart at the performer's elbow height (the shoulder's height less the upper arm). */
+function crate(a: IHumanBody, ahead: number): IHumanProp {
+  return {
+    subject: "crate",
+    frame: {
+      position: { x: 0, y: 0, z: ahead },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    },
+    points: {},
+    affordances: (["left", "right"] as const).map((id) => ({
+      id,
+      kind: "handle" as const,
+      frame: {
+        translation: {
+          x: id === "left" ? 0.25 : -0.25,
+          y: a.measure.shoulderHeight - a.measure.upperArm,
+          z: 0,
+        },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+        scale: { x: 1, y: 1, z: 1 },
+      },
+      extent: null,
+    })),
+  };
+}

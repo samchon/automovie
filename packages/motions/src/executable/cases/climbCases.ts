@@ -1,4 +1,4 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Transform, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
@@ -13,7 +13,6 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { caseFrame } from "./caseFrame";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
@@ -169,7 +168,7 @@ function ladderProp(): IHumanProp {
     (_: unknown, i: number): IAutoMovieAffordance => ({
       id: `rung${i + 1}`,
       kind: "bar",
-      frame: caseFrame({ x: 0, y: 0.3 * (i + 1), z: 0 }, out),
+      frame: Transform.of({ x: 0, y: 0.3 * (i + 1), z: 0 }, out),
       extent: null,
       grip: "power",
       aperture: 0.03,

@@ -4,6 +4,8 @@ import {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
+import { ANKLE_DORSIFLEXION } from "./ANKLE_DORSIFLEXION";
+
 const range = (min: number, max: number): IAutoMovieAngleRange => ({
   min,
   max,
@@ -35,10 +37,51 @@ const ballConstraint = (
 });
 
 /**
- * Generic finger phalanx: flexes forward, slight hyperextension, no
- * abduction/twist.
+ * A finger's metacarpophalangeal joint (the knuckle): flexion 90 and
+ * hyperextension 45, abduction 30 to either side, no axial turn. The upper
+ * values of the active norms in McGraw-Hill's goniometry table (Prentice,
+ * "Rehabilitation Techniques for Sports Medicine and Athletic Training",
+ * ch. 8: MCP flexion 85-90, extension 30-45, abduction 20-30); the
+ * adduction toward the middle finger mirrors the abduction, provisional (no
+ * located source tabulates it apart). A two-freedom joint with no third
+ * freedom to read twice, so its box of flexion and abduction is its own
+ * coordinate range and needs no swing-twist gate.
  */
-const FINGER = constraint(range(-20, 100), null, null);
+const KNUCKLE = constraint(range(-45, 90), range(-30, 30), null);
+
+/** A finger's proximal interphalangeal joint: a hinge, flexion 0 to 115 (the same table's 100-115). */
+const MIDDLE_JOINT = constraint(range(0, 115), null, null);
+
+/** A finger's distal interphalangeal joint: a hinge, flexion 90 and hyperextension 20 (the same table's 80-90 and 20; AAOS 90 as relayed). */
+const END_JOINT = constraint(range(-20, 90), null, null);
+
+/**
+ * The thumb's carpometacarpal joint, a saddle, gated by swing and twist.
+ * Cooney, Lucca, Chao and Linscheid 1981 (J Bone Joint Surg Am
+ * 63:1371-1381) measured total arcs of 53 degrees of flexion-extension, 42
+ * of abduction-adduction and 17 of axial rotation on biplane radiographs of
+ * 19 subjects. The rig reads the thumb on the hand's basis
+ * (`HUMANOID_JOINT_AXES`, "as an approximation"), so its flexion, about the
+ * axis across the hand, moves the thumb out of the palm's plane toward the
+ * palm: anatomical palmar abduction, the 42-degree arc, from the rest's
+ * adducted thumb in the palm's plane (0) to 42. Its abduction, about the
+ * palm's normal, swings the thumb within the palm's plane: anatomical
+ * flexion-extension, the 53-degree arc, split evenly about the rest
+ * (provisional: the rest's place in Cooney's arc is not stated). The axial
+ * rotation's 17 degrees are split evenly likewise (provisional).
+ */
+const THUMB_BASE: IAutoMovieJointConstraint = {
+  flexion: range(0, 42),
+  abduction: range(-26.5, 26.5),
+  twist: range(-8.5, 8.5),
+  swingTwist: { twist: range(-8.5, 8.5) },
+};
+
+/** The thumb's metacarpophalangeal joint: flexion 0 to 55 (the same goniometry table's 50-55); its small abduction has no located norm, so it stays immobile. */
+const THUMB_MIDDLE = constraint(range(0, 55), null, null);
+
+/** The thumb's interphalangeal joint: flexion 90 and hyperextension 5 (the same table's 85-90 and 0-5). */
+const THUMB_END = constraint(range(-5, 90), null, null);
 
 /**
  * The farthest a shoulder's arm points from the T-pose, degrees, which keeps
@@ -171,40 +214,50 @@ export const DEFAULT_HUMANOID_ROM: Partial<
   ),
   leftLowerLeg: constraint(range(0, 150), null, null),
   rightLowerLeg: constraint(range(0, 150), null, null),
-  leftFoot: constraint(range(-50, 20), range(-25, 25), null),
-  rightFoot: constraint(range(-50, 20), range(-25, 25), null),
+  // A foot's dorsiflexion reaches its loaded limit: a bearing foot is taken
+  // that far by the body's weight (`ANKLE_DORSIFLEXION`).
+  leftFoot: constraint(
+    range(-50, ANKLE_DORSIFLEXION.loaded),
+    range(-25, 25),
+    null,
+  ),
+  rightFoot: constraint(
+    range(-50, ANKLE_DORSIFLEXION.loaded),
+    range(-25, 25),
+    null,
+  ),
   leftToes: constraint(range(-40, 80), null, null),
   rightToes: constraint(range(-40, 80), null, null),
 
-  // ── fingers (generic) ──
-  leftThumbMetacarpal: FINGER,
-  leftThumbProximal: FINGER,
-  leftThumbDistal: FINGER,
-  leftIndexProximal: FINGER,
-  leftIndexIntermediate: FINGER,
-  leftIndexDistal: FINGER,
-  leftMiddleProximal: FINGER,
-  leftMiddleIntermediate: FINGER,
-  leftMiddleDistal: FINGER,
-  leftRingProximal: FINGER,
-  leftRingIntermediate: FINGER,
-  leftRingDistal: FINGER,
-  leftLittleProximal: FINGER,
-  leftLittleIntermediate: FINGER,
-  leftLittleDistal: FINGER,
-  rightThumbMetacarpal: FINGER,
-  rightThumbProximal: FINGER,
-  rightThumbDistal: FINGER,
-  rightIndexProximal: FINGER,
-  rightIndexIntermediate: FINGER,
-  rightIndexDistal: FINGER,
-  rightMiddleProximal: FINGER,
-  rightMiddleIntermediate: FINGER,
-  rightMiddleDistal: FINGER,
-  rightRingProximal: FINGER,
-  rightRingIntermediate: FINGER,
-  rightRingDistal: FINGER,
-  rightLittleProximal: FINGER,
-  rightLittleIntermediate: FINGER,
-  rightLittleDistal: FINGER,
+  // ── fingers ──
+  leftThumbMetacarpal: THUMB_BASE,
+  leftThumbProximal: THUMB_MIDDLE,
+  leftThumbDistal: THUMB_END,
+  leftIndexProximal: KNUCKLE,
+  leftIndexIntermediate: MIDDLE_JOINT,
+  leftIndexDistal: END_JOINT,
+  leftMiddleProximal: KNUCKLE,
+  leftMiddleIntermediate: MIDDLE_JOINT,
+  leftMiddleDistal: END_JOINT,
+  leftRingProximal: KNUCKLE,
+  leftRingIntermediate: MIDDLE_JOINT,
+  leftRingDistal: END_JOINT,
+  leftLittleProximal: KNUCKLE,
+  leftLittleIntermediate: MIDDLE_JOINT,
+  leftLittleDistal: END_JOINT,
+  rightThumbMetacarpal: THUMB_BASE,
+  rightThumbProximal: THUMB_MIDDLE,
+  rightThumbDistal: THUMB_END,
+  rightIndexProximal: KNUCKLE,
+  rightIndexIntermediate: MIDDLE_JOINT,
+  rightIndexDistal: END_JOINT,
+  rightMiddleProximal: KNUCKLE,
+  rightMiddleIntermediate: MIDDLE_JOINT,
+  rightMiddleDistal: END_JOINT,
+  rightRingProximal: KNUCKLE,
+  rightRingIntermediate: MIDDLE_JOINT,
+  rightRingDistal: END_JOINT,
+  rightLittleProximal: KNUCKLE,
+  rightLittleIntermediate: MIDDLE_JOINT,
+  rightLittleDistal: END_JOINT,
 };

@@ -14,8 +14,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
 /**
- * The inchworm's body in its middle plane: a chain from the feet's balls to
- * the wrists, solved from where the hands and the feet are.
+ * The inchworm's reaches, solved on its body in its middle plane: a chain
+ * from the feet's balls to the wrists, from which the fold's and the
+ * plank's distances from the feet to the hands are read, and the shape at
+ * each placement of the hands and the feet that seeds its stance's solve
+ * (the walk's postures are the support planner's, `crawlInchworm`).
  *
  * Each foot pivots on its ball with the ankle at its standing angle to the
  * shank, the heel lifting as far as the shank leans forward (the leg's
@@ -77,7 +80,7 @@ export namespace crawlChain {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation The leg's elevation fixes the foot's lift and both joints.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the inchworm.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the chain's solve and the shape it gives.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The ankle follows from the foot's pivot on its ball.
    */
   export interface ILeg {
@@ -122,14 +125,14 @@ export namespace crawlChain {
     /** The chain with the feet's balls' middle at `mu` and the wrists' at `wrist`, both along the heading in metres. */
     shape(mu: number, wrist: number): IShape;
 
+    /** The trunk's forward lean from the hips to the shoulders upright, degrees. */
+    lean: number;
+
     /** How far before the balls the wrists reach in the fold, metres. */
     folding: number;
 
     /** How far before the balls the wrists reach in the plank, metres. */
     plank: number;
-
-    /** The trunk's forward lean from the hips to the shoulders upright, degrees. */
-    lean: number;
 
     /** Each wrist from its flat palm, metres in the heading's frame. */
     wrists: Record<"left" | "right", IAutoMovieVector3>;
@@ -169,7 +172,7 @@ export namespace crawlChain {
     const upright: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, {
-        ...crawlFrame.posed(yaw, 0, 0, 0, 0),
+        ...crawlFrame.posed(body, yaw, 0, 0, 0, 0),
         root: standing.root,
       }),
     );
@@ -349,9 +352,9 @@ export namespace crawlChain {
 
     return {
       shape,
+      lean,
       folding,
       plank,
-      lean,
       wrists,
       palms: {
         left: at("leftUpperArm").x - wrists.left.x,

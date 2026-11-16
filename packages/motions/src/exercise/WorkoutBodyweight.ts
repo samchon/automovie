@@ -26,10 +26,8 @@ import { WorkoutKind } from "./WorkoutKind";
  */
 export namespace WorkoutBodyweight {
   /** Lying on the back with the arms by the sides. */
-  const supine: ExerciseKey.IKey = ExerciseKey.of(
-    { pitch: -90 },
-    { ankle: -20, elbow: 5 },
-  );
+  const supine = (body: IHumanBody): ExerciseKey.IKey =>
+    ExerciseKey.from(body, { pitch: -90 }, { ankle: -20, elbow: 5 });
 
   /** A kind done lying or sitting on the floor, the pelvis kept. */
   const floor = (
@@ -79,9 +77,10 @@ export namespace WorkoutBodyweight {
       ],
       enter: 2,
       reps: 5,
-      route: (): WorkoutKind.IStep[] => [
+      route: (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 140, neck: 10 },
             { hip: 105, ankle: 35, shoulder: 175, elbow: 3, wrist: -50 },
           ),
@@ -90,7 +89,8 @@ export namespace WorkoutBodyweight {
           "top",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 150, neck: 10 },
             { hip: 115, ankle: 35, shoulder: 150, elbow: 95, wrist: -50 },
           ),
@@ -102,27 +102,34 @@ export namespace WorkoutBodyweight {
     },
 
     /** A superman: lying face down, the arms ahead and the legs lifted off the floor together. */
-    superman: floor("lying", BACK, 5, (): WorkoutKind.IStep[] => [
-      WorkoutKind.step(
-        ExerciseKey.of(
-          { pitch: 88 },
-          { ankle: -45, shoulder: 170, raise: 10, elbow: 5 },
+    superman: floor(
+      "lying",
+      BACK,
+      5,
+      (body: IHumanBody): WorkoutKind.IStep[] => [
+        WorkoutKind.step(
+          ExerciseKey.from(
+            body,
+            { pitch: 88 },
+            { ankle: -45, shoulder: 170, raise: 10, elbow: 5 },
+          ),
+          1,
+          "lower",
+          "down",
         ),
-        1,
-        "lower",
-        "down",
-      ),
-      WorkoutKind.step(
-        ExerciseKey.of(
-          { pitch: 88, spine: [-12, 0, 0], chest: [-12, 0, 0], neck: -15 },
-          { hip: -15, ankle: -45, shoulder: 185, raise: 10, elbow: 5 },
+        WorkoutKind.step(
+          ExerciseKey.from(
+            body,
+            { pitch: 88, spine: [-12, 0, 0], chest: [-12, 0, 0], neck: -15 },
+            { hip: -15, ankle: -45, shoulder: 185, raise: 10, elbow: 5 },
+          ),
+          1,
+          "lift",
+          "top",
+          1,
         ),
-        1,
-        "lift",
-        "top",
-        1,
-      ),
-    ]),
+      ],
+    ),
 
     /** A bird dog: on hands and knees, one arm and the opposite leg reached level, alternating. */
     birdDog: {
@@ -136,9 +143,10 @@ export namespace WorkoutBodyweight {
       alternate: true,
       enter: 2.4,
       reps: 6,
-      route: (): WorkoutKind.IStep[] => [
+      route: (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 85, neck: -30 },
             { hip: 85, knee: 95, ankle: -40, shoulder: 85, elbow: 3 },
           ),
@@ -147,7 +155,8 @@ export namespace WorkoutBodyweight {
           "kneeling",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 85, neck: -30 },
             { hip: 85, knee: 95, ankle: -40, shoulder: 85, elbow: 3 },
             { hip: 0, knee: 5 },
@@ -162,24 +171,34 @@ export namespace WorkoutBodyweight {
     },
 
     /** A lying leg raise: on the back, both straight legs raised to upright and lowered. */
-    lyingLegRaise: floor("lying", BACK, 6, (): WorkoutKind.IStep[] => [
-      WorkoutKind.step(supine, 1.5, "lower", "down"),
-      WorkoutKind.step(
-        ExerciseKey.of({ pitch: -90 }, { hip: 88, ankle: -20, elbow: 5 }),
-        1.2,
-        "raise",
-        "top",
-      ),
-    ]),
+    lyingLegRaise: floor(
+      "lying",
+      BACK,
+      6,
+      (body: IHumanBody): WorkoutKind.IStep[] => [
+        WorkoutKind.step(supine(body), 1.5, "lower", "down"),
+        WorkoutKind.step(
+          ExerciseKey.from(
+            body,
+            { pitch: -90 },
+            { hip: 88, ankle: -20, elbow: 5 },
+          ),
+          1.2,
+          "raise",
+          "top",
+        ),
+      ],
+    ),
 
     /** A bicycle crunch: on the back, one knee drawn in as the opposite shoulder turns to it, alternating. */
     bicycleCrunch: floor(
       "lying",
       BACK,
       8,
-      (): WorkoutKind.IStep[] => [
+      (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90, chest: [15, 0, 0], neck: 15 },
             { hip: 40, knee: 20, shoulder: 60, raise: 60, elbow: 140 },
           ),
@@ -188,7 +207,8 @@ export namespace WorkoutBodyweight {
           "extended",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90, spine: [15, 0, 25], chest: [20, 0, 20], neck: 15 },
             { hip: 40, knee: 20, shoulder: 60, raise: 60, elbow: 140 },
             {},
@@ -207,9 +227,10 @@ export namespace WorkoutBodyweight {
       "seated",
       [{ part: "seat", kind: "seat" }],
       8,
-      (): WorkoutKind.IStep[] => [
+      (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -35 },
             { hip: 85, knee: 80, ankle: -10, shoulder: 45, elbow: 90 },
           ),
@@ -218,7 +239,8 @@ export namespace WorkoutBodyweight {
           "middle",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -35, spine: [0, 0, 25], chest: [0, 0, 20] },
             { hip: 85, knee: 80, ankle: -10, shoulder: 45, elbow: 90 },
           ),
@@ -235,9 +257,10 @@ export namespace WorkoutBodyweight {
       "lying",
       BACK,
       6,
-      (): WorkoutKind.IStep[] => [
+      (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90 },
             { hip: 90, knee: 90, shoulder: 90, raise: 0, elbow: 3 },
           ),
@@ -246,7 +269,8 @@ export namespace WorkoutBodyweight {
           "square",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: -90 },
             { hip: 90, knee: 90, shoulder: 90, raise: 0, elbow: 3 },
             { hip: 10, knee: 5 },
@@ -273,15 +297,16 @@ export namespace WorkoutBodyweight {
       ],
       enter: 1,
       reps: 5,
-      route: (): WorkoutKind.IStep[] => [
+      route: (body: IHumanBody): WorkoutKind.IStep[] => [
         WorkoutKind.step(
-          ExerciseKey.of({}, { knee: 70, raise: 8, elbow: 3 }),
+          ExerciseKey.from(body, {}, { knee: 70, raise: 8, elbow: 3 }),
           1,
           "press",
           "top",
         ),
         WorkoutKind.step(
-          ExerciseKey.of(
+          ExerciseKey.from(
+            body,
             { pitch: 15 },
             { hip: 15, knee: 70, shoulder: -60, raise: 8, elbow: 95 },
           ),

@@ -2,6 +2,7 @@ import {
   DEFAULT_HUMANOID_ROM,
   type IAutoMovieResolvedBone,
   Quaternion,
+  Transform,
   Vector3,
   closestPointsBetweenSegments,
   jointRomOvershoot,
@@ -160,11 +161,7 @@ export function handlingCases(
           {
             id: "handle",
             kind: "handle",
-            frame: {
-              translation: { x: 0, y: 0.095, z: 0 },
-              rotation: turn,
-              scale: { x: 1, y: 1, z: 1 },
-            },
+            frame: Transform.of({ x: 0, y: 0.095, z: 0 }, turn),
             extent: null,
             grip: "power",
             aperture: 0.07,
@@ -456,9 +453,7 @@ export function handlingCases(
       ): IAutoMovieAffordance => ({
         id,
         kind: "handle",
-        frame: {
-          translation: { x: 0, y, z: 0 },
-          rotation: Quaternion.normalize(
+        frame: Transform.of({ x: 0, y, z: 0 }, Quaternion.normalize(
             Quaternion.multiply(
               Quaternion.fromAxisAngle(
                 { x: 0, y: 1, z: 0 },
@@ -471,9 +466,7 @@ export function handlingCases(
                 ),
               ),
             ),
-          ),
-          scale: { x: 1, y: 1, z: 1 },
-        },
+          )),
         extent: null,
         grip: "power",
         aperture: 0.07,

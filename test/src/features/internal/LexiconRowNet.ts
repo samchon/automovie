@@ -210,6 +210,8 @@ export namespace LexiconRowNet {
     // flop its high jump, which `test_human_motion_gymnastics_airborne` and
     // `test_human_motion_gymnastics_jumps` stage.
     "handspringVault",
+    // A box vault needs its box, which `test_human_motion_gymnastics_box_vault` stages.
+    "boxVault",
     "vaultOnPole",
     "fosburyFlop",
     // A tool row works with the tool in hand, and a stir in its vessel,
@@ -228,6 +230,10 @@ export namespace LexiconRowNet {
     "chinUp",
     "kneeRaise",
     "barSwing",
+    // A movement across supports needs its surface at the body's own
+    // heights, which `test_human_motion_lexicon_rows_support` stages.
+    "scramble",
+    "slideOff",
   ];
 
   /** The two builds, each performing with the other as its partner. */

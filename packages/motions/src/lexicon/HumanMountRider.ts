@@ -1,8 +1,8 @@
 import {
   type IAutoMovieResolvedBone,
+  physicalShapeSegmentDistance,
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -20,6 +20,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanMountReach } from "./HumanMountReach";
 
 /**
  * What a seated rider's own body gives to stay on a mount's parts: the
@@ -328,22 +329,22 @@ export namespace HumanMountRider {
     };
   }
 
+
   /**
    * How far a seated rider leans the trunk forward to reach what the hands
-   * hold: the least flexion of the spine, up to `LEAN`, that brings each
-   * shoulder within `ARM` of its arm's length of its point, as a cyclist
-   * leans to the bar.
+   * hold, the support standing where it does with the rider seated so
+   * (`reach`).
    *
    * @param body The body.
    * @param seated The seated posture.
-   * @param points What each hand holds, world metres, where the support stands with the rider seated so.
+   * @param points What each hand holds, world metres.
    * @returns Degrees of spine flexion to add; 0 when the arms reach as seated, `LEAN` when they do not even then.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, its bound and both ends of the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Bisection on the flexion of the shortfall of the worse arm, read by forward kinematics of the leant posture; the shortfall falls as the trunk comes forward toward points ahead of it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shortfall at a lean, then the search.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points the arms do not reach at `LEAN` leave the hands short, which the contact audit reports; only the spine flexes, and the pelvis's roll forward a cyclist adds is not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most fourteen forward-kinematics passes, once per plan.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and both ends of the result.
+   * @evidence contracts/development/implementation.md#principled-implementation `reach` for the hands that hold.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts As `reach`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms As `reach`, once.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -355,41 +356,6 @@ export namespace HumanMountRider {
     const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => points[side] !== undefined,
     );
-    if (sides.length === 0) return 0;
-    const short = (degrees: number): number => {
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture(body, { ...leant(seated, degrees), limbs: {} }),
-      );
-      return Math.max(
-        ...sides.map((side: "left" | "right"): number => {
-          const shoulder: IAutoMovieVector3 = bones.get(
-            `${side}UpperArm`,
-          )!.worldPosition;
-          const elbow: IAutoMovieVector3 = bones.get(
-            `${side}LowerArm`,
-          )!.worldPosition;
-          const wrist: IAutoMovieVector3 = bones.get(
-            `${side}Hand`,
-          )!.worldPosition;
-          return (
-            Vector3.length(Vector3.subtract(points[side]!, shoulder)) -
-            ARM *
-              (Vector3.length(Vector3.subtract(elbow, shoulder)) +
-                Vector3.length(Vector3.subtract(wrist, elbow)))
-          );
-        }),
-      );
-    };
-    if (short(0) <= 0) return 0;
-    if (short(LEAN) > 0) return LEAN;
-    let low: number = 0;
-    let high: number = LEAN;
-    for (let i: number = 0; i < 12; ++i) {
-      const middle: number = (low + high) / 2;
-      if (short(middle) > 0) low = middle;
-      else high = middle;
-    }
-    return high;
+    return sides.length === 0 ? 0 : HumanMountReach.reach(body, seated, sides)(points);
   }
 }

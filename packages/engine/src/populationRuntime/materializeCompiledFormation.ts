@@ -22,6 +22,7 @@ import { compiledPopulationRepresentation } from "./compiledPopulationRepresenta
 import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "./constants/AUTOMOVIE_FORMATION_CHUNK_SIZE";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
+import { Transform } from "../math/Transform";
 
 /**
  * Compile one formation design into its compact, regenerable runtime record.
@@ -204,14 +205,10 @@ export const materializeCompiledFormation: (props: {
         } => ({
           slot: hero.slot,
           actor: hero.actor,
-          transform: {
-            translation: position(hero.slot),
-            rotation: Quaternion.fromAxisAngle(
+          transform: Transform.of(position(hero.slot), Quaternion.fromAxisAngle(
               { x: 0, y: 1, z: 0 },
               formation.facingDeg,
-            ),
-            scale: { x: 1, y: 1, z: 1 },
-          },
+            )),
         }),
       ),
     lod: representation.lod,

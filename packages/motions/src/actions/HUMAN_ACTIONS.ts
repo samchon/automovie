@@ -28,11 +28,13 @@ import { clinch } from "../grappling/clinch";
 import { handOver } from "../handling/handOver";
 import { handshake } from "../handling/handshake";
 import { pickUp } from "../handling/pickUp";
+import { pushPull } from "../handling/pushPull";
 import { putDown } from "../handling/putDown";
 import { receive } from "../handling/receive";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
+import { perturb } from "../reaction/perturb";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
 import { ballSport } from "../sport/ballSport";
@@ -51,6 +53,7 @@ import { useTool } from "../tasks/useTool";
 import { wipe } from "../tasks/wipe";
 import { climbStairs } from "../terrain/climbStairs";
 import { catchObject } from "../throwing/catchObject";
+import { release } from "../throwing/release";
 import { throwObject } from "../throwing/throwObject";
 import { highFive } from "../touch/highFive";
 import { kiss } from "../touch/kiss";
@@ -59,6 +62,7 @@ import { touch } from "../touch/touch";
 import { jump } from "./jump";
 import { run } from "./run";
 import { stand } from "./stand";
+import { support } from "./support";
 import { walk } from "./walk";
 
 /**
@@ -86,6 +90,7 @@ export const HUMAN_ACTIONS: Readonly<
   flinch,
   stagger,
   knockdown,
+  perturb,
   knee,
   sit,
   rise,
@@ -106,9 +111,11 @@ export const HUMAN_ACTIONS: Readonly<
   climbStairs,
   throwObject,
   catchObject,
+  release,
   operate,
   lieDown,
   getUp,
+  support,
   crawl,
   climbLadder,
   clinch,
@@ -117,6 +124,7 @@ export const HUMAN_ACTIONS: Readonly<
   wipe,
   dress,
   carry,
+  pushPull,
   kiss,
   highFive,
   selfAction,

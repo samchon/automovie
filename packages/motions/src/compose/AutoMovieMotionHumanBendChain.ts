@@ -1,6 +1,7 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  Transform,
   Vector3,
   prepareChainPlant,
   resolveBoneMap,
@@ -78,15 +79,11 @@ export namespace AutoMovieMotionHumanBendChain {
     );
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
-      root: {
-        translation: posture.root,
-        rotation: resolveHumanPosture.heading({
+      root: Transform.of(posture.root, resolveHumanPosture.heading({
           yaw: posture.yaw,
           pitch: posture.pitch ?? 0,
           roll: posture.roll ?? 0,
-        }),
-        scale: { x: 1, y: 1, z: 1 },
-      },
+        })),
       joints: [],
     };
     const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant({

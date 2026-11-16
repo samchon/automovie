@@ -1,3 +1,4 @@
+import type { support } from "../actions/support";
 import type { bend } from "../everyday/bend";
 import type { crouch } from "../everyday/crouch";
 import type { kneel } from "../everyday/kneel";
@@ -106,5 +107,17 @@ export class HumanChainPosture extends HumanChainTravel {
    */
   public getUp(params: getUp.IParams = {}, anchor?: string): this {
     return this.act("getUp", params, anchor);
+  }
+
+  /**
+   * Move the body's weight across a sequence of supports, each stance's new
+   * supports bearing before the old ones let go.
+   *
+   * @param params The stances and the surface a row's contacts touch.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public support(params: support.IParams, anchor?: string): this {
+    return this.act("support", params, anchor);
   }
 }

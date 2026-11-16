@@ -115,11 +115,17 @@ export const hingedArmArticulation: (props: {
   score: (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
-  ) => { overshoot: number; deviation: number; exact?: () => number };
+  ) => {
+    overshoot: number;
+    deviation: number;
+    exact?: () => number;
+    tiebreak?: () => number;
+  };
   excluded?: (
     upper: (swivel: number) => IAutoMovieQuaternion,
   ) => (low: number, high: number) => boolean;
   near?: IAutoMovieSwivelNear;
+  tie?: number;
 }) => IAutoMovieHingedArticulation | null = (props: {
   /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
@@ -155,12 +161,20 @@ export const hingedArmArticulation: (props: {
    * lower bound of the tie-break and `exact` gives it exactly: a caller
    * whose tie-break ends in a costly non-negative term passes the rest as
    * the bound, and the term is computed only for a comparison the bound
-   * cannot decide.
+   * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
+   * within `tie` of each other are one, and the lesser `tiebreak` decides
+   * (task priority, Siciliano and Slotine 1991: the second objective only
+   * among the first's optima).
    */
   score: (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
-  ) => { overshoot: number; deviation: number; exact?: () => number };
+  ) => {
+    overshoot: number;
+    deviation: number;
+    exact?: () => number;
+    tiebreak?: () => number;
+  };
 
   /**
    * Given the root's bone-local rotation at a swivel on one bend branch,
@@ -180,6 +194,13 @@ export const hingedArmArticulation: (props: {
    * way to its tolerance, with no sweep; omitted, every swivel is swept.
    */
   near?: IAutoMovieSwivelNear;
+
+  /**
+   * How far apart two deviations may lie and still be one, the unit of
+   * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
+   * are compared exactly and `tiebreak` is not read.
+   */
+  tie?: number;
 }): IAutoMovieHingedArticulation | null => {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
@@ -247,8 +268,16 @@ export const hingedArmArticulation: (props: {
         Math.abs(a.overshoot - b.overshoot) <= OVERSHOOT_ROUNDING);
     if (!tied) return a.overshoot < b.overshoot;
     const theirs: number = exactOf(b);
-    if (a.exact !== undefined && a.deviation >= theirs) return false;
-    return exactOf(a) < theirs;
+    // With a second key, deviations within `tie` of each other are one
+    // deviation, and the second key decides between them.
+    if (props.tie === undefined) {
+      if (a.exact !== undefined && a.deviation >= theirs) return false;
+      return exactOf(a) < theirs;
+    }
+    if (a.exact !== undefined && a.deviation > theirs + props.tie) return false;
+    const mine: number = exactOf(a);
+    if (Math.abs(mine - theirs) > props.tie) return mine < theirs;
+    return tiebreakOf(a) < tiebreakOf(b);
   };
 
   // The sweep, with or without the steps `excluded` refuses: a step is
@@ -339,6 +368,8 @@ export const hingedArmArticulation: (props: {
       shortfall: seeded.shortfall,
       swivel: seeded.swivel,
       branch: seeded.branch,
+      deviation: exactOf(seeded),
+      ...(props.tie === undefined ? {} : { second: tiebreakOf(seeded) }),
     };
   }
 
@@ -360,6 +391,8 @@ export const hingedArmArticulation: (props: {
     shortfall,
     swivel: chosen!.swivel,
     branch: chosen!.branch,
+    deviation: exactOf(chosen!),
+    ...(props.tie === undefined ? {} : { second: tiebreakOf(chosen!) }),
   };
 };
 
@@ -379,6 +412,12 @@ interface IScored extends IAutoMovieHingedArticulation {
 
   /** The exact tie-break once read. */
   known?: number;
+
+  /** The second key, compared between deviations within the sweep's `tie` of each other. */
+  tiebreak?: () => number;
+
+  /** The second key once read. */
+  second?: number;
 }
 
 /** A candidate's exact tie-break, read once. */
@@ -386,6 +425,13 @@ const exactOf = (scored: IScored): number => {
   if (scored.exact === undefined) return scored.deviation;
   if (scored.known === undefined) scored.known = scored.exact();
   return scored.known;
+};
+
+/** A candidate's second key, read once; 0 without one. */
+const tiebreakOf = (scored: IScored): number => {
+  if (scored.tiebreak === undefined) return 0;
+  if (scored.second === undefined) scored.second = scored.tiebreak();
+  return scored.second;
 };
 
 /**

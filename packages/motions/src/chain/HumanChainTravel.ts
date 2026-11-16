@@ -7,6 +7,7 @@ import type { climbLadder } from "../climbing/climbLadder";
 import type { approach } from "../everyday/approach";
 import type { stepOver } from "../everyday/stepOver";
 import type { crawl } from "../floor/crawl";
+import type { pushPull } from "../handling/pushPull";
 import type { climbStairs } from "../terrain/climbStairs";
 import { HumanChainCore } from "./HumanChainCore";
 
@@ -86,6 +87,18 @@ export class HumanChainTravel extends HumanChainCore {
    */
   public carry(params: carry.IParams, anchor?: string): this {
     return this.act("carry", params, anchor);
+  }
+
+  /**
+   * Move a heavy load by its two handles: push it ahead, pull it walking
+   * backward or drag it behind, or press it and not move it.
+   *
+   * @param params The load, its handles, the way, where to and the load's level.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public pushPull(params: pushPull.IParams, anchor?: string): this {
+    return this.act("pushPull", params, anchor);
   }
 
   /**

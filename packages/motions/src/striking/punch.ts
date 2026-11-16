@@ -233,13 +233,14 @@ export namespace punch {
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
 
-    // The whole arm as three capsules read from the performer's shown bones,
-    // which are the free path until the performance commits the stop: the
-    // upper arm from the shoulder to the elbow, the forearm from the elbow to
-    // the wrist and the fist from the wrist to the knuckles, so a punch stops
-    // where its arm first meets a body anywhere along it (as when two crosses
-    // cross), and the resolution meets the arm the figure shows, the upper
-    // arm tapered from the shoulder's girth to the elbow's.
+    // The whole arm as three capsules fitted on the punch's free course,
+    // which is what the figure shows until the performance commits the stop
+    // (`StrikingWeapon.arm`): the upper arm from the shoulder to the elbow,
+    // the forearm from the elbow to the wrist and the fist from the wrist to
+    // the knuckles, so a punch stops where its arm first meets a body
+    // anywhere along it (as when two crosses cross), and the resolution meets
+    // the arm the figure shows, the upper arm tapered from the shoulder's
+    // girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
     const chain: StrikingWeapon.IChain = {
@@ -249,7 +250,15 @@ export namespace punch {
       from: context.start,
       to: context.start + shown + 0.1,
       ends: (seconds: number): IAutoMovieVector3[] =>
-        StrikingWeapon.arm(context, side, seconds),
+        StrikingWeapon.arm(
+          context.body,
+          (at: number): IHumanPosture =>
+            geometry().posture(
+              Math.min(duration, Math.max(0, at - context.start)),
+            ),
+          side,
+          seconds,
+        ),
     };
 
     // The contact the performance committed, and the stopped arm's ride on

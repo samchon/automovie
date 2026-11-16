@@ -2,7 +2,6 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
-  resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
 import type {
@@ -21,8 +20,8 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanPrehension } from "./HumanPrehension";
-import { handshake } from "./handshake";
 
 /**
  * The shared plan of one object passing from a giver's hand to a receiver's:
@@ -40,7 +39,10 @@ import { handshake } from "./handshake";
  *   with the handshake's comfortable reach): handovers take place midway
  *   between the partners (Hansen et al. 2017, reviewed by Kopnarski et al.
  *   2023), with the object's middle at {@link EXCHANGE} of the partners' mean
- *   sternum height, moved only as far as both arms' reach demands. The object
+ *   sternum height, moved only as far as both arms' reach demands
+ *   (`HumanHandoverMeeting.goal`). Both laws read the place from the one
+ *   meeting record (`HumanHandoverMeeting`, `meet`), where a seated pair
+ *   leans its trunks when the arms alone fall short. The object
  *   keeps the orientation the giver holds it in, so the receiver grasps the
  *   grip its author named as the one offered.
  * - When: the giver's transport takes the loaded-carry time over its travel
@@ -118,6 +120,9 @@ export namespace HumanHandover {
 
     /** The outcome; `transfer` when absent. */
     outcome?: Outcome;
+
+    /** Where the receiving grip is handed over, world metres, as the partners' meeting places it (`HumanHandoverMeeting`); the standing pair's mutual goal when absent. */
+    meet?: IAutoMovieVector3;
   }
 
   /** The shared plan; every time is seconds from the handover's start. */
@@ -196,30 +201,10 @@ export namespace HumanHandover {
       input.handle,
       input.frame,
     );
-    const sternum = (person: IPerson): number =>
-      resolveAutoMovieHumanoidSurfaces.place(
-        person.body.surfaces.regions.sternum,
-        person.bones.get(person.body.surfaces.regions.sternum.bone)!,
-      ).point.y;
-    const [bottom, top]: readonly [number, number] = HumanGrasp.span(
-      atStart.colliders,
-      { x: 0, y: 1, z: 0 },
-    );
-    const meet: IAutoMovieVector3 = resolveAutoMovieMutualGoal({
-      height:
-        (EXCHANGE * (sternum(input.giver) + sternum(input.receiver))) / 2 -
-        ((bottom + top) / 2 - atStart.point.y),
-      a: handshake.arm(
-        input.giver.body,
-        input.giver.side,
-        giver.get(`${input.giver.side}UpperArm`)!.worldPosition,
-      ),
-      b: handshake.arm(
-        input.receiver.body,
-        input.receiver.side,
-        receiver.get(`${input.receiver.side}UpperArm`)!.worldPosition,
-      ),
-    }).point;
+    const meet: IAutoMovieVector3 =
+      input.meet ??
+      resolveAutoMovieMutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
+        .point;
     const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart.point);
     const offered: IHumanProp.IFrame = {
       position: Vector3.add(input.frame.position, shift),

@@ -1,5 +1,6 @@
 import {
   type AutoMovieComposition,
+  type IAutoMovieIntent,
   type IAutoMovieSchedule,
   checkAutoMovieLegality,
   resolveAutoMovieSchedule,
@@ -14,17 +15,23 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import type { HumanBlast } from "./HumanBlast";
+import type { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
 import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceKey } from "./HumanPerformanceKey";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
@@ -88,6 +95,9 @@ export class HumanPerformanceState {
   /** What stands in the performers' way. */
   public readonly obstacles: readonly HumanObstacle.IObstacle[];
 
+  /** The forces on the performers (`HumanPerformance.IInput.forces`). */
+  public readonly forces: readonly HumanForce.IForce[];
+
   /** The cue tracks, by name. */
   public readonly cues: Readonly<
     Record<string, readonly resolveAutoMovieSchedule.ICue[]>
@@ -102,8 +112,14 @@ export class HumanPerformanceState {
     readonly resolveAutoMovieSchedule.ICue[]
   > = new Map();
 
-  /** How many actions that carry the body the composition gives each person, overlays aside. */
-  public readonly intended: Map<string, number> = new Map();
+  /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
+  public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
+
+  /** The scene's blasts (`HumanPerformance.IInput.blasts`). */
+  public readonly blasts: readonly HumanBlast.IBlast[];
+
+  /** The resolved first contacts of every person's striking weapons, in time order, kept for the hit record (`HumanPerformanceHits`). */
+  public readonly strikes: HumanPerformanceState.IStrike[] = [];
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   public resolving: boolean = true;
@@ -123,6 +139,8 @@ export class HumanPerformanceState {
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
     this.obstacles = input.obstacles ?? [];
+    this.forces = input.forces ?? [];
+    this.blasts = input.blasts ?? [];
     this.laws = new Map(Object.entries(HUMAN_ACTIONS));
     for (const law of input.laws ?? []) {
       // A registered name never changes what a vocabulary name means, and
@@ -185,6 +203,9 @@ export class HumanPerformanceState {
           subject: performer.subject,
           body,
           skill,
+          ...(performer.attributes === undefined
+            ? {}
+            : { attributes: performer.attributes }),
           action: () => undefined,
           aim: (target: AutoMovieMotionTarget, seconds: number) => {
             const posture: IHumanPosture = HumanPerformanceRead.posture(
@@ -192,37 +213,37 @@ export class HumanPerformanceState {
               performer.subject,
               seconds,
             );
-            return HumanPerformanceAim.aim(this, target, seconds, {
-              root: posture.root,
-              yaw: posture.yaw,
-              heights: {
-                low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-                middle: body.measure.chestHeight,
-                high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-              },
-              range: 0.9 * (body.measure.thigh + body.measure.shank),
-              body,
-              bones: () => poseBones(body, resolveHumanPosture(body, posture)),
-              subject: performer.subject,
-            });
+            return HumanPerformanceAim.aim(
+              this,
+              target,
+              seconds,
+              HumanPerformanceAim.frame(
+                body,
+                posture,
+                () => poseBones(body, resolveHumanPosture(body, posture)),
+                performer.subject,
+              ),
+            );
           },
           random: (channel: string) =>
             HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
         },
       });
     }
-    // Counted before anything is placed, so a law that reads another
-    // person's path can tell a finished chain from one still to be placed.
-    const count = (node: AutoMovieComposition): void => {
-      if (node.kind === "at") count(node.part);
-      else if (node.kind !== "intent") node.parts.forEach(count);
-      else if (node.intent.parameters?.over !== true)
-        this.intended.set(
-          node.intent.subject,
-          (this.intended.get(node.intent.subject) ?? 0) + 1,
-        );
+    // Listed before anything is placed, so a law that reads another
+    // person's path can tell a finished chain from one still to be placed,
+    // and an action can read what its performer does next.
+    const list = (node: AutoMovieComposition): void => {
+      if (node.kind === "at") list(node.part);
+      else if (node.kind !== "intent") node.parts.forEach(list);
+      else if (node.intent.parameters?.over !== true) {
+        const intents: IAutoMovieIntent[] =
+          this.intended.get(node.intent.subject) ?? [];
+        intents.push(node.intent);
+        this.intended.set(node.intent.subject, intents);
+      }
     };
-    count(input.composition);
+    list(input.composition);
 
     // An anchored layer whose window waits for no action has its instants
     // before anything is placed, so actions can be synced to them: they are
@@ -303,6 +324,12 @@ export class HumanPerformanceState {
     for (const person of this.people.values()) HumanSegment.settle(person);
     HumanPerformanceContacts.contacts(this);
     for (const person of this.people.values()) HumanSegment.settle(person);
+
+    // Every flight turns by the composed body's shape once the contacts are
+    // resolved; the turned plans then show their rotation, so the displayed
+    // poses read for it are forgotten.
+    HumanPerformanceFlight.flights(this, this.people.values());
+    for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
       const person: HumanSegment.IPerson = HumanPerformanceRead.person(
@@ -315,6 +342,8 @@ export class HumanPerformanceState {
       if (segment !== undefined)
         segment.end = this.clipped.get(entry.index) ?? entry.end;
     }
+    // Every action ends where it is placed, so the props' drives are known.
+    HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
   }
 }
@@ -376,6 +405,24 @@ export namespace HumanPerformanceState {
   /** The kept resolutions by key, the least recently read first. */
   const KEPT: Map<string, HumanPerformanceState> = new Map();
 
+  /** One weapon's resolved first contact with another person. */
+  export interface IStrike {
+    /** The striker. */
+    subject: string;
+
+    /** The striker's action that carries the weapon. */
+    segment: HumanSegment.ISegment;
+
+    /** The weapon. */
+    weapon: IHumanActionPlan.IWeapon;
+
+    /** The person struck. */
+    against: string;
+
+    /** Film second of contact. */
+    seconds: number;
+  }
+
   /** One span in which a prop is held in a hand or worn on a bone. */
   export interface IGrip {
     /** The person who holds or wears it. */
@@ -387,6 +434,9 @@ export namespace HumanPerformanceState {
     /** The bone it is worn on; held in the hand when absent. */
     bone?: AutoMovieHumanoidBone;
 
+    /** The other prop's socket it rides (`IHumanActionPlan.mounts`); held in the hand or worn when absent. */
+    mount?: { prop: string; point: string };
+
     /** The span's first film second. */
     from: number;
 
@@ -395,5 +445,8 @@ export namespace HumanPerformanceState {
 
     /** The prop's frame in the hand's or the bone's frame, kept from the span's start. */
     offset?: IHumanProp.IFrame;
+
+    /** The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IHumanContactWindow.inHand`); none when the prop keeps its offset. */
+    inHand?: IHumanContactWindow["inHand"];
   }
 }

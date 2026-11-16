@@ -165,9 +165,10 @@ export namespace AutoMovieMotionManner {
   /**
    * The modifiers of an action's manner, drawn from the action's own seeded
    * channel and with the performer's timing skill where the manner states no
-   * proficiency.
+   * proficiency, and slowed by the action's own time scale
+   * (`IHumanActionContext.tempo`) with or without a manner.
    *
-   * @param context The action's skill and draw streams.
+   * @param context The action's skill, draw streams and time scale.
    * @param manner The manner; neutral when absent.
    * @returns The modifiers.
    *
@@ -180,15 +181,23 @@ export namespace AutoMovieMotionManner {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IHumanActionContext, "skill" | "random">,
+    context: Pick<IHumanActionContext, "skill" | "random" | "tempo">,
     manner: IManner | undefined,
   ): IModifiers {
-    return manner === undefined
-      ? NEUTRAL
-      : resolve(
-          { proficiency: context.skill.axes.timing, ...manner },
-          context.random("manner"),
-        );
+    const own: IModifiers =
+      manner === undefined
+        ? NEUTRAL
+        : resolve(
+            { proficiency: context.skill.axes.timing, ...manner },
+            context.random("manner"),
+          );
+
+    // The action's own time scale, where it is replanned to take the time
+    // its motion needs, slows its tempo and its holds alike.
+    const scale: number = context.tempo ?? 1;
+    return scale === 1
+      ? own
+      : { ...own, tempo: own.tempo * scale, hold: own.hold * scale };
   }
 
   /**

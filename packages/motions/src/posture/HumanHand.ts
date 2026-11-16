@@ -20,7 +20,7 @@ import { HumanHandShape } from "./HumanHandShape";
 /**
  * A hand brought to a target: which wrist point and hand rotation put a
  * chosen hand surface (the palm, the grip centre, the fist, the back of the
- * hand, the index fingertip or the wrist itself) on a world frame, under a
+ * hand, a digit's tip or pad, or the wrist itself) on a world frame, under a
  * stated hand shape, and where that surface is on a displayed pose.
  *
  * This is how procedural animation authors a hand contact: the effector is a
@@ -37,12 +37,11 @@ import { HumanHandShape } from "./HumanHandShape";
  * The palm, grip and fist sockets carry their own forward (the palm's along
  * the fingers, the grip's toward the thumb side, +Z at rest, the fist's
  * down); the back of the hand and the wrist take the palm's forward, along
- * the fingers; the index fingertip, whose normal already runs along the
- * finger, takes the palm normal as its forward. The palm, grip, fist and back
- * of the hand ride the hand bone and do not depend on the fingers; the index
- * fingertip rides the distal phalanx, so its frame is read by forward
- * kinematics of the hand under the requested shape and kept per body and
- * shape.
+ * the fingers; a digit's tip and pad take the palm normal as their forward.
+ * The palm, grip, fist and back of the hand ride the hand bone and do not
+ * depend on the fingers; a digit's tip and pad ride its distal phalanx, so
+ * their frames are read by forward kinematics of the hand under the
+ * requested shape and kept per body, surface and shape.
  *
  * A rotation is the hand's world rotation from its rest, the form
  * `IHumanPosture.IGoal.rotation` and `fitChainToTarget`'s `effectorRotation`
@@ -65,9 +64,10 @@ import { HumanHandShape } from "./HumanHandShape";
  *   on a surface);
  * - `point`: the index straight, the other fingers curled as the fist and the
  *   thumb folded over them;
- * - `fist`: proximal phalanges 85, the middle and distal 95 degrees, and the
- *   thumb's proximal 40 and distal 50 degrees across the curled fingers,
- *   inside the finger range of `DEFAULT_HUMANOID_ROM` (-20 to 100).
+ * - `fist`: proximal phalanges 85, the middle 95 and the distal 90 degrees,
+ *   the distal at the end of its range (80 to 90 in every located norm,
+ *   `DEFAULT_HUMANOID_ROM`), and the thumb's proximal 40 and distal 50
+ *   degrees across the curled fingers.
  *
  * The arm solver (`fitChainToTarget`) gives the forearm the share of an
  * asked hand rotation that turns about the forearm's length, within its
@@ -87,9 +87,9 @@ import { HumanHandShape } from "./HumanHandShape";
  * @evidence contracts/development/implementation.md#principled-implementation Rigid offset of a socket from the wrist (an effector offset); alignment completes each direction pair to a frame and composes the engine's basis rotations.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets, alignment, placement and read-back as separate small functions over one frame type.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forward parallel to the normal throws instead of picking an arbitrary twist.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call; the fingertip FK runs once per body, side and shape.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fingertip frames are memoized per body object, side and shape, which fully determine them.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a WeakMap on the body, at most eight entries a body, released with the body.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call; a digit surface's FK runs once per body, side, surface, shape and curl.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Digit surface frames are memoized per body object, side, surface, shape and curl, which fully determine them.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a WeakMap on the body, bounded by the sides, the ten digit surfaces, the shapes and the curls asked of it, released with the body.
  */
 export namespace HumanHand {
   /** A hand, or the side of any paired part. */
@@ -109,7 +109,58 @@ export namespace HumanHand {
     "handBack",
     "indexTip",
     "wrist",
+    "thumbTip",
+    "thumbPad",
+    "indexPad",
+    "middleTip",
+    "middlePad",
+    "ringTip",
+    "ringPad",
+    "littleTip",
+    "littlePad",
   ] as const;
+
+  /** A surface on a digit's distal phalanx: its tip or its pad. */
+  export type DigitSurface = (typeof DIGIT_SURFACES)[number];
+
+  /** The surfaces of {@link DigitSurface}, as data. */
+  export const DIGIT_SURFACES = [
+    "thumbTip",
+    "thumbPad",
+    "indexTip",
+    "indexPad",
+    "middleTip",
+    "middlePad",
+    "ringTip",
+    "ringPad",
+    "littleTip",
+    "littlePad",
+  ] as const;
+
+  /**
+   * Whether a surface lies on a digit's distal phalanx, so it moves with
+   * the fingers rather than with the hand bone.
+   *
+   * @param surface The surface.
+   * @returns Whether it is a digit's tip or pad.
+   */
+  export function digital(surface: Surface): surface is DigitSurface {
+    return (DIGIT_SURFACES as readonly string[]).includes(surface);
+  }
+
+  /**
+   * The bone a surface rides: a digit's tip and pad ride its distal phalanx,
+   * every other surface the hand.
+   *
+   * @param side The hand.
+   * @param surface The surface.
+   * @returns The bone.
+   */
+  export function bone(side: Side, surface: Surface): AutoMovieHumanoidBone {
+    if (!digital(surface)) return `${side}Hand`;
+    const digit: string = surface.replace(/(Tip|Pad)$/, "");
+    return `${side}${digit[0]!.toUpperCase()}${digit.slice(1)}Distal` as AutoMovieHumanoidBone;
+  }
 
   /** A hand shape. */
   export type Shape = (typeof SHAPES)[number];
@@ -168,8 +219,8 @@ export namespace HumanHand {
    * @param body The body.
    * @param side The hand.
    * @param surface The surface.
-   * @param form The hand shape; it matters only for the index fingertip.
-   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind of touch curls them; it matters only for the index fingertip.
+   * @param form The hand shape; it matters only for a digit's tip or pad.
+   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind of touch curls them; it matters only for a digit's tip or pad.
    * @returns The frame, its point measured from the wrist joint.
    */
   export function offset(
@@ -209,8 +260,17 @@ export namespace HumanHand {
           forward: palm.forward!,
         };
       }
+      case "thumbTip":
+      case "thumbPad":
       case "indexTip":
-        return HumanHandShape.tip(body, side, form, curl);
+      case "indexPad":
+      case "middleTip":
+      case "middlePad":
+      case "ringTip":
+      case "ringPad":
+      case "littleTip":
+      case "littlePad":
+        return HumanHandShape.tip(body, side, form, curl, surface);
     }
   }
 
@@ -412,7 +472,7 @@ export namespace HumanHand {
    * @param bones The pose's resolved bones.
    * @param side The hand.
    * @param surface The surface.
-   * @param form The hand shape the pose holds; it matters only for the index fingertip.
+   * @param form The hand shape the pose holds; it matters only for a digit's tip or pad.
    * @returns The world frame.
    */
   export function frame(
@@ -429,17 +489,18 @@ export namespace HumanHand {
     const local: IFrame = offset(body, side, surface, form);
     const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(hand.worldRotation, v);
-    if (surface !== "indexTip")
+    if (!digital(surface))
       return {
         point: Vector3.add(hand.worldPosition, turn(local.point)),
         normal: turn(local.normal),
         forward: turn(local.forward),
       };
 
-    // The fingertip rides the distal phalanx, so read it from that bone.
+    // A digit's tip or pad rides its distal phalanx, so read it from that
+    // bone.
     const region =
       body.surfaces.regions[
-        `indexTip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
+        `${surface}${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
       ];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       region,

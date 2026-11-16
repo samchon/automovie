@@ -20,6 +20,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertSportSaltoFlight } from "../internal/assertSportSaltoFlight";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -66,10 +67,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 8. Forward salto: a quarter into the flight the head is ahead of the
  *    hips, at its middle below them, three quarters in behind them, and at
  *    `settled` above them.
- * 9. A salto that cannot turn: with an apex of 0.15 m the flight is shorter
- *    than one turn at the salto's bound, so one turn is refused on `turns`
- *    with no feasible range; with the default apex, three turns are refused
- *    on `turns` with a whole range from 1.
+ * 9. The original 0.15 m apex and three-turn requests are judged by the
+ *    body's conserved-momentum flight, which replaced the provisional
+ *    constant-rate bound. Each is either refused on `turns` without an
+ *    invented scalar feasible range, or its displayed root completes the
+ *    requested turns and lands upright within 0.02 revolution (the existing
+ *    airborne-signature bound). Twenty turns exceed the take-off and are
+ *    refused, as the independent core-flight case also requires.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public input on real bodies and reads displayed bones at named events; each failure names the row, the body and the measured millimetres.
  * @evidence contracts/development/testing.md#independent-expectations Expected values are the cited descriptions and the campaign's bounds; none is read from the law.
@@ -373,11 +377,13 @@ export function test_human_motion_sport_workout(): void {
     expect("the salto lands upright", standing > 0, m(standing));
 
     // 9. A salto that cannot turn.
-    const refusal: (params: object) => HumanRefusal | string = (
+    const attempt: (
       params: object,
-    ): HumanRefusal | string => {
+    ) => HumanPerformance | HumanRefusal | string = (
+      params: object,
+    ): HumanPerformance | HumanRefusal | string => {
       try {
-        new HumanPerformance({
+        return new HumanPerformance({
           seed: "salto",
           laws: Object.values(HUMAN_LEXICON).flat(),
           performers: [
@@ -394,7 +400,6 @@ export function test_human_motion_sport_workout(): void {
             .registered("frontSalto", { to: { x: 0, y: 0, z: 0.8 }, ...params })
             .node,
         });
-        return "planned";
       } catch (error) {
         return error instanceof HumanRefusal
           ? error
@@ -403,27 +408,42 @@ export function test_human_motion_sport_workout(): void {
             : String(error);
       }
     };
-    const short: HumanRefusal | string = refusal({ apex: 0.15 });
+    for (const [label, params, turns] of [
+      ["one turn at a 0.15 m apex", { apex: 0.15 }, 1],
+      ["three turns at the default apex", { turns: 3 }, 3],
+    ] as const) {
+      const result: HumanPerformance | HumanRefusal | string = attempt(params);
+      if (result instanceof HumanPerformance) {
+        const observed: string[] = assertSportSaltoFlight(result, "a", turns);
+        expect(
+          `${label} meets its displayed turns and landing`,
+          observed.length === 0,
+          observed.join("; "),
+        );
+      } else
+        expect(
+          `${label} is physically refused on turns`,
+          result instanceof HumanRefusal &&
+            result.axis === "turns" &&
+            result.feasible === null,
+          result instanceof HumanRefusal
+            ? `${result.axis}, ${JSON.stringify(result.feasible)}`
+            : result,
+        );
+    }
+    const many: HumanPerformance | HumanRefusal | string = attempt({
+      turns: 20,
+    });
     expect(
-      "a flight shorter than one turn is refused on turns with no feasible range",
-      short instanceof HumanRefusal &&
-        short.axis === "turns" &&
-        short.feasible === null,
-      short instanceof HumanRefusal
-        ? `${short.axis}, ${JSON.stringify(short.feasible)}`
-        : short,
-    );
-    const many: HumanRefusal | string = refusal({ turns: 3 });
-    expect(
-      "three turns are refused on turns with a whole range from 1",
+      "twenty turns are refused by the take-off's momentum ceiling",
       many instanceof HumanRefusal &&
         many.axis === "turns" &&
-        many.feasible?.kind === "range" &&
-        many.feasible.minimum === 1 &&
-        many.feasible.whole === true,
+        many.feasible === null,
       many instanceof HumanRefusal
         ? `${many.axis}, ${JSON.stringify(many.feasible)}`
-        : many,
+        : many instanceof HumanPerformance
+          ? "planned"
+          : many,
     );
   }
   TestValidator.equals("every workout is on its support", complaints, []);

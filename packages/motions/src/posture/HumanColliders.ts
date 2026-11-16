@@ -5,6 +5,7 @@ import {
   closestPointsBetweenSegments,
   physicalHullFaces,
   physicalShapeBounds,
+  physicalShapeNearest,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -38,6 +39,48 @@ export namespace HumanColliders {
 
     /** The nearest segment's bone. */
     bone: AutoMovieHumanoidBone;
+  }
+
+  /**
+   * Where a segment comes nearest a posed body: the signed distance and the
+   * bone of `distanceToSegment`, with the point of that bone's colliders
+   * nearest the segment and their outward normal there, read by the engine's
+   * one proximity owner (`physicalShapeNearest`). A flight's contact reads
+   * where it struck and which way the surface faced.
+   *
+   * @param body The body.
+   * @param bones Its posed bones, world frame.
+   * @param a One end, world metres.
+   * @param b The other end, world metres.
+   * @returns The distance, the bone, the surface point and its outward normal.
+   * @throws {Error} When the profile has no shape.
+   */
+  export function nearest(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): IDistance & { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+    const found: IDistance = distanceToSegment(body, bones, a, b);
+    let best: physicalShapeNearest.IResult | undefined;
+    for (const { bone, pose, shapes } of placed(body, bones)) {
+      if (bone !== found.bone) continue;
+      for (const shape of shapes) {
+        const near: physicalShapeNearest.IResult = physicalShapeNearest(
+          pose,
+          shape,
+          a,
+          b,
+        );
+        if (best === undefined || near.distance < best.distance) best = near;
+      }
+    }
+    return {
+      distance: found.distance,
+      bone: found.bone,
+      point: best!.point,
+      normal: best!.normal,
+    };
   }
 
   /**

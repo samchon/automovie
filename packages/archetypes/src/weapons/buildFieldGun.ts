@@ -249,8 +249,7 @@ export function buildFieldGun(
   const degrees: number[] = [];
   for (let k: number = -c.depression; k <= c.elevation; k++) degrees.push(k);
   const advance: number = FIELD_GUN.SCREW.pitch / 360;
-  const turns = (k: number): number =>
-    sinking(k) / advance;
+  const turns = (k: number): number => sinking(k) / advance;
 
   // The dependent elevation can also be named as a desired input through the
   // reversible coupling, without a second law for existing launch consumers.

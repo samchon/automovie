@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Transform, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
@@ -8,7 +8,6 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { caseFrame } from "./caseFrame";
 import { everydayCaseKit } from "./everydayCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -191,13 +190,13 @@ function board(at: IAutoMovieVector3): IHumanProp {
       {
         id: "homeRow",
         kind: "surface",
-        frame: caseFrame({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
+        frame: Transform.identity(),
         extent: null,
       },
       {
         id: "keys",
         kind: "surface",
-        frame: caseFrame({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
+        frame: Transform.identity(),
         extent: null,
         width: typeText.WIDTH,
       },
