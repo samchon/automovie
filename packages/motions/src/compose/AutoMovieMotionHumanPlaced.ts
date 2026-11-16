@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -235,7 +235,8 @@ export namespace AutoMovieMotionHumanPlaced {
     posture: IHumanPosture,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
-    return HumanTrunk.resolve(body, posture).get(bone)!.worldPosition;
+    return HumanTrunk.resolve(body, posture, undefined, undefined,
+      new Set<AutoMovieHumanoidBone>([bone])).get(bone)!.worldPosition;
   }
 
   /**
@@ -264,18 +265,40 @@ export namespace AutoMovieMotionHumanPlaced {
     posture: IHumanPosture,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const from = HumanTrunk.resolve(body, standing).get("chest")!;
-    const to = HumanTrunk.resolve(body, posture).get("chest")!;
-    return Vector3.add(
-      to.worldPosition,
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          to.worldRotation,
-          Quaternion.inverse(from.worldRotation),
-        ),
-        Vector3.subtract(point, from.worldPosition),
-      ),
-    );
+    return carryFrom(body, standing)(posture)(point);
+  }
+
+  /**
+   * Prepare a fixed chest frame for several points carried with a movement.
+   *
+   * @param body The unchanged body whose trunk carries the points.
+   * @param standing The unchanged posture where each source point was authored.
+   * @returns A current-posture reader; each call reads its chest once and returns a point transform from the original world frame to the current world frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the immutable source frame, varying current posture, two world-metre point frames and lifetime of both readers.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original current-chest times inverse-source-chest rigid transform; the source inverse and each current relative rotation are independent of the points they carry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Source preparation, one current chest read and a pure point transform expose the two distinct invariant scopes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current posture still performs canonical authored-joint FK with its actual root; no time samples, body size assumptions or fitted motion results are reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded source chest FK per plan and one demanded current chest FK per place evaluation replace two FK calls per carried point; P points then use O(P) rigid transforms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the same unchanged body and source posture share their chest frame; one current-posture call shares only that call's actual chest among its point transforms.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one source chest frame and inverse; each evaluation owns one current point-transform closure until its points are placed, with no FK reader or current-time history stored in the plan.
+   */
+  export function carryFrom(
+    body: IHumanBody,
+    standing: IHumanPosture,
+  ): (posture: IHumanPosture) => (point: IAutoMovieVector3) => IAutoMovieVector3 {
+    const from: IAutoMovieResolvedBone =
+      HumanTrunk.resolve(body, standing, undefined, undefined, CHEST).get("chest")!;
+    const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(from.worldRotation);
+    return (posture: IHumanPosture): (point: IAutoMovieVector3) => IAutoMovieVector3 => {
+      const to: IAutoMovieResolvedBone =
+        HumanTrunk.resolve(body, posture, undefined, undefined, CHEST).get("chest")!;
+      const rotation: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(to.worldRotation, inverse);
+      return (point: IAutoMovieVector3): IAutoMovieVector3 => Vector3.add(
+        to.worldPosition,
+        Quaternion.rotateVector(rotation, Vector3.subtract(point, from.worldPosition)),
+      );
+    };
   }
 
   /**
@@ -297,7 +320,8 @@ export namespace AutoMovieMotionHumanPlaced {
     body: IHumanBody,
     posture: IHumanPosture,
   ): IAutoMovieVector3 {
-    const bones = HumanTrunk.resolve(body, posture);
+    const bones: ReturnType<typeof HumanTrunk.resolve> =
+      HumanTrunk.resolve(body, posture, undefined, undefined, SHOULDERS);
     return Vector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
@@ -427,3 +451,9 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 }
+
+/** Frame demanded by a point carried with the chest. */
+const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);
+
+/** Joints whose midpoint places a two-hand target. */
+const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);

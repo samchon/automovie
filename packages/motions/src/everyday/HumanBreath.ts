@@ -191,8 +191,20 @@ export namespace HumanBreath {
    *
    * @param options The rate and exertion; both optional.
    * @returns The layer, named `breath`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the named additive layer, optional rate/exertion and film-second evaluation; the namespace documents physiological timing and provisional angles.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same analytic breathing phase and exertion law, with resting rate and initial phase drawn from the same pure counter-based streams and the same current-cycle sigh draw.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bounded fixed-draw readers prepare the invariant rate and phase; each apply still obtains its context streams, evaluates actual exertion/time and adds current volume through the existing joint owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all context.random calls, existing state validators, exertion handling and cycle-indexed sigh draws; only identical pure stream-seed inputs reuse their completed fixed-index rate/phase computations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each resting-rate or phase draw executes once while its exact stream seed stays unchanged; apply still costs O(E) for E exertion bouts plus fixed joint work and the current sigh draw. Alternating different seeds recomputes the appropriate draw without growing a cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work IAutoMovieRandom is the canonical pure counter-based stream whose seed and index determine its values; each fixed-draw reader holds only its last exact seed/result. Current time, exertion, volume, posture and sigh results are never reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains options and two last-seed/scalar records until released, with no retained body, context, stream object, time sample or growing performer map.
    */
   export function layer(options: IOptions = {}): IHumanLayer {
+    const rateAt: (random: IAutoMovieRandom) => number = fixedDraw(restingRate);
+    const phaseAt: (random: IAutoMovieRandom) => number = fixedDraw(
+      (random: IAutoMovieRandom): number => random.float(0),
+    );
     return {
       name: "breath",
 
@@ -204,8 +216,8 @@ export namespace HumanBreath {
         context: IHumanLayer.IContext,
       ): IHumanPosture => {
         const rate: number =
-          options.rate ?? restingRate(context.random("breath.rate"));
-        const phase0: number = context.random("breath.phase").float(0);
+          options.rate ?? rateAt(context.random("breath.rate"));
+        const phase0: number = phaseAt(context.random("breath.phase"));
         const volume: number = state(
           seconds,
           rate,
@@ -227,10 +239,7 @@ export namespace HumanBreath {
    */
   export function add(posture: IHumanPosture, volume: number): IHumanPosture {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
-    for (const [bone, angles] of Object.entries(TIDAL) as [
-      AutoMovieHumanoidBone,
-      readonly [number, number, number],
-    ][]) {
+    for (const [bone, angles] of TIDAL_ENTRIES) {
       const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       joints[bone] = [
         base[0] + volume * angles[0],
@@ -240,4 +249,20 @@ export namespace HumanBreath {
     }
     return { ...posture, joints };
   }
+}
+
+/** The readonly clinical-angle table has fixed membership for every breath. */
+const TIDAL_ENTRIES: readonly [AutoMovieHumanoidBone, readonly [number, number, number]][] =
+  Object.entries(HumanBreath.TIDAL) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
+
+/** Reuse one fixed-index scalar draw only while its pure stream seed is identical. */
+function fixedDraw(
+  draw: (random: IAutoMovieRandom) => number,
+): (random: IAutoMovieRandom) => number {
+  let previous: { seed: string; value: number } | undefined;
+  return (random: IAutoMovieRandom): number => {
+    if (previous === undefined || previous.seed !== random.seed)
+      previous = { seed: random.seed, value: draw(random) };
+    return previous.value;
+  };
 }

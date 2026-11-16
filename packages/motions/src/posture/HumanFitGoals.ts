@@ -201,11 +201,11 @@ export namespace HumanFitGoals {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the Jacobian units and noncollinearity requirement.
    * @evidence contracts/development/implementation.md#principled-implementation Differentiates atan2 of cross length and dot: with unit n along u cross v, gradients of the angle in its two rays are (u cross n)/|u|² and (n cross v)/|v|²; the vertex moves both rays negatively. Rigid-point velocities are HumanJacobian's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ray gradients dotted with each variable's endpoint-minus-vertex velocities.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ray gradients dotted with each variable's endpoint-minus-vertex velocities; private velocity owns lazy current landmark-point preparation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular angle is reported instead of inventing a bending plane or perturbing the pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in variables times landmark points; uses no finite-difference fits or forward kinematics.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the fit's existing bones and geometric Jacobian motions.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For n variables and L points across the three landmarks, keeps O(n*L) rigid-point velocity work but reduces repeated world-point transforms from n*L to L, with O(L) local point storage; owned mean accumulators also avoid a new sum vector per point, and no finite-difference fits or forward kinematics are added.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same unchanged bones and bone-local points serve all variable motions during this synchronous call, and HumanJacobian.velocity does not mutate them; each point is prepared at its first original velocity phase and later motions reuse that exact completed world point.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most three local point arrays are acquired only when a motion consumes them and released on return or throw; the returned scalar slopes retain no points, bones or motion history.
    */
   export function slopes(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -228,10 +228,13 @@ export namespace HumanFitGoals {
       Vector3.cross(n, v),
       1 / Vector3.dot(v, v),
     );
+    let atFirst: IAutoMovieVector3[] | undefined;
+    let atVertex: IAutoMovieVector3[] | undefined;
+    let atLast: IAutoMovieVector3[] | undefined;
     return motions.map((motion: HumanJacobian.IMotion): number => {
-      const a: IAutoMovieVector3 = velocity(bones, target.points[0], motion);
-      const b: IAutoMovieVector3 = velocity(bones, target.points[1], motion);
-      const c: IAutoMovieVector3 = velocity(bones, target.points[2], motion);
+      const a: IAutoMovieVector3 = velocity(bones, target.points[0], motion, (atFirst ??= []));
+      const b: IAutoMovieVector3 = velocity(bones, target.points[1], motion, (atVertex ??= []));
+      const c: IAutoMovieVector3 = velocity(bones, target.points[2], motion, (atLast ??= []));
       return (
         Vector3.dot(gu, Vector3.subtract(a, b)) +
         Vector3.dot(gv, Vector3.subtract(c, b))
@@ -336,14 +339,14 @@ export namespace HumanFitGoals {
   }
 }
 
-/** The world mean of a nonempty set of bone-carried points. */
+/** World mean with the original ordered sums in one owned accumulator; no borrowed bone or point vector is changed. */
 function landmark(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   points: HumanFitGoals.Landmark,
 ): IAutoMovieVector3 {
   if (points.length === 0)
     throw new Error("A landmark needs at least one point");
-  let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const point of points) {
     const bone: IAutoMovieResolvedBone | undefined = bones.get(point.bone);
     if (bone === undefined)
@@ -355,21 +358,29 @@ function landmark(
             bone.worldPosition,
             Quaternion.rotateVector(bone.worldRotation, point.point),
           );
-    sum = Vector3.add(sum, placed);
+    sum.x = sum.x + placed.x;
+    sum.y = sum.y + placed.y;
+    sum.z = sum.z + placed.z;
   }
   return Vector3.scale(sum, 1 / points.length);
 }
 
-/** The mean velocity of the same rigid landmarks under one existing Jacobian motion. */
+/** Mean current rigid-point velocity, preparing each world point at its first original read for later unchanged-bone motions. */
 function velocity(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   points: HumanFitGoals.Landmark,
   motion: HumanJacobian.IMotion,
+  positions: IAutoMovieVector3[],
 ): IAutoMovieVector3 {
-  let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  let k: number = 0;
   for (const point of points) {
-    const at: IAutoMovieVector3 = landmark(bones, [point]);
-    sum = Vector3.add(sum, HumanJacobian.velocity(motion, point.bone, at));
+    const at: IAutoMovieVector3 = positions[k] ?? (positions[k] = landmark(bones, [point]));
+    ++k;
+    const speed: IAutoMovieVector3 = HumanJacobian.velocity(motion, point.bone, at);
+    sum.x = sum.x + speed.x;
+    sum.y = sum.y + speed.y;
+    sum.z = sum.z + speed.z;
   }
   return Vector3.scale(sum, 1 / points.length);
 }

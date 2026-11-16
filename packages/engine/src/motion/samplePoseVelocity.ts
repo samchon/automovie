@@ -1,6 +1,5 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -52,15 +51,16 @@ import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
  *   default basis with rest-relative angles when omitted.
  * @param continued The pose as a pure function of seconds with every fit
  *   continued from the instant's, the rate's samples; `sample` when omitted.
+ * @param prepared Optional same-rig codec or lazy getter, demanded only after the actual samples and joint-rate indexing.
  * @returns The pose at the instant and its velocity.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States both estimators, when each applies, their error order, the absent-angle meaning, the continued samples and the units.
+ * @evidence contracts/development/common.md#meaningful-documentation States both estimators, their sample/order/error premises, absent-angle meaning and units, plus the optional same-rig codec's post-samples demand stage.
  * @evidence contracts/development/implementation.md#principled-implementation Second-order central and one-sided differences on the source function; angular velocity by the quaternion log map.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three samples, then one weighted difference per channel.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws; a one-sided motion is never sampled across its instant.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three samples and linear work in joints.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms All original sample callbacks and O(J) indexing/conversions/differences remain; a supplied codec avoids another O(B) setup and module helpers avoid per-bone spin/per-call mapper closures. Every forward rotation still executes; runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit unchanged-rig codec may serve related source/target velocity and offset capture, but no sampled pose, angle rate or articulation result is cached. Fresh pose indexing shares one owner with inertialization.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned state owns its existing pose/rate maps and vectors, with no callback, codec or lazy getter added. A borrowed codec/source remains parent-owned; local samples/indexes end with this call and no global rig cache is consulted.
  */
 export function samplePoseVelocity(
   sample: (seconds: number) => IAutoMoviePose,
@@ -69,6 +69,7 @@ export function samplePoseVelocity(
   side: samplePoseVelocity.Side = "both",
   rig?: IAutoMoviePoseRig,
   continued?: (seconds: number) => IAutoMoviePose,
+  prepared?: poseJointCodec.ICodec | (() => poseJointCodec.ICodec),
 ): samplePoseVelocity.IState {
   if (!(step > 0)) throw new Error("A velocity step is positive");
   const pose: IAutoMoviePose = sample(seconds);
@@ -87,26 +88,19 @@ export function samplePoseVelocity(
   const near: number = side === "both" ? 1 : 4 * sign;
   const far: number = side === "both" ? -1 : -sign;
   const here: number = side === "both" ? 0 : -3 * sign;
-  const rate = (x: number, y: number, z: number): number =>
+  const rate: (x: number, y: number, z: number) => number = (
+    x: number,
+    y: number,
+    z: number,
+  ): number =>
     (near * x + far * y + here * z) / (2 * step);
 
-  const angles = (
-    p: IAutoMoviePose,
-  ): Map<AutoMovieHumanoidBone, [number, number, number]> =>
-    new Map(
-      p.joints.map(
-        (
-          j: IAutoMovieJointPose,
-        ): [AutoMovieHumanoidBone, [number, number, number]] => [
-          j.bone,
-          [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
-        ],
-      ),
-    );
-  const aa: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(a);
-  const ba: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(b);
+  const aa: Map<AutoMovieHumanoidBone, [number, number, number]> =
+    poseJointCodec.index(a);
+  const ba: Map<AutoMovieHumanoidBone, [number, number, number]> =
+    poseJointCodec.index(b);
   const pa: Map<AutoMovieHumanoidBone, [number, number, number]> =
-    angles(instant);
+    poseJointCodec.index(instant);
   const joints: Map<AutoMovieHumanoidBone, [number, number, number]> =
     new Map();
   for (const bone of new Set([...aa.keys(), ...ba.keys(), ...pa.keys()])) {
@@ -122,24 +116,26 @@ export function samplePoseVelocity(
 
   // Joint spins: the rotation vectors of each articulation at the two samples
   // beside the instant, from the same origin sample as the root's below.
-  const codec: poseJointCodec.ICodec = poseJointCodec(rig);
+  const codec: poseJointCodec.ICodec =
+    prepared === undefined
+      ? poseJointCodec(rig)
+      : typeof prepared === "function"
+        ? prepared()
+        : prepared;
   const still: [number, number, number] = [0, 0, 0];
   const spins: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of joints.keys()) {
     const from: IAutoMovieQuaternion = Quaternion.inverse(
       codec.rotation(bone, (side === "both" ? ba : pa).get(bone) ?? still),
     );
-    const swing = (
-      angles: Map<AutoMovieHumanoidBone, [number, number, number]>,
-    ): IAutoMovieVector3 =>
-      samplePoseVelocity.rotationVector(
-        Quaternion.multiply(
-          codec.rotation(bone, angles.get(bone) ?? still),
-          from,
-        ),
-      );
-    const x: IAutoMovieVector3 = swing(aa);
-    const y: IAutoMovieVector3 = swing(ba);
+    const x: IAutoMovieVector3 = spinFrom(
+      codec.rotation(bone, aa.get(bone) ?? still),
+      from,
+    );
+    const y: IAutoMovieVector3 = spinFrom(
+      codec.rotation(bone, ba.get(bone) ?? still),
+      from,
+    );
     spins.set(bone, {
       x: rate(x.x, y.x, 0),
       y: rate(x.y, y.y, 0),
@@ -157,12 +153,14 @@ export function samplePoseVelocity(
   const origin: IAutoMovieQuaternion = Quaternion.inverse(
     (side === "both" ? b : instant).root?.rotation ?? Quaternion.identity(),
   );
-  const turn = (p: IAutoMoviePose): IAutoMovieVector3 =>
-    samplePoseVelocity.rotationVector(
-      Quaternion.multiply(p.root?.rotation ?? Quaternion.identity(), origin),
-    );
-  const ar: IAutoMovieVector3 = turn(a);
-  const br: IAutoMovieVector3 = turn(b);
+  const ar: IAutoMovieVector3 = spinFrom(
+    a.root?.rotation ?? Quaternion.identity(),
+    origin,
+  );
+  const br: IAutoMovieVector3 = spinFrom(
+    b.root?.rotation ?? Quaternion.identity(),
+    origin,
+  );
   return {
     pose,
     velocity: {
@@ -180,6 +178,14 @@ export function samplePoseVelocity(
       },
     },
   };
+}
+
+/** Read a current articulation/root's rotation vector from the same inverse origin. */
+function spinFrom(
+  rotation: IAutoMovieQuaternion,
+  from: IAutoMovieQuaternion,
+): IAutoMovieVector3 {
+  return samplePoseVelocity.rotationVector(Quaternion.multiply(rotation, from));
 }
 
 /**

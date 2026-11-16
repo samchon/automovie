@@ -157,9 +157,9 @@ export namespace crawlChain {
    * @evidence contracts/development/implementation.md#principled-implementation The trunk, its lean and the thigh's rest angle are read off the rig's joints in the relaxed upright pose and the balls off the standing feet, so every length is the body's; the fold is held inside the hip's flexion range, and the fold and the plank are solved by bisection on the same chain.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A leg by its elevation, the shoulders over the wrists, the hips by one scan and a bisection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan comes down from the hips high, so the place kept is the upper one, and the shoulders go no further than the plank, where the two places meet; where the heel's lift leaves the arc a hair short of the shoulders, the nearest elevation is kept, never the scan's floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per plan; each shape is a few hundred closed-form evaluations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `crawlFrame` for the wrists and the upright pose and `HumanFoot` for the feet.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain holds the body's few lengths and places only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One upright FK requests only the measured shoulders, hips and knees; shapes retain every scan and bisection, sharing exact fixed-elevation foot geometry across them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same body, heading and foot pivot define each integer scan elevation; only its absolute translation changes with mu, which is still applied in the original arithmetic order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The chain holds its body lengths and places plus at most 116 integer-elevation foot records from LOWEST through 120, released with the chain; noninteger bisection values are not retained.
    */
   export function of(
     body: IHumanBody,
@@ -175,6 +175,8 @@ export namespace crawlChain {
         ...crawlFrame.posed(body, yaw, 0, 0, 0, 0),
         root: standing.root,
       }),
+      undefined,
+      MEASURED,
     );
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       HumanFrame.local(frame, upright.get(bone)!.worldPosition);
@@ -222,21 +224,26 @@ export namespace crawlChain {
 
     // The leg at an elevation over the foot pivoted on its ball, the heel
     // lifted as far as the shank leans forward.
+    const scan: Map<number, { heel: number; ankle: IAutoMovieVector3; along: number; up: number }> = new Map();
     const legAt = (mu: number, lam: number): ILeg => {
-      const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
-      const ankle: IAutoMovieVector3 = HumanFrame.local(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        HumanFoot.pivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw, -heel)
-          .ankle,
-      );
-      const a: IPlanar = { u: mu + ankle.z, v: ballY + ankle.y };
+      let geometry: { heel: number; ankle: IAutoMovieVector3; along: number; up: number } | undefined = scan.get(lam);
+      if (geometry === undefined) {
+        const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
+        const ankle: IAutoMovieVector3 = HumanFrame.local(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          HumanFoot.pivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw, -heel).ankle,
+        );
+        geometry = { heel, ankle, along: l * Math.cos(lam / DEG), up: l * Math.sin(lam / DEG) };
+        if (Number.isInteger(lam) && lam >= LOWEST && lam <= 120) scan.set(lam, geometry);
+      }
+      const a: IPlanar = { u: mu + geometry.ankle.z, v: ballY + geometry.ankle.y };
       return {
         lam,
-        heel,
+        heel: geometry.heel,
         ankle: a,
         hips: {
-          u: a.u + l * Math.cos(lam / DEG),
-          v: a.v + l * Math.sin(lam / DEG),
+          u: a.u + geometry.along,
+          v: a.v + geometry.up,
         },
       };
     };
@@ -363,4 +370,7 @@ export namespace crawlChain {
       balls,
     };
   }
+
+  /** Upright lengths and lateral places read by this chain's preparation. */
+  const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg"]);
 }

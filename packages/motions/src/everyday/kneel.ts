@@ -24,6 +24,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelKeys } from "./kneelKeys";
+import { prepareKneelFoot } from "./prepareKneelFoot";
 
 /**
  * Kneeling from standing: on one knee (half kneel), on both knees upright,
@@ -208,7 +209,7 @@ export namespace kneel {
       { holds: ["settled"] },
     );
     const duration: number = clock.duration;
-    const at = (seconds: number): { phase: IPhase; u: number } => {
+    const at = (seconds: number): { phase: IPhase; index: number; u: number } => {
       let index: number = 0;
       for (let i: number = 0; i < phases.length; i++)
         if (seconds >= clock.at(phases[i]!.name) - 1e-9) index = i;
@@ -217,40 +218,17 @@ export namespace kneel {
         index + 1 < phases.length ? phases[index + 1]!.name : "end";
       return {
         phase,
+        index,
         u: minimumJerk(clock.linear(phase.name, next, seconds)).s,
       };
     };
 
     // A foot between two keys: pivoting on its toes' joint when that stays,
     // swinging on an arc when it moves.
-    const footAt = (
-      side: "left" | "right",
-      a: kneelKeys.IFoot,
-      b: kneelKeys.IFoot,
-      u: number,
-    ): { placement: HumanFoot.IPlacement; planted: boolean; toes: number } => {
-      const moves: boolean =
-        Vector3.length(Vector3.subtract(a.at, b.at)) > 1e-4;
-      const placed = (foot: kneelKeys.IFoot): HumanFoot.IPlacement =>
-        HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch);
-      const toes: number = a.toes + (b.toes - a.toes) * u;
-      if (!moves)
-        return {
-          placement: placed({ ...a, pitch: a.pitch + (b.pitch - a.pitch) * u }),
-          planted: true,
-          toes,
-        };
-      return {
-        placement: AutoMovieMotionHumanLeg.arc(
-          placed(a),
-          placed(b),
-          CLEARANCE * m.shank,
-          u,
-        ),
-        planted: u <= 0 || u >= 1,
-        toes,
-      };
-    };
+    const feetAt: Record<"left" | "right", ReturnType<typeof prepareKneelFoot>>[] = phases.map((phase: IPhase): Record<"left" | "right", ReturnType<typeof prepareKneelFoot>> => ({
+      left: prepareKneelFoot(body, "left", keys[phase.from]!.feet.left, keys[phase.to]!.feet.left, CLEARANCE * m.shank),
+      right: prepareKneelFoot(body, "right", keys[phase.from]!.feet.right, keys[phase.to]!.feet.right, CLEARANCE * m.shank),
+    }));
 
     // The body at a second. While it stands on its feet (the step and the
     // lowering, and their way back) the hips run a course along the heading
@@ -264,12 +242,12 @@ export namespace kneel {
       seconds: number,
       along?: number,
     ): IHumanPosture => {
-      const { phase, u } = at(seconds);
+      const { phase, index, u } = at(seconds);
       const a: kneelKeys.IKey = keys[phase.from]!;
       const b: kneelKeys.IKey = keys[phase.to]!;
       const feet = {
-        left: footAt("left", a.feet.left, b.feet.left, u),
-        right: footAt("right", a.feet.right, b.feet.right, u),
+        left: feetAt[index]!.left(u),
+        right: feetAt[index]!.right(u),
       };
       const pair: number = phase.from + phase.to;
       let root: IAutoMovieVector3;

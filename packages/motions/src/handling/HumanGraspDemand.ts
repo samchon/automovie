@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -64,22 +65,46 @@ export namespace HumanGraspDemand {
     shown: HumanHand.IWrist,
     posture: IHumanPosture,
   ): IHumanActionLaw.IGrip {
+    return prepare(context, prop, side, posture)(shown);
+  }
+
+  /**
+   * Read the prop once before building candidate grips for the same search.
+   *
+   * @param context The body, prop reader and action start fixed by the search.
+   * @param prop The prop each candidate grasps.
+   * @param side The grasping hand.
+   * @param posture The posture the action leaves after grasping.
+   * @returns A builder that reads only the candidate's displayed wrist.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, the variable displayed wrist and the returned builder.
+   * @evidence contracts/development/implementation.md#principled-implementation Each candidate's held offset is still computed from its own displayed wrist; only the identical prop frame at the action's start and affordance list are prepared once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop reading precedes a wrist-specific held record and the existing tool reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate tool transform or demanded goal is reused across differing wrists.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The prop and start frame are read once for C candidate grips; each candidate retains constant transform work and its demanded contacts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, prop at the fixed action start, side and ending posture belong to one grasp search; a new search acquires a new builder.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns the builder's one prop frame and affordance list and releases them with its closure; candidate records retain only their own held transform.
+   */
+  export function prepare(
+    context: Pick<IHumanActionContext, "body" | "prop" | "start">,
+    prop: string,
+    side: HumanHand.Side,
+    posture: IHumanPosture,
+  ): (shown: HumanHand.IWrist) => IHumanActionLaw.IGrip {
     const held: IHumanActionContext.IProp = context.prop(prop);
-    const grasped: AutoMovieMotionHumanHeld.IHeld =
-      AutoMovieMotionHumanHeld.grasped(
-        context.body,
-        side,
+    const frame: IHumanProp.IFrame = held.frame(context.start);
+    return (shown: HumanHand.IWrist): IHumanActionLaw.IGrip => {
+      const grasped: AutoMovieMotionHumanHeld.IHeld =
+        AutoMovieMotionHumanHeld.grasped(
+          context.body, side, prop, frame, held.prop.affordances ?? [], shown,
+        );
+      return {
         prop,
-        held.frame(context.start),
-        held.prop.affordances ?? [],
-        shown,
-      );
-    return {
-      prop,
-      side,
-      tool: (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
-        StrikingHeld.read(grasped, points),
-      posture,
+        side,
+        tool: (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
+          StrikingHeld.read(grasped, points),
+        posture,
+      };
     };
   }
 

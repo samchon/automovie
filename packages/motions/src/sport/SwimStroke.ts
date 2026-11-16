@@ -69,6 +69,8 @@ export namespace SwimStroke {
     "leftUpperLeg",
     "rightUpperLeg",
   ];
+  /** The pin mean reads only the two hip origins after full canonical admission. */
+  const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
 
   /** A backstroke key: one arm's shoulder flexion and abduction, the other's, and which leg is up. */
   const back = (
@@ -101,7 +103,15 @@ export namespace SwimStroke {
    */
   export function strokes(body: IHumanBody): Readonly<Record<Name, IStroke>> {
     return {
-      breaststroke: {
+      breaststroke: keyed(body, "breaststroke"),
+      backstroke: keyed(body, "backstroke"),
+      float: keyed(body, "float"),
+    };
+  }
+
+  /** Build only the selected stroke's keys; the public table requests each row explicitly. */
+  function keyed(body: IHumanBody, name: Name): IStroke {
+    if (name === "breaststroke") return {
         supine: false,
         speed: 0.9,
         keys: [
@@ -154,8 +164,8 @@ export namespace SwimStroke {
             0.3,
           ],
         ],
-      },
-      backstroke: {
+      };
+    if (name === "backstroke") return {
         supine: true,
         speed: 1,
         keys: [
@@ -164,8 +174,8 @@ export namespace SwimStroke {
           [back(body, [0, 5], [178, 5], 1), 0.35],
           [back(body, [90, 5], [20, 85], -1), 0.35],
         ],
-      },
-      float: {
+      };
+    return {
         supine: true,
         speed: 0,
         keys: [
@@ -178,7 +188,6 @@ export namespace SwimStroke {
             2,
           ],
         ],
-      },
     };
   }
 
@@ -192,9 +201,9 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#principled-implementation The second gives the cycle and the place in it; the two keys around that place are blended in joint space on minimum-jerk progress and pinned by the hip joints on the point the plane carries along.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle's times, the travelling point, the posture, the events.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed is constant, stated on the namespace; a stroke of one key is held.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pin.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke's table row.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A stationary one-key stroke is pinned once; other reads retain canonical admission with only the two pin hips' ancestry requested from FK. Prepared key-pair readers retain the original interpolation and pin mean.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key pairs share their ordered joint unions; a zero-speed single-key stroke shares its exactly constant pinned posture without sampling a replacement trajectory.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its selected stroke row, prepared key-pair readers and optional constant pinned posture until released, with no queried-time cache.
    */
   export function plan(props: {
     body: IHumanBody;
@@ -204,10 +213,14 @@ export namespace SwimStroke {
     cycles: number;
     tempo: number;
   }): IHumanActionPlan {
-    const stroke: IStroke = strokes(props.body)[props.stroke];
+    const stroke: IStroke = keyed(props.body, props.stroke);
     const spans: readonly number[] = stroke.keys.map(
       ([, seconds]: readonly [ExerciseKey.IKey, number]): number =>
         seconds * props.tempo,
+    );
+    const blends: ((share: number) => ExerciseKey.IKey)[] = stroke.keys.map(
+      ([to]: readonly [ExerciseKey.IKey, number], i: number): (share: number) => ExerciseKey.IKey =>
+        ExerciseKey.prepareBlend(stroke.keys[(i + stroke.keys.length - 1) % stroke.keys.length]![0], to),
     );
     const period: number = spans.reduce(
       (sum: number, seconds: number): number => sum + seconds,
@@ -229,11 +242,17 @@ export namespace SwimStroke {
       ),
       { name: "relax", share: 1 },
     ];
+    const held: IHumanPosture | undefined = stroke.keys.length === 1 && stroke.speed === 0
+      ? ExerciseKey.pinned(props.body, blends[0]!(0), props.entry.yaw, HIPS, {
+          x: props.entry.root.x, y: props.water - depth, z: props.entry.root.z,
+        }, HIP_BONES)
+      : undefined;
     return {
       duration,
       events,
       contacts: [],
       posture: (seconds: number): IHumanPosture => {
+        if (held !== undefined) return held;
         const t: number = Math.min(duration, Math.max(0, seconds));
         let within: number = t - Math.floor(t / period) * period;
         if (t >= duration) within = 0;
@@ -250,13 +269,9 @@ export namespace SwimStroke {
           within -= span;
         }
         const u: number = minimumJerk(within).s;
-        const from: ExerciseKey.IKey =
-          stroke.keys[
-            (index + stroke.keys.length - 1) % stroke.keys.length
-          ]![0];
         return ExerciseKey.pinned(
           props.body,
-          ExerciseKey.blend(from, stroke.keys[index]![0], u),
+          blends[index]!(u),
           props.entry.yaw,
           HIPS,
           {
@@ -264,6 +279,7 @@ export namespace SwimStroke {
             y: props.water - depth,
             z: props.entry.root.z + along.z * stroke.speed * t,
           },
+          HIP_BONES,
         );
       },
     };

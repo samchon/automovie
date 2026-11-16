@@ -53,6 +53,32 @@ export namespace HumanWorn {
     region: AutoMovieHumanoidRegion,
     turn: number = 0,
   ): IHumanProp.IFrame {
+    return prepare(body, posture, prop, region)(turn);
+  }
+
+  /**
+   * Prepare a wearable's fixed socket and region before trying its turns.
+   *
+   * @param body The unchanged body.
+   * @param posture The unchanged posture whose region receives the wearable.
+   * @param prop The wearable with its declared wear socket.
+   * @param region The body region receiving that socket.
+   * @returns A world-frame builder accepting turns in degrees about the region normal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed geometry, the turn's unit and axis and the operation-owned builder.
+   * @evidence contracts/development/implementation.md#principled-implementation The original wear-socket alignment and region placement are independent of turn; each call composes the requested turn with that same alignment and translates the actual socket onto the region.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and fixed alignment precede the turn-specific rigid transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing sockets retain the original refusal and each turn retains its original quaternion normalization and translation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One socket search and region FK serve all T turns, followed by O(1) work per actual turn; no fitted arm result is stored.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the fixed body, posture, prop and region share their geometry; differing turns still compute their own frame.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous grasp search owns a constant-size alignment, region frame and socket offset; releasing its builder releases them without a global cache.
+   */
+  export function prepare(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    prop: IHumanProp,
+    region: AutoMovieHumanoidRegion,
+  ): (turn: number) => IHumanProp.IFrame {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
     const wear: IAutoMovieAffordance | undefined = affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === "wear",
@@ -94,15 +120,17 @@ export namespace HumanWorn {
             ),
       },
     );
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(Quaternion.fromAxisAngle(at.normal, turn), aligned),
-    );
-    return {
-      position: Vector3.subtract(
-        at.point,
-        Quaternion.rotateVector(rotation, wear.frame.translation),
-      ),
-      rotation,
+    return (turn: number): IHumanProp.IFrame => {
+      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(Quaternion.fromAxisAngle(at.normal, turn), aligned),
+      );
+      return {
+        position: Vector3.subtract(
+          at.point,
+          Quaternion.rotateVector(rotation, wear.frame.translation),
+        ),
+        rotation,
+      };
     };
   }
 }

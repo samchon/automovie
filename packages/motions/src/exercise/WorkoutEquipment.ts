@@ -8,6 +8,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsWheel } from "../sport/GymnasticsWheel";
+import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
@@ -93,10 +94,11 @@ export namespace WorkoutEquipment {
   const flat = (body: IHumanBody): IHumanPosture =>
     ExerciseKey.posed(ExerciseKey.from(body, { pitch: -90 }, {}), 0);
 
-  /** How high the back's joint is above what the back lies on. */
-  const backed = (body: IHumanBody): number =>
-    knockdown.rest(body, flat(body)) +
-    ExerciseKey.mean(body, flat(body), BACK).y;
+  /** Height of the keyed back above its floor support, used by raised equipment. */
+  const backed = (body: IHumanBody): number => {
+    const lying: IHumanPosture = flat(body);
+    return knockdown.rest(body, lying) + ExerciseKey.mean(body, lying, BACK).y;
+  };
 
   /** Degrees to radians. */
   const rad = (degrees: number): number => (degrees * Math.PI) / 180;
@@ -120,14 +122,16 @@ export namespace WorkoutEquipment {
     support: number | undefined,
   ): ExerciseKey.IKey[] => {
     const lying: IHumanPosture = flat(body);
-    const pivot: IAutoMovieVector3 = ExerciseKey.mean(body, lying, BACK);
-    const hip: IAutoMovieVector3 = ExerciseKey.mean(body, lying, HIPS);
+    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, lying, undefined, new Set<AutoMovieHumanoidBone>([...BACK, ...HIPS]));
+    const pivot: IAutoMovieVector3 = ExerciseKey.mean(body, lying, BACK, bones);
+    const hip: IAutoMovieVector3 = ExerciseKey.mean(body, lying, HIPS, bones);
     const along: number = Math.abs(hip.z - pivot.z);
     const up: number = hip.y - pivot.y;
     const thigh: number = body.measure.thigh;
     const shank: number = body.measure.shank;
     const edge: number = high(body, support);
-    const top: number = edge + backed(body);
+    const backed: number = knockdown.rest(body, lying) + pivot.y;
+    const top: number = edge + backed;
     // The hip joints from the back's joint with the trunk turned down.
     const hips = (angle: number): { forth: number; up: number } => ({
       forth: along * Math.cos(rad(angle)) + up * Math.sin(rad(angle)),
@@ -170,7 +174,7 @@ export namespace WorkoutEquipment {
     // The bottom: the trunk turned further down, the hip joints kept as
     // high above the floor as when the body lies on it.
     let sunk: number = locked + DROP;
-    while (sunk > locked && top + hips(sunk).up < backed(body) + up) sunk -= 1;
+    while (sunk > locked && top + hips(sunk).up < backed + up) sunk -= 1;
     const from: { forth: number; up: number } = hips(sunk);
     const reach: number = Math.min(
       thigh + shank,

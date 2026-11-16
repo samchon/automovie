@@ -124,9 +124,9 @@ export namespace cartwheel {
    * @evidence contracts/development/implementation.md#principled-implementation One table by angle: the shape at that angle is posed, the lowest spoke bears, the root's height sets that joint at its bearing height and the root's place keeps the joint where it came down; a change of spoke hands the place over while both are down, so the root is continuous.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape by angle, the table, the posture by time, the supports from the table's runs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The final posture is returned with no roll, which is the same body as a whole turn, so the next action does not unwind it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per table row, 73 rows per plan, and one per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pose, the standing plan and the gymnastic wheel's table (GymnasticsWheel), which this law's rolling rule became.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the table.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original 73 table rows use demanded spoke FK. The fixed standing/wheel pair and its ordered joint union prepare once; row/playback interpolation allocates only the actual key/joints. Entry FK requests only ankles; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise key's one prepared blend owner, standing plan and GymnasticsWheel table. Only unchanged body-dependent endpoint keys are shared; every queried angle still evaluates its original interpolation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table and one fixed key-pair reader; queried shapes retain no history or FK reader.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -142,16 +142,14 @@ export namespace cartwheel {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ease = (x: number): number => minimumJerk(x).s;
+    const ease: (x: number) => number = (x: number): number => minimumJerk(x).s;
+    const between: ReturnType<typeof ExerciseKey.prepareBlend> =
+      ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheel(body));
 
     // The body at an angle of the turn, its root at the origin.
-    const shaped = (angle: number): IHumanPosture => ({
+    const shaped: (angle: number) => IHumanPosture = (angle: number): IHumanPosture => ({
       ...ExerciseKey.posed(
-        ExerciseKey.blend(
-          ExerciseKey.standing(body),
-          wheel(body),
-          ease(Math.min(angle, 360 - angle) / SHAPE),
-        ),
+        between(ease(Math.min(angle, 360 - angle) / SHAPE)),
         standing.yaw,
       ),
       roll: sign * angle,
@@ -160,7 +158,7 @@ export namespace cartwheel {
     // The spokes, each bearing at the height its joint has when it bears:
     // an ankle's when the body stands on it, a wrist's over a laid palm.
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]));
     const laid: number = GymnasticsWheel.laid(body);
     const spokes: GymnasticsWheel.ISpoke[] = SPOKES.map(
       (bone: (typeof SPOKES)[number]): GymnasticsWheel.ISpoke => ({
@@ -181,21 +179,22 @@ export namespace cartwheel {
     });
 
     // The seconds at which the turn reaches an angle.
-    const when = (angle: number): number =>
+    const when: (angle: number) => number = (angle: number): number =>
       GymnasticsWheel.when(angle, 360, duration);
     const contacts: IHumanContactWindow[] = GymnasticsWheel.contacts(
       rolling,
       spokes,
       (angle: number): number => when(angle) / duration,
     );
-    const first = (suffix: string, after: number): number =>
+    const inverted: number = when(180);
+    const first: (suffix: string, after: number) => number = (suffix: string, after: number): number =>
       contacts.find(
         (window: IHumanContactWindow, index: number): boolean =>
           index >= after && window.part.endsWith(suffix),
       )?.from ?? 0.5;
     const events: IAutoMovieMotionEvent[] = [
       { name: "handsDown", share: first("Hand", 0) },
-      { name: "inverted", share: when(180) / duration },
+      { name: "inverted", share: inverted / duration },
       {
         name: "feetDown",
         share: first(
@@ -211,7 +210,7 @@ export namespace cartwheel {
       duration,
       events,
       contacts,
-      contact: when(180),
+      contact: inverted,
       posture: (seconds: number): IHumanPosture => {
         if (seconds >= duration)
           return { ...shaped(0), root: rolling.rows.at(-1)!.root };

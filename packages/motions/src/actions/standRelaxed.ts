@@ -15,6 +15,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "../posture/HumanDigitFit";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 
@@ -33,9 +34,9 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#principled-implementation Bisects the abduction range on the digit capsules' signed penetration in the quiet stance. It assumes that swinging the hanging arm outward clears its digits; the model's shoulder range is the bracket.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Shape, signed-depth predicate, range bracket, bisection, cached answer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the existing hand shape, shoulder range, quiet stance, digit depth and angle resolution; no body-specific angle is chosen.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve and two hands' depth queries per bisection step, logarithmic in the abduction span divided by ROM_TOLERANCE; later calls return the cached record.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body identity determines the skeleton, profile and measurements; a WeakMap stores one relaxed record per body.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak cache retains no body; its record is released with that body, and the search holds no external resource.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each bisection step retains one posture resolve and one shaped FK traversal, with one placed-collider query for both hands. The readonly hand shapes are built once for the search; the bracket, precision and number of steps are unchanged.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares only its hand-angle tuples and an exact-scalar FK reader; the existing weak body cache still owns the final relaxed record.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader ends with the synchronous search and never enters HUNG; hand-angle tuples retained by the final relaxed record have that same weak body ownership, and intermediate candidate records do not escape.
  */
 export function standRelaxed(
   body: IHumanBody,
@@ -44,7 +45,12 @@ export function standRelaxed(
     | Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
     | undefined = HUNG.get(body);
   if (known !== undefined) return known;
-  const hanging = (
+  const fingers: Record<HumanHand.Side, ReturnType<typeof HumanHand.shape>> = {
+    left: HumanHand.shape("left", "relaxed"),
+    right: HumanHand.shape("right", "relaxed"),
+  };
+  const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const hanging: (abduction: number) => Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = (
     abduction: number,
   ): Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -53,7 +59,7 @@ export function standRelaxed(
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
     for (const side of ["left", "right"] as const) {
-      Object.assign(out, HumanHand.shape(side, "relaxed"));
+      Object.assign(out, fingers[side]);
       out[`${side}UpperArm`] = [0, abduction, 0];
       out[`${side}LowerArm`] = [12, 0, 0];
     }
@@ -61,7 +67,7 @@ export function standRelaxed(
   };
 
   // Read the stated shape before the posture resolver's digit clearing.
-  const sinks = (abduction: number): boolean => {
+  const sinks: (abduction: number) => boolean = (abduction: number): boolean => {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = hanging(abduction);
@@ -82,13 +88,8 @@ export function standRelaxed(
       ),
     };
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, shaped);
-    return (
-      Math.max(
-        HumanDigitFit.depth(body, bones, "left"),
-        HumanDigitFit.depth(body, bones, "right"),
-      ) > 0
-    );
+      poseBones(body, shaped, prepared());
+    return HumanDigitFit.depth(body, bones) > 0;
   };
   const range: IAutoMovieAngleRange | null | undefined = getConstraint(
     "leftUpperArm",

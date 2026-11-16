@@ -1,3 +1,5 @@
+import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+
 /**
  * The vector algebra the solid operators share: world vectors in millimetres
  * as fixed triples, and the 3 by 3 and 2 by 2 linear solves their Newton steps
@@ -271,41 +273,17 @@ export namespace AutoMovieSolidVector {
    *   entry of the matrix (the rows nearly dependent).
    *
    * @evidence contracts/development/implementation.md#principled-implementation Partial-pivot Gaussian elimination solves a finite square system with matching right-hand-side length; the fixed relative pivot threshold is an admission test, not a condition-number bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One copied augmented matrix contains elimination and back-substitution state while preserving caller inputs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareLinearSystem owns the shared partial-pivot elimination and right-hand-side replay, also used by digit task-priority columns, while this convenience entry preserves the ordinary one-solve contract.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pivot not greater than 1e-14 times the largest original entry returns null; there is no retry, regularization or hidden fallback system.
    * @evidence contracts/development/common.md#meaningful-documentation Gives square row layout, nonmutation, current four-variable workload and the pivot rejection rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) elimination and O(N^2) copied storage use the standard dense method for the operators' small systems; no sparse or large-system optimality is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each accepted pivot row eliminates every lower row in place, and back substitution reuses the resulting triangular matrix.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The augmented matrix and pivot temporaries are call-local on success or early null; only the O(N) solution array escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) elimination and O(N^2) copied coefficients/factors use the standard dense method for the operators' small systems; this entry performs one O(N^2) right-hand-side replay and claims no sparse or large-system optimality.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ordinary solves and repeated matrix consumers share one elimination owner. The privately copied factors determine the same row swaps/subtractions before descending back substitution; no solution is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared coefficients/factors and right-hand-side column are call-local on success or early null; only the O(N) solution array escapes.
    */
   export function solve(
     rows: readonly (readonly number[])[],
     b: readonly number[],
   ): number[] | null {
-    const n: number = rows.length;
-    const m: number[][] = rows.map(
-      (r: readonly number[], i: number): number[] => [...r, b[i]!],
-    );
-    let largest: number = 0;
-    for (const r of rows)
-      for (const x of r) largest = Math.max(largest, Math.abs(x));
-    for (let c: number = 0; c < n; c++) {
-      let p: number = c;
-      for (let r: number = c + 1; r < n; r++)
-        if (Math.abs(m[r]![c]!) > Math.abs(m[p]![c]!)) p = r;
-      if (!(Math.abs(m[p]![c]!) > 1e-14 * largest)) return null;
-      [m[c], m[p]] = [m[p]!, m[c]!];
-      for (let r: number = c + 1; r < n; r++) {
-        const f: number = m[r]![c]! / m[c]![c]!;
-        for (let k: number = c; k <= n; k++) m[r]![k]! -= f * m[c]![k]!;
-      }
-    }
-    const x: number[] = new Array<number>(n).fill(0);
-    for (let r: number = n - 1; r >= 0; r--) {
-      let sum: number = m[r]![n]!;
-      for (let k: number = r + 1; k < n; k++) sum -= m[r]![k]! * x[k]!;
-      x[r] = sum / m[r]![r]!;
-    }
-    return x;
+    return prepareLinearSystem.solve(rows, b);
   }
 }

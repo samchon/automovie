@@ -1,9 +1,6 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   type preparePoseResolution,
-  resolveBoneMap,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -18,35 +15,35 @@ import type { IHumanBody } from "../body/IHumanBody";
  * performance and the capture use, so a law that reads a pose it resolved
  * itself (where a hand hangs, where a thigh lies) sees what is displayed.
  *
- * The body's topology must index its same, unchanged skeleton, as prepared
- * by `createHumanBody`. Every pose still receives full ordered admission and
- * the complete hierarchy walk. A supplied operation reader shares only
- * exactly unchanged computation and returns fresh maps and transforms.
+ * `createHumanBody` snapshots the canonical FK prerequisites once. Every pose
+ * receives full ordered joint admission; a requested set computes only its
+ * ancestor closure and returns only those reachable bones. A supplied
+ * operation reader shares exact unchanged dependency work with fresh outputs.
  *
  * @param body The body and its topology for the same, unchanged skeleton.
  * @param pose The pose.
  * @param prepared Optional exact FK reader owned and released by this synchronous motion evaluation.
+ * @param requested Optional output bone set; omitted, all reachable bones are returned in parent-first order.
  * @returns Resolved bones by rig bone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the displayed reading, canonical mappings and the body's unchanged-skeleton topology premise.
- * @evidence contracts/development/implementation.md#principled-implementation The engine's complete forward kinematics with the canonical humanoid axes and rest frames, using the same parent-first topology createHumanBody prepared from the body's unchanged skeleton.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolveBoneMap call supplies canonical mappings and the body's topology; hierarchy, composition and map adaptation remain with their existing engine owners.
+ * @evidence contracts/development/implementation.md#principled-implementation The engine's prepared parent-first FK uses the canonical humanoid axes/rest-frame snapshot createHumanBody owns, retaining the ordinary quaternion grouping and every authored angle's admission while computing demanded ancestry.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The body's prepareSkeletonPoseResolution result owns static prerequisites and dependency updates; this adapter only indexes its fresh requested outputs by bone.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cast, assertion or tolerance; the axes and rest frames are the engine's canonical tables.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ordered joint/bone scans and direct map insertion remain O(J+B), without this adapter's former tuple array. An optional operation reader avoids only identical completed math; canonical topology is not rebuilt and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body topology belongs to its unchanged skeleton; an optional reader shares exact clinical/basis/frame/rest/parent computations within one synchronous fit or stop evaluation, without merging distinct poses or admitting stale topology.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every authored record remains O(J); K requested indices are sorted and their D ancestors visited before K fresh map entries are inserted. Omitted demand visits all B bones. Static rig admission is paid once, unchanged dependency math is shared only within a supplied operation, and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's immutable canonical rig snapshot fixes rest/axes/frames/topology. An optional operation reader keys private exact clinical/ancestor/root dependency rows; changing or removed joints and root edits invalidate affected frames independently of pose identity or demand order.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map and nested bone transforms; a borrowed resolution reader keeps its private snapshots only until the synchronous motion evaluation releases it. This adapter stores no global state or handle.
  */
 export function poseBones(
   body: IHumanBody,
   pose: IAutoMoviePose,
   prepared?: ReturnType<typeof preparePoseResolution>,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  return resolveBoneMap(
-    body.skeleton,
-    pose,
-    body.topology,
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
-    prepared,
+  const resolved: IAutoMovieResolvedBone[] = body.poseResolution.resolve(
+    pose, prepared, requested,
   );
+  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const bone of resolved) map.set(bone.bone, bone);
+  return map;
 }

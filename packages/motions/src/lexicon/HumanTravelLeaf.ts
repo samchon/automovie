@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -19,6 +20,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
@@ -76,7 +78,14 @@ export namespace HumanTravelLeaf {
   /** The most of the arm's length, shoulder to wrist, the handle may be from the shoulder (provisional: the elbow is not locked straight). */
   export const REACH: number = 0.97;
 
-  /** Open a door by its handle, standing. */
+  /**
+   * Open a door by its handle, standing or following its leaf. Each holds
+   * check lends one lazy exact-FK reader through its actual posture fit and
+   * displayed wrist read, then releases it synchronously. It does not memoize
+   * a standing posture, handle sample, fit or contact verdict across calls.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace states phases, timing and refusals. Hold checks keep their operation-local exact-FK scope and demanded hand output; a successful complete standing verdict is reused instead of solving that same support again. Runtime effect is unmeasured.
+   */
   export const openDoor: IHumanActionLaw<IParams> = {
     name: "openDoor",
     interrupts: {
@@ -163,6 +172,7 @@ export namespace HumanTravelLeaf {
         { ...context, params: { seconds } },
         side,
       );
+      const start: IHumanPosture = standing.posture(0);
 
       // The hand keeps the side of the handle's axis it took it from, the
       // side the body faced as the hand arrived, however the body turns with
@@ -171,7 +181,7 @@ export namespace HumanTravelLeaf {
         context.start + TAKE,
       );
       const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-        resolveHumanPosture.heading(standing.posture(0)),
+        resolveHumanPosture.heading(start),
         { x: 0, y: 0, z: 1 },
       );
       const across: 1 | -1 =
@@ -189,7 +199,9 @@ export namespace HumanTravelLeaf {
       // The wrist must stay within the arm's reach of the shoulder.
       const bones: ReturnType<typeof poseBones> = poseBones(
         body,
-        resolveHumanPosture(body, { ...standing.posture(0), limbs: {} }),
+        resolveHumanPosture(body, { ...start, limbs: {} }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]),
       );
       const shoulder: IAutoMovieVector3 = bones.get(
         `${side}UpperArm`,
@@ -221,9 +233,9 @@ export namespace HumanTravelLeaf {
       // A handle the standing arm does not reach as the hand takes it, such
       // as a car door's below the shoulder, is taken leaning toward it, the
       // body lowered over the reach as a pick up lowers it.
-      const start: IHumanPosture = standing.posture(0);
+      const taking: IAutoMovieVector3 = wristAt(TAKE, start);
       const lowered: pickUpPosture.IStance | null =
-        Vector3.length(Vector3.subtract(wristAt(TAKE, start), shoulder)) <=
+        Vector3.length(Vector3.subtract(taking, shoulder)) <=
         REACH * arm
           ? null
           : // Lowered until the wrist the hold asks is within the bend's near
@@ -232,7 +244,7 @@ export namespace HumanTravelLeaf {
             pickUpPosture.lowered(
               context,
               side,
-              wristAt(TAKE, start),
+              taking,
               bendLower.REACH * arm,
             );
       const base = (t: number): IHumanPosture =>
@@ -242,6 +254,7 @@ export namespace HumanTravelLeaf {
 
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
+      const handBone: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
       const holds = (posture: IHumanPosture, t: number): boolean => {
         const goal: IHumanPosture.IGoal = HumanMountRider.hold(
           body,
@@ -251,12 +264,19 @@ export namespace HumanTravelLeaf {
           1,
           {},
         ).arm;
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution();
         const wrist: IAutoMovieVector3 = poseBones(
           body,
-          resolveHumanPosture(body, {
-            ...posture,
-            limbs: { [`${side}Arm`]: goal },
-          }),
+          resolveHumanPosture.seeded(
+            body,
+            { ...posture, limbs: { [`${side}Arm`]: goal } },
+            undefined,
+            {},
+            resolution,
+          ).pose,
+          resolution(),
+          handBone,
         ).get(`${side}Hand`)!.worldPosition;
         return Vector3.length(Vector3.subtract(wrist, goal.point)) <= HOLD;
       };
@@ -266,9 +286,10 @@ export namespace HumanTravelLeaf {
 
       // Standing while the arm holds the handle from there throughout;
       // otherwise walking with the leaf (`HumanTravelLeafWalk`).
-      const walked: IHumanActionPlan | null = readings.every(
+      const holdsStanding: boolean = readings.every(
         (t: number): boolean => holds(base(t), t),
-      )
+      );
+      const walked: IHumanActionPlan | null = holdsStanding
         ? null
         : HumanTravelLeafWalk.plan({
             context,
@@ -303,7 +324,7 @@ export namespace HumanTravelLeaf {
             360) -
             180,
         );
-      const lost: number | undefined = readings.find(
+      const lost: number | undefined = holdsStanding ? undefined : readings.find(
         (t: number): boolean => !holds(shown(t), t),
       );
       if (lost !== undefined) {

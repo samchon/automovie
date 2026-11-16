@@ -1,5 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
+import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
+
 /**
  * The contacts of several moving weapons with several bodies that may each
  * carry one of those weapons, resolved together and in time order: who
@@ -39,6 +42,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
  *
+ * Initial penetration or touch is a contact. A body may explicitly certify
+ * that this initial episode was resolved and is departing: either no new
+ * entry occurs in this search, or a finite positive-gap witness precedes any
+ * new entry. Only that pair is deferred until its witness; the scan clock,
+ * other bodies and later entry remain unchanged. Unknown departure retains
+ * initial reporting. The body's physical model owns this information because
+ * signed distance alone cannot establish it.
+ *
  * A contact is mutual. A weapon and the body that carries it are two
  * measures of one limb (a capsule and that body's signed distance), and they
  * need not agree to the millimetre, so of two limbs swung into each other
@@ -54,14 +65,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, a departure witness is invalid, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over events and one first-impact search.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over the scan's samples inside its own live span and no later than the earliest impact found in that round: a performance of many strikes in sequence costs in proportion to its strikes, where scanning every weapon over the whole span after every event cost the square of them.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; callers memoise.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop orders events; firstAutoMovieContactImpact owns the single first-impact search, pair distances and departure admission.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws. Initial overlap remains a contact unless explicit physical departure is certified; a witness must have finite positive actual clearance. No clock nudge or permanent collider exclusion is used.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over samples inside its own live span and no later than the earliest impact already found. Each initially contacting pair may additionally invoke its physical departure model once and validate one witness. Sequential strikes avoid scanning every weapon over the whole performance after every event.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All sphere/capsule/tapered pair measurements and first-impact scans share firstAutoMovieContactImpact; stop-dependent certificates are rebuilt for each search rather than reused after the pose changes.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function resolveAutoMovieContactEvents(
@@ -113,7 +124,7 @@ export function resolveAutoMovieContactEvents(
       if (stopped.has(weapon.id)) continue;
       if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
         break;
-      const hit: { against: string; seconds: number } | undefined = firstImpact(
+      const hit: { against: string; seconds: number } | undefined = firstAutoMovieContactImpact(
         weapon,
         input,
         stopped,
@@ -137,19 +148,22 @@ export function resolveAutoMovieContactEvents(
       (w: resolveAutoMovieContactEvents.IWeapon): boolean =>
         w.id === best!.weapon,
     )!;
-    const p: IAutoMovieVector3 = striker.position(best.seconds, stopped);
-    const own: string | undefined = input.bodies
-      .find(
+    const met: resolveAutoMovieContactEvents.IBody | undefined = input.bodies.find(
         (b: resolveAutoMovieContactEvents.IBody): boolean =>
           b.id === best!.against,
-      )
-      ?.carried?.(
-        p,
-        striker.tail?.(best.seconds, stopped) ?? p,
+      );
+    let own: string | undefined;
+    if (met?.carried !== undefined) {
+      const sampled: resolveAutoMovieContactEvents.IWeaponFrame =
+        sampleAutoMovieContactWeapon(striker, best.seconds, stopped);
+      own = met.carried(
+        sampled.position,
+        sampled.tail ?? sampled.position,
         best.seconds,
         stopped,
         striker.owner,
       );
+    }
     stopped.set(best.weapon, best.seconds);
     events.push(best);
     if (own === undefined) continue;
@@ -177,6 +191,57 @@ export function resolveAutoMovieContactEvents(
 export namespace resolveAutoMovieContactEvents {
   /** The stops so far: each stopped weapon's id with its contact second. */
   export type IStops = ReadonlyMap<string, number>;
+
+  /**
+   * One weapon's actual axis in a single synchronous sample.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world-metre endpoints and the absent tail's sphere meaning.
+   * @evidence contracts/development/design.md#principled-representation Couples the centre and optional capsule end from one exact time and stop context without storing a pose or changing the sphere/capsule representation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The first-impact and mutual-contact consumers need both endpoints; the optional producer avoids evaluating one source independently for each end.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains actual path endpoints with no tolerance, approximate geometry, result cache or domain-specific limb data.
+   */
+  export interface IWeaponFrame {
+    /** The sphere centre or capsule's first end, world metres. */
+    position: IAutoMovieVector3;
+
+    /** The capsule's other end, world metres; absent for a sphere. */
+    tail?: IAutoMovieVector3;
+  }
+
+  /** Actual initial pair state, with an ungated reader of its signed gap. */
+  export interface IInitialContact {
+    /** The sphere or capsule whose already-present contact is being classified. */
+    weapon: IWeapon;
+
+    /** Initial search second, in the weapon's clock. */
+    from: number;
+
+    /** Search end, clipped to the weapon's live end. */
+    to: number;
+
+    /** Current stops, unchanged during this first-impact search. */
+    stops: IStops;
+
+    /** Measured initial pair gap, metres; zero or negative. */
+    gap: number;
+
+    /** Actual pair gap at a second, before departure eligibility is applied. */
+    at(seconds: number): number;
+  }
+
+  /** Physical knowledge of this initial episode; absence keeps initial reporting. */
+  export type Departure =
+    | {
+        /** No new entry occurs before this genuinely separated instant. */
+        kind: "clearance";
+
+        /** Strictly later in-span second whose actual pair gap is positive. */
+        seconds: number;
+      }
+    | {
+        /** The physical model rules out a new entry over this search span. */
+        kind: "no-entry";
+      };
 
   /** One moving weapon. */
   export interface IWeapon {
@@ -222,12 +287,30 @@ export namespace resolveAutoMovieContactEvents {
      * @returns The axis's other end.
      */
     tail?(seconds: number, stops: IStops): IAutoMovieVector3;
+
+    /**
+     * The same position and optional tail evaluated together. When supplied,
+     * consumers use this actual sample instead of calling position and tail
+     * separately; the presence of tail still declares capsule geometry.
+     * Results belong only to this call's exact seconds and stop context.
+     */
+    sample?(seconds: number, stops: IStops): IWeaponFrame;
   }
 
   /** One body the weapons may meet. */
   export interface IBody {
     /** Its id, matching the `owner` of the weapons it carries. */
     id: string;
+
+    /**
+     * Certify departure of an already-present pair only when its physical
+     * model establishes that phase. A clearance must have no new entry before
+     * it; no-entry covers only this search span. Undefined or absent keeps
+     * the original initial overlap/touch report. Opaque distance samples alone
+     * do not justify a certificate. The resolver validates clearance against
+     * at(seconds), and every other body keeps its original eligibility.
+     */
+    departure?(contact: IInitialContact): Departure | undefined;
 
     /**
      * The signed distance from a point to the body's surface at a second,
@@ -317,72 +400,3 @@ export namespace resolveAutoMovieContactEvents {
   }
 }
 
-/** A weapon's first impact from a second on, against the bodies it does not belong to; undefined when it has none, or none before `horizon`. */
-function firstImpact(
-  weapon: resolveAutoMovieContactEvents.IWeapon,
-  input: resolveAutoMovieContactEvents.IInput,
-  stops: resolveAutoMovieContactEvents.IStops,
-  from: number,
-  horizon: number,
-): { against: string; seconds: number } | undefined {
-  const live: number = weapon.from ?? -Infinity;
-  const until: number = Math.min(input.to, weapon.to ?? Infinity);
-  const gap = (t: number): { distance: number; against: string } => {
-    // Outside its live span the weapon meets nothing, whatever its path.
-    if (t < live || t > (weapon.to ?? Infinity))
-      return { distance: Infinity, against: "" };
-    const p: IAutoMovieVector3 = weapon.position(t, stops);
-    const q: IAutoMovieVector3 | undefined = weapon.tail?.(t, stops);
-    let best: { distance: number; against: string } = {
-      distance: Infinity,
-      against: "",
-    };
-    for (const body of input.bodies) {
-      if (body.id === weapon.owner) continue;
-
-      // A capsule is measured along its whole axis; a body that cannot
-      // measure a segment would see only its ends, the tunnelling this
-      // representation exists to remove.
-      if (q !== undefined && body.axis === undefined)
-        throw new Error(
-          `Body ${body.id} measures no segment for capsule weapon ${weapon.id}`,
-        );
-      const d: number =
-        q === undefined
-          ? body.distance(p, t, stops) - weapon.radius
-          : weapon.tailRadius === undefined
-            ? body.axis!(p, q, t, stops) - weapon.radius
-            : body.axis!(p, q, t, stops, [weapon.radius, weapon.tailRadius]);
-      if (d < best.distance) best = { distance: d, against: body.id };
-    }
-    return best;
-  };
-  // Outside its live span the weapon meets nothing, so the scan starts at
-  // the last of its steps before that span and ends at the first step past
-  // it: the same steps, and so the same result, as scanning from `from`.
-  if (until < from) return undefined;
-  const first: number =
-    live > from ? Math.max(1, Math.floor((live - from) / input.step)) : 1;
-  if (first === 1) {
-    const start: { distance: number; against: string } = gap(from);
-    if (start.distance <= 0) return { against: start.against, seconds: from };
-  }
-  let previous: number = first === 1 ? from : from + (first - 1) * input.step;
-  for (let k: number = first; ; k++) {
-    // An impact found past this step would come after `horizon`.
-    if (previous >= horizon) return undefined;
-    const t: number = Math.min(input.to, from + k * input.step);
-    if (gap(t).distance <= 0) {
-      let lo: number = previous;
-      let hi: number = t;
-      for (let i: number = 0; i < 24; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (gap(mid).distance <= 0) hi = mid;
-        else lo = mid;
-      }
-      return { against: gap(hi).against, seconds: hi };
-    }
-    if (t >= until) return undefined;
-    previous = t;
-  }
-}

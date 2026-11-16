@@ -160,6 +160,15 @@ export function fitHingedChainCandidate(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
   ): number => (b === null ? 0 : (Quaternion.angle(Quaternion.normalize(a), b) * 180) / Math.PI);
+
+  // The gate reads canonical scoring frames when no rig is supplied. Their
+  // axes, clinical frame and constraint are fixed for every swivel here.
+  const upperOvershoot: (joint: IAutoMovieJointPose) => number =
+    rig?.overshoot(props.chain.upper) ??
+    jointRomOvershoot.prepare(props.chain.upper, prepared.upperDomain.constraint);
+  const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
+    rig?.overshoot(props.chain.lower) ??
+    jointRomOvershoot.prepare(props.chain.lower, prepared.lowerDomain.constraint);
   // A sweep's candidates on one bend branch share one mid rotation, the
   // same record, and differ only in the swivel of the root. What depends on
   // the mid rotation alone is read once per record: the same values, read
@@ -179,7 +188,7 @@ export function fitHingedChainCandidate(
     mid = {
       rotation: lower,
       joint,
-      overshoot: jointRomOvershoot(joint, prepared.lowerDomain.constraint),
+      overshoot: lowerOvershoot(joint),
       effort: clinicalDeviation({
         flexion: joint.flexion ?? 0,
         abduction: joint.abduction ?? 0,
@@ -207,10 +216,12 @@ export function fitHingedChainCandidate(
       prepared.upper.worldRotation,
       upper,
     );
-    const above: IAutoMovieQuaternion = Quaternion.multiply(
-      turnedUpper, prepared.lowerRotation,
-    );
-    const lowerWorld: IAutoMovieQuaternion = Quaternion.multiply(above, lower);
+    const above: IAutoMovieQuaternion | undefined =
+      props.obstruction === undefined && props.strain === undefined && turn === null
+        ? undefined : Quaternion.multiply(turnedUpper, prepared.lowerRotation);
+    const lowerWorld: IAutoMovieQuaternion | undefined =
+      props.obstruction === undefined && props.strain === undefined
+        ? undefined : Quaternion.multiply(above!, lower);
     const mid: IAutoMovieVector3 = Vector3.add(
       root,
       Quaternion.rotateVector(turnedUpper, prepared.lowerOffset),
@@ -222,7 +233,7 @@ export function fitHingedChainCandidate(
             mid,
             Vector3.add(
               mid,
-              Quaternion.rotateVector(lowerWorld, prepared.effectorOffset),
+              Quaternion.rotateVector(lowerWorld!, prepared.effectorOffset),
             ),
           );
     return {
@@ -236,7 +247,7 @@ export function fitHingedChainCandidate(
           twist: u.twist ?? 0,
         }) + known.effort,
       overshoot:
-        jointRomOvershoot(u, prepared.upperDomain.constraint) +
+        upperOvershoot(u) +
         known.overshoot +
         blocked,
       turned:
@@ -263,6 +274,9 @@ export function fitHingedChainCandidate(
       hinge: axes.flexion,
       target: props.target,
       ...(range === null ? {} : { range }),
+      ...(rig === undefined ? {} : {
+        prepared: rig.hingedGeometry()?.target(props.target, range ?? undefined),
+      }),
       // A fit of a nearby target continued from its seed refines that seed
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
@@ -303,7 +317,7 @@ export function fitHingedChainCandidate(
             // decides before the strain; without one the strain decides.
             tiebreak: (): number =>
               props.referencePose === undefined
-                ? strain(upper, lower, lowerWorld)
+                ? strain(upper, lower, lowerWorld!)
                 : turned,
           };
         // The hint's side weighs as the mid joint leaves the line to the
@@ -423,13 +437,13 @@ interface IMid {
 /** What each candidate reads besides the hint's side, shared with its lazy exact score. */
 interface IReading {
   /** Completed world frame preceding the lower articulation, for this exact upper candidate. */
-  above: IAutoMovieQuaternion;
+  above: IAutoMovieQuaternion | undefined;
 
   /** The mid joint's place, world metres. */
   mid: IAutoMovieVector3;
 
   /** The mid bone's world rotation. */
-  lowerWorld: IAutoMovieQuaternion;
+  lowerWorld: IAutoMovieQuaternion | undefined;
 
   /** The root's and the mid joint's clinical effort. */
   effort: number;

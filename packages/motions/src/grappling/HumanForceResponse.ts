@@ -23,6 +23,7 @@ import { HumanForce } from "../perform/HumanForce";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { HumanForceExchange } from "./HumanForceExchange";
@@ -105,8 +106,8 @@ export namespace HumanForceResponse {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the pull, then one of three motions built from one tip function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every outcome the forces cannot produce is refused with what would produce it; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One mass model, one base and, for a throw, one swing and one flight integration at plan time; constant work per evaluated second besides the flight's read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The base, the centre, the integrators, the mass model and the inertia are their owners'.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the swing's and the flight's trajectories for as long as the performance does.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The base, centre, integrators, mass model and inertia are their owners'. Both sensitivity trials borrow one exact FK workspace without skipping either posture solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sensitivity's lazy FK reader is released with that synchronous calculation; no returned time evaluator captures it. The plan holds the swing's and flight's trajectories for its lifetime.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -213,10 +214,22 @@ export namespace HumanForceResponse {
     // posture with its legs solved at a shift of the square root of machine
     // epsilon of the centre's height.
     const across: number = (() => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
       const shown = (root: IAutoMovieVector3): IAutoMovieVector3 =>
         resolveAutoMovieCenterOfMass.place(
           model,
-          poseBones(body, resolveHumanPosture(body, { ...entry, root })),
+          poseBones(
+            body,
+            resolveHumanPosture.seeded(
+              body,
+              { ...entry, root },
+              undefined,
+              {},
+              resolution,
+            ).pose,
+            resolution(),
+          ),
         );
       const h: number = height * Number.EPSILON ** 0.5;
       return (

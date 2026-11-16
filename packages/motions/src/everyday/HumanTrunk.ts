@@ -1,22 +1,20 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Transform,
   resolveAutoMovieHumanoidSurfaces,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieJointPose,
-  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
@@ -44,58 +42,52 @@ export namespace HumanTrunk {
    * @param body The body with topology indexed from its same, unchanged skeleton.
    * @param posture The posture; its limb goals are ignored.
    * @param joints Joints to use instead of the posture's; the posture's when absent.
+   * @param resolution Optional exact reader or lazy supplier borrowed only by this synchronous evaluation.
+   * @param requested Bones whose transforms the caller reads; all bones when absent. Every authored joint is still admitted.
    * @returns Resolved bones; the trunk, head, eyes and shoulder girdles are valid.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States valid bones, ignored limb goals, the optional joint override and the body's unchanged-skeleton topology premise.
+   * @evidence contracts/development/common.md#meaningful-documentation States valid bones, ignored limb goals, optional joint override and demanded outputs, unchanged-skeleton premise and optional synchronous borrowed reader.
    * @evidence contracts/development/implementation.md#principled-implementation Builds the posture's root through turnHumanPosture and resolves the directly set clinical angles with the canonical mappings and the body's parent-first topology; no limb goal is solved.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint-list conversion, one root construction and one engine FK call whose fresh records are keyed by bone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint-list conversion and root construction feed the canonical poseBones adapter, whose engine owner inserts fresh FK records directly by bone.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied joint is read unchanged, the canonical axes and rest frames are preserved, and the returned limb bones remain outside this trunk-only reading's contract.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the supplied joints plus the rig's bones, with full FK for each call and no rebuild of the body's existing topology.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only the topology createHumanBody indexed from this same skeleton, which the caller keeps unchanged; each root and joint list is still resolved anew.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state; the body owns its existing topology and the caller owns the fresh map and resolved records.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Converts and admits all J authored joints, then the engine evaluates demanded bones and their ancestors, or the complete rig without a demand set. The body's immutable FK preparation removes repeated rig setup, an optional operation reader shares exactly unchanged transform math, and each returned record remains fresh; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's immutable rig preparation and optional parent-owned exact scalar reader; every root and authored joint list reaches the same ordered FK admission, including overrides and joints outside the demanded transforms.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores no reader or result. The caller owns fresh map/records, the body owns topology, and an optional borrowed reader/supplier belongs only to its parent's synchronous evaluation and is demanded at this actual FK call.
    */
   export function resolve(
     body: IHumanBody,
     posture: IHumanPosture,
     joints: IHumanPosture["joints"] = posture.joints,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const list: IAutoMovieJointPose[] = (
-      Object.entries(joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][]
-    ).map(
-      ([bone, a]): IAutoMovieJointPose => ({
+    const list: IAutoMovieJointPose[] = [];
+    for (const bone of Object.keys(joints) as AutoMovieHumanoidBone[]) {
+      const angles: readonly [number, number, number] = joints[bone]!;
+      list.push({
         bone,
-        flexion: a[0],
-        abduction: a[1],
-        twist: a[2],
-      }),
-    );
-    return new Map(
-      resolvePose(
-        {
-          skeleton: body.skeleton.id,
-          // A whole-body rotation turns the root as the resolver turns it
-          // (`turnHumanPosture`); the limb goals are not read here.
-          root: ((): IAutoMovieTransform => {
-            const turned: turnHumanPosture.ITurned = turnHumanPosture({
-              ...posture,
-              limbs: {},
-            });
-            return Transform.of(turned.position, turned.rotation);
-          })(),
-          joints: list,
-        },
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-        body.topology,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
+        flexion: angles[0],
+        abduction: angles[1],
+        twist: angles[2],
+      });
+    }
+
+    // A whole-body turn changes the same root as full posture resolution;
+    // no limb goal participates in this authored-trunk observation.
+    const turned: turnHumanPosture.ITurned = turnHumanPosture({
+      ...posture,
+      limbs: {},
+    });
+    return poseBones(
+      body,
+      {
+        skeleton: body.skeleton.id,
+
+        root: Transform.of(turned.position, turned.rotation),
+        joints: list,
+      },
+      typeof resolution === "function" ? resolution() : resolution,
+      requested,
     );
   }
 
@@ -228,25 +220,27 @@ export namespace HumanTrunk {
    * @param body The body.
    * @param posture The posture.
    * @param region A region riding the trunk, the head or the hips (not a limb below the hip or shoulder).
+   * @param resolution Optional exact reader or supplier borrowed from this synchronous parent evaluation.
    * @returns The point (metres) and the unit normal.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world point and unit normal and restricts the requested region to bones that trunk-only FK places correctly.
+   * @evidence contracts/development/common.md#meaningful-documentation States world point/unit normal, the trunk-only region restriction and optional synchronous borrowed FK workspace.
    * @evidence contracts/development/implementation.md#principled-implementation Resolves the posture's directly authored trunk, then the engine's surface placement rotates the prepared bone-local region point and unit normal by that bone's unit world rotation and translates the point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared region lookup, one shared trunk resolution and one engine placement keep surface-frame mathematics with its existing owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the body's actual prepared region frame instead of an anatomical point estimate; the requested frame must ride a resolved trunk/head/hip bone, and the broad region union does not enforce that caller premise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+J) trunk FK for B bones and J set joints, followed by constant-time map lookup and frame placement; no limb fit or surface rebuild occurs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the body's prepared surfaces and unchanged-skeleton topology through resolve; world point and normal are recomputed for each posture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state; the temporary FK map is released after placement and the caller owns the returned point and normal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admits the J authored joints and evaluates only this region bone's ancestor chain before constant-time frame placement; no unrelated limb transform, limb fit or surface rebuild is requested.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows prepared surfaces and unchanged-skeleton topology, forwarding only an explicit parent's exact FK workspace through resolve; every posture still recomputes the actual world point and normal.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary FK map is released after placement and the caller owns point/normal; the optional reader/supplier remains parent-owned and never enters either returned vector or persistent state.
    */
   export function region(
     body: IHumanBody,
     posture: IHumanPosture,
     region: AutoMovieHumanoidRegion,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const frame = body.surfaces.regions[region];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
       frame,
-      resolve(body, posture).get(frame.bone)!,
+      resolve(body, posture, undefined, resolution, new Set([frame.bone])).get(frame.bone)!,
     );
     return { point: placed.point, normal: placed.normal };
   }
@@ -267,10 +261,10 @@ export namespace HumanTrunk {
    * @throws {Error} When the ray misses the trunk within two statures.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the trunk-only collider subset, nonzero ray direction, world units, two-stature reach and miss failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Filters trunk FK to canonical bones without a left/right prefix, then delegates the first ray hit to HumanColliders.cast's signed-distance sphere tracing and central-difference normal with a reach of twice the body's stature.
+   * @evidence contracts/development/implementation.md#principled-implementation Demands the canonical bones without a left/right prefix, the same midline subset the original full-map filter selected, then delegates the first ray hit to HumanColliders.cast's signed-distance sphere tracing and central-difference normal within twice the body's stature.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One FK/filter/map step and one shared collider cast keep hierarchy placement and shape intersection with their existing owners; this adapter converts an absent hit into its caller-facing error.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tests the body's prepared collider geometry without fitting limbs or inventing a hit; cast retains its 1e-5 m surface tolerance, 1e-4 m normal probe and 64-step grazing limit, and a tested subset with no shape still throws through its distance owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+J) FK/filter work precedes at most 64 tracing and six normal-distance queries, each scanning the profile segments and tested shapes with the engine's existing per-shape distance cost; hull geometry uses its prepared face data.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Ordered joint admission and demanded midline FK precede at most 64 tracing and six normal-distance queries, each scanning the profile segments and tested shapes with the engine's existing per-shape cost; unrelated limb transforms and the full-map filter allocation are avoided.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's unchanged topology and HumanColliders' body/profile geometry preparation; each posed map and ray are evaluated anew because the hit depends on both.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources FK and filtered maps are local and released on return or throw; the caller owns returned vectors, while delegated weak geometry caches are bounded by the body's profile segments, shapes and hull records and released with those owners.
    */
@@ -280,14 +274,101 @@ export namespace HumanTrunk {
     from: IAutoMovieVector3,
     toward: IAutoMovieVector3,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      [...resolve(body, posture)].filter(
-        ([bone]): boolean => !/^(left|right)/.test(bone),
-      ),
-    );
-    const hit: HumanColliders.IHit | undefined = HumanColliders.cast(
-      body,
-      midline,
+    const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      resolve(body, posture, undefined, undefined, MIDLINE);
+    return cast(body, HumanColliders.reading(body, midline), from, toward);
+  }
+
+  /**
+   * Read several regions or ray hits against one unchanged authored trunk.
+   * The reading belongs to one synchronous operation and must be released
+   * before its posture, body, skeleton or profile changes.
+   *
+   * @param body The unchanged body.
+   * @param posture The unchanged authored posture; limb goals remain ignored.
+   * @param requested Bones used by the operation; all when absent. Include every region bone the reading will use.
+   * @returns The resolved bones and region/ray readers borrowing them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable operation scope, demanded-bone premise, ignored limbs and ownership of the returned readers.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the canonical authored-joint FK once, then places each actual requested region and casts each actual ray against that same unchanged frame; ray queries retain the original midline collider subset and numerical policy.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolved map and its midline subset feed existing engine surface placement and the same local cast adapter used by surface.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All authored joints still receive engine admission; no limb goal, region result, ray result, contact threshold or time sample is replaced or cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Pays one O(J+K) FK for J authored joints and K demanded bones plus ancestors and one O(K) subset scan; each region performs fixed placement work and each ray retains its full collider query cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes that this operation reads one unchanged body and posture, so only their completed FK frames are shared; each distinct region and ray is evaluated through the original numerical owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading retains one resolved map and a subset map until its synchronous caller returns or throws; no global cache, sampled-time map, returned motion plan or frame history owns it.
+   */
+  export function prepare(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): IReading {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      resolve(body, posture, undefined, undefined, requested);
+    let colliders: ReturnType<typeof HumanColliders.reading> | undefined;
+    return {
+      bones,
+      region: (region: AutoMovieHumanoidRegion): ISurface => {
+        const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.regions[region];
+        const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
+        return { point: placed.point, normal: placed.normal };
+      },
+      surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): ISurface => {
+        if (colliders === undefined) {
+          const midline: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+          for (const [bone, resolved] of bones)
+            if (MIDLINE.has(bone)) midline.set(bone, resolved);
+          colliders = HumanColliders.reading(body, midline);
+        }
+        return cast(body, colliders, from, toward);
+      },
+    };
+  }
+
+  /**
+   * Operation-owned trunk frames for several region or ray queries.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents resolved frame ownership, region/ray units and the operation lifetime shared with prepare.
+   * @evidence contracts/development/design.md#principled-representation Borrows the canonical resolved-bone map and exposes existing region/ray operations over it, without another skeleton or surface representation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Rest goals use bones for shoulder positions, region for anatomical points and surface for their height search; each member reads one prepared trunk.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores actual FK frames rather than guessed anatomical points; callers must retain the unchanged inputs only for their synchronous operation.
+   */
+  export interface IReading {
+    /** Demanded bone frames, with limb goals ignored; caller must not mutate them. */
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** A demanded region's world-metre point and unit outward normal. */
+    region(region: AutoMovieHumanoidRegion): ISurface;
+
+    /** A world ray's hit on midline colliders, throwing when it misses within two statures. */
+    surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): ISurface;
+  }
+
+  /**
+   * A point and normal on an actual trunk surface.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world-metre position and unit outward normal for both anatomical and ray-hit readings.
+   * @evidence contracts/development/design.md#principled-representation Keeps the existing region/ray result's two interface vectors and coordinate convention.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared trunk's region and ray methods return only the point and normal their callers need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no estimated frame, contact tolerance or precomputed query result.
+   */
+  export interface ISurface {
+    /** Point on the surface, world metres. */
+    point: IAutoMovieVector3;
+
+    /** Unit outward normal in the world frame. */
+    normal: IAutoMovieVector3;
+  }
+
+  /** Apply the existing ray policy to a fixed midline frame map. */
+  function cast(
+    body: IHumanBody,
+    colliders: ReturnType<typeof HumanColliders.reading>,
+    from: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+  ): ISurface {
+    const hit: HumanColliders.IHit | undefined = colliders.cast(
       from,
       toward,
       2 * body.measure.stature,
@@ -299,3 +380,8 @@ export namespace HumanTrunk {
     return { point: hit.point, normal: hit.normal };
   }
 }
+
+/** The existing trunk-ray subset: every canonical name without a side prefix. */
+const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "hips", "spine", "chest", "upperChest", "neck", "head", "jaw",
+]);

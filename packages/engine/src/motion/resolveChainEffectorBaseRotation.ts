@@ -133,7 +133,7 @@ export namespace resolveChainEffectorBaseRotation {
    * A depth-first walk of the existing parent-to-children index finds a strict descendant without assuming direct adjacency.
    * Preparation and standalone frame recovery use one ancestry owner instead of separate hierarchy policies.
    * Equal identities are not accepted by themselves and unreachable/cyclic inputs are excluded by the callers' root-reachability admission.
-   * Visits at most the ancestor's descendant subtree, O(B) time and O(tree depth) stack, stopping at the first match.
+   * Visits at most the ancestor's descendant subtree, O(B) time and O(tree depth) stack, stopping at the first match; direct iteration allocates neither empty fallback arrays nor recursive predicate closures.
    * Reuses the caller's existing topology; prepared callers do not repeat the traversal in fromPrepared.
    * Uses only the recursion stack and retains no index, rig, cache or handles after return.
    */
@@ -142,10 +142,22 @@ export namespace resolveChainEffectorBaseRotation {
     ancestor: AutoMovieHumanoidBone,
     descendant: AutoMovieHumanoidBone,
   ): boolean {
-    return (topology.childrenByParent.get(ancestor) ?? []).some(
-      (child: IAutoMovieBone): boolean =>
+    const children: readonly IAutoMovieBone[] | undefined =
+      topology.childrenByParent.get(ancestor);
+    if (children === undefined || children === null) return false;
+
+    // Preserve some's entry length and missing-slot behavior without a new
+    // predicate closure at every node of the same ordered traversal.
+    const count: number = children.length;
+    for (let index: number = 0; index < count; ++index) {
+      if (!(index in children)) continue;
+      const child: IAutoMovieBone = children[index]!;
+      if (
         child.bone === descendant ||
-        isDescendant(topology, child.bone, descendant),
-    );
+        isDescendant(topology, child.bone, descendant)
+      )
+        return true;
+    }
+    return false;
   }
 }

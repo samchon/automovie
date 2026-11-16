@@ -82,9 +82,13 @@ export interface IHumanActionPlan {
    * The posture at a second of the action.
    *
    * @param seconds Seconds since the action's start, in [0, duration]; outside, the nearest end.
-   * @returns The posture.
+   * @param channels Optional demand for these channels only. A reader using it inspects only these channels; implementations may still compute the whole posture. Omission requests every channel.
+   * @returns The borrowed posture; when a demand is supplied, only requested channels are guaranteed current.
    */
-  posture(seconds: number): IHumanPosture;
+  posture(
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+  ): IHumanPosture;
 
   /**
    * Drop anything memoised from reads made before the performance settled.

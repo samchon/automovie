@@ -1,7 +1,11 @@
 import {
   indexSkeletonTopology,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  prepareSkeletonPoseResolution,
   measureAutoMovieHumanoidBody,
   resolveAutoMovieHumanoidSurfaces,
+  resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -19,15 +23,15 @@ import type { IHumanBody } from "./IHumanBody";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology and rest joints, its colliders placed and their hulls' faces built.
+ * @returns The body with its measure, surfaces, topology, rest joints, immutable canonical FK preparation and bone-local mass model, its colliders placed and their hulls' faces built. Recreate it after editing the input rig or profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is derived and the frame premise.
- * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver and topology index, and sums rest translations for rest positions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Four derivations in sequence, then the colliders' preparation (`HumanColliders.prepare`).
+ * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's measurer, surface resolver, topology index, immutable FK producer with canonical axes/rest frames and segmental mass-model resolver, and sums rest translations for rest positions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Preserves rest-position, measure, surface and topology derivation order, then prepares immutable FK and the body mass model, followed by collider preparation (`HumanColliders.prepare`).
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig or profile lacking a needed bone throws inside the engine owners.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and colliders, once per body, plus each collider hull's face search, cubic to quartic in its points, paid here instead of in the first action.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The derived data is shared by every action of the performer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns plain data; the colliders' placement and hull faces it builds are kept by their owners in weak maps keyed by the body and the points, released with them.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The same topology feeds static FK preparation and action ancestry reads; poseBones shares the immutable rest/axes/frame snapshot, and jump/flight plans share one body mass model instead of rebuilding geometric rest per plan. Rig/profile edits require a new body.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned body owns O(B) static FK/mass data. FK dynamic rows use weak operation keys; collider placement/hull faces use weak body/point keys. All release with those owners, without external handles or tasks.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
@@ -46,12 +50,22 @@ export function createHumanBody(
         (bone.parent === null ? 0 : rest.get(bone.parent)!.z) +
         bone.rest.translation.z,
     });
+  const measure: IHumanBody["measure"] = measureAutoMovieHumanoidBody(skeleton, profile);
+  const surfaces: IHumanBody["surfaces"] = resolveAutoMovieHumanoidSurfaces(skeleton, profile);
+  const topology: IHumanBody["topology"] = indexSkeletonTopology(skeleton);
   const body: IHumanBody = {
     skeleton,
     profile,
-    measure: measureAutoMovieHumanoidBody(skeleton, profile),
-    surfaces: resolveAutoMovieHumanoidSurfaces(skeleton, profile),
-    topology: indexSkeletonTopology(skeleton),
+    measure,
+    surfaces,
+    topology,
+    poseResolution: prepareSkeletonPoseResolution(
+      skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+      topology,
+    ),
+    massModel: resolveAutoMovieCenterOfMass(skeleton, profile),
     rest,
   };
   // The colliders as placed and their hulls' faces, built once here so no

@@ -11,7 +11,6 @@ import {
   Vector3,
   hingedArmSwivel,
   prepareChainPlant,
-  resolveBoneMap,
   skeletonJointAxes,
 } from "@automovie/engine";
 import type {
@@ -23,6 +22,8 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
+import { poseBones } from "./poseBones";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * A leg posed as the posture's own fit poses it, read through the engine's
@@ -120,25 +121,49 @@ export namespace HumanLegChain {
       hingedArmSwivel.branches(chain);
     if (stops === null) return null;
     const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
-    const { upper, lower } = hingedArmSwivel.pose(chain, theta)(held.swivel);
-    const thigh: IAutoMovieQuaternion = Quaternion.multiply(
-      chain.upper.worldRotation,
-      upper,
-    );
-    const knee: IAutoMovieVector3 = Vector3.add(
-      hip,
-      Quaternion.rotateVector(thigh, chain.midOffset),
-    );
-    const shank: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(thigh, chain.midRest),
-      lower,
-    );
-    return {
-      hip,
-      knee,
-      ankle: Vector3.add(knee, Quaternion.rotateVector(shank, chain.endOffset)),
-      thigh,
-      shank,
+    const rotations: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+      hingedArmSwivel.pose(chain, theta)(held.swivel);
+    return placed(chain, rotations.upper, rotations.lower);
+  }
+
+  /**
+   * Prepare a leg poser for several targets under one unchanged pelvis and
+   * hip point. The body, pelvis quaternion and hip coordinates remain fixed
+   * until the caller releases the reader. Each target independently chooses
+   * the held branch (or the last branch available) and the held swivel; no
+   * prior pose, target or continuation seed becomes another request's input.
+   *
+   * @param body The canonical immutable body.
+   * @param side The leg.
+   * @param pelvis Fixed model-frame pelvis rotation.
+   * @param hip Fixed model-metre hip point.
+   * @returns An actual leg poser for each model-metre target and held swivel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged source scope, model-metre targets, held-branch fallback, independent target semantics and caller release.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's exact hinge-span/source-frame preparation serves a fixed leg root; each target still solves the actual hinge roots and branch aim before the same two-stage FK used by pose.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure sourceOf owns fixed leg geometry, hingedArmSwivel owns roots/aim/swivel and placed owns the shared actual leg frames; this reader adds no IK or scoring policy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target is replaced by a reached point, no fit/seed is remembered, and original branch order/fallback and geometric-shell behavior remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed root composition and lazy constant hinge sinusoid/inverse serve all targets. Each query still performs constant root/branch/aim/FK work; runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's fixed body/pelvis/hip prove source equivalence, so only source geometry is shared across the bow search's targets. Actual target roots, selected branch/swivel and returned points are computed independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One returned closure borrows body-derived source and hip plus one bounded engine preparation until caller release; target readers and generated frames end with each query and no target history or handles are retained.
+   */
+  export function prepare(
+    body: IHumanBody,
+    side: "left" | "right",
+    pelvis: IAutoMovieQuaternion,
+    hip: IAutoMovieVector3,
+  ): (target: IAutoMovieVector3, held: ISwivel) => IPosed | null {
+    const source: Omit<hingedArmSwivel.IChain, "target" | "range"> =
+      sourceOf(body, side, pelvis, hip);
+    const geometry: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
+    return (point: IAutoMovieVector3, held: ISwivel): IPosed | null => {
+      const target: hingedArmSwivel.IPreparedTarget = geometry.target(point);
+      const stops: hingedArmSwivel.IStop[] | null = target.branches();
+      if (stops === null) return null;
+      const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
+      const rotations: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+        target.pose(theta)(held.swivel);
+      return placed(source, rotations.upper, rotations.lower);
     };
   }
 
@@ -216,11 +241,11 @@ export namespace HumanLegChain {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The posture's fit, run on the hips alone: a leg's fit reads nothing above its hip.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, the fit, the bones, the reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, the fit and its four requested bone frames feed the existing swivel reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is the posture's own, ROM bend search included.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanLimbFit.remembered`, whose memory reads a fit of the same inputs again, and `read`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds ordered authored-joint admission plus only the requested hips/thigh/shank/foot ancestor FK to the existing fit cost; unrelated body subtrees are not transformed for the swivel read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanLimbFit.remembered and read. One invocation-owned lazy resolution reader shares only exact unchanged FK prerequisites between a memory miss and the actual fitted-pose reading; all poses and swivel results remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its reader only through synchronous return or throw; requested maps and snapshots do not enter the returned swivel/seed or body fit memory.
    */
   export function fit(
     body: IHumanBody,
@@ -253,11 +278,11 @@ export namespace HumanLegChain {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the continuation and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The posture's fit run on the hips alone, continued from a nearby seed where one is given, its warm start (`IAutoMovieSwivelNear`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, the fit, the bones, the reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, its remembered fit and a requested four-frame FK feed read; one local lazy reader spans only that synchronous operation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is the posture's own, ROM bend search included; a continuation only replaces its sweep with a refinement about the seed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanLimbFit.remembered`, whose memory reads a fit of the same inputs again, and `read`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds ordered authored-joint admission and only the hips/thigh/shank/foot ancestor FK to the existing fit cost; unrelated body subtrees are not transformed for the swivel read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses remembered and read; its one local lazy resolution reader shares exact unchanged prerequisites between a fit miss and its actual fitted-pose read, never targets, candidate answers or swivel values.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation releases its FK getter/snapshots and temporary subset map on return or throw; only the actual swivel and seed escape, without retaining an FK reader in memory.
    */
   export function seeded(
     body: IHumanBody,
@@ -269,6 +294,8 @@ export namespace HumanLegChain {
     rotation: IAutoMovieQuaternion,
     near?: IAutoMovieSwivelNear,
   ): { swivel: ISwivel; seed: IAutoMovieSwivelSeed | null } {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
     const hips: IAutoMoviePose = {
       skeleton: body.skeleton.id,
@@ -293,18 +320,13 @@ export namespace HumanLegChain {
       [],
       undefined,
       near,
+      resolution,
     );
     return {
       swivel: read(
         body,
         side,
-        resolveBoneMap(
-          body.skeleton,
-          fitted.pose,
-          body.topology,
-          skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES),
-          HUMANOID_REST_FRAME,
-        ),
+        poseBones(body, fitted.pose, resolution(), LEG_BONES[side]),
       ),
       seed: fitted.seed,
     };
@@ -317,6 +339,16 @@ export namespace HumanLegChain {
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
   ): hingedArmSwivel.IChain {
+    return { ...sourceOf(body, side, pelvis, hip), target };
+  }
+
+  /** Fixed source fields, independent of ankle targets and held bend choices. */
+  function sourceOf(
+    body: IHumanBody,
+    side: "left" | "right",
+    pelvis: IAutoMovieQuaternion,
+    hip: IAutoMovieVector3,
+  ): Omit<hingedArmSwivel.IChain, "target" | "range"> {
     const rest: IRest = restOf(body, side);
     return {
       upper: {
@@ -327,8 +359,23 @@ export namespace HumanLegChain {
       midRest: rest.prepared.lowerRotation,
       endOffset: rest.prepared.effectorOffset,
       hinge: rest.hinge,
-      target,
     };
+  }
+
+  /** Actual leg FK shared by ordinary and fixed-source posing. */
+  function placed(
+    chain: Omit<hingedArmSwivel.IChain, "target" | "range">,
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+  ): IPosed {
+    const thigh: IAutoMovieQuaternion = Quaternion.multiply(chain.upper.worldRotation, upper);
+    const hip: IAutoMovieVector3 = chain.upper.worldPosition;
+    const knee: IAutoMovieVector3 = Vector3.add(hip,
+      Quaternion.rotateVector(thigh, chain.midOffset));
+    const shank: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.multiply(thigh, chain.midRest), lower);
+    return { hip, knee, ankle: Vector3.add(knee,
+      Quaternion.rotateVector(shank, chain.endOffset)), thigh, shank };
   }
 
   /** A leg's chain at rest: its preparation, the hip bone's frame under the hips and the knee's hinge in its own frame. */
@@ -347,7 +394,10 @@ export namespace HumanLegChain {
     }
     const known: IRest | undefined = sides.get(side);
     if (known !== undefined) return known;
-    const axes = skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
+    const axes: ReturnType<typeof skeletonJointAxes> = skeletonJointAxes(
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+    );
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
       root: null,
@@ -361,12 +411,11 @@ export namespace HumanLegChain {
       jointAxes: axes,
       restFrames: HUMANOID_REST_FRAME,
     })!;
-    const hips: IAutoMovieQuaternion = resolveBoneMap(
-      body.skeleton,
+    const hips: IAutoMovieQuaternion = poseBones(
+      body,
       pose,
-      body.topology,
-      axes,
-      HUMANOID_REST_FRAME,
+      undefined,
+      HIPS,
     ).get("hips")!.worldRotation;
     const out: IRest = {
       prepared,
@@ -382,4 +431,13 @@ export namespace HumanLegChain {
 
   /** Each body's legs at rest (`restOf`). */
   const RESTS: WeakMap<IHumanBody, Map<string, IRest>> = new WeakMap();
+
+  /** Bone frames consumed by read, with their parent prefixes resolved internally. */
+  const LEG_BONES: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
+    left: new Set(["hips", "leftUpperLeg", "leftLowerLeg", "leftFoot"]),
+    right: new Set(["hips", "rightUpperLeg", "rightLowerLeg", "rightFoot"]),
+  };
+
+  /** The single neutral parent frame required while preparing a leg. */
+  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);
 }

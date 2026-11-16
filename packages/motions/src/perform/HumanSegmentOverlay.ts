@@ -18,6 +18,7 @@ import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { HumanSegment } from "./HumanSegment";
@@ -82,15 +83,17 @@ export namespace HumanSegmentOverlay {
    * @param seconds Film seconds.
    * @param carried The holds the carrier carries at the second.
    * @param near The fits of a nearby second to continue, if any.
+   * @param source Optional same-body synchronous parent FK source; never retained by a result.
+   * @param requested Optional bone observation, forwarded only through a bare leaf without active overlays or carried holds.
    * @returns The pose, the seeds of its fits and its open contact goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fade, carry, contact and seed behavior and which raw posture and weight evaluations are shared.
-   * @evidence contracts/development/implementation.md#principled-implementation Each branch merges the same overlay's pure posture at the same local second onto its own under-posture; fade and final contact fits retain their original order. Exact contact FK needs the body's unchanged skeleton topology; prepared blending additionally requires its constraints and clinical axes unchanged throughout this synchronous evaluation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lazy posture/weight slots, one continuation mapper preserving pre-resolve attachment checks, a recursive branch builder with first-joint indexes and one optional prepared blender, then the final contact refit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Shares raw plan postures, time-only fade weights and exactly equal FK math; different under-postures, overlay sets and nearby fit seeds still resolve separately. Joint indexes retain the first occurrence of each bone and the original output order; contact FK keeps full admission and fresh output ownership.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates each overlay's posture, weight and ordinal at most once; prefixes avoid per-leaf mapping and ordinal scans. Cold continuation lookup omits unused key/array construction while retaining ordering checks. Fade joints are indexed linearly and multi-joint interior blends share O(B+D) rig metadata. Exact FK still scans J joints and B bones; up to two to the power of N leaf resolutions and all fits remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw posture, time-only weight and original ordinal are shared within the unchanged overlay list; include/omit recursion preserves every seed name. A lazy blender shares fixed rig metadata only. Where overlays or carries add stages, one explicit lazy FK supplier lends exact scalar prerequisites across leaf/carry/contact calls; all distinct under-postures, goals, cold/near fits and seeds still execute independently with fresh FK maps.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Slots, indexes and the optional O(B+D) prepared blender end with this call. With no active overlay or carried hold, no parent FK supplier is created; otherwise its first actual FK demand creates one reader, never a memory hit alone. The reader keeps one last successful joint/world scalar snapshot per visited bone name, O(K) for K identities, with no joint record or pose history. Returned pose/seeds/contacts retain neither supplier nor reader, and failure releases the same local scope.
+   * @evidence contracts/development/implementation.md#principled-implementation Each branch merges the same overlay's pure posture at the same local second onto its own under-posture; fade and final contact fits retain their original order. Plan contacts, hands and channel claims stay unchanged within the call, so metadata decisions are shared. Exact contact FK needs the body's unchanged skeleton topology; prepared blending additionally requires its constraints and clinical axes unchanged throughout this synchronous evaluation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lazy posture/weight slots and prepared fixed-claim mergers feed the recursive branch builder, then ordinary contact refitting. Exact-name continuation and attachment admission retain their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All active overlay branches, fade weights, seed names and contact windows remain. rebased transfers only existing issued-source provenance; the resolver still admits/clamps current joints and accepts an unchanged free-leg solution only after its exact raw/root/ancestor/body checks. Every changed or unsupported fit remains native.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each demanded overlay samples raw posture, weight and ordinal once per query. Fixed claims classify encountered bone names once per merger; no-digit merges omit digit-goal traversal. Contact windows are scanned once and missing explicit goals demand only their effector/lower FK ancestry. Up to 2^N fade leaves remain for N simultaneous partial overlays; checked source-leg reuse or bare observational selection may avoid only their proven independent fits. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw posture, scalar fade weight, original ordinal, fixed claims, hand-drive metadata and unchanged-rig blend preparation share within this query. An explicit parent lends exact FK prerequisites. Source provenance survives a raw merge only so the resolver can revalidate actual current free-leg dependencies; distinct goals, near contexts and all other fits remain separate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query-owned slots, mergers and their bone booleans, branch indexes, optional blender and local lazy FK supplier release on return or throw. A borrowed parent reader stays with its synchronous parent. Raw merge provenance follows only the raw candidate's weak lifetime at the resolver; returned canonical poses, seed maps and contact goals retain no query context or reader.
    */
   export function overlaid(
     person: HumanSegment.IPerson,
@@ -98,33 +101,52 @@ export namespace HumanSegmentOverlay {
     seconds: number,
     carried: readonly HumanSegment.IHeld[] = [],
     near?: HumanSegmentPose.INear,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IOverlaid {
     const body: IHumanBody = person.performer.body;
-    const active: HumanSegment.IOverlay[] = running(person, seconds);
+    const active: HumanSegment.IOverlay[] | undefined =
+      person.overlays.length === 0 ? undefined : running(person, seconds);
     const seeds: HumanSegmentPose.IFits = new Map();
 
     // A bare leaf already owns its refit's FK. Additional stages may borrow
     // one reader here, but memory hits and no-FK paths never create it.
-    let fk: ReturnType<typeof preparePoseResolution> | undefined;
     const resolution: (() => ReturnType<typeof preparePoseResolution>) | undefined =
-      active.length === 0 && carried.length === 0
+      source === undefined && (active?.length ?? 0) === 0 && carried.length === 0
         ? undefined
-        : (): ReturnType<typeof preparePoseResolution> =>
-            (fk ??= preparePoseResolution());
+        : prepareHumanPoseResolution(source);
 
     // Fade branches have different under-postures and fit seeds, but read
     // each overlay's raw plan and fade weight at the same local second.
-    const postures: (IHumanPosture | undefined)[] = [];
-    const weights: (number | undefined)[] = [];
+    let postures: (IHumanPosture | undefined)[] | undefined;
+    let weights: (number | undefined)[] | undefined;
     let ordinals: (number | undefined)[] | undefined;
+    let ownership: (Map<AutoMovieHumanoidBone, boolean> | undefined)[] | undefined;
     let blender: ReturnType<typeof blendHumanJoint.prepare> | undefined;
+    let driving:
+      | Map<HumanSegment.IOverlay, Partial<Record<"left" | "right", boolean>>>
+      | undefined;
+    const mergers: (ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> | undefined)[] = [];
+    function drives(
+      overlay: HumanSegment.IOverlay,
+      side: "left" | "right",
+    ): boolean {
+      let sides: Partial<Record<"left" | "right", boolean>> | undefined =
+        driving?.get(overlay);
+      if (sides === undefined) {
+        sides = {};
+        (driving ??= new Map()).set(overlay, sides);
+      }
+      return (sides[side] ??= HumanSegment.drives(overlay.plan, side));
+    }
     function build(
       k: number,
       under: IHumanPosture,
       used: readonly HumanSegment.IOverlay[],
       tag: string,
+      repeated: boolean,
     ): { pose: IAutoMoviePose; contacts: IHumanPosture["limbs"] } {
-      const overlay: HumanSegment.IOverlay | undefined = active[k];
+      const overlay: HumanSegment.IOverlay | undefined = active?.[k];
       if (overlay === undefined) {
         const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
           body,
@@ -132,6 +154,7 @@ export namespace HumanSegmentOverlay {
           undefined,
           continuations(under.limbs, near, tag),
           resolution,
+          (active?.length ?? 0) === 0 && carried.length === 0 ? requested : undefined,
         );
         for (const [limb, seed] of Object.entries(fitted.seeds))
           seeds.set(`leaf:${tag}:${limb}`, seed ?? null);
@@ -142,7 +165,7 @@ export namespace HumanSegmentOverlay {
           carried.filter(
             (h: HumanSegment.IHeld): boolean =>
               !used.some((o: HumanSegment.IOverlay): boolean =>
-                HumanSegment.drives(o.plan, h.side),
+                drives(o, h.side),
               ),
           ),
           resolution,
@@ -162,14 +185,14 @@ export namespace HumanSegmentOverlay {
         }
         return { pose: leaf, contacts: {} };
       }
-      const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
+      const written: IHumanPosture = resolveHumanPosture.rebased(under, (mergers[k] ??=
+        AutoMovieMotionHumanChannel.prepareMerge(overlay.channels))(
         under,
-        (postures[k] ??= overlay.plan.posture(
+        ((postures ??= [])[k] ??= overlay.plan.posture(
           Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
         )),
-        overlay.channels,
-      );
-      const weight: number = (weights[k] ??= Math.min(
+      ));
+      const weight: number = ((weights ??= [])[k] ??= Math.min(
         minimumJerk(
           Math.min(
             1,
@@ -185,11 +208,13 @@ export namespace HumanSegmentOverlay {
       // first-index order; each leaf keeps its previous fit names.
       const ordinal: number = ((ordinals ??= [])[k] ??=
         person.overlays.indexOf(overlay));
+      const revisited: boolean = repeated || !(weight >= 1);
       const over: ReturnType<typeof build> = build(
         k + 1,
         written,
         [...used, overlay],
         tag === "" ? `${ordinal}` : `${tag},${ordinal}`,
+        revisited,
       );
       const contacts: IHumanPosture["limbs"] = {
         ...contactGoals(
@@ -203,7 +228,13 @@ export namespace HumanSegmentOverlay {
         ...over.contacts,
       };
       if (weight >= 1) return { pose: over.pose, contacts };
-      const without: IAutoMoviePose = build(k + 1, under, used, tag).pose;
+      const without: IAutoMoviePose = build(
+        k + 1,
+        under,
+        used,
+        tag,
+        revisited,
+      ).pose;
 
       // Array.find used the first occurrence on each side. Keep that
       // convention and the union's lower-then-upper insertion order.
@@ -220,61 +251,55 @@ export namespace HumanSegmentOverlay {
         if (pair === undefined) joints.set(joint.bone, [undefined, joint]);
         else if (pair[1] === undefined) pair[1] = joint;
       }
-      const angles: (
-        joint: IAutoMovieJointPose | undefined,
-      ) => readonly [number, number, number] = (
-        joint: IAutoMovieJointPose | undefined,
-      ): readonly [number, number, number] => [
-        joint?.flexion ?? 0,
-        joint?.abduction ?? 0,
-        joint?.twist ?? 0,
-      ];
-      const owned: Set<AutoMovieHumanoidBone> = new Set(
-        [...joints.keys()].filter((bone: AutoMovieHumanoidBone): boolean =>
-          AutoMovieMotionHumanChannel.covers(overlay.channels, bone),
-        ),
-      );
+      const owned: Set<AutoMovieHumanoidBone> = new Set();
+      for (const bone of joints.keys()) {
+        let covered: boolean | undefined = repeated
+          ? ownership?.[k]?.get(bone)
+          : undefined;
+        if (covered === undefined) {
+          covered = AutoMovieMotionHumanChannel.covers(overlay.channels, bone);
+          if (repeated)
+            ((ownership ??= [])[k] ??= new Map()).set(bone, covered);
+        }
+        if (covered) owned.add(bone);
+      }
+
+      // Keep unowned records borrowed and ordered; owned joints are fresh.
       const pose: IAutoMoviePose = {
         ...without,
-        joints: [
-          ...without.joints.filter(
-            (joint: IAutoMovieJointPose): boolean => !owned.has(joint.bone),
-          ),
-          ...Array.from(
-            owned,
-            (bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
-              const pair: [
-                IAutoMovieJointPose | undefined,
-                IAutoMovieJointPose | undefined,
-              ] = joints.get(bone)!;
-              const from: readonly [number, number, number] = angles(pair[0]);
-              const to: readonly [number, number, number] = angles(pair[1]);
-              const share: number =
-                ((bone.startsWith("left") && contacts.leftArm !== undefined) ||
-                  (bone.startsWith("right") &&
-                    contacts.rightArm !== undefined)) &&
-                AutoMovieMotionHumanChannel.of(bone).endsWith("Hand")
-                  ? 1
-                  : weight;
-              if (
-                blender === undefined &&
-                owned.size > 1 &&
-                share > 0 &&
-                share < 1
-              )
-                blender = blendHumanJoint.prepare(body);
-              const [flexion, abduction, twist]: readonly [number, number, number] =
-                blender === undefined
-                  ? blendHumanJoint(body, bone, from, to, share)
-                  : blender(bone, from, to, share);
-              return { bone, flexion, abduction, twist };
-            },
-          ),
-        ],
+        joints: [],
       };
+      for (const joint of without.joints)
+        if (!owned.has(joint.bone)) pose.joints.push(joint);
+      for (const bone of owned) {
+        const pair: [
+          IAutoMovieJointPose | undefined,
+          IAutoMovieJointPose | undefined,
+        ] = joints.get(bone)!;
+        const from: readonly [number, number, number] = angles(pair[0]);
+        const to: readonly [number, number, number] = angles(pair[1]);
+        const share: number =
+          ((bone.startsWith("left") && contacts.leftArm !== undefined) ||
+            (bone.startsWith("right") && contacts.rightArm !== undefined)) &&
+          AutoMovieMotionHumanChannel.of(bone).endsWith("Hand")
+            ? 1
+            : weight;
+        if (
+          blender === undefined &&
+          owned.size > 1 &&
+          share > 0 &&
+          share < 1
+        )
+          blender = blendHumanJoint.prepare(body);
+        const [flexion, abduction, twist]: readonly [number, number, number] =
+          blender === undefined
+            ? blendHumanJoint(body, bone, from, to, share)
+            : blender(bone, from, to, share);
+        pose.joints.push({ bone, flexion, abduction, twist });
+      }
       return { pose, contacts };
     }
-    const built: ReturnType<typeof build> = build(0, posture, [], "");
+    const built: ReturnType<typeof build> = build(0, posture, [], "", false);
     const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
       body,
       built.pose,
@@ -285,6 +310,13 @@ export namespace HumanSegmentOverlay {
     for (const [limb, seed] of Object.entries(fitted.seeds))
       seeds.set(`contact:${limb}`, seed ?? null);
     return { pose: fitted.pose, seeds, contacts: built.contacts };
+  }
+
+  /** A fresh clinical tuple, without a closure for each interior fade branch. */
+  function angles(
+    joint: IAutoMovieJointPose | undefined,
+  ): readonly [number, number, number] {
+    return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
   }
 
   /**
@@ -323,7 +355,7 @@ export namespace HumanSegmentOverlay {
    * States both representations and the coordinate convention.
    * Retains a contact constraint over its declared time window; without an explicit goal, its already planned rigid end frame and bend define the same limb constraint.
    * One scan of the contact windows and one fresh, lazily posed bone map; the enclosing evaluation may lend the same exact FK reader to leaf, carried-frame and contact fits.
-   * Copies an authored goal intact rather than replacing its contact pivot or attachment with a wrist point.
+   * Copies an authored goal intact rather than replacing its contact pivot or attachment with a wrist point. Without a whole-body rotation, the turn owner returns the same limbs unchanged, so no unused root heading is constructed here; a rotation still runs its complete plant refusal and turning policy.
    * Linear in the plan's contact windows; poses the bones only for a joint-only contact.
    * Uses turnHumanPosture, HumanLimbFit.chain and the resolver's reference convention.
    * The enclosing synchronous evaluation owns the FK context; returned goals contain fresh transform values and retain no context or reader.
@@ -338,29 +370,40 @@ export namespace HumanSegmentOverlay {
   ): IHumanPosture["limbs"] {
     const share: number = (seconds - overlay.start) / overlay.plan.duration;
     const contacts: IHumanPosture["limbs"] = {};
-    const turned: IHumanPosture["limbs"] = turnHumanPosture(written).limbs;
-    let placed: ReturnType<typeof poseBones> | undefined;
+    const turned: IHumanPosture["limbs"] =
+      written.rotation === undefined
+        ? written.limbs
+        : turnHumanPosture(written).limbs;
+    let requested: Set<AutoMovieHumanoidBone> | undefined;
+    let selected: Map<IHumanPosture.Limb, IHumanPosture.IGoal | undefined> | undefined;
     for (const window of overlay.plan.contacts) {
       if (share < window.from || share > window.to) continue;
       const limb: IHumanPosture.Limb | undefined = limbOf(window.part);
       if (limb === undefined || !overlay.channels.includes(limb)) continue;
       const goal: IHumanPosture.IGoal | undefined = turned[limb];
+      (selected ??= new Map()).set(limb, goal);
+      if (goal !== undefined) continue;
+      const chain: ReturnType<typeof HumanLimbFit.chain> =
+        HumanLimbFit.chain(limb);
+      (requested ??= new Set()).add(chain.effector);
+      requested.add(chain.lower);
+    }
+    if (selected === undefined) return contacts;
+    const placed: ReturnType<typeof poseBones> | undefined =
+      requested === undefined
+        ? undefined
+        : poseBones(person.performer.body, over, resolution?.(), requested);
+    for (const [limb, goal] of selected) {
       if (goal !== undefined) {
         contacts[limb] = { ...goal, planted: true };
         continue;
       }
-      placed ??= poseBones(
-        person.performer.body,
-        over,
-        resolution?.(),
-      );
-      const chain: ReturnType<typeof HumanLimbFit.chain> =
-        HumanLimbFit.chain(limb);
-      const end: IAutoMovieResolvedBone = placed.get(chain.effector)!;
+      const chain: ReturnType<typeof HumanLimbFit.chain> = HumanLimbFit.chain(limb);
+      const end: IAutoMovieResolvedBone = placed!.get(chain.effector)!;
       contacts[limb] = {
         point: end.worldPosition,
         rotation: end.worldRotation,
-        bend: placed.get(chain.lower)!.worldPosition,
+        bend: placed!.get(chain.lower)!.worldPosition,
         reference: resolveHumanPosture.reference(over, limb),
         planted: true,
       };

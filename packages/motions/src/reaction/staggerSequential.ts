@@ -55,6 +55,14 @@ export namespace staggerSequential {
    * @param parent The course whose first `from` knots this one keeps.
    * @param from How many first knots the parent settles.
    * @returns The course at the last iterate taken, its largest excess as `unmet`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the original branch-held forward differences, parent overlap, trust-region edge behavior and seeded-fit resolution.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the original TrajOpt stance course with each leg's actual seeded hinged fit and the same branch-preserving two-sided fallback; every changed course keeps the original fit, derivative spacing and edge constraints.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private stance problem owns invariant frames, placements and support data; fitted swivels or their first-order pieces are installed immediately before each synchronous reading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body sample, phase, support, target, tolerance or solver round is removed; probes still fit each requested leg and fall back to the other side on a branch change.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each course fits its active planted legs; its piece probes seven coordinates per leg with the original possible opposite-side fit. Goal-only reads avoid unrelated leg posing, one private vector serves all probes, and fixed problem geometry is built once per solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses fitted/piece records only for the same immutable course vector, fixed body and knots; only held-swivel objects change in private copied knot records, while placements, frames and row topology remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, one latest fit record, one latest piece record and one probe vector, each linear in its active course size, released on return or failure; returned course knots retain only final swivels.
    */
   export function solve(
     body: IHumanActionContext["body"],
@@ -63,7 +71,10 @@ export namespace staggerSequential {
     from: number = 0,
   ): walkStanceCourse.ICourse {
     // The parent's swivels, kept on the knots it settles.
-    const kept = (
+    const kept: (
+      k: number,
+      side: "left" | "right",
+    ) => walkStanceCourse.ISwivel | undefined = (
       k: number,
       side: "left" | "right",
     ): walkStanceCourse.ISwivel | undefined =>
@@ -72,49 +83,63 @@ export namespace staggerSequential {
         : parent.knots[k]!.stances.find(
             (s: walkStanceCourse.IStance): boolean => s.side === side,
           )?.swivel;
-    const holding = (
-      swivels: readonly (
-        | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
-        | undefined
-      )[],
-    ): walkStanceCourse.IKnot[] =>
-      knots.map(
-        (knot: staggerKnots.IKnot, k: number): walkStanceCourse.IKnot => ({
-          ...knot,
-          stances: knot.stances.map(
-            (s: walkStanceCourse.IStance): walkStanceCourse.IStance => {
-              const swivel: walkStanceCourse.ISwivel | undefined =
-                swivels[k]?.[s.side] ?? kept(k, s.side);
-              return swivel === undefined ? s : { ...s, swivel };
-            },
-          ),
-        }),
-      );
-    const problemOf = (
-      swivels: readonly (
-        | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
-        | undefined
-      )[],
-    ): walkStanceCourse.IProblem =>
-      walkStanceSolve.problem(body, holding(swivels), parent, from);
+    // Only the held swivels vary between evaluations. These private knot
+    // records keep placements, schedules, frames and support geometry fixed
+    // for the lifetime of this synchronous solve.
+    const active: walkStanceCourse.IKnot[] = knots.map(
+      (knot: staggerKnots.IKnot): walkStanceCourse.IKnot => ({
+        ...knot,
+        stances: [...knot.stances],
+      }),
+    );
+    /** Immutable swivel records installed by one fit or piece reading. */
+    type ISwivels = readonly (
+      | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
+      | undefined
+    )[];
+    let held: ISwivels | undefined;
+    const holding: (swivels: ISwivels) => void = (swivels: ISwivels): void => {
+      if (held === swivels) return;
+      for (let k: number = 0; k < knots.length; k++)
+        active[k]!.stances = knots[k]!.stances.map(
+          (s: walkStanceCourse.IStance): walkStanceCourse.IStance => {
+            const swivel: walkStanceCourse.ISwivel | undefined =
+              swivels[k]?.[s.side] ?? kept(k, s.side);
+            return swivel === undefined ? s : { ...s, swivel };
+          },
+        );
+      held = swivels;
+    };
 
     // The problem's shape, its knots without swivels: the swivels change
     // only the readings, never the variables or the rows' order.
-    const shape: walkStanceCourse.IProblem = problemOf([]);
+    holding([]);
+    const shape: walkStanceCourse.IProblem = walkStanceSolve.problem(
+      body,
+      active,
+      parent,
+      from,
+    );
+    const variables: Record<"left" | "right", number[]>[] = knots.map(
+      (_: staggerKnots.IKnot, k: number): Record<"left" | "right", number[]> => ({
+        left: shape.variables(k, "left"),
+        right: shape.variables(k, "right"),
+      }),
+    );
 
     // The posture's fit of a planted leg at a course, continuing a nearby fit
     // of the same leg when one is given (`HumanLegChain.seeded`).
-    const fitOf = (
+    const fitOf: (k: number, p: walkStanceCourse.IPlanted, x: Float64Array, near?: IAutoMovieSwivelNear) => ISeeded = (
       k: number,
       p: walkStanceCourse.IPlanted,
       x: Float64Array,
       near?: IAutoMovieSwivelNear,
     ): ISeeded => {
       const root: IAutoMovieVector3 = knots[k]!.frame.root({
-        pitch: x[shape.variables(k, p.side)[1]!]!,
-        roll: x[shape.variables(k, p.side)[2]!]!,
+        pitch: x[variables[k]![p.side][1]!]!,
+        roll: x[variables[k]![p.side][2]!]!,
       });
-      const fitted = HumanLegChain.seeded(
+      const fitted: ReturnType<typeof HumanLegChain.seeded> = HumanLegChain.seeded(
         body,
         p.side,
         p.pelvis,
@@ -132,11 +157,13 @@ export namespace staggerSequential {
       );
       return { ...fitted.swivel, seed: fitted.seed };
     };
+    /** A leg fit plus the engine's seed used by its nearby coordinate probes. */
     type ISeeded = HumanLegChain.ISwivel & {
       seed: IAutoMovieSwivelSeed | null;
     };
+    /** Each knot's active planted-leg fits; held knots have no new fit. */
     type Fitted = (Partial<Record<"left" | "right", ISeeded>> | undefined)[];
-    const fits = (x: Float64Array): Fitted =>
+    const fits: (x: Float64Array) => Fitted = (x: Float64Array): Fitted =>
       knots.map(
         (
           _: staggerKnots.IKnot,
@@ -151,7 +178,7 @@ export namespace staggerSequential {
 
     // The fits at the last course read, read once a course.
     let last: { x: Float64Array; at: Fitted } | undefined;
-    const fitted = (x: Float64Array): Fitted => {
+    const fitted: (x: Float64Array) => Fitted = (x: Float64Array): Fitted => {
       if (last === undefined || last.x !== x) last = { x, at: fits(x) };
       return last.at;
     };
@@ -160,21 +187,24 @@ export namespace staggerSequential {
     // branch's edge bounds, read once a course: a subproblem convexified again
     // at another penalty about the same course reads the same pieces.
     let known: { x: Float64Array; at: ReturnType<typeof piecesOf> } | undefined;
-    const pieces = (x: Float64Array): ReturnType<typeof piecesOf> => {
+    const pieces: (x: Float64Array) => ReturnType<typeof piecesOf> = (x: Float64Array): ReturnType<typeof piecesOf> => {
       if (known === undefined || known.x !== x) known = { x, at: piecesOf(x) };
       return known.at;
     };
-    const piecesOf = (
-      x: Float64Array,
-    ): {
+    /** A course's held-swivel pieces and branch-limiting coordinate radii. */
+    type IPieces = {
       swivels: (
         | Partial<Record<"left" | "right", walkStanceCourse.ISwivel>>
         | undefined
       )[];
       edges: Map<number, number>;
-    } => {
+    };
+    const piecesOf: (x: Float64Array) => IPieces = (x: Float64Array): IPieces => {
       const edges: Map<number, number> = new Map();
-      const swivels = fitted(x).map(
+      // The differences are synchronous, and the original course never
+      // changes. One private vector serves all single-coordinate probes.
+      const moved: Float64Array = Float64Array.from(x);
+      const swivels: IPieces["swivels"] = fitted(x).map(
         (
           fit: Partial<Record<"left" | "right", ISeeded>> | undefined,
           k: number,
@@ -185,7 +215,7 @@ export namespace staggerSequential {
           for (const side of ["left", "right"] as const) {
             const seededBase: ISeeded | undefined = fit[side];
             if (seededBase === undefined) continue;
-            const { seed, ...base } = seededBase;
+            const { seed, ...base }: ISeeded = seededBase;
             // A step's fit continues the base fit's seed: a step of `h` moves
             // the swivel by far less than the sweep's own step, so the
             // refinement about the seed finds the swivel the sweep would, to
@@ -194,22 +224,22 @@ export namespace staggerSequential {
               seed === null
                 ? undefined
                 : { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
-            const indices: number[] = shape.variables(k, side);
+            const indices: number[] = variables[k]![side];
             const slope: number[] = indices.map((i: number, v: number): number => {
               const h: number =
                 Math.sqrt(hingedArmSwivel.RESOLUTION / hingedArmSwivel.STEP) *
                 walkStanceTerms.SCALE[v]!;
-              const read = (sign: number): HumanLegChain.ISwivel | undefined => {
-                const moved: Float64Array = Float64Array.from(x);
-                moved[i] = moved[i]! + sign * h;
-                const p: walkStanceCourse.IPlanted | undefined = shape
-                  .planted(moved, k)
-                  .find(
-                    (q: walkStanceCourse.IPlanted): boolean => q.side === side,
-                  );
-                return p === undefined ? undefined : fitOf(k, p, moved, near);
+              const read: (sign: number) => HumanLegChain.ISwivel | undefined = (sign: number): HumanLegChain.ISwivel | undefined => {
+                moved[i] = x[i]! + sign * h;
+                try {
+                  const p: walkStanceCourse.IPlanted | undefined =
+                    shape.planted(moved, k, side)[0];
+                  return p === undefined ? undefined : fitOf(k, p, moved, near);
+                } finally {
+                  moved[i] = x[i]!;
+                }
               };
-              const turned = (a: number, b: number): number =>
+              const turned: (a: number, b: number) => number = (a: number, b: number): number =>
                 ((((a - b + 180) % 360) + 360) % 360) - 180;
               const ahead: HumanLegChain.ISwivel | undefined = read(1);
               if (ahead !== undefined && ahead.branch === base.branch)
@@ -239,10 +269,14 @@ export namespace staggerSequential {
         x: Float64Array,
         model: boolean,
       ): { problem: walkStanceCourse.IProblem; rows: QP.IRow[] } => {
-        if (!model) return { problem: problemOf(fitted(x)), rows: [] };
-        const { swivels, edges } = pieces(x);
+        if (!model) {
+          holding(fitted(x));
+          return { problem: shape, rows: [] };
+        }
+        const { swivels, edges }: IPieces = pieces(x);
+        holding(swivels);
         return {
-          problem: problemOf(swivels),
+          problem: shape,
           rows: [...edges].map(
             ([i, h]: [number, number]): QP.IRow => ({
               index: [i],

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -90,14 +91,17 @@ export namespace throwObjectRelease {
       origin: standing.root,
       yaw: standing.yaw,
     };
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
     const shoulder: IAutoMovieVector3 = HumanFrame.local(
       frame,
       poseBones(
         body,
-        resolveHumanPosture(body, {
+        resolveHumanPosture.seeded(body, {
           ...standing,
           joints: trunk(standing.joints, 0, throwObjectForm.TILT[style]),
-        }),
+        }, undefined, {}, undefined, requested).pose,
+        undefined,
+        requested,
       ).get(`${side}UpperArm`)!.worldPosition,
     );
     const outward: number = side === "left" ? 1 : -1;

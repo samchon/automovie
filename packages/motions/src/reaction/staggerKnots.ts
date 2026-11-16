@@ -33,6 +33,38 @@ import type { staggerRecover } from "./staggerRecover";
  */
 export namespace staggerKnots {
   /**
+   * The upright root carrying a centre course after the trunk's mass shift.
+   *
+   * @param entry The entry root, world metres.
+   * @param bend The same entry's centre shift per sine of pitch and roll.
+   * @param travel The centre's horizontal travel from the entry, world metres.
+   * @param trunk The current pitch and roll in degrees.
+   * @returns The translated root before stance lowering, at the entry height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the world-metre inputs, sine-scaled trunk shift, angular units and unchanged entry height.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original frame root formula: entry plus centre travel minus each reference bending shift times the sine of its current trunk angle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure root calculation serves both full knot frames and StaggerFeet settlement that needs no preliminary pelvis.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original subtraction order and entry height without changing body motion, targets or angles.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar/vector work with no body traversal, pelvis solve or leg fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the frame's actual formula with settlement; each requested trunk/travel is evaluated directly and no time or pose result is memoized.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh root vector and retains no input, cache or handle.
+   */
+  export function root(
+    entry: IAutoMovieVector3,
+    bend: Record<"pitch" | "roll", IAutoMovieVector3>,
+    travel: IAutoMovieVector3,
+    trunk: walkStanceCourse.ITrunk,
+  ): IAutoMovieVector3 {
+    const p: number = Math.sin((trunk.pitch * Math.PI) / 180);
+    const r: number = Math.sin((trunk.roll * Math.PI) / 180);
+    return {
+      x: entry.x + travel.x - bend.pitch.x * p - bend.roll.x * r,
+      y: entry.y,
+      z: entry.z + travel.z - bend.pitch.z * p - bend.roll.z * r,
+    };
+  }
+
+  /**
    * The centre of mass's shift per sine of the trunk's tilt about the hips,
    * on the entry's feet: the posture tilted `REFERENCE` degrees in pitch and
    * in roll (`AutoMovieMotionHumanLean.pivot`) and its centre of mass read
@@ -108,16 +140,9 @@ export namespace staggerKnots {
     pelvis: (trunk: walkStanceCourse.ITrunk) => walkStanceCourse.IPelvis;
     yaw: number;
   } {
-    const root = (trunk: walkStanceCourse.ITrunk): IAutoMovieVector3 => {
-      const p: number = Math.sin((trunk.pitch * Math.PI) / 180);
-      const r: number = Math.sin((trunk.roll * Math.PI) / 180);
-      return {
-        x: entry.root.x + travel.x - bend.pitch.x * p - bend.roll.x * r,
-        y: entry.root.y,
-        z: entry.root.z + travel.z - bend.pitch.z * p - bend.roll.z * r,
-      };
-    };
-    const base: IAutoMovieVector3 = root({ pitch: 0, roll: 0 });
+    const rootAt: (trunk: walkStanceCourse.ITrunk) => IAutoMovieVector3 =
+      (trunk: walkStanceCourse.ITrunk): IAutoMovieVector3 => root(entry.root, bend, travel, trunk);
+    const base: IAutoMovieVector3 = rootAt({ pitch: 0, roll: 0 });
     const upright: walkReach.IPelvis = walkReach.pelvis(
       body,
       base,
@@ -125,19 +150,18 @@ export namespace staggerKnots {
       entry.joints.hips ?? [0, 0, 0],
       feet,
     );
+    const tilt: ReturnType<typeof walkReachHeld.prepareTilt> = walkReachHeld.prepareTilt(body, upright.yaw);
     return {
-      root,
+      root: rootAt,
       pelvis: (trunk: walkStanceCourse.ITrunk): walkStanceCourse.IPelvis => {
-        const at: IAutoMovieVector3 = root(trunk);
+        const at: IAutoMovieVector3 = rootAt(trunk);
         const moved = (hip: IAutoMovieVector3): IAutoMovieVector3 => ({
           x: hip.x + at.x - base.x,
           y: hip.y,
           z: hip.z + at.z - base.z,
         });
-        return walkReachHeld.tilt(
-          body,
+        return tilt(
           at,
-          upright.yaw,
           { left: moved(upright.hips.left), right: moved(upright.hips.right) },
           trunk,
         );
@@ -209,6 +233,14 @@ export namespace staggerKnots {
    * @param walk The steps, the pendulum's courses, the catching step's landing, seconds since the action's start, and the landing the course places, when one is.
    * @param until The last knot's second.
    * @returns The knots, each with its frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the knot clock, foot schedule, frame and borne pressure/capture points.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the original schedule and catching/stance condition; course, pressure and requested extrapolation use the same integrated phase reading when supplied.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Schedule the feet, read the course values, construct the same frame and bearing knot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original knot, foot claim, landing predicate and fallback reader; no extrapolated value is requested before the original capture condition.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original knot/step loops remain; a supplied paired reader replaces repeated phase scans at each knot with one scan, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work StaggerPendulum owns the shared formulas and phase selection; staggerClose forwards the same sample before its settling tail.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned knots retain only their original frame and geometric demands; the temporary paired reading is not retained or memoized by time.
    */
   export function of(
     body: IHumanActionContext["body"],
@@ -219,6 +251,7 @@ export namespace staggerKnots {
       course: (seconds: number) => IAutoMovieVector3;
       pressure: (seconds: number) => IAutoMovieVector3;
       extrapolated: (seconds: number) => IAutoMovieVector3;
+      sample?: staggerRecover.ICourses["sample"];
       caught: number;
       landing?: {
         placement: HumanFoot.IPlacement;
@@ -259,15 +292,17 @@ export namespace staggerKnots {
       const stances: ("left" | "right")[] = (["left", "right"] as const).filter(
         (side: "left" | "right"): boolean => feet[side].swing === undefined,
       );
-      const framed = frame(body, entry.posture, bend, walk.course(t), feet);
+      const capture: boolean = t >= walk.caught && stances.length === 2;
+      const reading: staggerRecover.IReading | undefined = walk.sample?.(t, capture);
+      const framed = frame(body, entry.posture, bend, reading?.course ?? walk.course(t), feet);
       knots.push({
         seconds: k / staggerBounds.KNOTS,
         frame: framed,
         pelvis: framed.pelvis,
         borne: [
-          walk.pressure(t),
-          ...(t >= walk.caught && stances.length === 2
-            ? [walk.extrapolated(t)]
+          reading?.pressure ?? walk.pressure(t),
+          ...(capture
+            ? [reading?.extrapolated ?? walk.extrapolated(t)]
             : []),
         ],
         stances: stances.map(

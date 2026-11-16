@@ -53,7 +53,7 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the variables, the twist with its source, the two read-outs, how each axis is found and what a range limit gives.
  * @evidence contracts/development/design.md#principled-representation A variable as a twist (an angular velocity through a point, or a linear velocity) with the bones it moves, the representation the geometric Jacobian is built from; segment twists and point columns both follow from it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Variable, motion and twist records serve the same Jacobian owner for floor fitting and arm planning. of preserves the motion-array surface, read also exposes projections the same candidate already used, and twist/velocity derive segment or point motion.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Variable, motion and twist records serve floor fitting and arm planning. of preserves the motion array, read also exposes that candidate's actual projections, twist/velocity read segment or point motion, and velocityY materializes only height for floor rows.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The axes, rest frames, ranges and composition orders are the engine's own, the ones forward kinematics reads.
  */
 export namespace HumanJacobian {
@@ -138,26 +138,30 @@ export namespace HumanJacobian {
    * candidate and remain unchanged until this synchronous read returns.
    * Repeated variables share only that candidate's completed joint preparation;
    * another finite-difference or optimization candidate needs another read.
+   * An operation may lend its actual canonical engine clamp factory for
+   * this same unchanged skeleton; this shares metadata, not projected answers.
    *
    * @param body The unchanged body described by its established rig snapshot.
    * @param posture The current clinical angles and root heading.
    * @param bones The same candidate's actual resolved bone frames.
    * @param variables Requested variables, including duplicates, in output order.
+   * @param projection Only clampJointToSkeleton.prepare for this same unchanged skeleton and canonical axes, borrowed from the current synchronous operation; omitted, angle demand prepares it locally.
    * @returns Fresh motions and a map of the actual clamped joints used for angle variables.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States same-candidate input stability, ordered duplicate variables, clamped result provenance and the synchronous release boundary.
    * @evidence contracts/development/implementation.md#principled-implementation The same geometric Jacobian maps the clinical axis through its parent/rest frame and the preceding intrinsic-Euler factors. One actual rig projection and lazy quaternion-prefix chain per bone suffice for every requested axis of that unchanged candidate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure of delegates here; this read owns candidate-local preparation and ordered derivative formation, while rigOf, engine clamp preparation and twist/velocity retain their existing responsibilities.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Root heading and initial rig admission retain their original order. A bone is projected only at its first requested angle, earlier factors are computed only when first needed, and every variable still forms its own motion; no perturbed pose, derivative result or callback is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For D variables naming U joints, one O(B) canonical clamp index/axes preparation and U actual projections replace D scans/projections. Each bone computes at most two factors and three prefix frames; D final formations remain. The unchanged first body rig has worst-case O(B squared) carried sets; read-local state is O(B+U), and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-candidate clinical triples, canonical frames, resolved parents and rig rest transforms prove per-bone preparation equivalence. Returned clamped joints let HumanArmJacobian reuse those exact projections instead of projecting the same candidate again; no state crosses reads.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(B+U) prefix/clamp preparation ends with this synchronous read. The caller owns motions and at most U clamped records; moves sets borrow the existing weak body rig, whose carried sets can total O(B squared). No new global cache, callback closure, task or handle is retained.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure of delegates here; this read owns candidate-local preparation and ordered derivative formation. A lent canonical engine factory replaces only local clamp-metadata construction; rigOf and twist/velocity keep their existing responsibilities.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Root heading and initial rig admission retain their original order. Only the actual same-skeleton canonical engine factory may be lent, with no solver override or projected answer. A bone is actually projected at its first requested angle, earlier factors remain lazy, and every variable forms its own motion; no perturbed pose, derivative result or numerical callback is memoized.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For D variables naming U joints, the first angle creates one O(B) canonical clamp preparation or borrows its operation's completed metadata; U actual projections replace D scans/projections. Each bone computes at most two factors and three prefix frames; D final formations remain. Place/heading-only reads allocate no angle clamp or prefix map. The unchanged first body rig has worst-case O(B squared) carried sets; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-candidate clinical triples, canonical frames, resolved parents and rig rest transforms prove per-bone preparation equivalence. HumanArmJacobian lends setup.clamp and HumanBodyFit lends its fit-local canonical factory for the same unchanged skeleton/axes/domain operation, retaining every actual projection. Returned clamped joints also avoid projecting that candidate again for clamp-status checks; no candidate result crosses reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Read-local prefixes are O(U), plus O(B+U) when it owns clamp preparation, and end with this synchronous read. A lent factory belongs to the caller's unchanged operation and is not stored elsewhere. Motions and at most U clamped records escape; moves sets borrow the existing weak body rig, whose carried sets can total O(B squared). No new global cache, task or handle is retained.
    */
   export function read(
     body: IHumanBody,
     posture: IHumanPosture,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
     variables: readonly IVariable[],
+    projection?: ReturnType<typeof clampJointToSkeleton.prepare>,
   ): IReading {
     const rig: IRig = rigOf(body);
     const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -169,9 +173,10 @@ export namespace HumanJacobian {
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, posture.pitch),
     );
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
-    const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
-      clampJointToSkeleton.prepare(body.skeleton);
-    const prepared: Map<AutoMovieHumanoidBone, IJointReading> = new Map();
+    let clamp:
+      | ((joint: IAutoMovieJointPose) => IAutoMovieJointPose)
+      | undefined = projection;
+    let prepared: Map<AutoMovieHumanoidBone, IJointReading> | undefined;
     const clamped: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
     const turning: (
       axis: IAutoMovieVector3,
@@ -211,13 +216,14 @@ export namespace HumanJacobian {
           null,
         );
       const bone: AutoMovieHumanoidBone = variable.bone;
-      let reading: IJointReading | undefined = prepared.get(bone);
+      let reading: IJointReading | undefined = prepared?.get(bone);
       if (reading === undefined) {
         const def: IAutoMovieBone = rig.bones.get(bone)!;
         const basis: IAutoMovieJointAxes = rig.bases.get(bone)!;
         const set: readonly [number, number, number] = posture.joints[bone] ?? [
           0, 0, 0,
         ];
+        clamp ??= clampJointToSkeleton.prepare(body.skeleton);
         const joint: IAutoMovieJointPose = clamp({
           bone,
           flexion: set[0],
@@ -240,6 +246,7 @@ export namespace HumanJacobian {
           prefix: [Quaternion.multiply(parent, def.rest.rotation)],
         };
         clamped.set(bone, joint);
+        prepared ??= new Map();
         prepared.set(bone, reading);
       }
       const name: Name = NAMES[variable.axis];
@@ -326,6 +333,34 @@ export namespace HumanJacobian {
   ): IAutoMovieVector3 {
     if (motion.moves !== null && !motion.moves.has(bone)) return ZERO;
     return Vector3.add(motion.linear, Vector3.cross(motion.angular, point));
+  }
+
+  /**
+   * The world-Y component of velocity for a caller that needs height alone.
+   * It uses the same affected-bone membership and cross/add grouping as
+   * velocity, without forming its unused X/Z components or vector records.
+   *
+   * @param motion The completed coordinate motion.
+   * @param bone The bone carrying the point.
+   * @param point Its world point, metres.
+   * @returns Vertical metres per variable unit, or positive zero when unaffected.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the scalar component, world frame, per-coordinate unit and unaffected-bone zero.
+   * @evidence contracts/development/implementation.md#principled-implementation Expands exactly velocity's Y component as linear.y plus angular.z times point.x minus angular.x times point.z, with the subtraction grouped before the addition as in cross then add.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A component readout beside the existing full vector owner serves BodyFitRows.low; other callers retain velocity when they need XYZ.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves membership and actual Y arithmetic without clamping, tolerance, finite repair or a bone-specific shortcut; nonfinite vertical results propagate unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One membership lookup, two products, one subtraction and one addition replace full cross/add work and two vector allocations; runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the caller's same completed motion and point, materializing only the requested height derivative; no coordinate, point or numerical result is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no input, vector, map, closure or handle.
+   */
+  export function velocityY(
+    motion: IMotion,
+    bone: AutoMovieHumanoidBone,
+    point: IAutoMovieVector3,
+  ): number {
+    if (motion.moves !== null && !motion.moves.has(bone)) return 0;
+    return motion.linear.y +
+      (motion.angular.z * point.x - motion.angular.x * point.z);
   }
 
   /** A joint's clinical axis. */

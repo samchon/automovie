@@ -1,5 +1,6 @@
 import { DynamicExecutor } from "@nestia/e2e";
 import chalk from "chalk";
+import { writeSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
@@ -7,7 +8,12 @@ import type { IScenarioExecutionAssessment } from "./IScenarioExecutionAssessmen
 import { assessScenarioExecution } from "./scenarioExecution";
 import { prepareScenarioFilter } from "./scenarioSelection";
 
-/** Run the selected scenarios, report completed failures immediately, and exit with their combined verdict. */
+/**
+ * Run the selected scenarios and exit with their combined verdict. A synchronous
+ * start record identifies the selected function before it is invoked, including
+ * when its event loop later stalls or its heap is exhausted. Completed failures
+ * keep their existing immediate report and timing assessment.
+ */
 async function main(): Promise<void> {
   // Static dependencies have loaded; selected unit discovery and execution
   // follow this owned-process marker. Compiler/launcher time remains separate.
@@ -39,6 +45,18 @@ async function main(): Promise<void> {
   );
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     ...discovery,
+
+    // The executor requests parameters immediately before the selected call.
+    // Write synchronously so a blocked event loop cannot retain its start line.
+    parameters: (name: string): [] => {
+      writeSync(process.stdout.fd, `${JSON.stringify({
+        stage: "scenario-start",
+        pid: process.pid,
+        name,
+        started: new Date().toISOString(),
+      })}\n`);
+      return [];
+    },
     onComplete: (exec: DynamicExecutor.IExecution): void => {
       const result: IScenarioExecutionAssessment =
         assessScenarioExecution(exec);

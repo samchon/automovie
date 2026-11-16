@@ -142,9 +142,10 @@ export namespace KickSwing {
       shift: IAutoMovieVector3,
     ): IKickGeometry.ILeg => {
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
+      const currentHip: IAutoMovieVector3 = KickCarriage.hip(body, base, side);
       const carried = (v: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(
-          KickCarriage.hip(body, base, side),
+          currentHip,
           Quaternion.rotateVector(heading, v),
         );
       const opened: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

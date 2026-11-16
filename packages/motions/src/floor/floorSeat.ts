@@ -101,7 +101,7 @@ export namespace floorSeat {
    * @evidence contracts/development/implementation.md#principled-implementation Each ankle and each knee's bend point travel a straight line from where the posture's own joints put them, so the legs are continuous with the joint posture at no share, to places on the floor the leg solve then meets inside the joints' ranges.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward-kinematics pass, one frame, one pass over the legs and the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A place out of a leg's reach is not checked here: the limb fit leaves the ankle short of it, which the contact audit reports.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass and constant work per limb.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The canonical solve remains; its FK requests only hips, knees and ankles, plus the left arm when side sitting needs its supporting hand.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -116,6 +116,8 @@ export namespace floorSeat {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       resolveHumanPosture(body, { ...posture, limbs: {} }),
+      undefined,
+      kind === "side" ? SIDE_BONES : LEG_BONES,
     );
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)!.worldPosition;
@@ -195,4 +197,10 @@ export namespace floorSeat {
     }
     return { ...posture, limbs };
   }
+
+  /** Joint-space origins needed by both folded-leg placements. */
+  const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot"]);
+
+  /** Side sitting also measures its supporting shoulder, elbow and wrist. */
+  const SIDE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([...LEG_BONES, "leftUpperArm", "leftLowerArm", "leftHand"]);
 }

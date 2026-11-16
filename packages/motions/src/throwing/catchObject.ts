@@ -4,7 +4,7 @@ import {
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -212,7 +212,10 @@ export namespace catchObject {
       z: launch.velocity.z,
     };
     const along: IAutoMovieVector3 = Vector3.normalize(speed);
-    const bones = poseBones(body, resolveHumanPosture(body, standing));
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
+    const bones: ReturnType<typeof poseBones> = poseBones(body,
+      resolveHumanPosture.seeded(body, standing, undefined, {}, undefined, shoulderBones).pose,
+      undefined, shoulderBones);
     const shoulders: IAutoMovieVector3 = Vector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
@@ -302,6 +305,8 @@ export namespace catchObject {
       context.params.glove === undefined
         ? undefined
         : HumanGlove.pocket(context, context.params.glove, sides);
+    const entryBones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose,
+      undefined, new Set(sides.map((side: HumanHand.Side): AutoMovieHumanoidBone => `${side}Hand`)));
     // The hand on the ball: its palm's target, or with a glove the palm's
     // turn moved so the pocket meets the ball.
     const meeting = (
@@ -403,7 +408,7 @@ export namespace catchObject {
         to: duration,
         origin: AutoMovieMotionHumanArm.origin(
           body,
-          poseBones(body, context.entry.pose),
+          entryBones,
           {
             origin: context.entry.posture.root,
             yaw: context.entry.posture.yaw,

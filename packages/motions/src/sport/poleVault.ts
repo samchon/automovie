@@ -4,6 +4,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -29,6 +30,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
+import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 
 /**
  * A pole vault (#3377): out of a run, the hand that holds the pole plants
@@ -133,9 +135,9 @@ export namespace poleVault {
    * @evidence contracts/development/implementation.md#principled-implementation The plant from the arm's reach and the pole's length; the swing from the kept angular momentum and the pendulum's energy; the flight ballistic; the touchdown bisected on the lowest shape.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The pole, the take-off, the plant, the pendulum table, the flight, the landing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; the wrist goal is corrected by the solved end's height so the end is on the floor, and the pivot is the end where the solved hand actually puts it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans, one table of `STEPS` closed-form rates, about fifteen flight postures for the touchdown, and one or two forward kinematics per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held prop reading, the take-off, flight and mat kernels and the workout's support reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the take-off plan, the table and the mass model.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and original STEPS stations/touchdown bisection remain. Each pendulum station's cosine/rate is prepared once for admission and adjacent trapezoids; monotone seconds use O(log STEPS) lower-bound lookup with the original equality convention. A fixed local COM removes flight FK/mass scans; actual floor bounds remain and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses held prop, take-off, flight, mat and support owners. Adjacent trapezoids share only identical endpoint rates, while the released fixed articulation shares its local COM; wrist secant trials retain independent real solves.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its take-off, pendulum seconds table, body mass model and one released articulation/local COM. Build-only rate arrays release after construction; fresh postures expose no retained joint tuples or query reader.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -158,7 +160,7 @@ export namespace poleVault {
     ).point;
     const length: number = Vector3.length(end);
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
     const hand0: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
     const socket: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(hand0.worldRotation),
@@ -264,7 +266,7 @@ export namespace poleVault {
     // place off the entry's root to its place off the take-off's.
     const root0: IAutoMovieVector3 = context.entry.posture.root;
     const rootT: IAutoMovieVector3 = takeoff.plan.posture(off).root;
-    const pushing = (t: number): IHumanPosture => {
+    const pushing: (t: number) => IHumanPosture = (t: number): IHumanPosture => {
       const base: IHumanPosture = takeoff.plan.posture(t);
       const u: number = minimumJerk(t / off).s;
       const point: IAutoMovieVector3 = Vector3.add(
@@ -298,7 +300,7 @@ export namespace poleVault {
       body,
       resolveHumanPosture(body, from),
     );
-    const endOf = (
+    const endOf: (bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IAutoMovieVector3 = (
       bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ): IAutoMovieVector3 =>
       Vector3.add(
@@ -341,17 +343,18 @@ export namespace poleVault {
       gripAt.y - tipAt.y,
     );
     const upright: number = -pole0;
-    const rate2 = (alpha: number): number =>
+    const cosine: number = Math.cos(beta0);
+    const gravity: number = (2 * AutoMovieGravity.STANDARD) / r;
+    const rate2: (alpha: number) => number = (alpha: number): number =>
       omega0 * omega0 +
-      ((2 * AutoMovieGravity.STANDARD) / r) *
-        (Math.cos(beta0) - Math.cos(beta0 + alpha));
+      gravity * (cosine - Math.cos(beta0 + alpha));
+    const rates: number[] = [];
     let needed: number = 0;
-    for (let i: number = 0; i <= STEPS; i++)
-      needed = Math.max(
-        needed,
-        ((2 * AutoMovieGravity.STANDARD) / r) *
-          (Math.cos(beta0 + (upright * i) / STEPS) - Math.cos(beta0)),
-      );
+    for (let i: number = 0; i <= STEPS; i++) {
+      const at: number = Math.cos(beta0 + (upright * i) / STEPS);
+      needed = Math.max(needed, gravity * (at - cosine));
+      rates.push(omega0 * omega0 + gravity * (cosine - at));
+    }
     if (!(omega0 > 0) || omega0 * omega0 <= needed)
       throw new HumanRefusal({
         kind: "base",
@@ -369,24 +372,30 @@ export namespace poleVault {
       });
 
     // The table of seconds by angle, by the trapezoid rule on 1 / ω.
+    const inverse: number[] = rates.map((value: number): number => 1 / Math.sqrt(value));
     const seconds: number[] = [0];
     for (let i: number = 1; i <= STEPS; i++) {
       const a: number = (upright * (i - 1)) / STEPS;
       const b: number = (upright * i) / STEPS;
       seconds.push(
         seconds[i - 1]! +
-          ((b - a) / 2) * (1 / Math.sqrt(rate2(a)) + 1 / Math.sqrt(rate2(b))),
+          ((b - a) / 2) * (inverse[i - 1]! + inverse[i]!),
       );
     }
     const swing: number = seconds[STEPS]!;
-    const angleAt = (t: number): number => {
-      let i: number = 1;
-      while (i < STEPS && seconds[i]! < t) i++;
+    const angleAt: (t: number) => number = (t: number): number => {
+      let low: number = 1;
+      let high: number = STEPS;
+      while (low < high) {
+        const middle: number = Math.floor((low + high) / 2);
+        if (seconds[middle]! < t) low = middle + 1; else high = middle;
+      }
+      const i: number = low;
       const u: number = (t - seconds[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
       return (upright * (i - 1 + Math.min(1, Math.max(0, u)))) / STEPS;
     };
     const degrees: number = 180 / Math.PI;
-    const swinging = (t: number): IHumanPosture =>
+    const swinging: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
       GymnasticsFlight.turned(from, tipAt, 0, angleAt(t) * degrees);
 
     // The release: the centre and its velocity from the pendulum.
@@ -403,11 +412,11 @@ export namespace poleVault {
       { x: 0, y: -omega * forth, z: 0 },
     );
     const released: IHumanPosture = swinging(swing);
-    const flying = (t: number): IHumanPosture =>
-      GymnasticsFlight.placed(
-        body,
-        model,
-        GymnasticsFlight.turned(released, cr, 0, omega * degrees * t),
+    const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
+      prepareGymnasticsPlacement(body, model, released);
+    const flying: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
+      placeFlight(
+        { yaw: released.yaw, pitch: released.pitch + omega * degrees * t, roll: 0 },
         GymnasticsFlight.at(cr, velocity, t),
       );
 
@@ -416,18 +425,20 @@ export namespace poleVault {
       p.on === undefined
         ? 0
         : WorkoutSupport.at(context, { prop: p.on, affordance: "surface" }).y;
-    const lowest = (t: number): number =>
-      GymnasticsFlight.lowest(body, flying(t));
-    if (!(lowest(0) > surface))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "on",
-        value: surface,
-        reason: `at the release the body's lowest point is at ${lowest(0).toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
-        fix: "land on a lower surface, or run faster",
-      });
-    const fallen: number = GymnasticsFlight.fall(cr.y, velocity.y, surface)!;
-    const down: number = GymnasticsFlight.touchdown(0, fallen, lowest, surface);
+    const down: number = ((): number => {
+      const floorResolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+      const lowest: (t: number) => number = (t: number): number => GymnasticsFlight.lowest(body, flying(t), floorResolution);
+      if (!(lowest(0) > surface))
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "on",
+          value: surface,
+          reason: `at the release the body's lowest point is at ${lowest(0).toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
+          fix: "land on a lower surface, or run faster",
+        });
+      const fallen: number = GymnasticsFlight.fall(cr.y, velocity.y, surface)!;
+      return GymnasticsFlight.touchdown(0, fallen, lowest, surface);
+    })();
     const landing: (seconds: number) => IHumanPosture = GymnasticsMat.lie({
       body,
       model,

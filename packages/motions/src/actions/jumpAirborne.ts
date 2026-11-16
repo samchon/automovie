@@ -8,11 +8,10 @@ import type { tags } from "typia";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { jumpPath } from "./jumpPath";
-import { stand } from "./stand";
+import type { jumpState } from "./jumpState";
 
 /**
  * A jump's time in the air: the shape it holds between take-off and
@@ -49,30 +48,26 @@ export namespace jumpAirborne {
    * What the airborne shape is drawn from.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The jump's own heading, joints and the feet's body-frame places at take-off and touchdown.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values `posture` reads.
+   * @evidence contracts/development/design.md#principled-representation The jump's own heading, unchanged body dimensions and achieved canonical endpoint states define its free-flight shape.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the prepared posture reader consumes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's.
    */
   export interface IShape {
-    /** The body. */
+    /** The body whose hip height scales the existing free-foot arch. */
     body: IHumanBody;
 
     /** The foot that pushed off. */
     takeoff: "left" | "right";
 
-    /** The upright trunk's joints. */
-    joints: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    >;
+    /** The actual achieved push endpoint; its leg geometry is in the root frame. */
+    start: jumpState.IState;
 
-    /** Each foot's body-frame place at take-off, metres. */
-    start: Record<"left" | "right", IAutoMovieVector3>;
-
-    /** Each foot's body-frame place at touchdown, metres. */
-    end: Record<"left" | "right", IAutoMovieVector3>;
+    /** The actual achieved touchdown endpoint in the same frame. */
+    end: jumpState.IState;
 
     /** The jump's heading, degrees about +Y. */
     heading: number;
+
   }
 
   /**
@@ -116,65 +111,72 @@ export namespace jumpAirborne {
   /**
    * The airborne posture at a root and a share of the flight: the arms
    * lowering from the push's height, the take-off toes uncurling, and each
-   * foot carried on a minimum-jerk path from its take-off place to its
-   * touchdown place in the body's frame, lifted by a tenth of the hip
-   * height at mid-flight.
+   * foot carried on a minimum-jerk path between achieved endpoint states,
+   * lifted by a tenth of hip height at mid-flight along the existing sine
+   * arch. Endpoint values are shared; world COM and angular C1 are not
+   * established by this shape interpolation.
    *
-   * @param shape What the shape is drawn from.
-   * @param root The root, world metres.
-   * @param u The share of the flight, in [0, 1].
-   * @returns The posture.
+   * @param shape Fixed achieved endpoints, body dimensions and flight heading.
+   * @returns A posture reader of a world-metre root and flight share in [0,1].
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each part of the shape does over the flight.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk interpolation of the feet's body-frame places (Flash and Hogan 1985, as the motion skill cites), with the jump's own arm and toe angles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint table and one goal per leg.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the jump's own provisional ones, moved here unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk endpoint interpolation (Flash and Hogan 1985) uses achieved foot/knee/toe values and quaternion interpolation of achieved foot rotations. The existing provisional arch remains 0.1 hip heights times sin(pi*u); no extra path projection or rate law is added.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed joint start/difference tracks and the heading turn once; each read copies the achieved seed, interpolates arms/toes and builds two free goals from the same endpoints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed -40-degree seed, reconstructed ankle, ground plant, epsilon or boundary-only pose replaces the achieved shape. Coupled ROM remains the ordinary resolver's responsibility.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks and the heading quaternion prepare once per plan. Each read shares one minimum-jerk share, one sine arch and one frame between both legs, then performs the original fixed-size interpolation and fresh joint-record copy; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged endpoint tuples and heading are prepared; every requested root/share evaluates its original goals and returns fresh changed tuples, vectors and goal records without a time-keyed cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its endpoint records, fixed-size joint tracks and one heading quaternion; no query history or external handle accumulates. Each returned posture owns its new records while unchanged clinical tuples retain the existing readonly endpoint ownership.
    */
-  export function posture(
+  export function prepare(
     shape: IShape,
-    root: IAutoMovieVector3,
-    u: number,
-  ): IHumanPosture {
-    const { body, takeoff, heading } = shape;
-    const l: number = body.measure.hipHeight;
-    const s: number = minimumJerk(u).s;
-    const arms: number = 60 - 30 * s;
-    const joints: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {
-      ...stand.relaxed(body),
-      ...shape.joints,
-      leftUpperArm: [arms, stand.abduction(body), 0],
-      rightUpperArm: [arms, stand.abduction(body), 0],
-      leftLowerArm: [12 + arms / 3, 0, 0],
-      rightLowerArm: [12 + arms / 3, 0, 0],
-      [`${takeoff}Toes`]: [40 * (1 - s), 0, 0],
-    };
-    const limbs: IHumanPosture["limbs"] = {};
-    for (const side of ["left", "right"] as const) {
-      const p: IAutoMovieVector3 = jumpPath.lerp(
-        shape.start[side],
-        shape.end[side],
-        s,
-      );
-      const point: IAutoMovieVector3 = HumanFrame.point(
-        { origin: root, yaw: heading },
-        { ...p, y: p.y + 0.1 * l * Math.sin(Math.PI * u) },
-      );
-      const pitch: number = side === takeoff ? -40 * (1 - s) : 0;
-      limbs[`${side}Leg`] = {
-        point,
-        rotation: HumanFoot.rotation(
-          heading + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT) * s,
-          pitch,
-        ),
-        bend: knee(body, heading, root, side, heading),
-      };
+  ): (root: IAutoMovieVector3, u: number) => IHumanPosture {
+    const { body, takeoff, heading }: IShape = shape;
+    const tracks: IJointTrack[] = [];
+    for (const bone of [
+      "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",
+      "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot",
+    ] as const) {
+      const from: readonly [number, number, number] = shape.start.joints[bone] ?? [0, 0, 0];
+      const into: readonly [number, number, number] = shape.end.joints[bone] ?? [0, 0, 0];
+      tracks.push({ bone, from, delta: [into[0] - from[0], into[1] - from[1], into[2] - from[2]] });
     }
-    return { root, yaw: heading, pitch: 0, roll: 0, joints, limbs };
+    const toe: AutoMovieHumanoidBone = `${takeoff}Toes`;
+    const fromToe: number = shape.start.joints[toe]?.[0] ?? 0;
+    const intoToe: number = shape.end.joints[toe]?.[0] ?? 0;
+    const turn: ReturnType<typeof HumanFrame.turn> = HumanFrame.turn(heading);
+    return (root: IAutoMovieVector3, u: number): IHumanPosture => {
+      const s: number = minimumJerk(u).s;
+      const joints: IHumanPosture["joints"] = { ...shape.start.joints };
+      for (const track of tracks)
+        joints[track.bone] = [
+          track.from[0] + track.delta[0] * s,
+          track.from[1] + track.delta[1] * s,
+          track.from[2] + track.delta[2] * s,
+        ];
+      joints[toe] = [fromToe + (intoToe - fromToe) * s, 0, 0];
+      const limbs: IHumanPosture["limbs"] = {};
+      const frame: HumanFrame.IFrame = { origin: root, yaw: heading };
+      const arch: number = 0.1 * body.measure.hipHeight * Math.sin(Math.PI * u);
+      for (const side of ["left", "right"] as const) {
+        const p: IAutoMovieVector3 = jumpPath.lerp(
+          shape.start.legs[side].point,
+          shape.end.legs[side].point,
+          s,
+        );
+        const point: IAutoMovieVector3 = HumanFrame.point(frame, { ...p, y: p.y + arch });
+        const rotation: ReturnType<typeof Quaternion.slerp> = Quaternion.slerp(
+          shape.start.legs[side].rotation, shape.end.legs[side].rotation, s,
+        );
+        limbs[`${side}Leg`] = {
+          point,
+          rotation: Quaternion.multiply(turn, rotation),
+          bend: HumanFrame.point(frame,
+            jumpPath.lerp(shape.start.legs[side].bend, shape.end.legs[side].bend, s),
+          ),
+        };
+      }
+      return { root, yaw: heading, pitch: 0, roll: 0, joints, limbs };
+    };
   }
 
   /**
@@ -196,6 +198,14 @@ export namespace jumpAirborne {
      * @param posture The posture.
      * @param seconds Seconds of the jump.
      * @returns The posture, turned.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the local jump clock and that the received whole-body turn is absent before handback and outside the flight.
+     * @evidence contracts/development/implementation.md#principled-implementation The actual turning producer returns the posture with the flight pass's rigid rotation about COM strictly inside its declared span.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One handed-back-reader/span check, otherwise one fresh posture record with rotation.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not script a turn, alter momentum or mark a free limb as a world plant.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-size optional record update.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses exactly the rotation supplied by the real performance flight pass.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its existing handed-back reader; each call preserves unchanged posture identity or returns one new record with no added global state.
      */
     turned(posture: IHumanPosture, seconds: number): IHumanPosture;
   }
@@ -266,4 +276,16 @@ export namespace jumpAirborne {
           : { ...posture, rotation: rotated(t) },
     };
   }
+}
+
+/** One fixed endpoint joint and its clinical difference, prepared once per flight. */
+interface IJointTrack {
+  /** The joint being interpolated. */
+  bone: AutoMovieHumanoidBone;
+
+  /** Clinical degrees at takeoff. */
+  from: readonly [number, number, number];
+
+  /** Touchdown minus takeoff, clinical degrees. */
+  delta: readonly [number, number, number];
 }

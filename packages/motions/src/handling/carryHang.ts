@@ -1,7 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieResolvedBone, minimumJerk } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -86,15 +87,15 @@ export namespace carryHang {
    * @evidence contracts/development/implementation.md#principled-implementation Each wrist is a place below its shoulder on the posture of each second, the hand turned as it holds the prop at the start, and the arm carried there from the carrier's own arm by the settle's envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Sides, duration, the held fingers, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive length throws; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolve and one posture resolve per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the carrier, the arm carry and the grip's fingers.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each active frame demands only the carrying shoulders' trunk FK; the carrier's full posture is resolved for baseline arm angles only during the settle, since carry returns the goal posture unchanged at share one. Empty carries read only their base posture.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry hand turns and finger tuples are prepared once; each changing carrier posture still supplies the original shoulder placement and actual settle solve.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the hands' rotations.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
+    const body: IHumanBody = context.body;
     const duration: number = p.seconds ?? 3;
     HumanBound.above("seconds", duration, 0, "s");
     const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
@@ -104,19 +105,20 @@ export namespace carryHang {
     const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
       (side: HumanHand.Side): boolean => p[side] !== undefined,
     );
-    const bones = poseBones(body, context.entry.pose);
-    const turns = Object.fromEntries(
-      sides.map((side: HumanHand.Side) => [
-        side,
-        bones.get(`${side}Hand`)!.worldRotation,
-      ]),
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      sides.map((side: HumanHand.Side): AutoMovieHumanoidBone => `${side}Hand`),
     );
-    const fingers = Object.fromEntries(
-      sides.map((side: HumanHand.Side) => [
-        side,
-        HumanGrip.fingers(context.entry.pose, side),
-      ]),
+    const shoulders: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      sides.map((side: HumanHand.Side): AutoMovieHumanoidBone => `${side}UpperArm`),
     );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(body, context.entry.pose, undefined, requested);
+    const turns: Partial<Record<HumanHand.Side, IAutoMovieQuaternion>> = {};
+    const fingers: Partial<Record<HumanHand.Side, IHumanPosture["joints"]>> = {};
+    for (const side of sides) {
+      turns[side] = bones.get(`${side}Hand`)!.worldRotation;
+      fingers[side] = HumanGrip.fingers(context.entry.pose, side);
+    }
     const arm: number = body.measure.upperArm + body.measure.forearm;
     return {
       duration,
@@ -152,10 +154,12 @@ export namespace carryHang {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const posture: IHumanPosture = base.posture(t);
+        if (sides.length === 0) return posture;
         const share: number = minimumJerk(Math.min(1, t / SETTLE)).s;
-        const trunk = HumanTrunk.resolve(body, posture);
+        const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          HumanTrunk.resolve(body, posture, undefined, undefined, shoulders);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-        let joints: IHumanPosture["joints"] = { ...posture.joints };
+        const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const side of sides) {
           const shoulder: IAutoMovieVector3 = trunk.get(
             `${side}UpperArm`,
@@ -179,9 +183,11 @@ export namespace carryHang {
               },
             ),
           };
-          joints = { ...joints, ...fingers[side] };
+          Object.assign(joints, fingers[side]);
         }
-        const walked = resolveHumanPosture(body, posture);
+        const carrying: IHumanPosture = { ...posture, joints, limbs };
+        if (share >= 1) return carrying;
+        const walked: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(body, posture);
         const run: Partial<
           Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>
         > = Object.fromEntries(
@@ -192,7 +198,7 @@ export namespace carryHang {
         );
         return AutoMovieMotionHumanArm.carry(
           body,
-          { ...posture, joints, limbs },
+          carrying,
           run,
           share,
         );

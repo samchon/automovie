@@ -39,14 +39,14 @@ export namespace HumanArmFrame {
    * @param setup The arm.
    * @param base The pose and another body's colliders, the arms of the problem left out of what they hold.
    * @param alone Whether the arm is solved alone, so the other arm is in its way; two arms solved together read each other through their own colliders.
-   * @param prepared Optional exact FK reader shared only across arms of this same base's synchronous frame construction, then released; never stored in a frame or cache.
+   * @param prepared Optional exact FK reader, or its lazy factory, shared only across arms of this same base's synchronous frame construction, then released. A factory is called only when a frame is missing; neither form is stored in a frame or cache.
    * @returns The frame, the same record for the same base, arm and solve, which a refined trajectory and its finer reading share.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, single/paired-arm selection and the existing per-base frame identity.
    * @evidence contracts/development/implementation.md#principled-implementation Resolves the source pose and places its physical colliders once for a newly requested frame; the existing obstacle owner selects from that same placement while audit probes retain their exact segment transforms.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Existing base/arm lookup delegates a missing frame to one construction pass.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Existing base/arm lookup delegates a missing frame to one construction pass, requesting an optional lazy reader only on that miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all FK admission, external part indices, related exclusions, probe order and strict shoulder-reach comparison; base, body and external placements remain unchanged for the frame's existing lifetime.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One full ordered pose walk and collider placement per newly built frame plus linear part/probe scans; an optional same-base reader avoids identical completed joint/bone math for the second arm while all outputs remain fresh.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full ordered pose walk and collider placement per newly built frame plus linear part/probe scans; an optional same-base reader avoids identical completed joint/bone math for the second arm while all outputs remain fresh. Cache hits never invoke a lazy factory or allocate its FK maps.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-base arm construction shares only the supplied synchronous FK reader's exact dependencies. Obstacle/probe passes share placements, each owner reuses its inverse frame (the hand's already computed for the fingertip), bounds reuse local points, and the completed shoulder origin feeds unchanged-frame chain queries.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the existing weakly keyed per-base frames; temporary placement and owner-group arrays are released after construction and no new cross-pose cache is introduced.
    */
@@ -54,14 +54,16 @@ export namespace HumanArmFrame {
     setup: G.ISetup,
     base: G.IBase,
     alone: boolean,
-    prepared?: ReturnType<typeof preparePoseResolution>,
+    prepared?: ReturnType<typeof preparePoseResolution> | (() => ReturnType<typeof preparePoseResolution>),
   ): G.IFrame {
     let kept: Map<string, G.IFrame> | undefined = FRAMES.get(base);
     if (kept === undefined) FRAMES.set(base, (kept = new Map()));
     const key: string = `${setup.bones.upper}|${alone}`;
     let frame: G.IFrame | undefined = kept.get(key);
-    if (frame === undefined)
-      kept.set(key, (frame = built(setup, base, alone, prepared)));
+    if (frame === undefined) {
+      const reader: ReturnType<typeof preparePoseResolution> | undefined = typeof prepared === "function" ? prepared() : prepared;
+      kept.set(key, (frame = built(setup, base, alone, reader)));
+    }
     return frame;
   }
 
@@ -265,25 +267,15 @@ export namespace HumanArmFrame {
     // length, its widest segment and the pairs' reach of the shoulder.
     const shoulder: IAutoMovieVector3 = frames.upper.worldPosition;
     const length: number =
-      Vector3.length(Vector3.subtract(frames.lower.worldPosition, shoulder)) +
-      Vector3.length(
-        Vector3.subtract(hand.worldPosition, frames.lower.worldPosition),
-      ) +
-      Vector3.length(
-        Vector3.subtract(distal.worldPosition, hand.worldPosition),
-      );
+      Vector3.distance(frames.lower.worldPosition, shoulder) +
+      Vector3.distance(hand.worldPosition, frames.lower.worldPosition) +
+      Vector3.distance(distal.worldPosition, hand.worldPosition);
     const around: number =
       length +
       Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
       NEAR;
-    const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const near: G.IFrame["body"] = corners.filter(
-      (c: G.IFrame["body"][number]): boolean => {
-        delta.x = c.point.x - shoulder.x;
-        delta.y = c.point.y - shoulder.y;
-        delta.z = c.point.z - shoulder.z;
-        return Vector3.length(delta) < around;
-      },
+      (c: G.IFrame["body"][number]): boolean => Vector3.distance(c.point, shoulder) < around,
     );
     return {
       parent: {
@@ -324,12 +316,8 @@ function sphere(points: readonly IAutoMovieVector3[]): {
   }
   const centre: IAutoMovieVector3 = { x, y, z };
   let radius: number = 0;
-  const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const p of points) {
-    delta.x = p.x - centre.x;
-    delta.y = p.y - centre.y;
-    delta.z = p.z - centre.z;
-    radius = Math.max(radius, Vector3.length(delta));
+    radius = Math.max(radius, Vector3.distance(p, centre));
   }
   return { centre, radius };
 }

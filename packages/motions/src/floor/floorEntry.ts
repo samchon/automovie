@@ -153,11 +153,13 @@ export namespace floorEntry {
     posture: (base: IHumanPosture, seconds: number) => IHumanPosture,
   ): (base: IHumanPosture, seconds: number) => IHumanPosture {
     let arrived: IHumanPosture | undefined;
+    let transition: ((weight: number) => IHumanPosture) | undefined;
     return (base: IHumanPosture, seconds: number): IHumanPosture => {
       const w: number = weight(seconds);
       if (entered === null || w >= 1) return posture(base, seconds);
       arrived ??= GymnasticsFlight.frozen(body, posture(base, at));
-      return blend(body, entered, arrived, w);
+      transition ??= between(body, entered, arrived);
+      return transition(w);
     };
   }
 
@@ -275,15 +277,34 @@ export namespace floorEntry {
     to: IHumanPosture,
     weight: number,
   ): IHumanPosture {
+    return between(body, from, to)(weight);
+  }
+
+  /**
+   * Prepare a transition between two fixed joint-space floor postures. The
+   * endpoints are immutable for this transition's lifetime; only progress
+   * changes. Their hip points and floor clearances are measured lazily on
+   * the first interior query and retained with this finite transition.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States endpoint immutability, progress and the lazy measurement lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same joint interpolation, shortest yaw and hip-carried root as blend, raising only the blend's floor penetration beyond the endpoints' interpolated penetration.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared joint interpolation and one lazy endpoint record feed each independent progress query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact endpoint queries return the supplied postures; the floor clearance and its bounds are unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Endpoint clearances cost two floor readings once; each interior query retains only its one changing floor reading and O(J) joint interpolation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed endpoints' hip places, yaw difference, joint pairs and floor clearances are shared; the intermediate posture and floor reading are recomputed for every progress.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns two postures, their fixed joint pairs and two floor scalars until its plan releases it; no query history, FK reader or handles are retained.
+   */
+  export function between(body: IHumanBody, from: IHumanPosture, to: IHumanPosture): (weight: number) => IHumanPosture {
+    const interpolate: (weight: number) => IHumanPosture["joints"] = jointBlend(from.joints, to.joints);
+    const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
+    const sunk = (posture: IHumanPosture): number => Math.max(0, knockdown.rest(body, posture) - posture.root.y);
+    let fixed: { hipsFrom: IAutoMovieVector3; hipsTo: IAutoMovieVector3; sunkFrom: number; sunkTo: number } | undefined;
+    return (weight: number): IHumanPosture => {
     if (weight <= 0) return from;
     if (weight >= 1) return to;
+    fixed ??= { hipsFrom: hips(body, from), hipsTo: hips(body, to), sunkFrom: sunk(from), sunkTo: sunk(to) };
     const lerp = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = blended(
-      from.joints,
-      to.joints,
-      weight,
-    );
-    const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
+    const joints: IHumanPosture["joints"] = interpolate(weight);
     const heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
       yaw: from.yaw + turn * weight,
       pitch: lerp(from.pitch, to.pitch),
@@ -292,7 +313,7 @@ export namespace floorEntry {
     const carried: IHumanPosture = {
       ...heading,
       root: Vector3.subtract(
-        Vector3.lerp(hips(body, from), hips(body, to), weight),
+        Vector3.lerp(fixed.hipsFrom, fixed.hipsTo, weight),
         Quaternion.rotateVector(
           resolveHumanPosture.heading(heading),
           body.rest.get("hips")!,
@@ -305,15 +326,14 @@ export namespace floorEntry {
     // The floor is a constraint on the way: angles blended between two
     // postures that rest on the floor can dip a limb under it, so the body
     // is raised by whatever sinks deeper than the two ends themselves do.
-    const sunk = (posture: IHumanPosture): number =>
-      Math.max(0, knockdown.rest(body, posture) - posture.root.y);
     const rise: number = Math.max(
       0,
-      sunk(carried) - lerp(sunk(from), sunk(to)),
+      sunk(carried) - lerp(fixed.sunkFrom, fixed.sunkTo),
     );
     return rise === 0
       ? carried
       : { ...carried, root: { ...carried.root, y: carried.root.y + rise } };
+    };
   }
 
   /**
@@ -339,17 +359,36 @@ export namespace floorEntry {
     to: IHumanPosture["joints"],
     weight: number,
   ): IHumanPosture["joints"] {
-    const lerp = (a: number, b: number): number => a + (b - a) * weight;
-    const joints: IHumanPosture["joints"] = {};
+    return jointBlend(from, to)(weight);
+  }
+
+  /**
+   * Prepare the ordered union of two fixed clinical-joint maps; absent
+   * joints retain their original clinical-zero endpoint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, order and missing-joint semantics.
+   * @evidence contracts/development/implementation.md#principled-implementation Each output uses the original linear clinical-angle expression with the original endpoint values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one ordered bone/pair list, then write fresh triples per query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No endpoint shortcut, angle wrapping or zero-joint omission changes the emitted map.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) preparation removes per-query key-array and Set reconstruction; each query remains O(J) for its required fresh map.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed endpoint triples and their ordered union are shared; each query has independent output arrays.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains one pair per union bone and ends with the owning transition; no query results or history survive.
+   */
+  export function jointBlend(from: IHumanPosture["joints"], to: IHumanPosture["joints"]): (weight: number) => IHumanPosture["joints"] {
+    const pairs: [AutoMovieHumanoidBone, readonly [number, number, number], readonly [number, number, number]][] = [];
     for (const bone of new Set([
       ...Object.keys(from),
       ...Object.keys(to),
     ]) as Set<AutoMovieHumanoidBone>) {
       const a: readonly [number, number, number] = from[bone] ?? [0, 0, 0];
       const b: readonly [number, number, number] = to[bone] ?? [0, 0, 0];
-      joints[bone] = [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2])];
+      pairs.push([bone, a, b]);
     }
-    return joints;
+    return (weight: number): IHumanPosture["joints"] => {
+      const joints: IHumanPosture["joints"] = {};
+      for (const [bone, a, b] of pairs) joints[bone] = [a[0] + (b[0] - a[0]) * weight, a[1] + (b[1] - a[1]) * weight, a[2] + (b[2] - a[2]) * weight];
+      return joints;
+    };
   }
 
   /** Where a posture's hips joint is: its root plus the hips' rest place turned by its heading. */

@@ -126,8 +126,8 @@ export namespace baseball {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IHumanActionContext["body"] = context.body;
+    const m: IHumanActionContext["body"]["measure"] = body.measure;
     const hold: number = p.seconds ?? 1;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
@@ -240,14 +240,18 @@ export namespace baseball {
         break;
       case "groundBall": {
         // The glove on the floor ahead of the shoulders, open forward and up with the fingers down.
-        const glove = (posture: IHumanPosture, up: number) => ({
-          point: Vector3.add(
+        const glovePoint = (posture: IHumanPosture, up: number): IAutoMovieVector3 =>
+          Vector3.add(
             {
               ...AutoMovieMotionHumanPlaced.shoulders(body, posture),
               y: up * arm,
             },
             local(posture, { x: 0, y: 0, z: AHEAD * arm }),
-          ),
+          );
+        const glove = (posture: IHumanPosture, up: number): {
+          point: IAutoMovieVector3; facing: IAutoMovieVector3; forward: IAutoMovieVector3;
+        } => ({
+          point: glovePoint(posture, up),
           facing: Vector3.normalize(
             Vector3.add(local(posture, { x: 0, y: 0, z: 1 }), {
               x: 0,
@@ -310,7 +314,7 @@ export namespace baseball {
           ...placed(
             "right",
             (posture: IHumanPosture) => ({
-              point: glove(posture, low + 0.2).point,
+              point: glovePoint(posture, low + 0.2),
               facing: { x: 0, y: -1, z: 0 },
             }),
             "flat",

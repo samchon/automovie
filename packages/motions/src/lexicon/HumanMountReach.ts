@@ -1,9 +1,10 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 
@@ -47,8 +48,8 @@ export namespace HumanMountReach {
    * @evidence contracts/development/implementation.md#principled-implementation A rotation about a fixed axis moves a point on a circle, so the distance to a fixed point is an exact sinusoid in the angle and its threshold crossing is an arccos root; the circle's vectors are solved from three exact forward-kinematics readings.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The circles once, then one root per hand per point set.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points the arms do not reach at `LEAN` leave the hands short, which the contact audit reports; only the spine flexes, and the pelvis's roll forward that carries most of a rower's or a cyclist's tilt (Agius et al. 2023, Bioengineering 10:774, section 4.1) is not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three forward-kinematics passes per plan, then constant work per instant and hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The circles are read once and shared by every instant of the ride.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three FK trials request only shoulder positions, with the first also requesting elbows/wrists to measure reach; the remaining per-instant root calculation is unchanged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three trials share one operation-local exact dependency reader; only the completed circle vectors and arm lengths enter the returned ride evaluator.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function holds six vectors and two lengths per hand.
    */
   export function reach(
@@ -58,11 +59,17 @@ export namespace HumanMountReach {
   ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
     const angles: readonly [number, number, number] = [0, HumanMountRider.LEAN / 2, HumanMountRider.LEAN];
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const shoulders: Set<AutoMovieHumanoidBone> = new Set(sides.map((side: "left" | "right"): AutoMovieHumanoidBone => `${side}UpperArm`));
+    const measured: Set<AutoMovieHumanoidBone> = new Set(shoulders);
+    for (const side of sides) { measured.add(`${side}LowerArm`); measured.add(`${side}Hand`); }
     const read: ReturnType<typeof poseBones>[] = angles.map(
-      (degrees: number): ReturnType<typeof poseBones> =>
+      (degrees: number, index: number): ReturnType<typeof poseBones> =>
         poseBones(
           body,
-          resolveHumanPosture(body, { ...HumanMountRider.leant(seated, degrees), limbs: {} }),
+          resolveHumanPosture.seeded(body, { ...HumanMountRider.leant(seated, degrees), limbs: {} }, undefined, undefined, prepared).pose,
+          prepared(),
+          index === 0 ? measured : shoulders,
         ),
     );
     const circles: Map<"left" | "right", ICircle> = new Map(

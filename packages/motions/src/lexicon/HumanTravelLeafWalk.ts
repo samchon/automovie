@@ -72,7 +72,7 @@ export namespace HumanTravelLeafWalk {
    * @evidence contracts/development/implementation.md#principled-implementation The stances are the take relation carried with the handle; the hinge is the centre the leaf turns the stance about, solved from the first and last stances; the walk goes the feet's midpoint through them and is played at the share of its way the stance has gone, its cadence hurried at most to the walking gait's at the walk-to-run transition.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The stances, the end of the swing, the way, the hinge, the walk, the timing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leaf that does not turn plans no walk; the walk's own refusals pass on.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan and readings of the handle every `TICK`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan and unchanged handle/posture sampling. Each stance distance locates its interval in the nondecreasing walked distances by binary search, preserving the first equal boundary and final-interval extrapolation; speedup is unmeasured.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per opening.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the plan and retains nothing.
    */
@@ -182,13 +182,18 @@ export namespace HumanTravelLeafWalk {
       rests,
     );
     const went: number[] = travelled(
-      (t: number): IAutoMovieVector3 => walked.posture(t).root,
+      (t: number): IAutoMovieVector3 => walked.posture(t, ["root"]).root,
       walked.duration,
     );
     const total: number = went.at(-1)!;
     const reached = (length: number): number => {
       let i: number = 0;
-      while (i < went.length - 1 && went[i + 1]! < length) i++;
+      let end: number = went.length - 1;
+      while (i < end) {
+        const middle: number = Math.floor((i + end) / 2);
+        if (went[middle + 1]! < length) i = middle + 1;
+        else end = middle;
+      }
       const span: number =
         (i + 1 < went.length ? went[i + 1]! : went[i]!) - went[i]!;
       return Math.min(

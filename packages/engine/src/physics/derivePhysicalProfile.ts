@@ -27,8 +27,8 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * @evidence contracts/development/implementation.md#principled-implementation Uses analytic primitive volume and centroid, solid-sphere inertia or the declared bounding-box approximation, then the parallel-axis theorem. Rest FK fixes segment frames; unattached parts are changed from model to the root's neutral frame. Positive finite density and part mass precede aggregate admission, followed by body consistency at the existing 1e-8 threshold and full profile validation. Imported geometry and empty segments require full overrides; no hull or more accurate capsule inertia is claimed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Rest frames and ordered part buckets precede per-segment derivation. Each segment completes primitive admission before mass aggregation; final mass, neutral centre, joint derivation and profile validation remain separate phases owned by their existing helpers.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Geometry, density, material, actuator and override choices come from the current call. The existing 0.4 solid-sphere and one-third box half-extent factors are physical formulas, and consistency tolerances are unchanged. The actuator non-null assertion follows the explicit missing-actuator rejection; no mutable model is cached or repaired.
- * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and P parts, ordered bucketing and primitive derivation take O(B+P), replacing a full part filter per bone; rest-frame and joint helpers retain their own rig-validation cost. Each bone aggregates its own parts, with the eigensolver's fixed sweep bound. Storage is O(B+P) besides cloned declared joints and materials; fresh centres are reused within their owning reduction instead of allocating addition and weighting vectors. No measured speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Parts are grouped once by their current attached bone, retaining source order. A neutral inverse is computed only when that bone first consumes an unattached part and reused for the same fixed neutral transform. Both live only in this call; the next call reads all mutable model and option values again.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and P parts, ordered bucketing and primitive derivation take O(B+P), replacing a full part filter per bone; rest-frame and joint helpers retain their own rig-validation cost. Each bone aggregates its own parts, with the eigensolver's fixed sweep bound. Storage is O(B+P) besides cloned declared joints and materials; fresh centres are reused within their owning reduction instead of allocating addition and weighting vectors. One sphere moment serves all three axes, and each box half-extent is squared once. No measured speedup is claimed.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Parts are grouped once by their current attached bone, retaining source order. A neutral inverse is computed only when that bone first consumes an unattached part and reused for the same fixed neutral transform. The owned intermediate part shares its identical sphere moment or squared half-extents without changing the original products and sums. All reuse lives only in this call; the next call reads all mutable model and option values again.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Buckets and intermediate primitive mass records are bounded by this call's bones and parts and become unreachable on return or throw. Returned profile records and cloned overrides, joints and materials transfer to the caller; no body, task or external handle is retained between calls.
  */
 export function derivePhysicalProfile(
@@ -179,21 +179,22 @@ export function derivePhysicalProfile(
           (
             value: (typeof values)[number],
           ): combinePhysicalMassProperties.IPart => {
-            const e: IAutoMovieVector3 = value.extent;
-            const inertia: IAutoMovieVector3 =
-              value.shape.kind === "sphere"
-                ? {
-                    x: 0.4 * value.mass * value.shape.radius ** 2,
-                    y: 0.4 * value.mass * value.shape.radius ** 2,
-                    z: 0.4 * value.mass * value.shape.radius ** 2,
-                  }
-                : // A capsule and a box both use the box of their extent; this
-                  // provider derives no hull.
-                  {
-                    x: (value.mass * (e.y ** 2 + e.z ** 2)) / 3,
-                    y: (value.mass * (e.x ** 2 + e.z ** 2)) / 3,
-                    z: (value.mass * (e.x ** 2 + e.y ** 2)) / 3,
-                  };
+            let inertia: IAutoMovieVector3;
+            if (value.shape.kind === "sphere") {
+              const moment: number = 0.4 * value.mass * value.shape.radius ** 2;
+              inertia = { x: moment, y: moment, z: moment };
+            } else {
+              // A capsule and a box both use the box of their extent; this
+              // provider derives no hull. These owned extents stay unchanged.
+              const x2: number = value.extent.x ** 2;
+              const y2: number = value.extent.y ** 2;
+              const z2: number = value.extent.z ** 2;
+              inertia = {
+                x: (value.mass * (y2 + z2)) / 3,
+                y: (value.mass * (x2 + z2)) / 3,
+                z: (value.mass * (x2 + y2)) / 3,
+              };
+            }
             return {
               mass: value.mass,
               centerOfMass: value.center,

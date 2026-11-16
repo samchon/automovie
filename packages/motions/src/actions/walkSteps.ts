@@ -165,8 +165,8 @@ export namespace walkSteps {
    * @returns The plan.
    */
   export function plan(input: IInput): IPlan {
-    const { body } = input;
-    const m = body.measure;
+    const body: IHumanBody = input.body;
+    const m: IHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
     const yaw0: number = input.entry.posture.yaw;
     const flatten = (side: "left" | "right"): HumanFoot.IPlacement => ({
@@ -395,25 +395,22 @@ export namespace walkSteps {
     const firstLeft: number = steps.find(
       (s: IStep): boolean => s.side === "left",
     )!.heelStrike;
+    const endingAt: number = steps.at(-2)!.heelStrike;
     const ramp = (t: number): number => {
       const up: number = minimumJerk((t - lag) / (first + T)).s;
       const down: number =
-        1 -
-        minimumJerk(
-          (t - steps.at(-2)!.heelStrike) /
-            (last + 0.2 - steps.at(-2)!.heelStrike),
-        ).s;
+        1 - minimumJerk((t - endingAt) / (last + 0.2 - endingAt)).s;
       return Math.min(up, down);
     };
     const rootStart: IAutoMovieVector3 = input.entry.posture.root;
-    const centre = (yaw: number): IAutoMovieVector3 => {
-      const a: IAutoMovieVector3 = body.rest.get("leftFoot")!;
-      const b: IAutoMovieVector3 = body.rest.get("rightFoot")!;
-      return HumanFrame.point(
+    const a: IAutoMovieVector3 = body.rest.get("leftFoot")!;
+    const b: IAutoMovieVector3 = body.rest.get("rightFoot")!;
+    const restCentre: IAutoMovieVector3 = { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 };
+    const centre: (yaw: number) => IAutoMovieVector3 = (yaw: number): IAutoMovieVector3 =>
+      HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw },
-        { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 },
+        restCentre,
       );
-    };
     const amount = (t: number): number => Math.max(0, Math.min(1, ramp(t)));
     // A flight gait's straight push is its stance's own (`runStance`).
     walkStepFoot.pushed(
@@ -444,14 +441,14 @@ export namespace walkSteps {
     };
     const foot = (side: "left" | "right", t: number): walkFoot.IScheduled =>
       schedules[side](t);
+    const over: number = firstLeft + front * T;
+    const middle: number = firstLeft + (T - swing / 2);
     const planned = (t: number): IAutoMovieVector3 => {
       const yaw: number = yawAt(t);
       const c: IAutoMovieVector3 = centre(yaw);
       const a: number = amount(t);
       // The pelvis is over the left footprint `front` periods after its heel
       // strike; a gait's own oscillation is lowest at mid-stance.
-      const over: number = firstLeft + front * T;
-      const middle: number = firstLeft + (T - swing / 2);
       const sway: number =
         0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - over)) / (2 * T));
       const bob: number =
@@ -462,19 +459,21 @@ export namespace walkSteps {
             (gaitBob.mean -
               gaitBob.amplitude * Math.cos((2 * Math.PI * (t - middle)) / T));
       const s: number = progress(t);
+      const along: IAutoMovieVector3 = path.at(s);
       const p: IAutoMovieVector3 = HumanFrame.point(
         {
-          origin: path.at(s),
-          yaw: facing === undefined ? along$(s) : faced$(path.at(s)),
+          origin: along,
+          yaw: facing === undefined ? along$(s) : faced$(along),
         },
         { x: sway, y: 0, z: 0 },
       );
       return { x: p.x - c.x, y: -0.005 + bob, z: p.z - c.z };
     };
+    const initial: IAutoMovieVector3 = planned(0);
     const offset: IAutoMovieVector3 = {
-      x: rootStart.x - planned(0).x,
-      y: rootStart.y - planned(0).y,
-      z: rootStart.z - planned(0).z,
+      x: rootStart.x - initial.x,
+      y: rootStart.y - initial.y,
+      z: rootStart.z - initial.z,
     };
     const root = (t: number): IAutoMovieVector3 => {
       const fade: number = 1 - minimumJerk(t / 0.3).s;

@@ -5,7 +5,10 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -25,6 +28,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
@@ -125,7 +129,7 @@ export namespace brace {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const p: IParams = context.params;
     const duration: number = Math.max(SET + 0.2, p.seconds ?? 1.5);
     const yaw: number = context.entry.posture.yaw;
@@ -219,11 +223,17 @@ export namespace brace {
     const lean: number = 10;
     const forward: number =
       (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
-    const upright = standUpright.of(body).joints;
+    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
+    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
+    const bearing: number = Math.cos((forward * Math.PI) / 180);
+    const flatHands: IHumanPosture["joints"] = {
+      ...HumanHand.shape("left", "flat"),
+      ...HumanHand.shape("right", "flat"),
+    };
     const setAt = (root: IAutoMovieVector3): IHumanPosture => {
-      const tilt = HumanTrunk.incline(
-        { ...stand.relaxed(body), ...upright },
-        lean * Math.cos((forward * Math.PI) / 180),
+      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+        relaxed,
+        lean * bearing,
       );
       return resolveHumanPosture.lower(body, {
         root,
@@ -269,18 +279,20 @@ export namespace brace {
       const t: number = Math.min(duration, Math.max(0, seconds));
       const s: number = minimumJerk(t / SET).s;
       const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
-      const tilt = HumanTrunk.incline(
-        { ...stand.relaxed(body), ...upright },
-        lean * s * Math.cos((forward * Math.PI) / 180),
+      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+        relaxed,
+        lean * s * bearing,
       );
+      const leftFoot: ReturnType<typeof footAt> = footAt("left", t);
+      const rightFoot: ReturnType<typeof footAt> = footAt("right", t);
       const legs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, {
-        left: footAt("left", t).ankle,
-        right: footAt("right", t).ankle,
+        left: leftFoot.ankle,
+        right: rightFoot.ankle,
       });
       for (const side of ["left", "right"] as const) {
         const limb: "leftLeg" | "rightLeg" =
           side === "left" ? "leftLeg" : "rightLeg";
-        if (!footAt(side, t).planted)
+        if (!(side === "left" ? leftFoot : rightFoot).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
       const posture: IHumanPosture = resolveHumanPosture.lower(body, {
@@ -297,8 +309,7 @@ export namespace brace {
             ...posture,
             joints: {
               ...posture.joints,
-              ...HumanHand.shape("left", "flat"),
-              ...HumanHand.shape("right", "flat"),
+              ...flatHands,
             },
           };
     };
@@ -309,11 +320,34 @@ export namespace brace {
     // chest's surface however far the trunk leans.
     const catching: boolean = p.kind === "catchBody";
     const reach: number = (m.upperArm + m.forearm) * 0.55;
+    const rotations: Record<"left" | "right", IAutoMovieQuaternion> = {
+      left: HumanHand.rotation(
+        "left",
+        catching
+          ? { fingers: toward, palm: { x: 0, y: 1, z: 0 } }
+          : { fingers: { x: 0, y: 1, z: 0 }, palm: toward },
+      ),
+      right: HumanHand.rotation(
+        "right",
+        catching
+          ? { fingers: toward, palm: { x: 0, y: 1, z: 0 } }
+          : { fingers: { x: 0, y: 1, z: 0 }, palm: toward },
+      ),
+    };
+    const region: IHumanBody["surfaces"]["regions"]["sternum"] = body.surfaces.regions.sternum;
+    const sternumBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([region.bone]);
     const requests = (
       posture: IHumanPosture,
     ): AutoMovieMotionHumanArm.ISided[] => {
-      const bones = poseBones(body, resolveHumanPosture(body, posture));
-      const region = body.surfaces.regions.sternum;
+      // Canonical demand selection keeps admission intact and omits limb
+      // fits only when it proves they cannot move the sternum's ancestry.
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+        body, posture, undefined, {}, resolution, sternumBones,
+      ).pose;
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body, pose, resolution(), sternumBones,
+      );
       const sternum: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
         region,
         bones.get(region.bone)!,
@@ -337,12 +371,7 @@ export namespace brace {
               z: 0,
             }),
           ),
-          rotation: HumanHand.rotation(
-            side,
-            catching
-              ? { fingers: toward, palm: { x: 0, y: 1, z: 0 } }
-              : { fingers: { x: 0, y: 1, z: 0 }, palm: toward },
-          ),
+          rotation: rotations[side],
           bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
         }),
       );
@@ -367,6 +396,7 @@ export namespace brace {
             envelope: minimumJerk(Math.min(1, Math.max(0, at) / SET)).s,
           };
         },
+        (at: number): number => minimumJerk(Math.min(1, Math.max(0, at) / SET)).s,
       );
 
     const contacts: IHumanContactWindow[] = [

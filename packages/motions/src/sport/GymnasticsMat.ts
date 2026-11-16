@@ -7,8 +7,8 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { lieDown } from "../floor/lieDown";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
+import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
 /**
  * Coming down lying on a landing surface after a jump over a bar (#3377):
@@ -48,9 +48,9 @@ export namespace GymnasticsMat {
    * @evidence contracts/development/implementation.md#principled-implementation Joint space blended on minimum-jerk progress, the tip to the nearest supine tip, the root height from the shapes' rest and the root's floor place from the centre carried by the engine's `carriedRate`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one centre, one rest per instant.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward kinematics per evaluated instant.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare J joint start/difference triples once; each query interpolates them and resolves one canonical bone map for its actual COM and collider reduction, removing the second full FK. Shape bounds and phase timing remain unchanged; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The invariant joint union and differences belong to this landing. COM and floor rest consume the same query's canonical map through prepareGymnasticsFrame; changed joints/headings still prepare their own geometry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original inputs and O(J) copied interpolation tracks. Each query's frame, bone map and floor reader release at return or throw; no frame/reader enters the returned posture.
    */
   export function lie(props: {
     body: IHumanBody;
@@ -74,24 +74,24 @@ export namespace GymnasticsMat {
       model,
       from,
     );
+    const tracks: JointTrack[] = [];
+    for (const bone of new Set([
+      ...Object.keys(from.joints),
+      ...Object.keys(lain.joints),
+    ]) as Set<AutoMovieHumanoidBone>) {
+      const a: readonly [number, number, number] = from.joints[bone] ?? [0, 0, 0];
+      const b: readonly [number, number, number] = lain.joints[bone] ?? [0, 0, 0];
+      tracks.push({ bone, from: [a[0], a[1], a[2]], delta: [b[0] - a[0], b[1] - a[1], b[2] - a[2]] });
+    }
     return (seconds: number): IHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const u: number = minimumJerk(t / SETTLE).s;
       const joints: IHumanPosture["joints"] = {};
-      for (const bone of new Set([
-        ...Object.keys(from.joints),
-        ...Object.keys(lain.joints),
-      ]) as Set<AutoMovieHumanoidBone>) {
-        const a: readonly [number, number, number] = from.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        const b: readonly [number, number, number] = lain.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          a[0] + (b[0] - a[0]) * u,
-          a[1] + (b[1] - a[1]) * u,
-          a[2] + (b[2] - a[2]) * u,
+      for (const track of tracks) {
+        joints[track.bone] = [
+          track.from[0] + track.delta[0] * u,
+          track.from[1] + track.delta[1] * u,
+          track.from[2] + track.delta[2] * u,
         ];
       }
       const posed: IHumanPosture = {
@@ -103,19 +103,31 @@ export namespace GymnasticsMat {
 
       // The centre's floor place, carried out from the touchdown.
       const carry: number = carriedRate(SETTLE, t);
-      const offset: IAutoMovieVector3 = GymnasticsFlight.centre(
+      const frame: prepareGymnasticsFrame.IFrame = prepareGymnasticsFrame(
         body,
         model,
         posed,
+        { x: centre.x + props.velocity.x * carry, y: 0, z: centre.z + props.velocity.z * carry },
       );
       return {
-        ...posed,
+        ...frame.posture,
         root: {
-          x: centre.x + props.velocity.x * carry - offset.x,
-          y: props.height + knockdown.rest(body, posed),
-          z: centre.z + props.velocity.z * carry - offset.z,
+          ...frame.posture.root,
+          y: props.height + frame.floor(),
         },
       };
     };
   }
+}
+
+/** A landing's copied clinical start and difference, both degree triples for one bone. */
+interface JointTrack {
+  /** The clinical joint being interpolated. */
+  bone: AutoMovieHumanoidBone;
+
+  /** The touchdown-side value, degrees. */
+  from: readonly [number, number, number];
+
+  /** The landing value minus the initial value, degrees. */
+  delta: readonly [number, number, number];
 }

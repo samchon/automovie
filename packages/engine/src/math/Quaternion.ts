@@ -5,21 +5,19 @@ import {
 } from "@automovie/interface";
 
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
+import { quaternionNormalizationDivisor as normalizationDivisor } from "./quaternionNormalizationDivisor";
+import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
 
 /**
  * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z,
  * w)` in glTF order.
  *
- * Quaternions are the engine's internal rotation representation: the model
- * writes joint angles in degrees, `jointToQuaternion` turns them into
- * quaternions, and the renderer consumes those. Unless a function says
- * otherwise, a rotation argument must be a unit quaternion. Every function
- * leaves its inputs unchanged and returns a new value.
+ * Quaternions are the engine's internal rotation representation: the model writes joint angles in degrees, `jointToQuaternion` turns them into quaternions, and the renderer consumes those. Unless a function says otherwise, a rotation argument must be a unit quaternion. Every function leaves its inputs unchanged and returns a new value.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the component order, where quaternions come from and go, the unit-length premise for rotation arguments, and that every function returns a new value.
- * @evidence contracts/development/design.md#principled-representation Represents Pure quaternion math over , components `(x, y, z, w)` in glTF order: companion namespace of 12 members (`identity`, `DEG2RAD`, `EULER_AXES`, `multiply`, `normalize`, `inverse`, ...); units and frames named in its text: quaternion, radians, degree, world, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `Quaternion` in packages/engine/src/math/Quaternion.ts; its surface is the 12 members listed and the text shows 335 other files naming it, mostly packages/engine (134), test (78), movies (62), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation GlTF-ordered real components describe rotations, composed and read in the stated world/local conventions. Degrees enter Euler and axis-angle construction. Prepared axis readers own fixed axis scalars, and prepared interpolation owns one unchanged endpoint pair's exact arc invariants, never changing-angle/progress results.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Rotation construction, products, normalization, inversion, vector rotation, interpolation and angular distance serve existing engine consumers. prepareAxisAngle serves changing-angle OnBasis factors, prepareSlerp serves fixed-interval flight playback, and the internal scalar normalization owner also serves actual projector scores. No metadata getter or target cache is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Prepared construction keeps the direct formula's rescaling, division and multiplication order rather than substituting a predivided unit axis. Prepared interpolation keeps shorter-arc, threshold, weights and normalization under one arithmetic owner. Zero-axis identity and nonfinite propagation keep their existing meanings; every public quaternion output remains fresh.
  */
 export namespace Quaternion {
   /**
@@ -84,16 +82,13 @@ export namespace Quaternion {
   /**
    * A unit-length copy of `q`, or the identity when `q` has length zero.
    *
-   * Extreme finite components are rescaled by their largest magnitude before
-   * squaring, preserving direction even when the original norm is unrepresentable.
-   * Ordinary near-unit inputs keep the direct summed-square arithmetic.
-   * A non-finite component makes the result non-finite.
+   * Extreme finite components are rescaled by their largest magnitude before squaring, preserving direction even when the original norm is unrepresentable. Ordinary near-unit inputs keep the direct summed-square arithmetic. A non-finite component makes the result non-finite.
    *
    * @param q Quaternion of any finite length.
    * @returns A new unit quaternion representing the same rotation.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Positive uniform rescaling leaves quaternion direction unchanged, so dividing extreme finite components by their largest magnitude before the Euclidean norm prevents underflow and overflow; zero is the only finite input without a recoverable direction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A private normalizationDivisor shares binary64 magnitude bounds with axis-angle construction, while ordinary near-unit quaternions retain their existing multiplication order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure readNormalizedQuaternion owns normalization arithmetic for this record constructor and projector scalar scores. quaternionNormalizationDivisor shares binary64 magnitude bounds with axis-angle construction, while ordinary near-unit quaternions retain their existing multiplication order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The identity for a zero quaternion is the stated degenerate value, not a fallback for bad arithmetic; a non-finite input still yields a non-finite result instead of being replaced.
    * @evidence contracts/development/common.md#meaningful-documentation States zero identity, finite extreme-component rescaling, preserved ordinary arithmetic and nonfinite propagation.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four magnitude comparisons and one fixed-size norm take constant time, with four extra divisions only for extreme inputs.
@@ -102,32 +97,12 @@ export namespace Quaternion {
    */
   export const normalize: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     q: IAutoMovieQuaternion,
-  ): IAutoMovieQuaternion => {
-    const divisor: number = normalizationDivisor(q.x, q.y, q.z, q.w);
-    const value: IAutoMovieQuaternion =
-      divisor === 1
-        ? q
-        : {
-            x: q.x / divisor,
-            y: q.y / divisor,
-            z: q.z / divisor,
-            w: q.w / divisor,
-          };
-    const len: number = Math.sqrt(
-      value.x * value.x +
-        value.y * value.y +
-        value.z * value.z +
-        value.w * value.w,
-    );
-    if (len === 0) return identity();
-    const inv: number = 1 / len;
-    return {
-      x: value.x * inv,
-      y: value.y * inv,
-      z: value.z * inv,
-      w: value.w * inv,
-    };
-  };
+  ): IAutoMovieQuaternion => readNormalizedQuaternion(q, normalizedRecord, undefined);
+
+  /** Fresh public normalization output from the completed scalar computation. */
+  function normalizedRecord(x: number, y: number, z: number, w: number): IAutoMovieQuaternion {
+    return { x, y, z, w };
+  }
 
   /**
    * The inverse rotation of `q`, its conjugate normalized.
@@ -166,7 +141,7 @@ export namespace Quaternion {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The zero-axis identity is the one input with no defined axis, not a fallback for a failed computation; any other axis takes the same formula.
    * @evidence contracts/development/common.md#meaningful-documentation States the angle unit, the rotation sense, that the axis needs no normalization, and the zero-axis result.
    * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size magnitude check precedes one square root, sine and cosine; only extreme finite axes require three rescaling divisions.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of an axis and an angle that coordinates no work across calls.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct and prepared construction share one private axis-angle owner; this direct entry supplies no state and allocates no preparation metadata.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources An extreme axis creates one temporary scaled direction, while the output owns four rotation components and keeps no axis reference.
    */
   export const fromAxisAngle: (
@@ -176,18 +151,76 @@ export namespace Quaternion {
     axis: IAutoMovieVector3,
     angleDeg: number,
   ): IAutoMovieQuaternion => {
-    const divisor: number = normalizationDivisor(axis.x, axis.y, axis.z);
+    return axisAngle(axis, angleDeg);
+  };
+
+  /**
+   * Build fresh axis-angle rotations on one unchanged borrowed axis.
+   * Construction reads no component. The first actual angle read prepares the
+   * original scaled direction and its length; later angles keep exactly
+   * `(angleDeg*DEG2RAD)/2`, `sin(half)/len`, component multiplication and cosine.
+   * Keep the axis unchanged from that first read until releasing this closure.
+   *
+   * @param axis Fixed direction, with the direct entry's zero/nonfinite semantics.
+   * @returns A lazy reader producing a fresh quaternion for every angle.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed unchanged-axis lifetime, lazy first-use component reads, degree arithmetic, fresh output, zero identity and nonfinite propagation.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the positive-rescaled direction and its original left-associated Euclidean length are invariant. Every angle still divides its half-angle sine by that length before multiplying each direction component, so no rounding association changes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy state and closure initialize at the first actual read. Warm reads go straight to the shared angle-on-prepared-axis formula, avoiding the direct path's preparation-state dispatch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No axis admission, normalization or angle work moves into construction. The existing 2**-511/2**510 rescaling boundaries, zero-axis fresh identity, signed zeros and nonfinite arithmetic are preserved without a new guard or unit-axis substitution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-size rescaling and square root per unchanged-axis reader, then one sine, cosine, division and three component products per nonzero-axis angle. Zero axes return a fresh identity without angle trigonometry, as before. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual OnBasis factor consumer borrows one reader per query axis. Both public entries share axisAngle, while only this entry retains its fixed scalar preparation; no complete rotation or target-dependent answer is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure owns one small state and its lazy direction/length reading, borrowing the axis and retaining an extra scaled vector only for extreme inputs. Every returned quaternion is fresh; release the closure with its fixed-axis operation. No global cache or external handle exists.
+   */
+  export function prepareAxisAngle(
+    axis: IAutoMovieVector3,
+  ): (angleDeg: number) => IAutoMovieQuaternion {
+    const state: IAxisAngleState = {};
+    return (angleDeg: number): IAutoMovieQuaternion => {
+      const known: IAxisAngleState["reading"] = state.reading;
+      return known === undefined
+        ? axisAngle(axis, angleDeg, state)
+        : angleOnAxis(known.value, known.length, angleDeg);
+    };
+  }
+
+  /** One reader's lazy fixed-axis preparation, never a completed rotation. */
+  interface IAxisAngleState {
+    /** Original scaled direction and its length, populated on first use only. */
+    reading?: { value: IAutoMovieVector3; length: number };
+  }
+
+  /** Preserve the direct formula, optionally borrowing unchanged axis scalars. */
+  function axisAngle(
+    axis: IAutoMovieVector3,
+    angleDeg: number,
+    state?: IAxisAngleState,
+  ): IAutoMovieQuaternion {
+    const known: IAxisAngleState["reading"] = state?.reading;
+    const divisor: number = known === undefined
+      ? normalizationDivisor(axis.x, axis.y, axis.z) : 1;
     const value: IAutoMovieVector3 =
-      divisor === 1
+      known?.value ?? (divisor === 1
         ? axis
         : {
             x: axis.x / divisor,
             y: axis.y / divisor,
             z: axis.z / divisor,
-          };
-    const len: number = Math.sqrt(
+          });
+    const len: number = known?.length ?? Math.sqrt(
       value.x * value.x + value.y * value.y + value.z * value.z,
     );
+    if (state !== undefined && known === undefined)
+      state.reading = { value, length: len };
+    return angleOnAxis(value, len, angleDeg);
+  }
+
+  /** Original half-angle formula after fixed direction/length preparation. */
+  function angleOnAxis(
+    value: IAutoMovieVector3,
+    len: number,
+    angleDeg: number,
+  ): IAutoMovieQuaternion {
     if (len === 0) return identity();
     const half: number = (angleDeg * DEG2RAD) / 2;
     const s: number = Math.sin(half) / len;
@@ -197,32 +230,10 @@ export namespace Quaternion {
       z: value.z * s,
       w: Math.cos(half),
     };
-  };
-
-  /** Scale only when up to four squared components may leave the normal binary64 range. */
-  const normalizationDivisor: (
-    x: number,
-    y: number,
-    z: number,
-    w?: number,
-  ) => number = (x: number, y: number, z: number, w: number = 0): number => {
-    const largest: number = Math.max(
-      Math.abs(x),
-      Math.abs(y),
-      Math.abs(z),
-      Math.abs(w),
-    );
-    return Number.isFinite(largest) &&
-      largest > 0 &&
-      (largest < 2 ** -511 || largest > 2 ** 510)
-      ? largest
-      : 1;
-  };
+  }
 
   /**
-   * The rotation of intrinsic Euler angles in degrees, applying the axes in
-   * `euler.order`, the convention `three.js` uses, so order `"XYZ"` equals
-   * `qx · qy · qz`.
+   * The rotation of intrinsic Euler angles in degrees, applying the axes in `euler.order`, the convention `three.js` uses, so order `"XYZ"` equals `qx · qy · qz`.
    *
    * @param euler Angles in degrees and their application order.
    * @returns A new unit quaternion.
@@ -283,24 +294,17 @@ export namespace Quaternion {
   };
 
   /**
-   * Spherical linear interpolation from `a` (at `t = 0`) to `b` (at `t = 1`)
-   * along the shorter arc.
+   * Spherical linear interpolation from `a` (at `t = 0`) to `b` (at `t = 1`) along the shorter arc.
    *
-   * When the quaternions' dot product `cos θ` exceeds `0.9995`, so the two
-   * rotations differ by less than about 3.6 degrees, it returns the normalized
-   * linear interpolation instead, which is nearly identical there and avoids
-   * dividing by a vanishing `sin θ`. A `t` outside `[0, 1]` extrapolates along
-   * the same arc.
+   * When the quaternions' dot product `cos θ` exceeds `0.9995`, so the two rotations differ by less than about 3.6 degrees, it returns normalized linear interpolation to avoid dividing by a vanishing `sin θ`. A `t` outside `[0, 1]` extrapolates along the same arc.
    *
    * @param a Unit rotation at `t = 0`.
    * @param b Unit rotation at `t = 1`.
    * @param t Interpolation parameter.
-   * @returns A new unit quaternion; both branches normalize, because the
-   *   arccosine near the switch threshold leaves the spherical weights
-   *   inexact.
+   * @returns A new unit quaternion; both branches normalize because arccosine near the switch threshold leaves spherical weights inexact.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Shoemake's slerp, `sin((1 − t)θ)/sin θ · a + sin(tθ)/sin θ · b` with `θ` the angle between the operands, after negating `b` when `a · b < 0` so the path takes the shorter of the two arcs that represent the same rotation pair.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One function with the near-parallel branch inside, because every caller, clip and motion sampling, driver blending and iterative IK, needs the same guarded interpolation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private interpolation owner serves this direct entry and prepareSlerp, including the shorter-arc and near-parallel branches. The direct entry supplies no retained preparation and allocates no arc metadata.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The `0.9995` threshold, shared through QUATERNION_NLERP_DOT_THRESHOLD with component-extrema admission, is the documented numerical switch for a vanishing `sin θ`, the same for every caller, not tuned to any clip or fixture.
    * @evidence contracts/development/common.md#meaningful-documentation States the endpoints, the shorter-arc choice, the near-parallel threshold with its angle and why it exists, extrapolation outside `[0, 1]`, and when the result is unit length.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One dot product, one arccosine and three sines in constant time, with no algorithm to choose.
@@ -315,13 +319,73 @@ export namespace Quaternion {
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
     t: number,
-  ): IAutoMovieQuaternion => {
-    let cos: number = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-    let bx: number = b.x;
-    let by: number = b.y;
-    let bz: number = b.z;
-    let bw: number = b.w;
-    if (cos < 0) {
+  ): IAutoMovieQuaternion => interpolateSlerp(a, b, t);
+
+  /**
+   * Prepare repeated progress reads between two unchanged borrowed unit rotations.
+   * Construction reads no endpoint. First use prepares the original dot,
+   * shorter-arc endpoint components and, for the spherical branch, theta/sine.
+   * Every progress still evaluates its own original weights and normalization.
+   * Progress outside [0,1] extrapolates; release the reader with its fixed pair.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged unit endpoints, lazy endpoint/arc reads, extrapolation inherited from slerp, original weights/normalization, fresh output and operation lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Shoemake's endpoint dot, shorter-arc sign, angle and angle sine depend only on the unchanged pair. Sharing those exact completed values leaves each t-dependent weight, weighted component and normalization expression unchanged in the common owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One small lazy state delegates every query to slerp's private arithmetic owner rather than maintaining a second interpolation algorithm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The existing QUATERNION_NLERP_DOT_THRESHOLD, comparison order, sign flips, half-circle choice and all output normalization remain. No t clipping, endpoint shortcut, fitted arc, target-result cache or external replacement is introduced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The dot and shorter-arc endpoint read occur once per pair; the spherical branch also shares one acos and one fixed sine. Each t still needs two weight sines and normalization, or the original linear arithmetic and normalization. Work/storage are constant and runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual flight-table playback shares one reader per unchanged interval endpoint pair. The closure shares only that pair's exact arc invariants; t-dependent weights, quaternions and normalization results remain fresh on every query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one closure, its two borrowed endpoints, one lazy arc record and at most seven scalar invariants until the interval table is released. Each read returns a fresh quaternion; no progress history, output, global cache, handle or task is retained.
+   */
+  export function prepareSlerp(
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+  ): (t: number) => IAutoMovieQuaternion {
+    const state: ISlerpState = {};
+    return (t: number): IAutoMovieQuaternion => interpolateSlerp(a, b, t, state);
+  }
+
+  /** Fixed arc scalars, including the already sign-adjusted second endpoint. */
+  interface ISlerpArc {
+    /** Original sign-adjusted endpoint dot, before the interpolation branch. */
+    cosine: number;
+
+    /** Second endpoint X after the original shorter-arc sign. */
+    bx: number;
+
+    /** Second endpoint Y after the same sign choice. */
+    by: number;
+
+    /** Second endpoint Z after the same sign choice. */
+    bz: number;
+
+    /** Second endpoint W after the same sign choice. */
+    bw: number;
+
+    /** Original spherical angle and its sine; absent on the linear branch. */
+    theta?: number;
+
+    /** Sine of that angle, used as the unchanged weight denominator. */
+    sine?: number;
+  }
+
+  /** One unchanged endpoint pair's lazy metadata, never an interpolated result. */
+  interface ISlerpState {
+    /** Prepared at the first actual interpolation read. */
+    arc?: ISlerpArc;
+  }
+
+  /** Direct and fixed-pair interpolation under the original arithmetic policy. */
+  function interpolateSlerp(
+    a: IAutoMovieQuaternion, b: IAutoMovieQuaternion, t: number,
+    state?: ISlerpState,
+  ): IAutoMovieQuaternion {
+    const known: ISlerpArc | undefined = state?.arc;
+    let cos: number = known?.cosine ?? a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+    let bx: number = known?.bx ?? b.x;
+    let by: number = known?.by ?? b.y;
+    let bz: number = known?.bz ?? b.z;
+    let bw: number = known?.bw ?? b.w;
+    if (known === undefined && cos < 0) {
       // Take the shorter arc.
       cos = -cos;
       bx = -bx;
@@ -329,6 +393,8 @@ export namespace Quaternion {
       bz = -bz;
       bw = -bw;
     }
+    if (known === undefined && state !== undefined)
+      state.arc = { cosine: cos, bx, by, bz, bw };
     if (cos > QUATERNION_NLERP_DOT_THRESHOLD) {
       // Nearly parallel: normalized linear interpolation.
       return normalize({
@@ -338,8 +404,12 @@ export namespace Quaternion {
         w: a.w + (bw - a.w) * t,
       });
     }
-    const theta: number = Math.acos(cos);
-    const sin: number = Math.sin(theta);
+    const theta: number = known?.theta ?? Math.acos(cos);
+    const sin: number = known?.sine ?? Math.sin(theta);
+    if (known === undefined && state !== undefined) {
+      state.arc!.theta = theta;
+      state.arc!.sine = sin;
+    }
     const wa: number = Math.sin((1 - t) * theta) / sin;
     const wb: number = Math.sin(t * theta) / sin;
     // acos loses relative accuracy as cos approaches the switch threshold, so
@@ -350,45 +420,49 @@ export namespace Quaternion {
       z: a.z * wa + bz * wb,
       w: a.w * wa + bw * wb,
     });
-  };
+  }
 
   /**
-   * The angle of the rotation that takes `a` to `b`, in radians within
-   * `[0, π]`: the geodesic distance between the two rotations. `q` and `-q`
-   * are the same rotation, so negating either argument changes nothing.
+   * The angle of the rotation that takes `a` to `b`, in radians within `[0, π]`: the geodesic distance between the two rotations. `q` and `-q` are the same rotation, so negating either argument changes nothing.
    *
-   * The angle is `2 atan2(|v|, |w|)` of the relative quaternion
-   * `inverse(a) * b`, with `v` its vector part and `w` its scalar part. The
-   * shorter formula `2 acos |a · b|` reads a small angle from how far a
-   * cosine falls short of 1, which binary64 resolves only to about 1.1e-16,
-   * so it returns every angle below about 3e-8 radian as 0 or as one of a few
-   * steps that size; the vector part keeps full relative precision there. A
-   * search that ranks candidates by this angle needs that precision to settle
-   * on the same candidate for mirrored inputs.
+   * The angle is `2 atan2(|v|, |w|)` of `inverse(a) * b`. The shorter `2 acos |a · b|` reads an angle from a cosine's deficit from 1, which binary64 resolves only to about 1.1e-16: angles below about 3e-8 radian collapse to 0 or a few steps that size. The relative vector part keeps full relative precision, which candidate ranking needs for mirrored inputs.
    *
    * @param a Unit rotation.
    * @param b Unit rotation.
    * @returns The angle in radians.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The relative rotation of two unit quaternions is `inverse(a) * b`, whose vector part has length `sin(θ/2)` and whose scalar part is `cos(θ/2)`; reading the half angle from both through atan2 is accurate at every angle, where arccosine of the dot product loses all digits of an angle below the square root of the unit roundoff.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner for the distance between rotations that the chain fit's reference term, its effector error and its continuity order all read, composed from this namespace's own `inverse` and `multiply`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner for the distance between rotations that the chain fit's reference term, its effector error and its continuity order all read. The inverse's same conjugate enters the shared scalar normalization owner, then one reusable visitor keeps multiply's original expressions without allocating normalized-inverse or relative-quaternion records.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamp of a dot product and no threshold: the absolute scalar part is the stated identification of `q` with `-q`, and the result is exact to rounding for every pair.
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the range, the sign insensitivity, the formula and why the shorter arccosine form is not used, and the unit-length premise of both arguments.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One Hamilton product, one hypotenuse and one arctangent in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two rotations that coordinates no work across calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Creates two temporary quaternions and returns a number; nothing is retained.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources One conjugate is temporary; an extreme normalization adds its existing scaled temporary. Normalized inverse and relative components remain scalars, the returned angle is a number and no visitor input or result is retained.
    */
   export const angle: (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
-    const relative: IAutoMovieQuaternion = multiply(inverse(a), b);
+    return readNormalizedQuaternion(
+      { x: -a.x, y: -a.y, z: -a.z, w: a.w }, normalizedAngle, b,
+    );
+  };
+
+  /** Relative Hamilton components and atan2 after the inverse normalization. */
+  function normalizedAngle(
+    ax: number, ay: number, az: number, aw: number,
+    _raw: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
+  ): number {
+    const x: number = aw * b.x + ax * b.w + ay * b.z - az * b.y;
+    const y: number = aw * b.y - ax * b.z + ay * b.w + az * b.x;
+    const z: number = aw * b.z + ax * b.y - ay * b.x + az * b.w;
+    const w: number = aw * b.w - ax * b.x - ay * b.y - az * b.z;
     return (
       2 *
       Math.atan2(
-        Math.hypot(relative.x, relative.y, relative.z),
-        Math.abs(relative.w),
+        Math.hypot(x, y, z),
+        Math.abs(w),
       )
     );
-  };
+  }
 }

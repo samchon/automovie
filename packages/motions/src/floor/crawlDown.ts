@@ -137,13 +137,15 @@ export namespace crawlDown {
     const S: IHumanPosture = props.standing;
     const crawling: IHumanPosture = props.kneeling(S, 0, 1);
     // Each tucked foot where the way down ends, carried with its knee.
-    const feet = (side: "left" | "right"): kneelKeys.IFoot => ({
+    const tucked: Record<"left" | "right", kneelKeys.IFoot> = { left: placed("left"), right: placed("right") };
+    function placed(side: "left" | "right"): kneelKeys.IFoot { return {
       ...props.tucks[side].foot,
       at: Vector3.add(
         crawling.limbs[`${side}Leg`]!.bend,
         props.tucks[side].offset,
       ),
-    });
+    }; }
+    const feet: (side: "left" | "right") => kneelKeys.IFoot = (side: "left" | "right"): kneelKeys.IFoot => tucked[side];
     const holding: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
@@ -162,7 +164,7 @@ export namespace crawlDown {
         ),
       );
     const shouldersOf = (posture: IHumanPosture): IAutoMovieVector3 => {
-      const bones = poseBones(body, resolveHumanPosture(body, posture));
+      const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, posture), undefined, SHOULDERS);
       return Vector3.lerp(
         bones.get("leftUpperArm")!.worldPosition,
         bones.get("rightUpperArm")!.worldPosition,
@@ -172,9 +174,9 @@ export namespace crawlDown {
 
     // Each standing foot rolled onto its toes (`crawlFeet.rolled`), what
     // the roll leaves short of the tucked foot taken up on the way.
-    const roll = (side: "left" | "right", share: number) => {
+    const prepareRoll = (side: "left" | "right"): ReturnType<typeof crawlFeet.prepareRoll> => {
       const goal: IHumanPosture.IGoal = S.limbs[`${side}Leg`]!;
-      return crawlFeet.rolled(
+      return crawlFeet.prepareRoll(
         body,
         side,
         {
@@ -183,9 +185,10 @@ export namespace crawlDown {
         },
         feet(side).heading,
         -feet(side).pitch,
-        share,
       );
     };
+    const rollers: Record<"left" | "right", ReturnType<typeof crawlFeet.prepareRoll>> = { left: prepareRoll("left"), right: prepareRoll("right") };
+    const roll = (side: "left" | "right", share: number): ReturnType<ReturnType<typeof crawlFeet.prepareRoll>> => rollers[side](share);
     const short = (side: "left" | "right"): IAutoMovieVector3 =>
       Vector3.subtract(feet(side).at, roll(side, 1).mtp);
     const shorts = { left: short("left"), right: short("right") };
@@ -289,7 +292,7 @@ export namespace crawlDown {
       const furthest = (lean: (back: number) => number): number => {
         const lands = (back: number): boolean => {
           const posture: IHumanPosture = at(back, lean(back), false);
-          const bones = poseBones(body, resolveHumanPosture(body, posture));
+          const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, posture), undefined, KNEES);
           return sides.every(
             (side): boolean =>
               Vector3.length(
@@ -472,3 +475,9 @@ const TRAVELLING: readonly AutoMovieHumanoidBone[] = (
   `${side}LowerArm`,
   `${side}Hand`,
 ]);
+
+/** The hands-down lean search measures just the two shoulder positions. */
+const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
+
+/** The sitting-back support search measures only the two knee positions. */
+const KNEES: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftLowerLeg", "rightLowerLeg"]);

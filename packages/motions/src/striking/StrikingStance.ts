@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -12,30 +12,20 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingReach } from "./StrikingReach";
 
 /**
- * The fighting stance and its guard as goals measured on the body: a
- * staggered base on separate tracks, both knees soft, the body turned so the
- * lead shoulder faces the line, and each glove placed relative to the
- * performer's own head.
+ * The fighting stance uses separate tracks, soft knees, a leading shoulder and glove goals measured from the performer's own head.
  *
- * Coaching sources (IBA coaching manual pp. 34 to 39; kickboxing and Muay
- * Thai guides summarised in the kickboxing research of #3201) give the
- * relations, not the numbers; the numbers are stated readings, each named:
+ * IBA coaching manual pp. 34 to 39 and the kickboxing/Muay Thai guides in
+ * #3201 give these relations; the numbers are named readings:
  *
  * - stance length along the line 1.2 shoulder widths (guides: 1.0 to 1.3);
- * - the feet on their own hip tracks, so the lateral spacing is the hip
- *   joint spacing;
- * - the body turned 30 degrees from the line, lead shoulder forward (IBA p.34
- *   overhead feet), the lead foot pointing 15 degrees off the line toward the
- *   body's heading and the rear foot 45 degrees out (provisional readings of
- *   the same drawing);
- * - both knees flexed 32 degrees, inside the 25 to 45 degree translated range
- *   (soft knees, ready to lift either leg), by sinking the root;
- * - the rear glove's knuckles beside the rear jaw and the lead glove one
- *   forearm length ahead of the lead cheek at chin height, elbows down by the
- *   ribs (IBA guard; "gloves cover the jaw and temple, elbows near the ribs").
+ * - feet on their own hip tracks, spaced by the hip joints;
+ * - 30 degree body turn with lead shoulder forward, lead toe 15 degrees
+ *   toward that heading and rear toe 45 degrees out (IBA p.34 readings);
+ * - a sunk root flexes both knees 32 degrees, within the 25 to 45 degree band;
+ * - rear knuckles beside the jaw, lead knuckles one forearm ahead of the
+ *   cheek at chin height and elbows beside the ribs (IBA guard).
  *
- * Orthodox leads with the left side; southpaw with the right. Every distance
- * reads the body's measure, so the stance fits any stature and proportion.
+ * Orthodox leads left and southpaw right; distances read the body's measure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each stance relation with its coaching source and which numbers are readings or provisional.
  * @evidence contracts/development/design.md#principled-representation The stance as a lead side and a line heading in degrees; feet, root sink and limb goals in world metres measured on the body.
@@ -241,14 +231,15 @@ export namespace StrikingStance {
    * @param posture The posture whose trunk carries the head.
    * @param stance The stance.
    * @param drop How far each glove sags below its guard, metres.
+   * @param posed The same body's trunk bones on this exact posture, borrowed within the current synchronous evaluation.
    * @returns The two arm goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each glove's place, the fists' orientation, the elbows and that the guard follows the posture's head.
    * @evidence contracts/development/implementation.md#principled-implementation The gloves placed from the posture's own chin, jaw and face regions in forearm lengths and radii, the elbows bent toward a point below and ahead of each shoulder, each turned into a knuckle goal.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution, then one goal per side.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets are measured on the body; the comment states why the gloves sit where the elbow stays in range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution when not supplied by the caller, then constant rigid-frame work for two goals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk map is borrowed only for the exact same body/posture in one synchronous evaluation; no result or map is retained.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guard(
@@ -256,9 +247,11 @@ export namespace StrikingStance {
     posture: IHumanPosture,
     stance: Pick<IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
+    posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const bones = StrikingBody.trunk(body, posture);
-    const m = body.measure;
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      posed ?? StrikingBody.trunk(body, posture);
+    const m: IHumanBody["measure"] = body.measure;
     const chin: IAutoMovieVector3 = StrikingBody.region(
       body,
       bones,

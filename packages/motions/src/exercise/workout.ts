@@ -1,5 +1,5 @@
 import { Vector3, minimumJerk, physicalShapeBounds } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionKey } from "../HumanActionKey";
@@ -25,6 +25,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutBodyweight } from "./WorkoutBodyweight";
 import { WorkoutEquipment } from "./WorkoutEquipment";
@@ -161,9 +162,9 @@ export namespace workout {
    * @evidence contracts/development/implementation.md#principled-implementation One clock of spans, each between two keys; the posture at a second is the two keys' blend placed by the kind's pin, and on the way from and to standing the root is carried between the standing root and the pinned one; on the way off a bar the body is raised by whatever its colliders would sink beyond the share of the supported posture's own sink the way has reached, the reading the floor audit makes, so the floor is a constraint and the way meets the supported posture continuously.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock and spans, the pin's place, the posture function, the laid hands, the supports.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths follow from the body; the floor rule reads the body's own shapes; the first pass limits are stated on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three forward kinematics per evaluated second on the way down and up (the pin and the two floor readings), one while working, plus one arm solve per laid hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the keyed pin, the colliders' placement the floor audit reads, the placed arm and the standing plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock, the spans and the pin's place.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each time query finds its span in O(log spans), blends its prepared joints and requests only pin ancestry; changing floor readings and laid-hand fits remain where needed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key pairs share joint preparation, repeated endpoint keys share one supported floor reading, and the first laid-hand targets share one exact hand-bone map.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(spans) clocks/blend closures and at most one floor scalar per fixed endpoint key; no pose reader or time-query history is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -242,19 +243,29 @@ export namespace workout {
       first: first.key,
       borne,
     });
+    const pins: ReadonlySet<AutoMovieHumanoidBone> = new Set(kind.pin.map((pin: ExerciseKey.Pin): AutoMovieHumanoidBone => pin === "gripLeft" || pin === "gripRight" ? body.surfaces.sockets[pin].bone : pin));
+    const starts: number[] = spans.map((span: ISpan): number => clock.at(span.from));
+    const blends: ((share: number) => ExerciseKey.IKey)[] = spans.map((span: ISpan): (share: number) => ExerciseKey.IKey => ExerciseKey.prepareBlend(span.a, span.b));
+    const profiled: ReadonlySet<string> = new Set(body.profile.segments.map((segment: IHumanBody["profile"]["segments"][number]): string => segment.bone));
+    const floorBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([...body.rest.keys()].filter((bone: AutoMovieHumanoidBone): boolean => profiled.has(bone) && !(kind.hands === true && ARM.test(bone))));
 
     // How far the supported posture at the far end of each way down or up
     // sinks itself, by span, read once.
-    const far: Map<number, number> = new Map();
+    const far: Map<ExerciseKey.IKey, number> = new Map();
     const posture = (seconds: number): IHumanPosture => {
-      let index: number = 0;
-      for (let i: number = 0; i < spans.length; i++)
-        if (seconds >= clock.at(spans[i]!.from)) index = i;
+      let lo: number = 0;
+      let hi: number = starts.length;
+      while (lo < hi) {
+        const mid: number = Math.floor((lo + hi) / 2);
+        if (seconds >= starts[mid]!) lo = mid + 1;
+        else hi = mid;
+      }
+      const index: number = Math.max(0, lo - 1);
       const s: ISpan = spans[index]!;
-      const opened: number = clock.at(s.from);
+      const opened: number = starts[index]!;
       const length: number =
         (index + 1 < spans.length
-          ? clock.at(spans[index + 1]!.from)
+          ? starts[index + 1]!
           : duration) - opened;
       const x: number =
         length > 1e-9
@@ -263,10 +274,11 @@ export namespace workout {
       const u: number = minimumJerk(x).s;
       const placed: IHumanPosture = ExerciseKey.pinned(
         body,
-        ExerciseKey.blend(s.a, s.b, u),
+        blends[index]!(u),
         yaw,
         kind.pin,
         at,
+        pins,
       );
       // A stance is where the body already stands.
       if (kind.anchor === "stance") return footed(placed);
@@ -291,7 +303,7 @@ export namespace workout {
         let lowest: number = 0;
         for (const segment of HumanColliders.placed(
           body,
-          poseBones(body, resolveHumanPosture(body, posture)),
+          poseBones(body, resolveHumanPosture(body, posture), undefined, floorBones),
         )) {
           if (kind.hands === true && ARM.test(segment.bone)) continue;
           for (const shape of segment.shapes)
@@ -302,18 +314,20 @@ export namespace workout {
         }
         return -lowest;
       };
+      const endpoint: ExerciseKey.IKey = s.a === stood ? s.b : s.a;
       const supported: number =
-        far.get(index) ??
+        far.get(endpoint) ??
         sunk(
           ExerciseKey.pinned(
             body,
-            s.a === stood ? s.b : s.a,
+            endpoint,
             yaw,
             kind.pin,
             at,
+            pins,
           ),
         );
-      far.set(index, supported);
+      far.set(endpoint, supported);
       const rise: number = Math.max(0, sunk(carried) - down * supported);
       return rise === 0
         ? carried
@@ -357,15 +371,17 @@ export namespace workout {
         yaw,
         kind.pin,
         at,
+        pins,
       );
       const forward: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: 1 },
       );
+      const hands: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, set, undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
       for (const side of ["left", "right"] as const) {
         const wrist: IAutoMovieVector3 = ExerciseKey.mean(body, set, [
           `${side}Hand`,
-        ]);
+        ], hands);
         const laid: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.wrist(
           body,
           side,

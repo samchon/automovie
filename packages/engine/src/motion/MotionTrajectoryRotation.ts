@@ -4,16 +4,55 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 
 /**
  * Rotation-vector operations shared by trajectory construction and playback.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each operation states its frame, units and formula.
  * @evidence contracts/development/design.md#principled-representation Body-frame rotation vectors implement the exponential map and its inverse differential without an integration callback or a shape history.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The fixed and adaptive steppers and their numeric readers share these three operations.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Fixed and adaptive construction, dense physical admission and numeric playback share exponential, algebra and continuous-polynomial operations.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No second tableau, rotation convention or motion model is introduced.
  */
 export namespace MotionTrajectoryRotation {
+  /**
+   * Read a dense rotation vector from four or five polynomial coefficients.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Coefficients and result are body-frame radians; u is the dimensionless step share.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies the shared scalar continuous-extension polynomial to all three components.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar evaluation per component.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Four coefficients retain the original quartic arithmetic; five select the paired quintic, with no replacement grid.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work and one output vector.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Construction, defect admission and playback share this same numeric curve.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector and retains no input.
+   */
+  export function curve(terms: readonly IAutoMovieVector3[], u: number): IAutoMovieVector3 {
+    return {
+      x: MotionTrajectoryPolynomial.value(u, terms[0]!.x, terms[1]!.x, terms[2]!.x, terms[3]!.x, terms[4]?.x),
+      y: MotionTrajectoryPolynomial.value(u, terms[0]!.y, terms[1]!.y, terms[2]!.y, terms[3]!.y, terms[4]?.y),
+      z: MotionTrajectoryPolynomial.value(u, terms[0]!.z, terms[1]!.z, terms[2]!.z, terms[3]!.z, terms[4]?.z),
+    };
+  }
+
+  /**
+   * Differentiate the same rotation-vector curve with respect to seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation h is seconds and the output is a rotation-vector derivative in radians per second, not yet body angular velocity.
+   * @evidence contracts/development/implementation.md#principled-implementation Analytically differentiates the scalar polynomial and divides by h. Applying Jr(curve) converts this coordinate derivative to actual body angular velocity.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar derivative per component.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite-difference time or sampled frame enters the derivative.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work and one vector.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses curve's exact same coefficients and the shared polynomial derivative.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh vector without retaining coefficients.
+   */
+  export function curveDerivative(terms: readonly IAutoMovieVector3[], u: number, h: number): IAutoMovieVector3 {
+    return {
+      x: MotionTrajectoryPolynomial.slope(u, terms[0]!.x, terms[1]!.x, terms[2]!.x, terms[3]!.x, terms[4]?.x) / h,
+      y: MotionTrajectoryPolynomial.slope(u, terms[0]!.y, terms[1]!.y, terms[2]!.y, terms[3]!.y, terms[4]?.y) / h,
+      z: MotionTrajectoryPolynomial.slope(u, terms[0]!.z, terms[1]!.z, terms[2]!.z, terms[3]!.z, terms[4]?.z) / h,
+    };
+  }
+
   /**
    * Turn `q` by `exp(v/2)` in its body frame; null or absent blocks stay unchanged.
    *

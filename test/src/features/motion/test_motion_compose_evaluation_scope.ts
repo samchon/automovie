@@ -10,8 +10,9 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Public composer callbacks share completed prefixes only inside their
- * current synchronous evaluation, including preparation and reentrant reads.
+ * Public composer callbacks share completed prefixes inside one synchronous
+ * query. Each top-level preparation before-query owns a temporary scope;
+ * it does not retain every sampled planning time until preparation finishes.
  *
  * The analytic base has root.x=t and pitch=10t. A trunk write adds one to
  * pitch, and a head write reads that prefix twice and writes 20t+2 to its
@@ -19,8 +20,9 @@ import { nclose } from "../internal/nclose";
  * their arithmetic. The two primitive inputs are deliberately reversed.
  *
  * Scenarios:
- * 1. Preparation shares a base at the same exact t across prefix readers,
- *    while t and t+epsilon remain different. Prefix values stay 10t and 10t+1.
+ * 1. Four independent preparation queries at t and one at t+epsilon read
+ *    their actual prefixes afresh. Nested base reads within each trunk
+ *    evaluation still share work. Values remain 10t and 10t+1.
  * 2. Each public query owns fresh work. A retained prefix reader called
  *    outside evaluation opens fresh work for every call.
  * 3. A reentrant public posture at another time restores the outer scope,
@@ -28,10 +30,10 @@ import { nclose } from "../internal/nclose";
  * 4. A failed outer write publishes no partial result to the next query.
  *    A reader retained by a throwing prepare also leaves no active scope.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the declared arithmetic, observational counters and all evaluation lifetime boundaries.
- * @evidence contracts/development/testing.md#behavioral-verification Calls only public composition, prepare/write callbacks and returned posture readers; duplicate exact-prefix work, cross-call retention, lost enclosing scope or swallowed/retained failure fails counts or numeric outputs.
- * @evidence contracts/development/testing.md#independent-expectations The base defines 10t, the trunk adds one, and two equal prefix reads give 20t+2. Exact counters follow the number of distinct input times and required prefix stages, without consulting a cache or source layout.
- * @evidence contracts/development/testing.md#distinguishing-cases Shared/different exact times and prefixes, reverse primitive order, prepared/retained readers, normal and throwing nested public queries, outer-write failure and prepare failure.
+ * @evidence contracts/development/common.md#meaningful-documentation States the declared arithmetic, separate top-level preparation queries, nested prefix sharing, observational counters and evaluation lifetime boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls only public composition, prepare/write callbacks and posture readers; duplicate prefixes inside a query, preparation-wide sharing, cross-call retention, lost enclosing scope or swallowed/retained failure fails counts or numeric outputs.
+ * @evidence contracts/development/testing.md#independent-expectations The base defines 10t, the trunk adds one, and two equal prefix reads give 20t+2. Preparation explicitly requests four independent t queries and one nearby query, including two trunk prefixes. Within a public or nested query each required prefix is computed once; counts observe this scope contract rather than heap bytes or a cache's contents.
+ * @evidence contracts/development/testing.md#distinguishing-cases Independent preparation queries, nested exact prefixes, adjacent exact times, reverse primitive order, retained readers, normal and throwing nested public queries, outer-write failure and prepare failure.
  * @evidence contracts/development/testing.md#execution-ownership One synchronous mechanism unit owns deterministic public extension callbacks and counters, as compose_action does; no body producer, foreign function, global or runtime is replaced.
  */
 export function test_motion_compose_evaluation_scope(): void {
@@ -87,8 +89,11 @@ export function test_motion_compose_evaluation_scope(): void {
       before(t);
       before(nearby);
     },
-    write: (under: IHumanPosture, seconds: number): IHumanPosture => {
+    write: (under: IHumanPosture, seconds: number, before?: Reader): IHumanPosture => {
       count(writes, seconds);
+      if (before === undefined) throw new Error("The composed trunk has no base reader");
+      check("nested base prefix first read", nclose(before(seconds).pitch, 10 * seconds, 0));
+      check("nested base prefix second read", nclose(before(seconds).pitch, 10 * seconds, 0));
       return { ...under, pitch: under.pitch + 1 };
     },
   };
@@ -132,14 +137,14 @@ export function test_motion_compose_evaluation_scope(): void {
     clock: AutoMovieMotionClock.of(1, []),
     primitives: [head, trunk],
   });
-  check("prepare shared exact-time base", reads.get(t) === 1);
+  check("prepare queries own separate exact-time work", reads.get(t) === 4);
   check(
     "prepare preserves adjacent exact time",
     reads.get(nearby) === 1 && reads.size === 2,
   );
   check(
-    "prepare shares only the required trunk prefix",
-    writes.get(t) === 1 && !writes.has(nearby),
+    "prepare shares nested work only inside each requested trunk prefix",
+    writes.get(t) === 2 && !writes.has(nearby),
   );
   for (const scenario of ["plain", "nested", "inner-failure"] as const) {
     mode = scenario;

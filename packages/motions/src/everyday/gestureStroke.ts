@@ -163,6 +163,9 @@ export namespace gestureStroke {
     /** Effort extent multiplier. */
     extent: number;
 
+    /** Axis-to-skin padding, metres, prepared from this same body's profile and hand for a self-touch; computed on demand when absent. */
+    fingerPadding?: number;
+
     /**
      * This repeat's variation of a named place, for `wave` and `stopPalm`;
      * absent, the place is as named.
@@ -215,6 +218,30 @@ export namespace gestureStroke {
   /** Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here with its kind. */
   export const HANDS: typeof gestureStrokeTables.HANDS =
     gestureStrokeTables.HANDS;
+
+  /**
+   * Extra finger flexion of a stroke, independent of its world hand goal.
+   * Only beckoning adds this curl; all other strokes keep their named shape.
+   *
+   * @param kind The gesture's closed kind.
+   * @param u Its stroke share in [0, 1].
+   * @param cycles Its repetition count.
+   * @param extent The fixed effort amplitude multiplier.
+   * @returns Extra flexion, degrees, before the transport envelope.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the beckon-only clinical-degree output, stroke timebase and effort/envelope separation.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same raised-cosine finger pulse at the beckon's published range amplitude; a kind with no extra finger flexion returns zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The full stroke goal and planned-arm finger playback consume one scalar law rather than constructing unused world-space goals for finger data.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original beckon amplitude, phase, cycles and extent multiplication order; it changes no working hand shape, contact surface or arm trajectory.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One closed-kind decision and fixed arithmetic, with no traversal or algorithm choice.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Full hand goals and geometry-free finger playback share this same pure formula for identical kind/share/cycle/extent inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
+   */
+  export function curl(kind: Kind, u: number, cycles: number, extent: number): number {
+    return kind === "beckon"
+      ? gestureJoints.ANGLES.beckon * extent * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u))
+      : 0;
+  }
   /**
    * A hand's goal at a share of the stroke.
    *
@@ -241,8 +268,11 @@ export namespace gestureStroke {
     cycles: number,
     input: IInput,
   ): IHand {
+    if (kind === "point") return gestureTouch.point(input, side);
+    if (kind === "touchFace" || kind === "pushGlasses" || kind === "scratchHead")
+      return gestureTouch.touch(kind, input, side, u, cycles);
     const { body } = input;
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const sign: number = side === "left" ? 1 : -1;
     const L: number = m.upperArm + m.forearm;
     const frame: HumanFrame.IFrame = {
@@ -290,7 +320,8 @@ export namespace gestureStroke {
       palm: HumanHand.Direction,
     ): IAutoMovieQuaternion =>
       HumanHand.facing(side, frame.yaw, { fingers, palm });
-    const wave: number = gestureSignal.oscillation(u, cycles);
+    const wave: number = kind === "wave" || kind === "cheer" || kind === "rubHands"
+      ? gestureSignal.oscillation(u, cycles) : 0;
     const e: number = input.extent;
     switch (kind) {
       case "wave": {
@@ -371,8 +402,6 @@ export namespace gestureStroke {
           out: 0,
           elbow: { out: 0.9, up: 0, forward: 0.3 },
         };
-      case "point":
-        return gestureTouch.point(input, side);
       case "palmsUp":
       case "shrug":
         return {
@@ -399,10 +428,7 @@ export namespace gestureStroke {
           }),
           rotation: facing("forward", "up"),
           out: 0,
-          curl:
-            gestureJoints.ANGLES.beckon *
-            e *
-            (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
+          curl: curl(kind, u, cycles, e),
         };
       case "clap":
       case "rubHands":
@@ -433,10 +459,6 @@ export namespace gestureStroke {
           out: 0.1,
         };
       }
-      case "touchFace":
-      case "pushGlasses":
-      case "scratchHead":
-        return gestureTouch.touch(kind, input, side, u, cycles);
       case "nod":
       case "shakeHead":
       case "bow":

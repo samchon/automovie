@@ -12,7 +12,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is written, in which angles, and for which parts.
  * @evidence contracts/development/design.md#principled-representation The parts with no end effector are posed by joint angles, added to what the posture holds so two sources of one joint's angle sum.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The channel lookup, one primitive (`add`) and one named time course (`pulse`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The channel lookup, checked addition, one primitive (`add`) and one named time course (`pulse`); knockdown shares the same checked addition with its combined phase writer.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Angles are keyed by the rig's bone union in the posture's own clinical triple.
  */
 export namespace AutoMovieMotionHumanJoints {
@@ -97,7 +97,7 @@ export namespace AutoMovieMotionHumanJoints {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is added to what and when it throws.
    * @evidence contracts/development/implementation.md#principled-implementation Each angle triple is summed with the joint's held triple, or with zero when the posture holds none.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the angles of the second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Evaluate this second's delta, then delegate the unchanged checked addition to applied.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone outside the claimed channels throws, since the merge would drop its angle without a sign.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the angles given.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.of`.
@@ -106,26 +106,48 @@ export namespace AutoMovieMotionHumanJoints {
   export function add(props: IAdd): IAutoMovieMotionHumanPrimitive {
     return {
       channels: props.channels,
+      reads: props.channels,
       from: props.from,
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const joints: IHumanPosture["joints"] = { ...posture.joints };
-        for (const [bone, more] of Object.entries(props.delta(seconds)) as [
-          AutoMovieHumanoidBone,
-          readonly [number, number, number],
-        ][]) {
-          if (!AutoMovieMotionHumanChannel.covers(props.channels, bone))
-            throw new Error(
-              `A joint primitive writes ${bone} outside its channels`,
-            );
-          const was: readonly [number, number, number] = joints[bone] ?? [
-            0, 0, 0,
-          ];
-          joints[bone] = [was[0] + more[0], was[1] + more[1], was[2] + more[2]];
-        }
-        return { ...posture, joints };
+        return applied(posture, props.delta(seconds), props.channels);
       },
     };
+  }
+
+  /**
+   * Add already evaluated angles with the same channel admission as add.
+   *
+   * @param posture The posture whose held angles are added to.
+   * @param angles Clinical angle triples, degrees by bone.
+   * @param channels The channels claimed by the caller.
+   * @returns A fresh posture and joint record.
+   * @throws {Error} When any angle's bone is outside the claimed channels.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, units, allocation and channel refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Each triple adds to the held triple or zero in the original entry order, after the same per-bone channel check.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the joint record, check and sum each angle, return the posture.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same error and channel owner serve ordinary primitives and combined writers; no admission is removed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the held joints and added angles; callers can supply an already sampled phase without recomputing it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work add and knockdown share this one addition and channel-admission owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function retaining neither the inputs nor its fresh result.
+   */
+  export function applied(
+    posture: IHumanPosture,
+    angles: Angles,
+    channels: IAdd["channels"],
+  ): IHumanPosture {
+    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    for (const [bone, more] of Object.entries(angles) as [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][]) {
+      if (!AutoMovieMotionHumanChannel.covers(channels, bone))
+        throw new Error(`A joint primitive writes ${bone} outside its channels`);
+      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+      joints[bone] = [was[0] + more[0], was[1] + more[1], was[2] + more[2]];
+    }
+    return { ...posture, joints };
   }
 
   /**

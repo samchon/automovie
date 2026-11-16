@@ -66,6 +66,23 @@ export namespace crawlFeet {
     lift: number,
     share: number,
   ): { placement: HumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } {
+    return prepareRoll(body, side, standing, heading, lift)(share);
+  }
+
+  /**
+   * Prepare a fixed standing foot's two-pivot roll for independent progress
+   * queries. The heading, toe range and standing toe joint are invariant;
+   * the second pivot is measured on first crossing of the toe range.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, independent progress and lazy second-pivot acquisition; rolled documents units and the two contact phases.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses rolled's same rigid metatarsophalangeal pivot and then its fixed toe-tip pivot, retaining all rotation and socket calculations and the original range comparison.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed geometry precedes the same two-pivot evaluator, with one lazy toe-tip point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change the toe-extension range, heading interpolation, contact offset or endpoint progress.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/range/socket reads run once, and the range-boundary tip is measured once instead of at every later share; changing rigid placements remain constant work per query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body and standing placement, heading and lift establish the invariant geometry; progress queries retain no prior progress or current placement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owning plan retains its standing foot, first pivot, scalar limits and at most one second pivot until release; no pose, solver reader or history is cached.
+   */
+  export function prepareRoll(body: IHumanBody, side: "left" | "right", standing: HumanFoot.IPlacement, heading: number, lift: number): (share: number) => { placement: HumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } {
     const from: number = HumanFoot.heading(standing.rotation);
     const extension: number = Math.min(
       lift,
@@ -96,16 +113,13 @@ export namespace crawlFeet {
         mtp: HumanFoot.point(body, side, "mtp", placement),
       };
     };
-    const q: number = lift * share;
-    if (q <= extension) return about("mtp", mtp, q, q);
-    const tip: IAutoMovieVector3 = HumanFoot.point(
-      body,
-      side,
-      "toe",
-      about("mtp", mtp, extension, extension).placement,
-      extension,
-    );
-    return about("toe", tip, q, extension);
+    let tip: IAutoMovieVector3 | undefined;
+    return (share: number): { placement: HumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } => {
+      const q: number = lift * share;
+      if (q <= extension) return about("mtp", mtp, q, q);
+      tip ??= HumanFoot.point(body, side, "toe", about("mtp", mtp, extension, extension).placement, extension);
+      return about("toe", tip, q, extension);
+    };
   }
 
   /**

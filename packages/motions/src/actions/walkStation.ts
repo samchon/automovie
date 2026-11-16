@@ -83,10 +83,10 @@ export function walkStation(
   // The plan's way: the length its root has travelled at each sampled second.
   const seconds: number[] = [0];
   const lengths: number[] = [0];
-  let root: IHumanPosture["root"] = plan.posture(0).root;
+  let root: IHumanPosture["root"] = plan.posture(0, ["root"]).root;
   for (let i: number = 1; i <= walkStation.SAMPLES; ++i) {
     const t: number = (i / walkStation.SAMPLES) * plan.duration;
-    const now: IHumanPosture["root"] = plan.posture(t).root;
+    const now: IHumanPosture["root"] = plan.posture(t, ["root"]).root;
     seconds.push(t);
     lengths.push(lengths[i - 1]! + Math.hypot(now.x - root.x, now.z - root.z));
     root = now;

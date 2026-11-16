@@ -26,8 +26,8 @@ import { manipulateReach } from "./manipulateReach";
  * @evidence contracts/development/implementation.md#principled-implementation An exact Viterbi path (dynamic programming over a chain of five-state stages) minimizing summed wrist travel, Handrix's stated outcome of keeping the wrist still (ElKoura and Singh 2003).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward pass and one back-trace per hand.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cost is a measured distance, with no weight; a contact that names its digit is kept.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in contacts times the square of the five digits.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in contacts times the square of five digits; each reachable digit's wrist is placed once per contact rather than once per Viterbi edge.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Adjacent Viterbi stages retain their digit placements for every edge that reads the same contact, digit, hand and fixed rotation; the previous stage is released when the next replaces it.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
  */
 export function manipulateFingering(
@@ -43,30 +43,47 @@ export function manipulateFingering(
       .map((_c: manipulate.IContactAt, i: number): number => i)
       .filter((i: number): boolean => sides[i] === side);
     if (mine.length === 0) continue;
+
+    // Fixed fingering has one path, so its wrist-travel cost cannot change
+    // the result. A one-contact free path keeps the original first-digit tie.
+    if (mine.length === 1) {
+      out[mine[0]!] = contacts[mine[0]!]!.digit ?? manipulate.FINGERS[0];
+      continue;
+    }
+    if (mine.every((index: number): boolean => contacts[index]!.digit !== undefined)) {
+      for (const index of mine) out[index] = contacts[index]!.digit!;
+      continue;
+    }
     const choices: (i: number) => readonly Finger[] = (
       i: number,
     ): readonly Finger[] =>
       contacts[i]!.digit === undefined
         ? manipulate.FINGERS
         : [contacts[i]!.digit!];
+    const reach: ReturnType<typeof manipulateReach.prepare> =
+      manipulateReach.prepare(body, side, rotation[side]);
     const wristAt: (i: number, f: Finger) => IAutoMovieVector3 = (
       i: number,
       f: Finger,
     ): IAutoMovieVector3 =>
-      manipulateReach(
-        body,
-        side,
+      reach(
         f,
         contacts[i]!.point,
         contacts[i]!.normal,
         contacts[i]!.depth,
-        rotation[side],
       );
+    const wrists: (index: number) => Map<Finger, IAutoMovieVector3> = (index: number): Map<Finger, IAutoMovieVector3> =>
+      new Map(choices(index).map(
+        (finger: Finger): [Finger, IAutoMovieVector3] =>
+          [finger, wristAt(index, finger)],
+      ));
+    let previous: Map<Finger, IAutoMovieVector3> = wrists(mine[0]!);
     let cost: Map<Finger, number> = new Map(
       choices(mine[0]!).map((f: Finger): [Finger, number] => [f, 0]),
     );
     const back: Map<Finger, Finger>[] = [];
     for (let n: number = 1; n < mine.length; n++) {
+      const current: Map<Finger, IAutoMovieVector3> = wrists(mine[n]!);
       const next: Map<Finger, number> = new Map();
       const from: Map<Finger, Finger> = new Map();
       for (const f of choices(mine[n]!)) {
@@ -76,7 +93,7 @@ export function manipulateFingering(
           const total: number =
             c +
             Vector3.length(
-              Vector3.subtract(wristAt(mine[n]!, f), wristAt(mine[n - 1]!, g)),
+              Vector3.subtract(current.get(f)!, previous.get(g)!),
             );
           if (total < best) {
             best = total;
@@ -88,6 +105,7 @@ export function manipulateFingering(
       }
       back.push(from);
       cost = next;
+      previous = current;
     }
     let last: Finger = [...cost.entries()].reduce(
       (a: [Finger, number], b: [Finger, number]): [Finger, number] =>

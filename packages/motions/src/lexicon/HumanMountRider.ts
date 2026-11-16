@@ -210,6 +210,8 @@ export namespace HumanMountRider {
       const hand: IAutoMovieResolvedBone = poseBones(
         body,
         resolveHumanPosture(body, { ...posture, limbs }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
       ).get(`${side}Hand`)!;
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
@@ -262,7 +264,7 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#principled-implementation The grasp laws' own closure on the prop's own colliders, placed by the prop's frame as `HumanGrasp` places them, with the hand's frame taken from `hold`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's frame, the placed colliders, one call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No named hand shape stands in for the closure.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One closure per hand per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One ordered O(S) distance scan selects the nearest of S support shapes, then one closure solve per hand per plan; each shape's distance is evaluated once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved once and blended to at every instant, since the hand and the grip do not move against each other.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -279,14 +281,15 @@ export namespace HumanMountRider {
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
     const near = (shape: IAutoMoviePhysicalProfile.IShape): number =>
       physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
-    const handle: IAutoMoviePhysicalProfile.IShape | undefined = [
-      ...shapes,
-    ].sort(
-      (
-        a: IAutoMoviePhysicalProfile.IShape,
-        b: IAutoMoviePhysicalProfile.IShape,
-      ): number => near(a) - near(b),
-    )[0];
+    let handle: IAutoMoviePhysicalProfile.IShape | undefined;
+    let distance: number = Infinity;
+    for (const shape of shapes) {
+      const candidate: number = near(shape);
+      if (handle === undefined || candidate < distance) {
+        handle = shape;
+        distance = candidate;
+      }
+    }
     if (handle === undefined) return {};
     return HumanGrip.close(
       body,

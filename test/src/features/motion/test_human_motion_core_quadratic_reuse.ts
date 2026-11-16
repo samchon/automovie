@@ -23,6 +23,11 @@ import { nclose } from "../internal/nclose";
  * 4. Manual warm arrays remain unchanged and separate from every returned
  *    channel. The same free scalar minimum is x=z=2 with multiplier y=0;
  *    changing the caller's returned x cannot change z, y or the warm input.
+ * 5. A finite large warm multiplier can overflow its internal cost scaling.
+ *    An authored zero coefficient still multiplies that infinity and must
+ *    retain its nonfinite refusal. A truly empty 0=0 row has no such product
+ *    and retains the hand-derived free minimum -100 after polishing. This
+ *    distinction checks IEEE-754 admission rather than real-number algebra.
  *
  * Every minimiser retains the existing QP test's 1e-6 bound. A fresh numeric
  * copy checks preparation isolation in addition to the hand-derived answer;
@@ -31,7 +36,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States all mutations, analytic solutions, admission cases and the precision inherited from the existing QP test.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public solver repeatedly with the same preparation identity, reads actual iterates and objective, checks that later solves leave every earlier x/z/y array unchanged, and observes manual-warm input and returned-channel isolation.
  * @evidence contracts/development/testing.md#independent-expectations Scalar derivatives, the minimum-norm equality solution (1,2), and an empty row's constant l1 penalty give the expected values without invoking another solver.
- * @evidence contracts/development/testing.md#distinguishing-cases Changes each numeric dependency separately without warm iterates; covers hard/soft and bound-class transitions, sorted/unsorted duplicate and zero entries, empty rows, invalid original spans, finite/nonfinite ignored curvature padding, nonfinite coefficients, sparse input and independently supplied warm arrays whose returned channels can be mutated separately.
+ * @evidence contracts/development/testing.md#distinguishing-cases Changes each numeric dependency separately without warm iterates; covers hard/soft and bound-class transitions, sorted/unsorted duplicate and zero entries, empty rows, invalid original spans, finite/nonfinite ignored curvature padding, nonfinite coefficients, sparse input, independently supplied warm arrays and the distinct IEEE-754 behavior of stored zero versus absent products after warm scaling overflow.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable CPU unit owns its small numerical inputs and prior results; no process, host, renderer or external solver is started.
  */
 export function test_human_motion_core_quadratic_reuse(): void {
@@ -230,6 +235,42 @@ export function test_human_motion_core_quadratic_reuse(): void {
     },
     [3],
   );
+
+  // Stored 0*Infinity is NaN; a truly absent product is not evaluated.
+  const extreme: HumanQuadraticProgram.IProblem = {
+    n: 1,
+    band: 0,
+    p: [Float64Array.of(1e-6)],
+    q: Float64Array.of(1e-4),
+    rows: [],
+  };
+  const largeWarm: HumanQuadraticProgram.IState = {
+    x: Float64Array.of(0),
+    z: Float64Array.of(0),
+    y: Float64Array.of(1e308),
+  };
+  for (const zero of [0, -0]) {
+    let refused: unknown;
+    try {
+      HumanQuadraticProgram.solve({
+        ...extreme, rows: [{ index: [0], coef: [zero], l: 0, u: 0 }],
+      }, largeWarm);
+    } catch (error) {
+      refused = error;
+    }
+    if (!(refused instanceof RangeError && /quadratic.*nonfinite/i.test(refused.message)))
+      complaints.push("a stored zero hid warm-scaling nonfinite arithmetic");
+  }
+  const emptyWarm: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve({
+    ...extreme, rows: [{ index: [], coef: [], l: 0, u: 0 }],
+  }, largeWarm);
+  if (!((emptyWarm.status === "solved" || emptyWarm.status === "polished") &&
+    nclose(emptyWarm.x[0]!, -100, 1e-6) &&
+    nclose(emptyWarm.z[0]!, 0, 1e-6) && nclose(emptyWarm.y[0]!, 0, 1e-6)))
+    complaints.push("an absent row product lost its free scalar solution");
+  if (!(nclose(largeWarm.x[0]!, 0, 0) && nclose(largeWarm.z[0]!, 0, 0) &&
+    nclose(largeWarm.y[0]!, 1e308, 0)))
+    complaints.push("warm-scaling admission modified its caller-owned input");
 
   const invalid: readonly (readonly [
     string,

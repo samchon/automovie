@@ -80,8 +80,8 @@ interface IRow {
  *
  * The single-case prerequisites are checked: one stand followed by this
  * jump, no configured layers/external forces/props, no overlays/holds/weapons,
- * no transition offset or contact window at either difference endpoint, and
- * free raw limb goals. Only the raw posture's rotation property is removed.
+ * no transition offset or contact window at the original momentum endpoints,
+ * and free raw limb goals there. Only the raw posture's rotation is removed.
  * Public resolution plus its final clamp gives the unturned joints; replacing
  * only that canonical pose's root with the recorded actual root then performs
  * fresh FK. Both momenta use the original mass model and two-DELTA interval.
@@ -92,14 +92,18 @@ interface IRow {
  * itself prove one numerical cause. Joint differences are observations, not
  * a substitute for the representative's unchanged one-percent assertion.
  * All work happens after its original observations and timing have finished.
+ * Three additional direct displayed reads straddle takeoff by adjacent
+ * binary64 seconds. Their actual poses, world centres and root-local FK are
+ * observed without the unturned reconstruction. Unavailable boundary data
+ * is logged separately and changes no original physical acceptance result.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the checked fixture prerequisites, exact same-film/root decomposition, units, execution order and causal interpretation limits.
+ * @evidence contracts/development/common.md#meaningful-documentation States the checked momentum-row prerequisites, same-film/root decomposition, direct adjacent-time takeoff observations, units, execution order, separate boundary problems and causal interpretation limits.
  * @evidence contracts/development/implementation.md#principled-implementation Rigid motion preserves a canonical articulation: actual root plus unturned joints defines that same shape under the measured turn. Public FK and momentum measure it without another film or an ideal angular target.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check the fixture and every endpoint, reconstruct canonical unturned joints with public resolution/clamp, then reduce two FK maps and record all actual differences.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Check and reconstruct the original momentum endpoints, reduce their FK maps, then directly read the completed film at the three takeoff boundary seconds without reconstruction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Removes only an owned copy's rotation, keeps the recorded actual root and original DELTA/model, and records failures explicitly. No private state, foreign patch, tolerance change or pose expectation is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms For N original observations, performs two additional actual posture resolutions and FK per observation plus linear joint comparison; this diagnostic cost is separately timed and is not claimed as production speed.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For N original observations, performs two additional posture resolutions/FK plus linear joint comparison. Three boundary records add world/root-local FK and mass reductions. Diagnostic cost is separately timed and is not claimed as production speed.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the completed film's actual raw plan and captured displayed poses, with no second performance. Original measurements finish before any additional resolver/memory work.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only one row per supplied observation and its numeric discrepancies until the completion log; temporary postures/bone maps release after each row, with no global cache or external handle.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one row per supplied observation and at most three copied boundary states until the completion log; temporary bone maps release after each read, with no global cache or external handle.
  */
 export function motionHumanFlightDiagnostic(props: {
   /** Actual canonical body shared by the input and completed performance. */
@@ -117,7 +121,7 @@ export function motionHumanFlightDiagnostic(props: {
   /** Original physical mass model, shared with the displayed measurements. */
   model: resolveAutoMovieCenterOfMass.IModel;
 
-  /** Original takeoff in film seconds; all difference endpoints must follow it. */
+  /** Original takeoff; momentum supports follow it and direct seam reads straddle it. */
   from: number;
 
   /** Original touchdown in film seconds; all difference endpoints precede it. */
@@ -129,11 +133,29 @@ export function motionHumanFlightDiagnostic(props: {
   /** The twenty original conservation reads and their owned actual poses. */
   observations: readonly motionHumanFlightDiagnostic.IObservation[];
 }): {
-  /** Every failed premise or unavailable/nonfinite diagnostic, without masking later rows. */
+  /** Failed momentum-row premises/readings, without masking later rows. */
   problems: string[];
 
   /** One causal observation per original conservation read, in input order. */
   rows: IRow[];
+
+  /** Direct displayed states at takeoff and its two adjacent binary64 seconds. */
+  takeoff: {
+    /** Actual queried film second. */
+    seconds: number;
+
+    /** Owned actual canonical pose, including its displayed world root. */
+    pose: IAutoMoviePose;
+
+    /** Actual world centre of mass, metres. */
+    centre: IAutoMovieVector3;
+
+    /** Owned actual articulation's root-local FK, in skeleton order. */
+    bones: IAutoMovieResolvedBone[];
+  }[];
+
+  /** Unavailable boundary observations; these change no original acceptance. */
+  takeoffProblems: string[];
 } {
   const {
     body,
@@ -330,7 +352,41 @@ export function motionHumanFlightDiagnostic(props: {
     }
     rows.push(row);
   }
-  return { problems, rows };
+  const takeoff: ReturnType<typeof motionHumanFlightDiagnostic>["takeoff"] = [];
+  const takeoffProblems: string[] = [];
+  if (!(Number.isFinite(from) && from > 0))
+    takeoffProblems.push("Direct takeoff observation requires this fixture's positive finite clock");
+  else {
+    const view: DataView = new DataView(new ArrayBuffer(Float64Array.BYTES_PER_ELEMENT));
+    view.setFloat64(0, from);
+    const bits: bigint = view.getBigUint64(0);
+    view.setBigUint64(0, bits - 1n);
+    const before: number = view.getFloat64(0);
+    view.setBigUint64(0, bits + 1n);
+    const after: number = view.getFloat64(0);
+    for (const seconds of [before, from, after]) {
+      try {
+        const pose: IAutoMoviePose = film.pose("a", seconds);
+        if (pose.root === null || !qunit(pose.root.rotation) ||
+          ![pose.root.translation.x, pose.root.translation.y, pose.root.translation.z].every(Number.isFinite))
+          throw new Error("Direct takeoff observation has an invalid displayed root");
+        const world: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = film.bones("a", seconds);
+        const local: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...pose, root: null });
+        motionHumanFrame(world, `displayed takeoff ${seconds}`);
+        motionHumanFrame(local, `root-local takeoff ${seconds}`);
+        const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, world);
+        if (![centre.x, centre.y, centre.z].every(Number.isFinite))
+          throw new Error("Direct takeoff centre is nonfinite");
+        takeoff.push({
+          seconds, pose: structuredClone(pose), centre,
+          bones: Array.from(local.values(), (bone: IAutoMovieResolvedBone): IAutoMovieResolvedBone => structuredClone(bone)),
+        });
+      } catch (error) {
+        takeoffProblems.push(`${seconds}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+  }
+  return { problems, rows, takeoff, takeoffProblems };
 }
 
 /**

@@ -1,13 +1,11 @@
 import {
   type IAutoMoviePoseRig,
   type IAutoMovieSeededChainFit,
-  type IAutoMovieSwivelNear,
-  type IAutoMovieSwivelSeed,
-  clampPose,
   inertializePose,
+  poseJointCodec,
   samplePoseVelocity,
 } from "@automovie/engine";
-import type { IAutoMoviePose } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -17,7 +15,11 @@ import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
+import { HumanSegmentPlant } from "./HumanSegmentPlant";
+import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
+import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStop } from "./HumanSegmentStop";
+import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * A person's displayed pose: the layered action, carried holds, overlays,
@@ -35,30 +37,31 @@ export namespace HumanSegmentPose {
    *
    * @param person The person.
    * @param seconds Film seconds.
+   * @param requested Optional observational bones; only their frames are guaranteed and a partial result never enters the full-pose cache.
    * @returns The pose.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States displayed pose, film seconds and the person's placement-dependent cache.
    * @evidence contracts/development/implementation.md#principled-implementation Selects the last placed segment whose entry is at or before the second with the existing 1e-12 allowance, then uses its displayed evaluator or the initial standing pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cache lookup, one ordered segment scan on a miss, one evaluation and bounded insertion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons bypass both cache reads and writes; no time grid or fit history is substituted for the requested second.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; misses scan S segments and pay the selected evaluator's fitting cost, retaining at most 4096 pose references per person.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cache lookup, one reverse last-match selection on a miss, one evaluation and bounded insertion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Resolving persons bypass cache reads/writes. Observational requests may borrow an existing complete pose but never store partial results; public whole-pose queries remain complete at exact seconds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hits cost one map lookup; misses inspect R entries from the end, at most S segments, and pay the selected evaluator's fitting cost, retaining at most 4096 pose references per person.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact film-second queries share completed poses only after placement is settled; HumanSegment.forget clears them when plans, stops or placement dependencies change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned cached pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
    */
   export function displayed(
     person: HumanSegment.IPerson,
     seconds: number,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMoviePose {
     const cached: IAutoMoviePose | undefined = person.resolving
       ? undefined
       : person.cache.get(seconds);
     if (cached !== undefined) return cached;
-    let active: HumanSegment.ISegment | undefined;
-    for (const s of person.segments)
-      if (s.entryTime <= seconds + 1e-12) active = s;
+    const active: HumanSegment.ISegment | undefined =
+      HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose =
-      active === undefined ? initial(person) : of(person, active, seconds);
-    if (person.resolving) return pose;
+      active === undefined ? initial(person, requested) : of(person, active, seconds, undefined, requested);
+    if (person.resolving || requested !== undefined) return pose;
     if (person.cache.size >= 4096)
       person.cache.delete(person.cache.keys().next().value!);
     person.cache.set(seconds, pose);
@@ -90,8 +93,10 @@ export namespace HumanSegmentPose {
     person: HumanSegment.IPerson,
     segment: HumanSegment.ISegment,
     seconds: number,
+    prepared?: prepareHumanSegmentPose.IPrepared,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMoviePose {
-    return seeded(person, segment, seconds).pose;
+    return seeded(person, segment, seconds, undefined, prepared, requested).pose;
   }
 
   /**
@@ -103,27 +108,39 @@ export namespace HumanSegmentPose {
    * @param segment The action.
    * @param seconds Film seconds.
    * @param near The fits of a nearby second to continue, if any.
+   * @param prepared Same-body preparation borrowed only within this synchronous evaluation, or acquired here and released on return or throw.
+   * @param requested Optional bone observation; near fits, holds, stops, active transitions and overlays retain complete evaluation.
    * @returns The pose and the seeds of its fits.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the leaf, carry, stop and planted fits and explains how only the matching nearby seed continues each one.
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates layers, overlay/carry fits, stopped weapons, transition offset, range clamps and final planted refits in their original order; rate samples continue the cut's own seeds rather than unrelated evaluation history. The performer's rig stays unchanged during this synchronous evaluation, so its repeated clamps may share prepared metadata.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the operation-local stopped-frame reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlay sets and nearby seeds still receive separate fits; no clamp, contact solve, transition sample or tolerance is removed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is O(H), with at most two lazy plan-side drive scans and a two-side riding set per shown evaluation; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shown and final-carry stages reuse their same plan/overlay hand-drive decisions per side; a riding-side set replaces repeated hold-prefix scans. Held fingers write their clinical-bone entries in the original order into one fresh joint dictionary. The clamps share unchanged rig metadata and stopped goals share exact FK math, while every original pose evaluation, fit and numerical projection still runs separately.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Shown evaluations own their at-most-two-side metadata and local pose/seed maps; returned seeds belong to this evaluation. Local O(B+D) clamp metadata and the stop reader's last successful joint/world scalar snapshots, O(K) for K visited bone names, release on return or throw. Existing held carries and transition offsets remain on the person's records and are invalidated by HumanSegment.forget.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is O(H), with at most two lazy plan-side drive scans and a two-side riding set per shown evaluation; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). Cold final plants retain attachment-order checks but omit unused nearby keys and tuple arrays. The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit same-body preparation shares rig ROM metadata and lazy exact FK prerequisites across shown poses, overlays, carries, stops, final plants and recursive transition samples. Every actual projection, target and near fit remains separate; observational omission belongs only to the resolver's conservative dependency proof. The offset capture also shares its unchanged-rig codec without sharing numerical conversions.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation; no returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
    */
   export function seeded(
     person: HumanSegment.IPerson,
     segment: HumanSegment.ISegment,
     seconds: number,
     near?: INear,
+    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(
+      person.performer.body,
+    ),
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): ISeeded {
     const body: IHumanBody = person.performer.body;
-    const seeds: IFits = new Map();
-    const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = clampPose.prepare(
-      body.skeleton,
-    );
+    if (prepared.body !== body)
+      throw new Error("A displayed evaluation borrows its own body's rig preparation");
+    const clamp: (pose: IAutoMoviePose) => IAutoMoviePose = prepared.clamp;
+    const transition: HumanSegment.ISegment["transition"] = segment.transition;
+    const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      near === undefined && person.holds.length === 0 && person.stops.size === 0 &&
+      !(transition !== undefined && transition.kind !== "redirect" &&
+        seconds - transition.cut < transition.blend)
+        ? requested
+        : undefined;
 
     // The action as it is shown at a second before any transition offset:
     // its posture under the layers, the holds it carries, and the pose with
@@ -173,10 +190,10 @@ export namespace HumanSegmentPose {
       if (borne.length !== 0) {
         const joints: IHumanPosture["joints"] = { ...written.joints };
         for (const h of borne) Object.assign(joints, h.fingers);
-        written = { ...written, joints };
+        written = resolveHumanPosture.rebased(written, { ...written, joints });
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
-        HumanSegmentOverlay.overlaid(person, written, t, borne, fits);
+        HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution, observed);
       return {
         posture: {
           ...written,
@@ -188,7 +205,7 @@ export namespace HumanSegmentPose {
       };
     }
     const now: ReturnType<typeof shown> = shown(seconds, near);
-    for (const [name, seed] of now.seeds) seeds.set(name, seed);
+    const seeds: IFits = now.seeds;
     let posture: IHumanPosture = now.posture;
     const carried: HumanSegment.IHeld[] = now.carried;
     let pose: IAutoMoviePose = now.pose;
@@ -206,6 +223,7 @@ export namespace HumanSegmentPose {
         limb,
         goal,
         nearby(near, name),
+        prepared.resolution,
       );
       seeds.set(name, fitted.seed);
       return fitted.pose;
@@ -234,7 +252,7 @@ export namespace HumanSegmentPose {
         ...posture,
         limbs: {
           ...posture.limbs,
-          ...Object.fromEntries(HumanSegmentCarry.carries(person, pose, kept)),
+          ...Object.fromEntries(HumanSegmentCarry.carries(person, pose, kept, prepared.resolution)),
         },
       };
 
@@ -250,11 +268,11 @@ export namespace HumanSegmentPose {
         const goal: IHumanPosture.IGoal = (stopped ??= HumanSegmentStop.reader(
           person,
           segment,
+          prepared,
         ))(w, s);
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
         pose = fit(`stop:${w.id}:${w.limb}`, pose, w.limb, goal);
       }
-    const transition: HumanSegment.ISegment["transition"] = segment.transition;
     if (
       transition !== undefined &&
       transition.kind !== "redirect" &&
@@ -263,32 +281,40 @@ export namespace HumanSegmentPose {
       // Read source rates before the cut and target rates after it, where
       // their laws exist. Continue each side's cut fits so the offset keeps
       // the motion rather than differences in fit resolution.
-      transition.offset ??= inertializePose(
-        continued(
-          (t: number, near?: INear): ISeeded =>
-            seeded(person, transition.source, t, near),
-          transition.cut,
-          "before",
-          humanRig(body),
+      if (transition.offset === undefined || transition.offset === null) {
+        const rig: IAutoMoviePoseRig = humanRig(body);
+        const codec: () => poseJointCodec.ICodec = poseJointCodec.prepare(rig);
+        transition.offset = inertializePose(
+          continued(
+            (t: number, near?: INear): ISeeded =>
+              seeded(person, transition.source, t, near, prepared),
+            transition.cut,
+            "before",
+            rig,
+            transition.blend,
+            codec,
+          ).state,
+          // Include the target's carry and overlays; a bare-posture offset
+          // would add their arm placement a second time.
+          continued(
+            (t: number, near?: INear): ISeeded => shown(t, near),
+            transition.cut,
+            "after",
+            rig,
+            transition.blend,
+            codec,
+          ).state,
           transition.blend,
-        ).state,
-        // Include the target's carry and overlays; a bare-posture offset
-        // would add their arm placement a second time.
-        continued(
-          (t: number, near?: INear): ISeeded => shown(t, near),
-          transition.cut,
-          "after",
-          humanRig(body),
-          transition.blend,
-        ).state,
-        transition.blend,
-        // A joint cut as it passes the next action's pose keeps its rate and
-        // follows through; stopped short it would lose that rate at once.
-        true,
-        // Joints blend as rotations read through the displayed rig, so an arm
-        // hanging at its shoulder chart's gimbal does not swing on the way.
-        humanRig(body),
-      );
+          // A joint cut as it passes the next action's pose keeps its rate and
+          // follows through; stopped short it would lose that rate at once.
+          true,
+          // Joints blend as rotations read through the displayed rig, so an arm
+          // hanging at its shoulder chart's gimbal does not swing on the way.
+          rig,
+          codec,
+        );
+      }
+
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
       pose = clamp(
@@ -300,31 +326,12 @@ export namespace HumanSegmentPose {
     // declared window: neither a fade, an offset nor the range clamp can
     // move them. The ordinary resolver owns attachment order and arm pairs.
     pose = clamp(pose);
-    const plants: IHumanPosture["limbs"] = Object.fromEntries(
-      Object.entries(posture.limbs).filter(
-        ([, goal]: [string, IHumanPosture.IGoal]): boolean =>
-          goal.planted === true,
-      ),
-    );
-    const planted: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(
+    const planted: resolveHumanPosture.ISeeded = HumanSegmentPlant.fit(
       body,
       pose,
-      plants,
-      Object.fromEntries(
-        resolveHumanPosture
-          .order(plants)
-          .flatMap(
-            (
-              limb: IHumanPosture.Limb,
-            ): [IHumanPosture.Limb, IAutoMovieSwivelNear][] => {
-              const continued: IAutoMovieSwivelNear | undefined = nearby(
-                near,
-                `planted:${limb}`,
-              );
-              return continued === undefined ? [] : [[limb, continued]];
-            },
-          ),
-      ),
+      posture.limbs,
+      near,
+      prepared.resolution,
     );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
@@ -341,15 +348,16 @@ export namespace HumanSegmentPose {
    * @param side The side the motion is read from.
    * @param rig The rig the joints are read through.
    * @param duration The decay the state feeds, seconds.
+   * @param prepared Optional codec or lazy getter from this same unchanged-rig transition capture, demanded only after the samples.
    * @returns The state, and the continued samples its rates were read from.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the cold instant, fit-seeded one-sided samples and decay-derived tolerance, all at film seconds.
+   * @evidence contracts/development/common.md#meaningful-documentation States the cold instant, fit-seeded one-sided samples, decay-derived tolerance and optional same-rig codec source demanded after sampling, all at film seconds.
    * @evidence contracts/development/implementation.md#principled-implementation Uses samplePoseVelocity's one-sided second-order difference with STEP and its decay-dependent swivel tolerance; all three rate samples continue the same cold instant's named fits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cold callback captures seeds and one continued callback records the three rate samples before returning the engine's state.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The engine calls the cold callback first, assigning its seeds before the continued callback records the three rate samples; no unused initial seed map is created.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the cold pose distinct from the continued instant sample and never merges them solely because their seconds match.
    * @evidence contracts/development/implementation.md#efficient-algorithms Performs one cold and three continued evaluations plus samplePoseVelocity's linear joint differencing; retained samples and fit seeds scale with those evaluations' joint and fit counts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the cold instant's seeds only through the explicitly supplied near context; no global last-pose or time-only sample cache changes branch selection.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local seed references last through the synchronous sampling call. The state and sample-array wrappers are new; their poses and seed-derived members keep the supplied reader's ownership, with no persistent sample map.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the cold instant's seeds only through the explicitly supplied near context; an optional same-rig codec shares metadata at the engine's existing post-sample stage, without memoizing conversions. No global last-pose or time-only sample cache changes branch selection.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local seed references last through the synchronous sampling call. A supplied codec/getter stays with its explicit parent and enters neither state nor samples. The state and sample-array wrappers are new; their poses and seed-derived members keep the supplied reader's ownership, with no persistent sample map.
    */
   export function continued(
     read: (seconds: number, near?: INear) => ISeeded,
@@ -357,9 +365,10 @@ export namespace HumanSegmentPose {
     side: "before" | "after",
     rig: IAutoMoviePoseRig,
     duration: number,
+    prepared?: Parameters<typeof samplePoseVelocity>[6],
   ): IContinued {
     const tolerance: number = samplePoseVelocity.tolerance(STEP, duration);
-    let fits: IFits = new Map();
+    let fits: IFits;
     const samples: IAutoMoviePose[] = [];
     const state: samplePoseVelocity.IState = samplePoseVelocity(
       (t: number): IAutoMoviePose => {
@@ -379,6 +388,7 @@ export namespace HumanSegmentPose {
         samples.push(sample);
         return sample;
       },
+      prepared,
     );
     return {
       state,
@@ -387,89 +397,57 @@ export namespace HumanSegmentPose {
   }
 
   /**
-   * The nearby fit a named fit continues: the seed `near` holds under the
-   * name, refined to its tolerance; none where it holds none, or no seed.
+   * Exact-name continuation lookup, shared with overlays and final plants.
    *
-   * @param near The fits of a nearby second, if any.
-   * @param name The fit's name.
-   * @returns The fit to continue, if any.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines absent and null seeds and the tolerance applied to a present named seed.
-   * @evidence contracts/development/implementation.md#principled-implementation Looks up the exact fit name and copies its swivel seed with the requested tolerance, preserving basin and branch data.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional map lookup followed by an absent check or a shallow seed copy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No seed of another limb, overlay set or fitting stage substitutes for a missing name.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map lookup and one bounded seed-record copy when present.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No completed numerical work is coordinated; the supplied seed owner decides which fit is equivalent.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and returns a new seed wrapper with the original seed's borrowed member values.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the seed lookup owner and its absent/null behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation The original seed lookup is forwarded unchanged, preserving exact names and tolerances.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alias keeps the existing evaluator entry point and one implementation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lookup, seed, branch or tolerance is transformed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The alias adds no wrapper work to the owner's map lookup and seed copy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The alias owns no evaluated work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the shared function reference is retained.
    */
-  export function nearby(
-    near: INear | undefined,
-    name: string,
-  ): IAutoMovieSwivelNear | undefined {
-    const seed: IAutoMovieSwivelSeed | null | undefined = near?.seeds.get(name);
-    return seed === undefined || seed === null
-      ? undefined
-      : { ...seed, tolerance: near!.tolerance };
-  }
+  export const nearby: typeof HumanSegmentPoseSeeds.nearby = HumanSegmentPoseSeeds.nearby;
 
   /**
-   * Each named limb fit's chosen seed; null where that fit has none.
+   * The evaluator's named fit seeds, owned by HumanSegmentPoseSeeds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States exact fit-name keys, chosen swivel seeds and null entries.
-   * @evidence contracts/development/design.md#principled-representation A map preserves stage/overlay/limb fit names and the engine's seed representation without conflating no seed with a different fit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One existing Map alias shared by seeded evaluation, nearby continuation and overlay fitting.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses IAutoMovieSwivelSeed and records null explicitly; no second pose or independently tuned branch key is introduced.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies each named seed and its null state.
+   * @evidence contracts/development/design.md#principled-representation Reuses the exact fit-name map without changing seed representation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the evaluator's existing public type at one alias.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No parallel map or widened key representation is introduced.
    */
-  export type IFits = Map<string, IAutoMovieSwivelSeed | null>;
+  export type IFits = HumanSegmentPoseSeeds.IFits;
 
   /**
-   * The fits of a nearby second an evaluation continues.
+   * A nearby evaluation's named seeds and swivel tolerance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
-   * @evidence contracts/development/design.md#principled-representation The seeds by fit name and the one tolerance they are refined to (`IAutoMovieSwivelNear`).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieSwivelSeed`.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the borrowed seed map and its degree tolerance.
+   * @evidence contracts/development/design.md#principled-representation Reuses HumanSegmentPoseSeeds.INear with the same exact fit identity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the evaluator's existing nearby argument type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This alias changes no branch, tolerance or seed ownership.
    */
-  export interface INear {
-    /** The nearby second's fits. */
-    seeds: ReadonlyMap<string, IAutoMovieSwivelSeed | null>;
-
-    /** The swivel tolerance each continued fit is refined to, degrees. */
-    tolerance: number;
-  }
+  export type INear = HumanSegmentPoseSeeds.INear;
 
   /**
-   * A shown pose with the seeds of its fits.
+   * A displayed pose and the named fits it actually evaluated.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
-   * @evidence contracts/development/design.md#principled-representation The pose and its fits by name.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IFits`.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies canonical pose and fit-seed result members.
+   * @evidence contracts/development/design.md#principled-representation Reuses HumanSegmentPoseSeeds.ISeeded without a second result shape.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves the evaluator's existing result type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no state, optional alternatives or casts.
    */
-  export interface ISeeded {
-    /** The pose. */
-    pose: IAutoMoviePose;
-
-    /** Its fits. */
-    seeds: IFits;
-  }
+  export type ISeeded = HumanSegmentPoseSeeds.ISeeded;
 
   /**
-   * A one-sided state read on continued fits.
+   * A cold state and its three one-sided continued samples.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its content.
-   * @evidence contracts/development/design.md#principled-representation The state and the samples its rates were differenced from.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `samplePoseVelocity.IState`.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the state and existing ordered sample tuple.
+   * @evidence contracts/development/design.md#principled-representation Reuses HumanSegmentPoseSeeds.IContinued and the engine velocity state.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves the transition and entry readers' existing result type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sample or continued instant is merged with the cold state.
    */
-  export interface IContinued {
-    /** The pose at the second, read cold, and its rates. */
-    state: samplePoseVelocity.IState;
-
-    /** The continued samples at the second and one and two steps toward its side. */
-    samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];
-  }
-
+  export type IContinued = HumanSegmentPoseSeeds.IContinued;
   /**
    * A posture with the person's layers added in order.
    *
@@ -500,7 +478,12 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared resolver without adding a cache across mutable bodies or initial postures.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns the resolver's result unchanged.
    */
-  export function initial(person: HumanSegment.IPerson): IAutoMoviePose {
-    return resolveHumanPosture(person.performer.body, person.initial);
+  export function initial(
+    person: HumanSegment.IPerson,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): IAutoMoviePose {
+    return resolveHumanPosture.seeded(person.performer.body, person.initial,
+      undefined, undefined, undefined, requested).pose;
   }
 }
+

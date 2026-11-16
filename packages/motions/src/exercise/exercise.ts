@@ -173,8 +173,8 @@ export namespace exercise {
    * @evidence contracts/development/implementation.md#principled-implementation One repetition clock; per repetition a crouch, a step, a lift or a jump over its four spans.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per kind.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths are shares of the measure; provisional values are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance solve per squat repetition at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, the leg placement and the placed arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One balance/footing preparation serves all equal squat repetitions; active repetition lookup is logarithmic in repetitions and unchanged exact envelope evaluation is constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Squats share prepareCrouch only for their identical body, standing, depth and pitch, while every repetition keeps its own exact clock windows; high-knee destinations are fixed once per side.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
@@ -243,11 +243,18 @@ export namespace exercise {
         [`concentricStart${i}`, `top${i}`],
         seconds,
       );
-    const any = (seconds: number): number => {
-      let w: number = 0;
-      for (let i: number = 1; i <= reps; i++) w = Math.max(w, into(i, seconds));
-      return w;
+    const ends: number[] = Array.from({ length: reps }, (_: unknown, i: number): number => clock.at(`top${i + 1}`));
+    const active = (seconds: number): number => {
+      let lo: number = 0;
+      let hi: number = ends.length;
+      while (lo < hi) {
+        const mid: number = Math.floor((lo + hi) / 2);
+        if (seconds < ends[mid]!) hi = mid;
+        else lo = mid + 1;
+      }
+      return lo;
     };
+    const any = (seconds: number): number => { const index: number = active(seconds); return index < reps ? into(index + 1, seconds) : 0; };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IHumanContactWindow[] = [];
     const shifted = (
@@ -272,18 +279,9 @@ export namespace exercise {
     switch (p.kind) {
       case "squat": {
         const depth: Depth = p.depth ?? "parallel";
+        const crouch: ReturnType<typeof AutoMovieMotionHumanTrunk.prepareCrouch> = AutoMovieMotionHumanTrunk.prepareCrouch({ body, standing: entry, depth: drop(m, depth) * modifiers.extent, pitch: PITCH[depth] * modifiers.extent });
         for (let i: number = 1; i <= reps; i++)
-          primitives.push(
-            AutoMovieMotionHumanTrunk.crouch({
-              body,
-              standing: entry,
-              clock,
-              rise: [`eccentricStart${i}`, `bottom${i}`],
-              fall: [`concentricStart${i}`, `top${i}`],
-              depth: drop(m, depth) * modifiers.extent,
-              pitch: PITCH[depth] * modifiers.extent,
-            }),
-          );
+          primitives.push({ channels: ["root", "trunk", "leftLeg", "rightLeg"], from: clock.at(`eccentricStart${i}`), to: clock.at(`top${i}`), write: (posture: IHumanPosture, seconds: number): IHumanPosture => crouch(posture, into(i, seconds)) });
         contacts.push(...AutoMovieMotionHumanBase.plants());
         break;
       }
@@ -320,11 +318,10 @@ export namespace exercise {
         };
         const sideOf = (i: number): "left" | "right" =>
           i % 2 === 1 ? lead : trail;
+        const destinations: Record<"left" | "right", HumanFoot.IPlacement> = { left: raised("left"), right: raised("right") };
         const lifted = (side: "left" | "right", s: number): number => {
-          let w: number = 0;
-          for (let i: number = 1; i <= reps; i++)
-            if (sideOf(i) === side) w = Math.max(w, into(i, s));
-          return w;
+          const index: number = active(s);
+          return index < reps && sideOf(index + 1) === side ? into(index + 1, s) : 0;
         };
         const half: number =
           Vector3.length(
@@ -349,7 +346,7 @@ export namespace exercise {
               placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
                 AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
-                  raised(side),
+                  destinations[side],
                   lifted(side, s),
                 ),
               planted: (s: number): boolean => lifted(side, s) <= 0,

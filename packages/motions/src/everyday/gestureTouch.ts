@@ -1,5 +1,6 @@
 import { Vector3, physicalHullFaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -63,7 +64,9 @@ export namespace gestureTouch {
         reason: "Pointing needs a target",
         fix: "give the point gesture a target",
       });
-    const bones = HumanTrunk.resolve(body, input.base);
+    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
+      body, input.base, undefined, undefined, POINT_FRAMES[side],
+    );
     const eye: IAutoMovieVector3 = bones.get(`${side}Eye`)!.worldPosition;
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -150,7 +153,7 @@ export namespace gestureTouch {
         : kind === "scratchHead"
           ? 0.015 * gestureSignal.oscillation(u, cycles)
           : 0;
-    const pad: number = padding(body, side);
+    const pad: number = input.fingerPadding ?? padding(body, side);
     return {
       surface: "indexTip",
       shape: "flat",
@@ -172,8 +175,20 @@ export namespace gestureTouch {
    * profile without finger colliders: a box's least half extent, or the
    * radius of the sphere a hull holds about its centre), so a fingertip laid
    * on a surface touches it rather than sinking its axis into it.
+   *
+   * @param body The immutable body whose profile defines the fingertip.
+   * @param side The touching hand.
+   * @returns The original profile-derived axis-to-skin padding, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fingertip/hand fallback, profile source, metre output and intended immutable gesture-plan preparation.
+   * @evidence contracts/development/implementation.md#principled-implementation Takes the least half-thickness of the distal index segment's actual colliders, or the hand segment's when no distal segment exists, preserving each shape's existing thickness owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ordered segment searches select the original fallback, then one shape scan finds the least nonzero half-thickness.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves segment precedence, zero-thickness behavior, all collider-kind formulas and the existing hull depth; it introduces no guessed skin thickness or contact allowance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans at most twice the S profile segments and the selected segment's F shapes, plus existing hull-face preparation when a hull is read; a gesture computes it once per touching hand instead of once per evaluated frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The gesture's fixed body/profile and hand establish equivalent padding across its frames; direct stroke callers may still request the same computation when they provide no prepared value.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no body, profile, shape or frame.
    */
-  function padding(body: IHumanBody, side: HumanHand.Side): number {
+  export function padding(body: IHumanBody, side: HumanHand.Side): number {
     const segment =
       body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
       body.profile.segments.find((s) => s.bone === `${side}Hand`);
@@ -202,3 +217,9 @@ export namespace gestureTouch {
     throw new Error("Unknown physical shape kind");
   }
 }
+
+/** A pointing hand reads its eye and shoulder, without evaluating other limbs. */
+const POINT_FRAMES: Readonly<Record<HumanHand.Side, ReadonlySet<AutoMovieHumanoidBone>>> = {
+  left: new Set<AutoMovieHumanoidBone>(["leftEye", "leftUpperArm"]),
+  right: new Set<AutoMovieHumanoidBone>(["rightEye", "rightUpperArm"]),
+};

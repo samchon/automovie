@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,6 +11,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -163,11 +165,12 @@ export namespace clinch {
     region: AutoMovieHumanoidRegion,
     across: number,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const frame = body.surfaces.regions[region];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
       frame,
       bones.get(frame.bone)!,
     );
+    if (across === 0) return { point: placed.point, normal: placed.normal };
     const left: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
         bones.get("leftUpperArm")!.worldPosition,
@@ -189,6 +192,14 @@ export namespace clinch {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the partner, gripping regions, hold timing, optional throw-entry lowering and negative-hold refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Both arm visits follow the partner's actual regions over the standing base; an optional under entry lowers the fulcrum by the initial region-height difference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the clock/base and arm visits, wraps each displayed evaluation with a local partner reader, then adds optional root lowering.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact target and arm write still executes with the original timing and posture order; only equal partner/time reads within one synchronous posture call share their actual bones.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each posture retains the base/arm work but reads the partner at most once for its two matching target callbacks; zero sideways offsets skip unused shoulder-direction work. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit posture invocation fixes this plan, partner, seconds and unchanged composition/stop state. Target callbacks share only that invocation's lazily read partner map, while another time or nested invocation gets its own scope.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fresh scope holds at most one partner map during each synchronous posture call and restores an enclosing scope in finally on success or failure; returned postures retain only goal vectors and no scope/map.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -201,6 +212,21 @@ export namespace clinch {
     const partner: IHumanActionContext.IPerformer = context.performer(
       context.params.partner,
     );
+    const requested: Set<AutoMovieHumanoidBone> = new Set([
+      partner.body.surfaces.regions[table.left.region].bone,
+      partner.body.surfaces.regions[table.right.region].bone,
+    ]);
+    if (table.left.across !== 0 || table.right.across !== 0) {
+      requested.add("leftUpperArm");
+      requested.add("rightUpperArm");
+    }
+    /** Exact partner frames owned only by the current explicit posture call. */
+    let scope: { seconds: number; bones?: ReturnType<IHumanActionContext.IPerformer["bones"]> } | undefined;
+    /** Both hands may read one partner snapshot before this invocation returns. */
+    const partnerAt: (seconds: number) => ReturnType<IHumanActionContext.IPerformer["bones"]> = (seconds: number): ReturnType<IHumanActionContext.IPerformer["bones"]> =>
+      scope === undefined || scope.seconds !== seconds
+        ? partner.bones(context.start + seconds, requested)
+        : (scope.bones ??= partner.bones(context.start + seconds, requested));
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
@@ -251,7 +277,7 @@ export namespace clinch {
         target: (posture: IHumanPosture, seconds: number) => {
           const at = place(
             partner.body,
-            partner.bones(context.start + seconds),
+            partnerAt(seconds),
             table[side].region,
             table[side].across,
           );
@@ -268,8 +294,20 @@ export namespace clinch {
       contact: "stroke",
       primitives: [arm("left"), arm("right")],
     });
+    const sampled: IHumanActionPlan = {
+      ...composed,
+      posture: (seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
+        const previous: typeof scope = scope;
+        scope = { seconds };
+        try {
+          return composed.posture(seconds, channels);
+        } finally {
+          scope = previous;
+        }
+      },
+    };
     const under: IParams["under"] = context.params.under;
-    if (under === undefined) return composed;
+    if (under === undefined) return sampled;
 
     // The entry: the fulcrum's height over the partner's region's, read on
     // both placed trunks at the start, taken off the root through the reach.
@@ -295,9 +333,9 @@ export namespace clinch {
               height(partner.body, theirs, under.on),
           );
     return {
-      ...composed,
-      posture: (seconds: number): IHumanPosture => {
-        const posture: IHumanPosture = composed.posture(seconds);
+      ...sampled,
+      posture: (seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
+        const posture: IHumanPosture = sampled.posture(seconds, channels);
         const lowered: number =
           drop * clock.progress(AutoMovieMotionClock.START, "ready", seconds);
         return {

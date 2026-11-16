@@ -71,9 +71,9 @@ export namespace HumanArmJacobian {
    * @evidence contracts/development/implementation.md#principled-implementation Reuses the geometric joint-axis reading for elbow/wrist coordinates and the existing two-sided shoulder-chart angular difference; clamped coordinates still produce zero columns.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Supply three actual world segment frames, read joint motions and their exact projections together, then map each requested free coordinate.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all six joint-axis queries, numerical clamp values, STEP, quaternion multiplication order and near-zero angular threshold; no analytical chart approximation replaces the existing central difference.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One joint-axis reading per candidate and two chart evaluations per shoulder coordinate, with one perturbation array, fixed canonical variable-label tables and no unused local-rotation inverses/products.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the already placed world fields required by the shared chain-bone contract and uses the shared reader's actual lower/hand projections instead of projecting those joints twice again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh column records and releases its coordinate scratch after the call. Two fixed six-entry variable-label tables retain only canonical bone names/axes, never a body, pose or numerical result; noncanonical pairs allocate call-local labels instead.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One joint-axis reading per candidate borrows the setup's canonical clamp metadata while retaining actual joint projections, then two chart evaluations per shoulder coordinate use one perturbation array. Fixed variable labels, world-only bone fields and at most two lazy placed-chain offsets avoid repeated temporary records; every returned column and cross product remains fresh.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows already placed world fields and the setup's actual engine clamp factory for this same unchanged body/skeleton/axes/domain operation; every requested joint is still actually projected. The lower/hand readings supply clamp-status checks, and shoulder columns share only the same unchanged placed elbow/hand displacement from the shoulder after its first actual use.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh column records and releases its coordinate scratch and two optional private displacements after the call; those inputs are not returned by the cross products. Two fixed six-entry variable-label tables retain only canonical bone names/axes; noncanonical pairs allocate call-local labels instead.
    */
   export function columns(
     setup: G.ISetup,
@@ -116,14 +116,22 @@ export namespace HumanArmJacobian {
         : lower === "rightLowerArm" && hand === "rightHand"
           ? JOINTS.right
           : jointVariables(lower, hand),
+      setup.clamp,
     );
     const joints: readonly HumanJacobian.IMotion[] = reading.motions;
-    const kept: [number, number, number][] = [lower, hand].map(
-      (bone: AutoMovieHumanoidBone): [number, number, number] => {
-        const joint: IAutoMovieJointPose = reading.clamped.get(bone)!;
-        return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
-      },
-    );
+    const lowerJoint: IAutoMovieJointPose = reading.clamped.get(lower)!;
+    const flexion: number = lowerJoint.flexion ?? 0;
+    const abduction: number = lowerJoint.abduction ?? 0;
+    const twist: number = lowerJoint.twist ?? 0;
+    const handJoint: IAutoMovieJointPose = reading.clamped.get(hand)!;
+    const kept: readonly number[] = [
+      flexion,
+      abduction,
+      twist,
+      handJoint.flexion ?? 0,
+      handJoint.abduction ?? 0,
+      handJoint.twist ?? 0,
+    ];
     const moved: number[] = [...c];
     const world: (d: number, sign: number) => IAutoMovieQuaternion = (
       d: number,
@@ -138,11 +146,13 @@ export namespace HumanArmJacobian {
         ),
       );
     };
+    let elbow: IAutoMovieVector3 | undefined;
+    let wrist: IAutoMovieVector3 | undefined;
     return free.map((d: number): IColumn => {
       if (d >= 3) {
         // Past its limit an angle is clamped by forward kinematics, so it
         // moves nothing.
-        if (kept[d < 6 ? 0 : 1]![d % 3] !== c[d])
+        if (kept[(d < 6 ? 0 : 3) + (d % 3)] !== c[d])
           return { upper: STILL, lower: STILL, hand: STILL };
         const motion: HumanJacobian.IMotion = joints[d - 3]!;
         return {
@@ -164,14 +174,14 @@ export namespace HumanArmJacobian {
           angular: omega,
           linear: Vector3.cross(
             omega,
-            Vector3.subtract(placed.elbow, placed.shoulder),
+            (elbow ??= Vector3.subtract(placed.elbow, placed.shoulder)),
           ),
         },
         hand: {
           angular: omega,
           linear: Vector3.cross(
             omega,
-            Vector3.subtract(placed.wrist, placed.shoulder),
+            (wrist ??= Vector3.subtract(placed.wrist, placed.shoulder)),
           ),
         },
       };
@@ -182,10 +192,10 @@ export namespace HumanArmJacobian {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the physical world positions and segment rotations retained from the placement.
    * @evidence contracts/development/design.md#principled-representation The actual geometry owner's chain result keeps the same world FK representation as a full placement.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only joint origins and rotations are needed by the public chain derivative reader.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Extends the geometry owner's chain result without duplicate fields while retaining this public interface's declaration-augmentation surface.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not invent a second pose or kinematic chain definition.
    */
-  export type IChain = ReturnType<typeof G.chain>;
+  export interface IChain extends ReturnType<typeof G.chain> {}
 
   /**
    * One arm of a body on a pose, read at an arm moved by an offset in the

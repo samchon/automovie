@@ -22,6 +22,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
+import { HumanClaspClearance } from "./HumanClaspClearance";
 
 /**
  * Two people's hands clasping each other, palm on palm: the open hand each
@@ -288,12 +289,28 @@ export namespace HumanClasp {
     };
     const aAdmitted: number[] = admitted(a, aBones);
     const bAdmitted: number[] = admitted(b, bBones);
+    const aDigits: Map<number, readonly HumanClaspClearance.IPhalanx[]> = new Map(aAdmitted.map(
+      (index: number): [number, readonly HumanClaspClearance.IPhalanx[]] =>
+        [index, HumanClaspClearance.digits(one.body, aBones[index]!, side)],
+    ));
+    const bDigits: Map<number, readonly HumanClaspClearance.IPhalanx[]> = new Map(bAdmitted.map(
+      (index: number): [number, readonly HumanClaspClearance.IPhalanx[]] =>
+        [index, HumanClaspClearance.digits(two.body, bBones[index]!, side)],
+    ));
+    const aForearms: Map<number, ReturnType<typeof HumanClaspClearance.forearm>> = new Map(aAdmitted.map(
+      (index: number): [number, ReturnType<typeof HumanClaspClearance.forearm>] =>
+        [index, HumanClaspClearance.forearm(one.body, aBones[index]!, side)],
+    ));
+    const bForearms: Map<number, ReturnType<typeof HumanClaspClearance.forearm>> = new Map(bAdmitted.map(
+      (index: number): [number, ReturnType<typeof HumanClaspClearance.forearm>] =>
+        [index, HumanClaspClearance.forearm(two.body, bBones[index]!, side)],
+    ));
     let best: { i: number; j: number; clear: number; cost: number } | undefined;
     for (const i of aAdmitted)
       for (const j of bAdmitted) {
         const clear: number = Math.min(
-          clearance(one.body, aBones[i]!, two.body, bBones[j]!, side),
-          clearance(two.body, bBones[j]!, one.body, aBones[i]!, side),
+          HumanClaspClearance.between(aDigits.get(i)!, bForearms.get(j)!),
+          HumanClaspClearance.between(bDigits.get(j)!, aForearms.get(i)!),
         );
         const cost: number =
           Math.max(a[i]!.miss + a[i]!.departure, b[j]!.miss + b[j]!.departure) +
@@ -334,34 +351,11 @@ export namespace HumanClasp {
     others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: HumanHand.Side,
   ): number {
-    const forearm: AutoMovieHumanoidBone = `${side}LowerArm`;
-    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      new Map([[forearm, others.get(forearm)!]]);
-    let least: number = Infinity;
-    for (const digit of HumanGrip.CLOSING.power) {
-      const chain: curlChainUntilContact.IChain = HumanGrip.chain(
-        body,
-        side,
-        digit,
-      );
-      chain.bones.forEach((bone: AutoMovieHumanoidBone, k: number): void => {
-        const from: IAutoMovieResolvedBone = bones.get(bone)!;
-        const next: AutoMovieHumanoidBone | undefined = chain.bones[k + 1];
-        const to: IAutoMovieVector3 =
-          next === undefined
-            ? Vector3.add(
-                from.worldPosition,
-                Quaternion.rotateVector(from.worldRotation, chain.tip),
-              )
-            : bones.get(next)!.worldPosition;
-        least = Math.min(
-          least,
-          HumanColliders.distanceToSegment(other, only, from.worldPosition, to)
-            .distance - chain.radius,
-        );
-      });
-    }
-    return least;
+    const geometry: ReturnType<typeof HumanClaspClearance.forearm> =
+      HumanClaspClearance.forearm(other, others, side);
+    return HumanClaspClearance.between(
+      HumanClaspClearance.digits(body, bones, side), geometry,
+    );
   }
 
   /**

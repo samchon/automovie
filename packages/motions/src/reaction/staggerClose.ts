@@ -29,7 +29,7 @@ export namespace staggerClose {
    * Close and settle a caught order, and judge its course through both.
    *
    * @param pendulum The pendulum the catching steps left, advanced through the close.
-   * @param bend The trunk's shift of the centre of mass per sine of its tilt.
+   * @param bend The same entry's trunk-shift reader, demanded only by a judged stance course.
    * @param kinematic Whether the course is judged; the pendulum alone when false.
    * @param stepped The foot that stepped last.
    * @param judging The course of the catching steps.
@@ -41,12 +41,12 @@ export namespace staggerClose {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The closing step, the settling loop, the courses, the judged course.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A course that misses the ranges is null.
    * @evidence contracts/development/implementation.md#efficient-algorithms The settling in millisecond steps once; the course solved from the last catching landing on.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the catching steps' course.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the settling's samples in the returned courses only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the catching steps' course; a paired knot reading forwards to the pendulum's one phase lookup before settling and uses the unchanged individual tail formulas afterward.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain the original settling arrays, pendulum course readers and their recovery record; each paired result is fresh, and no time-keyed samples or external handles are retained.
    */
   export function of(
     pendulum: StaggerPendulum,
-    bend: Record<"pitch" | "roll", IAutoMovieVector3>,
+    bend: () => Record<"pitch" | "roll", IAutoMovieVector3>,
     kinematic: boolean,
     stepped: "left" | "right",
     judging: walkStanceCourse.ICourse | undefined,
@@ -130,6 +130,8 @@ export namespace staggerClose {
     let x: IAutoMovieVector3 = pendulum.s;
     let e: IAutoMovieVector3 = begin;
     const longest: number = righting + 20 / w;
+    const grow: number = Math.exp(w * STEP);
+    const travel: IAutoMovieVector3 = Vector3.subtract(rest, begin);
     for (let i: number = 1; i * STEP <= longest; i++) {
       const reference: minimumJerk.IProfile = minimumJerk(
         ((i - 1) * STEP) / righting,
@@ -141,7 +143,7 @@ export namespace staggerClose {
           Vector3.subtract(
             e,
             Vector3.scale(
-              Vector3.subtract(rest, begin),
+              travel,
               reference.ds / (righting * w),
             ),
           ),
@@ -153,7 +155,6 @@ export namespace staggerClose {
       // e^(omega t), and x - p is half of it plus a part that decays.
       const z: IAutoMovieVector3 = Vector3.subtract(e, p);
       const y: IAutoMovieVector3 = Vector3.subtract(x, p);
-      const grow: number = Math.exp(w * STEP);
       x = Vector3.add(
         p,
         Vector3.add(
@@ -166,8 +167,8 @@ export namespace staggerClose {
       drifting.push(e);
       if (
         i * STEP >= righting &&
-        Vector3.length(Vector3.subtract(x, rest)) <= SETTLED &&
-        Vector3.length(Vector3.subtract(e, rest)) <= SETTLED
+        Vector3.distance(x, rest) <= SETTLED &&
+        Vector3.distance(e, rest) <= SETTLED
       )
         break;
     }
@@ -177,6 +178,18 @@ export namespace staggerClose {
       steps,
       caught: caughtAt,
       settled,
+      sample: (seconds: number, extrapolated: boolean): staggerRecover.IReading => {
+        if (!(seconds >= last)) {
+          const sample: staggerRecover.IReading | undefined =
+            swung.sample?.(seconds, extrapolated);
+          if (sample !== undefined) return sample;
+        }
+        return {
+          course: recovery.course(seconds),
+          pressure: recovery.pressure(seconds),
+          ...(extrapolated ? { extrapolated: recovery.extrapolated(seconds) } : {}),
+        };
+      },
       course: (seconds: number): IAutoMovieVector3 => {
         if (seconds >= last) {
           const at: number = Math.min(settle.length - 1, (seconds - last) / STEP);
@@ -230,7 +243,7 @@ export namespace staggerClose {
     const landed: number = steps.at(-2)!.land;
     const course: walkStanceCourse.ICourse = staggerSequential.solve(
       body,
-      staggerKnots.of(body, entry, bend, { ...recovery, caught: landed }, settled),
+      staggerKnots.of(body, entry, bend(), { ...recovery, caught: landed }, settled),
       judging,
       judging === undefined
         ? 0

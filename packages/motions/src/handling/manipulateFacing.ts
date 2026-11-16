@@ -32,10 +32,10 @@ export function manipulateFacing(
   presses: readonly manipulateFacing.ISite[],
   side: HumanHand.Side,
 ): IAutoMovieQuaternion {
-  const mine: manipulateFacing.ISite[] = presses.filter(
+  const mine: manipulateFacing.ISite | undefined = presses.find(
     (p: manipulateFacing.ISite): boolean => p.side === side,
   );
-  const first: manipulateFacing.ISite = mine.length > 0 ? mine[0]! : presses[0]!;
+  const first: manipulateFacing.ISite = mine === undefined ? presses[0]! : mine;
   const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
   const along: IAutoMovieVector3 = Vector3.subtract(
     toward,

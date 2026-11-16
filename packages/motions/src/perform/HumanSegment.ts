@@ -325,8 +325,12 @@ export namespace HumanSegment {
    * @param seconds Film seconds.
    * @returns The pose.
    */
-  export function displayed(person: IPerson, seconds: number): IAutoMoviePose {
-    return HumanSegmentPose.displayed(person, seconds);
+  export function displayed(
+    person: IPerson,
+    seconds: number,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): IAutoMoviePose {
+    return HumanSegmentPose.displayed(person, seconds, requested);
   }
 
   /**

@@ -4,6 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { fitChainBend } from "./fitChainBend";
@@ -11,7 +13,6 @@ import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
-import type { preparePoseResolution } from "../kinematics/preparePoseResolution";
 
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the source bend-stage pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
@@ -63,6 +64,7 @@ export namespace fitSeededChainToTarget {
   export interface IWorkspace {
     /**
      * Fit one target using the original source pose and unchanged search policy.
+   * Keep that target's coordinate record unchanged until the fit returns.
      *
      * States model-metre input and fixed source/search meaning.
      * Signature only; prepare owns the fit composition.
@@ -98,29 +100,34 @@ export namespace fitSeededChainToTarget {
    * clinical mappings; it shares already completed full FK at first use.
    * An optional resolution reader belongs to the same synchronous operation
    * and shares exact computation across its source, zeroed and reference FK.
+   * A supplied poseResolution must snapshot this exact source rig, topology
+   * and clinical tables; it enables requested-ancestor FK with fresh outputs.
+   * Omission preserves the raw full-FK admission path.
    *
    * States fixed dependencies, synchronous ownership and target-independent cold/near policy.
    * Shares exactly the prepared rigid frames, domains, bases, clamps, fixed projector coefficients, source/reference FK and angle maps whose inputs remain fixed, then invokes the same bend search and final orientation for each target.
    * prepareChainFit owns invariant data; fitChainBend owns candidate search and orientChainEffector owns final articulation; the rotation reader uses the same prepared frames.
    * No obstruction/strain result, target-dependent candidate score, seed, target or final pose is memoized across targets; only fixed preparation, exact authored-FK readings, prior conversion and source continuity are shared. Invalid preparation retains the one-shot fallback and full FK rotation read.
-   * Rig preparation and at most two lazy full FK reads occur once per workspace; an authored reader can reuse one full FK the caller already needs. A same-operation resolution reader also shares identical articulation and ancestor/rest computations among full poses while preserving their ordered scans and fresh outputs. Each target retains its search; reached rotation uses a joint scan and constant chain FK.
+   * Rig preparation and at most two lazy source/reference FK reads occur once per workspace; an authored reader can reuse its exact FK. An explicit immutable rig computes only requested source/zeroed/reference ancestry and null-preparation effector rotation, with O(J) ordered joint admission and exact dependency reuse. Without it, raw full-FK admission remains. Each target retains its search; valid chain rotation uses a joint scan and constant chain FK.
    * The fixed input scope proves equivalence; rig preparation getters and an optional exact authored-FK reader retain their original lazy admission sites, returned poses preserve fixed non-chain dependencies, and every target invokes all required candidate callbacks and projection queries.
    * The two returned closures own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
    */
   export function prepare(
     source: Omit<IFitChainToTargetProps, "target">,
     readAuthored?: Parameters<typeof prepareChainFit>[1],
-    resolution?: ReturnType<typeof preparePoseResolution>,
+    resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
+    poseResolution?: prepareSkeletonPoseResolution.IRig,
   ): IWorkspace {
     const workspace: prepareChainFit.IWorkspace = prepareChainFit(
       source,
       readAuthored,
       resolution,
+      poseResolution,
     );
     return {
       fit: (target: IAutoMovieVector3): IAutoMovieSeededChainFit => {
         const props: IFitChainToTargetProps = { ...workspace.props, target };
-        const bend: IAutoMovieSeededChainFit = fitChainBend(target, workspace);
+        const bend: IAutoMovieSeededChainFit = fitChainBend(props, workspace);
         return {
           pose: orientChainEffector(
             props,
@@ -134,13 +141,16 @@ export namespace fitSeededChainToTarget {
       },
       rotation: (pose: IAutoMoviePose): IAutoMovieQuaternion =>
         workspace.prepared === null
-          ? resolveBoneMap(
+          ? poseResolution === undefined ? resolveBoneMap(
               workspace.props.skeleton,
               pose,
               workspace.props.topology,
               workspace.props.jointAxes,
               workspace.props.restFrames,
+              resolution,
             ).get(workspace.props.chain.effector)!.worldRotation
+            : poseResolution.resolve(pose, resolution,
+                new Set([workspace.props.chain.effector]))[0]!.worldRotation
           : resolvePreparedChainFrames.rotation({
               prepared: workspace.prepared,
               joints: pose.joints,

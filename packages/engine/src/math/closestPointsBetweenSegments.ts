@@ -36,7 +36,7 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner supplies both separation and contact witnesses to distance and collision consumers, including deterministic parameter ties.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absolute parallel epsilon replaces interior minima; only exact zero coefficients select degeneracies.
  * @evidence contracts/development/common.md#meaningful-documentation Documents metres, fresh witnesses, the stationary-line construction, finite-arithmetic refusals, tie ordering and noncertified binary64 precision.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate retain constant-dimensional arithmetic. Ordered coordinate snapshots and direct scale arguments avoid admission arrays; one private residual vector serves every candidate instead of four vector intermediates per reading.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate retain constant-dimensional arithmetic. Ordered coordinate snapshots and direct scale arguments avoid admission arrays; one private residual vector serves every candidate instead of four vector intermediates per reading. When both spans are exact points no candidate workspace or reader closure is built, while initial and final distance readings remain unchanged.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once. One residual formula writes the synchronous query's private vector, with no changed grouping; changed endpoints require a new query and final distance still comes from the rounded world witnesses.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only two fresh witness points and their scalar distance escape. The residual scratch and scalar snapshots end with this call; input records, candidates and numerical results are never cached across calls.
  */
@@ -141,71 +141,73 @@ export const closestPointsBetweenSegments: (
   let s: number = 0,
     t: number = 0,
     best: number = Math.hypot(r.x, r.y, r.z);
-  const residual: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const readResidual: (alongA: number, alongB: number) => void = (
-    alongA: number,
-    alongB: number,
-  ): void => {
-    residual.x = r.x + u.x * alongA - v.x * alongB;
-    residual.y = r.y + u.y * alongA - v.y * alongB;
-    residual.z = r.z + u.z * alongA - v.z * alongB;
-  };
-  const offer: (alongA: number, alongB: number) => void = (
-    alongA: number,
-    alongB: number,
-  ): void => {
-    readResidual(alongA, alongB);
-    const distance: number = Math.hypot(residual.x, residual.y, residual.z);
-    if (
-      distance < best ||
-      (distance === best && (alongA < s || (alongA === s && alongB < t)))
-    ) {
-      best = distance;
-      s = alongA;
-      t = alongB;
+  if (A > 0 || E > 0) {
+    const residual: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    const readResidual: (alongA: number, alongB: number) => void = (
+      alongA: number,
+      alongB: number,
+    ): void => {
+      residual.x = r.x + u.x * alongA - v.x * alongB;
+      residual.y = r.y + u.y * alongA - v.y * alongB;
+      residual.z = r.z + u.z * alongA - v.z * alongB;
+    };
+    const offer: (alongA: number, alongB: number) => void = (
+      alongA: number,
+      alongB: number,
+    ): void => {
+      readResidual(alongA, alongB);
+      const distance: number = Math.hypot(residual.x, residual.y, residual.z);
+      if (
+        distance < best ||
+        (distance === best && (alongA < s || (alongA === s && alongB < t)))
+      ) {
+        best = distance;
+        s = alongA;
+        t = alongB;
+      }
+    };
+    if (E > 0) {
+      offer(0, clampAutoMovieUnitInterval(F / E));
+      offer(1, clampAutoMovieUnitInterval((F + B) / E));
     }
-  };
-  if (E > 0) {
-    offer(0, clampAutoMovieUnitInterval(F / E));
-    offer(1, clampAutoMovieUnitInterval((F + B) / E));
-  }
-  if (A > 0) {
-    offer(clampAutoMovieUnitInterval(-C / A), 0);
-    offer(clampAutoMovieUnitInterval((B - C) / A), 1);
-  }
-  if (A > 0 && E > 0) {
-    if (B === 0)
-      offer(
-        clampAutoMovieUnitInterval(-C / A),
-        clampAutoMovieUnitInterval(F / E),
-      );
-    else {
-      const first: number = C / B,
-        last: number = (C + A) / B;
-      const low: number = Math.max(0, Math.min(first, last));
-      const high: number = Math.min(1, Math.max(first, last));
-      if (low <= high) {
-        const s0: number = clampAutoMovieUnitInterval((B * low - C) / A);
-        const s1: number = clampAutoMovieUnitInterval((B * high - C) / A);
-        readResidual(s0, low);
-        const ds: number = s1 - s0;
-        const dt: number = high - low;
-        const delta: IAutoMovieVector3 = {
-          x: u.x * ds - v.x * dt,
-          y: u.y * ds - v.y * dt,
-          z: u.z * ds - v.z * dt,
-        };
-        const length: number = Math.hypot(delta.x, delta.y, delta.z);
-        if (length > 0) {
-          const unit: IAutoMovieVector3 = {
-            x: delta.x / length,
-            y: delta.y / length,
-            z: delta.z / length,
+    if (A > 0) {
+      offer(clampAutoMovieUnitInterval(-C / A), 0);
+      offer(clampAutoMovieUnitInterval((B - C) / A), 1);
+    }
+    if (A > 0 && E > 0) {
+      if (B === 0)
+        offer(
+          clampAutoMovieUnitInterval(-C / A),
+          clampAutoMovieUnitInterval(F / E),
+        );
+      else {
+        const first: number = C / B,
+          last: number = (C + A) / B;
+        const low: number = Math.max(0, Math.min(first, last));
+        const high: number = Math.min(1, Math.max(first, last));
+        if (low <= high) {
+          const s0: number = clampAutoMovieUnitInterval((B * low - C) / A);
+          const s1: number = clampAutoMovieUnitInterval((B * high - C) / A);
+          readResidual(s0, low);
+          const ds: number = s1 - s0;
+          const dt: number = high - low;
+          const delta: IAutoMovieVector3 = {
+            x: u.x * ds - v.x * dt,
+            y: u.y * ds - v.y * dt,
+            z: u.z * ds - v.z * dt,
           };
-          const fraction: number = clampAutoMovieUnitInterval(
-            -Vector3.dot(residual, unit) / length,
-          );
-          offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
+          const length: number = Math.hypot(delta.x, delta.y, delta.z);
+          if (length > 0) {
+            const unit: IAutoMovieVector3 = {
+              x: delta.x / length,
+              y: delta.y / length,
+              z: delta.z / length,
+            };
+            const fraction: number = clampAutoMovieUnitInterval(
+              -Vector3.dot(residual, unit) / length,
+            );
+            offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
+          }
         }
       }
     }

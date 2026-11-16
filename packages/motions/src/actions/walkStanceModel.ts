@@ -7,6 +7,7 @@ import { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceGeometry } from "./walkStanceGeometry";
 import { walkStanceRows } from "./walkStanceRows";
+import { walkStanceOutline } from "./walkStanceOutline";
 
 /**
  * A stance course's problem over its knots (`walkStanceCourse`), its first
@@ -30,14 +31,35 @@ export namespace walkStanceModel {
    * @param start A course to start from.
    * @param hold How many first knots are held.
    * @returns The problem.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed knot/held prefix and exposes starting variables, full sweeps, linear bounds and planted-only goals.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains each published stance residual and range/contact/clearance constraint, their original finite-difference steps and second differences across the held overlap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure walkStanceGeometry owns prepared physical readings and walkStanceRows owns linear row topology; this builder alone assembles the course's residuals and nonlinear constraints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original residual, constraint order, landing-region sample, held-knot acceleration and physical bound without changing sample rate or tolerances.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each knot reads at most two legs and seven probes per leg when linearizing; clearance reuses those identical base/probe legs instead of posing them again, and merit reads request no gradient probes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact single-coordinate readings within the same sweep feed both each leg's own constraints and two-leg clearance; prepared goals and bounded pelvis/pivot/support readings share fixed problem geometry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned problem retains its initial vector and geometry/row closures, linear in knots for fixed foot geometry; per-knot gradient records release after each sweep and no history is retained.
    */
   export function of(
     body: IHumanBody,
     knots: readonly walkStanceCourse.IKnot[],
     start: walkStanceCourse.ICourse | undefined,
     hold: number,
-  ) {
-    const geometry = walkStanceGeometry.of(body, knots);
+  ): {
+    n: number;
+    size: number;
+    x: Float64Array;
+    sweep: (
+      x: Float64Array,
+      linear: boolean,
+      residual: (r: number, idx: number[], g: number[]) => void,
+      constraint: (over: number, idx: number[], g: () => number[]) => void,
+    ) => void;
+    bounds: ReturnType<typeof walkStanceRows.of>;
+    read: ReturnType<typeof walkStanceGeometry.of>["read"];
+    planted: ReturnType<typeof walkStanceGeometry.of>["planted"];
+  } {
+    const geometry: ReturnType<typeof walkStanceGeometry.of> = walkStanceGeometry.of(body, knots);
     const {
       n,
       step,
@@ -50,10 +72,11 @@ export namespace walkStanceModel {
       slideOf,
       turnOf,
       scheduled,
+      planted,
       read,
       load,
       support,
-    } = geometry;
+    }: ReturnType<typeof walkStanceGeometry.of> = geometry;
     // The starting course: flat feet, an upright or held trunk, no turn, and
     // the drop each knot's legs need.
     const x: Float64Array = new Float64Array(size);
@@ -133,7 +156,7 @@ export namespace walkStanceModel {
     // constraint as its excess over its bound, in degrees, a length read as
     // the leg's turn that moves its ankle by it, with its gradient. Gradients are read only
     // when `linear` asks for them.
-    const sweep = (
+    const sweep: ReturnType<typeof of>["sweep"] = (
       x: Float64Array,
       linear: boolean,
       residual: (r: number, idx: number[], g: number[]) => void,
@@ -164,23 +187,29 @@ export namespace walkStanceModel {
           residual(x[o + 3]! / walkStanceCourse.TRUNK, [o + 3], [1 / walkStanceCourse.TRUNK]);
           residual(x[o + 4]! / walkStanceCourse.TRUNK, [o + 4], [1 / walkStanceCourse.TRUNK]);
         }
+        const readings: {
+          indices: number[];
+          at: ReturnType<typeof read>;
+          moved: ReturnType<typeof read>[];
+        }[] = [];
         knot.stances.forEach((s: walkStanceCourse.IStance, j: number): void => {
           const p: number = o + pitchOf(s.side);
           const t: number = o + turnOf(s.side);
           const d: number = o + slideOf(s.side);
           const idx: number[] = [o, p, o + 3, o + 4, t, d, d + 1];
-          const at = read(x, k, j);
+          const at: ReturnType<typeof read> = read(x, k, j);
           // Each variable moved once, every quantity read from that move.
           const moved: ReturnType<typeof read>[] = linear
-            ? idx.map((i: number) => {
+            ? idx.map((i: number): ReturnType<typeof read> => {
                 const kept: number = x[i]!;
                 x[i] = kept + walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]!;
-                const r = read(x, k, j);
+                const r: ReturnType<typeof read> = read(x, k, j);
                 x[i] = kept;
                 return r;
               })
             : [];
-          const grad = (
+          readings.push({ indices: idx, at, moved });
+          const grad: (pick: (r: ReturnType<typeof read>) => number) => number[] = (
             pick: (r: ReturnType<typeof read>) => number,
           ): number[] =>
             moved.map(
@@ -190,7 +219,7 @@ export namespace walkStanceModel {
           // The ankle's dorsiflexion past heel-off, on a smooth hinge.
           const z: number = (at.dorsi - walkStanceCourse.HEEL_OFF) / walkStanceCourse.SPREAD;
           const slope: number = 1 / (1 + Math.exp(-z)) / walkStanceCourse.SPREAD;
-          const dorsi: number[] = grad((r): number => r.dorsi);
+          const dorsi: number[] = grad((r: ReturnType<typeof read>): number => r.dorsi);
           residual(
             walkStanceTerms.softplus(z),
             idx,
@@ -206,9 +235,9 @@ export namespace walkStanceModel {
             constraint(-at.twist - walkReach.TWIST, [t], (): number[] => [-1]);
           }
           // A landing slides toward its goal, inside its region.
-          const landing = s.landing;
+          const landing: walkStanceCourse.IStance["landing"] = s.landing;
           if (landing !== undefined) {
-            const ankle = (dx: number, dz: number): IAutoMovieVector3 => ({
+            const ankle: (dx: number, dz: number) => IAutoMovieVector3 = (dx: number, dz: number): IAutoMovieVector3 => ({
               x: s.placement.ankle.x + dx,
               y: s.placement.ankle.y,
               z: s.placement.ankle.z + dz,
@@ -234,7 +263,7 @@ export namespace walkStanceModel {
           // The leg reaches its ankle, the ankle stays in its range, and the
           // thigh trails no further than the hip extends.
           constraint((at.reach - limit) * lengthwise, idx, (): number[] =>
-            grad((r): number => r.reach).map(
+            grad((r: ReturnType<typeof read>): number => r.reach).map(
               (g: number): number => g * lengthwise,
             ),
           );
@@ -251,7 +280,7 @@ export namespace walkStanceModel {
             (): number[] => dorsi,
           );
           constraint(at.trail - walkReach.EXTENSION, idx, (): number[] =>
-            grad((r): number => r.trail),
+            grad((r: ReturnType<typeof read>): number => r.trail),
           );
         });
         // The feet bear the points the take asks them to: a raised heel
@@ -277,7 +306,7 @@ export namespace walkStanceModel {
           // The bases at each variable moved, built only for a constraint
           // that asks for its gradient.
           let moved: IAutoMovieVector3[][] | undefined;
-          const bases = (): IAutoMovieVector3[][] =>
+          const bases: () => IAutoMovieVector3[][] = (): IAutoMovieVector3[][] =>
             (moved ??= idx.map((i: number): IAutoMovieVector3[] => {
               const before: number = x[i]!;
               x[i] = before + walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]!;
@@ -286,12 +315,12 @@ export namespace walkStanceModel {
               return out;
             }));
           for (const point of borne) {
-            const held: number = Math.min(0, walkStanceGeometry.depth(flatBase, point));
-            const deep: number = walkStanceGeometry.depth(base, point);
+            const held: number = Math.min(0, walkStanceOutline.depth(flatBase, point));
+            const deep: number = walkStanceOutline.depth(base, point);
             constraint((held - deep) * lengthwise, idx, (): number[] =>
               bases().map(
                 (hull: IAutoMovieVector3[], a: number): number =>
-                  -(walkStanceGeometry.depth(hull, point) - deep) /
+                  -(walkStanceOutline.depth(hull, point) - deep) /
                   walkStanceTerms.STEPS[idx[a]! % walkStanceTerms.WIDTH]! *
                   lengthwise,
               ),
@@ -323,21 +352,27 @@ export namespace walkStanceModel {
           // with each variable moved.
           const clear: walkLegClearance.IReading = walkLegClearance.reading(
             body,
-            read(x, k, 0).leg!,
-            read(x, k, 1).leg!,
+            readings[0]!.at.leg!,
+            readings[1]!.at.leg!,
           );
           constraint(
             (clear.excess - walkLegClearance.BOUND) * lengthwise,
             idx,
             (): number[] =>
               idx.map((i: number): number => {
-                const kept: number = x[i]!;
-                x[i] = kept + walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]!;
-                const moved: number = clear.at(
-                  read(x, k, 0).leg!,
-                  read(x, k, 1).leg!,
+                // Each leg's constraint reading already contains the same
+                // single-coordinate probes. A variable of the other foot
+                // leaves this leg at its base reading.
+                const legs: walkLegClearance.ILeg[] = readings.map(
+                  (reading: (typeof readings)[number]): walkLegClearance.ILeg => {
+                    const at: number = reading.indices.indexOf(i);
+                    return (at < 0 ? reading.at : reading.moved[at]!).leg!;
+                  },
                 );
-                x[i] = kept;
+                const moved: number = clear.at(
+                  legs[0]!,
+                  legs[1]!,
+                );
                 return (moved - clear.excess) / walkStanceTerms.STEPS[i % walkStanceTerms.WIDTH]! * lengthwise;
               }),
           );
@@ -358,8 +393,8 @@ export namespace walkStanceModel {
       }
     };
 
-    const bounds = walkStanceRows.of(knots, hold, geometry);
+    const bounds: ReturnType<typeof walkStanceRows.of> = walkStanceRows.of(knots, hold, geometry);
 
-    return { n, size, x, sweep, bounds, read };
+    return { n, size, x, sweep, bounds, read, planted };
   }
 }

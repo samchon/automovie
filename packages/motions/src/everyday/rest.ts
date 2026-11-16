@@ -189,10 +189,10 @@ export namespace rest {
       at0,
       places,
     );
-    const entry: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      context.entry.pose,
-    );
+    const entry: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
+      goals.left === undefined && goals.right === undefined
+        ? undefined
+        : poseBones(body, context.entry.pose);
     const begin: Partial<
       Record<
         HumanHand.Side,
@@ -204,7 +204,7 @@ export namespace rest {
       if (goal === undefined) continue;
       const from: IAutoMovieVector3 = HumanHand.frame(
         body,
-        entry,
+        entry!,
         side,
         goal.surface,
       ).point;
@@ -236,6 +236,10 @@ export namespace rest {
       0,
       ...Object.values(begin).map((b) => b!.travel),
     );
+    const shapes: Partial<Record<HumanHand.Side, ReturnType<typeof HumanHand.shape>>> = {};
+    for (const side of ["left", "right"] as const)
+      if (local[side] !== undefined)
+        shapes[side] = HumanHand.shape(side, local[side].shape);
 
     return {
       duration,
@@ -283,7 +287,7 @@ export namespace rest {
           // The fingers take the place's shape on the hand's own course, from
           // what the body under the rest holds them in.
           for (const [bone, angles] of Object.entries(
-            HumanHand.shape(side, goal.shape),
+            shapes[side]!,
           ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
             const was: readonly [number, number, number] = posture.joints[
               bone

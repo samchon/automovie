@@ -30,6 +30,7 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { handspringKeys } from "./handspringKeys";
 import { salto } from "./salto";
+import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 
 /**
  * A front handspring (#3377): from standing, the body reaches forward into
@@ -189,9 +190,9 @@ export namespace handspring {
    * @evidence contracts/development/implementation.md#principled-implementation The wheel to the release, the release's centre and its rate of change with the angle read from the table, the rate solved so the flight's turn over its fall time reaches `LAND`, and the support's constant angular acceleration ending at that rate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the table, the release, the rate, the timing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rate past the bound or a landing no rate reaches is refused, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per table row, forty bisection steps of closed-form fall times, and one forward kinematics per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the wheel and flight kernels, the exercise keys, the jump's landing seconds and the standing plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the table and the mass model.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Demanded spoke FK per table row and forty unchanged bisection steps of closed-form fall times remain. The fixed arched flight prepares one canonical local COM; each flight query rotates that vector and copies the original joints without another FK/mass reduction. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses wheel/flight owners, jump landing durations and standing plan. Three fixed key pairs prepare their ordered blend unions once; only the immutable arched flight shares local COM, while changing supported shapes retain their actual row computations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table, body mass model, three fixed key-pair readers and one copied arched flight articulation/local COM. Returned postures own fresh joint records, with no FK reader or query history retained.
    */
   export function over(
     context: IHumanActionContext<IParams>,
@@ -204,23 +205,22 @@ export namespace handspring {
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = standing.yaw;
-    const ease = (x: number): number => minimumJerk(x).s;
+    const ease: (x: number) => number = (x: number): number => minimumJerk(x).s;
     const reached: ExerciseKey.IKey = left
       ? lunged(body)
       : ExerciseKey.mirror(lunged(body));
     const line: ExerciseKey.IKey = arched(body);
     const stood: ExerciseKey.IKey = ExerciseKey.standing(body);
+    const entering: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(stood, reached);
+    const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(reached, line);
+    const rising: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(line, stood);
 
     // The shape at an angle of forward tip.
-    const shaped = (angle: number): IHumanPosture => ({
+    const shaped: (angle: number) => IHumanPosture = (angle: number): IHumanPosture => ({
       ...ExerciseKey.posed(
         angle <= REACH
-          ? ExerciseKey.blend(stood, reached, ease(angle / REACH))
-          : ExerciseKey.blend(
-              reached,
-              line,
-              ease((angle - REACH) / (RELEASE - REACH)),
-            ),
+          ? entering(ease(angle / REACH))
+          : arching(ease((angle - REACH) / (RELEASE - REACH))),
         yaw,
       ),
       pitch: angle,
@@ -228,7 +228,7 @@ export namespace handspring {
 
     // The spokes: both feet, the leading foot, the other, both hands.
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]));
     const ankle: number =
       (entered.get("leftFoot")!.worldPosition.y +
         entered.get("rightFoot")!.worldPosition.y) /
@@ -261,7 +261,7 @@ export namespace handspring {
       until: RELEASE,
       step: STEP,
     });
-    const placedAt = (angle: number): IHumanPosture => ({
+    const placedAt: (angle: number) => IHumanPosture = (angle: number): IHumanPosture => ({
       ...shaped(angle),
       root: wheel.root(angle),
     });
@@ -318,7 +318,7 @@ export namespace handspring {
     // The rate, degrees a second, whose turn over the fall time reaches the
     // landing tip.
     const turn: number = LAND - RELEASE;
-    const miss = (rate: number): number => {
+    const miss: (rate: number) => number = (rate: number): number => {
       const t: number | null = GymnasticsFlight.fall(
         cr.y,
         slope.y * rate,
@@ -369,17 +369,17 @@ export namespace handspring {
     const touchdown: number = support + flight;
     const settled: number = touchdown + jump.ABSORB;
     const duration: number = settled + jump.RISE;
-    const angleAt = (t: number): number =>
+    const angleAt: (t: number) => number = (t: number): number =>
       RELEASE * Math.min(1, t / support) ** 2;
-    const share = (angle: number): number =>
+    const share: (angle: number) => number = (angle: number): number =>
       (support * Math.sqrt(angle / RELEASE)) / duration;
 
     // The flight posture at seconds since the release.
-    const flying = (t: number): IHumanPosture =>
-      GymnasticsFlight.placed(
-        body,
-        model,
-        { ...ExerciseKey.posed(line, yaw), pitch: RELEASE + rate * t },
+    const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
+      prepareGymnasticsPlacement(body, model, ExerciseKey.posed(line, yaw));
+    const flying: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
+      placeFlight(
+        { yaw: yaw + line.yaw, pitch: RELEASE + rate * t, roll: line.roll },
         GymnasticsFlight.at(cr, velocity, t),
       );
 
@@ -414,7 +414,7 @@ export namespace handspring {
       y: 0,
       z: Math.cos((yaw * Math.PI) / 180),
     };
-    const after = (t: number): IHumanPosture => {
+    const after: (t: number) => IHumanPosture = (t: number): IHumanPosture => {
       const span: number = jump.ABSORB + jump.RISE;
       const u: number = ease(t / span);
       const root: IAutoMovieVector3 = Vector3.add(
@@ -437,7 +437,7 @@ export namespace handspring {
           planted: true,
         };
       return resolveHumanPosture.lower(body, {
-        ...ExerciseKey.posed(ExerciseKey.blend(line, stood, u), yaw),
+        ...ExerciseKey.posed(rising(u), yaw),
         // The same tip as the flight's, written below a whole turn so the
         // landing ends at 0 and the next action does not unwind a turn.
         pitch: (LAND - 360) * (1 - u),

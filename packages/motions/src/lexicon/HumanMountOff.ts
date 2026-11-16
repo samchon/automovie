@@ -82,6 +82,7 @@ export namespace HumanMountOff {
     const m: IHumanBody["measure"] = body.measure;
     const entry: IHumanEntryState = context.entry;
     const yaw: number = entry.posture.yaw;
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
     const pitch0: number = entry.posture.pitch;
     const sat: HumanBase.ISeat | undefined =
       entry.base.kind === "seated" ? entry.base.seat : undefined;
@@ -156,7 +157,7 @@ export namespace HumanMountOff {
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
-    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
+    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...standUpright.of(body).joints };
     const crossing: readonly [number, number] = sideways
       ? [0.3 * duration, 0.8 * duration]
       : [seatOff, 0.8 * duration];
@@ -180,7 +181,7 @@ export namespace HumanMountOff {
           : HumanMount.LEAN *
             (1 - minimumJerk((t - 0.4 * duration) / (0.6 * duration)).s);
       const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
-        HumanTrunk.incline({ ...stand.relaxed(body), ...upright }, lean);
+        HumanTrunk.incline(relaxed, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,
@@ -209,6 +210,10 @@ export namespace HumanMountOff {
     };
 
     // A leg reaches a place within its reachable band, or as far as it stands stretched in the quiet stance the getting off ends in, which holds it nearer straight than the band's edge.
+    const standingReach: Record<"left" | "right", number> = {
+      left: Math.max(span[1], stretch(duration, "left", landing.left)) + 1e-6,
+      right: Math.max(span[1], stretch(duration, "right", landing.right)) + 1e-6,
+    };
     const reaches = (
       t: number,
       side: "left" | "right",
@@ -217,7 +222,7 @@ export namespace HumanMountOff {
       const d: number = stretch(t, side, ankle);
       return (
         d >= span[0] &&
-        d <= Math.max(span[1], stretch(duration, side, landing[side])) + 1e-6
+        d <= standingReach[side]
       );
     };
     const first = (
@@ -307,12 +312,7 @@ export namespace HumanMountOff {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IHumanPosture["limbs"] = stand.legs(
-          body,
-          frame.root,
-          yaw,
-          landing,
-        );
+        const standing: IHumanPosture["limbs"] = legged(frame.root, landing);
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;

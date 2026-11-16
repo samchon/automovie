@@ -292,13 +292,18 @@ export namespace operate {
       mechanism.kind === "button" ? "indexTip" : "grip";
     const shape: HumanHand.Shape =
       mechanism.kind === "button" ? "point" : "relaxed";
+    const rigid: ReturnType<typeof operateState.prepare> | undefined =
+      part === undefined && mechanism.kind !== "insert"
+        ? operateState.prepare(mechanism, place, hinge) : undefined;
+    const strokeStart: number = clock.at("strokeStart");
+    const strokeEnd: number = clock.at("strokeEnd");
     // The second the stroke reaches a progress, read off the clock's own
     // progress by bisection until the interval is a float apart, so the part
     // is taken on its prop where the prop is then (a bow raised while it is
     // drawn); the stroke's start for the reach before it.
     const reached = (progress: number): number => {
-      let lo: number = clock.at("strokeStart");
-      let hi: number = clock.at("strokeEnd");
+      let lo: number = strokeStart;
+      let hi: number = strokeEnd;
       if (!(progress > 0)) return lo;
       if (!(progress < 1)) return hi;
       for (;;) {
@@ -311,6 +316,7 @@ export namespace operate {
     const target = (
       posture: IHumanPosture,
       progress: number,
+      seconds?: number,
     ): AutoMovieMotionHumanArm.ITarget => {
       if (mechanism.kind === "insert")
         return operateInsert.target(
@@ -327,9 +333,11 @@ export namespace operate {
         roll: number;
       } =
         part === undefined
-          ? state(mechanism, place, hinge, progress)
+          ? rigid!(progress)
           : {
-              ...part.place(progress, context.start + reached(progress)),
+              ...part.place(progress, context.start + (seconds === undefined
+                ? reached(progress)
+                : Math.max(strokeStart, Math.min(strokeEnd, seconds)))),
               roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
             };
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -396,10 +404,11 @@ export namespace operate {
         standing,
         side,
         share: REACH,
-        wrist: (posture: IHumanPosture, progress: number) => {
+        wrist: (posture: IHumanPosture, progress: number, seconds?: number) => {
           const goal: AutoMovieMotionHumanArm.ITarget = target(
             posture,
             progress,
+            seconds,
           );
           return HumanHand.place(
             body,
@@ -438,8 +447,8 @@ export namespace operate {
                   ? { kind: "prop", subject: at.subject }
                   : { kind: "ground" },
           },
-          path: (posture: IHumanPosture, _: number, progress: number) =>
-            target(posture, progress),
+          path: (posture: IHumanPosture, seconds: number, progress: number) =>
+            target(posture, progress, seconds),
         }),
       ],
     });

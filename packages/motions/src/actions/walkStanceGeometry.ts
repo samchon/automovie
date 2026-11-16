@@ -17,17 +17,19 @@ import { walkLeg } from "./walkLeg";
 import type { walkLegClearance } from "./walkLegClearance";
 import type { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceTerms } from "./walkStanceTerms";
+import { walkStanceOutline } from "./walkStanceOutline";
 
 /**
  * The stances of a stance course read at a course (`walkStanceCourse`):
  * each knot's pelvis at its trunk's tilt, each stance's reach,
  * dorsiflexion, trailing and turn, the soles laid flat and turned, the base
  * the feet bear and each foot's share of the weight; with the outline
- * helpers the model reads them through.
+ * operations the model reads them through. Outline mathematics belongs to
+ * `walkStanceOutline`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and who reads it.
  * @evidence contracts/development/design.md#principled-representation The geometry half of one course's problem, built once per problem and read by `walkStanceModel`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The geometry's builder and the four outline helpers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One builder provides prepared stance, load and support readings to the model.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every reading is the body's own measure and range.
  */
 export namespace walkStanceGeometry {
@@ -37,11 +39,42 @@ export namespace walkStanceGeometry {
    * @param body The body.
    * @param knots The knots.
    * @returns The knot count, the step, the reach, the units and ranges, the variables' readers, each stance's reading at a course, each foot's share of the weight and the base the feet bear.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States prepared world-frame geometry, course variables, units and the separate goal-only and full constraint readers.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the body's exact foot pivots and leg-chain posing, original ankle/trailing constraints and sole-bearing half-plane clipping; finite course values and immutable body/placement/frame data are the owning problem's premises.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Goal construction is shared by planted and read; prepared sole/load data serve support, while walkStanceOutline owns polygon mathematics.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original heading, twist, support clipping, load interpolation and reach-shell behavior with unchanged thresholds and body measures.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is linear in knots and their fixed foot outlines. A planted read performs only its requested goal geometry; a full read additionally poses one leg, and support forms the original two-sole hull.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot shares three exact pitch/roll pelvis readings; each stance shares five exact pitch/turn/slide foot readings under its fixed placement, copying the result before exposing it. Sole outlines, scheduled pitch and pressure-based loads depend only on fixed problem inputs; held swivels are read afresh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains fixed per-knot geometry, at most three pelvis records per knot and five pivot records per stance, O(k) for bounded sole size, until its closure is released; no query history or global cache grows.
    */
   export function of(
     body: IHumanBody,
     knots: readonly walkStanceCourse.IKnot[],
-  ) {
+  ): {
+    n: number;
+    step: number;
+    limit: number;
+    lengthwise: number;
+    dorsal: number;
+    unloadedDorsal: number;
+    size: number;
+    pitchOf: (side: "left" | "right") => number;
+    slideOf: (side: "left" | "right") => number;
+    turnOf: (side: "left" | "right") => number;
+    scheduled: number[][];
+    planted: (x: Float64Array, k: number, j: number) => walkStanceCourse.IPlanted;
+    read: (x: Float64Array, k: number, j: number) => {
+      reach: number;
+      dorsi: number;
+      trail: number;
+      twist: number;
+      leg: walkLegClearance.ILeg | null;
+      planted: walkStanceCourse.IPlanted;
+    };
+    load: (k: number, j: number) => number;
+    support: (x: Float64Array, k: number) => IAutoMovieVector3[];
+  } {
     const n: number = knots.length;
     const step: number = n > 1 ? knots[1]!.seconds - knots[0]!.seconds : 1;
     const limit: number = walkStanceTerms.reachOf(body);
@@ -52,49 +85,94 @@ export namespace walkStanceGeometry {
     const dorsal: number = ANKLE_DORSIFLEXION.loaded - walkLeg.ANKLE;
     const unloadedDorsal: number = ANKLE_DORSIFLEXION.unloaded - walkLeg.ANKLE;
     const size: number = walkStanceTerms.WIDTH * n;
-    const pitchOf = (side: "left" | "right"): number =>
+    const pitchOf: ReturnType<typeof of>["pitchOf"] = (side: "left" | "right"): number =>
       side === "left" ? 1 : 2;
-    const slideOf = (side: "left" | "right"): number =>
+    const slideOf: ReturnType<typeof of>["slideOf"] = (side: "left" | "right"): number =>
       side === "left" ? 7 : 9;
-    const turnOf = (side: "left" | "right"): number =>
+    const turnOf: ReturnType<typeof of>["turnOf"] = (side: "left" | "right"): number =>
       side === "left" ? 5 : 6;
     const scheduled: number[][] = knots.map((knot: walkStanceCourse.IKnot): number[] =>
       knot.stances.map((s: walkStanceCourse.IStance): number =>
         HumanFoot.pitch(s.placement.rotation),
       ),
     );
-    const flat = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+    const flat: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: p.x,
       y: 0,
       z: p.z,
     });
 
-    // Each knot's pelvis at the trunk's tilt it was last read at: the
-    // differences that move the drop, a pitch or a turn read it again.
-    const pelves: { pitch: number; roll: number; pelvis: walkStanceCourse.IPelvis }[] = [];
-    const pelvisAt = (k: number, pitch: number, roll: number): walkStanceCourse.IPelvis => {
-      const kept = pelves[k];
-      if (kept !== undefined && kept.pitch === pitch && kept.roll === roll)
+    // A stance's differences use the base tilt and one probe of each trunk
+    // axis. Keep those three exact readings per knot, independent of which
+    // foot requested them; the next iterate replaces the oldest entries.
+    const pelves: {
+      pitch: number;
+      roll: number;
+      pelvis: walkStanceCourse.IPelvis;
+    }[][] = knots.map((): [] => []);
+    const pelvisAt: (k: number, pitch: number, roll: number) => walkStanceCourse.IPelvis = (k: number, pitch: number, roll: number): walkStanceCourse.IPelvis => {
+      const entries: (typeof pelves)[number] = pelves[k]!;
+      const kept: (typeof entries)[number] | undefined = entries.find(
+        (entry: (typeof entries)[number]): boolean => entry.pitch === pitch && entry.roll === roll,
+      );
+      if (kept !== undefined)
         return kept.pelvis;
       const pelvis: walkStanceCourse.IPelvis = knots[k]!.pelvis({ pitch, roll });
-      pelves[k] = { pitch, roll, pelvis };
+      if (entries.length === 3) entries.shift();
+      entries.push({ pitch, roll, pelvis });
       return pelvis;
     };
 
-    // A stance's reach, dorsiflexion, trailing and turn from the pelvis at a
-    // course's values for its knot.
-    const read = (
+    /** A foot's five distinct values in one coordinate-difference sweep. */
+    type IPivot = {
+      pitch: number;
+      turn: number;
+      dx: number;
+      dz: number;
+      foot: HumanFoot.IPlacement;
+      heading: number;
+    };
+    const pivots: IPivot[][][] = knots.map(
+      (knot: walkStanceCourse.IKnot): IPivot[][] => knot.stances.map((): IPivot[] => []),
+    );
+    const footAt: (x: Float64Array, k: number, j: number) => IPivot = (
+      x: Float64Array, k: number, j: number,
+    ): IPivot => {
+      const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
+      const o: number = walkStanceTerms.WIDTH * k;
+      const pitch: number = x[o + pitchOf(s.side)]!;
+      const turn: number = x[o + turnOf(s.side)]!;
+      const dx: number = x[o + slideOf(s.side)]!;
+      const dz: number = x[o + slideOf(s.side) + 1]!;
+      const entries: IPivot[] = pivots[k]![j]!;
+      const known: IPivot | undefined = entries.find(
+        (entry: IPivot): boolean => Object.is(entry.pitch, pitch) && Object.is(entry.turn, turn) && Object.is(entry.dx, dx) && Object.is(entry.dz, dz),
+      );
+      if (known !== undefined) return known;
+      const placement: HumanFoot.IPlacement = HumanFoot.turned(
+        walkStanceOutline.slid(s.placement, dx, dz), turn,
+      );
+      const heading: number = HumanFoot.heading(placement.rotation);
+      const made: IPivot = {
+        pitch, turn, dx, dz, heading,
+        foot: HumanFoot.pivot(body, s.side, "mtp", HumanFoot.point(body, s.side, "mtp", placement), heading, pitch),
+      };
+      if (entries.length === 5) entries.shift();
+      entries.push(made);
+      return made;
+    };
+
+    // Fitting a planted leg needs its goals alone, without posing its knee
+    // or evaluating the stance's constraints first.
+    const planted: (
       x: Float64Array,
       k: number,
       j: number,
-    ): {
-      reach: number;
-      dorsi: number;
-      trail: number;
-      twist: number;
-      leg: walkLegClearance.ILeg | null;
-      planted: walkStanceCourse.IPlanted;
-    } => {
+    ) => walkStanceCourse.IPlanted = (
+      x: Float64Array,
+      k: number,
+      j: number,
+    ): walkStanceCourse.IPlanted => {
       const o: number = walkStanceTerms.WIDTH * k;
       const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
       const pelvis: walkStanceCourse.IPelvis = pelvisAt(k, x[o + 3]!, x[o + 4]!);
@@ -102,22 +180,31 @@ export namespace walkStanceGeometry {
         ...pelvis.hips[s.side],
         y: pelvis.hips[s.side].y - x[o]!,
       };
-      const placement: HumanFoot.IPlacement = HumanFoot.turned(
-        slid(s.placement, x[o + slideOf(s.side)]!, x[o + slideOf(s.side) + 1]!),
-        x[o + turnOf(s.side)]!,
-      );
-      const heading: number = HumanFoot.heading(placement.rotation);
+      const pivoted: IPivot = footAt(x, k, j);
+      return {
+        side: s.side,
+        pelvis: pelvis.rotation,
+        hip,
+        ankle: { ...pivoted.foot.ankle },
+        rotation: { ...pivoted.foot.rotation },
+        heading: pivoted.heading,
+        drop: x[o]!,
+      };
+    };
+
+    // A stance's full constraint reading extends the same planted goals;
+    // fit preparation and course recording stop at those goals instead.
+    const read: ReturnType<typeof of>["read"] = (
+      x: Float64Array,
+      k: number,
+      j: number,
+    ): ReturnType<ReturnType<typeof of>["read"]> => {
+      const o: number = walkStanceTerms.WIDTH * k;
+      const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
+      const plant: walkStanceCourse.IPlanted = planted(x, k, j);
+      const { hip, ankle, heading }: walkStanceCourse.IPlanted = plant;
       const pitch: number = x[o + pitchOf(s.side)]!;
-      const pivoted: HumanFoot.IPlacement = HumanFoot.pivot(
-        body,
-        s.side,
-        "mtp",
-        HumanFoot.point(body, s.side, "mtp", placement),
-        heading,
-        pitch,
-      );
-      const ankle: IAutoMovieVector3 = pivoted.ankle;
-      const reach: number = Vector3.length(Vector3.subtract(ankle, hip));
+      const reach: number = Vector3.distance(ankle, hip);
       // The leg as the posture's fit poses it, at the swivel the take holds
       // (`HumanLegChain`): its knee then bends where the shown knee does, and
       // the ankle's dorsiflexion is the shank's lean over the foot's heading
@@ -144,7 +231,7 @@ export namespace walkStanceGeometry {
       const posed: HumanLegChain.IPosed | null =
         swivel === undefined
           ? null
-          : HumanLegChain.pose(body, s.side, pelvis.rotation, hip, ankle, swivel);
+          : HumanLegChain.pose(body, s.side, plant.pelvis, hip, ankle, swivel);
       const held: IAutoMovieVector3 = posed?.ankle ?? ankle;
       const forward: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
@@ -163,25 +250,17 @@ export namespace walkStanceGeometry {
           body,
           { x: 0, y: 0, z: 0 },
           Quaternion.rotateVector(
-            Quaternion.inverse(pelvis.rotation),
+            Quaternion.inverse(plant.pelvis),
             Vector3.subtract(held, hip),
           ),
           0,
         ),
-        twist: wrapDegrees(heading - HumanFoot.heading(pelvis.rotation)),
+        twist: wrapDegrees(heading - HumanFoot.heading(plant.pelvis)),
         leg:
           posed === null
             ? null
-            : { ...posed, side: s.side, rotation: pivoted.rotation },
-        planted: {
-          side: s.side,
-          pelvis: pelvis.rotation,
-          hip,
-          ankle,
-          rotation: pivoted.rotation,
-          heading,
-          drop: x[o]!,
-        },
+            : { ...posed, side: s.side, rotation: plant.rotation },
+        planted: plant,
       };
     };
     // How deep inside the base the knot's feet bear a point at a course's
@@ -192,15 +271,17 @@ export namespace walkStanceGeometry {
     // heel rises; the toes lie flat ahead of the ball.
     // Each stance's sole laid flat, read once, and turned on the floor about
     // its ankle as the course turns the foot.
-    const soles: {
+    /** The immutable scheduled sole and its floor-frame landmarks. */
+    type ISole = {
       outline: IAutoMovieVector3[];
       ball: IAutoMovieVector3;
       heel: IAutoMovieVector3;
       ahead: IAutoMovieVector3;
       ankle: IAutoMovieVector3;
-    }[][] = knots.map((knot: walkStanceCourse.IKnot) =>
-      knot.stances.map((s: walkStanceCourse.IStance) => ({
-        outline: hull(HumanFoot.sole(body, s.side, s.placement).map(flat)),
+    };
+    const soles: ISole[][] = knots.map((knot: walkStanceCourse.IKnot): ISole[] =>
+      knot.stances.map((s: walkStanceCourse.IStance): ISole => ({
+        outline: walkStanceOutline.hull(HumanFoot.sole(body, s.side, s.placement).map(flat)),
         ball: flat(HumanFoot.point(body, s.side, "ball", s.placement)),
         heel: flat(HumanFoot.point(body, s.side, "heel", s.placement)),
         ahead: Vector3.normalize(
@@ -211,20 +292,20 @@ export namespace walkStanceGeometry {
         ankle: flat(s.placement.ankle),
       })),
     );
-    const sole = (
+    const sole: (k: number, j: number, turn: number, dx: number, dz: number) => ISole = (
       k: number,
       j: number,
       turn: number,
       dx: number,
       dz: number,
-    ) => {
-      const out = soles[k]![j]!;
+    ): ISole => {
+      const out: ISole = soles[k]![j]!;
       if (turn === 0 && dx === 0 && dz === 0) return out;
       const turning: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         turn,
       );
-      const about = (p: IAutoMovieVector3): IAutoMovieVector3 => {
+      const about: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => {
         const q: IAutoMovieVector3 = Vector3.add(
           out.ankle,
           Quaternion.rotateVector(turning, Vector3.subtract(p, out.ankle)),
@@ -238,8 +319,24 @@ export namespace walkStanceGeometry {
         ahead: Quaternion.rotateVector(turning, out.ahead),
         ankle: about(out.ankle),
       };
-    }; // The part of a stance's sole it bears at a pitch and a turn.
-    const region = (
+    };
+
+    /** A sole's exact clipped bearing region and its shared rigid placement. */
+    type IRegion = {
+      pitch: number;
+      turn: number;
+      dx: number;
+      dz: number;
+      sole: ISole;
+      outline: IAutoMovieVector3[];
+    };
+    const regions: IRegion[][][] = knots.map(
+      (knot: walkStanceCourse.IKnot): IRegion[][] => knot.stances.map((): IRegion[] => []),
+    );
+
+    // The base and scheduled pitch plus four single-foot probes use at most
+    // six bearing regions per stance. The other foot stays unchanged.
+    const region: (k: number, j: number, pitch: number, turn: number, dx: number, dz: number) => IAutoMovieVector3[] = (
       k: number,
       j: number,
       pitch: number,
@@ -247,17 +344,27 @@ export namespace walkStanceGeometry {
       dx: number,
       dz: number,
     ): IAutoMovieVector3[] => {
-      const { outline, ball, heel, ahead } = sole(k, j, turn, dx, dz);
+      const entries: IRegion[] = regions[k]![j]!;
+      const placed: IRegion | undefined = entries.find(
+        (entry: IRegion): boolean => Object.is(entry.turn, turn) && Object.is(entry.dx, dx) && Object.is(entry.dz, dz) && Object.is(entry.pitch, pitch),
+      );
+      if (placed !== undefined) return placed.outline;
+      const rigid: ISole = entries.find(
+        (entry: IRegion): boolean => Object.is(entry.turn, turn) && Object.is(entry.dx, dx) && Object.is(entry.dz, dz),
+      )?.sole ?? sole(k, j, turn, dx, dz);
+      const { outline, ball, heel, ahead }: ISole = rigid;
       const rise: number = Math.sin((Math.abs(pitch) * Math.PI) / 180);
-      if (rise < 1e-9) return outline;
-      return pitch < 0
-        ? clip(outline, ball, ahead, -HumanFoot.BEARING / rise)
-        : clip(
+      const out: IAutoMovieVector3[] = rise < 1e-9 ? outline : pitch < 0
+        ? walkStanceOutline.clip(outline, ball, ahead, -HumanFoot.BEARING / rise)
+        : walkStanceOutline.clip(
             outline,
             heel,
             Vector3.scale(ahead, -1),
             -HumanFoot.BEARING / rise,
           );
+      if (entries.length === 6) entries.shift();
+      entries.push({ pitch, turn, dx, dz, sole: rigid, outline: out });
+      return out;
     };
     // A planted foot's share of the weight at a knot: the whole of it when it
     // stands alone or the take names no centre of pressure; otherwise in
@@ -270,17 +377,17 @@ export namespace walkStanceGeometry {
       if (knot.stances.length < 2 || pressure === undefined)
         return knot.stances.map((): number => 1);
       const far: number[] = knot.stances.map((_: walkStanceCourse.IStance, j: number): number =>
-        Math.max(0, -depth(soles[k]![j]!.outline, pressure)),
+        Math.max(0, -walkStanceOutline.depth(soles[k]![j]!.outline, pressure)),
       );
       const sum: number = far[0]! + far[1]!;
       return sum > 0
         ? [far[1]! / sum, far[0]! / sum]
         : knot.stances.map((): number => 0.5);
     });
-    const load = (k: number, j: number): number => shares[k]![j]!;
+    const load: ReturnType<typeof of>["load"] = (k: number, j: number): number => shares[k]![j]!;
     // The base the knot's feet bear at a course's pitches and turns.
-    const support = (x: Float64Array, k: number): IAutoMovieVector3[] =>
-      hull(
+    const support: ReturnType<typeof of>["support"] = (x: Float64Array, k: number): IAutoMovieVector3[] =>
+      walkStanceOutline.hull(
         knots[k]!.stances.flatMap(
           (s: walkStanceCourse.IStance, j: number): IAutoMovieVector3[] =>
             region(
@@ -306,128 +413,10 @@ export namespace walkStanceGeometry {
       slideOf,
       turnOf,
       scheduled,
+      planted,
       read,
       load,
       support,
     };
-  }
-
-
-  /**
-   * A convex outline cut by a line: the part where `(q - at) 쨌 normal` is at
-   * least `offset`.
-   *
-   * @param outline The outline, counter-clockwise on the floor.
-   * @param at A point of the line's reference, on the floor.
-   * @param normal The kept side's unit direction, on the floor.
-   * @param offset The kept side's least distance along it, metres.
-   * @returns The kept part's corners.
-   */
-  export function clip(
-    outline: readonly IAutoMovieVector3[],
-    at: IAutoMovieVector3,
-    normal: IAutoMovieVector3,
-    offset: number,
-  ): IAutoMovieVector3[] {
-    const out: IAutoMovieVector3[] = [];
-    for (let i: number = 0; i < outline.length; i++) {
-      const a: IAutoMovieVector3 = outline[i]!;
-      const b: IAutoMovieVector3 = outline[(i + 1) % outline.length]!;
-      const da: number = Vector3.dot(Vector3.subtract(a, at), normal) - offset;
-      const db: number = Vector3.dot(Vector3.subtract(b, at), normal) - offset;
-      if (da >= 0) out.push(a);
-      if (da >= 0 !== db >= 0) out.push(Vector3.lerp(a, b, da / (da - db)));
-    }
-    return out;
-  }
-
-  /**
-   * The convex hull of points on the floor, counter-clockwise in x and z, by
-   * Andrew's monotone chain; the few points of two soles need no more.
-   *
-   * @param points The points.
-   * @returns The hull's corners.
-   */
-  export function hull(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
-    const sorted: IAutoMovieVector3[] = [...points].sort(
-      (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-        a.x - b.x || a.z - b.z,
-    );
-    if (sorted.length < 3) return sorted;
-    const turn = (
-      o: IAutoMovieVector3,
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-    ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-    const chain = (order: IAutoMovieVector3[]): IAutoMovieVector3[] => {
-      const out: IAutoMovieVector3[] = [];
-      for (const p of order) {
-        while (
-          out.length >= 2 &&
-          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    return [...chain(sorted), ...chain([...sorted].reverse())];
-  }
-
-  /**
-   * How deep inside a convex outline a point lies, metres, negative outside:
-   * its distance to the nearest edge, signed.
-   *
-   * @param hull The outline, counter-clockwise on the floor.
-   * @param point The point.
-   * @returns Metres.
-   */
-  export function depth(
-    hull: readonly IAutoMovieVector3[],
-    point: IAutoMovieVector3,
-  ): number {
-    let inside: boolean = hull.length >= 3;
-    let nearest: number = Infinity;
-    for (let i: number = 0; i < hull.length; i++) {
-      const a: IAutoMovieVector3 = hull[i]!;
-      const b: IAutoMovieVector3 = hull[(i + 1) % hull.length]!;
-      const ex: number = b.x - a.x;
-      const ez: number = b.z - a.z;
-      const px: number = point.x - a.x;
-      const pz: number = point.z - a.z;
-      // Counter-clockwise in x-z: the inside lies where the cross is positive.
-      if (ex * pz - ez * px < 0) inside = false;
-      const span: number = ex * ex + ez * ez;
-      const u: number =
-        span > 0 ? Math.min(1, Math.max(0, (px * ex + pz * ez) / span)) : 0;
-      nearest = Math.min(nearest, Math.hypot(px - u * ex, pz - u * ez));
-    }
-    return inside ? nearest : -nearest;
-  }
-
-  /**
-   * A placement slid on the floor.
-   *
-   * @param foot The placement.
-   * @param dx The slide along x, metres.
-   * @param dz The slide along z, metres.
-   * @returns The slid placement; the same one for no slide.
-   */
-  export function slid(
-    foot: HumanFoot.IPlacement,
-    dx: number,
-    dz: number,
-  ): HumanFoot.IPlacement {
-    return dx === 0 && dz === 0
-      ? foot
-      : {
-          ankle: {
-            x: foot.ankle.x + dx,
-            y: foot.ankle.y,
-            z: foot.ankle.z + dz,
-          },
-          rotation: foot.rotation,
-        };
   }
 }

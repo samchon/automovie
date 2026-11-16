@@ -59,8 +59,8 @@ export namespace swingTwistRegion {
    * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, widened for a proximal twist and raised to the slope bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup by identity, and the build in three steps on a miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays a scan of up to 360 half-degree steps and 20 bisections, each one reach test of two flexions; the widening reads one ray per degree of the twist's interval; the raise compares every pair of rays, 360 squared.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the kept table.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays a scan of up to 360 half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising compares all 360 squared ray pairs; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the kept table. During one cold build, the admitted basis fixes its cross/dot, each ray fixes its azimuth, and each test fixes its projected direction; every actual swing test and clinical-range reading retains its original order and arithmetic.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in weak maps keyed by the constraint and the axes and released with either; the frame map under them holds the rest-frame records, which are table constants.
    */
   export function table(
@@ -131,15 +131,13 @@ function reach(
 ): Float64Array {
   const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
+  const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
+    const direction: (swing: number) => IAutoMovieVector3 =
+      swingTwistBasis.prepareRay(basis, azimuth);
     const inside: (swing: number) => boolean = (swing: number): boolean =>
-      reached(
-        constraint,
-        joint,
-        basis,
-        swingTwistBasis.direction(basis, swing, azimuth),
-      );
+      reached(constraint, joint, basis, direction(swing), across);
     let hi: number = 180;
     let lo: number = 0;
     for (let swing: number = 180 - SCAN; swing > 0; swing -= SCAN) {
@@ -233,42 +231,22 @@ function reached(
   joint: swingTwistRegion.IJoint,
   basis: swingTwistBasis.IBasis,
   direction: IAutoMovieVector3,
+  across: number,
 ): boolean {
   const flexion: IAutoMovieAngleRange = constraint.flexion!;
   const abduction: IAutoMovieAngleRange = constraint.abduction!;
-  const admits: (rigFlexion: number, rigAbduction: number) => boolean = (
-    rigFlexion: number,
-    rigAbduction: number,
-  ): boolean => {
-    const f: number = nearestAngleAlias(
-      toClinicalAngle(rigFlexion, joint.frame?.flexion)!,
-      flexion,
-    );
-    const a: number = nearestAngleAlias(
-      toClinicalAngle(rigAbduction, joint.frame?.abduction)!,
-      abduction,
-    );
-    return (
-      f >= flexion.min &&
-      f <= flexion.max &&
-      a >= abduction.min &&
-      a <= abduction.max &&
-      (typeof constraint.swingDeg !== "number" ||
-        swingConeAngle(f, a) <= constraint.swingDeg)
-    );
-  };
-  const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
   const first: number =
     Math.asin(
       swingTwistBasis.clamp(Vector3.dot(direction, basis.a) / across, -1, 1),
     ) * swingTwistBasis.DEG;
+  let projected: IAutoMovieVector3 | undefined;
   for (const f of [first, 180 - first]) {
     const swung: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle(basis.f, f),
       basis.u,
     );
     const from: IAutoMovieVector3 = flat(swung, basis.a);
-    const to: IAutoMovieVector3 = flat(direction, basis.a);
+    const to: IAutoMovieVector3 = (projected ??= flat(direction, basis.a));
     if (Vector3.length(from) < 1e-9 || Vector3.length(to) < 1e-9) {
       // On the abduction axis any abduction keeps the direction.
       for (const a of [
@@ -276,7 +254,17 @@ function reached(
         abduction.max,
         (abduction.min + abduction.max) / 2,
       ])
-        if (admits(f, toRigAngle(a, joint.frame?.abduction)!)) return true;
+        if (
+          admits(
+            constraint,
+            joint,
+            flexion,
+            abduction,
+            f,
+            toRigAngle(a, joint.frame?.abduction)!,
+          )
+        )
+          return true;
       continue;
     }
     const a: number =
@@ -284,9 +272,36 @@ function reached(
         Vector3.dot(basis.a, Vector3.cross(from, to)),
         Vector3.dot(from, to),
       ) * swingTwistBasis.DEG;
-    if (admits(f, a)) return true;
+    if (admits(constraint, joint, flexion, abduction, f, a)) return true;
   }
   return false;
+}
+
+/** Test one clinical reading with the same frame, interval and swing-cone order. */
+function admits(
+  constraint: IAutoMovieJointConstraint,
+  joint: swingTwistRegion.IJoint,
+  flexion: IAutoMovieAngleRange,
+  abduction: IAutoMovieAngleRange,
+  rigFlexion: number,
+  rigAbduction: number,
+): boolean {
+  const f: number = nearestAngleAlias(
+    toClinicalAngle(rigFlexion, joint.frame?.flexion)!,
+    flexion,
+  );
+  const a: number = nearestAngleAlias(
+    toClinicalAngle(rigAbduction, joint.frame?.abduction)!,
+    abduction,
+  );
+  return (
+    f >= flexion.min &&
+    f <= flexion.max &&
+    a >= abduction.min &&
+    a <= abduction.max &&
+    (typeof constraint.swingDeg !== "number" ||
+      swingConeAngle(f, a) <= constraint.swingDeg)
+  );
 }
 
 /** A vector with its part along a unit axis taken off. */

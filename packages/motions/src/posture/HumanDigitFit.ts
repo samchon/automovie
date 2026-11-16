@@ -7,6 +7,7 @@ import {
   curlChainUntilContact,
   fitDigitToTarget,
   physicalShapeSegmentDistance,
+  type preparePoseResolution,
   type resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -23,6 +24,7 @@ import { HumanGrip } from "../handling/HumanGrip";
 import { HumanColliders } from "./HumanColliders";
 import { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * A posture's digit goals fitted on a pose whose arms are already placed:
@@ -56,26 +58,30 @@ export namespace HumanDigitFit {
    * @param body The performer's body.
    * @param pose The pose with its limbs fitted.
    * @param digits The posture's digit goals.
+   * @param source Optional FK workspace or lazy supplier borrowed only for this synchronous fit.
    * @returns The pose with the goals fitted; the same pose when there are none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the order and the unchanged case.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's digit fit on the canonical forward kinematics (the same axes and rest frames as the display), after the limbs, as procedural animation runs finger IK on the placed hand.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the digits with goals, one fit each.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No residual is hidden: an unreached goal is left for the audits.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One engine fit per digit with a goal, each a bounded number of forward kinematics; nothing for a posture without digit goals.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the performance's caches hold the pose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One engine fit per digit with a goal requests only its effector's ancestor FK per candidate; carried goals request their one carrying bone. Every authored record retains admission, the body's immutable rig snapshot avoids rebuilding static prerequisites, and a posture without digit goals does no fit work. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One lazy operation reader is borrowed by carried targets and every digit fit together with the body's canonical immutable rig snapshot; actual poses and exact scalar dependencies are reread, with no cached goal or result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader is created only at the first actual goal and releases with this synchronous call; a parent's supplier and reader never enter the returned pose.
    */
   export function fitted(
     body: IHumanBody,
     pose: IAutoMoviePose,
     digits: IHumanPosture["digits"],
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMoviePose {
     if (digits === undefined) return pose;
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     let out: IAutoMoviePose = pose;
     for (const digit of IHumanPosture.DIGITS) {
       const goal: IHumanPosture.IDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
+      const workspace: ReturnType<typeof preparePoseResolution> = prepared();
       const side: "left" | "right" = digit.startsWith("left")
         ? "left"
         : "right";
@@ -88,10 +94,13 @@ export namespace HumanDigitFit {
 
       // A goal on a bone is read in that bone's posed frame.
       const world: { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } =
-        goal.on === undefined ? goal : carried(body, out, goal.on, goal);
+        goal.on === undefined ? goal : carried(body, out, goal.on, goal, workspace);
       const result: fitDigitToTarget.IResult = fitDigitToTarget({
         skeleton: body.skeleton,
         pose: out,
+        topology: body.topology,
+        prepared: workspace,
+        rig: body.poseResolution,
         bones: bones(side, name),
         effector: {
           bone: region.bone,
@@ -135,46 +144,26 @@ export namespace HumanDigitFit {
    *
    * @param body The body.
    * @param bones Its posed bones, world frame.
-   * @param side The hand.
+   * @param side The hand; the deeper of both hands when absent.
    * @returns The depth, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the measure, its unit, its sign and who reads it.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's exact segment-to-shape distance (`physicalShapeSegmentDistance`) from each phalanx's axis, less the phalanx's radius, against the body's own profile colliders.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The near colliders, then three segments per digit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider placement, then each requested hand's near colliders and three segments per digit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every digit and every near collider is read; none is skipped but those beyond a hand's length of the hand.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Colliders whose bounding sphere lies beyond a hand's length of the hand are skipped.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Both hands share the same posed collider records; bounds cull distant shapes, and direct segment loops allocate no per-collider slices or callbacks.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The optional paired query reuses only one placement of the same supplied bones within this call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function depth(
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: "left" | "right",
+    side?: "left" | "right",
   ): number {
-    const near: curlChainUntilContact.ICollider[] = nearBody(
-      body,
-      bones,
-      HumanColliders.placed(body, bones),
-      side,
-    );
-    let deepest: number = -Infinity;
-    for (const digit of DIGIT_NAMES) {
-      const chain: curlChainUntilContact.IChain = HumanGrip.chain(
-        body,
-        side,
-        digit,
-      );
-      const points: IAutoMovieVector3[] = phalanges(bones, chain);
-      for (const c of near)
-        points.slice(1).forEach((b: IAutoMovieVector3, i: number): void => {
-          deepest = Math.max(
-            deepest,
-            chain.radius -
-              physicalShapeSegmentDistance(c.frame, c.shape, points[i]!, b),
-          );
-        });
-    }
-    return deepest;
+    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    return side === undefined
+      ? Math.max(depthAt(body, bones, placed, "left"), depthAt(body, bones, placed, "right"))
+      : depthAt(body, bones, placed, side);
   }
 
   /**
@@ -228,6 +217,22 @@ const DIGIT_NAMES: readonly HumanGrip.Digit[] = [
 
 /** The bones of a side's own hand, after the side: the hand and its digits. */
 const OWN: RegExp = /^(Hand|Thumb|Index|Middle|Ring|Little)/;
+
+/** One hand's unchanged phalanx-depth reduction over a caller-owned body placement. */
+function depthAt(body: IHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, placed: readonly HumanColliders.IPlaced[], side: "left" | "right"): number {
+  const near: curlChainUntilContact.ICollider[] = nearBody(body, bones, placed, side);
+  let deepest: number = -Infinity;
+  for (const digit of DIGIT_NAMES) {
+    const chain: curlChainUntilContact.IChain = HumanGrip.chain(body, side, digit);
+    const points: IAutoMovieVector3[] = phalanges(bones, chain);
+    for (const collider of near)
+      for (let i: number = 1; i < points.length; i++)
+        deepest = Math.max(deepest, chain.radius - physicalShapeSegmentDistance(
+          collider.frame, collider.shape, points[i - 1]!, points[i]!,
+        ));
+  }
+  return deepest;
+}
 
 /** The body's colliders near a hand, in the world: every shape but its own hand's and forearm's whose bounding sphere lies within a hand's length of the hand. */
 const nearBody: (
@@ -303,13 +308,20 @@ const carried: (
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
   goal: IHumanPosture.IDigitGoal,
+  prepared: ReturnType<typeof preparePoseResolution>,
 ) => { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } = (
   body: IHumanBody,
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
   goal: IHumanPosture.IDigitGoal,
+  prepared: ReturnType<typeof preparePoseResolution>,
 ): { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } => {
-  const placed: IAutoMovieResolvedBone = poseBones(body, pose).get(bone)!;
+  const placed: IAutoMovieResolvedBone = poseBones(
+    body,
+    pose,
+    prepared,
+    new Set([bone]),
+  ).get(bone)!;
   return {
     point: Vector3.add(
       placed.worldPosition,

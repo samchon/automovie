@@ -212,6 +212,7 @@ export class HumanPerformanceState {
               this,
               performer.subject,
               seconds,
+              target.kind === "point" || target.kind === "none" ? ["root"] : undefined,
             );
             return HumanPerformanceAim.aim(
               this,
@@ -220,7 +221,9 @@ export class HumanPerformanceState {
               HumanPerformanceAim.frame(
                 body,
                 posture,
-                () => poseBones(body, resolveHumanPosture(body, posture)),
+                (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
+                  poseBones(body, resolveHumanPosture.seeded(body, posture,
+                    undefined, undefined, undefined, requested).pose, undefined, requested),
                 performer.subject,
               ),
             );

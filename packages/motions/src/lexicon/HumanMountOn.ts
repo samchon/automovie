@@ -141,9 +141,11 @@ export namespace HumanMountOn {
             2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat, under) - 1)),
           )) * AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const duration: number = climb + hold;
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw0);
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
+    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...standUpright.of(body).joints };
+    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] = Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
 
     // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
     const crossing: readonly [number, number] = astride
@@ -167,14 +169,8 @@ export namespace HumanMountOn {
         t < 0.6 * climb
           ? HumanMount.LEAN * minimumJerk(t / (0.4 * climb)).s
           : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IHumanPosture["joints"] = {
-        ...stand.relaxed(body),
-        ...upright,
-      };
-      for (const [bone, a] of Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][]) {
+      const joints: IHumanPosture["joints"] = { ...relaxed };
+      for (const [bone, a] of finish) {
         const was: readonly [number, number, number] = joints[bone] ?? [
           0, 0, 0,
         ];
@@ -407,12 +403,7 @@ export namespace HumanMountOn {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const frame: Frame = frameAt(t);
-        const standing: IHumanPosture["limbs"] = stand.legs(
-          body,
-          frame.root,
-          yaw0,
-          floor,
-        );
+        const standing: IHumanPosture["limbs"] = legged(frame.root, floor);
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const limb: "leftLeg" | "rightLeg" = `${side}Leg`;

@@ -1,12 +1,14 @@
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
+import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
 /**
  * Numeric preparation shared by solves of one convexification. Modified Ruiz
  * equilibration follows Stellato et al. 2020, section 5.1, algorithm 2.
  * The curvature array only locates a candidate: dimensions and every P, q
- * and nonzero A entry must still match its copied data. Bounds and weights
- * belong to each solve; iterates and adaptive step sizes are never retained.
+ * and nonzero A entry must still match its copied data. Initial factors
+ * belong to their immutable scaled cores. Bounds and weights belong to each
+ * solve; iterates and adaptive step sizes are never retained here.
  * Costs use w=band+1, S supplied curvature entries, R original row entries,
  * Z stored entries after exact-zero compression and m rows.
  *
@@ -30,8 +32,8 @@ export namespace HumanQuadraticPreparation {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns admission, compression and numeric preparation once for the public quadratic solver; banded algebra remains in HumanQuadraticBand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses exact comparisons and exact zero omission, preserving small coefficients, duplicate entries, row order, penalties and solver tolerances.
    * @evidence contracts/development/implementation.md#efficient-algorithms Admission and exact comparison take O(S+R+n+m), including supplied trailing curvature storage; misses add preparation's documented scaling cost, while hits allocate three row-sized bound and weight arrays.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Compares dimensions, copied P and q values, and each row's ordered nonzero indices and coefficients; identical d/c also share their computed residual inverse scales, while bounds and weights are always refreshed and p identity only locates a candidate.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each live weak owner retains one preparation and initial factor, O(S+n*w+Z+n+m), including n inverse-scale entries; replacement releases the former preparation and unreachable owners permit collection. A miss uses fresh lo as temporary row-scale scratch, then overwrites it without retaining scratch in the core.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Compares dimensions, copied P/q and ordered nonzero A; identical cores share residual inverse scales, scaled/unscaled q norms and exact diagonal metadata, while one-shot bounds and weights refresh and source p identity only locates a candidate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each live weak source owner retains one numeric preparation, O(S+n*w+Z+n+m), including inverse scales; replacement and collection release it. Initial factors have their own weak scaled-core owner. Fresh solve wrappers borrow raw rows, fixed models replace that loan with copies, and neither enters the retained core. A miss consumes fresh lo as scale scratch before overwriting it.
    * @evidence contracts/development/common.md#meaningful-documentation States the scaling source, zero and duplicate semantics, validation failures, exact reuse dependencies and retained-data lifetime.
    */
   export function scaled(problem: Q.IProblem): B.IScaled {
@@ -59,15 +61,15 @@ export namespace HumanQuadraticPreparation {
         throw new RangeError(`Quadratic row ${r} overflows its scaling`);
     });
     PREPARATIONS.set(problem.p, prepared);
-    return { ...core, lo, hi, weight };
+    return { ...core, lo, hi, weight, raw: problem.rows };
   }
 
   /**
    * The initial ADMM factor for these scaled matrices, row step sizes and
    * proximal term. A different bound classification changes rho and rebuilds
-   * the factor. Later adaptive factors and polishing remain solve-local.
+   * the factor. Adaptive factors and polishing belong to their separate
+   * one-shot or persistent workspace owner.
    *
-   * @param problem The owner whose preparation supplied the scaled matrices.
    * @param s The scaled program with this solve's bounds and weights.
    * @param rho This solve's initial positive row step sizes.
    * @param sigma The positive proximal term.
@@ -79,61 +81,56 @@ export namespace HumanQuadraticPreparation {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Compares the complete rho vector and sigma exactly and preserves every current solver parameter and convergence check.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hit validates and compares m step sizes; a miss adds Band.factor's O(n*w+sum(k_r*k_r)+n*w*w) canonical-band assembly and factorization; original supplied padding is already admitted and speed is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Requires the retained scaled curvature identity supplied by scaled, then identical rho and sigma; bounds, weights and iterates do not enter this matrix.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores one initial factor and copied rho vector per live prepared owner, replacing the former factor when parameters change and sharing no mutable iterates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores one initial factor and copied rho vector per live scaled core, replacing the former factor when parameters change; the factor remains valid when a fixed model releases its mutable source and shares no iterates.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the matrix, factor invalidation, read-only consumption and failure cases.
    */
   export function factor(
-    problem: Q.IProblem,
     s: B.IScaled,
     rho: Float64Array,
     sigma: number,
-  ): Float64Array[] {
+  ): Work.IFactor {
     if (
       !(sigma > 0) ||
       !Number.isFinite(sigma) ||
-      rho.length !== s.m ||
-      rho.some(
-        (value: number): boolean => !(value > 0) || !Number.isFinite(value),
-      )
+      rho.length !== s.m
     )
       throw new RangeError("Quadratic step sizes must be finite and positive");
-    const prepared: IPrepared | undefined = PREPARATIONS.get(problem.p);
-    const retained: IInitial | undefined = prepared?.initial;
-    if (
-      prepared?.core.p === s.p &&
+    const retained: IInitial | undefined = INITIALS.get(s.p);
+    let same: boolean =
       retained !== undefined &&
       Object.is(retained.sigma, sigma) &&
-      retained.rho.length === rho.length &&
-      rho.every((value: number, r: number): boolean =>
-        Object.is(value, retained.rho[r]),
-      )
-    )
-      return retained.factor;
-    const out: Float64Array[] = B.factor(s, rho, sigma);
-    for (const row of out) finite(row, "Quadratic factor");
-    if (prepared?.core.p === s.p)
-      prepared.initial = { rho: Float64Array.from(rho), sigma, factor: out };
+      retained.rho.length === rho.length;
+    for (let r: number = 0; r < rho.length; ++r) {
+      const value: number = rho[r]!;
+      if (!(value > 0) || !Number.isFinite(value))
+        throw new RangeError("Quadratic step sizes must be finite and positive");
+      if (same && !Object.is(value, retained!.rho[r])) same = false;
+    }
+    if (same) return retained!.factor;
+    const out: Work.IFactor = B.factor(s, rho, sigma);
+    for (const row of out.system) finite(row, "Quadratic factor");
+    INITIALS.set(s.p, { rho: Float64Array.from(rho), sigma, factor: out });
     return out;
   }
 }
 
 /**
- * Shared scaled matrices and positive invertible scales, without intervals.
+ * Shared scaled matrices/scales without solve-local intervals or raw loans.
  *
- * Reuses Band.IScaled's numeric matrix and scale representation while excluding lo, hi and weight, which vary independently per solve.
+ * Reuses Band.IScaled's numeric representation but excludes lo/hi/weight, raw layouts and lazy exceptional restoration, which belong to one-shot wrappers or fixed models.
  * Defines exactly the fields preparation retains and every algebra consumer reads; the existing scaled representation remains owned by Band.
  * Uses Omit on the owning type rather than a parallel matrix contract and stores no solver iterates.
- * Names the shared numeric core and why intervals and weights are excluded.
+ * Names the shared numeric core and why intervals, weights and original-input loans are excluded.
  */
-type ICore = Omit<B.IScaled, "lo" | "hi" | "weight">;
+type ICore = Omit<B.IScaled, "lo" | "hi" | "weight" | "raw" | "restored">;
 
 /**
  * Copied dependencies and current immutable preparation for one weak owner.
  *
  * Stores original P/q and ordered nonzero coefficients to prove equivalence with a scaled core; array dimensions and finite values are admitted before creation.
- * Contains only copied numeric dependencies, the algebra core and one optional initial factor consumed by the two preparation functions.
+ * Contains only copied numeric dependencies and the algebra core consumed by scaling; initial factors have separate weak scaled-core ownership.
  * Holds no original problem, body, plan or result references and does not treat mutable input identity as proof.
- * Describes original snapshots, their relation to CSR columns and the sole optional retained factor.
+ * Describes original snapshots, their relation to CSR columns and separate factor ownership.
  */
 interface IPrepared {
   /** Original curvature, including its supplied row lengths. */
@@ -147,9 +144,6 @@ interface IPrepared {
 
   /** Equilibrated matrices, compression and scales. */
   core: ICore;
-
-  /** At most one initial factor; no adapted parameters or solve results. */
-  initial?: IInitial;
 }
 
 /**
@@ -168,11 +162,14 @@ interface IInitial {
   sigma: number;
 
   /** Factor read by substitution, which never changes it. */
-  factor: Float64Array[];
+  factor: Work.IFactor;
 }
 
 /** One numeric preparation per live curvature-array owner; values retain no problem or body. */
 const PREPARATIONS: WeakMap<Float64Array[], IPrepared> = new WeakMap();
+
+/** One immutable initial factor per live scaled numeric core, including fixed models whose mutable source has been released. */
+const INITIALS: WeakMap<Float64Array[], IInitial> = new WeakMap();
 
 /** Maximum entry count and column index representable by the signed Int32 CSR arrays. */
 const MAX_CSR: number = 0x7fffffff;
@@ -284,10 +281,10 @@ function admit(
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
  *
  * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
- * Builds ordered CSR and full raw snapshots, then scales the canonical band; post-column-scaling P and q norms are accumulated as their updated entries are written, retaining each max reduction's original order.
+ * Builds ordered CSR and full raw snapshots, then scales the canonical band; exact diagonal inputs omit only unchanged off-diagonal signed zeros, and post-column-scaling P/q norms are accumulated as entries are written in the original reduction order.
  * Omits only coefficients equal to zero, retaining all nonzeros, duplicate indices and empty-row offsets; no cutoff, sorting, merged cancellation or changed scaling constants is used.
- * Compression, raw snapshots and ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+n*w+Z+n+m) space; producing the cost norms during scaling removes separate P/q norm scans without dropping norm terms or ignored-padding admission.
- * Runs only when admission finds a changed dependency, copies raw numeric inputs and computes each original 1/(c*d[i]) once after equilibration; no reciprocal substitution, clamp or additional finite rejection changes residual behavior.
+ * Compression, raw snapshots and ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+n*w+Z+n+m) space; diagonal P reduces its pass term to n after an initial n*w classification, while full input/final finite admission remains.
+ * Runs only when admission finds a changed dependency, copies numeric inputs and classifies exact diagonal curvature once. The original 1/(c*d[i]) and both q infinity norms are computed after equilibration without a clamp or added finite rejection; max of nonnegative magnitudes preserves the original NaN/infinity normalization behavior.
  * Returns one numeric prepared value without retaining row-scale scratch; its caller reuses that fresh m-entry buffer as lo only after all scaling reads finish.
  * States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
  */
@@ -301,6 +298,7 @@ function create(
   const start: Int32Array = new Int32Array(m + 1);
   const cols: Int32Array = new Int32Array(entries);
   const ordered: Uint8Array = new Uint8Array(m).fill(1);
+  const singleton: Int32Array = new Int32Array(m).fill(-1);
   const original: Float64Array = new Float64Array(entries);
   let at: number = 0;
   rows.forEach((row: Q.IRow, r: number): void => {
@@ -315,6 +313,7 @@ function create(
       original[at] = row.coef[a]!;
       ++at;
     }
+    if (at === start[r]! + 1) singleton[r] = start[r]!;
   });
   start[m] = at;
   const originalP: Float64Array[] = problem.p.map(
@@ -325,6 +324,15 @@ function create(
     (row: Float64Array, i: number): Float64Array =>
       row.slice(0, Math.min(band + 1, n - i)),
   );
+  let diagonal: boolean = true;
+  for (const row of p) {
+    for (let j: number = 1; j < row.length; ++j)
+      if (row[j] !== 0) {
+        diagonal = false;
+        break;
+      }
+    if (!diagonal) break;
+  }
   const q: Float64Array = Float64Array.from(originalQ);
   const vals: Float64Array = Float64Array.from(original);
   const d: Float64Array = new Float64Array(n).fill(1);
@@ -339,7 +347,8 @@ function create(
     curvature.fill(0);
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      for (let j: number = 0; j < row.length; ++j) {
+      const end: number = diagonal ? 1 : row.length;
+      for (let j: number = 0; j < end; ++j) {
         const v: number = Math.abs(row[j]!);
         curvature[i] = Math.max(curvature[i]!, v);
         curvature[i + j] = Math.max(curvature[i + j]!, v);
@@ -363,7 +372,8 @@ function create(
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
       const scale: number = dx[i]!;
-      for (let j: number = 0; j < row.length; ++j) {
+      const end: number = diagonal ? 1 : row.length;
+      for (let j: number = 0; j < end; ++j) {
         const coefficient: number = row[j]! * scale * dx[i + j]!;
         row[j] = coefficient;
         const magnitude: number = Math.abs(coefficient);
@@ -387,7 +397,8 @@ function create(
     const gamma: number = 1 / limit(Math.max(mean, linear));
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      for (let j: number = 0; j < row.length; ++j) row[j] = row[j]! * gamma;
+      const end: number = diagonal ? 1 : row.length;
+      for (let j: number = 0; j < end; ++j) row[j] = row[j]! * gamma;
       q[i] = q[i]! * gamma;
     }
     c *= gamma;
@@ -404,14 +415,19 @@ function create(
     e.some((value: number): boolean => !(value > 0) || !Number.isFinite(value))
   )
     throw new RangeError("Quadratic scaling must be finite and invertible");
-  const unscale: Float64Array = d.map(
-    (scale: number): number => 1 / (c * scale),
-  );
+  let qNorm: number = 0;
+  let unscaledQNorm: number = 0;
+  const unscale: Float64Array = d.map((scale: number, i: number): number => {
+    const inverse: number = 1 / (c * scale);
+    qNorm = Math.max(qNorm, Math.abs(q[i]!));
+    unscaledQNorm = Math.max(unscaledQNorm, Math.abs(q[i]! * inverse));
+    return inverse;
+  });
   return {
     p: originalP,
     q: originalQ,
     vals: original,
-    core: { n, m, band, p, q, start, cols, vals, ordered, d, e, c, unscale },
+    core: { n, m, band, p, diagonal, q, qNorm, unscaledQNorm, start, cols, vals, ordered, singleton, d, e, c, unscale },
   };
 }
 

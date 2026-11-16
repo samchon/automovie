@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -116,7 +117,7 @@ export namespace relayPass {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
+    const body: IHumanActionContext["body"] = context.body;
     const side: HumanHand.Side = p.side ?? "right";
     const sign: number = side === "left" ? 1 : -1;
     const at: number = p.at - context.start;
@@ -128,6 +129,7 @@ export namespace relayPass {
       duration,
     );
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
 
     // The baton's end in the incoming hand's frame.
     let end: IAutoMovieVector3 | undefined;
@@ -177,7 +179,10 @@ export namespace relayPass {
       };
       const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
         Vector3.normalize(HumanFrame.point(frame, { x, y, z }));
-      const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
+      const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
+        body, posture, undefined, undefined,
+        shoulderBones,
+      ).get(
         `${side}UpperArm`,
       )!.worldPosition;
       const arm: number = body.measure.upperArm + body.measure.forearm;
@@ -272,6 +277,8 @@ export namespace relayPass {
         const posture: IHumanPosture = base.posture(t);
         const w: number = weight(t);
         if (w <= 0) return posture;
+        const reaching: IHumanPosture = handGoals(body, posture, [goal(posture, t)]);
+        if (w >= 1) return reaching;
         const run: AutoMovieMotionHumanArm.IAngles =
           AutoMovieMotionHumanArm.angles(
             resolveHumanPosture(body, posture),
@@ -279,7 +286,7 @@ export namespace relayPass {
           );
         return AutoMovieMotionHumanArm.carry(
           body,
-          handGoals(body, posture, [goal(posture, t)]),
+          reaching,
           { [side]: run },
           w,
         );

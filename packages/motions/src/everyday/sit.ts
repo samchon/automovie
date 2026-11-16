@@ -200,7 +200,8 @@ export namespace sit {
     const yaw0: number = context.entry.posture.yaw;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
-    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
+    const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...standUpright.of(body).joints };
+    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] = Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";
@@ -321,7 +322,7 @@ export namespace sit {
         weight: (seconds: number): number => hand(side, seconds),
         goal: (posture: IHumanPosture): IHumanPosture.IGoal =>
           rest === undefined
-            ? seated.hands(body, posture)[`${side}Arm`]!
+            ? seated.hands(body, posture, side)[`${side}Arm`]!
             : seated.armrest(body, posture, side, rest, seat.yaw),
         span: span(side),
         together,
@@ -347,14 +348,8 @@ export namespace sit {
           ? peak * minimumJerk(t / (0.45 * descent)).s
           : peak + (final.pitch - peak) * settle;
       const yaw: number = yaw0 + turn * across;
-      const joints: IHumanPosture["joints"] = {
-        ...stand.relaxed(body),
-        ...upright,
-      };
-      for (const [bone, a] of Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][]) {
+      const joints: IHumanPosture["joints"] = { ...relaxed };
+      for (const [bone, a] of finish) {
         const was: readonly [number, number, number] = joints[bone] ?? [
           0, 0, 0,
         ];

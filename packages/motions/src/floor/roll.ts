@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -13,6 +14,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -136,12 +138,10 @@ export namespace roll {
     );
 
     // A posture of the joints blended toward the tuck, turned, at the origin.
+    const tuck: [AutoMovieHumanoidBone, readonly [number, number, number]][] = Object.entries(TUCK) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
     const joints = (share: number): IHumanPosture["joints"] => {
       const out: IHumanPosture["joints"] = { ...entry.joints };
-      for (const [bone, angles] of Object.entries(TUCK) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][]) {
+      for (const [bone, angles] of tuck) {
         const was: readonly [number, number, number] = entry.joints[bone] ?? [
           0, 0, 0,
         ];
@@ -160,12 +160,8 @@ export namespace roll {
       joints: joints(share),
       limbs: {},
     });
-    const centres = (posture: IHumanPosture): IAutoMovieVector3[] =>
-      [...poseBones(body, resolveHumanPosture(body, posture)).values()].map(
-        (b) => b.worldPosition,
-      );
     const ankleMid = (posture: IHumanPosture): IAutoMovieVector3 => {
-      const bones = poseBones(body, resolveHumanPosture(body, posture));
+      const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture(body, posture), undefined, FEET);
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
       return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
@@ -183,15 +179,7 @@ export namespace roll {
 
     // The roll's table: the root's height above the lowest centre and its
     // travel along the floor, both by the turn.
-    const heights: number[] = [];
-    for (let k: number = 0; k <= SAMPLES; k++) {
-      const lowest: number = Math.min(
-        ...centres(posed(1, (360 * k) / SAMPLES)).map(
-          (p: IAutoMovieVector3): number => p.y,
-        ),
-      );
-      heights.push(-lowest);
-    }
+    const heights: number[] = heightsOf(body, (turn: number): IHumanPosture => posed(1, turn), SAMPLES);
     const travels: number[] = [0];
     const step: number = (2 * Math.PI) / SAMPLES;
     for (let k: number = 1; k <= SAMPLES; k++)
@@ -276,4 +264,20 @@ export namespace roll {
       },
     };
   }
+
+  /** Only the ankles place each crouch on its authored floor points. */
+  const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
+}
+
+/** Build the unchanged roll table in one synchronous exact-FK workspace. */
+function heightsOf(body: IHumanBody, posed: (turn: number) => IHumanPosture, samples: number): number[] {
+  const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const heights: number[] = [];
+  for (let k: number = 0; k <= samples; k++) {
+    const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture.seeded(body, posed((360 * k) / samples), undefined, undefined, prepared).pose, prepared());
+    let lowest: number = Infinity;
+    for (const bone of bones.values()) lowest = Math.min(lowest, bone.worldPosition.y);
+    heights.push(-lowest);
+  }
+  return heights;
 }

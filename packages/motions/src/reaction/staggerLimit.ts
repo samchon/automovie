@@ -1,9 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanFoot } from "../posture/HumanFoot";
-import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
+import { staggerKnots } from "./staggerKnots";
 import { staggerRecover } from "./staggerRecover";
 
 /**
@@ -11,7 +10,7 @@ import { staggerRecover } from "./staggerRecover";
  * (`staggerRecover`), the limit a refused push names (`stagger`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and who reads it.
- * @evidence contracts/development/design.md#principled-representation One function and its memory of each body's limits.
+ * @evidence contracts/development/design.md#principled-representation One exact speed search under one fixed body, entry and push, with call-local repeated-speed observations.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by `stagger`'s refusal.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The limit is the whole model's, read by the recovery itself.
  */
@@ -37,9 +36,9 @@ export namespace staggerLimit {
    * @evidence contracts/development/implementation.md#principled-implementation Capture is monotone in the speed: `recover` tries every order of the feet and lands each step as near its target as its region allows, so whatever catches a push catches a slower one along the same course (Koolen et al. 2012); the pendulum's capture is a necessary condition of the whole model's, so it bounds the bracket from above, and the whole model is bisected inside it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bisections over `recover`: the pendulum's, then the whole model's.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limit is the whole model's, never the pendulum's bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The pendulum's bisection costs no stance course; the whole model's runs inside its bound, read only when a push is refused.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `recover`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Pendulum bisection demands no stance course or bending solve; the whole model runs inside that bound, sharing one fixed-entry bending and avoiding duplicate solves of the exact same speed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The call-local speed map fixes body, complete entry, push and righting context; each changed speed still runs the real recovery law. No rounded or incomplete entry key can replay a previous invocation's result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation retains one boolean per distinct queried speed and one lazily read bending record, released on return or failure; no module/body result history remains.
    */
   export function of(
     body: IHumanActionContext["body"],
@@ -47,22 +46,7 @@ export namespace staggerLimit {
     push: IAutoMovieVector3,
     above: number,
   ): number {
-    // The limit is the body's in a direction from a stance: read once.
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
-      StrikingTarget.feet(entry);
-    const key: string = [
-      push.x,
-      push.z,
-      ...[feet.left, feet.right].flatMap(
-        (f: HumanFoot.IPlacement): number[] => [f.ankle.x, f.ankle.z],
-      ),
-    ]
-      .map((v: number): string => v.toFixed(4))
-      .join(",");
-    const known: Map<string, number> | undefined = LIMITS.get(body);
-    const kept: number | undefined = known?.get(key);
-    if (kept !== undefined && kept < above) return kept;
-    const bisect = (
+    const bisect: (lo: number, hi: number, catches: (speed: number) => boolean) => number = (
       lo: number,
       hi: number,
       catches: (speed: number) => boolean,
@@ -80,8 +64,20 @@ export namespace staggerLimit {
       (speed: number): boolean =>
         staggerRecover.recover(body, entry, push, speed, 1, false) !== null,
     );
-    const whole = (speed: number): boolean =>
-      staggerRecover.recover(body, entry, push, speed, 1) !== null;
+    // Bisection and the verified band may ask for the same speed. This
+    // invocation fixes every recovery input, so keep only its exact answers.
+    const checked: Map<number, boolean> = new Map();
+    let bending: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
+    const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
+      (): Record<"pitch" | "roll", IAutoMovieVector3> =>
+        (bending ??= staggerKnots.bending(body, entry));
+    const whole: (speed: number) => boolean = (speed: number): boolean => {
+      const known: boolean | undefined = checked.get(speed);
+      if (known !== undefined) return known;
+      const result: boolean = staggerRecover.recover(body, entry, push, speed, 1, true, readBend) !== null;
+      checked.set(speed, result);
+      return result;
+    };
     // The limit stands with its band verified: every speed of the grid over
     // `VERIFIED` below it is caught too; a refused one below it moves the
     // search under it.
@@ -99,15 +95,7 @@ export namespace staggerLimit {
       if (refused < 0) break;
       found = bisect(0, refused, whole);
     }
-    const out: number = Math.floor(found * 100) / 100;
-    if (known === undefined) LIMITS.set(body, new Map([[key, out]]));
-    else known.set(key, out);
-    return out;
+    return Math.floor(found * 100) / 100;
   }
 
-  /** Each body's fastest caught push, by its direction and its stance's feet, read once (`limit`). */
-  const LIMITS: WeakMap<
-    IHumanActionContext["body"],
-    Map<string, number>
-  > = new WeakMap();
 }

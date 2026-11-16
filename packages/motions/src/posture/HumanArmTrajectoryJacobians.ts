@@ -78,9 +78,9 @@ export namespace HumanArmTrajectoryJacobians {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Specifies current iterate inputs, free-column ordering and which waypoints return empty derivatives.
    * @evidence contracts/development/implementation.md#principled-implementation The shared arm-column owner gives segment-origin twists; each attached point moves by v_origin plus omega cross its current displacement from that origin, scaled to millimetres. Orientation residuals retain turned's original two-sided logarithm reading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate's columns feed probe, contact and orientation rows and then the original movement bound; private offsets are initialized at their first original use.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate's columns feed probe, contact and orientation rows and then the original movement bound; private offsets are initialized at their first original use, and one point-motion owner completes each fresh cross-product result.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all columns, probe/site order, exact pad placement, 1000 scaling and cross/add grouping, HAIR and movement-bound reductions; no tolerance, target or chart derivative is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For F free coordinates and P probes the required derivative output remains O(FP); each probe-origin displacement and contact placement is computed once per candidate rather than F times, with O(P) temporary offsets.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For F free coordinates and P probes the required derivative output remains O(FP); each probe-origin displacement and contact placement is computed once per candidate rather than F times, with O(P) temporary offsets. Each output completes its fresh cross vector in place, avoiding the unobserved scale and add vectors.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous candidate's probe points, origins, hand frame and site contact stay fixed while its columns vary. Lazy offsets reuse those exact completed differences only within this candidate; all angular differences remain separate actual readings.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one private vector per probe and one contact offset survive the column loop, then are released. Only fresh derivative outputs and the original borrowed angular vectors escape; no candidate input or offset history is cached.
    */
@@ -141,13 +141,7 @@ export namespace HumanArmTrajectoryJacobians {
                   offsets[i] ??
                   (offsets[i] = Vector3.subtract(p, origins[owner]));
                 entry.probes[i]!.push(
-                  Vector3.add(
-                    frames[owner].origin,
-                    Vector3.scale(
-                      Vector3.cross(frames[owner].omega, offset),
-                      1000,
-                    ),
-                  ),
+                  pointMotion(frames[owner], offset),
                 );
               },
             );
@@ -156,15 +150,7 @@ export namespace HumanArmTrajectoryJacobians {
                 P.pad(here, site.contact),
                 here.wrist,
               );
-              entry.pad.push(
-                Vector3.add(
-                  frames.hand.origin,
-                  Vector3.scale(
-                    Vector3.cross(frames.hand.omega, contact),
-                    1000,
-                  ),
-                ),
-              );
+              entry.pad.push(pointMotion(frames.hand, contact));
               if (site.rotation !== undefined)
                 entry.hand.push(
                   turned(site.rotation, here.hand, column.hand.angular),
@@ -199,9 +185,9 @@ export namespace HumanArmTrajectoryJacobians {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the point's owning arm/waypoint/segment, its world-metre coordinates and each returned column's millimetre units.
    * @evidence contracts/development/implementation.md#principled-implementation Shifts each current segment-origin twist to the attached point by omega cross p minus origin, then applies the original metre-to-millimetre scale and linear sum.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the actual segment origin once and maps the current derivative columns to fresh point-motion vectors.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the actual segment origin once and maps the current derivative columns through the same point-motion owner as probe and contact columns.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves source-column order and the original cross, scale and add grouping; an empty list still performs no point subtraction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(F) output work for F columns with one lazy point-origin subtraction instead of F identical subtractions, and constant temporary storage.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(F) output work for F columns with one lazy point-origin subtraction instead of F identical subtractions, one fresh cross vector completed directly as each output instead of three vectors, and constant temporary storage.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed point and chosen candidate origin share one private difference within this synchronous map; no motion or pose result is reused across candidates.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private difference dies after the map and never escapes through its fresh returned vectors; no state or resource is retained.
    */
@@ -226,10 +212,7 @@ export namespace HumanArmTrajectoryJacobians {
         column: Record<"upper" | "lower" | "hand", IMotion>,
       ): IAutoMovieVector3 => {
         offset ??= Vector3.subtract(p, origin);
-        return Vector3.add(
-          column[owner].origin,
-          Vector3.scale(Vector3.cross(column[owner].omega, offset), 1000),
-        );
+        return pointMotion(column[owner], offset);
       },
     );
   }
@@ -272,6 +255,19 @@ export namespace HumanArmTrajectoryJacobians {
         ),
       );
     return Vector3.scale(Vector3.subtract(read(1), read(-1)), 1 / (2 * HAIR));
+  }
+
+  /**
+   * Complete a fresh cross-product vector as a point's motion in millimetres.
+   * Each component keeps the original origin + cross-component * 1000
+   * grouping; only this unobserved fresh vector is written before return.
+   */
+  function pointMotion(motion: IMotion, offset: IAutoMovieVector3): IAutoMovieVector3 {
+    const out: IAutoMovieVector3 = Vector3.cross(motion.omega, offset);
+    out.x = motion.origin.x + out.x * 1000;
+    out.y = motion.origin.y + out.y * 1000;
+    out.z = motion.origin.z + out.z * 1000;
+    return out;
   }
 
   /** A current segment twist in the convex subproblem's millimetres, borrowing only its angular vector. */

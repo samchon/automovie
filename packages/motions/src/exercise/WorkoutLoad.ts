@@ -124,8 +124,8 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the holding hand's grip socket is kept where the key's joints put it and the tool's line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and two elbow solves per posture with a second hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held owner, the held tool's frame and goal, the hand's placement and the elbow solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder, elbow and wrist from FK; both original elbow solves remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fixed fist shape and the holding-chain demand are prepared once for the unchanged body and holding side; every changed posture and arm target is still solved.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
@@ -175,6 +175,8 @@ export namespace WorkoutLoad {
           ),
     );
     const bare: StrikingHeld.ITool = StrikingHeld.of(context, other);
+    const fist: IHumanPosture["joints"] = HumanHand.shape(other, "fist");
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]);
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.
@@ -217,7 +219,7 @@ export namespace WorkoutLoad {
       hands: [side, other],
       apply: (posture: IHumanPosture): IHumanPosture => {
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          StrikingBody.trunk(body, posture);
+          StrikingBody.trunk(body, posture, undefined, requested);
         // The bar runs level to the performer's other side from the hand,
         // and the hand is turned about it so the knuckles continue the
         // forearm: a straight wrist, the turn an arm holds. A turn taken
@@ -332,7 +334,7 @@ export namespace WorkoutLoad {
           joints: {
             ...posture.joints,
             ...closed,
-            ...HumanHand.shape(other, "fist"),
+            ...fist,
           },
           limbs: {
             ...posture.limbs,

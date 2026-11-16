@@ -132,8 +132,8 @@ export function walkTempo(
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (seconds: number): IHumanPosture =>
-      plan.posture(toPlan(Math.min(duration, Math.max(0, seconds)))),
+    posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture =>
+      plan.posture(toPlan(Math.min(duration, Math.max(0, seconds))), channels),
   };
 }
 

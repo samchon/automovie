@@ -133,6 +133,7 @@ export namespace StrikingRide {
   export function create(props: IProps): IRide {
     const frames: IFrame[] = [];
     let bone: AutoMovieHumanoidBone | undefined;
+    let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
     let touch: IContact | null | undefined;
     let held: IAutoMovieVector3 | undefined;
     let filling: boolean = false;
@@ -149,17 +150,8 @@ export namespace StrikingRide {
         while (frames.length <= index) {
           const other: IHumanActionContext.IPerformer = props.other();
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-            other.bones(props.stop + frames.length * STEP);
-          if (bone === undefined) {
-            const [a, b] = props.axis(props.stop);
-            bone = HumanColliders.distanceToSegment(
-              other.body,
-              bones,
-              a,
-              b,
-            ).bone;
-          }
-          const resolved: IAutoMovieResolvedBone = bones.get(bone)!;
+            other.bones(props.stop + frames.length * STEP, requested);
+          const resolved: IAutoMovieResolvedBone = bones.get(bone!)!;
           frames.push({
             position: resolved.worldPosition,
             rotation: resolved.worldRotation,
@@ -180,12 +172,12 @@ export namespace StrikingRide {
       if (touch !== undefined) return touch;
       const other: IHumanActionContext.IPerformer = props.other();
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        other.bones(props.stop);
+        other.bones(props.stop, HumanColliders.bones(other.body));
+      const geometry: ReturnType<typeof HumanColliders.reading> =
+        HumanColliders.reading(other.body, bones);
       const [a, b] = props.axis(props.stop);
       const gap = (shift: IAutoMovieVector3): number =>
-        HumanColliders.distanceToSegment(
-          other.body,
-          bones,
+        geometry.segment(
           Vector3.add(a, shift),
           Vector3.add(b, shift),
         ).distance;
@@ -205,11 +197,7 @@ export namespace StrikingRide {
       let least: number = Number.POSITIVE_INFINITY;
       for (let i: number = 0; i <= AXIS_SAMPLES; i++) {
         const at: IAutoMovieVector3 = Vector3.lerp(a, b, i / AXIS_SAMPLES);
-        const d: number = HumanColliders.distance(
-          other.body,
-          bones,
-          at,
-        ).distance;
+        const d: number = geometry.segment(at, at).distance;
         if (d < least) {
           least = d;
           point = at;
@@ -219,6 +207,10 @@ export namespace StrikingRide {
         Vector3.length(gradient) > 1e-9
           ? { point, normal: Vector3.normalize(gradient) }
           : null;
+      if (touch !== null) {
+        bone = geometry.segment(a, b).bone;
+        requested = new Set<AutoMovieHumanoidBone>([bone]);
+      }
       return touch;
     };
 

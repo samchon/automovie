@@ -28,6 +28,7 @@ import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -121,8 +122,8 @@ export namespace give {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, the inherited base and one primitive chosen by the part.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact dead ahead or behind turns the head to the left, a stated tie rule; sizes are named provisional constants.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three trunk resolutions per plan, the entry's once and one per neck axis tried, and constant work per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The direction is read once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The direction is read once per plan; both neck-axis trials borrow the same synchronous exact FK workspace, preserving their joint overrides and actual admission/walk order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The neck trial helper releases its lazy FK reader before returning the angle record; the plan closes over its original constants and no reader or posed-result cache.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -213,6 +214,8 @@ export namespace give {
     intensity: number,
   ): AutoMovieMotionHumanJoints.Angles => {
     const entry: IHumanPosture = context.entry.posture;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const left: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 1, y: 0, z: 0 },
@@ -226,10 +229,12 @@ export namespace give {
       const tried: [number, number, number] = [held[0], held[1], held[2]];
       tried[axis] += 10;
       const moved: IAutoMovieVector3 = Quaternion.rotateVector(
-        HumanTrunk.resolve(context.body, entry, {
-          ...entry.joints,
-          neck: tried,
-        }).get("head")!.worldRotation,
+        HumanTrunk.resolve(
+          context.body,
+          entry,
+          { ...entry.joints, neck: tried },
+          resolution,
+        ).get("head")!.worldRotation,
         probe,
       );
       const rest: IAutoMovieVector3 = Quaternion.rotateVector(

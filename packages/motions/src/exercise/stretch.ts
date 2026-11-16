@@ -224,7 +224,9 @@ export namespace stretch {
       );
     const balance = (
       standing: "left" | "right",
-    ): IAutoMovieMotionHumanPrimitive => ({
+    ): IAutoMovieMotionHumanPrimitive => {
+      const offset: IAutoMovieVector3 = over(standing);
+      return {
       channels: ["root"],
       from: 0,
       to: clock.duration,
@@ -233,12 +235,12 @@ export namespace stretch {
         root: Vector3.add(
           posture.root,
           Vector3.scale(
-            over(standing),
+            offset,
             clock.envelope(["start", "reachEnd"], ["release", "end"], seconds),
           ),
         ),
       }),
-    });
+    }; };
     const lifted = (
       placement: HumanFoot.IPlacement,
     ): IAutoMovieMotionHumanPrimitive =>
@@ -312,7 +314,10 @@ export namespace stretch {
             { spine: bend("spine"), chest: bend("chest") },
           ),
         );
-        for (const s of ["left", "right"] as const)
+        const carryFrom: ReturnType<typeof AutoMovieMotionHumanPlaced.carryFrom> = AutoMovieMotionHumanPlaced.carryFrom(body, entry);
+        for (const s of ["left", "right"] as const) {
+          const point: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.grid(body, entry, s, { height: "overhead", lateral: "inside", distance: "close" });
+          const tip: IAutoMovieVector3 = Vector3.add(point, facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }));
           primitives.push(
             ...AutoMovieMotionHumanPlaced.arm({
               body,
@@ -322,35 +327,17 @@ export namespace stretch {
               rest: rest(s),
               weight,
               place: (posture: IHumanPosture) => {
-                const ride = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-                  AutoMovieMotionHumanPlaced.carried(
-                    body,
-                    entry,
-                    posture,
-                    point,
-                  );
-                const point: IAutoMovieVector3 =
-                  AutoMovieMotionHumanPlaced.grid(body, entry, s, {
-                    height: "overhead",
-                    lateral: "inside",
-                    distance: "close",
-                  });
+                const carry: ReturnType<typeof carryFrom> = carryFrom(posture);
+                const origin: IAutoMovieVector3 = carry(point);
                 return {
-                  point: ride(point),
-                  facing: Vector3.subtract(
-                    ride(
-                      Vector3.add(
-                        point,
-                        facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }),
-                      ),
-                    ),
-                    ride(point),
-                  ),
+                  point: origin,
+                  facing: Vector3.subtract(carry(tip), origin),
                 };
               },
               bend: "raised",
             }),
           );
+        }
         break;
       }
       case "quadriceps": {

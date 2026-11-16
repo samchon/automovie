@@ -111,6 +111,7 @@ export namespace AutoMovieMotionHumanHand {
   export function shape(props: IShape): IAutoMovieMotionHumanPrimitive {
     return {
       channels: [`${props.side}Hand`],
+      reads: [`${props.side}Hand`],
       from: props.from,
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({

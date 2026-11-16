@@ -82,9 +82,9 @@ export namespace HumanArmTrajectoryContext {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Specifies original problem inputs, continued-waypoint reuse and returned fixed context.
    * @evidence contracts/development/implementation.md#principled-implementation Prepares actual arm charts, hard intervals and contact geometry; exact same-base FK dependencies may share completed math across arms while every pose still receives full ordered admission and fresh outputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map and is created only when an actual frame miss requests it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps arm/time order, original reference depths, bidirectional declared rests, grasp exemptions, still/open endpoints and hard-box rounding behavior; the shared FK reader is never retained in a context or reused at another second.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. An all-hit frame map allocates no resolution reader or FK maps. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames, and the existing store preserves actual frame/site-identity matches across refinement.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A same-base FK reader dies after its synchronous map. Existing weak context stores retain distinct queried waypoint seconds and their pair keys while a continued context lives; closures borrow the original problem and current points, with no new global result cache.
    */
@@ -136,8 +136,13 @@ export namespace HumanArmTrajectoryContext {
       (previous === undefined ? undefined : STORES.get(previous)) ?? new Map();
     const points: W.IWaypoint[] = problem.times.map(
       (t: number, k: number): W.IWaypoint => {
-        const prepared: ReturnType<typeof preparePoseResolution> | undefined =
-          setups.length > 1 ? preparePoseResolution() : undefined;
+        let reader: ReturnType<typeof preparePoseResolution> | undefined;
+        const prepared: (() => ReturnType<typeof preparePoseResolution>) | undefined = setups.length > 1
+          ? (): ReturnType<typeof preparePoseResolution> => {
+              if (reader === undefined) reader = preparePoseResolution();
+              return reader;
+            }
+          : undefined;
         const frames: G.IFrame[] = setups.map(
           (setup: G.ISetup): G.IFrame =>
             HumanArmFrame.of(setup, problem.bases[k]!, alone, prepared),

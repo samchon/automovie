@@ -37,8 +37,10 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * undeclared parent, in a detached subtree or in a parent cycle is omitted,
  * and a skeleton without a root resolves to an empty array; callers that need
  * a bone gate on {@link reachableBoneNames}, which reports the same set. A
- * joint for an undeclared or unreachable bone is ignored, and a bone named by
- * two joints takes the later one.
+ * joint for an undeclared or unreachable bone contributes no transform, but
+ * every authored record is still admitted in order; a repeated bone takes
+ * the later joint. An optional requested set returns only its reachable bones
+ * and computes their ancestors, pruning unrelated subtrees after admission.
  *
  * @param pose Joint angles and root transform to resolve.
  * @param skeleton Rig the pose articulates.
@@ -52,14 +54,15 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  *   {@link indexSkeletonTopology}, reused across poses; omitted, one is built
  *   for this call.
  * @param prepared Optional operation-owned exact FK dependency reader; it shares completed computation while preserving every ordered admission and fresh returned transform.
+ * @param requested Optional output bone set; omitted, resolve every reachable bone. Ancestors are computed internally and need not be requested.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Standard forward kinematics over a rooted tree, composing quaternion rotations and rotating each rest offset by the parent's world rotation; a parent-first depth-first walk guarantees the parent frame exists when a child is reached, and it premises unit rotations, no rest scale, and a topology built from this unchanged skeleton.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Joint conversion, axis precedence and single-bone composition have the jointToQuaternion, skeletonJointAxes and resolvePoseBone owners. An optional preparePoseResolution reader shares those same computations; this function alone owns admission order and the parent-first walk.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unreachable bones are omitted by the stated contract instead of being attached to a root or thrown on, and no bone or rig is special-cased.
  * @evidence contracts/development/common.md#meaningful-documentation States the composition for rotation and position, the axes precedence, that rest scale is ignored, the root default, the output order, which bones are omitted and how to gate on them, how stray and repeated joints are read, and each optional parameter's default.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear ordered joint and reachable-bone scans remain. Ordinary calls convert every joint and compose every bone; a supplied operation reader compares constant-size actual dependency tuples, avoiding only already completed identical math while keeping fresh output allocation. Topology construction when omitted adds linear work; runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller topology belongs to the same current skeleton. An optional synchronous-operation reader reuses successful joint conversion and bone computation only under exact scalar dependencies, with fresh nested output objects; authored records, missing identities and changed descendants still follow the original recurrence.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local articulation map and result array end with the call. Returned bone transforms are fresh and caller-owned; any supplied reader owns its bounded joint/bone snapshots until its operation releases it, without a global collection or handle.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every call retains O(J) ordered joint admission and O(B) axes precedence. Omitted demand composes all reachable bones; explicit demand builds an O(B) parent map and visits only the demanded ancestor closure, returning K fresh outputs. A supplied reader avoids identical completed math, missing articulations share one private identity, and omitted topology adds O(B) construction. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller topology belongs to the same current skeleton. An optional synchronous-operation reader reuses successful joint conversion and bone computation only under exact scalar dependencies, with fresh nested output objects. One call's unmodified private identity serves every missing articulation; authored records and changed descendants still follow the original recurrence.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local articulation map, optional demand parent map/ancestor set and missing-articulation identity end with the call. Returned bone transforms are fresh and caller-owned; any supplied reader owns bounded joint/bone snapshots until operation release, without a global collection or handle.
  */
 export const resolvePose: (
   pose: IAutoMoviePose,
@@ -72,6 +75,7 @@ export const resolvePose: (
     | undefined,
   topology?: IAutoMovieSkeletonTopology,
   prepared?: ReturnType<typeof preparePoseResolution>,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ) => IAutoMovieResolvedBone[] = (
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
@@ -79,6 +83,7 @@ export const resolvePose: (
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
   prepared?: ReturnType<typeof preparePoseResolution>,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ): IAutoMovieResolvedBone[] => {
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
@@ -93,6 +98,9 @@ export const resolvePose: (
     );
 
   const resolved: IAutoMovieResolvedBone[] = [];
+  let missingArticulation: IAutoMovieQuaternion | undefined;
+  const required: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+    requested === undefined ? undefined : ancestorClosure(skeleton, requested);
 
   // The walk receives the bone object directly (the children map already holds
   // it), so there is no name→bone lookup during the descent.
@@ -105,24 +113,52 @@ export const resolvePose: (
     parentWorldRot: IAutoMovieQuaternion,
     parentWorldPos: IAutoMovieVector3,
   ): void => {
-    const art: IAutoMovieQuaternion =
-      articulation.get(bone.bone) ?? Quaternion.identity();
+    if (required !== undefined && !required.has(bone.bone)) return;
+    let art: IAutoMovieQuaternion | undefined = articulation.get(bone.bone);
+    if (art === undefined) {
+      missingArticulation ??= Quaternion.identity();
+      art = missingArticulation;
+    }
     const reading: IAutoMovieResolvedBone =
       prepared === undefined
         ? resolvePoseBone(bone, parentWorldRot, parentWorldPos, art)
         : prepared.bone(bone, parentWorldRot, parentWorldPos, art);
-    resolved.push(reading);
+    if (requested === undefined || requested.has(bone.bone)) resolved.push(reading);
 
-    for (const child of topology.childrenByParent.get(bone.bone) ?? [])
-      walk(child, reading.worldRotation, reading.worldPosition);
+    const children: readonly IAutoMovieBone[] | undefined =
+      topology.childrenByParent.get(bone.bone);
+    if (children !== undefined && children !== null)
+      for (const child of children)
+        walk(child, reading.worldRotation, reading.worldPosition);
   };
 
   const rootTranslation: IAutoMovieVector3 =
     pose.root?.translation ?? Vector3.create(0, 0, 0);
   const rootRotation: IAutoMovieQuaternion =
     pose.root?.rotation ?? Quaternion.identity();
-  for (const root of topology.childrenByParent.get(SKELETON_ROOT_PARENT) ?? [])
-    walk(root, rootRotation, rootTranslation);
+  const roots: readonly IAutoMovieBone[] | undefined =
+    topology.childrenByParent.get(SKELETON_ROOT_PARENT);
+  if (roots !== undefined && roots !== null)
+    for (const root of roots) walk(root, rootRotation, rootTranslation);
 
   return resolved;
 };
+
+/** Include each demanded bone's parents so ordinary FK can prune unrelated subtrees. */
+function ancestorClosure(
+  skeleton: IAutoMovieSkeleton,
+  requested: ReadonlySet<AutoMovieHumanoidBone>,
+): ReadonlySet<AutoMovieHumanoidBone> {
+  const parents: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
+    new Map();
+  for (const bone of skeleton.bones) parents.set(bone.bone, bone.parent);
+  const required: Set<AutoMovieHumanoidBone> = new Set();
+  for (const name of requested) {
+    let bone: AutoMovieHumanoidBone | null | undefined = name;
+    while (bone !== null && bone !== undefined && !required.has(bone)) {
+      required.add(bone);
+      bone = parents.get(bone);
+    }
+  }
+  return required;
+}

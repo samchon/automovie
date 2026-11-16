@@ -1,26 +1,21 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { typeText } from "../everyday/typeText";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
-import { manipulateReach } from "./manipulateReach";
-import { manipulateShape } from "./manipulateShape";
+import { manipulatePlan } from "./manipulatePlan";
 
 /**
  * A keyed contact sequence: digits of one hand or both pressing sites of a
@@ -63,8 +58,8 @@ import { manipulateShape } from "./manipulateShape";
  * @evidence contracts/development/implementation.md#principled-implementation Arm placement by the pressing digit's tip in the pressing hand's shape and the digit's own inverse kinematics for the press; fingering by an exact Viterbi path minimizing wrist travel.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Sites, times, fingering, placements, then each posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown site or key is refused with the alternatives; the fingering's cost is a measured distance, no weight.
- * @evidence contracts/development/implementation.md#efficient-algorithms The fingering is linear in contacts times the square of the five digits; each posture is constant work over the contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The fingering is linear in contacts times the square of five digits; the plan prepares contact geometry once and selects each hand's active contact in logarithmic time.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Contact placement, hand shapes and activation windows are prepared once per plan (`manipulatePlan`).
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
  */
 export namespace manipulate {
@@ -153,120 +148,13 @@ export namespace manipulate {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
-    const hold: IHumanPosture = context.entry.posture;
-    const presses: IPress[] = sequence(context);
-    const rotation: Record<HumanHand.Side, IAutoMovieQuaternion> = {
-      left: manipulateFacing(hold, presses, "left"),
-      right: manipulateFacing(hold, presses, "right"),
-    };
-
-    // Where the wrist stands for a press (`manipulateReach`).
-    const wrist: (p: IPress) => IAutoMovieVector3 = (
-      p: IPress,
-    ): IAutoMovieVector3 =>
-      manipulateReach(
-        body,
-        p.side,
-        p.digit,
-        p.site,
-        p.normal,
-        p.depth,
-        rotation[p.side],
-      );
-    const duration: number =
-      presses[presses.length - 1]!.time + REACH * interval(context);
-    const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
-      (side: HumanHand.Side): boolean =>
-        presses.some((p: IPress): boolean => p.side === side),
+    return manipulatePlan(
+      context.body,
+      context.entry.posture,
+      sequence(context),
+      interval(context),
+      REACH,
     );
-
-    const contacts: IHumanContactWindow[] = (
-      ["leftFoot", "rightFoot"] as const
-    ).map(
-      (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
-        part,
-        kind: "plant",
-        from: 0,
-        to: 1,
-        support: { kind: "ground" },
-      }),
-    );
-    return {
-      duration,
-      events: presses.map((p: IPress, i: number) => ({
-        name: `press${i + 1}`,
-        share: p.time / duration,
-      })),
-      contacts,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        let posture: IHumanPosture = { ...hold, joints: { ...hold.joints } };
-        const digits: NonNullable<IHumanPosture["digits"]> = {};
-        for (const side of sides) {
-          const mine: IPress[] = presses.filter(
-            (p: IPress): boolean => p.side === side,
-          );
-
-          // The current press: the last whose approach has begun.
-          const span: number = interval(context);
-          let k: number = 0;
-          for (let i: number = 0; i < mine.length; i++)
-            if (t >= mine[i]!.time - REACH * span) k = i;
-          const press: IPress = mine[k]!;
-
-          // The pressing digit takes its position of rest and the others
-          // curl clear of the keys, as typing's pointing hand does
-          // (`typeText`).
-          posture.joints = {
-            ...posture.joints,
-            ...manipulateShape(side, press.digit),
-          };
-          const previous: IPress = mine[Math.max(0, k - 1)]!;
-          const approach: number = minimumJerk(
-            Math.min(
-              1,
-              Math.max(0, (t - (press.time - REACH * span)) / (REACH * span)),
-            ),
-          ).s;
-          const point: IAutoMovieVector3 = Vector3.lerp(
-            wrist(previous),
-            wrist(press),
-            approach,
-          );
-          posture = {
-            ...posture,
-            limbs: {
-              ...posture.limbs,
-              [`${side}Arm`]: {
-                point,
-                rotation: rotation[side],
-                bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
-              },
-            },
-          };
-
-          // The digit comes down by the travel and lifts again.
-          const down: number =
-            t < press.time
-              ? approach * approach
-              : 1 -
-                minimumJerk(
-                  Math.min(1, (t - press.time) / ((1 - REACH) * span)),
-                ).s;
-          const lift: number =
-            typeText.HOVER - (typeText.HOVER + press.depth) * down;
-          digits[
-            `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as IHumanPosture.Digit
-          ] = {
-            point: Vector3.add(press.site, Vector3.scale(press.normal, lift)),
-            normal: press.normal,
-            surface: "tip",
-          };
-        }
-        return { ...posture, digits };
-      },
-    };
   }
 
   /**
@@ -280,6 +168,9 @@ export namespace manipulate {
     const read: IHumanActionContext.IProp = context.prop(params.prop);
     const frame: IHumanProp.IFrame = read.frame(context.start);
     const side: HumanHand.Side = params.side === "left" ? "left" : "right";
+    const sites: Map<string, {
+      point: IAutoMovieVector3; normal: IAutoMovieVector3; travel: number | undefined;
+    }> = new Map();
 
     // A text on a keyboard: each key's site from typing's layout and its
     // digit from the touch-typing chart.
@@ -287,24 +178,31 @@ export namespace manipulate {
       params.text !== undefined
         ? typed(context, params.text)
         : (params.contacts ?? []).map((c: IContact): IContactAt => {
-            const affordance: IAutoMovieAffordance = site(read.prop, c.site);
+            let placed: { point: IAutoMovieVector3; normal: IAutoMovieVector3; travel: number | undefined } | undefined = sites.get(c.site);
+            if (placed === undefined) {
+              const affordance: IAutoMovieAffordance = site(read.prop, c.site);
+              placed = {
+                point: Vector3.add(
+                  frame.position,
+                  Quaternion.rotateVector(
+                    frame.rotation,
+                    affordance.frame.translation,
+                  ),
+                ),
+                normal: Quaternion.rotateVector(
+                  Quaternion.multiply(frame.rotation, affordance.frame.rotation),
+                  { x: 0, y: 1, z: 0 },
+                ),
+                travel: affordance.travel,
+              };
+              sites.set(c.site, placed);
+            }
             return {
               ...c,
-              ...((c.digit ?? params.digit) === undefined
-                ? {}
-                : { digit: c.digit ?? params.digit }),
-              point: Vector3.add(
-                frame.position,
-                Quaternion.rotateVector(
-                  frame.rotation,
-                  affordance.frame.translation,
-                ),
-              ),
-              normal: Quaternion.rotateVector(
-                Quaternion.multiply(frame.rotation, affordance.frame.rotation),
-                { x: 0, y: 1, z: 0 },
-              ),
-              depth: c.depth ?? affordance.travel ?? typeText.TRAVEL,
+              ...((c.digit ?? params.digit) === undefined ? {} : { digit: c.digit ?? params.digit }),
+              point: placed.point,
+              normal: placed.normal,
+              depth: c.depth ?? placed.travel ?? typeText.TRAVEL,
             };
           });
     if (given.length === 0)

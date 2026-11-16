@@ -140,9 +140,9 @@ export namespace dance {
    * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per step.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beat is never moved by the manner: the manner scales sizes only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the beats per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg placement and its arc.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the beat list and the stance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparing beat lists and world foot placements is linear in beats; each moving-foot time query uses a logarithmic search and the same constant-cost arc.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each exact authored foot offset is transformed once in the unchanged entry frame and shared by placement queries; time queries retain no previous-query state.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(beats) footfalls and world placements until it is released, alongside its existing beat clock.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -323,22 +323,34 @@ export namespace dance {
           }
           falls.push({ foot, beat: beatAt(k), at: offset[foot] });
         }
+        const paths: Record<"left" | "right", typeof falls> = {
+          left: falls.filter((fall: (typeof falls)[number]): boolean => fall.foot === "left"),
+          right: falls.filter((fall: (typeof falls)[number]): boolean => fall.foot === "right"),
+        };
+        const origin: IOffset = { x: 0, z: 0 };
+        const placements: Record<"left" | "right", Map<IOffset, HumanFoot.IPlacement>> = { left: new Map(), right: new Map() };
+        for (const foot of ["left", "right"] as const)
+          for (const at of [origin, ...paths[foot].map((fall: (typeof falls)[number]): IOffset => fall.at)])
+            placements[foot].set(at, {
+              ankle: Vector3.add(stance[foot].ankle, Vector3.add(Vector3.scale(leftward, at.x), Vector3.scale(forward, at.z))),
+              rotation: stance[foot].rotation,
+            });
         const lateral = (
           foot: "left" | "right",
           s: number,
         ): { at: IOffset; swing: number; from: IOffset } => {
-          let at: IOffset = { x: 0, z: 0 };
-          for (const f of falls)
-            if (f.foot === foot) {
-              const start: number = f.beat - period / 2;
-              if (s >= f.beat) at = f.at;
-              else if (s > start)
-                return {
-                  at: f.at,
-                  swing: (s - start) / (period / 2),
-                  from: at,
-                };
-            }
+          const path: typeof falls = paths[foot];
+          let lo: number = 0;
+          let hi: number = path.length;
+          while (lo < hi) {
+            const mid: number = Math.floor((lo + hi) / 2);
+            if (s >= path[mid]!.beat) lo = mid + 1;
+            else hi = mid;
+          }
+          const at: IOffset = lo === 0 ? origin : path[lo - 1]!.at;
+          const next: (typeof falls)[number] | undefined = path[lo];
+          if (next !== undefined && s > next.beat - period / 2)
+            return { at: next.at, swing: (s - (next.beat - period / 2)) / (period / 2), from: at };
           return { at, swing: 1, from: at };
         };
         const placed = (
@@ -346,19 +358,9 @@ export namespace dance {
           s: number,
         ): HumanFoot.IPlacement => {
           const l = lateral(foot, s);
-          const shift = (o: IOffset): HumanFoot.IPlacement => ({
-            ankle: Vector3.add(
-              stance[foot].ankle,
-              Vector3.add(
-                Vector3.scale(leftward, o.x),
-                Vector3.scale(forward, o.z),
-              ),
-            ),
-            rotation: stance[foot].rotation,
-          });
           return AutoMovieMotionHumanLeg.arc(
-            shift(l.from),
-            shift(l.at),
+            placements[foot].get(l.from)!,
+            placements[foot].get(l.at)!,
             0.04 * m.stature,
             l.swing,
           );

@@ -27,6 +27,14 @@ export namespace HumanArmOptimiser {
    * @param start Each arm's coordinates at each waypoint; the first and the last waypoint stay.
    * @param from The penalty to start at, a solve continued from an earlier one of the same problem on other waypoints (`penalty` of its result); the first when absent.
    * @returns The last iterate, its evaluation and the penalty it was reached at.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, QP.prepare owns admitted immutable numeric snapshots, and the shared sequential-convex loop owns acceptance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, warm iterate, keyed multiplier, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed model preparation per convexification replaces repeated coefficient/scaling-equivalence scans on bound-only retries; each retry retains full OSQP work and O(m) interval updates, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An operation-local prepared model snapshots actual P/q/A and ordered unit trust rows; new iterates/penalties create another model while changing radius supplies fresh intervals and original warm/dual data.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one fixed numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
    */
   export function optimise(
     context: M.IContext,
@@ -55,7 +63,8 @@ export namespace HumanArmOptimiser {
           mu,
           SCHEDULE.expand * radius,
         );
-        const zero: number = QP.value(model, new Float64Array(model.n));
+        let zero: number | undefined;
+        let prepared: ReturnType<typeof QP.prepare> | undefined;
         let trusted: QP.IProblem | undefined;
         let warm: QP.IState | undefined;
         return {
@@ -76,13 +85,18 @@ export namespace HumanArmOptimiser {
                 ),
               ],
             };
-            warm = QP.solve(trusted, warm, duals);
+            prepared ??= QP.prepare(trusted);
+            warm = prepared.solve(trusted.rows, warm, duals);
+            const solved: Float64Array = warm.x;
             let length: number = 0;
             for (let i: number = 0; i < warm.x.length; ++i)
               length = Math.max(length, Math.abs(warm.x[i]!));
+            let trial: number[][][] | undefined;
             return {
-              trial: M.stepped(context, x, warm.x),
-              predicted: zero - QP.value(model, warm.x),
+              get trial(): number[][][] {
+                return (trial ??= M.stepped(context, x, solved));
+              },
+              predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
               length,
               // The step at the region's edge, to the solver's own accuracy.
               full: length >= r * (1 - QP.TOLERANCE),

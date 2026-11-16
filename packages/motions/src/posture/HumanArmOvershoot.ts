@@ -43,8 +43,8 @@ export namespace HumanArmOvershoot {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The room read once, one bounding-sphere test per hull, then the samples of the shapes that pass it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk or on a partner is not refused; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist that surely lies too far outside the shape for the query to raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is (`broad`): the bounding sphere decides first, then a hull's face planes, the face that last decided tried first and the scan stopped at the first face that decides (`beyond`).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every distance is the engine's `physicalShapeSegmentDistance`; a shape's bounding sphere and hull frame are computed once per posed frame (`HumanShapeFraming.of`), and the chest, its outward side, whether the other arm is present and the framed shapes once per room (`roomOf`), the same values every candidate of a swivel sweep would compute again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains each posed frame's shapes as `framing` reads them, in a weak map keyed by the frame, and each room in weak maps keyed by its collider lists, each released with what keys it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same evaluate owner serves this one-off reading and prepare's varying candidates; only opaque unchanged shape geometry is shared, and every wrist/sample distance, allowance and screen remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak frame/room caches remain unchanged. This one-off call creates a query map only at an exact query, retains no point/result and releases it on return or throw.
    */
   export function of(
     body: IHumanBody,
@@ -58,127 +58,54 @@ export namespace HumanArmOvershoot {
     hint?: IAutoMovieVector3,
     rests: readonly HumanColliders.IPlaced[] = [],
   ): number {
-    const radius: number = body.measure.forearmRadius;
-    const degrees = (metres: number): number =>
-      ((metres / body.measure.upperArm) * 180) / Math.PI;
-    // The elbow's side: it goes no farther across the chest's median plane
-    // than its goal asks, by the wrist or by the elbow's own hint, so a hand
-    // sent across the body takes its elbow as far as the goal asks and no
-    // farther, and a hand on its own side keeps its elbow there unless the
-    // hint asks it across (a hand put ahead of its own shoulder, with a
-    // partner too close to clear, had its elbow fitted 61 mm across). An
-    // elbow is at its hint while its flesh covers the hint's place, so its
-    // axis may lie a forearm's radius beyond it: an arm wrestle hints its
-    // elbow onto the midline, where the place the elbow's circle offers
-    // nearest the hint lies a few millimetres across.
-    // While the other arm is still to come, the plane also stands in for that
-    // arm's room, by the forearm's radius; only then, since an arm fitted,
-    // hanging or resting has its own colliders among the shapes, and only
-    // while the goal it will be fitted to (`rival`) lies on this arm's side:
-    // an arm wrestle's elbow on the midline ahead of the sternum, its other
-    // hand on its own side, was lifted 50 mm off its place by the margin.
-    const room: IRoom = roomOf(shapes, others, rests, side);
-    let depth: number = 0;
-    if (room.chest !== undefined) {
-      const chest: HumanColliders.IPlaced = room.chest;
-      const out: IAutoMovieVector3 = room.out;
-      const own = (p: IAutoMovieVector3): number =>
-        Vector3.dot(Vector3.subtract(p, chest.pose.position), out);
-      const kept: boolean =
-        !room.present && (rival === undefined || own(rival) > -radius);
-      depth = Math.max(
-        0,
-        Math.min(
-          kept ? radius : 0,
-          own(wrist),
-          hint === undefined ? Infinity : own(hint) - radius,
-        ) - own(elbow),
-      );
-    }
-    // A shape whose bounding sphere the forearm's axis stays a radius from
-    // cannot be within a radius of any axis point, so it is not sampled.
-    const near: IShape[] = [];
-    for (const shape of room.shapes) {
-      const bound: HumanShapeFraming.IFramed = shape.framed;
-      // The cheap point-to-segment distance decides where it clears the bound by more than `MARGIN` either way; the exact query decides the rest, so the choice is the exact query's.
-      if (bound.faces !== undefined) {
-        const gap: number = BROAD.on
-          ? along(elbow, wrist, bound.centre) - bound.radius - radius
-          : 0;
-        if (gap > MARGIN) continue;
-        if (
-          !(gap < -MARGIN) &&
-          closestPointsBetweenSegments(elbow, wrist, bound.centre, bound.centre)
-            .distance -
-            bound.radius >=
-            radius
-        )
-          continue;
-      }
-      near.push(shape);
-    }
-    if (near.length === 0) return degrees(depth);
+    return evaluate(
+      body,
+      roomOf(shapes, others, rests, side),
+      elbow,
+      wrist,
+      goal,
+      rival,
+      hint,
+    );
+  }
 
-    // The wrist's own signed clearance when the goal puts it inside a shape,
-    // which no elbow place changes; 0 for a wrist outside the body. A shape
-    // the wrist surely lies outside of has a positive distance, which the
-    // least with 0 ignores, so it is not queried.
-    let grazing: number = 0;
-    for (const shape of near)
-      if (
-        goal &&
-        !shape.free &&
-        !(BROAD.on && HumanShapeFraming.beyond(wrist, shape.framed, MARGIN))
-      )
-        grazing = Math.min(
-          grazing,
-          physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist),
-        );
-    // The wrist's shortfall from the room it needs from a shape the goal
-    // lays the hand on: the goal puts the hand on its surface.
-    let resting: number = 0;
-    for (const shape of near)
-      if (
-        goal &&
-        shape.rest &&
-        !(
-          BROAD.on &&
-          HumanShapeFraming.beyond(
-            wrist,
-            shape.framed,
-            radius - TISSUE + MARGIN,
-          )
-        )
-      )
-        resting = Math.min(
-          resting,
-          physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist) -
-            (radius - TISSUE),
-        );
-    for (let i: number = 0; i < SAMPLES; i++) {
-      const s: number = i / SAMPLES;
-      const at: IAutoMovieVector3 = Vector3.lerp(elbow, wrist, s);
-      // The skin may press `TISSUE` into a surface anywhere along the
-      // forearm, as the contact verdicts allow, and no deeper.
-      const needed: number = Math.max(radius * (1 - s), radius - TISSUE);
-      for (const shape of near) {
-        // A shape that cannot ask more than the depth already found leaves
-        // the greatest as it is: the needed clearance less the least the
-        // distance can be, `grazing` only lowering it.
-        if (
-          BROAD.on &&
-          HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN)
-        )
-          continue;
-        depth = Math.max(
-          depth,
-          needed +
-            (shape.rest ? resting * s : shape.free ? 0 : grazing * s) -
-            physicalShapeSegmentDistance(shape.pose, shape.shape, at, at),
-        );
-      }
-    }
-    return degrees(depth);
+  /**
+   * Read varying elbow/wrist candidates against one unchanged room during a
+   * synchronous fit. The lists, their placed geometry, body measurements and
+   * goal metadata must remain unchanged until the caller releases the reader.
+   * Preparation is lazy, preserving the first actual obstruction's admission.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed dependencies, lazy first use, varying world-metre points and operation ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same evaluate body as of; shape-frame geometry is independent of elbow/wrist candidates, so its opaque engine readers can serve every actual query in that fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns fixed room metadata and lazy distance readers; evaluate alone owns all screening, samples, allowances and depth calculations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every selected point distance and candidate is evaluated in original order, with unchanged samples, ties and tolerances; no query result or resolved flag is stored.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Room lookup happens once and at most S exact readers are prepared across the fit's K candidates and S fixed shapes; candidate shape screening and point-distance costs remain unchanged, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller-owned fixed placed frames, shapes and scalar goal metadata establish equivalence only within this synchronous fit; the engine readers share geometry and never points, taper values or distances.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit owns the closure, borrowed lists and at most S lazy opaque geometry readers until return or throw; none enter global room/frame caches, a result, a body memory or a returned plan.
+   */
+  export function prepare(
+    body: IHumanBody,
+    shapes: readonly HumanColliders.IPlaced[],
+    side: "left" | "right",
+    others: readonly HumanColliders.IPlaced[] = [],
+    goal: boolean = true,
+    rival?: IAutoMovieVector3,
+    hint?: IAutoMovieVector3,
+    rests: readonly HumanColliders.IPlaced[] = [],
+  ): (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3) => number {
+    let room: IRoom | undefined;
+    const shared: IQueries = {};
+    return (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
+      evaluate(
+        body,
+        (room ??= roomOf(shapes, others, rests, side)),
+        elbow,
+        wrist,
+        goal,
+        rival,
+        hint,
+        shared,
+      );
   }
 
   /**
@@ -189,10 +116,185 @@ export namespace HumanArmOvershoot {
    * cannot change the reading, so both give the same degrees.
    *
    * @param on Whether queries are screened.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the original screen switch, default-on behavior and full-reading comparison purpose.
+   * @evidence contracts/development/implementation.md#principled-implementation Screening omits only queries whose conservative bounds cannot change the original depth; turning it off retains every near-shape wrist/sample query.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One assignment updates the existing screen flag read by of and prepared readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes neither shape geometry, sample count, clearance allowances nor success criteria; it preserves the existing explicit screen control rather than replacing a query result.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Assigns one boolean in constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The switch performs no repeated numerical work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the existing module boolean, without a body, frame, target or reader.
    */
   export function broad(on: boolean): void {
     BROAD.on = on;
   }
+}
+
+/** An opaque fixed-geometry reader with no retained point or distance. */
+type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
+
+/** Operation-local holder, populated only when a candidate needs exact geometry. */
+interface IQueries {
+  /** Readers for unchanged shapes, without queried points or results. */
+  readers?: Map<IShape, IDistanceReader>;
+}
+
+/** Evaluate one candidate, sharing only operation-owned unchanged geometry. */
+function evaluate(
+  body: IHumanBody,
+  room: IRoom,
+  elbow: IAutoMovieVector3,
+  wrist: IAutoMovieVector3,
+  goal: boolean,
+  rival: IAutoMovieVector3 | undefined,
+  hint: IAutoMovieVector3 | undefined,
+  shared?: IQueries,
+): number {
+  const radius: number = body.measure.forearmRadius;
+  const degrees: (metres: number) => number = (metres: number): number =>
+    ((metres / body.measure.upperArm) * 180) / Math.PI;
+
+  // The elbow's side: it goes no farther across the chest's median plane
+  // than its goal asks, by the wrist or by the elbow's own hint, so a hand
+  // sent across the body takes its elbow as far as the goal asks and no
+  // farther, and a hand on its own side keeps its elbow there unless the
+  // hint asks it across (a hand put ahead of its own shoulder, with a
+  // partner too close to clear, had its elbow fitted 61 mm across). An
+  // elbow is at its hint while its flesh covers the hint's place, so its
+  // axis may lie a forearm's radius beyond it: an arm wrestle hints its
+  // elbow onto the midline, where the place the elbow's circle offers
+  // nearest the hint lies a few millimetres across.
+  // While the other arm is still to come, the plane also stands in for that
+  // arm's room, by the forearm's radius; only then, since an arm fitted,
+  // hanging or resting has its own colliders among the shapes, and only
+  // while the goal it will be fitted to (`rival`) lies on this arm's side:
+  // an arm wrestle's elbow on the midline ahead of the sternum, its other
+  // hand on its own side, was lifted 50 mm off its place by the margin.
+  let depth: number = 0;
+  if (room.chest !== undefined) {
+    const chest: HumanColliders.IPlaced = room.chest;
+    const out: IAutoMovieVector3 = room.out;
+    const own: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+      Vector3.dot(Vector3.subtract(p, chest.pose.position), out);
+    const kept: boolean =
+      !room.present && (rival === undefined || own(rival) > -radius);
+    depth = Math.max(
+      0,
+      Math.min(
+        kept ? radius : 0,
+        own(wrist),
+        hint === undefined ? Infinity : own(hint) - radius,
+      ) - own(elbow),
+    );
+  }
+
+  // A shape whose bounding sphere the forearm's axis stays a radius from
+  // cannot be within a radius of any axis point, so it is not sampled.
+  const near: IShape[] = [];
+  for (const shape of room.shapes) {
+    const bound: HumanShapeFraming.IFramed = shape.framed;
+
+    // The cheap point-to-segment distance decides where it clears the bound by more than `MARGIN` either way; the exact query decides the rest, so the choice is the exact query's.
+    if (bound.faces !== undefined) {
+      const gap: number = BROAD.on
+        ? along(elbow, wrist, bound.centre) - bound.radius - radius
+        : 0;
+      if (gap > MARGIN) continue;
+      if (
+        !(gap < -MARGIN) &&
+        closestPointsBetweenSegments(elbow, wrist, bound.centre, bound.centre)
+          .distance -
+          bound.radius >=
+          radius
+      )
+        continue;
+    }
+    near.push(shape);
+  }
+  if (near.length === 0) return degrees(depth);
+
+  // Only fixed posed geometry is shared through this candidate; every
+  // selected wrist/sample still runs its actual signed-distance query.
+  let queries: Map<IShape, IDistanceReader> | undefined = shared?.readers;
+  const distance: (shape: IShape, point: IAutoMovieVector3) => number = (
+    shape: IShape,
+    point: IAutoMovieVector3,
+  ): number => {
+    let query: IDistanceReader | undefined = queries?.get(shape);
+    if (query === undefined) {
+      query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
+      if (queries === undefined) {
+        queries = new Map();
+        if (shared !== undefined) shared.readers = queries;
+      }
+      queries.set(shape, query);
+    }
+    return query(point, point);
+  };
+
+  // The wrist's own signed clearance when the goal puts it inside a shape,
+  // which no elbow place changes; 0 for a wrist outside the body. A shape
+  // the wrist surely lies outside of has a positive distance, which the
+  // least with 0 ignores, so it is not queried.
+  let grazing: number = 0;
+  for (const shape of near)
+    if (
+      goal &&
+      !shape.free &&
+      !(BROAD.on && HumanShapeFraming.beyond(wrist, shape.framed, MARGIN))
+    )
+      grazing = Math.min(
+        grazing,
+        distance(shape, wrist),
+      );
+
+  // The wrist's shortfall from the room it needs from a shape the goal
+  // lays the hand on: the goal puts the hand on its surface.
+  let resting: number = 0;
+  for (const shape of near)
+    if (
+      goal &&
+      shape.rest &&
+      !(
+        BROAD.on &&
+        HumanShapeFraming.beyond(
+          wrist,
+          shape.framed,
+          radius - TISSUE + MARGIN,
+        )
+      )
+    )
+      resting = Math.min(
+        resting,
+        distance(shape, wrist) -
+          (radius - TISSUE),
+      );
+
+  for (let i: number = 0; i < SAMPLES; i++) {
+    const s: number = i / SAMPLES;
+    const at: IAutoMovieVector3 = Vector3.lerp(elbow, wrist, s);
+
+    // The skin may press `TISSUE` into a surface anywhere along the
+    // forearm, as the contact verdicts allow, and no deeper.
+    const needed: number = Math.max(radius * (1 - s), radius - TISSUE);
+    for (const shape of near) {
+      // A shape that cannot ask more than the depth already found leaves
+      // the greatest as it is: the needed clearance less the least the
+      // distance can be, `grazing` only lowering it.
+      if (
+        BROAD.on &&
+        HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN)
+      )
+        continue;
+      depth = Math.max(
+        depth,
+        needed +
+          (shape.rest ? resting * s : shape.free ? 0 : grazing * s) -
+          distance(shape, at),
+      );
+    }
+  }
+  return degrees(depth);
 }
 
 /** One shape with the posed frame of its segment. */
@@ -253,7 +355,7 @@ function roomOf(
   rests: readonly HumanColliders.IPlaced[],
   side: "left" | "right",
 ): IRoom {
-  const key = (list: readonly HumanColliders.IPlaced[]): object =>
+  const key: (list: readonly HumanColliders.IPlaced[]) => object = (list: readonly HumanColliders.IPlaced[]): object =>
     list.length === 0 ? EMPTY : list;
   let byOthers:
     | WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", IRoom>>>>
@@ -279,8 +381,8 @@ function roomOf(
   const known: IRoom | undefined = sides[side];
   if (known !== undefined) return known;
   const chest: HumanColliders.IPlaced | undefined =
-    shapes.find((s: HumanColliders.IPlaced) => s.bone === "upperChest") ??
-    shapes.find((s: HumanColliders.IPlaced) => s.bone === "chest");
+    shapes.find((s: HumanColliders.IPlaced): boolean => s.bone === "upperChest") ??
+    shapes.find((s: HumanColliders.IPlaced): boolean => s.bone === "chest");
   const other: "left" | "right" = side === "left" ? "right" : "left";
   const room: IRoom = {
     chest,
@@ -297,10 +399,10 @@ function roomOf(
         s.bone === `${other}UpperArm` || s.bone === `${other}LowerArm`,
     ),
     shapes: [
-      ...shapes.map((s: HumanColliders.IPlaced) => [s, false, false] as const),
-      ...others.map((s: HumanColliders.IPlaced) => [s, true, false] as const),
-      ...rests.map((s: HumanColliders.IPlaced) => [s, true, true] as const),
-    ].flatMap(([segment, free, rest]): IShape[] =>
+      ...shapes.map((s: HumanColliders.IPlaced): readonly [HumanColliders.IPlaced, boolean, boolean] => [s, false, false]),
+      ...others.map((s: HumanColliders.IPlaced): readonly [HumanColliders.IPlaced, boolean, boolean] => [s, true, false]),
+      ...rests.map((s: HumanColliders.IPlaced): readonly [HumanColliders.IPlaced, boolean, boolean] => [s, true, true]),
+    ].flatMap(([segment, free, rest]: readonly [HumanColliders.IPlaced, boolean, boolean]): IShape[] =>
       segment.shapes.map(
         (shape: HumanColliders.IPlaced["shapes"][number]): IShape => ({
           pose: segment.pose,

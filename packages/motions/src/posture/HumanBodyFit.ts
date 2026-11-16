@@ -1,3 +1,4 @@
+import { clampJointToSkeleton } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
@@ -8,6 +9,7 @@ import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanJacobian } from "./HumanJacobian";
 import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
+import { HumanQuadraticValue } from "./HumanQuadraticValue";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
 import type { IHumanPosture } from "./IHumanPosture";
 
@@ -145,9 +147,9 @@ export namespace HumanBodyFit {
    * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model equals the merit at no step.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one merit, one model per convexification, the shared loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal is a priced row and every collider near the floor a row; a residual is measured on the fitted posture, never taken from the model.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and one Jacobian per convexification, one forward kinematics per trial; at most two O(n squared) curvature allocations serve the fit, each new slope and allocation-free length reduction takes O(n), and distant collider or pair rows are admitted only when needed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed variables, units and weights share two lazy fit-local curvatures; the same evaluation supplies selected contacts and actual pair gaps, and each model owns fresh q plus lazy row references and zero-step objective. Every QP still admits all current raw inputs and each actual trial is evaluated anew.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit owns at most two immutable numeric curvatures, current models and warm iterates; each model owns one lazy row-reference array and scalar, all released with the call, while its temporary zero vector is released after first evaluation and no result or body cache is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds the owning FK/Jacobian and sequential-convex/QP costs; one canonical preparation serves rig metadata, with actual projections per candidate. Each convexification admits and snapshots its fixed P/q/A once, so radius retries and its SOC refresh O(m) row intervals instead of rescanning coefficients; model steps, actual trials and diagnostics remain unchanged and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A fit-local canonical engine factory shares fixed skeleton metadata. A convexification owns immutable numeric P/q/A while only bound intervals change across its radius/SOC solves; a new Jacobian or penalty builds another model. Written clinical input, contacts, pair witnesses and model products retain their actual candidate equivalence.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns indices, at most two curvatures, canonical metadata and current models/iterates/evaluations. Each convexification's model holds copied fixed rows and bounded solver scratch until replacement or return; final written posture ownership transfers to the result, without a global result/body cache.
    */
   export function fit(props: IProps): IResult {
     const { body, posture }: Pick<IProps, "body" | "posture"> = props;
@@ -158,9 +160,16 @@ export namespace HumanBodyFit {
     const bearing: readonly RegExp[] = props.bearing ?? [];
     const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
     const n: number = variables.length;
+    const hasJointVariables: boolean = variables.some(
+      (variable: HumanJacobian.IVariable): boolean => variable.kind === "angle",
+    );
     const key: Float64Array = HumanFitVariables.vector(variables, posture);
     const units: number[] = variables.map(
       (v: HumanJacobian.IVariable): number => HumanFitVariables.unit(v),
+    );
+    const index: readonly number[] = Array.from(
+      { length: n },
+      (_: unknown, i: number): number => i,
     );
 
     // A step under a variable's resolution share, in the widest region's
@@ -198,6 +207,9 @@ export namespace HumanBodyFit {
     let objectiveP: Float64Array[] | undefined;
     let steeringP: Float64Array[] | undefined;
 
+    // Only canonical metadata crosses models; every candidate is projected.
+    let projection: ReturnType<typeof clampJointToSkeleton.prepare> | undefined;
+
     // The last quadratic program solved and its iterates, from which the next
     // solve starts: the same model at another radius from its iterates, a new
     // convexification from its multipliers by row key, the constraints the
@@ -227,18 +239,10 @@ export namespace HumanBodyFit {
             return { ...r.row, l: r.row.l - miss, u: r.row.u - miss };
           },
         );
-        const state: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
-          {
-            n,
-            band: n - 1,
-            p: l.p,
-            q: l.q,
-            rows: [
-              ...shifted,
-              ...HumanFitVariables.bounds(variables, x, l.radius),
-            ],
-          },
-        );
+        const state: HumanQuadraticProgram.IState = l.model.solve([
+          ...shifted,
+          ...HumanFitVariables.bounds(variables, x, l.radius),
+        ]);
         return moved(x, state.x);
       },
       convexify: (
@@ -252,13 +256,17 @@ export namespace HumanBodyFit {
         const step: HumanBodyFitRows.IStep = {
           body,
           at,
-          motions: HumanJacobian.of(
+          motions: HumanJacobian.read(
             body,
-            HumanFitVariables.written(variables, posture, x),
+            at.written,
             at.bones,
             variables,
-          ),
+            hasJointVariables
+              ? (projection ??= clampJointToSkeleton.prepare(body.skeleton))
+              : undefined,
+          ).motions,
           units,
+          index,
           targets,
           angles,
           ...(props.centre === undefined ? {} : { centre: props.centre }),
@@ -269,7 +277,7 @@ export namespace HumanBodyFit {
         at.heights.forEach((h: number, c: number): void => {
           const low: number = at.lows[at.of[c]!]!;
           if (
-            !step.touching.includes(c) &&
+            !e.touchingSet.has(c) &&
             (h < 0 || (low <= NEAR && h <= low + HumanBodyFitRows.MARGIN))
           )
             rowed.add(c);
@@ -282,7 +290,7 @@ export namespace HumanBodyFit {
         // Misses holds actual negative gaps for this same ordered pair list.
         pairs.forEach((pair: HumanFitPairs.IPair, k: number): void => {
           if (-e.misses.pairs[k]! <= NEAR)
-            rows.push(HumanFitPairs.row(step, pair, BAND, MM));
+            rows.push(HumanFitPairs.row(step, pair, BAND, MM, e.gaps[k]!));
         });
 
         // The objective's curvature and slope in solved units; none for the
@@ -310,6 +318,7 @@ export namespace HumanBodyFit {
         // Compute its zero value lazily, after the first QP admission.
         let zero: number | undefined;
         let fixedRows: HumanQuadraticProgram.IRow[] | undefined;
+        let model: ReturnType<typeof HumanQuadraticProgram.prepare> | undefined;
         return {
           solve: (
             radius: number,
@@ -326,11 +335,13 @@ export namespace HumanBodyFit {
                 ...HumanFitVariables.bounds(variables, x, radius),
               ],
             };
+            const prepared: ReturnType<typeof HumanQuadraticProgram.prepare> =
+              (model ??= HumanQuadraticProgram.prepare(qp));
             const state: HumanQuadraticProgram.IState =
               previous !== null && previous.rows === rows
-                ? HumanQuadraticProgram.solve(qp, previous.state)
-                : HumanQuadraticProgram.solve(
-                    qp,
+                ? prepared.solve(qp.rows, previous.state)
+                : prepared.solve(
+                    qp.rows,
                     undefined,
                     previous === null
                       ? undefined
@@ -341,24 +352,29 @@ export namespace HumanBodyFit {
                   );
             previous = { qp, state, rows };
             const solved: Float64Array = state.x;
-            last = { x, at, rows, p, q, radius, moved: solved };
+            last = { x, at, rows, model: prepared, radius, moved: solved };
             let linear: number = 0;
             let met: boolean = true;
-            for (const r of rows) {
-              let s: number = 0;
-              for (let a: number = 0; a < r.row.index.length; a++)
-                s += r.row.coef[a]! * solved[r.row.index[a]!]!;
-              const d: number = Math.max(0, r.row.l - s, s - r.row.u);
-              linear += ((r.row.weight ?? mu) / mu) * d;
-              if (d > BAND * MM) met = false;
-            }
+
+            // Model rows are all priced; appended variable bounds are hard.
+            // One actual soft-row product serves objective and diagnostics.
+            // Both owned curvatures are diagonal; the QP row band stays full.
+            const value: number = HumanQuadraticValue(
+              qp,
+              solved,
+              (row: HumanQuadraticProgram.IRow, miss: number): void => {
+                linear += ((row.weight ?? mu) / mu) * miss;
+                if (miss > BAND * MM) met = false;
+              },
+              0,
+            );
+            let trial: Float64Array | undefined;
             return {
-              trial: moved(x, solved),
+              get trial(): Float64Array {
+                return (trial ??= moved(x, solved));
+              },
               predicted:
-                (zero ??= HumanQuadraticProgram.value(
-                  qp,
-                  new Float64Array(n),
-                )) - HumanQuadraticProgram.value(qp, solved),
+                (zero ??= HumanQuadraticValue(qp)) - value,
               length: length(solved),
               full: HumanFitVariables.edge(variables, solved, radius),
               violation: linear,
@@ -413,7 +429,7 @@ export namespace HumanBodyFit {
       );
     const r: IReading = solved.evaluation.r;
     return {
-      posture: HumanFitVariables.written(variables, posture, solved.x),
+      posture: r.written,
       residuals: targets.map(
         (t: ITarget, k: number): { point: number; turn: number } =>
           HumanBodyFitRows.residual(t, r, k),
@@ -460,8 +476,7 @@ export namespace HumanBodyFit {
     x: Float64Array;
     at: IReading;
     rows: IRead[];
-    p: Float64Array[];
-    q: Float64Array;
+    model: ReturnType<typeof HumanQuadraticProgram.prepare>;
     radius: number;
     moved: Float64Array;
   }

@@ -17,9 +17,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
-import { StrikingBody } from "../striking/StrikingBody";
 
 /**
  * The airborne kernel of the gymnastic and jumping laws (#3377): a body in
@@ -52,18 +52,18 @@ export namespace GymnasticsFlight {
    * The mass model of a body.
    *
    * @param body The body.
-   * @returns The engine's segment model, built once per plan by the callers.
+   * @returns The body's canonical segment model, prepared when that body is created.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's segment mass model from the body's skeleton and profile.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the body's canonical engine mass model, derived from the same unchanged skeleton and physical profile as its rest and collider data.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One body-owned model read leaves preparation and lifetime with createHumanBody.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in segments, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The callers keep it for the plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-time model reference read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every action of the same unchanged body shares its actual canonical model; recreate the body after skeleton/profile edits as IHumanBody requires.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body-owned model; this adapter retains no cache or external resource.
    */
   export function model(body: IHumanBody): Model {
-    return resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    return body.massModel;
   }
 
   /**
@@ -105,25 +105,27 @@ export namespace GymnasticsFlight {
    * @param body The body.
    * @param model Its mass model.
    * @param posture The posture.
+   * @param resolution Optional exact FK reader or lazy supplier borrowed from this synchronous body's evaluation.
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's segment mass model over the posture's bones: forward kinematics alone for a posture of joints, the full resolution for one with goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one weighted mean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones; limb fits only when the posture has goals.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Canonical joint admission and FK remain linear in bones, plus actual limb/digit fits and segment mass reduction. One operation-scoped exact FK reader serves resolution and final bones; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same synchronous body's reader may also serve floor or collider reads; every actual posture, goal and mass reduction still executes, while the reader validates equal joint/ancestor prerequisites.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local lazy reader ends on return or throw; an explicitly borrowed reader stays with its synchronous parent. No reader, map or query history escapes in the returned centre vector.
    */
   export function centre(
     body: IHumanBody,
     model: Model,
     posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieVector3 {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      Object.keys(posture.limbs).length === 0
-        ? StrikingBody.trunk(body, posture)
-        : poseBones(body, resolveHumanPosture(body, posture));
+      poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, undefined, read).pose, read());
     return resolveAutoMovieCenterOfMass.place(model, bones);
   }
 
@@ -197,7 +199,7 @@ export namespace GymnasticsFlight {
       resolveHumanPosture.heading(after),
       Quaternion.inverse(resolveHumanPosture.heading(posture)),
     );
-    const round = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const round: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(
         pivot,
         Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
@@ -280,6 +282,7 @@ export namespace GymnasticsFlight {
    *
    * @param body The body.
    * @param posture The posture.
+   * @param resolution Optional exact FK reader or supplier borrowed from the current synchronous touchdown search.
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit.
@@ -287,11 +290,11 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One difference.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and one pass over the shapes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `knockdown.rest`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses knockdown.rest; an optional explicit touchdown-search reader shares only exactly unchanged FK prerequisites between actual bisection queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither geometry nor the borrowed reader/supplier, which belongs to the synchronous search and never a returned plan.
    */
-  export function lowest(body: IHumanBody, posture: IHumanPosture): number {
-    return posture.root.y - knockdown.rest(body, posture);
+  export function lowest(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): number {
+    return posture.root.y - knockdown.rest(body, posture, resolution);
   }
 
   /**

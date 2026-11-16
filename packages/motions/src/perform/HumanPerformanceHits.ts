@@ -12,6 +12,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
+import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanBlast } from "./HumanBlast";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
@@ -55,6 +56,14 @@ export namespace HumanPerformanceHits {
    * @param self The placed performance.
    * @param subject The struck person or prop; every hit when absent.
    * @returns The hits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States all-subject versus selected-target results; the namespace documents producer fields, units and ordering.
+   * @evidence contracts/development/implementation.md#principled-implementation Actual melee stops, blast impulse geometry and prop-flight contacts produce the existing shared interaction records; time/id sorting defines deterministic order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three private producer readers feed one sort and optional target filter.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps central-difference velocity, provisional profile segment mass, nearest surface/region and producer outcomes; a complete-axis melee read changes no physical acceptance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold work includes actual producer queries and O(H log H) sorting for H hits; target filtering is O(H). A registered melee capsule reads both contact ends in one actual chain evaluation; its two velocity times remain separate actual reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing weak performance result is used only outside resolving; resolving always rebuilds from current state. Registered capsule constructor metadata shares its head/tail source only within one exact contact-time read.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing weak performance keys retain H immutable hit records for that placed performance; temporary producer arrays and endpoint frames end after the build. No pose/endpoint history or new resource is retained.
    */
   export function hits(
     self: HumanPerformanceState,
@@ -85,8 +94,8 @@ export namespace HumanPerformanceHits {
     return self.strikes.map(
       (strike: HumanPerformanceState.IStrike): IAutoMovieInteractionEvent => {
         const t: number = strike.seconds;
-        const point: IAutoMovieVector3 = strike.weapon.path(t);
-        const end: IAutoMovieVector3 = strike.weapon.tail?.(t) ?? point;
+        const [point, tail]: StrikingWeapon.IAxis = StrikingWeapon.read(strike.weapon, t);
+        const end: IAutoMovieVector3 = tail ?? point;
         const velocity: IAutoMovieVector3 = Vector3.scale(
           Vector3.subtract(
             strike.weapon.path(t + HumanPerformanceContacts.STEP),

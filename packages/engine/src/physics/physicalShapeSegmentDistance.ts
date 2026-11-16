@@ -41,3 +41,28 @@ export function physicalShapeSegmentDistance(
 ): number {
   return physicalShapeQuery(pose, shape, a, b, taper, false);
 }
+
+/**
+ * Fixed-geometry preparation for the distance facade's actual repeated-query
+ * consumers; each changed segment still runs its original physical query.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines one synchronous unchanged-pose/shape operation and lazy original-use geometry shared by its varying world segments.
+ * @evidence contracts/development/design.md#principled-representation An opaque distance reader captures the actual pose/shape rather than accepting derived frame numbers, target answers or replacement callbacks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves the actual deepest probes through HumanArmShapes, HumanColliders.cast's point phases and one HumanArmOvershoot candidate's wrist/forearm samples; the original function remains the cold one-off facade.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Only fixed shape geometry is shared through the common query owner; every segment, bound, query order and signed distance remains actual, with no global or result cache.
+ */
+export namespace physicalShapeSegmentDistance {
+  /**
+   * Borrow a pose and shape unchanged through one synchronous operation.
+   * Construction reads no component; first actual use prepares geometry and
+   * each following segment still runs all original proximity mathematics.
+   * Release the reader with the operation; it retains no queried point,
+   * taper or result and exposes no private frame.
+   */
+  export function prepare(
+    pose: P.ITransform,
+    shape: P.IShape,
+  ): ReturnType<typeof physicalShapeQuery.prepare> {
+    return physicalShapeQuery.prepare(pose, shape);
+  }
+}

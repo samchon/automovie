@@ -121,6 +121,16 @@ export namespace HumanAffect {
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     HumanBound.above("seconds", seconds, 0, "s");
     if (!(t > 0 && t < seconds)) return {};
+    return pattern(kind, t, seconds, intensity);
+  }
+
+  /** Evaluate an admitted display strictly inside its own active interval. */
+  function pattern(
+    kind: Kind,
+    t: number,
+    seconds: number,
+    intensity: number,
+  ): IHumanPosture["joints"] {
     const u: number = t / seconds;
     const k: number = intensity;
     const ramp = (rise: number, fall: number): number =>
@@ -208,9 +218,9 @@ export namespace HumanAffect {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that displays add in any order and overlap, and the layer's name; the layer adds clinical degrees to the posture's joints at film seconds.
    * @evidence contracts/development/implementation.md#principled-implementation An additive animation layer: each display's angles are summed onto the posture's joints, leaving limb goals untouched so the arms are solved after the trunk and contacts stay.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The layer only sums; the patterns live in `angles` and the defaults in `LENGTH`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The layer admits each display length, skips inactive windows and sums active patterns; public angles uses the same pattern owner and the defaults remain in LENGTH.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every display is summed the same way.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the displays per posture, each adding a constant number of bones.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in D display lengths/windows plus active displays' fixed bone work; inactive displays allocate neither an empty angle map nor Object.entries arrays and do not construct profile closures.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached between seconds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains only the caller's display list for its lifetime and allocates one joint record per posture.
    */
@@ -225,8 +235,11 @@ export namespace HumanAffect {
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const d of displays) {
           const length: number = d.seconds ?? LENGTH[d.kind];
+          HumanBound.above("seconds", length, 0, "s");
+          const elapsed: number = seconds - d.at;
+          if (!(elapsed > 0 && elapsed < length)) continue;
           for (const [bone, a] of Object.entries(
-            angles(d.kind, seconds - d.at, length, d.intensity ?? 1),
+            pattern(d.kind, elapsed, length, d.intensity ?? 1),
           ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
             const was: readonly [number, number, number] = joints[bone] ?? [
               0, 0, 0,

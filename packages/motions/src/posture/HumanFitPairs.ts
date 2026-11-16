@@ -187,24 +187,26 @@ export namespace HumanFitPairs {
    * @param pair The pair.
    * @param band How far the gap may fall below nought unpriced, metres.
    * @param mm Millimetres in a metre, the rows' unit.
+   * @param prepared Optional completed gap for this exact pair and step.at's unchanged bones; freshly measured when absent.
    * @returns The row and the reading it linearises.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Projects the two closest witnesses' analytic rigid-point velocities onto their normalized separation, preserving the existing capsule-gap linearisation and lower bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual gap supplies the bound, witnesses and current-reading callback; variable columns use the owning Jacobian.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual supplied or freshly measured gap serves the bound, witnesses and current-reading callback; variable columns use the owning Jacobian.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original normalized-separation convention, including its coincident-witness behavior, and every price, band and scaling expression; no fabricated separating direction is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Performs two velocity queries per n variables and stores O(n) row data; the unchanged model reading's scalar distance is reused rather than measuring its segments again.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The callback shares only the already read distance for the identical unchanged current reading; another trial reading always invokes the actual gap owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned model rows own coefficient/index arrays and retain their pair, current reading and one scalar until release; temporary closest-point witnesses need not survive row construction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Performs two velocity queries per n variables and stores O(n) row data; a supplied actual current gap removes the repeated closest-segment query, otherwise gap incurs its original constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit supplies its evaluation's completed gap only for the identical ordered pair and unchanged current bones; witnesses feed current derivatives, the callback shares its scalar at that same reading, and another trial always invokes the actual gap owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows a supplied gap without mutation and owns row coefficients/read-only-index references; rows retain their pair, current reading and one scalar until release, while witness ownership stays with the evaluation or temporary constructor.
    * @evidence contracts/development/common.md#meaningful-documentation States the derivative, units, current-reading reuse, degeneracy convention, retained inputs and actual-trial evaluation.
    */
   export function row(
-    step: Pick<HumanBodyFitRows.IStep, "at" | "motions" | "units" | "price">,
+    step: Pick<HumanBodyFitRows.IStep, "at" | "motions" | "units" | "index" | "price">,
     pair: IPair,
     band: number,
     mm: number,
+    prepared?: IGap,
   ): HumanBodyFitRows.IRead {
     const current: HumanBodyFitRows.IReading = step.at;
-    const g: IGap = gap(current.bones, pair);
+    const g: IGap = prepared ?? gap(current.bones, pair);
     const distance: number = g.distance;
     const normal: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(g.a, g.b),
@@ -212,9 +214,7 @@ export namespace HumanFitPairs {
     return {
       row: {
         key: `pair:${pair.a.bone}:${pair.b.bone}`,
-        index: step.motions.map(
-          (_: HumanJacobian.IMotion, i: number): number => i,
-        ),
+        index: step.index,
         coef: step.motions.map(
           (motion: HumanJacobian.IMotion, i: number): number =>
             Vector3.dot(

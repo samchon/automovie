@@ -2,6 +2,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel
@@ -83,7 +84,10 @@ export namespace AutoMovieMotionHumanBase {
       duration,
       events: [],
       contacts: [],
-      posture: (seconds: number): IHumanPosture => carrier.posture(seconds),
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+      ): IHumanPosture => carrier.posture(seconds, channels),
     };
   }
 

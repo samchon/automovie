@@ -127,10 +127,18 @@ export namespace climbLadder {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its rungs outside the OSHA band or has too few above the hands, the climber does not stand before it facing it, or the rung count is not a positive integer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace gives the four-beat pattern, rung geometry, timing and refusals; this entry prepares the fixed supports and limb clocks.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation, per-limb beat arrays and the body primitive.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored rung count, beat order, clearance, approach bounds and contact windows retain their original formulas.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in climbed rungs; each pose uses four logarithmic limb lookups and the original fixed-size lowering and hand/leg goal computations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, ladder frame and entry share per-rung feet/handholds, lateral places, root line, grip normal and entry arm angles; foot beat state is read once per side at each query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan owns per-limb beat and rung arrays bounded by the authored rung count, released with that plan and without a query cache.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const count: number = context.params.rungs ?? 3;
     HumanBound.whole("rungs", count);
     const ladder: ILadder = HumanLadder.of(context, context.params.ladder);
@@ -142,13 +150,17 @@ export namespace climbLadder {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const flat = (side: "left" | "right"): HumanFoot.IPlacement => {
+    const flatOf = (side: "left" | "right"): HumanFoot.IPlacement => {
       const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(standing.yaw),
       };
     };
+    const flats: Record<"left" | "right", HumanFoot.IPlacement> = {
+      left: flatOf("left"), right: flatOf("right"),
+    };
+    const flat = (side: "left" | "right"): HumanFoot.IPlacement => flats[side];
 
     // The climber stands before the ladder, facing it, the toes near the
     // rungs and the feet between the rails.
@@ -166,8 +178,11 @@ export namespace climbLadder {
       ),
     );
     HumanBound.within("toes", -toe, 0, NEAR, "m");
-    const lateral = (side: "left" | "right"): number =>
-      HumanFrame.local(frame, flat(side).ankle).x;
+    const laterals: Record<"left" | "right", number> = {
+      left: HumanFrame.local(frame, flats.left.ankle).x,
+      right: HumanFrame.local(frame, flats.right.ankle).x,
+    };
+    const lateral = (side: "left" | "right"): number => laterals[side];
     HumanBound.within(
       "beside",
       Math.abs((lateral("left") + lateral("right")) / 2),
@@ -199,17 +214,36 @@ export namespace climbLadder {
             HumanFoot.heading(flat(side).rotation),
             0,
           );
+    const footprints: Record<"left" | "right", HumanFoot.IPlacement[]> = {
+      left: Array.from({ length: count + 1 }, (_: unknown, i: number): HumanFoot.IPlacement => footOn("left", i)),
+      right: Array.from({ length: count + 1 }, (_: unknown, i: number): HumanFoot.IPlacement => footOn("right", i)),
+    };
+    const handholds: Record<"left" | "right", IAutoMovieVector3[]> = {
+      left: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => rung(ladder, reach + i, lateral("left"))),
+      right: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => rung(ladder, reach + i, lateral("right"))),
+    };
+    const direction: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
+    const normal: IAutoMovieVector3 = HumanFrame.point(direction, { x: 0, y: 0, z: -1 });
+    const rootAlong: IAutoMovieVector3 = HumanFrame.point(frame, {
+      x: 0, y: 0, z: ladder.ahead - BACK * (m.thigh + m.shank),
+    });
+    const entryArms: Parameters<typeof AutoMovieMotionHumanArm.carry>[2] = {
+      left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+    };
 
     // The schedule: hands on, then four beats a rung.
     const beat: number = BEAT * modifiers.tempo;
     const instants: AutoMovieMotionClock.IInstant[] = [
       { name: "handsOn", seconds: beat },
     ];
-    const moves: { limb: Limb; n: number; from: number; to: number }[] = [];
+    const moves: Record<Limb, { n: number; from: number; to: number }[]> = {
+      leftHand: [], rightHand: [], leftFoot: [], rightFoot: [],
+    };
     for (let k: number = 1; k <= count; k++)
       ORDER.forEach((limb: Limb, i: number): void => {
         const from: number = beat * (1 + (k - 1) * 4 + i);
-        moves.push({ limb, n: k, from, to: from + beat });
+        moves[limb].push({ n: k, from, to: from + beat });
         instants.push(
           { name: `${limb}Release${k}`, seconds: from },
           { name: `${limb}Contact${k}`, seconds: from + beat },
@@ -220,6 +254,7 @@ export namespace climbLadder {
       duration,
       instants,
     );
+    const reaching: (seconds: number) => number = AutoMovieMotionClock.prepare(clock, "start", "handsOn").progress;
 
     // Where a limb is at a second: its rung index (fractional while moving).
     const level = (
@@ -227,18 +262,23 @@ export namespace climbLadder {
       seconds: number,
     ): { index: number; from: number; u: number; moving: boolean } => {
       const base: number = limb.endsWith("Hand") ? reach : 0;
-      let index: number = base;
-      for (const move of moves)
-        if (move.limb === limb) {
-          if (seconds >= move.to) index = base + move.n;
-          else if (seconds > move.from)
-            return {
-              index: base + move.n,
-              from: base + move.n - 1,
-              u: minimumJerk((seconds - move.from) / (move.to - move.from)).s,
-              moving: true,
-            };
-        }
+      const own: (typeof moves)[Limb] = moves[limb];
+      let low: number = 0;
+      let high: number = own.length;
+      while (low < high) {
+        const middle: number = (low + high) >>> 1;
+        if (seconds >= own[middle]!.to) low = middle + 1;
+        else high = middle;
+      }
+      const move: (typeof own)[number] | undefined = own[low];
+      if (move !== undefined && seconds > move.from)
+        return {
+          index: base + move.n,
+          from: base + move.n - 1,
+          u: minimumJerk((seconds - move.from) / (move.to - move.from)).s,
+          moving: true,
+        };
+      const index: number = base + (own[low - 1]?.n ?? 0);
       return { index, from: index, u: 1, moving: false };
     };
 
@@ -252,20 +292,23 @@ export namespace climbLadder {
           left: flat("left"),
           right: flat("right"),
         };
+        const footLevels: Record<"left" | "right", ReturnType<typeof level>> = {
+          left: level("leftFoot", seconds), right: level("rightFoot", seconds),
+        };
         for (const side of ["left", "right"] as const) {
-          const at = level(`${side}Foot`, seconds);
-          const a: HumanFoot.IPlacement = footOn(side, at.from);
-          const b: HumanFoot.IPlacement = footOn(side, at.index);
+          const at: ReturnType<typeof level> = footLevels[side];
+          const a: HumanFoot.IPlacement = footprints[side][at.from]!;
+          const b: HumanFoot.IPlacement = footprints[side][at.index]!;
           feet[side] = at.moving
             ? (() => {
-                const out = AutoMovieMotionHumanLeg.arc(a, b, CLEARANCE, at.u);
+                const out: HumanFoot.IPlacement = AutoMovieMotionHumanLeg.arc(a, b, CLEARANCE, at.u);
                 // Move back off the rungs and in again so the toe clears them.
                 return {
                   ...out,
                   ankle: Vector3.add(
                     out.ankle,
                     HumanFrame.point(
-                      { origin: { x: 0, y: 0, z: 0 }, yaw },
+                      direction,
                       {
                         x: 0,
                         y: 0,
@@ -282,11 +325,7 @@ export namespace climbLadder {
         const rise: number =
           (feet.left.ankle.y + feet.right.ankle.y) / 2 - m.ankleHeight;
         const root: IAutoMovieVector3 = {
-          ...HumanFrame.point(frame, {
-            x: 0,
-            y: 0,
-            z: ladder.ahead - BACK * (m.thigh + m.shank),
-          }),
+          ...rootAlong,
           y: rise - stand.DROP,
         };
         const placed: IHumanPosture = { ...posture, root, yaw };
@@ -296,7 +335,7 @@ export namespace climbLadder {
             placed,
             side,
             feet[side],
-            !level(`${side}Foot`, seconds).moving,
+            !footLevels[side].moving,
           );
         const lowered: IHumanPosture = resolveHumanPosture.lower(body, {
           ...placed,
@@ -304,33 +343,30 @@ export namespace climbLadder {
         });
 
         // Each hand grips its rung, reaching it from where it hung at first.
-        const reachShare: number = clock.progress("start", "handsOn", seconds);
+        const reachShare: number = reaching(seconds);
         for (const side of ["left", "right"] as const) {
-          const at = level(`${side}Hand`, seconds);
+          const at: ReturnType<typeof level> = level(`${side}Hand`, seconds);
           const grip: IAutoMovieVector3 = Vector3.lerp(
-            rung(ladder, at.from, lateral(side)),
-            rung(ladder, at.index, lateral(side)),
+            handholds[side][at.from - reach]!,
+            handholds[side][at.index - reach]!,
             at.u,
           );
           const lifted: IAutoMovieVector3 = at.moving
             ? Vector3.add(
                 grip,
                 HumanFrame.point(
-                  { origin: { x: 0, y: 0, z: 0 }, yaw },
+                  direction,
                   { x: 0, y: 0, z: -0.08 * Math.sin(Math.PI * at.u) },
                 ),
               )
             : grip;
-          const target = AutoMovieMotionHumanTarget.hand(
+          const target: ReturnType<typeof AutoMovieMotionHumanTarget.hand> = AutoMovieMotionHumanTarget.hand(
             body,
             lowered,
             side,
             {
               point: lifted,
-              normal: HumanFrame.point(
-                { origin: { x: 0, y: 0, z: 0 }, yaw },
-                { x: 0, y: 0, z: -1 },
-              ),
+              normal,
             },
             { surface: "grip", shape: "relaxed", curl: 50 },
           );
@@ -352,10 +388,7 @@ export namespace climbLadder {
         return AutoMovieMotionHumanArm.carry(
           body,
           gripped,
-          {
-            left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-            right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-          },
+          entryArms,
           reachShare,
         );
       },
@@ -364,7 +397,7 @@ export namespace climbLadder {
     // Contact windows between each limb's moves.
     const contacts: IHumanContactWindow[] = [];
     for (const limb of ORDER) {
-      const own = moves.filter((move) => move.limb === limb);
+      const own: (typeof moves)[Limb] = moves[limb];
       const hand: boolean = limb.endsWith("Hand");
       let from: number = hand ? beat : 0;
       for (let i: number = 0; i <= own.length; i++) {

@@ -156,8 +156,8 @@ export namespace ballSport {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IHumanActionContext["body"] = context.body;
+    const m: IHumanActionContext["body"]["measure"] = body.measure;
     const count: number = p.count ?? 4;
     HumanBound.whole("count", count);
     const modifiers: AutoMovieMotionManner.IModifiers =
@@ -223,11 +223,6 @@ export namespace ballSport {
           launches: IHumanActionPlan.ILaunch[];
         }
       | undefined = undefined;
-    const pad: number = AutoMovieMotionHumanTouchEffector.pad(body, "right", {
-      surface: "palm",
-      shape: "flat",
-    });
-
     switch (p.kind) {
       case "dribble": {
         const side: "left" | "right" = p.side ?? "right";
@@ -267,7 +262,10 @@ export namespace ballSport {
         );
         break;
       }
-      case "dig":
+      case "dig": {
+        const pad: number = AutoMovieMotionHumanTouchEffector.pad(body, "right", {
+          surface: "palm", shape: "flat",
+        });
         primitives.push(crouch(0.08, 25));
         for (const side of ["left", "right"] as const)
           primitives.push(
@@ -312,6 +310,7 @@ export namespace ballSport {
             }),
           );
         break;
+      }
       case "set":
         primitives.push(crouch(0.05, 5));
         for (const side of ["left", "right"] as const)

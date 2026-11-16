@@ -18,6 +18,8 @@ import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
+import { preparePoseResolution } from "./preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
 /**
@@ -71,9 +73,9 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/development/implementation.md#principled-implementation GraspIt!'s auto-grasp stopping rule (Miller and Allen 2004) evaluated proximal to distal, with exact segment distances and a bracket-then-bisect search on forward kinematics of the engine's own resolver.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over chains and joints sharing one gap function; distances and the box search are local helpers.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance counts a gap as contact: a joint stops on the positive side of the first non-positive gap, and an unreached object leaves the joint at its range limit with the positive gap reported.
- * @evidence contracts/development/implementation.md#efficient-algorithms Per joint at most range/step + 30 forward-kinematics evaluations, each linear in bones, times phalanges times colliders; run once per grasp, not per frame.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; a caller reuses the result for every frame of a hold.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned pose and records belong to the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every original range/step and 30 bisection probe remains. An explicitly prepared immutable rig admits every authored joint and computes only each active chain's ancestor closure; raw inputs retain the full resolvePose walk. Direct map insertion omits full-bone tuple arrays, and fixed collider transforms are prepared once for all changing segments.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One operation reader shares only exact unchanged FK dependencies across actual trial poses. A supplied rig belongs to the caller's same unchanged skeleton/axes/frames/topology; fixed admitted collider frames share their existing lazy distance readers. Angles, changed segments, contact queries, brackets and final gaps are never reused as results.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy reader, one reader per fixed collider and each current chain's demanded set/maps live only until this synchronous closure returns or throws; the returned pose and chain reports retain none of them.
  */
 export function curlChainUntilContact(
   input: curlChainUntilContact.IInput,
@@ -81,6 +83,10 @@ export function curlChainUntilContact(
   const step: number = input.step ?? 1;
   if (!(step > 0)) throw new Error("A curl step must be positive");
   for (const collider of input.colliders) validate(collider.shape);
+  const distances: ReturnType<typeof physicalShapeSegmentDistance.prepare>[] =
+    input.colliders.map((collider: curlChainUntilContact.ICollider) =>
+      physicalShapeSegmentDistance.prepare(collider.frame, collider.shape));
+  let operation: ReturnType<typeof preparePoseResolution> | undefined;
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     input.pose.joints.map(
       (
@@ -98,6 +104,7 @@ export function curlChainUntilContact(
     if (!(chain.radius > 0))
       throw new Error("A curled chain's radius must be positive");
     const flexion: number[] = [];
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(chain.bones);
 
     // The gap of the phalanges from the k-th onward under the current angles
     // with joint k at a trial flexion.
@@ -110,20 +117,19 @@ export function curlChainUntilContact(
         abduction: previous?.abduction ?? 0,
         twist: previous?.twist ?? 0,
       });
-      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        new Map(
-          resolvePose(
+      operation ??= preparePoseResolution();
+      const frames: IAutoMovieResolvedBone[] = input.resolution === undefined
+        ? resolvePose(
             pose(),
             input.skeleton,
             input.jointAxes,
             input.restFrames,
             input.topology,
-          ).map(
-            (
-              r: IAutoMovieResolvedBone,
-            ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-          ),
-        );
+            operation,
+          )
+        : input.resolution.resolve(pose(), operation, requested);
+      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+      for (const frame of frames) resolved.set(frame.bone, frame);
       if (previous === undefined) joints.delete(bone);
       else joints.set(bone, previous);
       let least: number = Infinity;
@@ -143,15 +149,10 @@ export function curlChainUntilContact(
                 Quaternion.rotateVector(from.worldRotation, chain.tip),
               )
             : (resolved.get(next)?.worldPosition ?? from.worldPosition);
-        for (const collider of input.colliders)
+        for (const distance of distances)
           least = Math.min(
             least,
-            physicalShapeSegmentDistance(
-              collider.frame,
-              collider.shape,
-              from.worldPosition,
-              to,
-            ) - chain.radius,
+            distance(from.worldPosition, to) - chain.radius,
           );
       }
       return least;
@@ -235,7 +236,14 @@ export namespace curlChainUntilContact {
   export function resolution(reach: number, lever: number): number {
     return (ROM_TOLERANCE * reach) / lever;
   }
-  /** The curl request. */
+  /**
+   * The sequential contact-closure request and its optional immutable FK rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states degrees/metres, world and bone-local frames, closing order and optional resolver conventions; resolution requires an explicitly prepared rig of those same unchanged inputs.
+   * @evidence contracts/development/design.md#principled-representation The existing skeleton, pose, chain and physical-shape types carry clinical angles and world collider frames; positive radius/step, chain ancestry and prepared-rig equivalence remain runtime/caller premises.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member drives the actual curl; HumanGrip supplies its existing body-owned rig to eliminate repeated static FK preparation without another rig representation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An optional prepared rig is the engine owner's own type and absent callers keep full raw FK; no fitted answer, contact result or hand-specific geometry can be injected.
+   */
   export interface IInput {
     /** The rig, whose range of motion caps every flexion. */
     skeleton: IAutoMovieSkeleton;
@@ -260,6 +268,9 @@ export namespace curlChainUntilContact {
 
     /** Topology of the same skeleton, reused across evaluations. */
     topology?: IAutoMovieSkeletonTopology;
+
+    /** Explicit immutable rig prepared from this same skeleton, axes, rest frames and topology; absent, raw full-walk resolution preserves live-input behavior. */
+    resolution?: prepareSkeletonPoseResolution.IRig;
   }
 
   /** One closing chain, a digit. */

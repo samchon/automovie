@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
@@ -15,7 +15,6 @@ import { HumanHandShape } from "../posture/HumanHandShape";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { gesture } from "./gesture";
 import type { gestureStroke } from "./gestureStroke";
-import { handGoals } from "./handGoals";
 
 /**
  * A gesture's hands: each moving hand's request on the stroke's goal and its
@@ -62,57 +61,126 @@ export namespace gestureHands {
     request: AutoMovieMotionHumanArm.ISided;
     fingers: IHumanPosture["joints"];
   } {
-    const turned: IAutoMovieQuaternion =
-      p.turn === undefined
-        ? goal.rotation
-        : Quaternion.multiply(
-            goal.rotation,
-            Quaternion.fromAxisAngle(
-              { x: 0, y: -1, z: 0 },
-              (side === "left" ? -1 : 1) * p.turn,
-            ),
-          );
-    const request: AutoMovieMotionHumanArm.ISided = {
-      side,
-      surface: goal.surface,
-      shape: goal.shape,
-      point: goal.point,
-      rotation:
-        digit === undefined || p.aim === undefined
-          ? turned
-          : HumanHandShape.aim(turned, digit, p.aim.toward),
-      bend:
-        goal.elbow === undefined
-          ? AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + elbow)
-          : AutoMovieMotionHumanBend.arm(
-              body,
-              posture,
-              side,
-              goal.elbow,
-              goal.out + elbow,
-            ),
-    };
-    const shape: ReturnType<typeof HumanHand.shape> =
-      p.shape === undefined
-        ? HumanHand.shape(side, goal.shape)
-        : HumanHandShape.emblem(side, p.shape);
+    return prepare(body, side, p, digit, elbow).hand(posture, goal, envelope);
+  }
+
+  /**
+   * Prepare one gesture hand's fixed palm turn and finger-shape readings.
+   * Goal points, world rotations, elbow hints and finger curls remain live
+   * inputs of the returned reader at every posture.
+   *
+   * @param body The immutable body used by this gesture plan.
+   * @param side The moving hand.
+   * @param p The gesture's fixed turn, emblem and digit aim.
+   * @param digit The fixed emblem digit direction in the hand's frame.
+   * @param elbow The fixed effort elbow modifier.
+   * @returns Separate live-goal and finger readers producing fresh requests and finger tuples.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Separates plan-invariant body/hand/shape configuration from current posture, hand goal, curl and envelope inputs and states fresh output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same palm-plane turn, digit alignment, elbow-preset geometry and relaxed-to-working finger interpolation as hand; only the fixed axis turn and named finger-angle records are prepared.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed turn and relaxed shape belong to the preparation; each first working shape compiles its finger entries. The complete reader creates a live request and calls the same finger writer that planned-arm playback can call alone.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves surface/shape choices, world goal, actual digit aiming, bend geometry, thumb curl exclusion and interpolation arithmetic without a frame sample or solved-pose cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation builds fifteen relaxed/emblem joints and one optional quaternion. Each distinct working shape compiles fifteen entries once; finger reads allocate only fifteen fresh output triples, and live-goal reads add their actual request without two fresh named-shape maps per frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed side, turn, emblem and body belong to one gesture plan; its closed four-shape map shares only the exact named angle records, while changed posture, target, curl and envelope are recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The gesture owns this reader, its body/configuration references, one relaxed/emblem record and at most four fifteen-entry shape tables until its plan is released; playback and seeking add no frame history.
+   */
+  export function prepare(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    p: Pick<gesture.IParams, "turn" | "shape" | "aim">,
+    digit: IAutoMovieVector3 | undefined,
+    elbow: number,
+  ): IPrepared {
+    const turn: IAutoMovieQuaternion | undefined = p.turn === undefined
+      ? undefined
+      : Quaternion.fromAxisAngle(
+          { x: 0, y: -1, z: 0 },
+          (side === "left" ? -1 : 1) * p.turn,
+        );
     const relaxed: ReturnType<typeof HumanHand.shape> = HumanHand.shape(
       side,
       "relaxed",
     );
-    const fingers: IHumanPosture["joints"] = {};
-    for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[]) {
-      const a: readonly [number, number, number] = shape[bone]!;
-      const r: readonly [number, number, number] = relaxed[bone]!;
-      const curl: number =
-        bone.includes("Thumb") || p.shape !== undefined ? 0 : (goal.curl ?? 0);
-      fingers[bone] = [
-        r[0] + (a[0] + curl - r[0]) * envelope,
-        a[1] * envelope,
-        0,
-      ];
-    }
-    return { request, fingers };
+    const emblem: ReturnType<typeof HumanHand.shape> | undefined =
+      p.shape === undefined ? undefined : HumanHandShape.emblem(side, p.shape);
+    const shapes: Map<HumanHand.Shape, readonly IFinger[]> = new Map();
+    const fingers: IPrepared["fingers"] = (
+      goal: Pick<gestureStroke.IHand, "shape" | "curl">,
+      envelope: number,
+    ): IHumanPosture["joints"] => {
+      let entries: readonly IFinger[] | undefined = shapes.get(goal.shape);
+      if (entries === undefined) {
+        const shape: ReturnType<typeof HumanHand.shape> =
+          emblem ?? HumanHand.shape(side, goal.shape);
+        entries = (Object.keys(shape) as AutoMovieHumanoidBone[]).map(
+          (bone: AutoMovieHumanoidBone): IFinger => ({
+            bone,
+            at: shape[bone]!,
+            relaxed: relaxed[bone]!,
+            curls: !bone.includes("Thumb") && emblem === undefined,
+          }),
+        );
+        shapes.set(goal.shape, entries);
+      }
+      const joints: IHumanPosture["joints"] = {};
+      for (const entry of entries) {
+        const curl: number = entry.curls ? (goal.curl ?? 0) : 0;
+        joints[entry.bone] = [
+          entry.relaxed[0] + (entry.at[0] + curl - entry.relaxed[0]) * envelope,
+          entry.at[1] * envelope,
+          0,
+        ];
+      }
+      return joints;
+    };
+    return {
+      fingers,
+      hand: (
+        posture: IHumanPosture,
+        goal: gestureStroke.IHand,
+        envelope: number,
+      ): ReturnType<typeof hand> => {
+        const turned: IAutoMovieQuaternion = turn === undefined
+          ? goal.rotation
+          : Quaternion.multiply(goal.rotation, turn);
+        const request: AutoMovieMotionHumanArm.ISided = {
+          side,
+          surface: goal.surface,
+          shape: goal.shape,
+          point: goal.point,
+          rotation: digit === undefined || p.aim === undefined
+            ? turned
+            : HumanHandShape.aim(turned, digit, p.aim.toward),
+          bend: goal.elbow === undefined
+            ? AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + elbow)
+            : AutoMovieMotionHumanBend.arm(body, posture, side, goal.elbow, goal.out + elbow),
+        };
+        return { request, fingers: fingers(goal, envelope) };
+      },
+    };
+  }
+
+  /**
+   * One gesture hand's prepared geometry and independently writable fingers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a complete live hand goal from finger shaping when a planned arm supplies the displayed geometry, with fresh output ownership.
+   * @evidence contracts/development/design.md#principled-representation Separates current effector geometry from the hand's own clinical finger shape; both share one fixed plan preparation and the same finger interpolation owner.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Planning and endpoint gestures use hand, while playback of preplanned arms uses fingers without creating discarded world targets or bend hints.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing stroke goal's exact shape/curl fields and existing hand result; it contains no solved arm, target proxy, time sample or contact tolerance.
+   */
+  export interface IPrepared {
+    /** Live request and finger angles for a planner or an endpoint carry. */
+    hand(
+      posture: IHumanPosture,
+      goal: gestureStroke.IHand,
+      envelope: number,
+    ): ReturnType<typeof hand>;
+
+    /** Fresh finger joints from the same stroke shape/curl and envelope, independent of its world goal. */
+    fingers(
+      goal: Pick<gestureStroke.IHand, "shape" | "curl">,
+      envelope: number,
+    ): IHumanPosture["joints"];
   }
 
   /**
@@ -127,7 +195,16 @@ export namespace gestureHands {
    * @param begin Each arm at the entry.
    * @param rest Each arm at rest.
    * @param prior The gesture before its arms at a second.
+   * @param envelope The same transport share used by prior, without computing its geometry.
    * @returns Each arm's trajectory.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the planned span, entry/rest arms, complete frame producer and separate scalar envelope producer.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing coupled arm trajectory solver and exact hand-surface goals; each goal reads the complete gesture frame attached to the planner's unchanged before-posture identity.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame producer supplies the base posture and both hands, while each arm selects its own request and the envelope remains a scalar time law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every goal, trajectory constraint, authored timing and solver call; the separate envelope must be the same time law prior uses, and an unfamiliar posture falls back to the original pure producer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each planner base read computes one complete gesture frame instead of repeating that geometry per goal and weight; each selected goal builds only its own arm goal. Trajectory optimization retains its existing cost and precision.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A local WeakMap shares each completed frame only with goals receiving the exact posture object the planner obtained from it; it stores no time key and does not reuse frames across changed postures or separate planning calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The WeakMap belongs to this synchronous planning invocation, weakly keys only the planner's existing posture objects, and is unreachable after the solver returns or throws; returned trajectories retain their solved waypoints only.
    */
   export function planned(
     body: IHumanBody,
@@ -136,7 +213,12 @@ export namespace gestureHands {
     begin: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
     rest: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArm.IAngles>>,
     prior: (seconds: number) => IPrior,
+    envelope: (seconds: number) => number,
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
+    // The planner passes the exact posture returned by before to each arm.
+    // Keep that posture's hand requests with it, rather than evaluating the
+    // complete two-hand gesture again for every goal and scalar weight.
+    const frames: WeakMap<IHumanPosture, IPrior> = new WeakMap();
     return AutoMovieMotionHumanArmPlanned.planned(
       body,
       span,
@@ -145,16 +227,23 @@ export namespace gestureHands {
           side,
           rest: begin[side]!,
           back: rest[side]!,
-          goal: (_: IHumanPosture, at: number): IHumanPosture.IGoal => {
-            const before: IPrior = prior(at);
-            return handGoals(body, before.posture, before.requests).limbs[
-              `${side}Arm`
-            ]!;
+          goal: (posture: IHumanPosture, at: number): IHumanPosture.IGoal => {
+            const before: IPrior = frames.get(posture) ?? prior(at);
+            const request: AutoMovieMotionHumanArm.ISided =
+              before.requests.find(
+                (hand: AutoMovieMotionHumanArm.ISided): boolean =>
+                  hand.side === side,
+              )!;
+            return AutoMovieMotionHumanArm.goal(body, side, request);
           },
-          weight: (at: number): number => prior(at).envelope,
+          weight: envelope,
         }),
       ),
-      (at: number): IHumanPosture => prior(at).posture,
+      (at: number): IHumanPosture => {
+        const before: IPrior = prior(at);
+        frames.set(before.posture, before);
+        return before.posture;
+      },
     );
   }
 
@@ -182,5 +271,20 @@ export namespace gestureHands {
       delete limbs[`${side}Arm`];
     }
     return { ...posture, joints, limbs };
+  }
+
+  /** Fixed named finger angles and the original extra-curl eligibility. */
+  interface IFinger {
+    /** The digit joint receiving its fresh output triple. */
+    bone: AutoMovieHumanoidBone;
+
+    /** Working clinical angles, degrees. */
+    at: readonly [number, number, number];
+
+    /** Relaxed clinical angles, degrees. */
+    relaxed: readonly [number, number, number];
+
+    /** Whether this non-emblem finger accepts the stroke's extra flexion. */
+    curls: boolean;
   }
 }

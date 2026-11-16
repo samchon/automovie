@@ -9,6 +9,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
@@ -57,7 +58,9 @@ export namespace HumanPerformanceHold {
     seconds: number,
     own?: {
       subject: string;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+      bones: (
+        requested?: ReadonlySet<AutoMovieHumanoidBone>,
+      ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): IHumanProp.IFrame {
     const prop: IHumanProp | undefined = self.props.get(subject);
@@ -131,6 +134,7 @@ export namespace HumanPerformanceHold {
         self,
         w.subject,
         at,
+        new Set([w.bone]),
       ).get(w.bone)!;
       return { position: bone.worldPosition, rotation: bone.worldRotation };
     };
@@ -188,20 +192,17 @@ export namespace HumanPerformanceHold {
       };
     };
     // Carried by the performer reading it: their own body as the read gives it.
-    const hold = (w: HumanPerformanceState.IGrip): HumanPropHold.IHand => ({
-      offset: moved(w, at),
-      hand:
-        own !== undefined &&
-        active !== undefined &&
-        w.mount === undefined &&
-        w.subject === own.subject
-          ? HumanPropHold.frame(
-              HumanPerformanceRead.person(self, own.subject).performer.body,
-              own.bones(),
-              w,
-            )
-          : carrier(w, at, own),
-    });
+    const hold = (w: HumanPerformanceState.IGrip): HumanPropHold.IHand => {
+      const offset: IHumanProp.IFrame = moved(w, at);
+      if (own === undefined || active === undefined || w.mount !== undefined ||
+          w.subject !== own.subject)
+        return { offset, hand: carrier(w, at, own) };
+      const body: IHumanBody = HumanPerformanceRead.person(self, own.subject).performer.body;
+      const bone: AutoMovieHumanoidBone = w.bone ?? body.surfaces.sockets[
+        w.side === "left" ? "gripLeft" : "gripRight"
+      ].bone;
+      return { offset, hand: HumanPropHold.frame(body, own.bones(new Set([bone])), w) };
+    };
     // Taken in both of the performer's hands at once, it is one rigid thing
     // between the two fists; a hand closing on it later only steadies it.
     if (
@@ -234,7 +235,9 @@ export namespace HumanPerformanceHold {
     seconds: number,
     own?: {
       subject: string;
-      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+      bones: (
+        requested?: ReadonlySet<AutoMovieHumanoidBone>,
+      ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): IHumanProp.IFrame {
     const onto: IHumanProp | undefined = self.props.get(mount.prop);

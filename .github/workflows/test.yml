@@ -28,6 +28,8 @@ jobs:
           path: node_modules/.cache/ttsc
           key: ttsc-test-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm test
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
       - name: Lexicon schemas are current (regenerate the schemas with `pnpm --filter @automovie/motions schemas` and commit them)
         run: |
           pnpm --filter @automovie/motions schemas

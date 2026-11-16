@@ -1,26 +1,14 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { handGoals } from "./handGoals";
+import { seatedHands } from "./seatedHands";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat
@@ -278,51 +266,15 @@ export namespace seated {
    *
    * @param body The body.
    * @param posture The posture with its leg goals.
+   * @param side One hand when supplied; both when absent.
    * @returns Arm goals.
    */
   export function hands(
     body: IHumanBody,
     posture: IHumanPosture,
+    side?: "left" | "right",
   ): IHumanPosture["limbs"] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
-    );
-    const requests: AutoMovieMotionHumanArm.ISided[] = [];
-    for (const side of ["left", "right"] as const) {
-      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-        body.surfaces.regions[
-          `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
-        ];
-      const thigh: IAutoMovieResolvedBone = bones.get(frame.bone)!;
-      const point: IAutoMovieVector3 = Vector3.add(
-        thigh.worldPosition,
-        Quaternion.rotateVector(thigh.worldRotation, frame.point),
-      );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-        thigh.worldRotation,
-        frame.normal,
-      );
-      const along: IAutoMovieVector3 = Vector3.subtract(
-        bones.get(`${side}LowerLeg`)!.worldPosition,
-        thigh.worldPosition,
-      );
-      // The hand lies flat along the thigh, its palm on the surface: a
-      // relaxed curl would close the fingers into the thigh they lie on.
-      requests.push({
-        side,
-        surface: "palm",
-        shape: "flat",
-        point,
-        rotation: HumanHand.rotation(side, {
-          fingers: along,
-          palm: Vector3.scale(normal, -1),
-        }),
-        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
-      });
-    }
-    const placed: IHumanPosture = handGoals(body, posture, requests);
-    return { leftArm: placed.limbs.leftArm!, rightArm: placed.limbs.rightArm! };
+    return seatedHands.hands(body, posture, side);
   }
 
   /**
@@ -342,27 +294,7 @@ export namespace seated {
     posture: IHumanPosture,
     share: number,
   ): IHumanPosture {
-    if (share <= 0) return posture;
-    const onThighs: IHumanPosture["limbs"] = hands(body, posture);
-    if (share >= 1)
-      return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
-    );
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    for (const side of ["left", "right"] as const) {
-      const limb: "leftArm" | "rightArm" =
-        side === "left" ? "leftArm" : "rightArm";
-      const goal: IHumanPosture.IGoal = onThighs[limb]!;
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      limbs[limb] = {
-        point: Vector3.lerp(hand.worldPosition, goal.point, share),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, share),
-        bend: goal.bend,
-      };
-    }
-    return { ...posture, limbs };
+    return seatedHands.arms(body, posture, share);
   }
 
   /**
@@ -379,11 +311,11 @@ export namespace seated {
    * @returns The posture with arm goals, or unchanged at 0; a hand on an armrest bears once it is down.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the hands rest and when.
-   * @evidence contracts/development/implementation.md#principled-implementation The thighs' rest (`arms`) and the armrests' (`onArmrests`), each the one owner of its placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice between two calls.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the unchanged thigh and armrest placements to seatedHands, which measures only the active thigh targets.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the owner of seated hand placements.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms What the chosen call costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work seatedHands shares one pose solve between thigh targets and their hanging origins, without retaining it across postures.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rested(
@@ -393,9 +325,7 @@ export namespace seated {
     yaw: number,
     share: number,
   ): IHumanPosture {
-    return rests === undefined
-      ? arms(body, posture, share)
-      : onArmrests(body, arms(body, posture, share), rests, yaw, share);
+    return seatedHands.rested(body, posture, rests, yaw, share);
   }
 
   /**
@@ -427,26 +357,7 @@ export namespace seated {
     yaw: number,
     share: number,
   ): IHumanPosture {
-    if (share <= 0) return posture;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, { ...posture, limbs: legsOnly(posture) }),
-    );
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    const s: number = Math.min(1, share);
-    for (const side of ["left", "right"] as const) {
-      const rest: IAutoMovieVector3 | undefined = rests[side];
-      if (rest === undefined) continue;
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const goal: IHumanPosture.IGoal = armrest(body, posture, side, rest, yaw);
-      limbs[`${side}Arm`] = {
-        point: Vector3.lerp(hand.worldPosition, goal.point, s),
-        rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
-        bend: goal.bend,
-        planted: s >= 1,
-      };
-    }
-    return { ...posture, limbs };
+    return seatedHands.onArmrests(body, posture, rests, yaw, share);
   }
 
   /**
@@ -468,30 +379,7 @@ export namespace seated {
     rest: IAutoMovieVector3,
     yaw: number,
   ): IHumanPosture.IGoal {
-    return {
-      point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
-      rotation: HumanHand.rotation(side, {
-        fingers: HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          { x: 0, y: 0, z: 1 },
-        ),
-        palm: { x: 0, y: -1, z: 0 },
-      }),
-      bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
-      planted: true,
-    };
-  }
-
-  /** A posture's leg goals alone, so its hands are read where its own joints hold them. */
-  function legsOnly(posture: IHumanPosture): IHumanPosture["limbs"] {
-    return {
-      ...(posture.limbs.leftLeg === undefined
-        ? {}
-        : { leftLeg: posture.limbs.leftLeg }),
-      ...(posture.limbs.rightLeg === undefined
-        ? {}
-        : { rightLeg: posture.limbs.rightLeg }),
-    };
+    return seatedHands.armrest(body, posture, side, rest, yaw);
   }
 
   /**

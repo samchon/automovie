@@ -126,84 +126,112 @@ export namespace walkFoot {
     raised: number = 0,
     backward: boolean = false,
   ): IFoot {
+    return prepareStance(body, side, flat, heading, strike, toeOff, push, raised, backward)(t);
+  }
+
+  /**
+   * Prepare a footprint's fixed stance timing and rigid rocker pivots.
+   *
+   * @param body The foot's fixed body.
+   * @param side The foot.
+   * @param flat The footprint.
+   * @param heading Its fixed heading, degrees.
+   * @param strike Its strike, seconds, or `-Infinity` for the opening stance.
+   * @param toeOff Its toe-off, seconds, or `Infinity` for the closing stance.
+   * @param push Its toe-off pitch, degrees, negative toes down.
+   * @param raised Its held heel-rise pitch, degrees; zero when absent.
+   * @param backward Whether the foot's rockers run backward; false when absent.
+   * @returns The same stance as `stance` at each queried second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed footprint/time inputs, angular conventions, defaults and the random-access stance reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original forward, backward and raised-heel rocker formulas, with their fixed interval boundaries and heel/toe-joint pivots prepared outside the time reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed temporal terms and lazy rigid pivots precede the one existing rocker decision tree.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps strict branch comparisons, every minimum-jerk/carried term, opening/closing stance rules and toe compensation unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; a flat stance copies its fixed rotation, while each rocker contact and yaw/roll prefix is prepared at most once per footprint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, footprint, heading, strike/toe-off, push and raised/backward gait values fix this stance; queried seconds are never cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one flat rotation and at most two rigid-pivot readers until its step plan releases it, with no time history.
+   */
+  export function prepareStance(
+    body: IHumanBody,
+    side: "left" | "right",
+    flat: HumanFoot.IPlacement,
+    heading: number,
+    strike: number,
+    toeOff: number,
+    push: number,
+    raised: number = 0,
+    backward: boolean = false,
+  ): (seconds: number) => IFoot {
+    const struck: boolean = Number.isFinite(strike);
+    const leaves: boolean = Number.isFinite(toeOff);
     const length: number =
-      Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
-    if (backward && !(raised > 0)) {
-      // The forward rockers in reverse: down from the ball after the strike,
-      // up about the heel before the toe-off.
-      const settle: number = 0.4 * (Number.isFinite(toeOff) ? length : 0.6);
-      if (Number.isFinite(strike) && t < strike + settle) {
-        const degrees: number =
-          push * (1 - minimumJerk((t - strike) / settle).s);
+      struck && leaves ? toeOff - strike : 1;
+    const settle: number = 0.4 * (leaves ? length : 0.6);
+    const rise: number = leaves ? toeOff - 0.4 * (struck ? length : 0.6) : Infinity;
+    const level: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
+    const pivots: Partial<Record<"heel" | "mtp", ReturnType<typeof HumanFoot.preparePivot>>> = {};
+    const rock: (degrees: number, about: "heel" | "mtp") => HumanFoot.IPlacement = (degrees: number, about: "heel" | "mtp"): HumanFoot.IPlacement =>
+      (pivots[about] ??= HumanFoot.preparePivot(body, side, about, HumanFoot.point(body, side, about, flat), heading))(degrees);
+    return (t: number): IFoot => {
+      if (backward && !(raised > 0)) {
+        // The forward rockers in reverse: down from the ball after the strike,
+        // up about the heel before the toe-off.
+        if (struck && t < strike + settle) {
+          const degrees: number =
+            push * (1 - minimumJerk((t - strike) / settle).s);
+          return {
+            placement: rock(degrees, "mtp"),
+            toes: -degrees,
+          };
+        }
+        if (leaves && t > toeOff - HEEL_SHARE * length) {
+          const degrees: number =
+            STRIKE *
+            minimumJerk(
+              (t - (toeOff - HEEL_SHARE * length)) / (HEEL_SHARE * length),
+            ).s;
+          return {
+            placement: rock(degrees, "heel"),
+            toes: 0,
+          };
+        }
+        return { placement: { ankle: flat.ankle, rotation: { ...level } }, toes: 0 };
+      }
+      if (raised > 0) {
+        // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
+        const held: number =
+          raised *
+          (struck ? 1 : minimumJerk(t / RISE).s) *
+          (leaves ? 1 : 1 - minimumJerk((t - strike) / RISE).s);
+        const degrees: number = Math.min(
+          -held,
+          t > rise ? push * minimumJerk((t - rise) / (toeOff - rise)).s : 0,
+        );
         return {
-          placement: rocked(body, side, flat, heading, degrees, "mtp"),
+          placement: rock(degrees, "mtp"),
           toes: -degrees,
         };
       }
-      if (Number.isFinite(toeOff) && t > toeOff - HEEL_SHARE * length) {
+      if (struck && t < strike + HEEL_SHARE * length) {
         const degrees: number =
-          STRIKE *
-          minimumJerk(
-            (t - (toeOff - HEEL_SHARE * length)) / (HEEL_SHARE * length),
-          ).s;
+          STRIKE * (1 - minimumJerk((t - strike) / (HEEL_SHARE * length)).s);
         return {
-          placement: rocked(body, side, flat, heading, degrees, "heel"),
+          placement: rock(degrees, "heel"),
           toes: 0,
         };
       }
-      return {
-        placement: {
-          ankle: flat.ankle,
-          rotation: HumanFoot.rotation(heading, 0),
-        },
-        toes: 0,
-      };
-    }
-    if (raised > 0) {
-      // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
-      const held: number =
-        raised *
-        (Number.isFinite(strike) ? 1 : minimumJerk(t / RISE).s) *
-        (Number.isFinite(toeOff) ? 1 : 1 - minimumJerk((t - strike) / RISE).s);
-      const rise: number = Number.isFinite(toeOff)
-        ? toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6)
-        : Infinity;
-      const degrees: number = Math.min(
-        -held,
-        t > rise ? push * minimumJerk((t - rise) / (toeOff - rise)).s : 0,
-      );
-      return {
-        placement: rocked(body, side, flat, heading, degrees, "mtp"),
-        toes: -degrees,
-      };
-    }
-    if (Number.isFinite(strike) && t < strike + HEEL_SHARE * length) {
-      const degrees: number =
-        STRIKE * (1 - minimumJerk((t - strike) / (HEEL_SHARE * length)).s);
-      return {
-        placement: rocked(body, side, flat, heading, degrees, "heel"),
-        toes: 0,
-      };
-    }
-    if (Number.isFinite(toeOff)) {
-      const rise: number =
-        toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6);
-      if (t > rise) {
-        const u: number = (t - rise) / (toeOff - rise);
-        const degrees: number =
-          push * (minimumJerk(u).s - LEAVE * carriedRate(1, 1 - u));
-        return {
-          placement: rocked(body, side, flat, heading, degrees, "mtp"),
-          toes: -degrees,
-        };
+      if (leaves) {
+        if (t > rise) {
+          const u: number = (t - rise) / (toeOff - rise);
+          const degrees: number =
+            push * (minimumJerk(u).s - LEAVE * carriedRate(1, 1 - u));
+          return {
+            placement: rock(degrees, "mtp"),
+            toes: -degrees,
+          };
+        }
       }
-    }
-    return {
-      placement: {
-        ankle: flat.ankle,
-        rotation: HumanFoot.rotation(heading, 0),
-      },
-      toes: 0,
+      return { placement: { ankle: flat.ankle, rotation: { ...level } }, toes: 0 };
     };
   }
 
@@ -237,7 +265,31 @@ export namespace walkFoot {
       settles?: boolean;
     },
   ): IFoot {
-    const u: number = Math.min(1, Math.max(0, props.u));
+    return prepareSwing(body, side, props)(props.u);
+  }
+
+  /**
+   * Prepare a swing whose body, endpoint stances and initial rates are fixed.
+   * The returned reader accepts its share in any order and owns no sample cache.
+   *
+   * @param body The body whose hip height scales the authored lift.
+   * @param side The swinging foot.
+   * @param props The fixed inputs of `swing`, without its queried share.
+   * @returns The same swinging foot as `swing` at each share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, random-access share reader and lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same minimum-jerk travel, carried rates, raised-cosine lift and sole-clearance correction as `swing`; only endpoint angle decomposition and terminal-settle preparation leave the reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule retain their original formulas and bounds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and constant work per share; endpoint quaternion decompositions and terminal-settle inverse trigonometry run once per prepared swing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader shares preparation only for the fixed body, side and endpoint inputs it closes over.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader retains one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
+   */
+  export function prepareSwing(
+    body: IHumanBody,
+    side: "left" | "right",
+    props: Omit<Parameters<typeof swing>[2], "u">,
+  ): (share: number) => IFoot {
     const stiff: boolean = props.stiff === true;
 
     // Terminal swing: the travel ends where the lift, `sin²(π u)` of its
@@ -252,62 +304,69 @@ export namespace walkFoot {
         : Math.asin(
             Math.sqrt(AutoMovieMotionHumanAuditContact.HEIGHT / height),
           ) / Math.PI;
-    const travel: number = Math.min(1, u / (1 - settle));
-    const s: number = minimumJerk(travel).s;
-    const carried: number = carriedRate(
-      (1 - settle) * props.seconds,
-      travel * (1 - settle) * props.seconds,
-    );
-    const bump: number = Math.sin(Math.PI * u) ** 2;
-
-    // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
-    const level: number = stiff ? minimumJerk(Math.min(1, u / LEVEL)).s : s;
-    const rising: number = stiff
-      ? carriedRate(LEVEL * props.seconds, u * props.seconds)
-      : carried;
-    const a: IAutoMovieVector3 = props.from.ankle;
-    const b: IAutoMovieVector3 = props.to.ankle;
-    const ankle: IAutoMovieVector3 = {
-      x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
-      y:
-        a.y +
-        (b.y - a.y) * level +
-        props.velocity.y * rising +
-        (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
-      z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
-    };
     const leaving: number = HumanFoot.heading(props.from.rotation);
-    const heading: number =
-      leaving + wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
+    const headingDelta: number = wrapDegrees(
+      HumanFoot.heading(props.to.rotation) - leaving,
+    );
     const left: number = HumanFoot.pitch(props.from.rotation);
-    const turning: number = carriedRate(
-      (stiff ? LEVEL : 0.5) * props.seconds,
-      u * props.seconds,
-    );
-    const toes: number =
-      props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
-      props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
-      (props.rates?.toes ?? 0) * turning;
-    // A foot that leaves or lands on its edge rolls between the two as its
-    // pitch does.
+    const pitchDelta: number = HumanFoot.pitch(props.to.rotation) - left;
     const rolled: number = HumanFoot.roll(props.from.rotation);
-    const placement: HumanFoot.IPlacement = {
-      ankle,
-      rotation: HumanFoot.rotation(
-        heading,
-        left +
-          (HumanFoot.pitch(props.to.rotation) - left) * level +
-          (props.rates?.pitch ?? 0) * turning,
-        rolled + (HumanFoot.roll(props.to.rotation) - rolled) * level,
-      ),
+    const rollDelta: number = HumanFoot.roll(props.to.rotation) - rolled;
+    const heel: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, "heel");
+    return (share: number): IFoot => {
+      const u: number = Math.min(1, Math.max(0, share));
+      const travel: number = Math.min(1, u / (1 - settle));
+      const s: number = minimumJerk(travel).s;
+      const carried: number = carriedRate(
+        (1 - settle) * props.seconds,
+        travel * (1 - settle) * props.seconds,
+      );
+      const bump: number = Math.sin(Math.PI * u) ** 2;
+
+      // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
+      const level: number = stiff ? minimumJerk(Math.min(1, u / LEVEL)).s : s;
+      const rising: number = stiff
+        ? carriedRate(LEVEL * props.seconds, u * props.seconds)
+        : carried;
+      const a: IAutoMovieVector3 = props.from.ankle;
+      const b: IAutoMovieVector3 = props.to.ankle;
+      const ankle: IAutoMovieVector3 = {
+        x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
+        y:
+          a.y +
+          (b.y - a.y) * level +
+          props.velocity.y * rising +
+          (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
+        z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
+      };
+      const heading: number = leaving + headingDelta * s;
+      const turning: number = carriedRate(
+        (stiff ? LEVEL : 0.5) * props.seconds,
+        u * props.seconds,
+      );
+      const toes: number =
+        props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
+        props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
+        (props.rates?.toes ?? 0) * turning;
+
+      // A foot that leaves or lands on its edge rolls between the two as its
+      // pitch does.
+      const placement: HumanFoot.IPlacement = {
+        ankle,
+        rotation: HumanFoot.rotation(
+          heading,
+          left + pitchDelta * level + (props.rates?.pitch ?? 0) * turning,
+          rolled + rollDelta * level,
+        ),
+      };
+      const low: number = Math.min(
+        HumanFoot.point(body, side, "toe", placement, toes).y,
+        heel(placement).y,
+      );
+      const clearance: number = CLEARANCE * bump;
+      if (low < clearance) ankle.y += clearance - low;
+      return { placement, toes };
     };
-    const low: number = Math.min(
-      HumanFoot.point(body, side, "toe", placement, toes).y,
-      HumanFoot.point(body, side, "heel", placement).y,
-    );
-    const clearance: number = CLEARANCE * bump;
-    if (low < clearance) ankle.y += clearance - low;
-    return { placement, toes };
   }
 
   /** The pitch a foot strikes the floor with, degrees toes-up (provisional, inside Perry and Burnfield's heel rocker). */

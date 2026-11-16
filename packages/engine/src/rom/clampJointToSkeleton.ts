@@ -167,7 +167,7 @@ export namespace clampJointToSkeleton {
    * Does not validate skeleton membership, repair axes or cache a clamped answer; the caller supplies the actual first matching bone and same-skeleton rig reader.
    * Constant preparation apart from the caller's frame reader, then the existing projection for every joint; no bone scan is performed here.
    * Reuses this operation's constraint/frame and a swing-twist frame's lazy basis while preserving every actual projection; no state is shared across solves.
-   * One returned clamp owns its optional prepared frame, private reader and one lazy basis plus borrowed constraint/axis/frame records, released with the operation; ordinary box clamps keep no prepared swing basis and a one-shot swing clamp may pay one extra fixed-size wrapper.
+   * One returned clamp owns its optional prepared frame, private readers and at most one admitted-axis reference and one swing basis plus borrowed constraint/axis/frame records, released with the operation; ordinary box clamps keep no prepared swing basis and a one-shot swing clamp pays the fixed-size wrapper and its three closures.
    */
   export function resolved(
     bone: IAutoMovieJointPose["bone"],

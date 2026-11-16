@@ -55,9 +55,11 @@ export function restElbowSupport(
       },
     ],
   );
-  const bones = poseBones(body, resolveHumanPosture(body, solved));
   const frame =
     body.surfaces.regions[other === "left" ? "elbowLeft" : "elbowRight"];
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body, resolveHumanPosture(body, solved), undefined, new Set([frame.bone]),
+  );
   const placed = resolveAutoMovieHumanoidSurfaces.place(
     frame,
     bones.get(frame.bone)!,

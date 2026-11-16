@@ -121,13 +121,17 @@ export namespace pushSledStance {
 
     // The sink that keeps each wrist within reach of its risen shoulder.
     const reach: number = body.measure.upperArm + body.measure.forearm;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(
         body,
-        resolveHumanPosture(
+        resolveHumanPosture.seeded(
           body,
           AutoMovieMotionHumanTrunk.sunk(body, standing, 0, inclined, 0),
-        ),
+          undefined, {}, undefined, requested,
+        ).pose,
+        undefined,
+        requested,
       );
     let sink: number = 0;
     for (const side of ["left", "right"] as const) {

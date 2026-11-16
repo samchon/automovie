@@ -59,11 +59,11 @@ export namespace HumanArmRefine {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what an interval must bound and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Conservative advancement spares only forward pairs whose relative motion stays within their clearance; reverse pairs, crossings, hard task points and ranges are checked at every actual inner waypoint, and the site's interpolant against the site itself.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over intervals; per interval the site reading, then the probes'.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over intervals; per interval the site reading, then the probes'. A lazy arm-local workspace reuses only the held-site arrays, refreshing their original scalar inputs before each interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every arm, every surface probe and every instant of the frame grid inside an interval is read; an interval below two frames is left as it is, never forced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per interval one placement per arm and inner instant; the probes' pairs are read at the interval's ends only.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmGeometry.placed`, `nearby` and `gap` and the context's `allowed`, the optimiser's own pair reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the full frame-grid scan per interval and all original placements and queries. Held-site index, time and active-point arrays are reused; each arm allocates at most its largest actually read hold's number of three-coordinate rows during this call, rather than that many rows for every held interval. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmGeometry.placed`, `nearby` and `gap` and the context's `allowed`. Only private array storage is shared across held intervals; every site's presence, time and current point components are read again in their original order, so no target or interpolation result is replayed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lazily holds one workspace per actually read arm, each bounded by that call's largest hold, and releases all workspaces on return or throw. Only interval indices escape; contexts, targets and numeric rows are not added to a persistent cache.
    */
   export function unbounded(
     c: M.IContext,
@@ -72,6 +72,7 @@ export namespace HumanArmRefine {
   ): number[] {
     const out: number[] = [];
     const ft: readonly number[] = fine.times;
+    let paths: (ISitePath | undefined)[] | undefined;
     for (let k: number = 0; k + 1 < c.n; ++k) {
       const from: number = c.times[k]!;
       const to: number = c.times[k + 1]!;
@@ -81,7 +82,7 @@ export namespace HumanArmRefine {
         if (t > from + 1e-9 && t < to - 1e-9) inner.push(g);
       });
       if (inner.length === 0) continue;
-      if (strayed(c, fine, k, inner)) {
+      if (strayed(c, fine, k, inner, (paths ??= []))) {
         out.push(k);
         continue;
       }
@@ -100,6 +101,14 @@ export namespace HumanArmRefine {
    * @param times The seconds.
    * @param split The intervals, by their first waypoint.
    * @returns The seconds, ascending.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies ordered seconds, interval indices and the returned grid with selected midpoints.
+   * @evidence contracts/development/implementation.md#principled-implementation Inserts the arithmetic midpoint after each selected interval's original first instant, preserving the existing dyadic refinement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered time traversal appends the original instant and its optional midpoint.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains includes membership, midpoint grouping, duplicates and order; does not round instants or introduce a finer-grid policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For N instants and S split indices, the existing includes lookup costs O(N*S); output storage is O(N+S) for valid interval indices.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the original time array and arithmetic midpoint directly, without another grid generator or retained lookup.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh numeric array and retains neither the source grid nor the selected intervals.
    */
   export function split(
     times: readonly number[],
@@ -117,10 +126,18 @@ export namespace HumanArmRefine {
    * A cubic Hermite through waypoints at their seconds, tangents by central
    * differences in time, still at both ends: the trajectory's interpolant.
    *
-   * @param times The waypoints' seconds.
-   * @param x The values at each waypoint.
-   * @param seconds The second.
-   * @returns The values.
+   * @param times Ordered waypoint seconds paired with the coordinate rows.
+   * @param x Coordinates at every waypoint, with a consistent dimension.
+   * @param seconds The instant to read, seconds.
+   * @returns Fresh interpolated coordinates, clamped to the endpoint rows.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the ordered time/coordinate pairing, endpoint behavior, central-difference tangents and fresh numeric result.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing cubic Hermite basis, zero endpoint tangents and central differences divided by their actual neighboring time spans.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Endpoint copies precede an interval search, two tangents and the original componentwise four-term polynomial.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps interval ties, exponent and addition grouping, endpoint copies and each actual coordinate calculation; no resampling, angle rounding or interpolation cache is introduced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Searches at most N waypoint times and computes two D-component tangents and D results, costing O(N+D) work and O(D) temporary/output space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the selected interval's time span and four scalar basis values across coordinates; all callers use this same interpolant.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh coordinates, with call-local tangent arrays and no retained input or result history.
    */
   export function hermite(
     times: readonly number[],
@@ -134,7 +151,7 @@ export namespace HumanArmRefine {
     while (k + 2 < n && times[k + 1]! <= seconds) ++k;
     const h: number = times[k + 1]! - times[k]!;
     const u: number = (seconds - times[k]!) / h;
-    const tangent = (j: number): number[] =>
+    const tangent: (j: number) => number[] = (j: number): number[] =>
       j === 0 || j === n - 1
         ? new Array(x[0]!.length).fill(0)
         : x[j + 1]!.map(
@@ -154,29 +171,62 @@ export namespace HumanArmRefine {
   }
 }
 
+/** Private storage reused only while one unbounded call reads held intervals. */
+interface ISitePath {
+  /** Current held-site indices, rebuilt in source order. */
+  held: number[];
+
+  /** Current held-site times, read again before every interval. */
+  times: number[];
+
+  /** Current point rows in held-site order. */
+  points: number[][];
+
+  /** Reusable rows up to this arm's largest actually read hold. */
+  rows: number[][];
+}
+
 /** Whether a hold interval's interpolated site leaves the act's own site by more than `TOLERANCE` at an inner instant. */
 function strayed(
   c: M.IContext,
   fine: M.IContext,
   k: number,
   inner: readonly number[],
+  paths: (ISitePath | undefined)[],
 ): boolean {
   return c.sites.some(
     (sites: readonly (M.ISite | undefined)[], a: number): boolean => {
       if (sites[k] === undefined || sites[k + 1] === undefined) return false;
-      const held: number[] = [];
+      const path: ISitePath = (paths[a] ??= {
+        held: [],
+        times: [],
+        points: [],
+        rows: [],
+      });
+      const held: number[] = path.held;
+      held.length = 0;
       sites.forEach((s: M.ISite | undefined, j: number): void => {
         if (s !== undefined) held.push(j);
       });
-      const times: number[] = held.map((j: number): number => c.times[j]!);
-      const points: number[][] = held.map((j: number): number[] => {
+      const times: number[] = path.times;
+      times.length = held.length;
+      held.forEach((j: number, i: number): void => {
+        times[i] = c.times[j]!;
+      });
+      const points: number[][] = path.points;
+      points.length = held.length;
+      held.forEach((j: number, i: number): void => {
         const p: IAutoMovieVector3 = sites[j]!.point;
-        return [p.x, p.y, p.z];
+        const row: number[] = (path.rows[i] ??= []);
+        row[0] = p.x;
+        row[1] = p.y;
+        row[2] = p.z;
+        points[i] = row;
       });
       return inner.some((g: number): boolean => {
         const actual: M.ISite | undefined = fine.sites[a]![g];
         if (actual === undefined) return false;
-        const [px, py, pz] = HumanArmRefine.hermite(
+        const [px, py, pz]: [number, number, number] = HumanArmRefine.hermite(
           times,
           points,
           fine.times[g]!,
@@ -218,7 +268,10 @@ function certified(
     (j: number, e: number): S.IScreen =>
       S.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
   );
-  const clear = (end: 0 | 1, probe: number): boolean => {
+  const clear: (end: 0 | 1, probe: number) => boolean = (
+    end: 0 | 1,
+    probe: number,
+  ): boolean => {
     const j: number = k + end;
     const frame: G.IFrame = c.frames[a]![j]!;
     const placed: G.IPlaced = ends[end]!;

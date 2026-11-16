@@ -20,6 +20,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -85,8 +86,8 @@ export namespace sprintStartSet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Body-scaled contacts, one geometric seed, then one shared whole-body fit and a measured refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arm extension is not fixed to the seed and no joint range is narrowed; a joint/contact problem the fit does not meet is refused with its actual residuals.
    * @evidence contracts/development/implementation.md#efficient-algorithms One geometric seed and one shared fit with analytic Jacobians replace nested machine-resolution bisections; fit iterations, not a claimed speedup, determine cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm's wrist, pitch and root, and the foot's pivot.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Seed trunk reads share one synchronous exact-FK workspace and request only both shoulder origins and hips; the completed stance's final read requests only hips, after unchanged canonical admission.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local exact reader and requested bone sets are released when the set solve returns or throws; the returned stance retains neither.
    */
   export function of(
     context: Pick<IHumanActionContext, "body">,
@@ -108,6 +109,8 @@ export namespace sprintStartSet {
     feet: Record<"left" | "right", HumanFoot.IPlacement>;
   } {
     const body: IHumanBody = context.body;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "hips"]);
     const m: IHumanBody["measure"] = body.measure;
     const frame: HumanFrame.IFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
@@ -199,7 +202,9 @@ export namespace sprintStartSet {
         };
         const bones: ReturnType<typeof poseBones> = poseBones(
           body,
-          resolveHumanPosture(body, turned),
+          resolveHumanPosture.seeded(body, turned, undefined, undefined, resolution).pose,
+          resolution(),
+          trunkBones,
         );
         const girdle: IAutoMovieVector3 = Vector3.lerp(
           bones.get("leftUpperArm")!.worldPosition,
@@ -211,10 +216,6 @@ export namespace sprintStartSet {
           pitch: tilt.pitch,
           joints: tilt.joints,
           hips: Vector3.add(root, bones.get("hips")!.worldPosition),
-          joint: Vector3.add(
-            root,
-            bones.get(`${front}UpperLeg`)!.worldPosition,
-          ),
           root,
         };
       };
@@ -384,31 +385,25 @@ export namespace sprintStartSet {
       });
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      resolveHumanPosture(body, solved.posture),
+      resolveHumanPosture.seeded(body, solved.posture, undefined, undefined, resolution).pose,
+      resolution(),
+      new Set<AutoMovieHumanoidBone>(["hips"]),
     );
-    const stance: IStance = {
-      root: solved.posture.root,
+    return {
       hips: bones.get("hips")!.worldPosition,
-      joint: bones.get(`${front}UpperLeg`)!.worldPosition,
       pitch: solved.posture.pitch,
       joints: solved.posture.joints,
-    };
-    return {
-      hips: stance.hips,
-      pitch: stance.pitch,
-      joints: stance.joints,
       palms,
       feet,
     };
   }
 }
 
-/** A set stance at one total tilt: the pelvis's pitch, the spine's flexion added, and the hips, the front hip joint and the root placed so the shoulders stand over the hands, world metres. */
+/** A set stance at one total tilt: pelvis pitch, spine flexion, and hips and root placed so the shoulders stand over the hands, world metres. */
 interface IStance {
   pitch: number;
   joints: IHumanPosture["joints"];
   hips: IAutoMovieVector3;
-  joint: IAutoMovieVector3;
   root: IAutoMovieVector3;
 }
 

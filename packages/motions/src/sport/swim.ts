@@ -1,8 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
+import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -150,16 +151,16 @@ export namespace swim {
    * @evidence contracts/development/implementation.md#principled-implementation The root floats at the plane by the body's own mouth or chest depth; each limb's angles are periodic functions of the cycle's phase.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, then the stroke's limb rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Provisional shares and times are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the arm swing, the head share and the joint add.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per second; only the selected stroke's mouth/depth FK is prepared, and the held entry's prone heading, hip offset and roll axis are reused through the stroke.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The local still base fixes the entry heading before any limb writer; its fixed prone orientation supplies the same root offset and whole-body roll axis at every queried second. Arm swing, head share and joint add remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few numbers.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IHumanBody = context.body;
+    const m: IHumanBody["measure"] = body.measure;
     const cycles: number = p.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
@@ -216,12 +217,17 @@ export namespace swim {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const mouth: number =
+    const prone: boolean = p.kind === "frontCrawl";
+    const mouth: number = prone ? 0 :
       HumanTrunk.region(body, entry, "mouth").point.y - entry.root.y;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
     // The root floats: upright with the mouth above the plane, or prone with the hips under it.
-    const prone: boolean = p.kind === "frontCrawl";
+    const proneHeading: IAutoMovieQuaternion = resolveHumanPosture.heading({
+      ...entry, pitch: entry.pitch + 90,
+    });
+    const hipOffset: IAutoMovieVector3 = Quaternion.rotateVector(proneHeading, hipsRest);
+    const rollAxis: IAutoMovieVector3 = Quaternion.rotateVector(proneHeading, { x: 0, y: 1, z: 0 });
     // The body's roll about its long axis, a whole-body rotation about the
     // hips (#3423): toward the right at the right arm's mid recovery.
     const roll = (s: number): number =>
@@ -236,11 +242,7 @@ export namespace swim {
       rotation: {
         about,
         turn: Quaternion.fromAxisAngle(
-          Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
-            x: 0,
-            y: 1,
-            z: 0,
-          }),
+          rollAxis,
           degrees,
         ),
       },
@@ -250,16 +252,16 @@ export namespace swim {
       w: number,
     ): IHumanPosture["joints"] => {
       const out: IHumanPosture["joints"] = { ...joints };
-      const delta = AutoMovieMotionHumanHead.share(2, -TURN * w);
+      const delta: AutoMovieMotionHumanJoints.Angles = AutoMovieMotionHumanHead.share(2, -TURN * w);
       for (const bone of ["neck", "head"] as const) {
-        const at = joints[bone] ?? [0, 0, 0];
-        const by = delta[bone]!;
+        const at: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+        const by: readonly [number, number, number] = delta[bone]!;
         out[bone] = [at[0] + by[0], at[1] + by[1], at[2] + by[2]];
       }
       return out;
     };
     // The hips' depth: a chest's half depth, or as shallow as the breathing mouth needs.
-    const depth: number = ((): number => {
+    const depth: number = prone ? ((): number => {
       const breath: IHumanPosture = {
         ...entry,
         pitch: entry.pitch + 90,
@@ -267,15 +269,16 @@ export namespace swim {
       };
       const hips: IAutoMovieVector3 = Vector3.add(
         breath.root,
-        Quaternion.rotateVector(resolveHumanPosture.heading(breath), hipsRest),
+        hipOffset,
       );
       const rise: number =
         HumanTrunk.region(body, rolled(breath, -ROLL, hips), "mouth").point.y -
         hips.y;
       return Math.min(m.chestDepth / 2, rise - CLEAR);
-    })();
+    })() : 0;
     primitives.push({
       channels: ["root", "trunk"],
+      reads: ["root", "trunk"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, s: number): IHumanPosture => {
@@ -297,10 +300,7 @@ export namespace swim {
             ...pitched,
             root: Vector3.subtract(
               hips,
-              Quaternion.rotateVector(
-                resolveHumanPosture.heading(pitched),
-                hipsRest,
-              ),
+              hipOffset,
             ),
           },
           roll(s),
@@ -315,6 +315,7 @@ export namespace swim {
       const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
       primitives.push({
         channels: [limb],
+        reads: [limb],
         from: 0,
         to: duration,
         write: (posture: IHumanPosture, s: number): IHumanPosture => {
@@ -324,7 +325,7 @@ export namespace swim {
               (kicks / 2) *
               phase(s, side === "left" ? 0 : 1 / kicks),
           );
-          const limbs = { ...posture.limbs };
+          const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
           delete limbs[limb];
           return {
             ...posture,
@@ -359,23 +360,25 @@ export namespace swim {
               const u: number = phase(s, side === "right" ? 0 : -lag);
               if (u < PULL) {
                 const w: number = u / PULL;
+                const sine: number = Math.sin(Math.PI * w);
                 return {
                   upper: [
-                    45 * Math.sin(Math.PI * w),
+                    45 * sine,
                     180 * (0.5 + 0.5 * Math.cos(Math.PI * w)),
                     0,
                   ],
-                  elbow: 40 * Math.sin(Math.PI * w),
+                  elbow: 40 * sine,
                 };
               }
               const w: number = (u - PULL) / (1 - PULL);
+              const sine: number = Math.sin(Math.PI * w);
               return {
                 upper: [
-                  -20 * Math.sin(Math.PI * w),
+                  -20 * sine,
                   180 * (0.5 - 0.5 * Math.cos(Math.PI * w)),
-                  45 * Math.sin(Math.PI * w),
+                  45 * sine,
                 ],
-                elbow: 90 * Math.sin(Math.PI * w),
+                elbow: 90 * sine,
               };
             },
           ),

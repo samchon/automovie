@@ -23,6 +23,11 @@ import type { HumanColliders } from "./HumanColliders";
  * that world rotation from the rest. A planted limb (`planted: true`) is
  * re-solved onto its goal after transitions, so a foot on the floor or a hand
  * on a grip never slides.
+ *
+ * A resolver-issued preparation may privately associate its exact translated
+ * raw object with the source's actual cold solution. This adds no public
+ * resolved state: original goals remain authoring demands, and copies or
+ * changed solver context receive ordinary resolution.
  */
 export interface IHumanPosture {
   /** The rig origin, world metres. */

@@ -10,9 +10,12 @@ import type {
 
 import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
+import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import type { IPreparedChainPlant } from "./IPreparedChainPlant";
@@ -30,13 +33,16 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * with the same rig/mappings; it is read only at the original lazy FK site.
  * A supplied resolution reader is owned by this same synchronous operation,
  * allowing source, zeroed and reference FK to share exact completed math.
+ * A supplied poseResolution must be the immutable snapshot of this exact rig,
+ * topology and clinical tables. It computes only the chain's demanded frames;
+ * omission retains the raw full-FK admission path.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the borrowed inputs, caller-owned lifetime and laziness that preserves degenerate-target admission order.
  * @evidence contracts/development/implementation.md#principled-implementation Separates target-independent FK/domains and last-record joint maps from target-specific analytic solving, using the same skeleton axis precedence and resolveBoneMap as the one-shot fit.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainFitRig owns lazy rig/source preparation, while this workspace owns FK and continuity readers; fitChainBend remains the sole owner of target search and ranking.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search, tolerance, seed, callback result or constraint is approximated; lazy authored/reference reads retain the original order in which a degenerate analytic solve returns without reading them.
- * @evidence contracts/development/implementation.md#efficient-algorithms One geometry/domain preparation and at most one authored and one reference-mid FK serve every target. One scoped FK reader shares unchanged math across those distinct full poses, retaining ordered scans and fresh outputs. Last-joint maps use direct insertion, and selected pose assembly shares a once-filtered non-bend prefix. Rig/reference preparation remains lazy; actual projections and target searches still run. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed source dependencies are shared. Rig getters run at original consumer sites, retaining diagnostic paths and distinct hinged first-reference versus free-bend last-reference semantics. Changed rig, pose, frame, callback or reference inputs require another workspace.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One geometry/domain preparation and at most one authored/reference-mid FK serve every target. Explicit preparation reuses the immutable merged raw-axis table without another B-bone scan and reads only zeroed chain ancestry, authored effector and reference lower. Raw omission preserves full scans; both retain ordered joint admission and every search/projection. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed source dependencies are shared. An explicit immutable poseResolution must match this exact rig/topology/mappings; otherwise raw full FK remains. Rig getters retain original diagnostic sites and hinged first-reference versus free-bend last-reference semantics. Changed rig, pose, frame, callback or reference inputs require another workspace.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One workspace owns O(J+B) local maps/FK dependency snapshots and constant-size data for three chain bones, projector and fixed hinge/reference reads. It borrows fixed inputs and an optional same-operation reader until caller release and retains no target history, global cache, handle or task.
  */
 export function prepareChainFit(
@@ -46,18 +52,24 @@ export function prepareChainFit(
     IAutoMovieResolvedBone
   >,
   resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
+  poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): prepareChainFit.IWorkspace {
   const props: Omit<IFitChainToTargetProps, "target"> = {
     ...source,
-    jointAxes: skeletonJointAxes(source.skeleton, source.jointAxes),
+    jointAxes: poseResolution?.jointAxes ??
+      skeletonJointAxes(source.skeleton, source.jointAxes),
   };
   const prepared: IPreparedChainPlant | null = prepareChainPlant(
     props,
     resolution,
+    poseResolution,
   );
   const rig: prepareChainFit.IRig = prepareChainFitRig(props, prepared);
   let reading: prepareChainFit.IReading | undefined;
   let referenceLower: IAutoMovieResolvedBone | undefined;
+  let articulation:
+    | ReturnType<typeof twoBoneChainArticulation.prepare>
+    | undefined;
   let authoredContinuity: number | undefined;
   let retainedJoints: readonly IAutoMovieJointPose[] | undefined;
   const prior: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> = new Map();
@@ -65,6 +77,18 @@ export function prepareChainFit(
     props,
     prepared,
     rig,
+    articulation: (): ReturnType<typeof twoBoneChainArticulation.prepare> => {
+      if (articulation === undefined)
+        articulation =
+          prepared === null
+            ? null
+            : twoBoneChainArticulation.prepare({
+                upper: prepared.upper,
+                lower: prepared.lower,
+                end: prepared.end,
+              });
+      return articulation;
+    },
     pose: (
       upper: IAutoMovieJointPose,
       lower: IAutoMovieJointPose,
@@ -129,14 +153,7 @@ export function prepareChainFit(
       if (reading !== undefined) return reading;
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         readAuthored === undefined
-          ? resolveBoneMap(
-              props.skeleton,
-              props.pose,
-              props.topology,
-              props.jointAxes,
-              props.restFrames,
-              resolution,
-            )
+          ? readBones(props.pose, new Set([props.chain.effector]))
           : readAuthored();
       const authoredAngles: ReadonlyMap<
         AutoMovieHumanoidBone,
@@ -172,18 +189,28 @@ export function prepareChainFit(
             twist: null,
           },
       );
-      referenceLower = resolveBoneMap(
-        props.skeleton,
+      referenceLower = readBones(
         workspace.pose(referenceJoints[0]!, referenceJoints[1]!),
-        props.topology,
-        props.jointAxes,
-        props.restFrames,
-        resolution,
+        new Set([props.chain.lower]),
       ).get(props.chain.lower)!;
       return referenceLower;
     },
   };
   return workspace;
+
+  /** Preserve raw FK admission unless the caller supplies its genuine immutable rig. */
+  function readBones(
+    pose: IAutoMoviePose,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    if (poseResolution === undefined)
+      return resolveBoneMap(props.skeleton, pose, props.topology,
+        props.jointAxes, props.restFrames, resolution);
+    const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+    for (const bone of poseResolution.resolve(pose, resolution, requested))
+      map.set(bone.bone, bone);
+    return map;
+  }
 }
 
 /** Index borrowed source/reference records without new admission; later duplicates replace earlier ones without copying joints. */
@@ -218,6 +245,8 @@ export namespace prepareChainFit {
 
   /** Lazy immutable-rig preparation; loaders are the existing pure hinge functions, not target scores or user callbacks. */
   export interface IRig {
+    /** Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame. */
+    overshoot(bone: AutoMovieHumanoidBone): (joint: IAutoMovieJointPose) => number;
     /** Actual skeleton record; an absent bone is remembered too. */
     bone(bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined;
 
@@ -266,6 +295,9 @@ export namespace prepareChainFit {
 
     /** Original no-hint source-hinge displacement, read only at that branch's first use. */
     posedSwing(read: () => IAutoMovieVector3): IAutoMovieVector3;
+
+    /** Lazy hinge-span/source-frame geometry; null only when chain preparation failed. */
+    hingedGeometry(): hingedArmSwivel.IPrepared | null;
   }
 
   /** Fixed source request and lazy readings; callers keep all dependencies unchanged until release. */
@@ -278,6 +310,9 @@ export namespace prepareChainFit {
 
     /** One lazy preparation shared by all bend/orientation targets of this source. */
     rig: IRig;
+
+    /** Fixed source triangle geometry, read only at the first original analytic solve; each target owns its own reach geometry. */
+    articulation(): ReturnType<typeof twoBoneChainArticulation.prepare>;
 
     /** Fresh pose and joint array with the fixed source's ordered non-bend prefix, then the two supplied articulations. */
     pose(upper: IAutoMovieJointPose, lower: IAutoMovieJointPose): IAutoMoviePose;

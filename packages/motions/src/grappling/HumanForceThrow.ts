@@ -110,8 +110,8 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fulcrum, swing, release state, flight, landing, plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops is refused; the landing is searched, never set.
    * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight integration at plan time, and a landing search over the flight's steps reading the trunk's joints.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The inertia, the integrators and the region places are their owners'.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the swing's and the flight's trajectories for as long as the performance does.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The inertia, integrators and region places are their owners'. Release angle and rate share one swing read; the fixed inverse heading and rigid joint offsets are computed once without changing the landing grid or rotations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The landing search owns its joint-offset array until synchronous return; the plan retains the fixed inverse heading and the swing's and flight's trajectories for its lifetime.
    */
   export function plan(
     context: IHumanActionContext<HumanForceResponse.IParams>,
@@ -204,8 +204,12 @@ export namespace HumanForceThrow {
     const turnAt = (angle: number): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
     const release: number = broken + swing.release;
-    const turned: IAutoMovieQuaternion = turnAt(swing.angle(swing.release));
-    const rate: number = swing.rate(swing.release);
+    const state: { angle: number; rate: number } = swing.sample?.(swing.release) ?? {
+      angle: swing.angle(swing.release),
+      rate: swing.rate(swing.release),
+    };
+    const turned: IAutoMovieQuaternion = turnAt(state.angle);
+    const rate: number = state.rate;
     const from: IAutoMovieVector3 = Vector3.add(
       point,
       Quaternion.rotateVector(turned, r),
@@ -225,6 +229,7 @@ export namespace HumanForceThrow {
       z: from.z + velocity.z * tau,
     });
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(frozen);
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
     const own: IHumanPosture = {
       ...frozen,
       root: { x: 0, y: 0, z: 0 },
@@ -251,23 +256,25 @@ export namespace HumanForceThrow {
       Quaternion.normalize(
         Quaternion.multiply(
           flight.orientation(tau),
-          Quaternion.inverse(heading),
+          inverse,
         ),
       );
 
     // The landing: the first step at which the lowest joint reaches the floor.
+    const offsets: IAutoMovieVector3[] = Array.from(
+      shape.values(),
+      (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
+        Vector3.subtract(bone.worldPosition, centre),
+    );
     const lowest = (tau: number): number => {
       const c: IAutoMovieVector3 = path(tau);
       const q: IAutoMovieQuaternion = turnIn(tau);
       let low: number = Number.POSITIVE_INFINITY;
-      for (const bone of shape.values())
+      for (const offset of offsets)
         low = Math.min(
           low,
           c.y +
-            Quaternion.rotateVector(
-              q,
-              Vector3.subtract(bone.worldPosition, centre),
-            ).y,
+            Quaternion.rotateVector(q, offset).y,
         );
       return low;
     };

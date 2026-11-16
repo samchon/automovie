@@ -17,6 +17,7 @@ import type { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * Getting into a car through its door: the person stands in the doorway
@@ -81,7 +82,14 @@ export namespace HumanTravelCar {
   /** Instants of the entry at which the duck is solved; each holds its duck until the next, so the crown keeps `CLEAR` between them up to how far it moves in one interval. */
   export const SAMPLES: number = 48;
 
-  /** Get into a car seat through its door. */
+  /**
+   * Get into a car seat through its door. Each headroom sample owns a lazy
+   * exact-FK workspace across its unchanged flexion bisection; neither that
+   * reader nor a posed result enters the returned time evaluator. Refusal
+   * diagnostics reuse the measured excess of the same maximum-duck trial.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace states the motion and refusals; this law states the synchronous sample workspace and diagnostic reuse, with all posture solves and bisection steps preserved and speedup unmeasured.
+   */
   export const getIn: IHumanActionLaw<IParams> = {
     name: "getIn",
     interrupts: {},
@@ -180,11 +188,15 @@ export namespace HumanTravelCar {
               },
             };
       };
-      const over = (posture: IHumanPosture): number => {
+      const over = (
+        posture: IHumanPosture,
+        resolution: ReturnType<typeof prepareHumanPoseResolution>,
+      ): number => {
         const crown: IAutoMovieVector3 = HumanTrunk.region(
           body,
           posture,
           "crown",
+          resolution,
         ).point;
         const beyond: number =
           (crown.x - through.at.x) * out.x + (crown.z - through.at.z) * out.z;
@@ -194,50 +206,52 @@ export namespace HumanTravelCar {
       for (let k: number = 0; k <= SAMPLES; ++k) {
         const t: number = (k / SAMPLES) * duration;
         const posture: IHumanPosture = undocked(t);
-        if (!(over(posture) > 0)) continue;
-        if (over(ducked(posture, DUCK)) > 0)
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution();
+        if (!(over(posture, resolution) > 0)) continue;
+        const excess: number = over(ducked(posture, DUCK), resolution);
+        if (excess > 0)
           throw new HumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.height,
             feasible: {
               kind: "range",
-              minimum: through.height + over(ducked(posture, DUCK)),
+              minimum: through.height + excess,
               maximum: null,
               unit: "m",
             },
-            reason: `the door's opening is ${through.height.toFixed(3)} m high, and the crown stays ${(over(ducked(posture, DUCK)) * 1000).toFixed(0)} mm above its top even ducked ${DUCK} degrees at ${t.toFixed(2)} s`,
+            reason: `the door's opening is ${through.height.toFixed(3)} m high, and the crown stays ${(excess * 1000).toFixed(0)} mm above its top even ducked ${DUCK} degrees at ${t.toFixed(2)} s`,
             fix: "get in by a higher door, or into a lower seat",
           });
         let low: number = 0;
         let high: number = DUCK;
         for (let i: number = 0; i < 16; ++i) {
           const middle: number = (low + high) / 2;
-          if (over(ducked(posture, middle)) > 0) low = middle;
+          if (over(ducked(posture, middle), resolution) > 0) low = middle;
           else high = middle;
         }
         needs.push({ at: t, degrees: high });
       }
       // A duck is held in full over the interval on either side of its instant and grows and fades over `LEAD` beyond it.
       const spacing: number = duration / SAMPLES;
-      const duck = (t: number): number =>
-        needs.reduce(
-          (most: number, need: { at: number; degrees: number }): number =>
-            Math.max(
-              most,
-              need.degrees *
-                minimumJerk(
-                  Math.min(
-                    1,
-                    Math.max(
-                      0,
-                      (LEAD + spacing - Math.abs(t - need.at)) / LEAD,
-                    ),
-                  ),
-                ).s,
-            ),
-          0,
-        );
+      const radius: number = LEAD + spacing;
+      const duck = (t: number): number => {
+        let lo: number = 0;
+        let hi: number = needs.length;
+        while (lo < hi) {
+          const mid: number = Math.floor((lo + hi) / 2);
+          if (t - needs[mid]!.at > radius) lo = mid + 1;
+          else hi = mid;
+        }
+        let most: number = 0;
+        for (let i: number = lo; i < needs.length; i++) {
+          const need: { at: number; degrees: number } = needs[i]!;
+          if (need.at - t > radius) break;
+          most = Math.max(most, need.degrees * minimumJerk(Math.min(1, Math.max(0, (LEAD + spacing - Math.abs(t - need.at)) / LEAD))).s);
+        }
+        return most;
+      };
 
       // The sitting's events and contacts on the longer clock, and the seat borne through the swing.
       const share = (was: number): number => (was * sat) / duration;

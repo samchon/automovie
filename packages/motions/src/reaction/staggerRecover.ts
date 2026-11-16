@@ -55,7 +55,7 @@ export namespace staggerRecover {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and frame.
    * @evidence contracts/development/design.md#principled-representation The steps, the courses of the centre of mass, the centre of pressure and the extrapolated centre of mass along the push and the instant it settles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, read by the plan and the tests.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The plan's seven original members and optional paired reading, consumed by stance-knot construction without changing the individual course readers.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The courses are functions of the seconds, not tables.
    */
   export interface IRecovery {
@@ -73,6 +73,9 @@ export namespace staggerRecover {
 
     /** The extrapolated centre of mass at a second since the action's start, on the floor, world metres. */
     extrapolated: (seconds: number) => IAutoMovieVector3;
+
+    /** Optional same-instant course sample, avoiding repeated phase lookup in stance-knot construction. */
+    sample?: ICourses["sample"];
 
     /** When the centre of mass has come to rest, seconds since the action's start. */
     settled: number;
@@ -117,7 +120,31 @@ export namespace staggerRecover {
     t: number;
   }
 
-  /** The courses of the spans, read at a second since the push. */
+  /**
+   * The course values needed together for one synchronous stance-knot read.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field names its frame; all values use metres.
+   * @evidence contracts/development/design.md#principled-representation Travel, pressure and optionally extrapolated centre share one phase selection.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The pendulum and closing course produce the values consumed by staggerKnots.of.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This is a fresh result per call, with no time- or phase-identity memo.
+   */
+  export interface IReading {
+    /** Centre travel from the entry's centre, horizontal world metres. */
+    course: IAutoMovieVector3;
+    /** Centre of pressure on the floor, world metres. */
+    pressure: IAutoMovieVector3;
+    /** Extrapolated centre on the floor, world metres; included only when requested. */
+    extrapolated?: IAutoMovieVector3;
+  }
+
+  /**
+   * The courses of the spans, read at seconds since the push.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each reading states its frame and the common action-local clock.
+   * @evidence contracts/development/design.md#principled-representation The three original scalar-time readers and an optional paired reading describe the same integrated phases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Individual readers remain available; stance-knot construction consumes the optional sample to share phase selection.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing paired reader falls back to the existing readers; no phase is approximated or cached by time.
+   */
   export interface ICourses {
     /** The centre of mass's travel from the entry's. */
     course: (seconds: number) => IAutoMovieVector3;
@@ -127,6 +154,9 @@ export namespace staggerRecover {
 
     /** The extrapolated centre of mass on the floor, world. */
     extrapolated: (seconds: number) => IAutoMovieVector3;
+
+    /** Read travel and pressure together, and extrapolated centre only when requested, at the same second. */
+    sample?: (seconds: number, extrapolated: boolean) => IReading;
   }
 
   /**
@@ -139,6 +169,7 @@ export namespace staggerRecover {
    * @param speed The centre of mass's speed after the blow, m/s.
    * @param righting How long the centre of pressure takes to carry the extrapolated centre of mass to rest, seconds.
    * @param kinematic Whether each landing is placed by the stance course under the legs' ranges; the pendulum alone, its landings where the region puts them, when false.
+   * @param bending Optional operation-owned reader of this exact body's unchanged entry bending; evaluated once only when a stance course needs it.
    * @returns The recovery with its judged course, or null when no order of `STEPS` steps catches it with a course that meets the legs' ranges through its closing step and settling.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the null.
@@ -146,7 +177,7 @@ export namespace staggerRecover {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pendulum per order of the feet, each step by `staggerStep`; the first order that catches and closes is kept.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no order of `STEPS` steps catches is null, never a shortened bound; every bound is measured and cited.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 30 orders of up to `STEPS` steps, each sequence of feet stepped once and taken up by the orders that share it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry's centre of mass and the feet's width are read once per call, by the pendulum.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The pendulum reads entry mass/width once. Bending is demanded once only by a kinematic course, and an explicit same-body/same-entry supplier can share that invariant with a parent plan or speed search.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the shared sequences for the search only.
    */
   export function recover(
@@ -156,6 +187,8 @@ export namespace staggerRecover {
     speed: number,
     righting: number,
     kinematic: boolean = true,
+    bending: () => Record<"pitch" | "roll", IAutoMovieVector3> =
+      (): Record<"pitch" | "roll", IAutoMovieVector3> => staggerKnots.bending(body, entry),
   ): IRecovery | null {
     const { REACTION, STEPS } = staggerBounds;
     const pendulum: StaggerPendulum = new StaggerPendulum(
@@ -164,8 +197,9 @@ export namespace staggerRecover {
       push,
       speed,
     );
-    const bend: Record<"pitch" | "roll", IAutoMovieVector3> =
-      staggerKnots.bending(body, entry);
+    let bend: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
+    const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
+      (): Record<"pitch" | "roll", IAutoMovieVector3> => (bend ??= bending());
     const { entered, root, forward, across } = pendulum;
 
     // The order of the feet is chosen with the steps: every order of up to
@@ -231,7 +265,7 @@ export namespace staggerRecover {
           const result: staggerStep.IResult = staggerStep.take(
             pendulum,
             {
-              bend,
+              bend: readBend,
               kinematic,
               checking:
                 k === 0
@@ -260,7 +294,7 @@ export namespace staggerRecover {
       if (caught) {
         const recovery: IRecovery | null = staggerClose.of(
           pendulum,
-          bend,
+          readBend,
           kinematic,
           order[order.length - 1]!,
           judging,

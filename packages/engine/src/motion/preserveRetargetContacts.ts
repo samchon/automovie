@@ -10,6 +10,9 @@ import {
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { reachableBoneNames } from "../kinematics/reachableBoneNames";
+import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
+import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
@@ -19,7 +22,7 @@ import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps
 import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { contactMask } from "./contactMask";
-import { fitChainToTarget } from "./fitChainToTarget";
+import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 import { resolveBoneMap } from "./resolveBoneMap";
 
 /** Contact tolerance above the source ground counted as a planted contact. */
@@ -42,12 +45,12 @@ interface IAutoMovieContactWindow {
  * Correct a root-scaled retarget clip at its existing authored key times using each source frame's foot/declared hand contact mapped by rootScale. Source slides persist; ROM-limited residuals above tolerance*rootScale are collector warnings, while dynamic nonfinite ground or callback exceptions throw. Inputs have passed retarget admission and parallel source/target key times agree.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Finds chains root-reachable on both rigs, FK-resolves source frames under source clinical tables, classifies foot stance or inclusive hand windows, and fits target chains to per-frame scaled source points under target ROM. Drift at or below absolute 1e-9 target model units skips another fit; prior corrected pose breaks equal-residual bend ties.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This stage owns source-contact mapping and worst-per-effector residual reporting; contactMask and fitChainToTarget own classification and constrained candidate choice, with rig topology built once per side.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns source-contact mapping and worst-per-effector residual reporting; contactMask and fitSeededChainToTarget own classification and unchanged candidate choice. One immutable FK producer and operation reader per admitted side serve all frames and chain preparations.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unresolved chains are skipped whole, proportional already-on-pin frames keep authored articulation, and impossible residual remains warning data rather than fabricated success or a hidden target offset.
  * @evidence contracts/development/common.md#meaningful-documentation States authored-key correction, per-frame source slide preservation, rootScale mapping, warning budget, parallel-clock/admission premises and dynamic ground failure boundary.
- * @evidence contracts/development/implementation.md#efficient-algorithms For F frames and B bones, source FK costs O(FB); H admitted chains add O(FH) masks/pins and bounded target fitting, with fixed-size worst-per-effector records instead of one warning per frame.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Source and target topology are reused for all frames, source FK maps serve every contact chain, and each frame's target FK is refreshed only after an accepted pose correction.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary source maps/pins and corrected keyframes scale with F and admitted chains; the returned clip owns its new keyframe array, unchanged records may be shared, collector warnings belong to the caller, and no resource handles persist.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each rig snapshots O(B) static prerequisites once. F source frames retain ordered O(J) joint admission and compute H effectors' ancestry, retaining O(FH) outputs instead of O(FB). Target reads request pinned effectors; actual corrections keep bounded solving while sharing static FK and exact changed dependencies. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The retarget gate admits fixed rigs/mappings before this stage. Immutable producers and per-side readers share static tables and exact local/ancestor/root work across distinct source, zeroed, reference and corrected poses. Source effector maps serve every contact chain; target FK refreshes only after accepted correction.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source maps/pins scale with F and admitted contacts; exact dependency rows remain O(J+B) per side. Operation readers/producers release on return or throw. The returned clip owns new keyframes, unchanged records may be shared, and no task or handle persists.
  */
 export const preserveRetargetContacts: (props: {
   /** Rig the clip was authored on. */ source: IAutoMovieSkeleton;
@@ -156,17 +159,25 @@ export const preserveRetargetContacts: (props: {
   );
   if (windows.length === 0) return props.retargeted;
 
+  // The retarget gate has admitted these unchanged rigs and clinical tables.
+  // Source contacts and target correction each own only their last FK rows.
+  const sourceRig: prepareSkeletonPoseResolution.IRig = prepareSkeletonPoseResolution(
+    props.source, props.sourceJointAxes, props.sourceRestFrames, sourceTopology,
+  );
+  const targetRig: prepareSkeletonPoseResolution.IRig = prepareSkeletonPoseResolution(
+    props.target, props.targetJointAxes, props.targetRestFrames, targetTopology,
+  );
+  const sourceResolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+  const targetResolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+  const effectors: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+    windows.map(({ chain }: IAutoMovieContactWindow): AutoMovieHumanoidBone => chain.effector),
+  );
+
   const frames: IAutoMovieKeyframe[] = props.retargeted.keyframes;
   const sourceResolved: ReturnType<typeof resolveBoneMap>[] =
     props.sourceMotion.keyframes.map(
       (kf: IAutoMovieKeyframe): ReturnType<typeof resolveBoneMap> =>
-        resolveBoneMap(
-          props.source,
-          kf.pose,
-          sourceTopology,
-          props.sourceJointAxes,
-          props.sourceRestFrames,
-        ),
+        resolvePrepared(sourceRig, kf.pose, sourceResolution, effectors),
     );
 
   // Per-frame contact pins, already mapped into target space.
@@ -216,6 +227,8 @@ export const preserveRetargetContacts: (props: {
       restFrames: props.targetRestFrames,
       worst,
       referencePose,
+      poseResolution: targetRig,
+      resolution: targetResolution,
     });
     keyframes.push(corrected);
     referencePose = corrected.pose;
@@ -263,6 +276,8 @@ const correctFrame: (props: {
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
   referencePose?: IAutoMoviePose;
+  poseResolution: prepareSkeletonPoseResolution.IRig;
+  resolution: ReturnType<typeof preparePoseResolution>;
 }) => IAutoMovieKeyframe = (props: {
   keyframe: IAutoMovieKeyframe;
   index: number;
@@ -276,19 +291,17 @@ const correctFrame: (props: {
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
   referencePose?: IAutoMoviePose;
+  poseResolution: prepareSkeletonPoseResolution.IRig;
+  resolution: ReturnType<typeof preparePoseResolution>;
 }): IAutoMovieKeyframe => {
   if (props.pins.size === 0) return props.keyframe;
+
+  const effectors: ReadonlySet<AutoMovieHumanoidBone> = new Set(props.pins.keys());
 
   const resolve: (pose: IAutoMoviePose) => ReturnType<typeof resolveBoneMap> = (
     pose: IAutoMoviePose,
   ): ReturnType<typeof resolveBoneMap> =>
-    resolveBoneMap(
-      props.skeleton,
-      pose,
-      props.topology,
-      props.jointAxes,
-      props.restFrames,
-    );
+    resolvePrepared(props.poseResolution, pose, props.resolution, effectors);
 
   let pose: IAutoMoviePose = props.keyframe.pose;
   let resolved: ReturnType<typeof resolve> = resolve(pose);
@@ -296,16 +309,15 @@ const correctFrame: (props: {
     const current: IAutoMovieVector3 = resolved.get(effector)!.worldPosition;
     if (drift(current, target) <= NOOP_EPSILON) continue;
     const chain: IAutoMoviePlantChain = props.chains.get(effector)!;
-    const fitted: IAutoMoviePose = fitChainToTarget({
+    const fitted: IAutoMoviePose = fitSeededChainToTarget.prepare({
       skeleton: props.skeleton,
       pose,
       chain,
-      target,
       topology: props.topology,
       jointAxes: props.jointAxes,
       restFrames: props.restFrames,
       referencePose: props.referencePose,
-    });
+    }, undefined, props.resolution, props.poseResolution).fit(target).pose;
     if (fitted === pose) continue;
     pose = fitted;
     resolved = resolve(pose);
@@ -326,6 +338,18 @@ const correctFrame: (props: {
     ? props.keyframe
     : { ...props.keyframe, pose };
 };
+
+/** Index only demanded fresh outputs from one admitted immutable retarget rig. */
+function resolvePrepared(
+  rig: prepareSkeletonPoseResolution.IRig,
+  pose: IAutoMoviePose,
+  resolution: ReturnType<typeof preparePoseResolution>,
+  requested: ReadonlySet<AutoMovieHumanoidBone>,
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const bone of rig.resolve(pose, resolution, requested)) map.set(bone.bone, bone);
+  return map;
+}
 
 /** Distance between a resolved effector and the contact it must hold. */
 const drift: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (

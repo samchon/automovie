@@ -19,6 +19,7 @@ import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanGrasp } from "./HumanGrasp";
 
@@ -63,9 +64,20 @@ export namespace HumanGraspWorn {
     wrist: HumanHand.IWrist;
     round?: boolean;
     clear?: (wrist: HumanHand.IWrist) => number;
+    prepared?: {
+      world: IHumanProp.IFrame;
+      worn: ReturnType<typeof HumanWorn.prepare>;
+      base: ReturnType<typeof resolveHumanPosture.prepareBase>;
+    };
   }): HumanGrasp.IKey {
     const { context, held, tip, at, site } = props;
-    const world: IHumanProp.IFrame = held.frame(context.start);
+    const world: IHumanProp.IFrame = props.prepared?.world ?? held.frame(context.start);
+    const wornAt: ReturnType<typeof HumanWorn.prepare> = props.prepared?.worn ??
+      HumanWorn.prepare(context.body, context.entry.posture, held.prop, at);
+    let base: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined = props.prepared?.base ??
+      resolveHumanPosture.prepareBase(context.body, context.entry.posture);
+    const side: HumanHand.Side = props.side;
+    let clear: ((wrist: HumanHand.IWrist) => number) | undefined = props.clear;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
     );
@@ -88,13 +100,7 @@ export namespace HumanGraspWorn {
       ),
     );
     const keyed = (degrees: number): HumanHand.IWrist => {
-      const worn: IHumanProp.IFrame = HumanWorn.frame(
-        context.body,
-        context.entry.posture,
-        held.prop,
-        at,
-        degrees,
-      );
+      const worn: IHumanProp.IFrame = wornAt(degrees);
       const rotation: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(worn.rotation, turn),
       );
@@ -112,7 +118,7 @@ export namespace HumanGraspWorn {
     const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       context.body,
       context.entry.posture,
-      props.side,
+      side,
     );
 
     // How far the arm, fitted to the key within its ranges, leaves the
@@ -120,13 +126,16 @@ export namespace HumanGraspWorn {
     // would lie inside the body there, added as a cost. Each turn is
     // fitted once, however often the search comes back to it.
     const fitted: Map<number, number> = new Map();
+    let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+      prepareHumanPoseResolution();
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const missed = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
       if (known !== undefined) return known;
       const wrist: HumanHand.IWrist = keyed(degrees);
       const posture: IHumanPosture = context.entry.posture;
       const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      limbs[`${props.side}Arm`] = {
+      limbs[`${side}Arm`] = {
         point: wrist.point,
         rotation: wrist.rotation,
         bend: hang,
@@ -134,10 +143,12 @@ export namespace HumanGraspWorn {
       };
       const hand: IAutoMovieResolvedBone = poseBones(
         context.body,
-        resolveHumanPosture(context.body, { ...posture, limbs }),
-      ).get(`${props.side}Hand`)!;
+        base!.seeded(limbs, {}, resolution).pose,
+        resolution!(),
+        requested,
+      ).get(`${side}Hand`)!;
       const kept: number =
-        props.clear === undefined ? 0 : Math.min(0, props.clear(wrist));
+        clear === undefined ? 0 : Math.min(0, clear(wrist));
       const miss: number =
         Vector3.length(
           Vector3.subtract(
@@ -170,6 +181,10 @@ export namespace HumanGraspWorn {
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
     const chosen: HumanHand.IWrist = keyed(turned);
+    fitted.clear();
+    resolution = undefined;
+    base = undefined;
+    clear = undefined;
     return {
       posture: context.entry.posture,
       wrist: chosen,
@@ -179,7 +194,7 @@ export namespace HumanGraspWorn {
       judge: (
         bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       ): number => {
-        const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
+        const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
         return Vector3.length(
           Vector3.subtract(
             Vector3.add(

@@ -13,6 +13,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
+import { prepareExerciseKeyBlend } from "./prepareExerciseKeyBlend";
 
 /**
  * A keyed whole-body posture of an exercise: the body's tilt, its turn and
@@ -293,27 +294,11 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(a: IKey, b: IKey, u: number): IKey {
-    const joints: AutoMovieMotionHumanJoints.Angles = {};
-    for (const bone of new Set([
-      ...Object.keys(a.joints),
-      ...Object.keys(b.joints),
-    ]) as Set<AutoMovieHumanoidBone>) {
-      const p: readonly [number, number, number] = a.joints[bone] ?? [0, 0, 0];
-      const q: readonly [number, number, number] = b.joints[bone] ?? [0, 0, 0];
-      joints[bone] = [
-        p[0] + (q[0] - p[0]) * u,
-        p[1] + (q[1] - p[1]) * u,
-        p[2] + (q[2] - p[2]) * u,
-      ];
-    }
-    return {
-      pitch: a.pitch + (b.pitch - a.pitch) * u,
-      roll: a.roll + (b.roll - a.roll) * u,
-      yaw: a.yaw + (b.yaw - a.yaw) * u,
-      lift: a.lift + (b.lift - a.lift) * u,
-      joints,
-    };
+    return prepareExerciseKeyBlend(a, b)(u);
   }
+
+  /** A random-access blend reader for two fixed keys, sharing their ordered joint union (`prepareExerciseKeyBlend`). */
+  export const prepareBlend: typeof prepareExerciseKeyBlend = prepareExerciseKeyBlend;
 
   /**
    * The same key on the other side.
@@ -352,25 +337,27 @@ export namespace ExerciseKey {
    * @param body The body.
    * @param posture The posture.
    * @param bones The bones or grip sockets.
+   * @param resolved An exact map for this same body and posture from the caller's synchronous evaluation; when absent the full raw trunk read is retained.
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the posture's joints, without limb goals, then the mean of the named origins.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one sum.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One supplied or raw resolved map and one sum in the given pin order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone the rig lacks throws with its name.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The default resolves the trunk; a supplied synchronous map removes repeated resolution, leaving one pass over the named pins.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller may lend only a map resolved for this body and posture whose demand contains every named bone or socket bone; no map is retained here.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function mean(
     body: IHumanBody,
     posture: IHumanPosture,
     bones: readonly Pin[],
+    resolved?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
-    const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      StrikingBody.trunk(body, posture);
+    const placed: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      resolved ?? StrikingBody.trunk(body, posture);
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const bone of bones) sum = Vector3.add(sum, at(body, resolved, bone));
+    for (const bone of bones) sum = Vector3.add(sum, at(body, placed, bone));
     return Vector3.scale(sum, 1 / bones.length);
   }
 
@@ -448,14 +435,15 @@ export namespace ExerciseKey {
    * @param yaw The heading the exercise is entered on, degrees.
    * @param pin The bones, or the grip sockets, that bear.
    * @param place Where their mean stays, world metres.
+   * @param requested Optional output demand containing every pin bone, or its socket's bone; omitted, the full raw trunk read is retained.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the result keeps.
    * @evidence contracts/development/implementation.md#principled-implementation The root is the point less the bones' mean on the key posed at the origin, so the support stays where it is whatever the joints do; the lift is added in the stature's unit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward kinematics and one difference.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the mean is kept: two pinned bones that the joints move apart each move by half of it, which the kind tables avoid by pinning a pair only in a symmetric key.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Full canonical admission remains; an explicit demand computes only its ancestor closure before the pin mean, while omitted demand retains full FK.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one exact map of the posed key is consumed synchronously by mean; no pose or query history is kept.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pinned(
@@ -464,9 +452,12 @@ export namespace ExerciseKey {
     yaw: number,
     pin: readonly Pin[],
     place: IAutoMovieVector3,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IHumanPosture {
     const free: IHumanPosture = posed(key, yaw);
-    const offset: IAutoMovieVector3 = mean(body, free, pin);
+    const offset: IAutoMovieVector3 = mean(body, free, pin,
+      requested === undefined ? undefined : StrikingBody.trunk(body, free, undefined, requested),
+    );
     return {
       ...free,
       root: {

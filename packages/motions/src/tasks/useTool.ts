@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -171,7 +172,7 @@ export namespace useTool {
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const kind: Kind = context.params.tool;
     const subject: string = context.params.prop;
     const side: HumanHand.Side =
@@ -292,7 +293,8 @@ export namespace useTool {
     const origin: AutoMovieMotionHumanArm.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose),
+        poseBones(body, context.entry.pose, undefined,
+          new Set<AutoMovieHumanoidBone>([`${side}Hand`])),
         { origin: context.entry.posture.root, yaw },
         side,
         "grip",
@@ -324,6 +326,7 @@ export namespace useTool {
     const duration: number = clock.duration;
     const ready: number = clock.at("ready");
     const recover: number = clock.at("recover");
+    const strokePeriod: number = (recover - ready) / cycles;
 
     // The hand at a phase of the work, 0 at a contact and periodic in 1.
     const cycle = (
@@ -377,6 +380,7 @@ export namespace useTool {
           return turn(forward, TURN * Math.sin(2 * Math.PI * phase), on);
       }
     };
+    const edge: ReturnType<typeof cycle> = cycle(0.5);
     const hand = (
       posture: IHumanPosture,
       seconds: number,
@@ -386,8 +390,9 @@ export namespace useTool {
       const phase: number =
         seconds <= ready || seconds >= recover
           ? 0.5
-          : ((seconds - ready) / ((recover - ready) / cycles) + 0.5) % 1;
-      const at = cycle(phase);
+          : ((seconds - ready) / strokePeriod + 0.5) % 1;
+      const at: ReturnType<typeof cycle> = seconds <= ready || seconds >= recover
+        ? edge : cycle(phase);
       return {
         surface: "grip",
         shape: "relaxed",

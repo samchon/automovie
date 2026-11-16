@@ -29,11 +29,24 @@ export class WalkPath {
    *
    * @param s Arc length, metres.
    * @returns The floor point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States clamped arc-length input and the floor-point result.
+   * @evidence contracts/development/implementation.md#principled-implementation Selects the first cumulative segment endpoint at or beyond the clamped length, then retains the original linear point interpolation and zero-span rule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lower-bound search precedes one segment interpolation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Equal segment boundaries keep the first matching segment, including repeated points, with no path simplification.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Logarithmic segment selection in path points and constant interpolation; cumulative lengths are prepared by the constructor.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses this path's fixed cumulative lengths without retaining queried positions.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point and retains no query state.
    */
   public at(s: number): IAutoMovieVector3 {
     const c: number = Math.min(this.length, Math.max(0, s));
     let i: number = 1;
-    while (i < this.points.length - 1 && this.cumulative[i]! < c) i++;
+    let high: number = this.points.length - 1;
+    while (i < high) {
+      const middle: number = (i + high) >>> 1;
+      if (this.cumulative[middle]! < c) i = middle + 1;
+      else high = middle;
+    }
     const a: IAutoMovieVector3 = this.points[i - 1]!;
     const b: IAutoMovieVector3 = this.points[i]!;
     const span: number = this.cumulative[i]! - this.cumulative[i - 1]!;

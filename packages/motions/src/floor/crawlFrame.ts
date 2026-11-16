@@ -75,10 +75,10 @@ export namespace crawlFrame {
    * @returns Each wrist from its palm, metres in the heading's frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The arm's own palm target and goal place the wrist, so the hand's thickness and the palm's offset are the body's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target and one goal per side.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand owner's identical rigid palm alignment and wrist placement supply only the datum being measured, with the same downward palm normal and forward direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid hand placement per side, without constructing an unused elbow hint or arm goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The palm is laid at the origin facing up, so the offset is the hand's alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two goals, once per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two constant-cost rigid hand placements once per plan; the unused default elbow-strain searches are not demanded by a wrist-offset reading.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Callers keep the result for the plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -90,16 +90,12 @@ export namespace crawlFrame {
     const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
       HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
-        AutoMovieMotionHumanArm.goal(
+        HumanHand.reach(
           body,
           side,
-          AutoMovieMotionHumanTarget.hand(
-            body,
-            standing,
-            side,
-            { point: { x: 0, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
-            { surface: "palm", shape: "flat", forward },
-          ),
+          "palm",
+          { point: { x: 0, y: 0, z: 0 }, normal: Vector3.scale(Vector3.normalize({ x: 0, y: 1, z: 0 }), -1), forward },
+          "flat",
         ).point,
       );
     return { left: wrist("left"), right: wrist("right") };
@@ -130,27 +126,45 @@ export namespace crawlFrame {
     palm: (side: "left" | "right") => IAutoMovieVector3,
     forward: IAutoMovieVector3,
   ): IHumanPosture {
+    return prepareLaid(body, forward)(posture, palm);
+  }
+
+  /**
+   * Prepare the two flat-palm target frames for one crawl plan. Only their
+   * floor points and the current trunk change; each arm's original default
+   * elbow solve still runs on that posture and point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed palm geometry, changing inputs and the unchanged elbow search.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates palm geometry to Target.prepareHand and the actual wrist/contact goal to Arm.goal, with the same flat shape, upward floor normal and explicit heading vector as laid.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two prepared target readers and two fixed flat shapes precede the original ordered left/right goal writes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not substitute a bend preset or cache a pose, elbow solution or time query; each actual target still executes its default bend policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed orientation/offset geometry and flat shape construction are shared across a plan; changing point placement and the two actual bend solves remain per query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's hand surfaces, flat shape, floor normal and explicit forward stay fixed; the target owner validates this preparation by construction, while postures and palm points remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed hand readers and shape maps until release, without retaining an evaluated posture, FK workspace or query history.
+   */
+  export function prepareLaid(body: IHumanBody, forward: IAutoMovieVector3): (posture: IHumanPosture, palm: (side: "left" | "right") => IAutoMovieVector3) => IHumanPosture {
+    const targets: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>> = {
+      left: AutoMovieMotionHumanTarget.prepareHand(body, "left", { x: 0, y: 1, z: 0 }, { surface: "palm", shape: "flat", forward }),
+      right: AutoMovieMotionHumanTarget.prepareHand(body, "right", { x: 0, y: 1, z: 0 }, { surface: "palm", shape: "flat", forward }),
+    };
+    const shapes: Record<"left" | "right", IHumanPosture["joints"]> = { left: HumanHand.shape("left", "flat"), right: HumanHand.shape("right", "flat") };
+    return (posture: IHumanPosture, palm: (side: "left" | "right") => IAutoMovieVector3): IHumanPosture => {
     let out: IHumanPosture = posture;
     for (const side of ["left", "right"] as const)
       out = {
         ...out,
-        joints: { ...out.joints, ...HumanHand.shape(side, "flat") },
+        joints: { ...out.joints, ...shapes[side] },
         limbs: {
           ...out.limbs,
           [`${side}Arm`]: AutoMovieMotionHumanArm.goal(
             body,
             side,
-            AutoMovieMotionHumanTarget.hand(
-              body,
-              out,
-              side,
-              { point: palm(side), normal: { x: 0, y: 1, z: 0 } },
-              { surface: "palm", shape: "flat", forward },
-            ),
+            targets[side](out, palm(side)),
           ),
         },
       };
     return out;
+    };
   }
 
   /**

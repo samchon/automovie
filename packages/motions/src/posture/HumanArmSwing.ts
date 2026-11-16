@@ -1,6 +1,7 @@
 import {
   type IAutoMovieResolvedBone,
   bracketedBisection,
+  preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -13,6 +14,7 @@ import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
+import { HumanColliders } from "./HumanColliders";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
@@ -94,9 +96,9 @@ export namespace HumanArmSwing {
    * @evidence contracts/development/implementation.md#principled-implementation A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve, then one bisection per arm in the pose the arms before it were written into; the least abduction is continuous in time where the room is, so the swing has no jump a local search between frames would leave.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per call, one room reading for an arm already clear and two more and a bisection to the body's precision for one that is not, about seven readings where a hundredth of a degree took twelve; the stance's room is solved once per body and arm.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmClearance.room` and `posed`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance rooms are kept per live body in a `WeakMap`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original room/bisection readings, full FK scans and fresh outputs. An already-clear arm creates no FK workspace; only a second room read starts shared unchanged-branch math. The stance is solved once per body/arm, with one placement serving both original clearance readers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses room, posed and the actual engine FK reader. Only three arm records vary during one bisection, so its local reader shares exact unchanged dependencies while every candidate remains fully admitted; baseline readers borrow the same unchanged stance placement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing weak stance map retains only its two scalar readings per body/arm. Each synchronous arm search releases its FK reader and snapshots before the next arm; neither the returned posture nor a retained callback owns that reader.
    */
   export function of(
     body: IHumanBody,
@@ -107,7 +109,7 @@ export namespace HumanArmSwing {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     for (const side of sides) {
       if (posture.limbs[`${side}Arm`] !== undefined) continue;
-      const read = (
+      const read: (bone: AutoMovieHumanoidBone) => readonly [number, number, number] = (
         bone: AutoMovieHumanoidBone,
       ): readonly [number, number, number] => {
         const j: IAutoMovieJointPose | undefined = pose.joints.find(
@@ -125,18 +127,25 @@ export namespace HumanArmSwing {
       // stance baseline, by bisection: the least moves continuously as the
       // swing does, where a local search could jump between frames.
       const baseline: HumanArmClearance.IBaseline = stance(body, side);
-      const out = (a: number): HumanArmClearance.IArm => ({
+      const out: (a: number) => HumanArmClearance.IArm = (a: number): HumanArmClearance.IArm => ({
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
       });
-      const lacking = (a: number): number =>
-        HumanArmClearance.room(body, pose, side, out(a), [], baseline);
+      let prepared: ReturnType<typeof preparePoseResolution> | undefined;
+      let first: boolean = true;
+      const lacking: (a: number) => number = (a: number): number => {
+        const value: number = HumanArmClearance.room(body, pose, side, out(a), [], baseline,
+          first ? undefined : (prepared ??= preparePoseResolution()));
+        first = false;
+        return value;
+      };
+
       // The least added abduction that clears the arm, by the engine's
       // bisection to the body's precision: the room is not smooth (a forearm
       // leaves one shape as it meets another), so only whether a turn clears
       // is read, which bisection needs and an interpolating search would
       // misread.
-      const short = (a: number): boolean => lacking(a) > TOLERANCE;
+      const short: (a: number) => boolean = (a: number): boolean => lacking(a) > TOLERANCE;
       const added: number = !short(0)
         ? 0
         : short(SPAN)
@@ -251,19 +260,20 @@ export namespace HumanArmSwing {
       body,
       pose,
     );
+    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
     const value: HumanArmClearance.IBaseline = {
       forearm: HumanArmClearance.overshoot(
         body,
         HumanArmClearance.obstacles(body, bones, [
           side === "left" ? "right" : "left",
-        ]),
+        ], placed),
         bones.get(`${side}LowerArm`)!.worldPosition,
         bones.get(`${side}Hand`)!.worldPosition,
         side,
         [],
         false,
       ),
-      segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side),
+      segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side, placed),
     };
     STANCE.set(body, { ...known, [side]: value });
     return value;

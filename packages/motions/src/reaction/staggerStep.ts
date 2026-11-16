@@ -36,8 +36,8 @@ import { staggerSequential } from "./staggerSequential";
 export namespace staggerStep {
   /** What a step reads besides its pendulum. */
   export interface IProps {
-    /** The trunk's shift of the centre of mass per sine of its tilt (`staggerKnots.bending`). */
-    bend: Record<"pitch" | "roll", IAutoMovieVector3>;
+    /** The same entry's trunk shift per sine of its tilt, demanded only when the landing needs a stance course. */
+    bend: () => Record<"pitch" | "roll", IAutoMovieVector3>;
 
     /** Whether the landing is placed by the stance course under the legs' ranges; the pendulum alone when false. */
     kinematic: boolean;
@@ -237,7 +237,7 @@ export namespace staggerStep {
       const knots: staggerKnots.IKnot[] = staggerKnots.of(
         body,
         pendulum.entry,
-        props.bend,
+        props.bend(),
         {
           ...swung,
           steps: [...steps, { side, from, to: origin, start, land: t }],

@@ -17,6 +17,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
+import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
 import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
@@ -214,9 +215,9 @@ export namespace HumanLimbFit {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One world goal, one obstruction, one fit, then the re-aim loop and the toes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The re-aim keeps the fit whose contact lay nearest, not its last pass, and stops at `REAIM_PASSES`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source FK serves world attachment, arm clearance and the engine's authored read. Distinct zeroed/reference FK retain full scans but share exact unchanged articulation and parent/rest computation through one operation reader with fresh outputs. At most REAIM_PASSES targets share rig/clamp/reference work, and reached rotations use chain FK after one joint scan; runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader and one prepareHumanLimbFit workspace serve the fixed body/source pose, mappings, goal bend/rotation/reference, obstruction and cold/near mode; only targets vary. Callback evaluations and distinct fitted/zeroed/reference poses are not merged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one local source-FK map and fit workspace through synchronous return or failure. Its lazy reader is limb-owned or borrowed from the same synchronous parent; only pose/seed/value escape, and no returned plan, callback or body-memory entry captures either getter or reader.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source FK serves attachment, clearance and authored admission; at most REAIM_PASSES targets share rig/clamp/reference work. All obstruction candidates also share fixed room/shape-frame preparation instead of preparing each selected shape at every candidate; actual distances, screens and sample counts remain, with unmeasured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader, limb workspace and prepared obstruction serve the fixed body/source pose, placed colliders, goal bend/rotation/reference and cold/near mode; only fit targets and candidate points vary. No callback value, distance or fitted answer is shared across distinct candidates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one source-FK map, fit workspace and at most one opaque distance reader per queried fixed shape through synchronous return or failure. Its lazy reader is local or borrowed; only pose/seed/value escape, and no returned plan or body-memory entry captures readers or callbacks.
    */
   export function fit(
     body: IHumanBody,
@@ -281,19 +282,16 @@ export namespace HumanLimbFit {
     const clear: IObstruction | undefined =
       trunk === null
         ? undefined
-        : (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
-            HumanArmClearance.overshoot(
-              body,
-              trunk,
-              elbow,
-              wrist,
-              side,
-              attached.clear ?? [],
-              true,
-              rival,
-              goal.bend,
-              attached.rests ?? [],
-            );
+        : HumanArmOvershoot.prepare(
+            body,
+            trunk,
+            side,
+            attached.clear ?? [],
+            true,
+            rival,
+            goal.bend,
+            attached.rests ?? [],
+          );
     const fitter: ReturnType<typeof prepareHumanLimbFit> = prepareHumanLimbFit(
       body,
       pose,

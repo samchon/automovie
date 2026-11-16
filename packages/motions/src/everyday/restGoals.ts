@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -47,11 +48,29 @@ export function restGoals(
   places: Record<HumanHand.Side, rest.Place>,
 ): Partial<Record<HumanHand.Side, rest.IGoal>> {
   const out: Partial<Record<HumanHand.Side, rest.IGoal>> = {};
-  const m = body.measure;
+  const m: IHumanBody["measure"] = body.measure;
+  const targets: Partial<Record<HumanHand.Side, AutoMovieHumanoidRegion>> = {};
+  for (const side of ["left", "right"] as const) {
+    const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const place: rest.Place = places[side];
+    const name: AutoMovieHumanoidRegion | undefined = place === "pocket"
+      ? `pocketFront${suffix}`
+      : place === "hip" ? `hip${suffix}`
+        : place === "behindHead" ? "headBack"
+          : place === "chinRest" ? "chin" : undefined;
+    if (name !== undefined) targets[side] = name;
+  }
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+    Object.values(targets).map(
+      (name: AutoMovieHumanoidRegion): AutoMovieHumanoidBone =>
+        body.surfaces.regions[name].bone,
+    ),
+  );
+  let trunk: HumanTrunk.IReading | undefined;
   const region = (
-    name: AutoMovieHumanoidRegion,
+    side: HumanHand.Side,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
-    HumanTrunk.region(body, posture, name);
+    (trunk ??= HumanTrunk.prepare(body, posture, requested)).region(targets[side]!);
   const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
   const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
     HumanFrame.point(
@@ -86,7 +105,6 @@ export function restGoals(
     elbow: elbow(side, place),
   });
   for (const side of ["left", "right"] as const) {
-    const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
     const sign: number = side === "left" ? 1 : -1;
     const place: rest.Place = places[side];
     switch (place) {
@@ -98,7 +116,7 @@ export function restGoals(
         // A hand in a pocket lies flat along the thigh, its palm laid on the
         // surface against its normal: a relaxed curl would close the
         // fingers into the thigh they lie on.
-        const pocket = region(`pocketFront${Side}`);
+        const pocket: HumanTrunk.ISurface = region(side);
         out[side] = lay(
           side,
           place,
@@ -111,7 +129,7 @@ export function restGoals(
         break;
       }
       case "hip": {
-        const hip = region(`hip${Side}`);
+        const hip: HumanTrunk.ISurface = region(side);
         const up: number = 0.5 * (m.waistHeight - m.hipHeight);
         out[side] = lay(
           side,
@@ -140,7 +158,7 @@ export function restGoals(
         break;
       }
       case "behindHead": {
-        const head = region("headBack");
+        const head: HumanTrunk.ISurface = region(side);
         const beside: IAutoMovieVector3 = Vector3.add(
           head.point,
           Vector3.scale(dir(1, 0, 0), sign * 0.25 * m.headRadius),
@@ -157,7 +175,7 @@ export function restGoals(
         break;
       }
       case "chinRest": {
-        const chin = region("chin");
+        const chin: HumanTrunk.ISurface = region(side);
         out[side] = lay(
           side,
           place,

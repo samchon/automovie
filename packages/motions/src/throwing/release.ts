@@ -3,7 +3,7 @@ import {
   Vector3,
   integrateMotionTrajectory,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -103,7 +103,7 @@ export namespace release {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const body = context.body;
+    const body: IHumanActionContext["body"] = context.body;
     const side: HumanHand.Side = context.params.hand ?? "right";
     const held: string | undefined =
       context.params.prop ?? context.entry.holds[side];
@@ -117,7 +117,8 @@ export namespace release {
       });
 
     // The grip's frame at the entry, kept in the chest's frame.
-    const bones = poseBones(body, context.entry.pose);
+    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose,
+      undefined, new Set<AutoMovieHumanoidBone>(["chest", `${side}Hand`]));
     const chest: IHumanProp.IFrame = HumanPropFrame.bone(bones.get("chest")!);
     const grip: IHumanProp.IFrame = {
       position: HumanHand.frame(body, bones, side, "grip").point,
@@ -134,7 +135,7 @@ export namespace release {
     );
     const carried = (posture: IHumanPosture): IHumanProp.IFrame =>
       HumanPropFrame.compose(
-        HumanPropFrame.bone(HumanTrunk.resolve(body, posture).get("chest")!),
+        HumanPropFrame.bone(HumanTrunk.resolve(body, posture, undefined, undefined, CHEST).get("chest")!),
         kept,
       );
     const hand: IAutoMovieMotionHumanPrimitive = {
@@ -249,3 +250,6 @@ export namespace release {
     return { ...composed, launches };
   }
 }
+
+/** The frame whose fixed offset carries the released hand. */
+const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);

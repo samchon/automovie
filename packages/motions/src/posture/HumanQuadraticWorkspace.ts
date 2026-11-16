@@ -2,31 +2,65 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
 /**
  * Disposable numeric buffers shared between the phases of one quadratic
- * solve. ADMM finishes reading rhs and xt before a residual check, and its
+ * solve or fixed-matrix model. ADMM finishes reading rhs and xt before a residual check, and its
  * next iteration overwrites both, so those same buffers hold Aᵀy and Px.
  * Polishing consumes them after ADMM and keeps its output iterates separate.
- * Adaptive and polishing systems additionally share one lazily allocated
- * canonical upper-band buffer, rebuilt numerically and factored in place each use.
+ * Adaptive systems and changed polishing systems use a mutable upper band.
+ * The latest polishing factor stays read-only for an exactly matching
+ * scaled core, regularization and active row sequence; replacement rotates
+ * the old factor into mutable storage. Fixed models likewise retain the
+ * last exact adaptive factor, bounding their owner to three factors; each
+ * factor has an upper band and exact forward-row copies. One-shot solves
+ * keep one mutable factor owner.
  * ADMM's consumed previous-multiplier vector first holds active polishing
  * residuals, then final Ax; rhs carries final Aᵀy to residual admission,
  * with x, y and A unchanged between producer and reader.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the solve-local scratch lifetime, the ADMM overwrite boundary and separate ownership of returned iterates.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines one-shot or fixed-model scratch lifetime, ADMM overwrite boundaries, bounded exact factor reuse and separate output ownership.
  * @evidence contracts/development/design.md#principled-representation Groups distinct n-entry product buffers, an m-entry previous-multiplier/residual/product buffer, borrowed diagnostics and optional factorization storage; the solver supplies compatible disposable buffers.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the existing residual, certificate and polishing phases without adding fields to the public problem or state.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps mutable systems local to one solve, separate from immutable prepared factors and caller-owned iterates, and introduces no body cache or global workspace pool.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps mutable systems within one synchronous solver owner, separate from immutable prepared factors and caller-owned iterates, and introduces no body cache or global workspace pool.
  */
 export namespace HumanQuadraticWorkspace {
   /**
-   * Borrowed scratch for one synchronous solve. Transpose and curvature have
+   * Fixed-size scratch owned by one prepared model and overwritten on every
+   * solve. Returned iterates always transfer independently of this owner.
+   *
+   * @evidence contracts/development/design.md#principled-representation Stores distinct positive row steps, soft thresholds, the prox-emitted rho*z-y and n/m workspace buffers for fixed admitted dimensions; current input initialization and rho changes refresh their exact dependencies.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only disposable arrays consumed by HumanQuadraticSolve; the prepared model owns their lifetime and fixed dimensions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains no public solution, solved status or approximate answer key; discarded candidate buffers are reset or overwritten, and every solve resets rho and computes current thresholds/products.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed dimensions, overwrite discipline, model ownership and independence from returned state.
+   */
+  export interface IMemory {
+    /** m-entry row steps reset from current bound classifications. */
+    rho: Float64Array;
+
+    /** m-entry soft thresholds recomputed from current weights and rho. */
+    thresholds: Float64Array;
+
+    /** m-entry rho*z-y, emitted by the preceding prox step and rebuilt after any rho change. */
+    rowRhs: Float64Array;
+
+    /** Distinct disposable rhs, xt, previous multipliers and factor storage. */
+    work: IWork;
+
+    /** Only a discarded ADMM or polishing candidate, never returned state; every entry is reset or overwritten before reuse. */
+    spare?: { x: Float64Array; z: Float64Array; y: Float64Array };
+  }
+
+  /**
+   * Borrowed scratch for successive synchronous solves. Transpose and curvature have
    * length n and rows has length m; all are distinct from matrices and live iterates.
    *
    * @evidence contracts/development/design.md#principled-representation Represents disposable transpose, curvature and row products plus scaled/unscaled diagnostics; compatible n/m lengths and nonaliasing are solver-owned premises.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only buffers read and overwritten by current residual, certificate, adaptive-factor and polishing consumers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the owning Band residual type and stores no solution, adaptive parameter history or approximate numeric key.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only buffers and exact adaptive/polishing factor dependencies consumed by current residual, certificate and reduced-system phases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the owning Band residual type and stores no solution or approximate key; copied rho only proves factor equivalence and never supplies another solve's initial steps, while active-set and delta comparisons are exact.
    * @evidence contracts/development/common.md#meaningful-documentation States buffer sizes, nonaliasing, borrowed residual lifetime and each phase's use of the vectors.
    */
   export interface IWork {
+    /** Whether the owner keeps scratch between solves and benefits from bounded factor retention. */
+    persistent: boolean;
+
     /** ADMM rhs, reused for Aᵀy, Aᵀδy, polishing's cost rhs and its final Aᵀy. */
     transpose: Float64Array;
 
@@ -39,16 +73,73 @@ export namespace HumanQuadraticWorkspace {
     /** Borrowed values, reset and overwritten by every residual check. */
     residuals: B.IResiduals;
 
-    /** One owned in-place system/factor buffer, created only when a solve needs factorization. */
+    /** One mutable system/factor band, distinct from the retained polishing factor. */
     matrices?: IFactor;
+
+    /** Last polishing factor, immutable until replaced; bounds affect its right-hand side, not its matrix. */
+    polish?: IPolish;
+
+    /** Last adapted factor with its exact rho/sigma dependencies, separate from mutable system storage. */
+    adaptive?: IAdaptive;
+
+    /** Disposable active row indices and their current bound right-hand sides. */
+    active?: { rows: number[]; bounds: number[] };
+
+    /** Disposable n-entry polishing rhs, distinct from the cost rhs retained in transpose. */
+    polishRhs?: Float64Array;
   }
 
   /**
-   * Owned storage for one solve's successive systems and upper Cholesky
-   * factors. Row i stores min(band+1,n-i) entries in either phase.
+   * One retained adaptive ADMM factor keyed by its exact row steps.
    *
-   * @evidence contracts/development/design.md#principled-representation Stores a canonical upper band that transitions from K to U with K=U-transpose-U; dimensions determine its allocation and every stored entry participates in the matrix or factor.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies one matrix and its allocation dimensions to system and the two Band factorization consumers; a separate lower factor is unnecessary.
+   * @evidence contracts/development/design.md#principled-representation Couples immutable scaled-core identity, copied positive row rho and sigma with the factor of P plus sigma I plus A-transpose diag(rho) A.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Records only the latest adapted system's dependencies and owned band; initial factors remain with Preparation and polishing has its distinct active-set key.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses exact numeric vector comparisons without adapting from a previous solve's rho or substituting an old iterate.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the reduced-system dependency key, one-entry bound and immutable factor ownership.
+   */
+  export interface IAdaptive {
+    /** Identity of the immutable scaled P/q/A core. */
+    p: Float64Array[];
+
+    /** Positive proximal diagonal used by the retained reduced system. */
+    sigma: number;
+
+    /** Copied row steps, independent of the solve's next adaptation. */
+    rho: Float64Array;
+
+    /** Read-only factor until replacement rotates it into mutable storage. */
+    matrices: IFactor;
+  }
+
+  /**
+   * One polishing factor and the exact fixed-matrix/active-set dependencies
+   * that formed it; current bound values enter only the right-hand side.
+   *
+   * @evidence contracts/development/design.md#principled-representation Couples the canonical factor with its scaled core identity, positive regularization and ordered active rows; each private scaled curvature array uniquely belongs to its immutable P/q/A core.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Stores only dependencies needed by the existing polishing reduced system; row bounds, multipliers and candidate iterates are not factor dependencies.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Compares every active row and the exact delta, without approximate numeric keys or reusing a candidate solution.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the matrix equivalence key, independent right-hand side and owned immutable factor lifetime.
+   */
+  export interface IPolish {
+    /** Scaled core identity, tying together immutable curvature and row coefficients. */
+    p: Float64Array[];
+
+    /** Regularization used by P plus delta I and active row products divided by delta. */
+    delta: number;
+
+    /** Copied ordered active row indices; each contributes one unchanged outer product. */
+    active: Int32Array;
+
+    /** Canonical factor excluded from mutable system storage until replacement. */
+    matrices: IFactor;
+  }
+
+  /**
+   * Owned storage for successive systems and Cholesky factors. Upper row i
+   * has min(band+1,n-i) entries; forward row i has min(band,i) exact copies.
+   *
+   * @evidence contracts/development/design.md#principled-representation Stores a canonical upper band transitioning from K to U with K=U-transpose-U and forward rows copying exact finalized U(t,i); dimensions determine both allocations and every mirror is overwritten by its matching Cholesky pass.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies one system/factor owner and its dimensions to assembly, Cholesky and substitution; forward copies serve repeated ADMM/polish right-hand sides without recomputing or transposing coefficients per solve.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps mutable factorization storage separate from prepared immutable matrices and cached initial factors; no iterate or body state is stored.
    * @evidence contracts/development/common.md#meaningful-documentation Defines row lengths, dimensions, numeric ownership and the distinction from immutable prepared factors.
    */
@@ -61,6 +152,9 @@ export namespace HumanQuadraticWorkspace {
 
     /** Upper K during assembly, then U in place; every entry is reset from P before rebuilding a changed system. */
     system: Float64Array[];
+
+    /** Row i copies finalized U(t,i) for t in [max(0,i-band),i), in forward-substitution order; Cholesky overwrites every entry. */
+    forward: Float64Array[];
   }
 
   /**
@@ -70,6 +164,7 @@ export namespace HumanQuadraticWorkspace {
    * @param transpose Disposable rhs buffer, distinct from curvature and all live inputs.
    * @param curvature Disposable xt buffer of the same length.
    * @param rows ADMM's m-entry before buffer, consumed only after ADMM ends for active polishing residuals and then final row products.
+   * @param persistent Whether a fixed model owns this workspace across solves; false for one-shot scratch.
    * @returns A solve-owned workspace with a reusable diagnostic record.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Reuses buffers only after ADMM consumes their current values; each subsequent phase resets or completely overwrites the values before reading them.
@@ -77,15 +172,17 @@ export namespace HumanQuadraticWorkspace {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no shared mutable result, matrix identity cache, numerical cutoff or changed solver decision.
    * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(1) time and object storage, referencing existing n-entry and m-entry arrays without allocating new numeric arrays.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller supplies distinct rhs/xt/before arrays; ADMM's certificate may consume before until ADMM ends, then active polishing residuals use its initialized prefix before final Ax overwrites every entry for the immediate unchanged-x/y/A check; output state stays separate.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The workspace is local to one solve, owns one fixed-size diagnostic object and releases all references when the solve returns or throws.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the workspace and one fixed-size diagnostic object; a one-shot solve releases it at completion, while a fixed model retains bounded scratch until collection and never aliases returned iterates.
    * @evidence contracts/development/common.md#meaningful-documentation Describes the phase boundary, borrowed buffers, diagnostic lifetime and absence of numeric-vector allocation.
    */
   export function of(
     transpose: Float64Array,
     curvature: Float64Array,
     rows: Float64Array,
+    persistent: boolean = false,
   ): IWork {
     return {
+      persistent,
       transpose,
       curvature,
       rows,
@@ -115,9 +212,9 @@ export namespace HumanQuadraticWorkspace {
    * @evidence contracts/development/implementation.md#principled-implementation Copies each current in-range P row then adds its original proximal diagonal in row order; zero-valued contributions and signed zeros are retained while mathematically absent padding is omitted.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns one allocation and regularized reset for both systems, copying each admitted canonical row with TypedArray.set then adding its diagonal before Cholesky overwrites that band with its factor.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no coefficient, arithmetic association or regularization; original supplied padding remains validated and compared by Preparation before this internal reader.
-   * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, reset costs O(n*w); the first request allocates one band of at most n*w entries, and matching later requests allocate no matrix arrays.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, reset costs O(n*w); the first request allocates upper and forward layouts of at most n*w entries each, and matching later requests allocate no coefficient arrays. Cholesky overwrites forward copies after assembly.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only storage for equal n/band and recopies P plus the current diagonal on every call; changed curvature, regularization, rho and active rows are rebuilt rather than treated as a valid old factor.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A solve retains one mutable band until return or throw; a call without work creates independent storage that becomes the immutable prepared initial factor, with no second temporary factor matrix.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A persistent workspace retains at most one mutable factor owner plus one read-only adaptive and one read-only polishing factor, each with upper/forward layouts, rotating replaced owners into mutable storage; one-shot work keeps one owner, and calls without work create a separately owned immutable initial factor.
    * @evidence contracts/development/common.md#meaningful-documentation States canonical shapes, complete P reset, shape invalidation and separate initial-factor versus solve-local ownership.
    */
   export function system(
@@ -134,6 +231,11 @@ export namespace HumanQuadraticWorkspace {
           { length: s.n },
           (_: unknown, i: number): Float64Array =>
             new Float64Array(Math.min(s.band + 1, s.n - i)),
+        ),
+        forward: Array.from(
+          { length: s.n },
+          (_: unknown, i: number): Float64Array =>
+            new Float64Array(Math.min(s.band, i)),
         ),
       };
       if (work !== undefined) work.matrices = matrices;
@@ -152,12 +254,13 @@ export namespace HumanQuadraticWorkspace {
    * @param s Read-only scaled matrices with canonical upper-band row lengths.
    * @param x Current variable vector, distinct from out.
    * @param out Disposable n-entry product buffer, reset to positive zero first.
+   * @param finiteX Optional current-vector finiteness proved by its unchanged producer or same-call reader; absent preserves the local check.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Multiplies the symmetric matrix by adding both contributions of each upper-band entry in the unchanged scalar order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One overwrite operation serves residual checks and polishing curvature products, making their scratch reset explicit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every coefficient and arithmetic association, replacing a fresh zero-filled vector only with an explicitly zero-filled disposable vector.
-   * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, takes O(n*w) time and O(1) auxiliary storage beyond the supplied buffer; supplied padding outside the in-range band is not read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes every product for current x while hoisting its immutable row, x[i] and repeated coefficient reads; scalar accumulation order remains unchanged and no product survives an iterate change.
+   * @evidence contracts/development/implementation.md#principled-implementation Multiplies the symmetric matrix by adding both contributions of each upper-band entry in the unchanged scalar order; an exact diagonal matrix with finite x needs only its same positive-zero-plus-diagonal products.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One overwrite operation serves residual checks and polishing curvature products, with an exact diagonal path and the unchanged general band traversal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only exact off-diagonal zeros for finite x, preserving positive-zero initialization and each diagonal addition; a nonfinite x resets scratch and uses the original full traversal so zero-times-infinity/NaN still reaches the existing residual rejection.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(n) time for finite x and exact diagonal curvature, otherwise O(n*w) with w=band+1, and O(1) auxiliary storage beyond the supplied buffer; supplied padding outside the in-range band is not read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation records exact diagonal P with its immutable numeric core; current x products always rebuild. A producer-maintained or same-call finite-x proof avoids repeating its admission, while absent proof runs the original scan and known nonfinite x takes the original full-band traversal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays, changes only out and retains no input after the call.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the scaled symmetric product, nonaliasing premise, reset and preserved accumulation order.
    */
@@ -165,8 +268,31 @@ export namespace HumanQuadraticWorkspace {
     s: B.IScaled,
     x: Float64Array,
     out: Float64Array,
+    finiteX?: boolean,
   ): void {
     out.fill(0);
+    if (s.diagonal && s.band > 0) {
+      if (finiteX === true) {
+        for (let i: number = 0; i < s.n; ++i)
+          out[i] = out[i]! + s.p[i]![0]! * x[i]!;
+        return;
+      }
+      if (finiteX === undefined) {
+        let finite: boolean = true;
+        for (let i: number = 0; i < s.n; ++i) {
+          const xi: number = x[i]!;
+          if (!Number.isFinite(xi)) {
+            finite = false;
+            break;
+          }
+          out[i] = out[i]! + s.p[i]![0]! * xi;
+        }
+        if (finite) return;
+
+        // Preserve the original nonfinite propagation through zero terms.
+        out.fill(0);
+      }
+    }
     for (let i: number = 0; i < s.n; ++i) {
       const row: Float64Array = s.p[i]!;
       const xi: number = x[i]!;

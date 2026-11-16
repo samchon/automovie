@@ -35,6 +35,11 @@ import { qunit } from "../internal/qunit";
  * 3. A reachable three-mobile-axis target stays reachable; an outside coupled
  *    target returns legal angles with a matching raw quaternion. No fallback
  *    global minimum or speed/work-count guarantee is asserted.
+ * 4. Independent query composers borrow only one operation's fixed axis
+ *    scalars. An owned getter returns the admitted X component unchanged:
+ *    construction reads none, the first composition does positive work,
+ *    and the same angle in a new query does less positive input work.
+ *    Changed angles, invalid input and caller outputs remain query-owned.
  *
  * Degrees are clinical; quaternions are local articulations. On the cardinal
  * basis, for f=F/2 and t=T/2 in radians, Tz*Fx is
@@ -50,10 +55,10 @@ import { qunit } from "../internal/qunit";
  * geometry. No producer candidates, stored outputs or fitted limits supply
  * an expectation, and these deferred CPU cases start no execution process.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three causes, degrees/local frames, two independent factor equations, fixed factory lifetime, output ownership, admission order and the limits of raw parity and fallback checks.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared/direct composition and the paired projector with its actual clamp, observes mutable clinical reads, ordered failures/recovery, raw outputs, admitted rotations and isolation after caller mutation.
- * @evidence contracts/development/testing.md#independent-expectations Two cardinal-axis quaternion factors give the primary physical result and order sign; interval geometry gives each hinge endpoint and the fixed domain's unique rotation. Public raw composition is used only for paired/equivalence semantics, not as the nearest-rotation oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Proximal/distal noncommuting factors, mirrored affine clinical mapping, A/B/A on one angle object, warmed good/invalid/good inputs, null versus invalid used frames, positive/negative hinge requests and quaternion signs, fixed nonzero axes, poisoned earlier outputs and bounded fallback feasibility.
+ * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios, degrees/local frames, two independent factor equations, operation/query lifetimes, owned axis-input work, output ownership, admission order and the limits of raw parity and fallback checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared/direct composition, independent query composers and the paired projector with its actual clamp, observes mutable clinical reads, ordered failures/recovery, raw outputs, admitted rotations, owned fixed-axis input work and isolation after caller mutation.
+ * @evidence contracts/development/testing.md#independent-expectations Two cardinal-axis quaternion factors give the primary physical result and order sign; interval geometry gives each hinge endpoint and the fixed domain's unique rotation. A new query's factors still read their fixed axis, while operation-owned scalars remove repeated magnitude work; owned getter counts observe only this scope contract. Public raw composition is used only for paired/equivalence semantics, not as the nearest-rotation oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Proximal/distal noncommuting factors, mirrored affine clinical mapping, A/B/A on one angle object, warmed good/invalid/good inputs, null versus invalid used frames, positive/negative hinge requests and quaternion signs, fixed nonzero axes, poisoned earlier outputs, bounded fallback feasibility and new-query positive-but-reduced fixed-axis work distinguish the declared lifetimes.
  * @evidence contracts/development/testing.md#execution-ownership One portable test_motion_joint_rotation_prepared_scope entry owns its finite engine rig records and collects failures without a Human imitation, new motion producer, foreign replacement, runner or host. Existing tests own the larger optimum/degeneracy matrix and actual Human FK.
  */
 export function test_motion_joint_rotation_prepared_scope(): void {
@@ -227,6 +232,70 @@ export function test_motion_joint_rotation_prepared_scope(): void {
       "rest recovers after frame refusal",
       qclose(compose(joint), physical(0, 0)),
     );
+  });
+
+  scenario("operation scalars and independent query factors", (): void => {
+    const admitted: IAutoMovieJointAxes = normalizeJointAxes(
+      canonical,
+      "query operation basis",
+    );
+    let reads: number = 0;
+    const observed: IAutoMovieJointAxes = {
+      ...admitted,
+      flexion: {
+        ...admitted.flexion,
+        get x(): number {
+          reads++;
+          return admitted.flexion.x;
+        },
+      },
+    };
+    const frame: IAutoMovieRestFrame = {
+      flexion: { sign: -1, neutral: 10 },
+      twist: { sign: 1, neutral: -5 },
+    };
+    const queries: ReturnType<typeof jointToQuaternionOnBasis.prepareQueries> =
+      jointToQuaternionOnBasis.prepareQueries(observed, frame);
+    const first: ReturnType<typeof jointToQuaternionOnBasis.prepare> = queries();
+    const second: ReturnType<typeof jointToQuaternionOnBasis.prepare> = queries();
+    check("query construction leaves axis scalars lazy", reads === 0);
+    const joint: IAutoMovieJointPose = {
+      bone: "spine", flexion: 40, abduction: null, twist: 15,
+    };
+    const a: IAutoMovieQuaternion = first(joint);
+    const initialReads: number = reads;
+    reads = 0;
+    const next: IAutoMovieQuaternion = second(joint);
+    check("new queries share scalars but not angle factors",
+      initialReads > 0 && reads > 0 && reads < initialReads);
+    check("both queries follow independent clinical geometry",
+      qunit(a) && qunit(next) && qclose(a, physical(-30, 20)) &&
+      qclose(next, physical(-30, 20)));
+    check("query raw composition parity",
+      sameRaw(next, jointToQuaternionOnBasis(joint, observed, frame)));
+    a.x = NaN;
+    joint.flexion = -20;
+    joint.twist = -25;
+    const b: IAutoMovieQuaternion = first(joint);
+    check("first query reads changed clinical values",
+      qunit(b) && qclose(b, physical(30, -20)));
+    joint.flexion = 40;
+    joint.twist = 15;
+    const restored: IAutoMovieQuaternion = second(joint);
+    check("second query and its previous output remain independent",
+      qunit(restored) && qclose(restored, physical(-30, 20)) &&
+      qclose(next, physical(-30, 20)) && restored !== next && a !== next);
+    joint.flexion = NaN;
+    refused("new-query current flexion admission",
+      (): IAutoMovieQuaternion => jointToQuaternionOnBasis(joint, observed, frame),
+      (): IAutoMovieQuaternion => second(joint), "flexion");
+    joint.flexion = 40;
+    const recovered: IAutoMovieQuaternion = second(joint);
+    const untouched: IAutoMovieQuaternion = first(joint);
+    check("failed and other queries recover independently",
+      qunit(recovered) && qclose(recovered, physical(-30, 20)) &&
+      qunit(untouched) && qclose(untouched, physical(-30, 20)) &&
+      qclose(b, physical(30, -20)) && Number.isNaN(a.x));
   });
 
   const basis: IAutoMovieJointAxes = normalizeJointAxes(

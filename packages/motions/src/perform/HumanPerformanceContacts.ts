@@ -10,6 +10,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanColliders } from "../posture/HumanColliders";
+import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
@@ -25,7 +26,11 @@ import { HumanSegment } from "./HumanSegment";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand that holds a prop and is driven elsewhere is refused.
  */
 export namespace HumanPerformanceContacts {
-  /** The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples. */
+  /**
+   * The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the seconds unit, sample spacing and its physical interpretation.
+   */
   export const STEP: number = 1 / 120;
 
   /**
@@ -34,6 +39,14 @@ export namespace HumanPerformanceContacts {
    * a held prop takes that hand over from the hold, any other use of a
    * holding hand is refused, and the props the action leaves held become
    * holds of its own.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States hand takeover, held-prop transfer and refusal when a different contact drives a holding hand.
+   * @evidence contracts/development/implementation.md#principled-implementation Existing hold windows determine which props the plan receives or releases, and the plan's final holds extend that state at their declared absolute times.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing hold takeover pass precedes insertion of the new plan's declared holds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An incompatible drive throws HumanRefusal with its hand/prop; riding keeps the declared hand-use policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans current holds and the plan's contacts/driven hands, then appends its declared holds; no geometry or fitting is introduced here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads existing plan hold/contact metadata rather than recomputing grasp geometry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the placed person's existing hold records; their windows bound activity and their lifetime remains the person's performance lifetime.
    */
   export function hold(
     person: HumanSegment.IPerson,
@@ -97,6 +110,14 @@ export namespace HumanPerformanceContacts {
    * people's colliders, and the person a stop met is the nearest of them.
    * A contact is mutual: when the limb a weapon meets is striking too, its
    * capsule nearest the striker stops at the same second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States clipped live spans, stop application, plan settling and mutual-contact selection.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates unchanged signed-distance scan and event ordering to the engine; current performance bones define actual colliders and the nearest carried capsule determines the mutual stop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects original weapons and owners, adapts actual frame/body readers, applies stop changes, then commits events and hit records.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps STEP, live clipping, every engine scan/bisection, taper, nearest-body decision and whole-performance invalidation on changed stops; no pose is cached by time.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains engine weapon/body/sample search cost. Each actual sampled capsule computes both ends once, and one carried-limb candidate operation computes each demanded chain once; owner metadata removes the final per-event weapon scan. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Constructor-proven chain endpoints share only one explicit synchronous query at an exact seconds/current stop state. Every changed stop forgets existing person memos, and no endpoint result crosses a scan or stop application.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adapter/owner/event maps last only this synchronous resolution; each grouped axis map ends before its callback returns. Only existing person stops, plan stops and hit records persist with the performance.
    */
   export function contacts(self: HumanPerformanceState): void {
     const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
@@ -109,6 +130,7 @@ export namespace HumanPerformanceContacts {
         limb: IHumanActionPlan.IWeapon["limb"];
         from: number;
         to: number;
+        weapon: IHumanActionPlan.IWeapon;
       }
     > = new Map();
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
@@ -128,6 +150,7 @@ export namespace HumanPerformanceContacts {
             limb: w.limb,
             from: a,
             to: b,
+            weapon: w,
           });
           const tail = w.tail;
           weapons.push({
@@ -137,6 +160,12 @@ export namespace HumanPerformanceContacts {
             from: a,
             to: b,
             position: (t: number) => (t < a || t > b ? far : w.path(t)),
+            sample: (t: number): resolveAutoMovieContactEvents.IWeaponFrame => {
+              if (t < a || t > b)
+                return { position: far, ...(tail === undefined ? {} : { tail: far }) };
+              const [position, end]: StrikingWeapon.IAxis = StrikingWeapon.read(w, t);
+              return { position, ...(end === undefined ? {} : { tail: end }) };
+            },
             ...(tail === undefined
               ? {}
               : {
@@ -157,8 +186,9 @@ export namespace HumanPerformanceContacts {
       weapons.map((w) => [
         w.id,
         (t: number): [IAutoMovieVector3, IAutoMovieVector3] => {
-          const p: IAutoMovieVector3 = w.position(t, new Map());
-          return [p, w.tail?.(t, new Map()) ?? p];
+          const frame: resolveAutoMovieContactEvents.IWeaponFrame =
+            w.sample!(t, new Map());
+          return [frame.position, frame.tail ?? frame.position];
         },
       ]),
     );
@@ -226,7 +256,8 @@ export namespace HumanPerformanceContacts {
         if (person === owner) continue;
         const d: number = HumanColliders.distanceToSegment(
           person.performer.body,
-          HumanPerformanceRead.bones(self, person.performer.subject, seconds),
+          HumanPerformanceRead.bones(self, person.performer.subject, seconds,
+            HumanColliders.bones(person.performer.body)),
           point,
           end,
         ).distance;
@@ -253,6 +284,7 @@ export namespace HumanPerformanceContacts {
                   self,
                   person.performer.subject,
                   seconds,
+                  HumanColliders.bones(person.performer.body),
                 ),
                 point,
               ).distance;
@@ -271,6 +303,7 @@ export namespace HumanPerformanceContacts {
                   self,
                   person.performer.subject,
                   seconds,
+                  HumanColliders.bones(person.performer.body),
                 ),
                 a,
                 b,
@@ -295,6 +328,7 @@ export namespace HumanPerformanceContacts {
                     self,
                     person.performer.subject,
                     seconds,
+                    HumanColliders.bones(person.performer.body),
                   ),
                   a,
                   b,
@@ -306,6 +340,7 @@ export namespace HumanPerformanceContacts {
               if (part === null) return undefined;
               const limb: string = `${part[1]}${part[2] === undefined ? "Arm" : "Leg"}`;
               let best: { key: string; distance: number } | undefined;
+              const eligible: (readonly [string, IHumanActionPlan.IWeapon])[] = [];
               for (const [key, owner] of owners) {
                 if (
                   owner.person !== person ||
@@ -315,8 +350,16 @@ export namespace HumanPerformanceContacts {
                   seconds > owner.to
                 )
                   continue;
-                const [p, q] = paths.get(key)!(seconds);
-                const distance: number = segmentSegmentDistance(a, b, p, q);
+                eligible.push([key, owner.weapon]);
+              }
+              const sampled: ReadonlyMap<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis> =
+                StrikingWeapon.sample(
+                  eligible.map(([, weapon]): IHumanActionPlan.IWeapon => weapon),
+                  seconds,
+                );
+              for (const [key, weapon] of eligible) {
+                const [p, q]: StrikingWeapon.IAxis = sampled.get(weapon)!;
+                const distance: number = segmentSegmentDistance(a, b, p, q ?? p);
                 if (best === undefined || distance < best.distance)
                   best = { key, distance };
               }
@@ -342,9 +385,7 @@ export namespace HumanPerformanceContacts {
       self.strikes.push({
         subject: owner.person.performer.subject,
         segment: owner.segment,
-        weapon: owner.segment.plan.weapons!.find(
-          (w: IHumanActionPlan.IWeapon): boolean => w.id === owner.id,
-        )!,
+        weapon: owner.weapon,
         against: e.against,
         seconds: e.seconds,
       });

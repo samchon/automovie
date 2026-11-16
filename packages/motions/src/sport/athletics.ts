@@ -202,8 +202,9 @@ export namespace athletics {
         { name: "gun", seconds: timed.at("relax") },
       ],
     );
-    const into: (seconds: number) => number = (seconds: number): number =>
-      clock.progress("start", "ready", seconds);
+    const ready: number = clock.at("ready");
+    const into: (seconds: number) => number =
+      AutoMovieMotionClock.prepare(clock, "start", "ready").progress;
     // The span the arms are planned over: the reach to the place, held to the end.
     const span: AutoMovieMotionHumanArm.ISpan = {
       start: clock.at("start"),
@@ -216,6 +217,10 @@ export namespace athletics {
       entry.root,
       Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
     );
+    const flexions: Record<"spine" | "chest", number> = {
+      spine: (target.joints.spine?.[0] ?? 0) - (entry.joints.spine?.[0] ?? 0),
+      chest: (target.joints.chest?.[0] ?? 0) - (entry.joints.chest?.[0] ?? 0),
+    };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels: ["root", "trunk"],
@@ -232,9 +237,7 @@ export namespace athletics {
             const was: readonly [number, number, number] = posture.joints[
               bone
             ] ?? [0, 0, 0];
-            const added: number =
-              (target.joints[bone]?.[0] ?? 0) - (entry.joints[bone]?.[0] ?? 0);
-            return [was[0] + added * w, was[1], was[2]];
+            return [was[0] + flexions[bone] * w, was[1], was[2]];
           };
           const pitched: IHumanPosture = {
             ...posture,
@@ -272,10 +275,10 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: HumanFoot.IPlacement = target.feet[side];
+      const half: number = ready / 2;
+      const a: number = from === "start" ? 0 : half;
+      const b: number = to === "half" ? half : ready;
       const share: (seconds: number) => number = (seconds: number): number => {
-        const half: number = clock.at("ready") / 2;
-        const a: number = from === "start" ? 0 : half;
-        const b: number = to === "half" ? half : clock.at("ready");
         return Math.min(1, Math.max(0, (seconds - a) / (b - a)));
       };
       primitives.push(
@@ -294,8 +297,10 @@ export namespace athletics {
               0.05 * body.measure.stature,
               share(seconds),
             ),
-          planted: (seconds: number): boolean =>
-            share(seconds) <= 0 || share(seconds) >= 1,
+          planted: (seconds: number): boolean => {
+            const at: number = share(seconds);
+            return at <= 0 || at >= 1;
+          },
         }),
       );
     }

@@ -12,6 +12,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { HumanAttribute } from "../ensemble/HumanAttribute";
 import type { HumanForce } from "../perform/HumanForce";
 import type { HumanObstacle } from "../perform/HumanObstacle";
@@ -239,9 +240,13 @@ export namespace IHumanActionContext {
      * Their displayed world bones at a film second.
      *
      * @param seconds Film seconds.
-     * @returns Resolved bones by rig bone.
+     * @param requested Optional observed bone names; omission requests the complete displayed hierarchy.
+     * @returns Fresh resolved bones by rig bone, containing only requested reachable bones when supplied.
      */
-    bones(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    bones(
+      seconds: number,
+      requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /**
      * Where their placed actions put their root at a film second, readable
@@ -307,9 +312,13 @@ export namespace IHumanActionContext {
      * Its posture under the overlay.
      *
      * @param seconds Seconds of the overlay's own clock.
-     * @returns The carrier's posture at that instant; its last posture once it has ended.
+     * @param channels Optional requested channels; omitted for a whole-posture read.
+     * @returns The carrier's posture at that instant; its last posture once it has ended. Only requested channels are valid when supplied.
      */
-    posture(seconds: number): IHumanPosture;
+    posture(
+      seconds: number,
+      channels?: readonly AutoMovieMotionHumanChannel[],
+    ): IHumanPosture;
 
     /**
      * What the carrier stands on when it is not the ground: the first prop

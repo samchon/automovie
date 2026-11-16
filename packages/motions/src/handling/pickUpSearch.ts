@@ -107,6 +107,18 @@ export namespace pickUpSearch {
     // ends in, its stance straightened back up.
     const demands: IHumanActionContext["demands"] = context.demands;
     const after: IHumanPosture = stance.at(0);
+    const presented: ReturnType<typeof HumanGraspUse.prepare> | undefined =
+      context.params.use === undefined ? undefined : HumanGraspUse.prepare({
+        context,
+        prop: context.params.prop,
+        handle: context.params.handle,
+        side,
+        use: context.params.use,
+      });
+    const grip: ReturnType<typeof HumanGraspDemand.prepare> | undefined =
+      demands === undefined ? undefined : HumanGraspDemand.prepare(
+        context, context.params.prop, side, after,
+      );
     // What a grip must hold: every judged key within its own bound (the
     // demanding action's, or the held tool's for a use), measured as the
     // worst judgement's share of its bound; the grasp's and the lift's are
@@ -153,28 +165,10 @@ export namespace pickUpSearch {
           },
           bend,
         };
-      if (context.params.use !== undefined)
-        yield HumanGraspUse.presented({
-          context,
-          prop: context.params.prop,
-          handle: context.params.handle,
-          side,
-          // The tool is rigid in the hand the arm shows at the grasp, which
-          // may differ from the hand asked: the fingers close on it where it
-          // is shown.
-          wrist: shown,
-          use: context.params.use,
-        });
+      if (presented !== undefined)
+        yield presented(shown);
       if (demands !== undefined)
-        for (const demand of demands(
-          HumanGraspDemand.grip(
-            context,
-            context.params.prop,
-            side,
-            shown,
-            after,
-          ),
-        ))
+        for (const demand of demands(grip!(shown)))
           yield HumanGraspDemand.key(body, demand);
     };
     // A grasp whose wrist lies beyond the straight arm is tried only when

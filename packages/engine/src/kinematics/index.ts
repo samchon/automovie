@@ -35,6 +35,8 @@ export * from "./measureAutoMovieHumanoidBody";
 export * from "./normalizeJointAxes";
 export * from "./poseJointCodec";
 export * from "./preparePoseResolution";
+export * from "./prepareSkeletonPoseResolution";
+export * from "./prepareAutoMovieMassModel";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";

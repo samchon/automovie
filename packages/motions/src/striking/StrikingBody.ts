@@ -1,11 +1,8 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -21,6 +18,8 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { StrikingContact } from "./StrikingContact";
 
@@ -50,37 +49,34 @@ export namespace StrikingBody {
    *
    * @param body The body with topology indexed from its same, unchanged skeleton.
    * @param posture The posture.
+   * @param resolution Optional exact reader or lazy supplier borrowed only within this synchronous evaluation.
+   * @param requested Optional output bones whose ancestry is needed; every authored joint is still admitted and clamped.
    * @returns Resolved bones by rig bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped, why the result is the limb solves' start and the body's unchanged-skeleton topology premise.
+   * @evidence contracts/development/common.md#meaningful-documentation States dropped limb goals, the result's role as limb-solve input, unchanged-skeleton topology and the optional synchronous borrowed FK workspace.
    * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then complete forward kinematics with the canonical axes, rest frames and the body's parent-first topology.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and J pose joints, posture assembly and clamp metadata lookup cost O(B+J), plus the existing per-joint numerical projection and optional HumanDigitFit search; final FK is also O(B+J) and reuses the body's topology.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work FK reuses the topology createHumanBody indexed from this same skeleton, which the caller keeps unchanged; each posture and its bone transforms are still resolved anew.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolution and the canonical poseBones adapter keep mapping, topology and direct Map insertion with their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual posture clamp, digit solve and full FK remains; the optional reader shares only completed equal scalar prerequisites, without caching a posed result or changing goal policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Posture assembly/clamping still scans rig/joints and retains actual digit searches. Requested final FK admits all joints but computes only demanded ancestry and allocates only requested transforms; omitted demand returns the full map. A parent reader shares only equal scalar prerequisites, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses body topology and, only when supplied, one parent-owned exact FK workspace across actual posture and displayed-frame reads; every posture and authored record still executes normally with fresh output transforms.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map/transforms. An optional local getter borrows at most one parent reader only until return or throw; no reader, supplier or posed result enters body memory, a returned plan or persistent state.
    */
   export function trunk(
     body: IHumanBody,
     posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const pose: IAutoMoviePose = resolveHumanPosture(body, {
-      ...posture,
-      limbs: {},
-    });
-    return new Map(
-      resolvePose(
-        pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-        body.topology,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
+    const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+      resolution === undefined ? undefined : prepareHumanPoseResolution(resolution);
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      { ...posture, limbs: {} },
+      undefined,
+      undefined,
+      read,
+    ).pose;
+    return poseBones(body, pose, read?.(), requested);
   }
 
   /**
@@ -136,7 +132,7 @@ export namespace StrikingBody {
    * @evidence contracts/development/implementation.md#principled-implementation Half the nearest-neighbour distance is the largest ball about a point in which that point is the nearest of the set.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the regions at rest.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the body's own regions, with no radius typed per region.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the regions.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(R) region scan computes the same rest points and distances; scalar distance preserves the existing ordinary/extreme norm branches without a temporary displacement vector per neighbor. Runtime speedup is unmeasured.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; a strike reads it once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -144,7 +140,9 @@ export namespace StrikingBody {
     body: IHumanBody,
     region: AutoMovieHumanoidRegion,
   ): number {
-    const at = (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
+    const at: (name: AutoMovieHumanoidRegion) => IAutoMovieVector3 = (
+      name: AutoMovieHumanoidRegion,
+    ): IAutoMovieVector3 => {
       const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[name];
       return Vector3.add(body.rest.get(frame.bone)!, frame.point);
@@ -157,7 +155,7 @@ export namespace StrikingBody {
       if (name !== region)
         nearest = Math.min(
           nearest,
-          Vector3.length(Vector3.subtract(at(name), own)),
+          Vector3.distance(at(name), own),
         );
     return 0.5 * nearest;
   }

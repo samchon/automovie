@@ -87,6 +87,9 @@ export namespace HumanFitVariables {
   /** A place's weight per square metre, a heading's per square degree and a joint's per square degree. */
   const WEIGHT: readonly [number, number, number] = [1e4, 2, 1];
 
+  /** The existing absent-joint clinical zero, borrowed only while constructing a fresh owned tuple. */
+  const ZERO_JOINT: readonly [number, number, number] = [0, 0, 0];
+
   /**
    * A posture's variables.
    *
@@ -124,11 +127,11 @@ export namespace HumanFitVariables {
    * @returns The posture with the values written, by its joint angles alone.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Writes the variable vector back into the matching root, heading and joint coordinates, preserving all other posture values and clearing resolved limb hints as before.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copies the owning posture records, then updates each named coordinate in variable order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copies posture records, then writes coordinates in variable order; a lazy local record identifies the joint tuples already copied by this call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves duplicate-variable last-write behavior and existing absent-joint zero coordinates without changing ranges; compatible vector dimensions remain a caller premise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(j+n) time and storage for j stored joints and n variables, copying a joint tuple only when a variable writes it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares untouched joint tuples and other posture members while copying every record it changes; each call reads the supplied current vector.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture with independently changed records and retains no input after the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(j+n) time and O(j+U) output/local storage for j stored joints, n variables and U changed joints; A angle writes allocate U tuples rather than A, and place/heading-only writes allocate no joint-ownership record.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Untouched tuples/members stay shared; after a joint's first copy, subsequent axes and duplicate variables update only that owned tuple in the original order, reading every current vector value without a cast or input mutation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new posture owns changed tuples/root and borrows unchanged members as before; the at-most-U-entry ownership record ends on return or throw and no current posture or vector is retained globally.
    * @evidence contracts/development/common.md#meaningful-documentation Defines coordinate writing, preserved members, cleared limb hints, dimension premise and copy ownership.
    */
   export function written(
@@ -143,14 +146,17 @@ export namespace HumanFitVariables {
       roll: posture.roll,
     };
     const joints: IHumanPosture["joints"] = { ...posture.joints };
+    let changed: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> | undefined;
     variables.forEach((v: HumanJacobian.IVariable, i: number): void => {
       if (v.kind === "place") root[v.axis] = x[i]!;
       else if (v.kind === "heading") heading[v.axis] = x[i]!;
       else {
-        const was: readonly [number, number, number] = joints[v.bone] ?? [
-          0, 0, 0,
-        ];
-        const set: [number, number, number] = [was[0], was[1], was[2]];
+        let set: [number, number, number] | undefined = changed?.[v.bone];
+        if (set === undefined) {
+          const was: readonly [number, number, number] = joints[v.bone] ?? ZERO_JOINT;
+          set = [was[0], was[1], was[2]];
+          (changed ??= {})[v.bone] = set;
+        }
         set[v.axis] = x[i]!;
         joints[v.bone] = set;
       }

@@ -6,6 +6,7 @@ import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
 import { walkStanceCourse } from "./walkStanceCourse";
 import { walkStanceTerms } from "./walkStanceTerms";
 import { walkStanceModel } from "./walkStanceModel";
+import { walkStanceConvexify } from "./walkStanceConvexify";
 
 /**
  * A stance course's problem and its solve (`walkStanceCourse`): the problem
@@ -35,6 +36,14 @@ export namespace walkStanceSolve {
    * @param start A course of the same take's first knots to start from, where a nearly equal course was solved before; flat and upright when absent.
    * @param from How many of the first knots `start` settles; none when absent.
    * @returns The course.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States body/knots, optional same-take continuation and the two-held-knot receding horizon.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the original stance problem and runs its shared penalty sequential-convex solve with the unchanged two-knot acceleration overlap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One problem builder and one optimizer own the model and solver responsibilities separately.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the stated settled prefix and reports the optimizer's actual remaining excess without changing contact or feasibility policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is linear in the retained knot window; derivative and QP costs belong to the optimizer, and held prefix knots are not solved again.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the caller's stated same-take continuation only; every new problem owns its geometry, derivative record and solve lifetime.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary problem releases after the optimizer returns or throws; the returned course belongs to its caller.
    */
   export function solve(
     body: IHumanBody,
@@ -61,6 +70,14 @@ export namespace walkStanceSolve {
    * @param shape The problem at the start, whose variables, region and steps every course shares.
    * @param at The problem a course is evaluated by, and, about a course whose subproblem is built (`model`), the problem convexified there and the rows added to it; `shape` with none when absent.
    * @returns The course at the last iterate taken, its largest excess as `unmet`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Describes penalty steering, trust-region warm starts, model merit, second-order correction and reported excess.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the original TrajOpt outer loop, exact l1 constraint merit, keyed multiplier warm start and Nocedal-Wright second-order bound correction under the same schedule and stopping thresholds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The course problem owns physical evaluations, HumanSequentialConvex owns acceptance and steering, and a prepared quadratic model owns each fixed P/q/A convexification's numeric solves.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original QP calls, warm/cold choices, penalties, attempts and tolerance tests; preparation shares numeric prerequisites only while changing row intervals remain explicit solve inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each convexification prepares fixed matrices once across radius retries and its bound-only corrections. Model value and soft-row violation share one ordered row-product pass; the finite origin avoids a zero-vector scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed variable layout, ordered A rows and P/q are shared only within one convex model; each new linearization prepares afresh, warm iterates follow the original radius path, and corrections remain cold.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve retains current multipliers, last-step metadata and active prepared-model state, each bounded by its course dimensions; model closures and numeric scratch release with the solve and no history or global cache is added.
    */
   export function optimise(
     body: IHumanBody,
@@ -86,6 +103,7 @@ export namespace walkStanceSolve {
           mu: number;
           radius: number;
           step: Float64Array;
+          prepared: ReturnType<typeof Q.prepare>;
         }
       | undefined;
     const problem: SCO.IProblem<Float64Array, walkStanceCourse.IEvaluation> = {
@@ -107,8 +125,9 @@ export namespace walkStanceSolve {
           ...convex,
           rows: [...convex.rows, ...about.rows],
         };
-        const zero: number = Q.value(model, new Float64Array(model.n));
+        const zero: number = Q.value(model);
         let trusted: Q.IProblem | undefined;
+        let prepared: ReturnType<typeof Q.prepare> | undefined;
         let warm: Q.IState | undefined;
         return {
           solve: (radius: number): SCO.IStep<Float64Array> => {
@@ -116,7 +135,10 @@ export namespace walkStanceSolve {
               ...model,
               rows: [...model.rows, ...shape.region(x, radius)],
             };
-            warm = Q.solve(trusted, warm, duals);
+            // Radius changes alter the bounds alone; P, q and every row's
+            // coefficients belong to this one convexification.
+            prepared ??= Q.prepare(trusted);
+            warm = prepared.solve(trusted.rows, warm, duals);
             last = {
               x,
               model,
@@ -124,24 +146,26 @@ export namespace walkStanceSolve {
               mu,
               radius,
               step: warm.x,
+              prepared,
             };
             const length: number = shape.length(warm.x);
             // The soft rows' linearised excess at the step, in their own
             // degrees, the violation the steering reads.
             let violation: number = 0;
             let worst: number = 0;
-            for (const row of model.rows) {
-              if (row.weight === undefined) continue;
-              let value: number = 0;
-              for (let r: number = 0; r < row.index.length; r++)
-                value += row.coef[r]! * warm.x[row.index[r]!]!;
-              const over: number = Math.max(row.l - value, value - row.u, 0);
+            const value: number = Q.value(model, warm.x, (_row: Q.IRow, over: number): void => {
               violation += over;
               worst = Math.max(worst, over);
-            }
+            });
+            const delta: Float64Array = warm.x;
+            let trial: Float64Array | undefined;
             return {
-              trial: shape.stepped(x, warm.x),
-              predicted: zero - Q.value(model, warm.x),
+              // Steering compares scalar diagnostics before choosing a model;
+              // only a proposal actually evaluated needs its course vector.
+              get trial(): Float64Array {
+                return (trial ??= shape.stepped(x, delta));
+              },
+              predicted: zero - value,
               violation,
               met: worst <= shape.tolerance,
               length,
@@ -195,10 +219,10 @@ export namespace walkStanceSolve {
             return { ...row, l: row.l - error, u: row.u - error };
           },
         );
-        const corrected: Q.IState = Q.solve({
-          ...last.model,
-          rows: [...rows, ...shape.region(x, last.radius)],
-        });
+        const corrected: Q.IState = last.prepared.solve([
+          ...rows,
+          ...shape.region(x, last.radius),
+        ]);
         return shape.stepped(x, corrected.x);
       },
     };
@@ -220,7 +244,7 @@ export namespace walkStanceSolve {
 
   /** A course's knots from `join` on. */
   function cut(start: walkStanceCourse.ICourse, join: number): walkStanceCourse.ICourse {
-    const rest = (series: Float64Array): Float64Array => series.slice(join);
+    const rest: (series: Float64Array) => Float64Array = (series: Float64Array): Float64Array => series.slice(join);
     return {
       knots: start.knots.slice(join),
       drop: rest(start.drop),
@@ -243,7 +267,7 @@ export namespace walkStanceSolve {
     join: number,
     tail: walkStanceCourse.ICourse,
   ): walkStanceCourse.ICourse {
-    const series = (head: Float64Array, rest: Float64Array): Float64Array => {
+    const series: (head: Float64Array, rest: Float64Array) => Float64Array = (head: Float64Array, rest: Float64Array): Float64Array => {
       const out: Float64Array = new Float64Array(knots.length);
       out.set(head.subarray(0, join));
       out.set(rest, join);
@@ -279,7 +303,17 @@ export namespace walkStanceSolve {
     };
   }
 
-  /** A course's record at its variables. */
+  /**
+   * Record the original coordinate series and planted goals at a course.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that coordinates and goal inputs are copied from one supplied course vector under its original knot order.
+   * @evidence contracts/development/implementation.md#principled-implementation Deinterleaves every WIDTH coordinate series and reads each scheduled stance's physical goals at the exact supplied vector, preserving the optimizer's unmet value.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One slot reader constructs all original typed series and one ordered knot/stance map records the planted goals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Records the actual variables and remaining excess with no fit, interpolation or substituted stance result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(n*WIDTH+s) output work for n knots and s stances; the supplied planted-only reader avoids posing legs whose constraint values the record never uses.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the problem's existing goal construction while each scalar series owns its own array; no record is cached across solved vectors.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns returned arrays/goal records and the original readonly knot references; the function retains no extra state.
+   */
   export function record(
     knots: readonly walkStanceCourse.IKnot[],
     n: number,
@@ -287,7 +321,7 @@ export namespace walkStanceSolve {
     unmet: number,
     read: (x: Float64Array, k: number, j: number) => { planted: walkStanceCourse.IPlanted },
   ): walkStanceCourse.ICourse {
-    const series = (slot: number): Float64Array =>
+    const series: (slot: number) => Float64Array = (slot: number): Float64Array =>
       Float64Array.from(
         { length: n },
         (_: unknown, k: number): number => x[walkStanceTerms.WIDTH * k + slot]!,
@@ -324,9 +358,9 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's convex subproblem: the cost's Gauss-Newton model and the constraints as exact l1 penalties of their linearisations, the linear rows hard.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The window, the build, then four closures over it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every constraint the course reads is a row.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One sweep per evaluation or subproblem, its gradients only for the subproblem.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the course's build and record.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the build in its closures only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One sweep per merit evaluation or new course/swivel linearization; steering penalties and restoration share the latter's derivatives, while prepared row topology serves radius reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses one fixed-window geometry, goal-only reader, row preparation and latest exact scalar/swivel derivative record; each returned QP owns fresh matrices and row arrays.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem owns its fixed window/build and one bounded numeric derivative record until release, all linear in knot count for fixed bandwidth and foot geometry; it keeps no query history.
    */
   export function problem(
     body: IHumanBody,
@@ -338,7 +372,7 @@ export namespace walkStanceSolve {
       start !== undefined && from >= 2 && from <= start.knots.length;
     const join: number = windowed ? from - 2 : 0;
     const tail: readonly walkStanceCourse.IKnot[] = windowed ? knots.slice(join) : knots;
-    const built = walkStanceModel.of(
+    const built: ReturnType<typeof walkStanceModel.of> = walkStanceModel.of(
       body,
       tail,
       windowed ? cut(start!, join) : start,
@@ -364,51 +398,7 @@ export namespace walkStanceSolve {
         );
         return { objective, violation, worst };
       },
-      convexify: (
-        x: Float64Array,
-        mu: number,
-        objective: boolean = true,
-      ): Q.IProblem => {
-        const p: Float64Array[] = Array.from(
-          { length: size },
-          (): Float64Array => new Float64Array(walkStanceTerms.BAND + 1),
-        );
-        const q: Float64Array = new Float64Array(size);
-        const rows: Q.IRow[] = [];
-        built.sweep(
-          x,
-          true,
-          (r: number, idx: number[], g: number[]): void => {
-            if (!objective) return;
-            for (let a: number = 0; a < idx.length; a++) {
-              q[idx[a]!]! += r * g[a]!;
-              for (let b: number = 0; b < idx.length; b++)
-                if (idx[a]! <= idx[b]!)
-                  p[idx[a]!]![idx[b]! - idx[a]!]! += g[a]! * g[b]!;
-            }
-          },
-          (over: number, idx: number[], g: () => number[]): void => {
-            rows.push({
-              key: `c|${rows.length}`,
-              index: idx,
-              coef: g(),
-              l: -Infinity,
-              u: -over,
-              weight: mu,
-            });
-          },
-        );
-        // Each variable gets a whisker of curvature so the step's system is
-        // definite where a residual leaves a variable free.
-        for (let i: number = 0; i < size; i++) p[i]![0]! += 1e-9;
-        return {
-          n: size,
-          band: walkStanceTerms.BAND,
-          p,
-          q,
-          rows,
-        };
-      },
+      convexify: walkStanceConvexify(tail, size, built.sweep),
       region: (x: Float64Array, radius: number): Q.IRow[] =>
         built.bounds(x, radius),
       length: (step: Float64Array): number => {
@@ -421,15 +411,25 @@ export namespace walkStanceSolve {
         x.map((v: number, i: number): number => v + step[i]!),
       tolerance: walkStanceCourse.MET,
       course: (x: Float64Array, unmet: number): walkStanceCourse.ICourse => {
-        const solved: walkStanceCourse.ICourse = record(tail, built.n, x, unmet, built.read);
+        const solved: walkStanceCourse.ICourse = record(
+          tail,
+          built.n,
+          x,
+          unmet,
+          (values: Float64Array, k: number, j: number): { planted: walkStanceCourse.IPlanted } => ({
+            planted: built.planted(values, k, j),
+          }),
+        );
         return windowed ? joined(knots, start!, join, solved) : solved;
       },
-      planted: (x: Float64Array, knot: number): walkStanceCourse.IPlanted[] =>
+      planted: (x: Float64Array, knot: number, side?: "left" | "right"): walkStanceCourse.IPlanted[] =>
         knot < join + (windowed ? 2 : 0)
           ? []
-          : tail[knot - join]!.stances.map(
-              (_: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted =>
-                built.read(x, knot - join, j).planted,
+          : tail[knot - join]!.stances.flatMap(
+              (stance: walkStanceCourse.IStance, j: number): walkStanceCourse.IPlanted[] =>
+                side !== undefined && stance.side !== side
+                  ? []
+                  : [built.planted(x, knot - join, j)],
             ),
       variables: (knot: number, side: "left" | "right"): number[] =>
         walkStanceTerms.variables(knot - join, side),

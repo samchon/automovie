@@ -1,5 +1,5 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -7,6 +7,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -25,9 +26,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#principled-implementation The thigh's front region is placed on the solved thigh and moved 0.6 of the way toward the knee; the palm faces it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry with one goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.6 share toward the knee is provisional, the bend law's brace point.
- * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second for the thigh.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the crouch and the kneel.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over its arguments only.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Requests only the braced thigh and knee from canonical resolution/FK. The common resolver retains complete direct-joint admission and falls back to its full fitting path for dependencies its selective contract cannot prove irrelevant.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The body/side fix the requested bones and thigh region once per primitive; each synchronous goal lends one exact FK workspace to its actual selective fit and subsequent bone reading, without sharing answers across seconds.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments, one fixed requested set and surface reference. Each goal's lazy FK workspace releases on return or failure; no time history or posed-result cache is kept.
  */
 export function braceOnThigh(
   body: IHumanBody,
@@ -36,6 +37,11 @@ export function braceOnThigh(
   duration: number,
   weight: (seconds: number) => number,
 ): IAutoMovieMotionHumanPrimitive {
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    `${side}UpperLeg`, `${side}LowerLeg`,
+  ]);
+  const region: IHumanBody["surfaces"]["regions"]["thighFrontLeft"] =
+    body.surfaces.regions[side === "left" ? "thighFrontLeft" : "thighFrontRight"];
   return AutoMovieMotionHumanArm.carried({
     body,
     side,
@@ -44,15 +50,15 @@ export function braceOnThigh(
     rest,
     weight,
     goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
-      const bones = poseBones(body, resolveHumanPosture(body, posture));
-      const thigh = bones.get(`${side}UpperLeg`)!;
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+        body, posture, undefined, {}, resolution, requested,
+      ).pose;
+      const bones: ReturnType<typeof poseBones> = poseBones(body, pose, resolution(), requested);
+      const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
       const kneeAt: IAutoMovieVector3 = bones.get(
         `${side}LowerLeg`,
       )!.worldPosition;
-      const region =
-        body.surfaces.regions[
-          side === "left" ? "thighFrontLeft" : "thighFrontRight"
-        ];
       const onThigh: IAutoMovieVector3 = Vector3.add(
         thigh.worldPosition,
         Quaternion.rotateVector(thigh.worldRotation, region.point),

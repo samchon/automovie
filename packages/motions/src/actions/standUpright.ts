@@ -11,6 +11,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * The upright alignment of a body's quiet stance, solved from the body's own
@@ -50,6 +51,14 @@ export namespace standUpright {
    *
    * @param body The body.
    * @returns Its alignment.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the per-body alignment; the namespace documents its physical targets and search bounds.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing plumb-line, level-head and centre-of-mass searches keep every candidate and stopping rule, with FK requested only for each residual's measured bones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak body cache delegates cold alignment to a synchronous search.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle, body scale, candidate ordering or tolerance is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold residuals visit requested ancestry instead of every bone; the final mass reading still requires the full rig, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares the engine's exact dependency reader across candidates and the body cache retains only the final alignment.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader ends with cold search return or throw; one alignment remains weakly owned per live body.
    */
   export function of(body: IHumanBody): IAlignment {
     const known: IAlignment | undefined = CACHE.get(body);
@@ -62,8 +71,10 @@ export namespace standUpright {
   const CACHE: WeakMap<IHumanBody, IAlignment> = new WeakMap();
 
   function solve(body: IHumanBody): IAlignment {
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const bones = (
       joints: Partial<Record<AutoMovieHumanoidBone, number>>,
+      requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const pose: IAutoMoviePose = {
         skeleton: body.skeleton.id,
@@ -75,7 +86,7 @@ export namespace standUpright {
           twist: 0,
         })),
       };
-      return poseBones(body, pose);
+      return poseBones(body, pose, prepared(), requested);
     };
     const mid = (
       map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -86,15 +97,15 @@ export namespace standUpright {
       const q: IAutoMovieVector3 = map.get(b)!.worldPosition;
       return { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, z: (p.z + q.z) / 2 };
     };
-    const hips: number = mid(bones({}), "leftUpperLeg", "rightUpperLeg").z;
+    const hips: number = mid(bones({}, HIPS), "leftUpperLeg", "rightUpperLeg").z;
     // For a trunk flexion, the neck flexion within the comfortable cervical
     // range that brings the ear closest over the hips, and the squared
     // distances of the shoulders and the ear from the hips' vertical.
     const fit = (f: number): { neck: number; cost: number } => {
       const off = (n: number): number =>
-        ear(bones({ spine: f, chest: f, neck: n })) - hips;
+        ear(bones({ spine: f, chest: f, neck: n }, HEAD)) - hips;
       const n: number = bisect(off, NECK);
-      const map = bones({ spine: f, chest: f, neck: n });
+      const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones({ spine: f, chest: f, neck: n }, COLUMN);
       const s: number = mid(map, "leftUpperArm", "rightUpperArm").z - hips;
       const e: number = ear(map) - hips;
       return { neck: n, cost: s * s + e * e };
@@ -104,7 +115,7 @@ export namespace standUpright {
     const head: number = bisect(
       (h: number): number =>
         Quaternion.rotateVector(
-          bones({ spine: trunk, chest: trunk, neck, head: h }).get("head")!
+          bones({ spine: trunk, chest: trunk, neck, head: h }, HEAD).get("head")!
             .worldRotation,
           { x: 0, y: 0, z: 1 },
         ).y,
@@ -119,7 +130,7 @@ export namespace standUpright {
       head: [head, 0, 0],
     };
     // The centre of mass of the aligned column, relative to the ankles' midpoint.
-    const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    const model: ReturnType<typeof resolveAutoMovieCenterOfMass> = body.massModel;
     const aligned = bones({ spine: trunk, chest: trunk, neck, head });
     const ahead: number =
       resolveAutoMovieCenterOfMass.place(model, aligned).z -
@@ -136,6 +147,15 @@ export namespace standUpright {
 
   /** The comfortable cervical flexion range, degrees, either way (provisional, inside DEFAULT_HUMANOID_ROM). */
   const NECK: number = 20;
+
+  /** Only the named output bones are needed by each alignment residual. */
+  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperLeg", "rightUpperLeg"]);
+
+  /** The ear and gaze residuals read only the head. */
+  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head"]);
+
+  /** The plumb-line cost needs the shoulders and the head together. */
+  const COLUMN: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "head"]);
 
   /** The minimum of a unimodal cost on [lo, hi] degrees by golden-section search to 0.01 degree. */
   function golden(

@@ -40,9 +40,9 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#principled-implementation Prepared FK composes the candidate's exact completed prefix or recomputes it in the original grouping. solveDistalTwist and prepareJointRotationProjection are final display's same owners, and the selected raw effector composition is reused before the original world normalization and angle read.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Per-fit bases, clamps and projection precede one candidate closure. It reads lower angles once per shared quaternion record, applies the shared split and projection, and scores the shown world rotation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Skeleton axes/ROM and the last authored effector match full FK. No forced-zero residual or claim that the five distal candidates globally solve the combined joints replaces actual composition.
- * @evidence contracts/development/implementation.md#efficient-algorithms Standalone setup scans B bones and J authored joints, O(B+J) work; a supplied workspace rig shares those lookups, source held joint, admitted bases, clamps, projector and fixed-frame inverse across its target fits. A non-distal candidate queries it once; a distal candidate has at most five twist-score queries plus one final displayed query, at most six. Each eligible query recomposes the reference plus at most eighteen pairs, at most nineteen actual joint scores or 114 across six queries; unsupported queries retain the factory's four-sweep, forty-step-per-axis fallback, at most 528 recompositions per query. Chain FK and final world-error composition remain additional constant work; runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares admitted bases, clamps, source-held rotation and its exact Quaternion.inverse, fixed inverse, fixed effector-axis/clinical-zero preparation and effector projector; standalone scoring prepares those lazy fixed readings once for this target instead. Every solve still reads the actual held raw rotation before borrowing its inverse at the original use site. This scorer owns one lower-factor/inner-product composer, borrowed by each distal solve and the following actual lower composition; every clinical/frame check and fresh outer product remains. Its current lower record also reuses exact raw and rig-zero-twist compositions and their reader closures, loaded at the original solver sites and invalidated when that record changes. A supplied upper prefix belongs to this exact candidate. No lower/candidate/target answer crosses into another target scorer; changed rig/frame/source dependencies require new preparation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target fit releases its scorer, latest lower-angle/raw/untwisted readings and standalone held raw/inverse readings; each is constant-size. Shared source-held raw/inverse and projector remain owned by the caller's workspace. Same-query paired projection avoids another raw composition without retaining an answer across queries; no global handle or growing result cache exists.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Standalone setup is O(B+J); a workspace rig shares fixed lookup/basis/clamp/projector data across its target fits. A non-distal candidate queries once. A distal candidate makes at most five twist-score queries; its winning projection also serves final display whenever the recomputed local demand is component-identical, otherwise one final query runs. Eligible queries score at most nineteen unique actual articulations; generic fallback retains four sweeps and at most 528 recompositions. Chain FK/final world-error work remains, and runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged workspace shares admitted bases, clamps, held raw/inverse, fixed effector data and projector. This target scorer shares one immutable lower record's clinical/raw/untwisted readings and one exact-angle composer while every actual angle/frame check and fresh product remains. A supplied upper prefix belongs to this candidate. The selected distal score's raw projected articulation is reused only after its actual clamped lower joint is recomposed and all four resulting local-demand components match with Object.is; otherwise the final query still runs. Final world composition/normalization/error use the original requested rotation. No candidate or target answer crosses scorers.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target fit releases its scorer, latest lower clinical joint/raw/untwisted readings and standalone held raw/inverse readings; each is constant-size. Shared source-held raw/inverse and projector remain owned by the caller's workspace. Same-query paired projection avoids another raw composition without retaining an answer across queries; no global handle or growing result cache exists.
  */
 export function fitHingedRotationError(
   props: IFitChainToTargetProps,
@@ -108,7 +108,7 @@ export function fitHingedRotationError(
 
   // Bend candidates can share one immutable lower quaternion record.
   let seen: IAutoMovieQuaternion | undefined;
-  let angles: IAutoMovieResolvedJointAngles | undefined;
+  let lowerJoint: IAutoMovieJointPose | undefined;
   let clamped: IAutoMovieQuaternion | undefined;
   let heldRotation: IAutoMovieQuaternion | undefined;
   let heldInverse: IAutoMovieQuaternion | undefined;
@@ -168,29 +168,29 @@ export function fitHingedRotationError(
       Quaternion.multiply(prepared.upper.worldRotation, upper),
       prepared.lowerRotation,
     );
-    if (seen !== lower || angles === undefined) {
+    if (seen !== lower || lowerJoint === undefined) {
       seen = lower;
-      angles = decomposeJointRotationOnBasis(
+      const angles: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
         lower,
         lowerBasis,
         lowerFrame,
         prepared.lowerDomain,
       );
+      lowerJoint = { bone: props.chain.lower, ...angles };
       lowerReadings = undefined;
       clamped =
         lowerBasis.twistPlacement === "distal"
           ? undefined
           : lowerRotation(
-              clampLower({ bone: props.chain.lower, ...angles }),
+              clampLower({ ...lowerJoint }),
             );
     }
-    const read: IAutoMovieResolvedJointAngles = angles;
-    const joint: IAutoMovieJointPose = { bone: props.chain.lower, ...read };
-    const mid: IAutoMovieQuaternion = Quaternion.multiply(
-      above,
-      clamped ??
-        lowerRotation(
-          solveDistalTwist({
+    const joint: IAutoMovieJointPose = lowerJoint;
+    let projected: solveDistalTwist.IProjection | undefined;
+    let lowerRotationResult: IAutoMovieQuaternion | undefined = clamped;
+    if (lowerRotationResult === undefined) {
+      const result: solveDistalTwist.IResult =
+        solveDistalTwist.withProjection({
             joint,
             effector: held,
             above,
@@ -214,8 +214,13 @@ export function fitHingedRotationError(
             ...(lowerReadings ??= prepareLowerReadings(joint)),
             readHeldRotation,
             readHeldInverse,
-          }),
-        ),
+        });
+      lowerRotationResult = lowerRotation(result.joint);
+      projected = result.projection;
+    }
+    const mid: IAutoMovieQuaternion = Quaternion.multiply(
+      above,
+      lowerRotationResult,
     );
     const local: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
@@ -223,9 +228,20 @@ export function fitHingedRotationError(
         Quaternion.multiply(Quaternion.inverse(mid), rotation),
       ),
     );
+    // The selected distal score already projected this exact demand. The
+    // actual clamped lower joint is recomposed; reuse only component equality,
+    // since it may differ from the raw articulation used by a score.
+    const selected: IAutoMovieQuaternion =
+      projected !== undefined &&
+      Object.is(projected.local.x, local.x) &&
+      Object.is(projected.local.y, local.y) &&
+      Object.is(projected.local.z, local.z) &&
+      Object.is(projected.local.w, local.w)
+        ? projected.quaternion
+        : project.withQuaternion(local).quaternion;
     const shown: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(mid, rest),
-      project.withQuaternion(local).quaternion,
+      selected,
     );
     return (
       (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI

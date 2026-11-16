@@ -253,6 +253,7 @@ export namespace lieDown {
         : { pitch: entered.pitch, roll: entered.roll, joints: entered.joints },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
     ];
+    const blend: ((weight: number) => IHumanPosture["joints"])[] = keys.slice(1).map((key: IPose, i: number): (weight: number) => IHumanPosture["joints"] => floorEntry.jointBlend(keys[i]!.joints, key.joints));
     const phases: AutoMovieMotionClock.IPhase[] = [
       { name: "getDown", seconds: PHASE },
       ...route
@@ -293,23 +294,7 @@ export namespace lieDown {
       if (arrived && held !== undefined) return held;
       const a: IPose = keys[index]!;
       const b: IPose = keys[index + 1]!;
-      const joints: AutoMovieMotionHumanJoints.Angles = {};
-      for (const bone of new Set([
-        ...Object.keys(a.joints),
-        ...Object.keys(b.joints),
-      ]) as Set<keyof AutoMovieMotionHumanJoints.Angles>) {
-        const p: readonly [number, number, number] = a.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        const q: readonly [number, number, number] = b.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          p[0] + (q[0] - p[0]) * u,
-          p[1] + (q[1] - p[1]) * u,
-          p[2] + (q[2] - p[2]) * u,
-        ];
-      }
+      const joints: AutoMovieMotionHumanJoints.Angles = blend[index]!(u);
       const posed: IHumanPosture = {
         root: { x: 0, y: 0, z: 0 },
         yaw: standing.yaw,

@@ -96,6 +96,7 @@ export namespace HumanPerformanceAim {
             self,
             target.subject,
             seconds - HumanPerception.REACTION,
+            new Set([region.bone]),
           ).get(region.bone)!,
         );
         return { point: placed.point, normal: placed.normal };
@@ -107,7 +108,7 @@ export namespace HumanPerformanceAim {
           typeof resolveAutoMovieHumanoidSurfaces.place
         > = resolveAutoMovieHumanoidSurfaces.place(
           region,
-          frame.bones().get(region.bone)!,
+          frame.bones(new Set([region.bone])).get(region.bone)!,
         );
         return { point: placed.point, normal: placed.normal };
       }
@@ -291,7 +292,9 @@ export namespace HumanPerformanceAim {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature shares no work; producers declare their exact evaluation scope and cached dependencies.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates no state or handle; a frame borrows the supplied callback and its producer controls captured state and the returned map's ownership.
      */
-    bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    bones: (
+      requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** Their subject id. */
     subject?: string;

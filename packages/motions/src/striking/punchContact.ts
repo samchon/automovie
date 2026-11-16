@@ -1,10 +1,7 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
-  resolvePose,
   type superposeMinimumJerk,
 } from "@automovie/engine";
 import type {
@@ -18,6 +15,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
@@ -143,12 +141,12 @@ export namespace punchContact {
      * the step, the wrist at contact and the elbow's hint.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument and what each returned correction carries.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature has no numerical body; punchContact.solve produces the actual correction law and documents its method.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature delegates structure to solve's owned tracker/reach/correction closure rather than a caller-supplied implementation.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration introduces no numerical policy; solve documents the actual reach/refusal rules used by its produced function.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature runs no algorithm; solve's implementation answer owns tracker-unit, reach, room and returned-correction costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature stores no work; solve owns its launch reach, per-arrival reach reuse and actual correction formation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This type holds no runtime state; solve documents its produced closure's context, tracker, bone map, room and reach lifetime.
      */
     corrected(seconds: number): readonly punchReach.ICorrection[];
   }
@@ -165,7 +163,7 @@ export namespace punchContact {
    * @evidence contracts/development/implementation.md#principled-implementation The wrist goal is the tracked fist point less the hand-rotated socket, the step-in closes the line to the band's mid reach, and the two-segment reach solves the arm within the technique's flexion band.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the turned and lowered shoulder, the fist, the tracking, then the step-in and the arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no place on the line brings within the band is not stepped toward; a feint does not step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and J pose joints, trunk and entry FK plus clamp metadata cost O(B+J), plus existing per-joint numerical projection and optional HumanDigitFit search; each tracker correction adds a bounded reach calculation, while room scans retain StrikingRoom's existing cost.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Trunk/entry FK and clamp metadata remain O(B+J), plus actual joint/digit work; each canonical Map removes B entry tuples and their array. After the tracker-unit query, K arrived units form K fresh corrections, with bounded reach work only for new arrivals and the existing lazy room scan. Runtime speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's topology for its same unchanged skeleton while resolving trunk and entry transforms afresh; each arrival's reach is also kept in reaches for this geometry, indexed by the tracker's ordered corrections.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned correction closure holds its context, tracker, entry bone map, room result, one launch reach and at most one reach per tracker correction; this operation-local state is released with the geometry, without a global cache or resource handle.
    */
@@ -272,7 +270,7 @@ export namespace punchContact {
       ...(p.accuracy === undefined ? {} : { accuracy: p.accuracy }),
       direction,
       radius: StrikingQuality.fist(m.hand),
-      distance: Vector3.length(Vector3.subtract(first, lowered)),
+      distance: Vector3.distance(first, lowered),
       seconds: delivery,
     });
     const tracker: StrikingAim.ITracker = StrikingAim.track(
@@ -311,19 +309,8 @@ export namespace punchContact {
     const carried: number = punchFootwork.carried(timing);
 
     // The arms at the launch, read from the displayed entry pose.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        context.entry.pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-        body.topology,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(body, context.entry.pose);
 
     // The punch returns to the guard where the step ends, so the step never
     // closes past the room in front of the arms ({@link StrikingRoom}). A

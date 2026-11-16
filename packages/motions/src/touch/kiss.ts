@@ -25,6 +25,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -155,8 +156,8 @@ export namespace kiss {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One miss function, a sagittal grid and two line searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The miss is returned, never hidden; the ranges are the lean's, the neck's and the ankle's working ranges (provisional).
    * @evidence contracts/development/implementation.md#efficient-algorithms At most four sagittal grids of 273 forward-kinematics passes and two line searches at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.pivot`, `AutoMovieMotionHumanRise.lift`, the head share and `HumanTrunk.region`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, rise, head-share and trunk-region owners; one exact FK reader shares equal scalar prerequisites across this synchronous grid while every candidate and mouth distance is evaluated normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grid owns one lazy FK reader until solve returns or throws; only selected angles and miss escape, with no posture, FK reader or candidate history retained.
    */
   export function solve(
     context: Pick<IHumanActionContext, "body">,
@@ -167,7 +168,9 @@ export namespace kiss {
     seated: boolean = false,
     behind: number = 0,
   ): ISolved {
-    const body = context.body;
+    const body: IHumanActionContext["body"] = context.body;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const miss = (s: Omit<ISolved, "miss">): number =>
       Vector3.length(
         Vector3.subtract(
@@ -175,6 +178,7 @@ export namespace kiss {
             body,
             posed(body, entry, stance, s, twist, behind),
             "mouth",
+            resolution,
           ).point,
           at,
         ),

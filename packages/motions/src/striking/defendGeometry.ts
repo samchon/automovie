@@ -112,6 +112,7 @@ export namespace defendGeometry {
     const body = context.body;
     const m = body.measure;
     const entry: IHumanPosture = context.entry.posture;
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
@@ -213,32 +214,22 @@ export namespace defendGeometry {
     // The stance legs, with the checking leg's foot leaving the floor.
     const checking: "left" | "right" | undefined =
       p.kind === "check" ? attackedSide : undefined;
+    const support: IAutoMovieVector3 | undefined = checking === undefined
+      ? undefined : feet[checking === "left" ? "right" : "left"].ankle;
+    const over: IAutoMovieVector3 = support === undefined ? { x: 0, y: 0, z: 0 }
+      : Vector3.scale({ x: support.x - entry.root.x, y: 0, z: support.z - entry.root.z }, 0.6);
+    const movement: IAutoMovieVector3 = Vector3.add(shift, over);
     const base = (t: number): IHumanPosture => {
       const k: number = w(t);
-      const support: IAutoMovieVector3 | undefined =
-        checking === undefined
-          ? undefined
-          : feet[checking === "left" ? "right" : "left"].ankle;
-      const over: IAutoMovieVector3 =
-        support === undefined
-          ? { x: 0, y: 0, z: 0 }
-          : Vector3.scale(
-              {
-                x: support.x - entry.root.x,
-                y: 0,
-                z: support.z - entry.root.z,
-              },
-              0.6,
-            );
       return {
         root: Vector3.add(
           entry.root,
-          Vector3.scale(Vector3.add(shift, over), k),
+          Vector3.scale(movement, k),
         ),
         yaw: entry.yaw,
         pitch: entry.pitch + pitch * k,
         roll: entry.roll + roll * k,
-        joints: { ...entry.joints, ...StrikingStance.joints() },
+        joints: { ...joints },
         limbs: StrikingStance.legs(body, feet, {
           left: checking !== "left",
           right: checking !== "right",
@@ -250,7 +241,12 @@ export namespace defendGeometry {
       posture: (t: number): IHumanPosture => {
         const k: number = w(t);
         const posture: IHumanPosture = base(t);
-        const guard = StrikingStance.guard(body, posture, { lead });
+        const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
+          body,
+          posture,
+        );
+        const guard: ReturnType<typeof StrikingStance.guard> =
+          StrikingStance.guard(body, posture, { lead }, {}, bones);
 
         // Arms and the checking leg as goals on the defender's own body.
         const target: Partial<IHumanPosture["limbs"]> = defendGoals.at({
@@ -260,6 +256,7 @@ export namespace defendGeometry {
           region: timing.region,
           aimed,
           sight,
+          bones,
         });
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs, ...guard };
         for (const limb of [

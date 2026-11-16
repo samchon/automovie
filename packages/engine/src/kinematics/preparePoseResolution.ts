@@ -35,7 +35,7 @@ interface IReader {
 /** A successful authored conversion, isolated from later input edits. */
 interface IJointReading {
   /** Clinical values and each axis frame's sign/neutral, including absent values. */
-  values: readonly (number | null | undefined)[];
+  values: (number | null | undefined)[];
 
   /** A supplied flexion entry differs from absence even when it lacks valid scalar fields. */
   flexionFrame: boolean;
@@ -56,7 +56,7 @@ interface IJointReading {
 /** Last resolved dependency tuple and private result scalars for one rig bone. */
 interface IBoneReading {
   /** Eighteen rest/articulation/parent scalars, followed by local quaternion, world position and world quaternion. */
-  values: readonly number[];
+  values: number[];
 }
 
 /**
@@ -71,9 +71,9 @@ interface IBoneReading {
  * @evidence contracts/development/implementation.md#principled-implementation A bone's joint conversion is determined by its actual clinical values, normalized basis and affine clinical frames, including a cloned record with identical values. World-frame reuse requires identical rest, articulation and parent-frame scalars, so changed ancestors propagate through the original parent-first recurrence and resolvePoseBone keeps its arithmetic grouping.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure resolvePose owns ordered admission and tree traversal, resolvePoseBone owns one physical composition, and this reader alone owns the operation's successful dependency snapshots.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact scalar and frame-presence checks distinguish absent mappings from malformed empty/null entries. Axes retain undefined-only defaults and failed conversions are not stored. Every overwritten record is visited, missing articulation remains identity, and malformed transform records reach the original FK owner rather than fail inside a cache key; no target, search or callback is cached.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each visited joint or bone compares a fixed-size tuple. Unchanged joints avoid three axis-angle compositions and two products; unchanged bones avoid two products, a vector rotation and an addition. Full scans, fresh outputs and miss-side private snapshot allocation remain; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each visited joint or bone compares a fixed-size tuple. Unchanged joints avoid three axis-angle compositions and two products; unchanged bones avoid two products, a vector rotation and an addition. Full scans and fresh outputs remain, while each name's private snapshot row is allocated once and updated after successful computation. Runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only completed same-valued dependencies are shared across distinct full poses, including newly cloned mirror or layer records. Scalar snapshots detect joint/frame/root/rest edits; changed duplicate joint values miss normally, and private result scalars isolate later reads from output mutation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One last successful joint dependency/result and one last world-frame dependency/result per bone name belong to this synchronous reader, O(B) for visited identities. No joint or pose record, result history, global collection, resource handle or task is held; cloned records do not add entries.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One last successful joint tuple per distinct authored name and one last world tuple per resolved bone belong to this synchronous reader: O(U+B) for those two populations. No joint or pose record, result history, global collection, handle or task is held; cloned records add no entries.
  */
 export function preparePoseResolution(): IReader {
   const joints: Map<AutoMovieHumanoidBone, IJointReading> = new Map();
@@ -111,24 +111,14 @@ export function preparePoseResolution(): IReader {
         basis,
         frame,
       );
-      joints.set(joint.bone, {
+      const reading: IJointReading = rememberJoint(
+        known,
+        joint,
         basis,
-        rotation: { ...rotation },
-        flexionFrame: frame?.flexion !== undefined,
-        abductionFrame: frame?.abduction !== undefined,
-        twistFrame: frame?.twist !== undefined,
-        values: [
-          joint.flexion,
-          joint.abduction,
-          joint.twist,
-          frame?.flexion?.sign,
-          frame?.flexion?.neutral,
-          frame?.abduction?.sign,
-          frame?.abduction?.neutral,
-          frame?.twist?.sign,
-          frame?.twist?.neutral,
-        ],
-      });
+        frame,
+        rotation,
+      );
+      if (known === undefined) joints.set(joint.bone, reading);
       return rotation;
     },
     bone: (
@@ -155,42 +145,133 @@ export function preparePoseResolution(): IReader {
         parentPosition,
         articulation,
       );
-      bones.set(bone.bone, {
-        values: [
-          bone.rest.rotation.x,
-          bone.rest.rotation.y,
-          bone.rest.rotation.z,
-          bone.rest.rotation.w,
-          bone.rest.translation.x,
-          bone.rest.translation.y,
-          bone.rest.translation.z,
-          articulation.x,
-          articulation.y,
-          articulation.z,
-          articulation.w,
-          parentRotation.x,
-          parentRotation.y,
-          parentRotation.z,
-          parentRotation.w,
-          parentPosition.x,
-          parentPosition.y,
-          parentPosition.z,
-          resolved.localRotation.x,
-          resolved.localRotation.y,
-          resolved.localRotation.z,
-          resolved.localRotation.w,
-          resolved.worldPosition.x,
-          resolved.worldPosition.y,
-          resolved.worldPosition.z,
-          resolved.worldRotation.x,
-          resolved.worldRotation.y,
-          resolved.worldRotation.z,
-          resolved.worldRotation.w,
-        ],
-      });
+      const reading: IBoneReading = rememberBone(
+        known,
+        bone,
+        parentRotation,
+        parentPosition,
+        articulation,
+        resolved,
+      );
+      if (known === undefined) bones.set(bone.bone, reading);
       return resolved;
     },
   };
+}
+
+/** Snapshot all caller-owned dependencies before committing to a successful private row. */
+function rememberJoint(
+  known: IJointReading | undefined,
+  joint: IAutoMovieJointPose,
+  basis: IAutoMovieJointAxes,
+  frame: IAutoMovieRestFrame | undefined,
+  rotation: IAutoMovieQuaternion,
+): IJointReading {
+  const flexionFrame: boolean = frame?.flexion !== undefined;
+  const abductionFrame: boolean = frame?.abduction !== undefined;
+  const twistFrame: boolean = frame?.twist !== undefined;
+  const flexion: number | null = joint.flexion;
+  const abduction: number | null = joint.abduction;
+  const twist: number | null = joint.twist;
+  const flexionSign: number | undefined = frame?.flexion?.sign;
+  const flexionNeutral: number | undefined = frame?.flexion?.neutral;
+  const abductionSign: number | undefined = frame?.abduction?.sign;
+  const abductionNeutral: number | undefined = frame?.abduction?.neutral;
+  const twistSign: number | undefined = frame?.twist?.sign;
+  const twistNeutral: number | undefined = frame?.twist?.neutral;
+
+  // No caller-owned read follows this commit, so a failed snapshot cannot
+  // leave a partially changed key beside the previous successful result.
+  const reading: IJointReading = known ?? {
+    values: [],
+    flexionFrame,
+    abductionFrame,
+    twistFrame,
+    basis,
+    rotation: { ...rotation },
+  };
+  reading.basis = basis;
+  reading.flexionFrame = flexionFrame;
+  reading.abductionFrame = abductionFrame;
+  reading.twistFrame = twistFrame;
+  reading.values[0] = flexion;
+  reading.values[1] = abduction;
+  reading.values[2] = twist;
+  reading.values[3] = flexionSign;
+  reading.values[4] = flexionNeutral;
+  reading.values[5] = abductionSign;
+  reading.values[6] = abductionNeutral;
+  reading.values[7] = twistSign;
+  reading.values[8] = twistNeutral;
+  reading.rotation.x = rotation.x;
+  reading.rotation.y = rotation.y;
+  reading.rotation.z = rotation.z;
+  reading.rotation.w = rotation.w;
+  return reading;
+}
+
+/** Keep one scalar row per bone; a failing input read leaves the previous successful row intact. */
+function rememberBone(
+  known: IBoneReading | undefined,
+  bone: IAutoMovieBone,
+  parentRotation: IAutoMovieQuaternion,
+  parentPosition: IAutoMovieVector3,
+  articulation: IAutoMovieQuaternion,
+  resolved: IAutoMovieResolvedBone,
+): IBoneReading {
+  const restX: number = bone.rest.rotation.x;
+  const restY: number = bone.rest.rotation.y;
+  const restZ: number = bone.rest.rotation.z;
+  const restW: number = bone.rest.rotation.w;
+  const offsetX: number = bone.rest.translation.x;
+  const offsetY: number = bone.rest.translation.y;
+  const offsetZ: number = bone.rest.translation.z;
+  const jointX: number = articulation.x;
+  const jointY: number = articulation.y;
+  const jointZ: number = articulation.z;
+  const jointW: number = articulation.w;
+  const parentX: number = parentRotation.x;
+  const parentY: number = parentRotation.y;
+  const parentZ: number = parentRotation.z;
+  const parentW: number = parentRotation.w;
+  const positionX: number = parentPosition.x;
+  const positionY: number = parentPosition.y;
+  const positionZ: number = parentPosition.z;
+
+  // The completed resolvePoseBone output is fresh plain data. Read mutable
+  // input dependencies completely before overwriting this private scalar row.
+  const reading: IBoneReading = known ?? { values: [] };
+  const values: number[] = reading.values;
+  values[0] = restX;
+  values[1] = restY;
+  values[2] = restZ;
+  values[3] = restW;
+  values[4] = offsetX;
+  values[5] = offsetY;
+  values[6] = offsetZ;
+  values[7] = jointX;
+  values[8] = jointY;
+  values[9] = jointZ;
+  values[10] = jointW;
+  values[11] = parentX;
+  values[12] = parentY;
+  values[13] = parentZ;
+  values[14] = parentW;
+  values[15] = positionX;
+  values[16] = positionY;
+  values[17] = positionZ;
+  values[18] = resolved.localRotation.x;
+  values[19] = resolved.localRotation.y;
+  values[20] = resolved.localRotation.z;
+  values[21] = resolved.localRotation.w;
+  values[22] = resolved.worldPosition.x;
+  values[23] = resolved.worldPosition.y;
+  values[24] = resolved.worldPosition.z;
+  values[25] = resolved.worldRotation.x;
+  values[26] = resolved.worldRotation.y;
+  values[27] = resolved.worldRotation.z;
+  values[28] = resolved.worldRotation.w;
+  return reading;
 }
 
 /** Match actual FK inputs, including signed zero, without trusting mutable object identity. */
@@ -201,7 +282,7 @@ function sameBone(
   parentPosition: IAutoMovieVector3,
   articulation: IAutoMovieQuaternion,
 ): boolean {
-  // A malformed record must reach the original FK owner, whose operation
+  // A non-record transform must reach the original FK owner, whose operation
   // order determines which missing field fails first, rather than this key.
   const rest: unknown = bone.rest;
   if (typeof rest !== "object" || rest === null) return false;

@@ -48,6 +48,16 @@ export namespace walkLeg {
       { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
       { x: 0, y: 0, z: 1 },
     );
+    return leanAlong(body, hip, ankle, forward);
+  }
+
+  /** Read the same knee geometry on a fixed heading's prepared forward axis. */
+  function leanAlong(
+    body: IHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    forward: IAutoMovieVector3,
+  ): number {
     const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
     const d: number = Vector3.length(v);
     const a: number = body.measure.thigh;
@@ -202,6 +212,14 @@ export namespace walkLeg {
    * @param width The room, degrees, under which the heel begins to rise; zero
    *   keeps the asked pitch until the limit itself.
    * @returns The pitch, no higher than the asked one.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States rocker contact, world frame, angular inputs and returned pitch bound.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses rise's unchanged folded-room search and the same two-bone shank geometry, with a fixed sole pivot and forward heading prepared outside pitch trials.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The prepared rigid pivot supplies each trial ankle and roomAt owns the same reach and dorsal-room rule used by room.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every search step, tolerance, room formula and range; only fixed socket and heading work is shared.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The unchanged bounded rise search evaluates constant-size leg geometry per pitch; fixed socket lookup and yaw quaternion construction run once per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hip, body, heading and world contact stay fixed throughout this synchronous rocker search and define its shared preparation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no state beyond the synchronous search.
    */
   export function heelRise(
     body: IHumanBody,
@@ -212,9 +230,45 @@ export namespace walkLeg {
     pitch: number,
     width: number,
   ): number {
-    return rise(
-      (degrees: number): number =>
-        room(body, side, hip, pivot, heading, degrees),
+    return prepareHeelRise(body, side, pivot, heading, width)(hip, pitch);
+  }
+
+  /**
+   * Prepare one fixed sole contact's rocker search for varying hips and pitches.
+   *
+   * @param body The body's fixed segment lengths and foot socket.
+   * @param side The foot.
+   * @param pivot The fixed toe-joint contact, world metres.
+   * @param heading The fixed foot heading, degrees.
+   * @param width The fixed dorsal-room onset, degrees.
+   * @returns The original heel-rise rule for a world-space hip and asked pitch.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each fixed input, its unit and the varying hip/pitch reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains rise's exact folded-room search and roomAt's reach/dorsal bounds while sharing only its fixed sole pivot and forward direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared pivot and heading precede the unchanged scalar search for each hip and pitch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every room trial and search bound remains; no hip, pitch or chosen result is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation followed by the original bounded pitch search; callers varying the hip avoid repeating socket and fixed-heading setup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, side, world pivot, heading and onset width fix the shared geometry; changing any requires another reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A reader retains its fixed pivot transform and axis until its owning stance solve releases it, with no query history.
+   */
+  export function prepareHeelRise(
+    body: IHumanBody,
+    side: "left" | "right",
+    pivot: IAutoMovieVector3,
+    heading: number,
+    width: number,
+  ): (hip: IAutoMovieVector3, pitch: number) => number {
+    const at: (degrees: number) => HumanFoot.IPlacement =
+      HumanFoot.preparePivot(body, side, "mtp", pivot, heading);
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
+      { x: 0, y: 0, z: 1 },
+    );
+    return (hip: IAutoMovieVector3, pitch: number): number => rise(
+      (degrees: number): number => {
+        const ankle: IAutoMovieVector3 = at(degrees).ankle;
+        return roomAt(body, hip, ankle, forward, degrees);
+      },
       pitch,
       width,
     );
@@ -248,12 +302,27 @@ export namespace walkLeg {
       heading,
       pitch,
     ).ankle;
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
+      { x: 0, y: 0, z: 1 },
+    );
+    return roomAt(body, hip, ankle, forward, pitch);
+  }
+
+  /** The common dorsal-room rule, after fixed-heading and sole-pivot preparation. */
+  function roomAt(
+    body: IHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    forward: IAutoMovieVector3,
+    pitch: number,
+  ): number {
     if (
       Vector3.length(Vector3.subtract(ankle, hip)) >
       body.measure.thigh + body.measure.shank
     )
       return -Infinity;
-    return -lean(body, hip, ankle, heading) + 20 - ANKLE - pitch;
+    return -leanAlong(body, hip, ankle, forward) + 20 - ANKLE - pitch;
   }
 
   /**
@@ -331,7 +400,7 @@ export namespace walkLeg {
     let far: number = -STEEPEST;
     let near: number = pitch;
     if (folds) {
-      let before: number = room(pitch);
+      let before: number = asked;
       for (let at: number = pitch - SCAN; at > -STEEPEST; at -= SCAN) {
         const value: number = room(at);
         // Pitches the leg cannot stand on lie before the dip, not in it.

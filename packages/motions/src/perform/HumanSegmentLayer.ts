@@ -4,8 +4,10 @@ import type { IAutoMovieMotionEvent } from "@automovie/interface";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import type { HumanSegment } from "./HumanSegment";
+import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**
  * The ordered additive layers of one person's posture at a film second.
@@ -31,9 +33,9 @@ export namespace HumanSegmentLayer {
    * @evidence contracts/development/implementation.md#principled-implementation Each active window scales its layer's additive contribution by the same minimum-jerk edge ramp and mixHumanPosture; a layer's draw streams remain keyed by performer, layer name and channel.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Return immediately for an empty layer list; otherwise one action reader and one ordered reduction keep context construction with the layer that consumes it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Applies every active layer with its actual preceding posture and original window weight; random streams, action records and event arrays are not memoized or shared between queries.
-   * @evidence contracts/development/implementation.md#efficient-algorithms An empty list costs a length read and no context closure. For L layers, scan L windows and pay each active apply and posture mix; each action query separately scans S placed segments and maps its E events in O(S+E) time and O(E) output space.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses mixHumanPosture and HumanSkill.stream without caching mutable streams or action-query results; distinct under-postures and times pass through their own layer applications.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only reduction-local contexts and postures; no cache survives the call. An empty layer list returns the borrowed input posture unchanged. A caller-retained context callback retains its existing person/second references and reads current state, without a retained evaluation map or external handle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An empty list costs a length read and no context closure. For L layers, scan L windows and pay each active apply and posture mix; each action query reads R entries backward to its last match, at most S placed segments, and maps its E events in O(R+E) time and O(E) output space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each layer still applies to its actual preceding posture at its actual second. rebased transfers only an already issued source's provenance across the raw mix; the downstream resolver alone may reuse an exact dependency-validated free leg after ordinary joint admission and clamp. Random streams and action results are not memoized.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Reduction contexts end with the call and no layer result map is retained. The resolver weakly associates source provenance only with the returned raw posture's lifetime. An empty layer list returns its borrowed input; a caller-retained action callback reads current person state without retaining an evaluation map or handle.
    */
   export function apply(
     person: HumanSegment.IPerson,
@@ -47,9 +49,8 @@ export namespace HumanSegmentLayer {
     const action: () => IHumanLayer.IAction | undefined = ():
       | IHumanLayer.IAction
       | undefined => {
-      let active: HumanSegment.ISegment | undefined;
-      for (const segment of person.segments)
-        if (segment.entryTime <= seconds + 1e-12) active = segment;
+      const active: HumanSegment.ISegment | undefined =
+        HumanSegmentSelection.last(person.segments, seconds);
       return active === undefined
         ? undefined
         : {
@@ -76,7 +77,7 @@ export namespace HumanSegmentLayer {
         const edge: number = Math.min(seconds - from, to - seconds);
         if (!(edge > 0)) return current;
         const weight: number = edge >= fade ? 1 : minimumJerk(edge / fade).s;
-        return mixHumanPosture(
+        return resolveHumanPosture.rebased(current, mixHumanPosture(
           current,
           layer.apply(current, seconds, {
             ...person.layer,
@@ -91,7 +92,7 @@ export namespace HumanSegmentLayer {
               ),
           }),
           weight,
-        );
+        ));
       },
       posture,
     );

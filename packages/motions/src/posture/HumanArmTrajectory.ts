@@ -33,12 +33,31 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * incomplete where their paths are coupled (Erdmann and Lozano-Pérez 1987,
  * Algorithmica 2:477). A problem whose first arm is the left is solved as its mirror image, the arms on the other side, so mirrored scenes give mirrored paths. A
  * problem still infeasible at the last penalty is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the joint-space trajectory, penalty solve, seed/refinement, paired-arm constraints, mirror convention and refusal; solve documents the returned reader's narrower lifetime.
+ * @evidence contracts/development/design.md#principled-representation One problem owns the fixed rig, sampled bases/sites and joint-space variables during optimisation; playback needs only the existing setup list, final times and solved coordinates.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The site alias, arm/problem inputs, trajectory callback and solve serve ArmPlanned; the module-private playback factory exposes no optimiser or cache API.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the existing constraints, mirror rules, actual optimisation and refinement grid; no sample, tolerance, pose history or alternative solver is substituted.
  */
 export namespace HumanArmTrajectory {
-  /** The hand on its site at a hold waypoint (`M.ISite`). */
+  /**
+   * The hand on its site at a hold waypoint (`M.ISite`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the existing model-owned site and its hold-waypoint role.
+   * @evidence contracts/development/design.md#principled-representation Reuses the model's point, orientation and contact declaration instead of duplicating them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmPlanned produces these sites and the trajectory context/model consume them.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no validation, sampled replacement or broader contact guarantee.
+   */
   export type ISite = M.ISite;
 
-  /** One arm's task. */
+  /**
+   * One arm's task.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States side, first/last rest, waypoint sites, optional IK guess, declared rests and paired grasp.
+   * @evidence contracts/development/design.md#principled-representation Keeps one arm's fixed endpoint/contact data beside the existing joint-space rest representation; site order matches the problem times.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The context, seed and model read these fields; no per-query answer or solver history is part of an arm request.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing sites express no hold constraint and absent back reuses rest; no synthetic rig, repaired range or alternate branch is encoded.
+   */
   export interface IArm {
     /** The arm. */
     side: "left" | "right";
@@ -56,7 +75,14 @@ export namespace HumanArmTrajectory {
     grasp?: readonly M.Segment[];
   }
 
-  /** The problem. */
+  /**
+   * One unchanged body and one or two arms on ordered waypoint times.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the shared body, ordered seconds, corresponding bases and arm sites, and the action-progress callback.
+   * @evidence contracts/development/design.md#principled-representation Time-aligned bases/sites and joint variables let the model judge the same composed body and paired contacts at each waypoint.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmPlanned builds these inputs for solve, context, model and seed; the returned trajectory contains neither this problem nor its producer callback.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Matching arrays, stable dependencies and the original model's admissibility are caller/solver premises; this record does not certify reach, clearance or a global optimum.
+   */
   export interface IProblem {
     /** The body. */
     body: IHumanBody;
@@ -66,11 +92,28 @@ export namespace HumanArmTrajectory {
     bases: readonly G.IBase[];
     /** The arms, one or two. */
     arms: readonly IArm[];
-    /** The share of the reach made at a second of the reach, and of the return left at a second of the return: 0 at rest, 1 on the hold. */
+    /**
+     * The share of the reach made at a second of the reach, and of the return left at a second of the return: 0 at rest, 1 on the hold.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Names action seconds, the rest/hold endpoints and the caller-provided progress curve that HumanArmSeed reads for its reach/return paths and waypoint seed coordinates.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable field declares the timing input; the caller's clock owns its actual curve and HumanArmSeed owns its use in seed construction.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature has no body; the problem passes this timing callback to HumanArmSeed instead of defining another clock.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The declaration executes no interpolation or repair; the supplied callback must retain the action's timing semantics.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature does no work; callback cost belongs to the provided clock and the actual path/waypoint queries made by HumanArmSeed.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no evaluation; HumanArmSeed reads the supplied progress at its existing call sites, and playback uses solved coordinates instead.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing; the problem and seed builder borrow the callback during solve, and the playback factory receives no callback.
+     */
     share: (seconds: number) => number;
   }
 
-  /** An arm at any second of the span. */
+  /**
+   * An arm at any second of the solved span.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Declares action seconds and the existing clinical arm result returned by setup conversion of interpolated coordinates.
+   * @evidence contracts/development/design.md#principled-representation A time reader preserves random-order playback through the same Hermite trajectory instead of storing displayed poses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface ArmCarry stores this callback and reads its arm; no optimiser/context getter is exposed.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no endpoint clamping, interpolation policy or validation; the solve-produced reader retains the existing numerical owners.
+   */
   export type Trajectory = (seconds: number) => HumanArmClearance.IArm;
 
   /**
@@ -87,6 +130,14 @@ export namespace HumanArmTrajectory {
    * @param times The first waypoints' seconds, ascending.
    * @returns Each arm's trajectory, in the problem's order.
    * @throws {HumanRefusal} When no trajectory meets the constraints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States seed/solution refinement, ordered action seconds, original paired-arm/mirror solve and refusal; playback borrows the final setup/time/coordinate data through a separate factory.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing seed, penalty optimiser and continuous-check refinement, then reads the selected coordinates through the same Hermite interpolation and arm conversion.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Planning stays in this builder; a module-private factory creates each returned reader from the original setup list, final times, solved coordinates and arm index, outside the builder's lexical environment.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every grid instant, split, optimiser call, acceptance/refusal and playback expression; no cloning, freezing, weakened constraint or sampled pose shortcut changes input ownership.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Builds the original duration-scaled fine grid and waypoint contexts, retaining all actual optimisation/refinement work and its peak populations. Playback still performs one Hermite query and one arm conversion; the factory adds one fixed-size call per arm, with no measured time or heap-byte claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing continued contexts reuse matching waypoint records during planning. Playback borrows the same setup/time/coordinate references and keeps its original late arm-index lookups; each requested second still computes its actual arm.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers explicitly retain only the setup list, final times, coordinate arrays and their arm index; setups still borrow the body and rig metadata. The problem/read/refinement callbacks, fine context and time/goal/waypoint maps are not passed to the playback factory. This is an explicit ownership boundary, not a measured heap reduction or a bound on the optimiser's peak populations.
    */
   export function solve(
     read: (times: readonly number[]) => IProblem,
@@ -198,9 +249,7 @@ export namespace HumanArmTrajectory {
       });
     const setups: G.ISetup[] = context.setups;
     return problem.arms.map(
-      (_: IArm, a: number): Trajectory =>
-        (seconds: number): HumanArmClearance.IArm =>
-          G.arm(setups[a]!, HumanArmRefine.hermite(at, x[a]!, seconds)),
+      (_: IArm, a: number): Trajectory => trajectory(setups, at, x, a),
     );
   }
 
@@ -331,6 +380,17 @@ export namespace HumanArmTrajectory {
           }),
     };
   }
+}
+
+/** Own only the original playback inputs, without the solve builder's problem/read/context environment. */
+function trajectory(
+  setups: readonly G.ISetup[],
+  times: readonly number[],
+  coordinates: readonly (readonly (readonly number[])[])[],
+  arm: number,
+): HumanArmTrajectory.Trajectory {
+  return (seconds: number): HumanArmClearance.IArm =>
+    G.arm(setups[arm]!, HumanArmRefine.hermite(times, coordinates[arm]!, seconds));
 }
 
 /** The frame grid, seconds: the instants between waypoints are read at. */

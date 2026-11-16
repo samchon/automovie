@@ -1,11 +1,14 @@
 import { physicalShapeBounds } from "@automovie/engine";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
@@ -67,8 +70,8 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#principled-implementation The height is read by forward kinematics of the key itself, feet and toes included, so the foot stood on its toes raises the ankles as it does on the body; the first pass measured 0.2 m of error from treating the body as a line from the ankles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 10 degrees (nearly upright, the hands on something high) and 150 (the head lower than the feet, the feet on something high); a height outside what that range gives ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of the unchanged twenty pitch trials resolves one requested shoulder/toe bone map instead of separate full maps for the two means.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read the same exact posture's completed map within that trial; trials and their clamps remain independent.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pitched(
@@ -76,11 +79,13 @@ export namespace WorkoutFloor {
     height: number,
     key: (pitch: number) => ExerciseKey.IKey,
   ): ExerciseKey.IKey {
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const above = (pitch: number): number => {
       const posed: IHumanPosture = ExerciseKey.posed(key(pitch), 0);
+      const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, posed, prepared, PITCHED);
       return (
-        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"]).y -
-        ExerciseKey.mean(body, posed, ["leftToes", "rightToes"]).y
+        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"], bones).y -
+        ExerciseKey.mean(body, posed, ["leftToes", "rightToes"], bones).y
       );
     };
     let steep: number = 10;
@@ -92,6 +97,9 @@ export namespace WorkoutFloor {
     }
     return key((steep + level) / 2);
   }
+
+  /** Only shoulder and toe positions determine the pitch residual. */
+  const PITCHED: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftToes", "rightToes"]);
 
   /**
    * The key of a family of keys by roll that rests on its side on two
@@ -108,8 +116,8 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#principled-implementation A body on two supports rests on both, so the roll is the one that puts both on the floor, read by forward kinematics of the key on the body's own colliders, the reading the floor audit makes; a straight line from the feet to the shoulder, as `plank` models a prone support, leaves the forearm's thickness and the hand's place out.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The unchanged twenty trials request only bearing and foot bones for a stateless selector, so only their colliders receive frames and bounds; stateful regular expressions retain the full original traversal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A stateless selector's fixed demanded-bone set is prepared once, while every trial retains canonical posture resolution and fresh collider measurements.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rolled(
@@ -117,6 +125,8 @@ export namespace WorkoutFloor {
     on: RegExp,
     key: (roll: number) => ExerciseKey.IKey,
   ): ExerciseKey.IKey {
+    const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined = on.global || on.sticky ? undefined : new Set([...body.rest.keys()].filter((bone: AutoMovieHumanoidBone): boolean => on.test(bone) || /(Foot|Toes)$/.test(bone)));
     // How far the bearing bones' lowest point lies above the feet's.
     const above = (roll: number): number => {
       const posed: IHumanPosture = ExerciseKey.posed(key(roll), 0);
@@ -124,7 +134,7 @@ export namespace WorkoutFloor {
       let feet: number = Infinity;
       for (const segment of HumanColliders.placed(
         body,
-        poseBones(body, resolveHumanPosture(body, posed)),
+        poseBones(body, resolveHumanPosture.seeded(body, posed, undefined, undefined, prepared).pose, prepared(), requested),
       ))
         for (const shape of segment.shapes) {
           const low: number = physicalShapeBounds(segment.pose, shape).min.y;

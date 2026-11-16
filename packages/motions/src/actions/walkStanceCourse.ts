@@ -73,6 +73,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * with flat feet. Each leg is read as the posture poses it at the ankle the
  * course places, so the course's knees are the shown ones; a leg that cannot
  * reach its ankle stands on its reachable shell toward it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines course variables, clocks, physical residuals/constraints, their units and published or provisional constants.
+ * @evidence contracts/development/design.md#principled-representation Knots express world goals and trunk-dependent pelvis geometry, solved course arrays retain their declared physical units and each constraint has a degree-scaled evaluation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The stance model, solver and stagger consumers share these existing knot, problem, course and reading records plus one interpolation operation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Body dimensions, schedules and goals enter as data; parallel array lengths, evenly spaced nonempty knots and finite values remain owning-problem premises.
  */
 export namespace walkStanceCourse {
   /** The heel-off angle of the ankle's dorsiflexion, degrees (Kadaba et al. 1990). */
@@ -107,7 +112,14 @@ export namespace walkStanceCourse {
   /** The excess under which every constraint is met, degrees: the joints' tolerance (`ROM_TOLERANCE`), the resolution a joint's angle is solved and read to. Every constraint is in degrees: one on an angle directly, and one on a length (a reach, a landing's region, a borne point's depth, the legs' clearance) as the turn of the leg about its hip that moves its ankle by that length (`reachOf`), so a length is met within the leg's reach times the tolerance in radians, 0.15 mm on a 0.87 m leg, the most a leg's joints solved to their tolerance move its ankle. */
   export const MET: number = ROM_TOLERANCE;
 
-  /** The trunk's tilt about the hips, as the posture's pitch and roll (`AutoMovieMotionHumanLean.pivot`). */
+  /**
+   * The trunk's tilt about the hips, as the posture's pitch and roll.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members name posture pitch and roll in degrees.
+   * @evidence contracts/development/design.md#principled-representation Two simultaneous angular coordinates describe tilt, with finite values validated by their owning motion inputs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Both coordinates are used by pelvis framing, constraint reading and trunk writing.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No body or action-specific angle is encoded in the record.
+   */
   export interface ITrunk {
     /** The posture's pitch, degrees, forward positive. */
     pitch: number;
@@ -116,7 +128,14 @@ export namespace walkStanceCourse {
     roll: number;
   }
 
-  /** The pelvis at a knot under a trunk's tilt, before the drop. */
+  /**
+   * The pelvis at a knot under a trunk's tilt, before the drop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world rotation, hip-joint metres and pre-drop timing.
+   * @evidence contracts/development/design.md#principled-representation The pelvis orientation and both hip locations form one physical frame; finite normalized rotations remain the producer's premise.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The geometry needs exactly this orientation and the two hip positions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses interface vectors/quaternions and body-generated hips without a second rig representation.
+   */
   export interface IPelvis {
     /** Its world rotation, the hip joints' frame. */
     rotation: IAutoMovieQuaternion;
@@ -125,7 +144,14 @@ export namespace walkStanceCourse {
     hips: Record<"left" | "right", IAutoMovieVector3>;
   }
 
-  /** A planted foot at a knot. */
+  /**
+   * A planted foot at a knot, with optional authored landing and fitted swivel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members define world placement, turning permission, goal/region metres and the fitted knee reading.
+   * @evidence contracts/development/design.md#principled-representation One scheduled foot can independently permit turn, request a landing region or hold a fitted branch/swivel; absence has its documented fixed-foot meaning.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The stance model consumes all five fields; HumanFoot and HumanLegChain retain their existing placement and fit ownership.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Side is a closed union and geometry/landing values are caller data, with physical feasibility enforced by the stance constraints.
+   */
   export interface IStance {
     /** The foot. */
     side: "left" | "right";
@@ -154,6 +180,11 @@ export namespace walkStanceCourse {
    * when the take linearises the posture's fit about a course: the swivel
    * then moves by `slope` times each of the leg's own variables' change from
    * `about`, in `LEG` order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States degree-valued swivel, branch identity, derivative units and the shared LEG coordinate order.
+   * @evidence contracts/development/design.md#principled-representation Extends the actual leg-chain fit with an optional first-order piece; matching slope/about lengths remain the sequential producer's premise.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Stagger linearization writes the piece and stance geometry reads it; a plain held fit needs neither optional array.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the original fit branch and numerical slopes without a preselected knee shape or fitted trajectory table.
    */
   export interface ISwivel extends HumanLegChain.ISwivel {
     /** The swivel's slope in each of the leg's variables, degrees per unit. */
@@ -164,7 +195,14 @@ export namespace walkStanceCourse {
   }
 
 
-  /** A knot. */
+  /**
+   * One instant's scheduled supports and pelvis geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state action-local seconds, planted feet, trunk-dependent pelvis, optional held angles/drop and borne world-floor points.
+   * @evidence contracts/development/design.md#principled-representation Separates the fixed instant's geometry from the solved course coordinates, permitting independent trunk/drop holds; chronological even spacing remains the owning solver's premise.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The model reads these six fields and shares the existing stance/trunk/pelvis records with recovery framing.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every body frame and support demand is supplied by the take, without a built-in pose, gait or body shape.
+   */
   export interface IKnot {
     /** Seconds since the take's start. */
     seconds: number;
@@ -185,7 +223,14 @@ export namespace walkStanceCourse {
     borne?: readonly IAutoMovieVector3[];
   }
 
-  /** The solved course. */
+  /**
+   * The solved physical coordinates at every original knot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members name metre/degree arrays, fitted goal records and largest remaining degree-scaled violation.
+   * @evidence contracts/development/design.md#principled-representation Parallel Float64Array series preserve the original knot clock and distinct leg/trunk coordinates; their common knot length is a solver-produced invariant.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Interpolation, continuation and recovery judgement consume all coordinate groups, unmet and planted records.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores an actual solved course with its reported excess, not a precomputed pose table or success flag hiding infeasibility.
+   */
   export interface ICourse {
     /** The knots. */
     knots: readonly IKnot[];
@@ -212,7 +257,14 @@ export namespace walkStanceCourse {
     planted: readonly (readonly IPlanted[])[];
   }
 
-  /** A planted leg as the course stands it, the inputs of the posture's leg fit. */
+  /**
+   * A planted leg's actual posture-fit inputs at the current course.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state world hip/ankle metres, pelvis/foot rotations, heading degrees and metre drop.
+   * @evidence contracts/development/design.md#principled-representation One closed side and its parent/effector frames specify the canonical leg fit; range and reach are validated by that fit and the stance constraints.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The sequential fit, final course record and recovery comparisons consume these seven existing goal quantities.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses original interface vectors/quaternions and reports the requested ankle separately from any reachable-shell posing performed by the leg reader.
+   */
   export interface IPlanted {
     /** The leg. */
     side: "left" | "right";
@@ -223,7 +275,7 @@ export namespace walkStanceCourse {
     /** The hip joint, lowered by the drop, world metres. */
     hip: IAutoMovieVector3;
 
-    /** The ankle the course places, world metres; a leg that cannot reach it stands on its reachable shell toward it. */
+    /** The requested ankle the course places, world metres; the constraint reader separately poses an unreachable leg on its reachable shell toward it. */
     ankle: IAutoMovieVector3;
 
     /** The foot's world rotation. */
@@ -236,7 +288,14 @@ export namespace walkStanceCourse {
     drop: number;
   }
 
-  /** A course read at a second. */
+  /**
+   * Interpolated drop and angles at one action-local second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state metre drop and degree-valued foot/trunk angles.
+   * @evidence contracts/development/design.md#principled-representation One simultaneous physical reading carries both foot sides and the trunk tilt, with the course's clamped linear time interpolation supplied by at.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Stagger foot settlement and trunk writing share exactly these four coordinate groups.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains the course's interpolated values, without an independent posture model or an outcome flag.
+   */
   export interface IReading {
     /** The pelvis's drop, metres. */
     drop: number;
@@ -310,8 +369,8 @@ export namespace walkStanceCourse {
     /** The course at its variables. */
     course: (x: Float64Array, unmet: number) => ICourse;
 
-    /** A knot's planted legs at the variables, its index the take's; none for a knot the problem holds. */
-    planted: (x: Float64Array, knot: number) => IPlanted[];
+    /** A knot's planted goals at the variables, its index the take's; optionally only one side, and none for a knot the problem holds. This reads no fitted knee or stance constraint. */
+    planted: (x: Float64Array, knot: number, side?: "left" | "right") => IPlanted[];
 
     /** A leg's own variables' indices at a knot (`LEG`), its index the take's. */
     variables: (knot: number, side: "left" | "right") => number[];
@@ -326,6 +385,14 @@ export namespace walkStanceCourse {
    * @param course The course.
    * @param seconds Seconds since the take's start.
    * @returns The course's values there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States action-local seconds and linear interpolation between the course's knots.
+   * @evidence contracts/development/implementation.md#principled-implementation On a nonempty evenly spaced course, clamps time to its knot range and linearly interpolates each drop/angle series; a single knot is constant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamped interval and weight serve every returned coordinate series.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains original endpoint clamps, knot selection and scalar arithmetic without resampling or changing continuity.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant indexing and interpolation for the fixed coordinate count, independent of knot count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All requested coordinates share this query's interval/weight; different query times are evaluated directly without a cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh scalar record and retains no course or query state.
    */
   export function at(course: ICourse, seconds: number): IReading {
     const knots: readonly IKnot[] = course.knots;
@@ -344,7 +411,7 @@ export namespace walkStanceCourse {
     );
     const k: number = Math.min(knots.length - 2, Math.floor(u));
     const w: number = u - k;
-    const lerp = (series: Float64Array): number =>
+    const lerp: (series: Float64Array) => number = (series: Float64Array): number =>
       series[k]! + (series[k + 1]! - series[k]!) * w;
     return {
       drop: lerp(course.drop),

@@ -219,20 +219,19 @@ export namespace HumanHeldUse {
           !holding.test(bone),
       ),
     );
+    const geometry: ReturnType<typeof HumanColliders.reading> =
+      HumanColliders.reading(body, apart);
     const clear = (wrist: HumanHand.IWrist): number => {
       let least: number = Infinity;
-      for (const digit of digits)
+      for (const digit of digits) {
+        const point: IAutoMovieVector3 = Vector3.add(
+          wrist.point, Quaternion.rotateVector(wrist.rotation, digit.point),
+        );
         least = Math.min(
           least,
-          HumanColliders.distance(
-            body,
-            apart,
-            Vector3.add(
-              wrist.point,
-              Quaternion.rotateVector(wrist.rotation, digit.point),
-            ),
-          ).distance - digit.radius,
+          geometry.segment(point, point).distance - digit.radius,
         );
+      }
       return least;
     };
     return HumanGraspUse.presented({

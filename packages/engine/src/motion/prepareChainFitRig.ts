@@ -11,6 +11,8 @@ import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJoin
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
+import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
+import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -33,8 +35,8 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#principled-implementation Fixed rig and source data determine effective ROM, normalized bases, clamps, projector coefficients, fixed-rest inverse and reference/hinge readings independently of target; getters preserve original defaults, lookup conventions and diagnostic paths.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner holds only rig/source preparation; prepareChainFit owns FK/continuity and target consumers own analytic solving, projection queries and candidate ranking.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target score, user callback result, projected joint or continuation seed is cached. Hinged references retain first-record lookup and held source effectors retain last-record lookup; changed dependencies require another workspace.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each used chain bone's metadata/domain/basis/clamp is prepared once, at most three names. Only actual swing-twist clamps share one lazy canonical-family axes merge; box/cone clamps skip unused frames. Held/reference scans are O(J) once; raw held/inverse, fixed effector terms, projector and hinge data are fixed-size lazy preparations. Every target query still runs; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged source/rig/mappings prove equivalence across targets. basis retains basisOf/orientation's nullish default, jointBasis retains direct conversion's undefined-only default, and actual selected-axis keys prevent one from masking the other's failure. Clamps use canonical HUMANOID axes after their constraint gate; held products, domains and pure hinge reads retain grouping and first-use admission, with no failed preparation stored.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each used chain bone's metadata/domain/basis/clamp and exact overshoot scorer is prepared once, at most three names. Swing-twist clamps share one lazy canonical-family axes merge; legality scorers separately preserve the original canonical scoring frame. Held/reference scans are O(J) once; fixed effector/projector data and hinge span/source inverse are lazy constant-size preparations. Every target query still runs; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged source/rig/mappings prove equivalence across targets. basis retains nullish defaults and jointBasis undefined-only defaults under their actual selected-axis keys. Clamps use actual skeleton-resolved canonical-family axes; scorers retain the original humanoid-only gate frame. Source hinge span coefficients and inverse root are independent of targets, whose readers own their roots/ranges/goals; held products, domains and pure hinge reads retain grouping and lazy admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's workspace owns maps for used chain identities, fixed coefficients and source/reference values until release. Inputs are borrowed, loader callbacks and target results are not retained, and no global collection, handle or task owns this context.
  */
 export function prepareChainFitRig(
@@ -52,6 +54,10 @@ export function prepareChainFitRig(
   > = new Map();
   const references: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion | null> =
     new Map();
+  const scores: Map<
+    AutoMovieHumanoidBone,
+    (joint: IAutoMovieJointPose) => number
+  > = new Map();
   let project: ReturnType<typeof prepareJointRotationProjection> | undefined;
   let restInverse: IAutoMovieQuaternion | undefined;
   let held: IAutoMovieJointPose | undefined;
@@ -61,6 +67,7 @@ export function prepareChainFitRig(
   let weight: number | undefined;
   let range: { min: number; max: number } | null | undefined;
   let swing: IAutoMovieVector3 | undefined;
+  let hingeGeometry: hingedArmSwivel.IPrepared | undefined;
   let clampAxes:
     | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
     | undefined;
@@ -140,6 +147,17 @@ export function prepareChainFitRig(
         clamps.set(bone, clamp);
       }
       return clamp;
+    },
+    overshoot: (
+      bone: AutoMovieHumanoidBone,
+    ): ((joint: IAutoMovieJointPose) => number) => {
+      let score: ((joint: IAutoMovieJointPose) => number) | undefined =
+        scores.get(bone);
+      if (score === undefined) {
+        score = jointRomOvershoot.prepare(bone, rig.domain(bone).constraint);
+        scores.set(bone, score);
+      }
+      return score;
     },
     effectorProjection: (): ReturnType<
       typeof prepareJointRotationProjection
@@ -247,6 +265,17 @@ export function prepareChainFitRig(
     posedSwing: (read: () => IAutoMovieVector3): IAutoMovieVector3 => {
       if (swing === undefined) swing = read();
       return swing;
+    },
+    hingedGeometry: (): hingedArmSwivel.IPrepared | null => {
+      if (prepared === null) return null;
+      hingeGeometry ??= hingedArmSwivel.prepare({
+        upper: prepared.upper,
+        midOffset: prepared.lowerOffset,
+        midRest: prepared.lowerRotation,
+        endOffset: prepared.effectorOffset,
+        hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES).flexion,
+      });
+      return hingeGeometry;
     },
   };
   return rig;

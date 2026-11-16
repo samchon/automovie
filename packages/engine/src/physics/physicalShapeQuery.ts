@@ -23,6 +23,30 @@ interface ILocal {
   normal: IAutoMovieVector3;
 }
 
+/** Completed fixed geometry for one caller-owned synchronous query operation. */
+interface IFrame {
+  /** Actual composed shape origin, world metres. */
+  centre: IAutoMovieVector3;
+
+  /** Actual parent-times-shape world rotation. */
+  rotation: IAutoMovieQuaternion;
+
+  /** Inverse rotation, prepared only when the original local-query branch needs it. */
+  inverse?: IAutoMovieQuaternion;
+
+  /** Bare sphere/capsule axis start, world metres, prepared only with its end. */
+  start?: IAutoMovieVector3;
+
+  /** The same fixed bare-round axis's end, world metres. */
+  end?: IAutoMovieVector3;
+}
+
+/** A factory retains completed fixed geometry, never point/segment query results. */
+interface IPrepared {
+  /** Absent until the first actual query composes this fixed frame. */
+  frame?: IFrame;
+}
+
 /**
  * Full world contact reading of the shared shape-proximity computation.
  *
@@ -69,9 +93,9 @@ export function physicalShapeQuery(
  * @evidence contracts/development/implementation.md#principled-implementation Spheres/capsules use the original closest segments, bare hull segments use physicalHullSegment, and searched shapes retain the original 44-step convex parameter search; final readings use the same shape-local distance owners.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame composition and ordered shape branches serve both modes; the private box/round overloads select observed fields after computing their common distance.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change any candidate, distance formula, threshold, taper, normal policy or tie; malformed shape fallthrough keeps its original error, and all inputs remain admitted pure DTO geometry during this synchronous call.
- * @evidence contracts/development/implementation.md#efficient-algorithms A bare round shape uses one closest-segment query; a searched segment keeps 48 scalar local evaluations and one final reading. Full mode materializes contact fields; scalar mode omits only unobserved final fields, and hull costs remain face/edge dependent.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One body owns every distance for both facades. Same-record endpoint transforms, one private interpolation point per searched segment and round-shape offset arithmetic are shared locally; hull faces/segments/nearest points retain their existing owners with no duplicated hull mathematics.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only call-local geometry and search scalars. The search point is consumed synchronously and never returned; a full final reading receives its own point. No pose, shape, callback, resource handle or result history is retained after return.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A bare round shape uses one closest-segment query; a searched segment keeps 48 scalar local evaluations and one final reading. Full mode materializes contact fields; scalar reads, including hull search probes, omit only unobserved contact fields while all geometric query costs remain.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One body owns every distance for both facades. Fixed local endpoint differences serve interpolation, and fixed taper coefficients are read lazily at the original first widening use; multiplication/addition grouping remains unchanged. Same-record endpoint transforms, private probe/round-axis points and Vector3.distance's exact norm are shared only within this query. Both hull modes use physicalHullNearest's one numerical owner.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps call-local frame/interpolation scalars, at most two taper scalars and the lazy round-axis scratch. Scratch points are consumed synchronously and never returned; full final fields are independent. No pose, shape, callback, handle or result history survives return.
  */
 export function physicalShapeQuery(
   pose: P.ITransform,
@@ -81,29 +105,94 @@ export function physicalShapeQuery(
   taper: readonly [number, number] | undefined,
   details: boolean,
 ): physicalShapeNearest.IResult | number {
-  const centre: IAutoMovieVector3 = Vector3.add(
+  return query(pose, shape, a, b, taper, details);
+}
+
+/**
+ * Fixed-geometry preparation belonging to this same proximity owner.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fixed pose/shape provenance, lazy original-use preparation, changing world-metre queries and synchronous caller release.
+ * @evidence contracts/development/design.md#principled-representation An opaque reader owns the actual fixed shape frame, inverse and bare-round axis endpoints while each supplied segment still executes the same proximity mathematics.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves the actual SegmentDistance/Shapes/deepest readers; the original full/scalar entry and prepared reader share one private query body without a second exported symbol or numerical owner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps pose/shape unchanged through this synchronous operation, exposes no derived-frame injection or replacement callback, and retains neither query points nor target/result history in a global cache.
+ */
+export namespace physicalShapeQuery {
+  /**
+   * Read signed distances against one unchanged posed shape during a
+   * synchronous operation. Construction reads no geometry; first actual use
+   * composes its frame, and inverse/round-axis geometry waits for its original
+   * branch. Every changed segment still runs all closest/hull/search queries,
+   * candidates, bounds, taper, ties and original numerical grouping.
+   *
+   * One private state and opaque closure use the cold entry's query body.
+   * Each completed centre/rotation and optional inverse/axis is prepared once;
+   * a never-called reader prepares nothing. Only fixed geometry is shared:
+   * segment endpoints, current radii, interpolation scratch and signed-distance
+   * or nearest-witness results are never retained between calls.
+   *
+   * @param pose The fixed parent pose through reader release.
+   * @param shape The fixed admitted shape and transform through reader release.
+   * @returns A distance reader of changing world segments and optional endpoint radii. Release its closure/state and borrowed geometry with this synchronous operation; no global cache or handle is acquired.
+   */
+  export function prepare(
+    pose: P.ITransform,
+    shape: P.IShape,
+  ): (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => number {
+    const prepared: IPrepared = {};
+    return (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]): number =>
+      query(pose, shape, a, b, taper, false, prepared);
+  }
+}
+
+/** Scalar reads share this one mathematical body with the cold full-contact entry. */
+function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined, details: false, prepared?: IPrepared): number;
+
+/** The cold full/scalar facade retains its original union result. */
+function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): physicalShapeNearest.IResult | number;
+
+/** One fixed-frame acquisition and the unchanged ordered proximity calculation. */
+function query(pose: P.ITransform, shape: P.IShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): physicalShapeNearest.IResult | number {
+  let frame: IFrame | undefined = prepared?.frame;
+  const centre: IAutoMovieVector3 = frame?.centre ?? Vector3.add(
     pose.position,
     Quaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = frame?.rotation ?? Quaternion.multiply(
     pose.rotation,
     shape.transform.rotation,
   );
+  if (prepared !== undefined && frame === undefined) {
+    frame = { centre, rotation };
+    prepared.frame = frame;
+  }
   if (
     taper === undefined &&
     (shape.kind === "sphere" || shape.kind === "capsule")
   ) {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: shape.kind === "capsule" ? shape.halfLength : 0,
-      z: 0,
-    });
+    let start: IAutoMovieVector3 | undefined = frame?.start;
+    let end: IAutoMovieVector3 | undefined = frame?.end;
+    if (start === undefined || end === undefined) {
+      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+        x: 0,
+        y: shape.kind === "capsule" ? shape.halfLength : 0,
+        z: 0,
+      });
+      start = Vector3.subtract(centre, axis);
+      end = Vector3.add(centre, axis);
+      if (frame !== undefined) {
+        frame.start = start;
+        frame.end = end;
+      }
+    }
     const closest: ReturnType<typeof closestPointsBetweenSegments> =
       closestPointsBetweenSegments(
         a,
         b,
-        Vector3.subtract(centre, axis),
-        Vector3.add(centre, axis),
+        start,
+        end,
       );
     if (!details) return closest.distance - shape.radius;
     const normal: IAutoMovieVector3 =
@@ -120,7 +209,8 @@ export function physicalShapeQuery(
       at: closest.pointA,
     };
   }
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
+  const inverse: IAutoMovieQuaternion = frame?.inverse ?? Quaternion.inverse(rotation);
+  if (frame !== undefined && frame.inverse === undefined) frame.inverse = inverse;
   const la: IAutoMovieVector3 = Quaternion.rotateVector(
     inverse,
     Vector3.subtract(a, centre),
@@ -129,6 +219,9 @@ export function physicalShapeQuery(
     a === b
       ? la
       : Quaternion.rotateVector(inverse, Vector3.subtract(b, centre));
+  const dx: number = lb.x - la.x;
+  const dy: number = lb.y - la.y;
+  const dz: number = lb.z - la.z;
   const local: (p: IAutoMovieVector3) => ILocal = (
     p: IAutoMovieVector3,
   ): ILocal => {
@@ -147,27 +240,40 @@ export function physicalShapeQuery(
     t: number,
     out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   ): IAutoMovieVector3 => {
-    out.x = la.x + (lb.x - la.x) * t;
-    out.y = la.y + (lb.y - la.y) * t;
-    out.z = la.z + (lb.z - la.z) * t;
+    out.x = la.x + dx * t;
+    out.y = la.y + dy * t;
+    out.z = la.z + dz * t;
     return out;
   };
-  const widened: (t: number) => number = (t: number): number =>
-    taper === undefined ? 0 : taper[0] + (taper[1] - taper[0]) * t;
+  let radius: number = 0;
+  let change: number | undefined;
+  const widened: (t: number) => number = (t: number): number => {
+    if (taper === undefined) return 0;
+    if (change === undefined) {
+      radius = taper[0];
+      change = taper[1] - taper[0];
+    }
+    return radius + change * t;
+  };
 
   // The search consumes only a scalar. The same shape owner computes it;
   // point and normal construction belongs to the final contact reading.
+  let roundAxis: IAutoMovieVector3 | undefined;
   const distance: (p: IAutoMovieVector3) => number = (
     p: IAutoMovieVector3,
   ): number => {
+    if (shape.kind === "hull") return physicalHullNearest(shape.points, p, false);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p, false);
-    if (shape.kind === "sphere" || shape.kind === "capsule")
+    if (shape.kind === "sphere" || shape.kind === "capsule") {
+      if (roundAxis === undefined) roundAxis = { x: 0, y: 0, z: 0 };
       return roundNearest(
         shape.kind === "capsule" ? shape.halfLength : 0,
         shape.radius,
         p,
         false,
+        roundAxis,
       );
+    }
     return local(p).distance;
   };
   let parameter: number = 0;
@@ -286,12 +392,13 @@ function roundNearest(
   p: IAutoMovieVector3,
 ): ILocal;
 
-/** The same capsule/sphere distance without unobserved contact fields at an internal search probe. */
+/** The same capsule/sphere distance; optional query-local axis scratch keeps X/Z zero and receives only the current clamped Y. */
 function roundNearest(
   half: number,
   radius: number,
   p: IAutoMovieVector3,
   details: false,
+  axis?: IAutoMovieVector3,
 ): number;
 
 /** One round-shape distance calculation serves scalar search and full contact readers. */
@@ -300,11 +407,16 @@ function roundNearest(
   radius: number,
   p: IAutoMovieVector3,
   details: boolean = true,
+  axis?: IAutoMovieVector3,
 ): ILocal | number {
   const y: number = Math.min(half, Math.max(-half, p.y));
+  if (!details) {
+    if (axis === undefined) axis = { x: 0, y, z: 0 };
+    else axis.y = y;
+    return Vector3.distance(p, axis) - radius;
+  }
   const offset: IAutoMovieVector3 = { x: p.x - 0, y: p.y - y, z: p.z - 0 };
   const away: number = Vector3.length(offset);
-  if (!details) return away - radius;
   const normal: IAutoMovieVector3 =
     away > 1e-12 ? Vector3.scale(offset, 1 / away) : { x: 1, y: 0, z: 0 };
   return {

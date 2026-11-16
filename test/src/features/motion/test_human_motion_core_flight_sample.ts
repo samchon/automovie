@@ -26,6 +26,7 @@ import { performance } from "node:perf_hooks";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanFrame } from "../internal/motionHumanFrame";
 import { motionHumanFlightDiagnostic } from "../internal/motionHumanFlightDiagnostic";
+import { motionHumanTakeoffDiagnostic } from "../internal/motionHumanTakeoffDiagnostic";
 import { qunit } from "../internal/qunit";
 
 /**
@@ -57,12 +58,16 @@ import { qunit } from "../internal/qunit";
  *    carrying unturned canonical joints. Checked fixture prerequisites,
  *    finite data and every joint difference locate shape versus root/history
  *    discrepancies without replacing the original one-percent assertion.
+ * 5. After original construction fails, or after original measurements finish,
+ *    a separately labeled stand-only public-context control observes the
+ *    original jump parameters' raw and resolved takeoff boundary. It cannot
+ *    change acceptance or stand in for the failed instance's actual context.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the unchanged real fixture, physical bounds, observed frame, singularity precondition and separate timing phases.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the actual public turned performance and reads canonical displayed bones/root and mass-model momentum; ignored rotation, invalid FK, drift, excessive impulse or refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations A requested turn winds 2 pi; projecting the actual long axis in the takeoff frame gives its angle. Undoing that somersault and tilt from the actual lateral axis yields twist. Conservation and the existing impulse ceiling provide momentum expectations without the solver's residual.
  * @evidence contracts/development/testing.md#distinguishing-cases One existing feasible layout case, a full cycle rather than its identity endpoint, distinct-time versus repeated reads, finite/unit poses and zero-safe relative momentum comparison. It makes no claim about every motion or crowd playback.
- * @evidence contracts/development/testing.md#execution-ownership One polygon Human and one actual performance in memory; owned caller timers observe phases and no renderer, foreign method, compiler or process is started.
+ * @evidence contracts/development/testing.md#execution-ownership One original turned performance plus one explicitly authorized stand-only diagnostic control use the same canonical polygon Human. The control runs after failure or completed original measurements; no law override, foreign patch, renderer, compiler or process is started.
  */
 export function test_human_motion_core_flight_sample(): void {
   const complaints: string[] = [];
@@ -81,6 +86,9 @@ export function test_human_motion_core_flight_sample(): void {
   );
   const planningCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const planningStart: number = performance.now();
+  const params: Parameters<typeof motionHumanTakeoffDiagnostic>[2] = {
+    to: { x: 0, y: 0, z: 1 }, apex: 0.5, rotation: { somersault: 1 },
+  };
   const input: HumanPerformance.IInput = {
     seed: "flight",
     performers: [
@@ -95,11 +103,31 @@ export function test_human_motion_core_flight_sample(): void {
     composition: HumanChain.subject("a")
       .stand({ seconds: 0.3 })
       .jump(
-        { to: { x: 0, y: 0, z: 1 }, apex: 0.5, rotation: { somersault: 1 } },
+        params,
         "leap",
       ).node,
   };
-  const film: HumanPerformance = new HumanPerformance(input);
+  /** Observe only after the original operation stops, preserving its error. */
+  const boundary: () => void = (): void => {
+    try {
+      motionHumanTakeoffDiagnostic(body, input, params);
+    } catch (error) {
+      console.log(JSON.stringify({ sample: "jump-takeoff-control-error", error: error instanceof Error ? error.message : String(error) }));
+    }
+  };
+  let film: HumanPerformance;
+  try {
+    film = new HumanPerformance(input);
+  } catch (error) {
+    console.log(JSON.stringify({
+      sample: "canonical-human-flight", phase: "planning-failed",
+      planningMs: performance.now() - planningStart,
+      planningCpuUs: process.cpuUsage(planningCpuStart),
+      error: error instanceof Error ? error.message : String(error),
+    }));
+    boundary();
+    throw error;
+  }
   const planningMs: number = performance.now() - planningStart;
   const planningCpuUs: NodeJS.CpuUsage = process.cpuUsage(planningCpuStart);
   console.log(
@@ -339,5 +367,6 @@ export function test_human_motion_core_flight_sample(): void {
       ceiling,
     }),
   );
+  boundary();
   TestValidator.equals("one actual turned Human flight", complaints, []);
 }

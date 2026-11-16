@@ -16,12 +16,24 @@ import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel"
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a primitive is, what it is built against, what posture it is given and what of its result is kept.
  * @evidence contracts/development/design.md#principled-representation A part's movement is a function from the posture so far and the time to a posture, over a span and on declared channels; an action is such functions side by side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Six members: the claim, the span, the function, and the two things only a primitive knows that a plan must carry (its contacts and its weapons).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The claim, optional input dependencies, span, writer and optional planning, contacts and weapons serve the composer; omitted dependencies preserve complete input reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the plan's contact-window and weapon types; the two optional members are absent for a primitive that makes neither.
  */
 export interface IAutoMovieMotionHumanPrimitive {
   /** The channels it writes. */
   channels: readonly AutoMovieMotionHumanChannel[];
+
+  /**
+   * Channels whose values determine the claimed output at the written second, including a claimed
+   * channel when its previous values are added or preserved. Omission means
+   * every channel. A pure time-local callback may narrow a writer whose
+   * branches have different dependencies. Fields merely copied outside the claim are not reads.
+   * This is a dependency declaration, so callbacks that can inspect an
+   * arbitrary posture must leave it absent.
+   */
+  reads?:
+    | readonly AutoMovieMotionHumanChannel[]
+    | ((seconds: number) => readonly AutoMovieMotionHumanChannel[]);
 
   /** Seconds since the action's start from which it writes. */
   from: number;
@@ -40,7 +52,7 @@ export interface IAutoMovieMotionHumanPrimitive {
    *
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start, in [`from`, `to`].
-   * @param before The posture so far at any second of the action, as `posture` is at this one: what the base and the primitives written before this one produce there. A movement planned once over its span reads it, so its plan is a constant of the action; absent where no action composes the primitive.
+   * @param before The posture so far at any second of the action: the base and earlier primitives, optionally restricted to explicitly requested channels. A movement planned once over its span reads it, so its plan is a constant of the action; absent where no action composes the primitive.
    * @returns The posture; fields outside the claimed channels are ignored.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the posture and the seconds it is given, that the seconds lie in the primitive's window and that fields outside the claimed channels are ignored.
@@ -54,7 +66,7 @@ export interface IAutoMovieMotionHumanPrimitive {
   write(
     posture: IHumanPosture,
     seconds: number,
-    before?: (seconds: number) => IHumanPosture,
+    before?: IAutoMovieMotionHumanPrimitive.Reader,
   ): IHumanPosture;
 
   /**
@@ -74,5 +86,30 @@ export interface IAutoMovieMotionHumanPrimitive {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
-  prepare?(before: (seconds: number) => IHumanPosture): void;
+  prepare?(before: IAutoMovieMotionHumanPrimitive.Reader): void;
+}
+
+/**
+ * Dependency-aware readers of the posture preceding a primitive.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the optional channel demand and the borrowed partial-posture boundary.
+ * @evidence contracts/development/design.md#principled-representation A film-local second and posture channels identify the prefix values a consumer actually reads; omitted channels request the whole posture.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The reader is shared by preparation and writing so both propagate dependencies through the composer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture and channel owners; a requested subset restricts readable values rather than pretending unrequested values are current.
+ */
+export namespace IAutoMovieMotionHumanPrimitive {
+  /**
+   * Read a prefix at action-local seconds. With `channels`, only those
+   * channels are valid for inspection; omitted channels request them all.
+   * The returned posture is borrowed and must not be mutated.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States action-local seconds, optional channel demand and borrowed partial result ownership.
+   * @evidence contracts/development/design.md#principled-representation A pure prefix reader accepts seconds and the existing owned posture channels; only requested values may be inspected.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Both primitive preparation and writing use this same optional-demand callback.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omission preserves a complete posture read; channel selection does not introduce a second posture representation.
+   */
+  export type Reader = (
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+  ) => IHumanPosture;
 }

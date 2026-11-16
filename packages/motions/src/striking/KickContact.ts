@@ -77,13 +77,25 @@ export namespace KickContact {
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
     const back: number = KickForm.STEP_BACK_SHARE * m.stature;
-    const under = (carriage: IKickGeometry.ICarriage): IContact => {
+    const under: (carriage: IKickGeometry.ICarriage) => ITrial = (carriage: IKickGeometry.ICarriage): ITrial => {
       const base: IHumanPosture = KickCarriage.posture(
         props,
         carriage,
         props.timing.impact,
       );
-      return { carriage, base, fit: fitted(chain, base) };
+      const hip: IAutoMovieVector3 = KickCarriage.hip(
+        props.body,
+        base,
+        props.side,
+      );
+      return {
+        hip,
+        contact: {
+          carriage,
+          base,
+          fit: KickChain.fit(chain, base, KickChain.solve(chain, base, hip), hip),
+        },
+      };
     };
     let best: IContact | undefined;
     let least: number = Number.POSITIVE_INFINITY;
@@ -101,7 +113,7 @@ export namespace KickContact {
           base,
           props.side,
         );
-        const solved: StrikingReach.ISolution = KickChain.solve(chain, base);
+        const solved: StrikingReach.ISolution = KickChain.solve(chain, base, hip);
         const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
         const span: number = Vector3.length(reach);
         const ahead: number = Vector3.dot(reach, props.line) / span;
@@ -138,7 +150,7 @@ export namespace KickContact {
           };
       }
       for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
-        const candidate: IContact = under(carriage);
+        const { contact: candidate, hip }: ITrial = under(carriage);
         const fit: KickChain.IFit = candidate.fit;
         if (
           fit.status !== "short" &&
@@ -161,7 +173,7 @@ export namespace KickContact {
         const toward: IAutoMovieVector3 = Vector3.normalize(
           Vector3.subtract(
             chain.planned,
-            KickCarriage.hip(props.body, candidate.base, props.side),
+            hip,
           ),
         );
         const ahead: number = Vector3.dot(toward, props.line);
@@ -181,11 +193,12 @@ export namespace KickContact {
     return best!;
   }
 
-  /** Solve the leg from the hip a posture leaves it and fit it. */
-  function fitted(
-    chain: KickChain.IProps,
-    base: IHumanPosture,
-  ): KickChain.IFit {
-    return KickChain.fit(chain, base, KickChain.solve(chain, base));
+  /** One candidate and the unchanged hip shared by its solve, refits and step correction. */
+  interface ITrial {
+    /** The candidate whose fitted weapon is measured. */
+    contact: IContact;
+
+    /** Its kicking hip on the candidate's exact body/base, world metres. */
+    hip: IAutoMovieVector3;
   }
 }

@@ -320,6 +320,8 @@ export namespace armPhrase {
                 HumanHand.offset(body, side, surface, shape).point,
               ),
             );
+      const bend: IAutoMovieVector3 =
+        AutoMovieMotionHumanBend.hang(body, hold, side, 0.1);
       const target: (
         point: IAutoMovieVector3,
       ) => AutoMovieMotionHumanArmTarget.ITarget = (
@@ -329,7 +331,7 @@ export namespace armPhrase {
         shape,
         point: Vector3.subtract(point, lever),
         rotation,
-        bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
+        bend: { ...bend },
       });
       const start: IAutoMovieVector3 = AutoMovieMotionHumanArmTarget.point(
         hold,
@@ -375,6 +377,9 @@ export namespace armPhrase {
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = arms.map(
       (a: IArm): IAutoMovieMotionHumanPrimitive => {
+        const from: IAutoMovieVector3 = Vector3.add(a.place, a.shift(p.from));
+        const sweep: IAutoMovieVector3 =
+          a.shift(p.swing ?? { out: SWING, up: 0, forward: 0 });
         const phrase: AutoMovieMotionHumanArmPhrase.IPhrase = {
           body,
           clock,
@@ -397,7 +402,7 @@ export namespace armPhrase {
                 ) =>
                   a.target(
                     Vector3.lerp(
-                      Vector3.add(a.place, a.shift(p.from)),
+                      from,
                       a.place,
                       progress,
                     ),
@@ -411,7 +416,7 @@ export namespace armPhrase {
                     Vector3.add(
                       a.place,
                       Vector3.scale(
-                        a.shift(p.swing ?? { out: SWING, up: 0, forward: 0 }),
+                        sweep,
                         swing,
                       ),
                     ),

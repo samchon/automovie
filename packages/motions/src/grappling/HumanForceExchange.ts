@@ -244,7 +244,14 @@ export namespace HumanForceExchange {
     return shift <= props.edge ? shift : null;
   }
 
-  /** A throw's swing about the fulcrum, read by time from the base's break. */
+  /**
+   * A throw's swing about the fulcrum, read by time from the base's break.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the clock and each reading's unit.
+   * @evidence contracts/development/design.md#principled-representation Scalar angle and rate readings share the same integrated swing; sample reads both at one instant.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The release and original two readings remain required; the throw consumes optional sample for a paired read and legacy implementations remain assignable.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The paired reading returns fresh scalars rather than exposing the trajectory's state array.
+   */
   export interface ISwing {
     /** Seconds from the break to the release. */
     release: number;
@@ -254,6 +261,22 @@ export namespace HumanForceExchange {
 
     /** The angular rate at a second since the break, radians per second. */
     rate(seconds: number): number;
+
+    /**
+     * Both readings from one trajectory evaluation, radians and radians per second.
+     *
+     * @param seconds Seconds since the base's break.
+     * @returns A fresh angle and rate record, held at release afterward.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, units, release clamp and fresh result.
+     * @evidence contracts/development/implementation.md#principled-implementation Reads the same integrated state as angle and rate once for consumers needing both.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One trajectory reading and two scalar fields.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not expose or retain the trajectory's state array.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no algorithm; swing owns the reading.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work; swing supplies the shared read.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; swing owns the trajectories.
+     */
+    sample?(seconds: number): { angle: number; rate: number };
   }
 
   /**
@@ -348,6 +371,10 @@ export namespace HumanForceExchange {
       release,
       angle: (seconds: number): number => at(Math.min(release, seconds))[0]!,
       rate: (seconds: number): number => at(Math.min(release, seconds))[1]!,
+      sample: (seconds: number): { angle: number; rate: number } => {
+        const state: readonly number[] = at(Math.min(release, seconds));
+        return { angle: state[0]!, rate: state[1]! };
+      },
     };
   }
 

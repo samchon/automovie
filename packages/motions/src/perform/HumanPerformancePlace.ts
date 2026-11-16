@@ -4,11 +4,13 @@ import {
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieMotionEvent,
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -181,7 +183,10 @@ export namespace HumanPerformancePlace {
         ? {
             carrier: {
               name: previous.name,
-              posture: (seconds: number): IHumanPosture => {
+              posture: (
+                seconds: number,
+                channels?: readonly AutoMovieMotionHumanChannel[],
+              ): IHumanPosture => {
                 // The overlay's primitives and the display each ask for the
                 // carrier at the same few instants, and a gait's posture is
                 // costly, so the latest ones are kept.
@@ -190,6 +195,8 @@ export namespace HumanPerformancePlace {
                   Math.max(0, start + seconds - previous.start),
                 );
                 let posture: IHumanPosture | undefined = carried.get(at);
+                if (posture === undefined && channels !== undefined)
+                  return previous.plan.posture(at, channels);
                 if (posture === undefined) {
                   posture = previous.plan.posture(at);
                   if (carried.size >= 64)
@@ -218,7 +225,8 @@ export namespace HumanPerformancePlace {
           HumanPerformanceAim.frame(
             body,
             entry.posture,
-            () => poseBones(body, entry.pose),
+            (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
+              poseBones(body, entry.pose, undefined, requested),
             intent.subject,
           ),
         ),
@@ -277,10 +285,13 @@ export namespace HumanPerformancePlace {
           // The performer's own body is read as it entered the action, as
           // a `self` target is: its displayed bones at an instant of this
           // action are the posture still being solved.
-          bones: (seconds: number) =>
+          bones: (
+            seconds: number,
+            requested?: ReadonlySet<AutoMovieHumanoidBone>,
+          ): ReturnType<typeof poseBones> =>
             subject === intent.subject
-              ? poseBones(body, entry.pose)
-              : HumanPerformanceRead.bones(self, subject, seconds),
+              ? poseBones(body, entry.pose, undefined, requested)
+              : HumanPerformanceRead.bones(self, subject, seconds, requested),
           root: (seconds: number): IHumanActionContext.IRoot =>
             HumanPerformanceRead.root(
               self,
@@ -400,9 +411,12 @@ export namespace HumanPerformancePlace {
     // out beyond reach at some second), long after it was placed; that
     // refusal is located here, where the action's place in the film is known.
     const posture: IHumanActionPlan["posture"] = plan.posture;
-    plan.posture = (seconds: number): IHumanPosture => {
+    plan.posture = (
+      seconds: number,
+      channels?: readonly AutoMovieMotionHumanChannel[],
+    ): IHumanPosture => {
       try {
-        return posture(seconds);
+        return posture(seconds, channels);
       } catch (error) {
         throw error instanceof HumanRefusal ? error.locate(where) : error;
       }

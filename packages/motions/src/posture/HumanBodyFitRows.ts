@@ -9,6 +9,7 @@ import type { HumanFloorReading } from "./HumanFloorReading";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 import type { HumanQuadraticProgram } from "./HumanQuadraticProgram";
+import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The rows of one step of a whole-body fit (`HumanBodyFit`), each with the
@@ -26,13 +27,16 @@ export namespace HumanBodyFitRows {
   /**
    * A posture's reading for a fit, with its balance when the fit keeps one.
    *
-   * @evidence contracts/development/design.md#principled-representation Combines the owning floor and geometric-goal readings on the same resolved bones with an optional requested balance reading, in their declared metres and radians.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fit, merit, goal readers and correction callbacks consume these existing readings; none is restated as a parallel geometry model.
+   * @evidence contracts/development/design.md#principled-representation Combines floor and geometric-goal readings on the same resolved bones with their exact source clinical posture and optional requested balance, in their declared metres, degrees and radians.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The fit, merit, goal readers and correction callbacks consume these existing readings; the same written clinical posture feeds current Jacobian projection and transfers to the final posture result.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Balance is absent only when not requested, while current floor candidates and goals remain actual readings rather than cached predicted values.
    * @evidence contracts/development/common.md#meaningful-documentation Names the floor, goal and balance owners and the optional balance condition.
    */
   export type IReading = HumanFloorReading.IReading &
     HumanFitGoals.IReading & {
+      /** Exact source clinical posture used for this reading's resolution/FK; kept unchanged while current Jacobian and final result consume it. */
+      written: IHumanPosture;
+
       /** Requested base-of-support reading on these same bones. */
       balance?: HumanFitBalance.IReading;
     };
@@ -68,8 +72,8 @@ export namespace HumanBodyFitRows {
    * One step's inputs.
    *
    * @evidence contracts/development/design.md#principled-representation Collects the same current body reading, analytic variable motions, unit conversions, requested goals, penalty and selected contact indices used to assemble one linearised model.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contact, floor, target and geometric-goal builders consume these members; touching carries the same evaluation's actual selected candidates.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the owning body, Jacobian and target types; unit/motion lengths and selected-index compatibility are producer premises rather than fabricated fallback data.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contact, floor, target and geometric-goal builders consume these members; touching carries current selected candidates and index supplies the shared actual variable domain to dense rows.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the owning body, Jacobian and target types; matching index/unit/motion lengths and selected-candidate compatibility are producer premises, with every raw QP entry still admitted downstream.
    * @evidence contracts/development/common.md#meaningful-documentation States model inputs, units, penalty and the reading-specific contact selection.
    */
   export interface IStep {
@@ -84,6 +88,9 @@ export namespace HumanBodyFitRows {
 
     /** Each variable's solved unit, in its own. */
     units: readonly number[];
+
+    /** The fixed ordered variable domain [0,n), shared read-only by all dense coefficient rows of this fit. */
+    index: readonly number[];
 
     /** The goals. */
     targets: readonly HumanBodyFit.ITarget[];
@@ -126,9 +133,7 @@ export namespace HumanBodyFitRows {
    */
   export function of(step: IStep): IRead[] {
     const { at, motions }: Pick<IStep, "at" | "motions"> = step;
-    const all: number[] = motions.map(
-      (_: HumanJacobian.IMotion, i: number): number => i,
-    );
+    const all: readonly number[] = step.index;
     const rows: IRead[] = [];
     const equal: (
       key: string,
@@ -193,7 +198,8 @@ export namespace HumanBodyFitRows {
     // The centre of mass inside each edge of the base of support, the edges
     // read where the step starts.
     if (at.balance !== undefined) {
-      const outline: { x: number; z: number }[] = at.balance.outline;
+      const balance: HumanFitBalance.IReading = at.balance;
+      const outline: { x: number; z: number }[] = balance.outline;
       HumanFitBalance.slopes(
         step.body,
         at.bones,
@@ -202,7 +208,9 @@ export namespace HumanBodyFitRows {
         readColumns?.(),
       ).forEach((slope: number[], e: number): void => {
         const inside: (r: IReading) => number = (r: IReading): number =>
-          HumanFitBalance.distance(outline, e, r.balance!.com);
+            r === at
+              ? balance.inside[e]!
+              : HumanFitBalance.distance(outline, e, r.balance!.com, balance.normals[e]!);
         rows.push({
           row: {
             key: `balance:${e}`,
@@ -234,13 +242,11 @@ export namespace HumanBodyFitRows {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves set iteration order, row keys, height, band and price; it does not alter which candidates the fit selected.
    * @evidence contracts/development/implementation.md#efficient-algorithms For F selected candidates and n variables, performs F*n velocity queries and stores O(F*n) coefficients, with one output array and a shared n-entry index array.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing posed reading and motions, sharing the variable-index array while recomputing each candidate's current derivative.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned rows own their coefficients and capture only the candidate index; temporary index and row storage are released with their model.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned rows own coefficients, borrow the fit's read-only variable indices and capture only their candidate index; rows are released with the model and shared indices with the fit.
    * @evidence contracts/development/common.md#meaningful-documentation States candidate indexing, order, units, lower-bound convention and row ownership.
    */
   export function floor(step: IStep, rowed: ReadonlySet<number>): IRead[] {
-    const all: number[] = step.motions.map(
-      (_: HumanJacobian.IMotion, i: number): number => i,
-    );
+    const all: readonly number[] = step.index;
     return Array.from(
       rowed,
       (s: number): IRead => ({
@@ -353,11 +359,11 @@ export namespace HumanBodyFitRows {
     return scaled(
       step,
       (m: HumanJacobian.IMotion): number =>
-        HumanJacobian.velocity(
+        HumanJacobian.velocityY(
           m,
           step.at.owners[step.at.of[c]!]!,
           step.at.spots[c]!,
-        ).y,
+        ),
     );
   }
 }

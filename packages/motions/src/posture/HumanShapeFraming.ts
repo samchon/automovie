@@ -187,25 +187,27 @@ export namespace HumanShapeFraming {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One local sphere and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is padded.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per shape, a hull's own sphere aside.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing and the trajectory's shapes.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing and the trajectory's shapes. Non-hull shapes share only a private fixed local origin, avoiding a temporary centre/radius wrapper; hull geometry still comes from physicalHullFaces and every world placement is recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private origin is constant metadata, not a shape or pose cache. Only a fresh world centre and scalar radius escape; no input or computed placement is retained by this function.
    */
   export function sphere(
     pose: HumanColliders.IPlaced["pose"],
     shape: HumanColliders.IPlaced["shapes"][number],
   ): { centre: IAutoMovieVector3; radius: number } {
-    const local: { centre: IAutoMovieVector3; radius: number } =
-      shape.kind === "hull"
-        ? physicalHullFaces(shape.points)
-        : {
-            centre: { x: 0, y: 0, z: 0 },
-            radius:
-              shape.kind === "sphere"
-                ? shape.radius
-                : shape.kind === "capsule"
-                  ? shape.halfLength + shape.radius
-                  : Vector3.length(shape.halfExtents),
-          };
+    let centre: IAutoMovieVector3;
+    let radius: number;
+    if (shape.kind === "hull") {
+      const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+      centre = hull.centre;
+      radius = hull.radius;
+    } else {
+      centre = ORIGIN;
+      radius = shape.kind === "sphere"
+        ? shape.radius
+        : shape.kind === "capsule"
+          ? shape.halfLength + shape.radius
+          : Vector3.length(shape.halfExtents);
+    }
     return {
       centre: Vector3.add(
         pose.position,
@@ -213,14 +215,17 @@ export namespace HumanShapeFraming {
           pose.rotation,
           Vector3.add(
             shape.transform.position,
-            Quaternion.rotateVector(shape.transform.rotation, local.centre),
+            Quaternion.rotateVector(shape.transform.rotation, centre),
           ),
         ),
       ),
-      radius: local.radius,
+      radius,
     };
   }
 }
+
+/** Fixed centre of a sphere, capsule or box in its own local frame; only read by fresh vector operations. */
+const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept while the frame lives. */
 const FRAMED: WeakMap<

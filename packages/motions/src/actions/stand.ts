@@ -21,7 +21,6 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanProp } from "../perform/IHumanProp";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -29,6 +28,7 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { standFeet } from "./standFeet";
 import { standRelaxed } from "./standRelaxed";
 import { standUpright } from "./standUpright";
+import { prepareStandingLegs } from "./prepareStandingLegs";
 
 /**
  * Quiet standing: both feet planted where they are (or under the hips when
@@ -130,15 +130,11 @@ export namespace stand {
     const on: IParams["on"] =
       context.params.on ??
       (inherited === undefined ? undefined : { prop: inherited });
-    const carried: (seconds: number) => HumanSupportCarry.ICarry = (
+    const carried: (seconds: number) => HumanSupportCarry.ICarry | undefined = (
       seconds: number,
-    ): HumanSupportCarry.ICarry =>
+    ): HumanSupportCarry.ICarry | undefined =>
       on === undefined
-        ? {
-            point: (p: IAutoMovieVector3): IAutoMovieVector3 => p,
-            turn: { x: 0, y: 0, z: 0, w: 1 },
-            yaw: 0,
-          }
+        ? undefined
         : HumanSupportCarry.of(
             (t: number): IHumanProp.IFrame => context.prop(on.prop).frame(t),
             context.start,
@@ -163,7 +159,8 @@ export namespace stand {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk(t / settle).s;
         const u: number = t / duration;
-        const offset: IAutoMovieVector3 = course.offset(s);
+        const feet: standFeet.ISample = course.sample(s);
+        const offset: IAutoMovieVector3 = feet.offset;
         // The sway runs side to side and front to back in the body's frame,
         // the side to side signed in the acting side's frame.
         const swayed: IAutoMovieVector3 = HumanFrame.point(
@@ -196,18 +193,17 @@ export namespace stand {
         // On a moving support the stance planned at the entry is carried by
         // the support's rigid motion since then (#3491); its tilt is not
         // read yet, only its travel and its turn about the vertical.
-        const carry: HumanSupportCarry.ICarry = carried(t);
-        const placed: IAutoMovieVector3 = carry.point(root);
-        return course.write(
+        const carry: HumanSupportCarry.ICarry | undefined = carried(t);
+        const placed: IAutoMovieVector3 = carry?.point(root) ?? root;
+        return feet.write(
           {
             root: placed,
-            yaw: yaw + carry.yaw,
+            yaw: yaw + (carry?.yaw ?? 0),
             pitch: 0,
             roll: 0,
             joints,
             limbs: {},
           },
-          s,
           carry,
         );
       },
@@ -375,34 +371,23 @@ export namespace stand {
     yaw: number,
     feet: Record<"left" | "right", IAutoMovieVector3>,
   ): IHumanPosture["limbs"] {
-    const frame: HumanFrame.IFrame = { origin: root, yaw };
-    // The knee points over the foot (Perry and Burnfield): the foot has no
-    // axial joint, so its toe-out comes from the hip's twist that this hint sets.
-    const knee = (side: "left" | "right"): IAutoMovieVector3 =>
-      HumanFrame.point(
-        {
-          origin: HumanFrame.point(frame, body.rest.get(`${side}LowerLeg`)!),
-          yaw: yaw + (side === "left" ? TOE_OUT : -TOE_OUT),
-        },
-        { x: 0, y: 0, z: 1 },
-      );
-    // Each foot turns about its toes' joint when the ankle cannot hold it flat (HumanFoot.heelOff).
-    return {
-      leftLeg: {
-        point: feet.left,
-        bend: knee("left"),
-        rotation: HumanFrame.turn(yaw + TOE_OUT),
-        planted: true,
-        contact: HumanFoot.offset(body, "left", "mtp"),
-      },
-      rightLeg: {
-        point: feet.right,
-        bend: knee("right"),
-        rotation: HumanFrame.turn(yaw - TOE_OUT),
-        planted: true,
-        contact: HumanFoot.offset(body, "right", "mtp"),
-      },
-    };
+    return prepareLegs(body, yaw)(root, feet);
+  }
+
+  /**
+   * Prepare the invariant foot rotations and contacts of this body's fixed
+   * heading; roots and ankle points remain per-query world-metre inputs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed heading/body geometry and changing root/ankle inputs; prepareStandingLegs owns the complete preparation contract.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the existing standing toe-out and knee-frame construction to prepareStandingLegs with this law's TOE_OUT.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One content-owner delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the same TOE_OUT, HumanFrame and HumanFoot geometry as legs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The delegated fixed-yaw preparation removes repeated heading/contact construction across current-root queries; no numerical solve is skipped.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps body/yaw fixed; the returned function reads every new root and ankle target independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the delegated two-foot preparation for its plan's lifetime; no query result is retained.
+   */
+  export function prepareLegs(body: IHumanBody, yaw: number): ReturnType<typeof prepareStandingLegs> {
+    return prepareStandingLegs(body, yaw, TOE_OUT);
   }
 
   /**

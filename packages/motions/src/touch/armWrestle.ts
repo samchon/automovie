@@ -1,9 +1,8 @@
 import {
   Vector3,
   minimumJerk,
-  resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -21,6 +20,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanTrunkTurn } from "../posture/HumanTrunkTurn";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -130,7 +130,12 @@ export namespace armWrestle {
     HumanBound.least("seconds", struggle, 0, "s");
     const side: HumanHand.Side = "right";
     const entry: IHumanPosture = context.entry.posture;
-    const partner = context.performer(p.partner).body;
+    const other: IHumanActionContext.IPerformer = context.performer(p.partner);
+    const partner: IHumanActionContext["body"] = other.body;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
+    const elbowBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
 
     // The arm's two lengths are this body's own, between its rest joints: the
     // elbow falls on its place only on the circle those lengths allow.
@@ -205,18 +210,20 @@ export namespace armWrestle {
     const short = (pitch: number): number =>
       Vector3.length(
         Vector3.subtract(
-          HumanTrunk.resolve(body, leaned(pitch, entry)).get(`${side}UpperArm`)!
+          HumanTrunk.resolve(body, leaned(pitch, entry), undefined, resolution, shoulderBones).get(`${side}UpperArm`)!
             .worldPosition,
           elbow,
         ),
       ) - upperArm;
     let low: number = -20;
     let high: number = 70;
-    if (!(short(low) * short(high) <= 0))
+    let below: number = short(low);
+    const above: number = short(high);
+    if (!(below * above <= 0))
       throw new HumanRefusal({
         kind: "reach",
         axis: "table",
-        value: `${(short(high) * 1000).toFixed(0)} mm`,
+        value: `${(above * 1000).toFixed(0)} mm`,
         feasible: {
           kind: "alternatives",
           values: [
@@ -224,13 +231,17 @@ export namespace armWrestle {
             "a seat at the table",
           ],
         },
-        reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(short(low) * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(short(high) * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
+        reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(below * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(above * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
         fix: "sit the performer at the table, or give a table point nearer the shoulder",
       });
     for (let i: number = 0; i < 24; i++) {
       const mid: number = (low + high) / 2;
-      if (short(low) * short(mid) <= 0) high = mid;
-      else low = mid;
+      const gap: number = short(mid);
+      if (below * gap <= 0) high = mid;
+      else {
+        low = mid;
+        below = gap;
+      }
     }
     const lean: number = (low + high) / 2;
 
@@ -251,13 +262,16 @@ export namespace armWrestle {
         Vector3.subtract(
           poseBones(
             body,
-            resolveHumanPosture(body, set(entry, degrees, 1)),
+            resolveHumanPosture.seeded(body, set(entry, degrees, 1), undefined, {}, resolution).pose,
+            resolution(),
+            elbowBones,
           ).get(`${side}LowerArm`)!.worldPosition,
           elbow,
         ),
       );
     const upright: number = off(0);
-    if (!(off(asked) <= upright + HELD)) {
+    const pinGap: number = off(asked);
+    if (!(pinGap <= upright + HELD)) {
       // What the fit made of the arm, for the refusal: the displayed
       // shoulder's distance to the elbow's place and the upper arm's
       // clinical angles, upright and at the asked angle.
@@ -283,13 +297,13 @@ export namespace armWrestle {
         axis: "pin",
         value: asked,
         feasible: { kind: "range", minimum: 0, maximum: most, unit: "degrees" },
-        reason: `With the forearm ${asked} degrees from upright the elbow leaves its place on the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
+        reason: `With the forearm ${asked} degrees from upright the elbow leaves its place on the table's top by ${(pinGap * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
         fix: "ask a pin within that angle for both roles; an arm forced past its range is not this law's",
       });
     }
 
     // The clock: reach and set, go, the struggle, the pin, its hold, leave.
-    const from: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
+    const from: IAutoMovieVector3 = poseBones(body, context.entry.pose, resolution(), requested).get(
       `${side}Hand`,
     )!.worldPosition;
     // Both roles set together: the longer of the two hands' transports, the
@@ -306,9 +320,8 @@ export namespace armWrestle {
         Vector3.length(
           Vector3.subtract(
             theirs,
-            context
-              .performer(p.partner)
-              .bones(context.start)
+            other
+              .bones(context.start, requested)
               .get(`${side}Hand`)!.worldPosition,
           ),
         ),
@@ -334,7 +347,7 @@ export namespace armWrestle {
       ? 0
       : HumanForceTrunk.share(
           HumanForceTrunk.ROTATION *
-            resolveAutoMovieCenterOfMass(body.skeleton, body.profile).mass,
+            body.massModel.mass,
           HumanForceTrunk.range(body, side),
         );
     return {

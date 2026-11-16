@@ -1,11 +1,11 @@
 import {
-  AutoMovieStationHermite,
   type IAutoMovieProjectile,
   Quaternion,
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -31,6 +31,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IThrowObjectParams } from "./IThrowObjectParams";
+import { throwObjectCurve } from "./throwObjectCurve";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 import { throwObjectLever } from "./throwObjectLever";
@@ -151,7 +152,7 @@ export namespace throwObject {
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const style: Style = context.params.style ?? "overarm";
     const side: HumanHand.Side = context.params.hand ?? "right";
     const outward: number = side === "left" ? 1 : -1;
@@ -163,9 +164,11 @@ export namespace throwObject {
       .posture(0);
     const yaw: number = probe.yaw;
     const frame: HumanFrame.IFrame = { origin: probe.root, yaw };
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
     const shoulder: IAutoMovieVector3 = HumanFrame.local(
       frame,
-      poseBones(body, resolveHumanPosture(body, probe)).get(`${side}UpperArm`)!
+      poseBones(body, resolveHumanPosture.seeded(body, probe, undefined, {}, undefined, shoulderBones).pose,
+        undefined, shoulderBones).get(`${side}UpperArm`)!
         .worldPosition,
     );
     const place = (share: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -267,24 +270,15 @@ export namespace throwObject {
       duration,
     );
 
-    // The hand's grip point at a second.
-    const hermite = (
-      a: IAutoMovieVector3,
-      va: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      vb: IAutoMovieVector3,
-      span: number,
-      u: number,
-    ): IAutoMovieVector3 => {
-      const [x, y, z] = AutoMovieStationHermite.combine(
-        { value: [a.x, a.y, a.z], slope: [va.x, va.y, va.z] },
-        { value: [b.x, b.y, b.z], slope: [vb.x, vb.y, vb.z] },
-        AutoMovieStationHermite.weights(u, span, 0, false),
-      );
-      return { x: x!, y: y!, z: z! };
-    };
     const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const restBones = poseBones(body, context.entry.pose);
+    const accelerating: number = clock.at("release") - throwObjectForm.CARRY - clock.at("cocked");
+    const following: number = clock.at("followThrough") - clock.at("release") - throwObjectForm.CARRY;
+    const accelerateCurve: ReturnType<typeof throwObjectCurve> =
+      throwObjectCurve(chamber, still, before, velocity, accelerating);
+    const followCurve: ReturnType<typeof throwObjectCurve> =
+      throwObjectCurve(after, velocity, finish, still, following);
+    const restBones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose,
+      undefined, new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
     const origin: AutoMovieMotionHumanArm.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
@@ -342,32 +336,14 @@ export namespace throwObject {
                 ),
         };
       if (seconds <= at("release")) {
-        const span: number =
-          at("release") - throwObjectForm.CARRY - at("cocked");
         return {
-          point: hermite(
-            chamber,
-            still,
-            before,
-            velocity,
-            span,
-            (seconds - at("cocked")) / span,
-          ),
+          point: accelerateCurve((seconds - at("cocked")) / accelerating),
           rotation: cocking,
         };
       }
       if (seconds <= at("followThrough")) {
-        const span: number =
-          at("followThrough") - at("release") - throwObjectForm.CARRY;
         return {
-          point: hermite(
-            after,
-            velocity,
-            finish,
-            still,
-            span,
-            (carried - throwObjectForm.CARRY) / span,
-          ),
+          point: followCurve((carried - throwObjectForm.CARRY) / following),
           rotation: Quaternion.slerp(
             carriedOut,
             finished,

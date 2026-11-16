@@ -34,7 +34,7 @@ export namespace HumanFitTargets {
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, units and row families.
    * @evidence contracts/development/implementation.md#principled-implementation Relative point velocity is R_on^-1(v_eff-v_on_at_eff), and angular velocity is R_on^-1(omega_eff-omega_on). Rotation log rows differentiate with the inverse right SO(3) Jacobian (Sola et al. 2018, arXiv:1812.01537, eq.117); a point ball is one Euclidean-distance inequality.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One target frame and its variable twists, then each requested row family.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A physical radius is not an XYZ box and relative frames move in both reading and Jacobian; a singular antiparallel normal derivative is refused explicitly.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps metric point radii, moving reference frames and antiparallel-normal refusal; identical effector/anchor point twists are read once but their original subtraction and rotation remain, including nonfinite-result propagation.
    * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(t*n) time and coefficient storage for t targets and n variables with fixed axis counts; each current anchor inverse and angular derivative column is produced once rather than once per variable or selected axis.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one current target frame and its anchor inverse across relative motions; full rotation/normal derivative columns serve all selected axes, and callbacks reuse that same unchanged model reading while new trial readings are recomputed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Model callbacks retain their target and current reading/frame until the model is released; temporary derivative columns are consumed into owned scalar coefficients, and no prior-reading or global body cache is kept.
@@ -94,9 +94,7 @@ export namespace HumanFitTargets {
         rows.push({
           row: {
             key: `point-ball:${k}`,
-            index: motions.map(
-              (_: HumanJacobian.ITwist, i: number): number => i,
-            ),
+            index: step.index,
             coef: scaled((motion: HumanJacobian.ITwist): number =>
               distance === 0 ? 0 : Vector3.dot(delta, motion.linear) / distance,
             ),
@@ -375,11 +373,10 @@ function relative(
     r.points[k]!,
   );
   if (at.anchor === undefined) return own;
-  const on: HumanJacobian.ITwist = HumanJacobian.twist(
-    motion,
-    at.anchor.bone,
-    r.points[k]!,
-  );
+  const on: HumanJacobian.ITwist =
+    target.bone === at.anchor.bone
+      ? own
+      : HumanJacobian.twist(motion, at.anchor.bone, r.points[k]!);
   const inverse: IAutoMovieQuaternion = at.anchor.inverse;
   return {
     linear: Quaternion.rotateVector(

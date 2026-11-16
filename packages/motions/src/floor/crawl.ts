@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -25,8 +25,10 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlDown } from "./crawlDown";
+import { crawlCourse } from "./crawlCourse";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
 import { crawlInchworm } from "./crawlInchworm";
@@ -191,6 +193,7 @@ export namespace crawl {
     // the body tilted by a pitch, and the root under its hip joints.
     const sides = ["left", "right"] as const;
     const wrists = crawlFrame.wrists(body, standing, forward);
+    const laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(body, forward);
     const posed = (share: number, degrees: number, hike: number = 0) =>
       crawlFrame.posed(body, yaw, share, degrees, hike, -40);
     const rootFor = (tilted: IHumanPosture, hips: IAutoMovieVector3) =>
@@ -203,29 +206,37 @@ export namespace crawl {
     const hipY: number = knee + m.thigh;
     const shoulderY: number =
       (wrists.left.y + wrists.right.y) / 2 + ARM * (m.upperArm + m.forearm);
-    const crawlingAt = (degrees: number) => {
+    const solved: { pitch: number; bones: ReturnType<typeof poseBones> } = (() => {
+      const measuredBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftUpperLeg", "rightUpperLeg"]);
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const crawlingAt = (degrees: number): ReturnType<typeof poseBones> => {
       const tilted: IHumanPosture = posed(1, degrees);
       return poseBones(
         body,
-        resolveHumanPosture(body, {
+        resolveHumanPosture.seeded(body, {
           ...tilted,
           root: rootFor(
             tilted,
             HumanFrame.point(measured, { x: 0, y: hipY, z: 0 }),
           ),
-        }),
+        }, undefined, undefined, resolution).pose,
+        resolution(),
+        measuredBones,
       );
-    };
-    const pitch: number = crawlFrame.pitched((degrees: number): boolean => {
-      const bones = crawlingAt(degrees);
-      return (
+      };
+      const pitch: number = crawlFrame.pitched((degrees: number): boolean => {
+        const bones: ReturnType<typeof poseBones> = crawlingAt(degrees);
+        return (
         (bones.get("leftUpperArm")!.worldPosition.y +
           bones.get("rightUpperArm")!.worldPosition.y) /
           2 >
         shoulderY
-      );
-    });
-    const bones = crawlingAt(pitch);
+        );
+      });
+      return { pitch, bones: crawlingAt(pitch) };
+    })();
+    const pitch: number = solved.pitch;
+    const bones: ReturnType<typeof poseBones> = solved.bones;
     const local = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       HumanFrame.local(measured, bones.get(bone)!.worldPosition);
 
@@ -334,11 +345,9 @@ export namespace crawl {
         legged.joints[`${side}Toes`] = [foot.toes, 0, 0];
       }
       if (!palms) return legged;
-      return crawlFrame.laid(
-        body,
+      return laid(
         legged,
         (side: "left" | "right"): IAutoMovieVector3 => at(`${side}Hand`),
-        forward,
       );
     };
 
@@ -390,29 +399,7 @@ export namespace crawl {
       duration,
       instants,
     );
-    const place = (limb: Limb, seconds: number): IAutoMovieVector3 => {
-      for (let k: number = 1; k <= cycles; k++) {
-        const off: number = lift(limb, k);
-        if (seconds < off) return print(limb, k - 1);
-        if (seconds < off + swing) {
-          // The limb rises on the swing's own time and travels on its
-          // minimum-jerk progress, so it is off the floor before it moves.
-          const p: number = (seconds - off) / swing;
-          const at: IAutoMovieVector3 = Vector3.lerp(
-            print(limb, k - 1),
-            print(limb, k),
-            minimumJerk(p).s,
-          );
-          return {
-            ...at,
-            y:
-              at.y +
-              4 * (limb.endsWith("Hand") ? LIFT : KNEE_LIFT) * p * (1 - p),
-          };
-        }
-      }
-      return print(limb, cycles);
-    };
+    const place: (limb: Limb, seconds: number) => IAutoMovieVector3 = crawlCourse.of({ limbs, cycles, print, lift, swing, handLift: LIFT, kneeLift: KNEE_LIFT });
     // The hips travel at a constant speed once down.
     const crawling = (posture: IHumanPosture, seconds: number): IHumanPosture =>
       kneeling(

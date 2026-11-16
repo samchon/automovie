@@ -52,7 +52,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     share: number;
 
     /**
-     * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
+     * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres. Runtime calls also provide the action-relative clock second; plan-time progress probes omit it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress in [0, 1], and the wrist goal returned in world metres.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
@@ -62,7 +62,7 @@ export namespace AutoMovieMotionHumanLeanInto {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
-    wrist: (posture: IHumanPosture, progress: number) => IAutoMovieVector3;
+    wrist: (posture: IHumanPosture, progress: number, seconds?: number) => IAutoMovieVector3;
 
     /**
      * The working arm's goal on a posture at the stroke's start, so the
@@ -103,7 +103,7 @@ export namespace AutoMovieMotionHumanLeanInto {
    */
   export interface ILean {
     /**
-     * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not.
+     * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not. An optional action-relative clock second is forwarded unchanged to the wrist reader.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress, the returned pitch in degrees and that a limit that does not reach throws the refusal.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
@@ -113,7 +113,7 @@ export namespace AutoMovieMotionHumanLeanInto {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
-    pitch: (posture: IHumanPosture, progress: number) => number;
+    pitch: (posture: IHumanPosture, progress: number, seconds?: number) => number;
 
     /**
      * A posture tipped by a pitch in degrees, the hips shifted back to balance it.
@@ -228,8 +228,8 @@ export namespace AutoMovieMotionHumanLeanInto {
     };
     const tip = (posture: IHumanPosture, pitch: number): IHumanPosture =>
       AutoMovieMotionHumanLean.tip(props.body, posture, pitch, back(pitch));
-    const pitch = (posture: IHumanPosture, progress: number): number => {
-      const wrist: IAutoMovieVector3 = props.wrist(posture, progress);
+    const pitch = (posture: IHumanPosture, progress: number, seconds?: number): number => {
+      const wrist: IAutoMovieVector3 = props.wrist(posture, progress, seconds);
       const beyond = (degrees: number): number => {
         const check: AutoMovieMotionHumanReach.ICheck =
           AutoMovieMotionHumanReach.check(
@@ -296,6 +296,7 @@ export namespace AutoMovieMotionHumanLeanInto {
               pitch(
                 posture,
                 clock.progress("strokeStart", "strokeEnd", seconds),
+                seconds,
               ),
           );
           return {

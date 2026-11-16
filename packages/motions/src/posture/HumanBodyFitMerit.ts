@@ -10,6 +10,7 @@ import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
 import type { HumanJacobian } from "./HumanJacobian";
 import type { HumanSequentialConvex } from "./HumanSequentialConvex";
+import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * The whole-body fit's merit (`HumanBodyFit`): an iterate read on the body,
@@ -62,7 +63,7 @@ export namespace HumanBodyFitMerit {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
    * @evidence contracts/development/design.md#principled-representation The loop's evaluation carries actual reading-specific misses and selected support indices, preserving part order and overlapping-part multiplicity for the step and its correction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the reading, misses and same-reading selected support indices read by the merit and the next convexification.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the reading, misses, ordered selected supports and their membership set, plus actual ordered pair gaps whose witnesses the next convexification consumes.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The loop's own evaluation extended, not restated.
    */
   export interface IEvaluation extends HumanSequentialConvex.IEvaluation {
@@ -74,6 +75,12 @@ export namespace HumanBodyFitMerit {
 
     /** The selected lowest candidate for each bearing part with candidates, preserving part order and repeated indices for overlapping parts. */
     touching: readonly number[];
+
+    /** Membership of those same selected indices, shared read-only by floor misses and convexification without changing the ordered touching rows. */
+    touchingSet: ReadonlySet<number>;
+
+    /** Actual gap and both current closest witnesses in the fit's unchanged pair order; shared read-only by active pair-row construction. */
+    gaps: readonly HumanFitPairs.IGap[];
   }
 
   /**
@@ -158,8 +165,8 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one pass of misses, one sum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is priced in the merit as the step's model prices it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluation plus the floor, pair and selected-goal readers' costs; merit summation and feasibility scan the current misses without concatenated copies, and one centre displacement serves all selected axes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the current reading's lowest indices with convexification and its actual positional mass centre with balance; pair gaps and misses stay reading-specific, and a lazy centre displacement is reused only within that same reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures retain the supplied fit inputs and bounded bearing-name set until their owner releases them; each evaluation owns its reading, misses and selected-index array, without a global or previous-reading cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the exact written clinical input, current ordered supports/membership and actual completed pair witnesses with convexification, and its actual positional mass centre with balance; each new reading still writes/evaluates its actual candidate, and a lazy centre displacement stays within that reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures retain fit inputs and the bearing-name set until release; each evaluation owns its reading, written posture with j stored joints and n variables, misses, T selected support/membership entries and P gap records with 2P witnesses for P pairs, without global or previous-reading state. The fit may transfer its final private written posture to its result.
    */
   export function of(props: IProps): IMerit {
     const {
@@ -210,15 +217,17 @@ export namespace HumanBodyFitMerit {
     const read: (x: Float64Array) => HumanBodyFitRows.IReading = (
       x: Float64Array,
     ): HumanBodyFitRows.IReading => {
+      const written: IHumanPosture = HumanFitVariables.written(variables, posture, x);
       const r: HumanFloorReading.IReading = HumanFloorReading.of(
         body,
-        HumanFitVariables.written(variables, posture, x),
+        written,
         bearing,
         targets,
       );
       const measured: HumanBodyFitRows.IReading = {
         ...r,
         ...HumanFitGoals.read(body, r.bones, props.angles, props.centre),
+        written,
       };
       if (props.balance === undefined || props.balance === false)
         return measured;
@@ -249,12 +258,13 @@ export namespace HumanBodyFitMerit {
     // one reading of the rows the model linearises.
     const misses: (
       r: HumanBodyFitRows.IReading,
-      touching: readonly number[],
+      lowest: ReadonlySet<number>,
+      gaps: HumanFitPairs.IGap[],
     ) => IMisses = (
       r: HumanBodyFitRows.IReading,
-      touching: readonly number[],
+      lowest: ReadonlySet<number>,
+      gaps: HumanFitPairs.IGap[],
     ): IMisses => {
-      const lowest: ReadonlySet<number> = new Set(touching);
       let centreDelta: IAutoMovieVector3 | undefined;
       const floor: number[] = r.heights.map((h: number, c: number): number =>
         lowest.has(c) ? Math.abs(h) : -h,
@@ -288,8 +298,11 @@ export namespace HumanBodyFitMerit {
                   ),
               ),
         pairs: pairs.map(
-          (pair: HumanFitPairs.IPair): number =>
-            -HumanFitPairs.gap(r.bones, pair).distance,
+          (pair: HumanFitPairs.IPair, k: number): number => {
+            const gap: HumanFitPairs.IGap = HumanFitPairs.gap(r.bones, pair);
+            gaps[k] = gap;
+            return -gap.distance;
+          },
         ),
       };
     };
@@ -317,7 +330,9 @@ export namespace HumanBodyFitMerit {
       evaluate: (x: Float64Array): IEvaluation => {
         const r: HumanBodyFitRows.IReading = read(x);
         const touching: number[] = HumanBodyFitRows.lowest(r);
-        const m: IMisses = misses(r, touching);
+        const touchingSet: ReadonlySet<number> = new Set(touching);
+        const gaps: HumanFitPairs.IGap[] = new Array(pairs.length);
+        const m: IMisses = misses(r, touchingSet, gaps);
         let pull: number = 0;
         for (let i: number = 0; i < n; i++)
           pull +=
@@ -352,6 +367,8 @@ export namespace HumanBodyFitMerit {
           r,
           misses: m,
           touching,
+          touchingSet,
+          gaps,
         };
       },
       holds: (m: IMisses): boolean =>

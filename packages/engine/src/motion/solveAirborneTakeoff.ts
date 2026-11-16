@@ -51,7 +51,7 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  *
  * @param props The shape's history, the flight, the take-off frame, the request and its bounds.
  * @returns The momentum, its residual and whether the request is met.
- * @throws {Error} When the flight is not positive.
+ * @throws {Error} When the flight is not positive or a supplied failure scope is not a symbol.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the angle convention with its source, the unwrapping, the residual, the start, the iteration with its globalization, determinism and the miss.
  * @evidence contracts/development/implementation.md#principled-implementation Newton's method with integrated sensitivity and analytic Euler-angle derivatives, actual-residual step-halving and continuation. The three momentum directions are an orthogonal unit basis with one physical unit. Sensitivity has a local matrix-error estimate, not a global Jacobian certificate; chart singularity, inaccurate derivatives or the finite iteration budget can still miss a feasible request.
@@ -67,6 +67,8 @@ export function solveAirborneTakeoff(
   const flight: number = props.t1 - props.t0;
   if (!(flight > 0))
     throw new Error(`The take-off needs a positive flight, got ${flight}`);
+  if (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
+    throw new Error("The take-off error scope must be a symbol");
   const axes: IAutoMovieQuaternion = props.frame ?? Quaternion.identity();
   const frame: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(props.q0, axes),
@@ -143,6 +145,8 @@ export function solveAirborneTakeoff(
         }),
         h: props.h,
         tolerance: props.integration,
+        momentumTolerance: props.momentumTolerance,
+        errorScope: props.errorScope,
         variations: directions,
       },
     );
@@ -383,6 +387,15 @@ export namespace solveAirborneTakeoff {
       integrateMotionTrajectory.ITolerance,
       "relative" | "absolute"
     >;
+
+    /** Explicit per-read world-momentum defect budget: relative share of the target momentum and absolute kg m squared per second. Requires integration error control and remains independent of its orientation/sensitivity RMS budget. */
+    momentumTolerance?: Pick<
+      integrateMotionTrajectory.ITolerance,
+      "relative" | "absolute"
+    >;
+
+    /** Optional caller-owned unique symbol forwarded to each flight's numeric failure, never to the shape history. Admitted before seed/history reads; it changes no shooting or integration decision. */
+    errorScope?: symbol;
   }
 
   /** A solved take-off. */

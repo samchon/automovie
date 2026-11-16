@@ -1,10 +1,12 @@
 import {
   AutoMovieGravity,
   type IAutoMovieResolvedBone,
+  MotionTrajectoryFailure,
   Quaternion,
   Vector3,
   integrateAirborneRotation,
   integrateMotionTrajectory,
+  prepareAutoMovieMassModel,
   resolveAutoMovieCenterOfMass,
   solveAirborneTakeoff,
 } from "@automovie/engine";
@@ -19,7 +21,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
+import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
@@ -54,32 +58,44 @@ import type { HumanSegment } from "./HumanSegment";
  * are tabulated on the integrator's default step and read between those
  * instants by slerp and by line, so the plan's posture reads no displayed
  * pose and the pass has no cycle; `q(t)` is integrated under error control
- * (`ACCURACY`), its steps as short as the shape's changes need, and read
+ * (`ACCURACY` and an independent physical momentum budget), its steps as short as the shape's changes need, and read
  * between its knots by the integrator's own continuous extension, so a
  * shape that changes fast turns at its momentum's rate there too.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is turned, which shape is read and in which frame, where the momentum comes from, the refusal, the rotation handed back and why it reads no displayed pose afterwards.
  * @evidence contracts/development/design.md#principled-representation A post-contact pass turns each carrier's declared flight from one unchanged composed shape history, then hands a numeric rigid-rotation reader back to that plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The performance constructor calls flights once after placement and contact resolution; ACCURACY supplies the pass's existing integration budget.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The performance constructor calls flights once after placement and contact resolution; ACCURACY supplies the pass's existing integration budget and the private momentum budget supplies its independent physical dense-error criterion.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine owns inertia, relative momentum, integration and shooting; the pass supplies displayed shape and locates refusals by the placement walk's stable-id occurrence.
  * Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * A turn the take-off cannot give is refused, never clamped.
- * Each new history query reduces at most four posed instants, with linear work in the skeleton after its limb fits. Root-space FK omits one per-bone inverse-root vector rotation, quaternion product and duplicate output-map construction. Different queries may rebuild a shared difference node's bones; adaptive shooting controls the query population and actual completion cost remains to be measured.
- * Exact query times share numeric inertia and relative momentum across the search, fixed boundary stencils share their numeric moments, and playback reuses the evaluated flight whose residual was judged. Root-space FK reads the already resolved composed joints with an identity rigid root; it does not change their contact/IK solution. Raw geometry is temporary rather than retained for every difference node.
- * The numeric tables and completed flight live with the plan through HumanPerformanceFlightRotation, whose factory receives no performance or history. The history holds numeric instants across shooting trials and temporary bones during each reduction; this pass clears its memo in finally on success or refusal.
+ * Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and their ancestors, using the body's static rig snapshot. Root-space FK omits the rigid world placement and its later reversal. Different queries may rebuild a shared difference node's bones; adaptive shooting controls the query population and runtime improvement remains unmeasured.
+ * Exact query times share numeric inertia and relative momentum across the search, fixed boundary stencils share numeric moments, and playback reuses the flight whose residual was judged. A single planning-owned mass snapshot shares unchanged local offsets, principal frames, intrinsic tensors and endpoint quaternion differences by copied scalar keys. The body's mass model is constructed once; every current shape, orbital shift, interval rate and momentum check remains evaluated. One lazy FK reader shares unchanged articulation and ancestor work across shape, ceiling and table requests, with ordered joint admission and fresh requested outputs.
+ * The numeric tables and completed flight live with the plan through HumanPerformanceFlightRotation, whose factory receives no performance, model, history or resolution reader. The synchronous build owns O(J+B) last FK rows and O(S) mass/intrinsic/interval prerequisites for S segments, including at most four exact numeric mass-part nodes. It clears the history's O(N) I/h memo and bounded nodes, then releases the prepared mass token in finally on success or refusal; no full canonical pose or raw bone map enters those retained numeric prerequisites.
  */
 export namespace HumanPerformanceFlight {
   /**
-   * The flight's error control: each step's rotation within half a
-   * hundredth of the step's own turn, no absolute floor. A step's error
-   * under that share of its turn `|w| h` bounds the rate read over it by the
-   * same share of `|w|`, and the momentum read from the displayed bones,
-   * `I w + h`, with it; #3416 accepts a read-back within 1 % of the take-off
-   * momentum, and that check compares two reads, so each gets half.
+   * The original embedded orientation RMS and same-unit sensitivity-matrix
+   * budgets, with no absolute floor. This local state estimate does not
+   * bound the dense angular rate or its inertia-conditioned momentum error;
+   * the independent physical momentum budget checks the latter directly.
    */
   export const ACCURACY: Readonly<{ relative: number; absolute: number }> = {
     relative: 0.01 / 2,
+    absolute: 0,
+  };
+
+  /**
+   * The target-relative dense angular-momentum budget, independently of the
+   * orientation's local estimate. If each read differs from the constant
+   * model momentum L by at most delta ||L||, two reads differ by at most
+   * 2 delta/(1-delta) of the reference read. Thus #3416's existing 1 %
+   * comparison requires delta <= .01/(2+.01), with no absolute floor.
+   * Controller probes are sampled; this implication does not certify every
+   * time or the separate finite-difference pose-observation error.
+   */
+  const MOMENTUM_ACCURACY: Readonly<{ relative: number; absolute: number }> = {
+    relative: 0.01 / (2 + 0.01),
     absolute: 0,
   };
 
@@ -95,32 +111,44 @@ export namespace HumanPerformanceFlight {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Visit carriers, skip plans without a flight reader, turn each flight and locate only HumanRefusal errors.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HumanRefusal.locate preserves already located nested refusals, and other thrown values are rethrown unchanged; a carrier index or film start never substitutes for id occurrence.
    * @evidence contracts/development/implementation.md#efficient-algorithms Visits each carrier once; numerical and shape work belong to flight. Only a refusal scans the person's carriers and overlays to recover its occurrence.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the already placed segment ids and walk-entry indices instead of replanning or resolving the schedule again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns no cache or handle; each flight clears its temporary numeric history, and only the plan's completed numeric rotation survives.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads already placed segment ids and walk-entry indices. A person's flights share one immutable mass snapshot, demanded bone set and exact intrinsic/interval prerequisites, prepared lazily at its first actual flight.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A person's pass owns one O(S) prepared mass token and demanded set until its last flight or refusal; finally releases the token. Each flight separately clears its temporary numeric history, and only completed numeric playback rotations survive.
    */
   export function flights(
     self: HumanPerformanceState,
     people: Iterable<HumanSegment.IPerson>,
   ): void {
-    for (const person of people)
-      for (const segment of person.segments) {
-        const plan: IHumanActionPlan = segment.plan;
-        if (plan.flight === undefined || plan.airborne === undefined) continue;
-        try {
-          flight(self, person, segment);
-        } catch (error) {
-          if (!(error instanceof HumanRefusal)) throw error;
-          throw error.locate({
-            performer: person.performer.subject,
-            act: segment.name,
-            instance:
-              [...person.segments, ...person.overlays].filter(
-                (s: HumanSegment.ISegment): boolean =>
-                  s.id === segment.id && s.entry < segment.entry,
-              ).length + 1,
-          });
+    for (const person of people) {
+      let prepared: prepareAutoMovieMassModel.IPrepared | undefined;
+      let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
+      try {
+        for (const segment of person.segments) {
+          const plan: IHumanActionPlan = segment.plan;
+          if (plan.flight === undefined || plan.airborne === undefined) continue;
+
+          // A body stays unchanged for the pass, but people without a flight
+          // need neither a physical workspace nor a demanded-bone set.
+          prepared ??= prepareAutoMovieMassModel(person.performer.body.massModel);
+          requested ??= prepareAutoMovieMassModel.bones(prepared);
+          try {
+            flight(self, person, segment, prepared, requested);
+          } catch (error) {
+            if (!(error instanceof HumanRefusal)) throw error;
+            throw error.locate({
+              performer: person.performer.subject,
+              act: segment.name,
+              instance:
+                [...person.segments, ...person.overlays].filter(
+                  (s: HumanSegment.ISegment): boolean =>
+                    s.id === segment.id && s.entry < segment.entry,
+                ).length + 1,
+            });
+          }
         }
+      } finally {
+        if (prepared !== undefined) prepareAutoMovieMassModel.release(prepared);
       }
+    }
   }
 
   /**
@@ -135,19 +163,23 @@ export namespace HumanPerformanceFlight {
     self: HumanPerformanceState,
     person: HumanSegment.IPerson,
     segment: HumanSegment.ISegment,
+    prepared: prepareAutoMovieMassModel.IPrepared,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): void {
     const plan: IHumanActionPlan = segment.plan;
     const declared: IHumanActionPlan.IFlight = plan.flight!;
     const subject: string = person.performer.subject;
     const body: IHumanBody = person.performer.body;
     const model: resolveAutoMovieCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      body.massModel;
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
     const unturned: (seconds: number) => IAutoMoviePose = (
       seconds: number,
     ): IAutoMoviePose =>
-      HumanPerformanceRead.pose(self, subject, seconds);
+      HumanPerformanceRead.pose(self, subject, seconds, requested);
+    const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
       pose: IAutoMoviePose,
     ): IAutoMovieQuaternion =>
@@ -161,9 +193,10 @@ export namespace HumanPerformanceFlight {
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      poseBones(body, { ...unturned(seconds), root: null });
+      poseBones(body, { ...unturned(seconds), root: null }, readResolution(), requested);
     const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.history(model, shape, { from: t0, to: t1 });
+      integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 });
+    const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(unturned(t0));
 
@@ -181,9 +214,9 @@ export namespace HumanPerformanceFlight {
         const centre: (t: number) => IAutoMovieVector3 = (
           t: number,
         ): IAutoMovieVector3 =>
-          resolveAutoMovieCenterOfMass.place(
-            model,
-            poseBones(body, unturned(t)),
+          prepareAutoMovieMassModel.place(
+            prepared,
+            poseBones(body, unturned(t), readResolution(), requested),
           );
         const one: IAutoMovieVector3 = centre(at + delta);
         const two: IAutoMovieVector3 = centre(at + 2 * delta);
@@ -217,6 +250,8 @@ export namespace HumanPerformanceFlight {
           twist: turns.twist,
           maximum,
           integration: HumanPerformanceFlight.ACCURACY,
+          momentumTolerance: MOMENTUM_ACCURACY,
+          errorScope,
         });
         if (!solved.met)
           throw new HumanRefusal({
@@ -241,6 +276,8 @@ export namespace HumanPerformanceFlight {
           q0,
           momentum,
           tolerance: HumanPerformanceFlight.ACCURACY,
+          momentumTolerance: MOMENTUM_ACCURACY,
+          errorScope,
         });
 
       // The unturned root and the composed centre on the default step's grid,
@@ -262,9 +299,9 @@ export namespace HumanPerformanceFlight {
       const table: Instant[] = times.map((t: number): Instant => {
         const pose: IAutoMoviePose = unturned(t);
         return {
-          about: resolveAutoMovieCenterOfMass.place(
-            model,
-            poseBones(body, pose),
+          about: prepareAutoMovieMassModel.place(
+            prepared,
+            poseBones(body, pose, readResolution(), requested),
           ),
           root: root(pose),
         };
@@ -280,6 +317,13 @@ export namespace HumanPerformanceFlight {
           flight: turned,
         });
       plan.airborne!(rotation);
+    } catch (error) {
+      if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
+        throw HumanPerformanceFlightFailure(
+          error, body, plan, segment.start, t0,
+          (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds),
+        );
+      throw error;
     } finally {
       history.clear();
     }

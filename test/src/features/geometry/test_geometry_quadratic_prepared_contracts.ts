@@ -1,0 +1,182 @@
+import { HumanQuadraticProgram as Q } from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
+
+/**
+ * Explicit preparation fixes the quadratic model while each solve reads fresh
+ * row endpoints, penalty classifications and warm iterates.
+ *
+ * Scenarios:
+ * 1. For P=[[2,1],[1,2]], q=(-4,-5), the free minimum is (1,2).
+ *    A sum equality s gives ((s-1)/2,(s+1)/2); changing it to an upper
+ *    sum bound 2 gives (0.5,1.5), and making it free restores (1,2).
+ * 2. Editing the source P, q, row indices and coefficients after preparation
+ *    leaves that snapshot unchanged. Rebuilding admits the edited model.
+ * 3. A scalar x squared with a lower row 3 balances its slope 2x against
+ *    soft weights 2 and 8 at 1 and 3. Zero weight gives 0; hard gives 3.
+ *    Changing keys and keyed starting multipliers preserves those optima.
+ * 4. Warm arrays and earlier result arrays retain their values across changed
+ *    bounds and caller output mutation. Malformed refreshed bounds refuse,
+ *    and that failed solve cannot poison a subsequent valid solve.
+ * 5. The admitted zero-origin objective reports the actual soft-row excesses
+ *    (2,1,0) with cost10; the step (1,2) has excesses (0,3,0) and cost24,
+ *    including its coupled curvature and linear terms.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the fixed-model snapshot contract, independent coupled/scalar KKT and objective derivations, mutable bounds/penalties, precision, observer order and ownership checks in five scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses actual prepare/solve/value entries, checking successful statuses, analytic primal values, original-unit stationarity and active-row residuals, changed bounds, source isolation, fresh x/z/y, unchanged warm arrays, admission/recovery and actual ordered soft-row excesses at origin and a step.
+ * @evidence contracts/development/testing.md#independent-expectations Two stationarity equations give free (1,2), and their subtraction gives y=x+1 at fixed sum. Scalar l1 solves 2x=weight until its kink. Literal interval distances give origin cost3*2+4*1=10 and step cost12+4*3=24. Primal bounds retain 1e-6 and active rows1e-9 from existing specifications; no solver output supplies an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers free/equality/upper rows, changed source versus new preparation, soft/hard/zero weight, rekeyed multipliers, output/warm ownership, invalid refreshed bounds and recovery, plus origin/actual-step soft observers with an ignored hard row and zero-weight row. General infeasibility and original sparse admission have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit directly imports the solver. All models, bounds, maps and arrays belong to this test; it starts no native artifact, process, browser or renderer and installs no replacement function.
+ */
+export function test_geometry_quadratic_prepared_contracts(): void {
+  const source: Q.IProblem = {
+    n: 2,
+    band: 1,
+    p: [Float64Array.of(2, 1), Float64Array.of(2)],
+    q: Float64Array.of(-4, -5),
+    rows: [{ index: [0, 1], coef: [1, 1], l: -Infinity, u: Infinity }],
+  };
+  const prepared: ReturnType<typeof Q.prepare> = Q.prepare(source);
+  const states: Q.IState[] = [];
+  const saved: { x: number[]; z: number[]; y: number[] }[] = [];
+
+  /** Check the original coupled equations and retain every returned array. */
+  function coupled(label: string, l: number, u: number, expected: number[]): Q.IState {
+    const state: Q.IState = prepared.solve([{ l, u }]);
+    minimum(label, state, expected);
+    const sum: number = state.x[0]! + state.x[1]!;
+    TestValidator.predicate(`${label}: original-unit row and KKT`,
+      sum >= l - 1e-9 && sum <= u + 1e-9 &&
+      nclose(2 * state.x[0]! + state.x[1]! - 4 + state.y[0]!, 0, 1e-7) &&
+      nclose(state.x[0]! + 2 * state.x[1]! - 5 + state.y[0]!, 0, 1e-7),
+    );
+    for (let i: number = 0; i < states.length; i++)
+      for (const channel of ["x", "z", "y"] as const)
+        TestValidator.predicate(`${label}: earlier ${channel} remains owned`,
+          saved[i]![channel].every((value: number, j: number): boolean =>
+            nclose(states[i]![channel][j]!, value, 0)),
+        );
+    states.push(state);
+    saved.push({ x: Array.from(state.x), z: Array.from(state.z), y: Array.from(state.y) });
+    return state;
+  }
+
+  coupled("free initial row", -Infinity, Infinity, [1, 2]);
+  coupled("sum equality five", 5, 5, [2, 3]);
+  coupled("sum equality one", 1, 1, [0, 1]);
+  coupled("upper sum bound", -Infinity, 2, [0.5, 1.5]);
+  coupled("free after active bound", -Infinity, Infinity, [1, 2]);
+
+  source.p[0]![0] = 4;
+  source.p[0]![1] = 0;
+  source.p[1]![0] = 4;
+  source.q[0] = -12;
+  source.q[1] = -16;
+  (source.rows[0]!.index as number[])[1] = 0;
+  (source.rows[0]!.coef as number[])[0] = 2;
+  coupled("fixed model survives caller source edits", 5, 5, [2, 3]);
+  minimum("fresh preparation admits edited curvature and linear terms",
+    Q.prepare(source).solve([{ l: -Infinity, u: Infinity }]), [3, 4],
+  );
+
+  const scalar: ReturnType<typeof Q.prepare> = Q.prepare({
+    n: 1,
+    band: 0,
+    p: [Float64Array.of(2)],
+    q: Float64Array.of(0),
+    rows: [{ index: [0], coef: [1], l: 3, u: Infinity }],
+  });
+  for (const [weight, expected] of [[2, 1], [8, 3], [0, 0]] as const)
+    minimum(`fresh soft weight ${weight}`, scalar.solve([
+      { l: 3, u: Infinity, weight, key: `soft-${weight}` },
+    ]), [expected]);
+  minimum("soft becomes hard", scalar.solve([{ l: 3, u: Infinity }]), [3]);
+  minimum("new keyed dual is only a starting iterate", scalar.solve([
+    { l: 3, u: Infinity, weight: 2, key: "changed-key" },
+  ], undefined, new Map([["changed-key", -7]])), [1]);
+
+  const warm: Q.IState = {
+    x: Float64Array.of(7),
+    z: Float64Array.of(-3),
+    y: Float64Array.of(0.25),
+  };
+  const warmed: Q.IState = scalar.solve([{ l: 4, u: 4 }], warm);
+  minimum("manual warm equality", warmed, [4]);
+  for (const [channel, expected] of [["x", 7], ["z", -3], ["y", 0.25]] as const)
+    TestValidator.predicate(`prepared solve preserves warm ${channel}`,
+      nclose(warm[channel][0]!, expected, 0) && warmed[channel] !== warm[channel],
+    );
+  const oldZ: number = warmed.z[0]!;
+  const oldY: number = warmed.y[0]!;
+  warmed.x[0] = 123;
+  minimum("returned x cannot change a later solve", scalar.solve([
+    { l: -Infinity, u: Infinity },
+  ]), [0]);
+  TestValidator.predicate("old result arrays retain independent ownership",
+    nclose(warmed.x[0]!, 123, 0) && nclose(warmed.z[0]!, oldZ, 0) &&
+    nclose(warmed.y[0]!, oldY, 0) && warmed.x !== warmed.z &&
+    warmed.x !== warmed.y && warmed.z !== warmed.y,
+  );
+
+  const invalid: readonly (readonly Pick<Q.IRow, "l" | "u" | "weight" | "key">[])[] = [
+    [],
+    [{ l: 0, u: 1 }, { l: 0, u: 1 }],
+    [{ l: 2, u: 1 }],
+    [{ l: NaN, u: 1 }],
+    [{ l: 0, u: Infinity, weight: -1 }],
+    [{ l: 0, u: Infinity, weight: Infinity }],
+  ];
+  for (const bounds of invalid)
+    TestValidator.predicate("malformed refreshed row refuses",
+      throwsError((): Q.IState => scalar.solve(bounds)),
+    );
+  minimum("failed solve leaves prepared model usable", scalar.solve([
+    { l: 3, u: Infinity, weight: 2 },
+  ]), [1]);
+
+  const objective: Q.IProblem = {
+    n: 2, band: 1,
+    p: [Float64Array.of(2, 1), Float64Array.of(4)],
+    q: Float64Array.of(-3, 2),
+    rows: [
+      { index: [0], coef: [1], l: 5, u: Infinity, key: "hard" },
+      { index: [0, 1], coef: [1, 1], l: 2, u: Infinity, weight: 3, key: "lower" },
+      { index: [1], coef: [1], l: -Infinity, u: -1, weight: 4, key: "upper" },
+      { index: [], coef: [], l: -Infinity, u: Infinity, weight: 0, key: "zero" },
+    ],
+  };
+  const observed: { key: string | undefined; miss: number }[] = [];
+
+  /** Observe each actual soft-row interval excess in the public objective. */
+  function observe(row: Q.IRow, miss: number): void { observed.push({ key: row.key, miss }); }
+
+  TestValidator.predicate("admitted exact origin retains all soft penalties",
+    nclose(Q.value(objective, undefined, observe), 10, 0),
+  );
+  TestValidator.equals("origin observer visits only soft rows in order",
+    observed.map((row: { key: string | undefined; miss: number }): string | undefined => row.key),
+    ["lower", "upper", "zero"],
+  );
+  TestValidator.predicate("origin observer reports independent interval distances",
+    observed.every((row: { key: string | undefined; miss: number }, i: number): boolean =>
+      nclose(row.miss, [2, 1, 0][i]!, 0)),
+  );
+  observed.length = 0;
+  TestValidator.predicate("actual step retains coupled curvature and current soft excess",
+    nclose(Q.value(objective, Float64Array.of(1, 2), observe), 24, 0) &&
+    observed.every((row: { key: string | undefined; miss: number }, i: number): boolean =>
+      nclose(row.miss, [0, 3, 0][i]!, 0)),
+  );
+}
+
+/** Keep the existing solver's componentwise tolerance and successful statuses. */
+function minimum(label: string, state: Q.IState, expected: readonly number[]): void {
+  TestValidator.predicate(`${label}: solved independent optimum`,
+    (state.status === "solved" || state.status === "polished") &&
+    state.x.length === expected.length &&
+    expected.every((value: number, i: number): boolean =>
+      nclose(state.x[i]!, value, 1e-6)),
+  );
+}

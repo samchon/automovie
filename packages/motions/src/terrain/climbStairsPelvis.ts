@@ -1,7 +1,7 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 
 /**
  * The pelvis's path over a flight of stairs (`climbStairs`): between the
@@ -36,11 +36,11 @@ export namespace climbStairsPelvis {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result; the namespace gives the timing.
    * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk progress between stances, its height on the swing and its progress over the floor half a step behind.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop for the height and one for the progress.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares contact and progress intervals once, then selects the height and floor spans separately.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts After the last step the path holds the last stance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the steps per read.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the stances only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation and storage in steps; two logarithmic interval selections and constant-size interpolation per read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The final clock and stances are fixed for the returned reader, so named step seconds and delayed progress windows are resolved once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one set of interval arrays bounded by the step count and releases them with the plan, without retaining query history.
    */
   export function of(
     stance: readonly IAutoMovieVector3[],
@@ -48,28 +48,46 @@ export namespace climbStairsPelvis {
     steps: number,
     duration: number,
   ): (seconds: number) => IAutoMovieVector3 {
-    const contact = (j: number): number => clock.at(`treadContact${j}`);
+    const contacts: number[] = Array.from(
+      { length: steps },
+      (_: unknown, i: number): number => clock.at(`treadContact${i + 1}`),
+    );
+    const lifts: ((seconds: number) => number)[] = Array.from(
+      { length: steps },
+      (_: unknown, i: number): (seconds: number) => number =>
+        AutoMovieMotionClock.prepare(clock, `toeOff${i + 1}`, `treadContact${i + 1}`).progress,
+    );
+    const ends: number[] = contacts.map((contact: number, i: number): number =>
+      i + 1 < steps ? (contact + contacts[i + 1]!) / 2 : duration,
+    );
+    const starts: number[] = contacts.map((contact: number, i: number): number =>
+      ((i === 0 ? 0 : contacts[i - 1]!) + contact) / 2,
+    );
+    const interval: (times: readonly number[], seconds: number) => number = (times: readonly number[], seconds: number): number => {
+      let low: number = 0;
+      let high: number = times.length;
+      while (low < high) {
+        const middle: number = (low + high) >>> 1;
+        if (seconds <= times[middle]!) high = middle;
+        else low = middle + 1;
+      }
+      return low;
+    };
     return (seconds: number): IAutoMovieVector3 => {
       let y: number = stance.at(-1)!.y;
-      for (let j: number = 1; j <= steps; j++)
-        if (seconds <= contact(j)) {
-          const lift: number = minimumJerk(
-            clock.linear(`toeOff${j}`, `treadContact${j}`, seconds),
-          ).s;
-          y = stance[j - 1]!.y + (stance[j]!.y - stance[j - 1]!.y) * lift;
-          break;
-        }
-      for (let j: number = 1; j <= steps; j++) {
-        const end: number =
-          j < steps ? (contact(j) + contact(j + 1)) / 2 : duration;
-        if (seconds <= end) {
-          const begin: number =
-            ((j === 1 ? 0 : contact(j - 1)) + contact(j)) / 2;
-          const u: number = minimumJerk(
-            Math.min(1, Math.max(0, (seconds - begin) / (end - begin))),
-          ).s;
-          return { ...Vector3.lerp(stance[j - 1]!, stance[j]!, u), y };
-        }
+      const height: number = interval(contacts, seconds);
+      if (height < steps) {
+        const lift: number = lifts[height]!(seconds);
+        y = stance[height]!.y + (stance[height + 1]!.y - stance[height]!.y) * lift;
+      }
+      const progress: number = interval(ends, seconds);
+      if (progress < steps) {
+        const begin: number = starts[progress]!;
+        const end: number = ends[progress]!;
+        const u: number = minimumJerk(
+          Math.min(1, Math.max(0, (seconds - begin) / (end - begin))),
+        ).s;
+        return { ...Vector3.lerp(stance[progress]!, stance[progress + 1]!, u), y };
       }
       return { ...stance.at(-1)!, y };
     };

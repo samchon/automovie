@@ -142,6 +142,7 @@ export namespace AutoMovieMotionHumanRoot {
   export function travel(props: ITravel): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root"],
+      reads: ["root"],
       from: props.from,
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture =>

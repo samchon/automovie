@@ -43,18 +43,23 @@ export namespace HumanHandShape {
    * @evidence contracts/development/implementation.md#principled-implementation A fist and the curled fingers of a point flex each segment near its range; a flat hand is straight; a relaxed finger takes the position of rest, since the body's rest pose carries no curl of its own. The values are `HumanHand`'s documented ones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Four fingers by three segments, then the thumb.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment is written for every shape, so no joint keeps an angle of the shape before.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fifteen assignments with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The constant named table is constructed once per valid side and shape; each call still allocates its own record and fifteen angle tuples in original key order.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only private numeric snapshots of closed named shapes are shared; caller edits cannot change another result, including after the first cache miss.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The shared working/emblem cache has at most thirty entries of fifteen scalar joint rows, with no body or caller record retained; unsupported runtime names are not cached.
    */
   export function of(
     side: HumanHand.Side,
     form: HumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+    const key: string | undefined = (side === "left" || side === "right") &&
+      (form === "relaxed" || form === "flat" || form === "point" || form === "fist")
+      ? `working:${side}:${form}` : undefined;
+    const known: readonly IShapeEntry[] | undefined = key === undefined ? undefined : SHAPES.get(key);
+    if (known !== undefined) return copyShape(known);
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
-    const set = (bone: string, flexion: number): void => {
+    const set: (bone: string, flexion: number) => void = (bone: string, flexion: number): void => {
       out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
     };
     for (const digit of ["Index", "Middle", "Ring", "Little"]) {
@@ -80,6 +85,7 @@ export namespace HumanHandShape {
     set("ThumbMetacarpal", 0);
     set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
     set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
+    if (key !== undefined) rememberShape(key, out);
     return out;
   }
 
@@ -134,14 +140,18 @@ export namespace HumanHandShape {
    * @evidence contracts/development/implementation.md#principled-implementation Each digit is straight, folded as in the fist, or bent to the angles its shape names; a spread or a crossing is the proximal joint's abduction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One table of digit states per shape and one loop that writes them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fold is the fist's own (85, 95 and 90 degrees), so an emblem's folded fingers match the working shape.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The constant emblem decisions and bone names are constructed once per valid side and form, followed by fifteen fresh angle-tuple copies per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Private scalar snapshots share only the closed named table, preserving both first-miss and hit result ownership and key order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The working/emblem cache holds at most thirty fifteen-joint snapshots with no body or result reference; other runtime names stay uncached.
    */
   export function emblem(
     side: HumanHand.Side,
     form: Emblem,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+    const key: string | undefined = (side === "left" || side === "right") && EMBLEMS.includes(form)
+      ? `emblem:${side}:${form}` : undefined;
+    const known: readonly IShapeEntry[] | undefined = key === undefined ? undefined : SHAPES.get(key);
+    if (known !== undefined) return copyShape(known);
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
@@ -209,6 +219,7 @@ export namespace HumanHandShape {
     out[`${side}ThumbMetacarpal` as AutoMovieHumanoidBone] = [0, 0, 0];
     out[`${side}ThumbProximal` as AutoMovieHumanoidBone] = [thumb[0], 0, 0];
     out[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [thumb[1], 0, 0];
+    if (key !== undefined) rememberShape(key, out);
     return out;
   }
 
@@ -267,7 +278,7 @@ export namespace HumanHandShape {
       body,
       pose,
     );
-    const at = (segment: "Proximal" | "Distal"): IAutoMovieVector3 =>
+    const at: (segment: "Proximal" | "Distal") => IAutoMovieVector3 = (segment: "Proximal" | "Distal"): IAutoMovieVector3 =>
       bones.get(`${side}${name}${segment}` as AutoMovieHumanoidBone)!
         .worldPosition;
     return Vector3.normalize(
@@ -380,9 +391,9 @@ export namespace HumanHandShape {
       { skeleton: body.skeleton.id, root: null, joints },
     );
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-    const region =
+    const region: resolveAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[`${surface}${Side}` as AutoMovieHumanoidRegion];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
       region,
       bones.get(region.bone)!,
     );
@@ -406,3 +417,24 @@ export namespace HumanHandShape {
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
 const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();
+
+/** A canonical joint key and its three clinical angles, copied as scalars. */
+type IShapeEntry = readonly [AutoMovieHumanoidBone, number, number, number];
+
+/** Closed working and emblem tables: two hands times four plus eleven shapes. */
+const SHAPES: Map<string, readonly IShapeEntry[]> = new Map();
+
+/** Snapshot numbers before the first caller can edit its returned record or tuples. */
+function rememberShape(key: string, source: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>): void {
+  const entries: IShapeEntry[] = [];
+  for (const [bone, angles] of Object.entries(source))
+    if (angles !== undefined) entries.push([bone as AutoMovieHumanoidBone, angles[0], angles[1], angles[2]]);
+  SHAPES.set(key, entries);
+}
+
+/** Each call owns its record and every nested tuple, in the original insertion order. */
+function copyShape(entries: readonly IShapeEntry[]): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+  const out: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {};
+  for (const entry of entries) out[entry[0]] = [entry[1], entry[2], entry[3]];
+  return out;
+}

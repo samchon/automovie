@@ -358,6 +358,55 @@ export namespace HumanFoot {
   }
 
   /**
+   * Prepare a rigid sole pivot whose pitch alone varies, for repeated rocker
+   * trials under one fixed heading, contact, toe flexion and roll.
+   *
+   * @param body The body owning the sole socket.
+   * @param side The foot.
+   * @param pivot Which socket stays fixed.
+   * @param at The socket's fixed world position, metres.
+   * @param heading The fixed foot heading, degrees about +Y.
+   * @param toes The fixed toe flexion, degrees; zero when absent.
+   * @param roll The fixed foot roll, degrees; zero when absent.
+   * @returns A reader of pitch in degrees, positive toes up, with `pivot`'s placement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, frames, units, defaults and the reader's equivalence to pivot.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses exactly rotation's yaw-times-roll prefix, normalization and varying pitch multiplication, then the fixed contact minus its rotated socket offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rotation prefix and socket offset precede one pitch reader of the same rigid transform as pivot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Calls offset for toe articulation and preserves quaternion multiplication order; no pitch or angle bound changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; socket lookup and fixed yaw and roll quaternion construction run once per rocker.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller holds body, side, socket, contact, heading, toes and roll fixed for this reader; no result is shared across unlike inputs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains its contact, socket offset and rotation prefix until the owning synchronous solve releases it, without a sample cache.
+   */
+  export function preparePivot(
+    body: IHumanBody,
+    side: "left" | "right",
+    pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+    at: IAutoMovieVector3,
+    heading: number,
+    toes: number = 0,
+    roll: number = 0,
+  ): (pitch: number) => IPlacement {
+    const prefix: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
+    );
+    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
+    return (pitch: number): IPlacement => {
+      const r: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          prefix,
+          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
+        ),
+      );
+      return {
+        ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
+        rotation: r,
+      };
+    };
+  }
+
+  /**
    * Where the ankle goes, and how far the toes extend, when a planted foot
    * reaches a rotation other than the one asked for: the foot turns about
    * its contact, which stays where the goal put it, and the toes take back
@@ -404,9 +453,41 @@ export namespace HumanFoot {
     foot: IPlacement,
     toes: number = 0,
   ): IAutoMovieVector3 {
+    return pointAt(offset(body, side, point, toes), foot);
+  }
+
+  /**
+   * Prepare a sole point whose body, socket and toe flexion remain fixed.
+   *
+   * @param body The socket's body.
+   * @param side The foot.
+   * @param point The socket to place.
+   * @param toes Fixed toe flexion, degrees; zero when absent.
+   * @returns A reader of foot placement yielding the same world point as `point`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed socket inputs, angular default, world-point result and placement reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves the articulated ankle-local socket once and uses point's same quaternion rotation and ankle translation for every placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset preparation and the shared pointAt rigid transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Toe articulation remains offset's formula; no placement is sampled, rounded or retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; repeated placements skip socket/rest lookups and the fixed toe rotation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, socket and toe flexion fix one local offset for the reader's lifetime; the varying placement is always evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one offset until its owning rocker or action releases it, without query history.
+   */
+  export function preparePoint(
+    body: IHumanBody,
+    side: "left" | "right",
+    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    toes: number = 0,
+  ): (foot: IPlacement) => IAutoMovieVector3 {
+    const local: IAutoMovieVector3 = offset(body, side, point, toes);
+    return (foot: IPlacement): IAutoMovieVector3 => pointAt(local, foot);
+  }
+
+  /** The common ankle translation and rigid rotation of a prepared local socket. */
+  function pointAt(local: IAutoMovieVector3, foot: IPlacement): IAutoMovieVector3 {
     return Vector3.add(
       foot.ankle,
-      Quaternion.rotateVector(foot.rotation, offset(body, side, point, toes)),
+      Quaternion.rotateVector(foot.rotation, local),
     );
   }
 }

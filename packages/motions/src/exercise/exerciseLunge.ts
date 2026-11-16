@@ -61,7 +61,7 @@ export namespace exerciseLunge {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The bottom, then the root, the lead leg and the trailing foot.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ankle's dorsiflexion is the rig's limit, not a stated angle.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work at plan time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per lunge plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanFoot.preparePivot holds the unchanged trailing contact, heading and socket geometry across independent heel-pitch queries; each time still evaluates the original leg goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over the stance and the bottom.
    */
   export function plan(props: IProps): {
@@ -79,15 +79,8 @@ export namespace exerciseLunge {
     const sink: number = Math.max(0, hip.y - low) * extent;
     const heel: number =
       90 - (AutoMovieMotionHumanRange.limit(`${trail}Foot`, "flexion") ?? 0);
-    const tiptoe = (share: number): HumanFoot.IPlacement =>
-      HumanFoot.pivot(
-        body,
-        trail,
-        "mtp",
-        HumanFoot.point(body, trail, "mtp", stance[trail]),
-        HumanFoot.heading(stance[trail].rotation),
-        -heel * share,
-      );
+    const pivot: ReturnType<typeof HumanFoot.preparePivot> = HumanFoot.preparePivot(body, trail, "mtp", HumanFoot.point(body, trail, "mtp", stance[trail]), HumanFoot.heading(stance[trail].rotation));
+    const tiptoe = (share: number): HumanFoot.IPlacement => pivot(-heel * share);
     const toes: IAutoMovieVector3 = tiptoe(1).ankle;
     const travel: number =
       (Vector3.dot(Vector3.subtract(toes, hip), forward) +

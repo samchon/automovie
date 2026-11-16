@@ -40,7 +40,13 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   /** The reference overlap beyond which two segments' surfaces are one volume by their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`). */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
-  /** One collider segment's probes and bounding sphere in its own frame. */
+  /** One collider segment's probes and bounding sphere in its own frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the carrying bone, ordered shape/axis probes, surface prefix and metre-valued local sphere.
+   * @evidence contracts/development/design.md#principled-representation Actual collider corners and along-bone points share one segment-local frame and its conservative bounding sphere.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Model construction produces every field for the canonical audit, arm-frame and trajectory reference readers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No probe is invented from a scene, no physical radius is padded and surface/axis ownership stays explicit.
+   */
   export interface IPart {
     /** The bone that carries the segment. */
     bone: AutoMovieHumanoidBone;
@@ -61,7 +67,13 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     radius: number;
   }
 
-  /** What is derived once per body. */
+  /** What is derived once per body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States ordered parts, own-body exclusions, the two actual reference placements and lazy ordered-pair depth readings.
+   * @evidence contracts/development/design.md#principled-representation A body's actual build and fixed reference poses define its probe allowances; external bodies receive no such own-body reference.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The shared model supplies the audit and arm planner without duplicating collider construction or reference policy.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The existing live-body cache holds this build only; current candidate poses and scores are not represented as model state.
+   */
   export interface IModel {
     /** The segments, in the order the colliders are placed. */
     parts: IPart[];
@@ -187,12 +199,13 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         radius,
       };
     });
+
     // The nearest ancestor of a bone that carries a collider: the joint its
     // collider meets, skipping bones (a clavicle) that have none.
     const collided: ReadonlySet<AutoMovieHumanoidBone> = new Set(
       parts.map((p: IPart): AutoMovieHumanoidBone => p.bone),
     );
-    const above = (
+    const above: (bone: AutoMovieHumanoidBone) => AutoMovieHumanoidBone | null = (
       bone: AutoMovieHumanoidBone,
     ): AutoMovieHumanoidBone | null => {
       let up: AutoMovieHumanoidBone | null = parent.get(bone) ?? null;
@@ -230,7 +243,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation The part's centre carried by the segment's pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Carries the supplied canonical centre without replacing it by the bone origin or modifying its radius.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -255,11 +268,11 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the outside value.
    * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex hull is its least distance to the face planes; other shapes are read by the engine's shape distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative transform, then one loop over probes and shapes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine owns the hull faces and the shape distance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A probe outside a shape's bounding sphere (`HumanColliders.bound`) skips the shape, which can add no depth there, and a face loop stops once a probe is no deeper than the deepest found; the readings are those of reading every shape.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Poses are read independently.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment-relative transform precedes the original probe/shape/face loops; each selected hull's fixed inverse is prepared lazily at its first original use.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine still owns every hull face and shape distance. Shape DTO transforms remain unchanged during this synchronous depth read; no query, bound, face order, deepest comparison or tolerance changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps sphere screening, selected point transforms and the original face early cut. For P probes and H selected hulls, fixed inverses are computed at most H times instead of up to P*H. A non-hull or fully screened read creates no inverse array; face and distance-query costs remain unchanged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only a selected hull's completed Quaternion.inverse of its unchanged local transform is shared within this one depth read. Each original sphere norm uses Vector3.distance's exact length/subtract arithmetic without an unused displacement object. Different segment pairs call independently; every point, bound and face reading remains.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A private shape-indexed array holds at most one inverse per selected hull until return or throw. No shape, pose, inverse or score history survives this call; only the fresh depth array escapes.
    */
   export function depths(
     probes: readonly IAutoMovieVector3[],
@@ -276,10 +289,11 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       Vector3.subtract(a.pose.position, b.pose.position),
     );
     const out: Float64Array = new Float64Array(probes.length);
+
     // Each shape's bounding sphere in segment j's frame: a probe outside it
     // is outside the shape, which then adds no depth.
     const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
-      (shape: IAutoMoviePhysicalProfile.IShape) => {
+      (shape: IAutoMoviePhysicalProfile.IShape): { centre: IAutoMovieVector3; radius: number } => {
         const ball: HumanColliders.IBall = HumanColliders.bound(shape);
         return {
           centre: Vector3.add(
@@ -290,6 +304,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         };
       },
     );
+    let inverses: IAutoMovieQuaternion[] | undefined;
     for (let k: number = 0; k < probes.length; k++) {
       // The probe in segment j's frame.
       const local: IAutoMovieVector3 = Vector3.add(
@@ -300,7 +315,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       for (let s: number = 0; s < b.shapes.length; s++) {
         const shape: IAutoMoviePhysicalProfile.IShape = b.shapes[s]!;
         if (
-          Vector3.length(Vector3.subtract(local, balls[s]!.centre)) >=
+          Vector3.distance(local, balls[s]!.centre) >=
           balls[s]!.radius
         )
           continue;
@@ -311,8 +326,14 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           );
           continue;
         }
+        let unturn: IAutoMovieQuaternion | undefined = inverses?.[s];
+        if (unturn === undefined) {
+          unturn = Quaternion.inverse(shape.transform.rotation);
+          if (inverses === undefined) inverses = [];
+          inverses[s] = unturn;
+        }
         const point: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(shape.transform.rotation),
+          unturn,
           Vector3.subtract(local, shape.transform.position),
         );
         let inside: number = Infinity;
@@ -421,7 +442,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the zero.
    * @evidence contracts/development/implementation.md#principled-implementation The greatest of `beyond`'s readings, floored at zero.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original beyond reading and the zero floor without a new margin or pair exemption.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the probes, with no algorithm to choose.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `beyond`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.

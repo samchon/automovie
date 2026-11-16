@@ -19,7 +19,7 @@ import { aimRotation } from "./aimRotation";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the branches, the aim and swivel, and what a held swivel means.
  * @evidence contracts/development/design.md#principled-representation The swivel parameterisation of Tolani, Goswami and Badler 2000: a hinge angle per branch and a swivel about the root-to-effector line.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, the swivel and three functions: the branches, the pose and its reading; `hingedArmArticulation` poses its candidates through them.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Direct branches, pose and read share their geometric helpers with explicit source/target preparation; hingedArmArticulation consumes those actual readers and owns all scoring/search policy.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `aimRotation`; the scoring and the sweep stay with `hingedArmArticulation`.
  */
 export namespace hingedArmSwivel {
@@ -116,76 +116,7 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function branches(chain: IChain): IStop[] | null {
-    const root: IAutoMovieVector3 = chain.upper.worldPosition;
-    if (
-      Vector3.length(chain.midOffset) < 1e-6 ||
-      Vector3.length(chain.endOffset) < 1e-6
-    )
-      return null;
-    const distance: number = Vector3.length(
-      Vector3.subtract(chain.target, root),
-    );
-    if (distance < 1e-6) return null;
-    if (Vector3.length(chain.hinge) < 1e-6) return null;
-    const hinge: IAutoMovieVector3 = Vector3.normalize(chain.hinge);
-    // |m(θ)|² = k + α cos θ + β sin θ, with the far segment split into the part
-    // the hinge cannot move (along the hinge) and the part it swings.
-    const along: number = Vector3.dot(hinge, chain.endOffset);
-    const swung: IAutoMovieVector3 = Vector3.subtract(
-      chain.endOffset,
-      Vector3.scale(hinge, along),
-    );
-    const radius: number = Vector3.length(swung);
-    const rotated = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(chain.midRest, vector);
-    const k: number =
-      Vector3.dot(chain.midOffset, chain.midOffset) +
-      Vector3.dot(chain.endOffset, chain.endOffset) +
-      2 * along * Vector3.dot(chain.midOffset, rotated(hinge));
-    let alpha: number = 0;
-    let beta: number = 0;
-    if (radius >= SPAN_EPSILON) {
-      const unit: IAutoMovieVector3 = Vector3.scale(swung, 1 / radius);
-      alpha = 2 * radius * Vector3.dot(chain.midOffset, rotated(unit));
-      beta =
-        2 *
-        radius *
-        Vector3.dot(chain.midOffset, rotated(Vector3.cross(hinge, unit)));
-    }
-    const span: number = Math.hypot(alpha, beta);
-    if (span < SPAN_EPSILON) return null;
-    const phase: number = Math.atan2(beta, alpha);
-    const ratio: number = (distance * distance - k) / span;
-    // Outside the span the chain clamps to its extreme, so the effector stops
-    // on the reachable shell pointing at the target rather than failing.
-    const thetas: number[] =
-      ratio >= 1
-        ? [phase]
-        : ratio <= -1
-          ? [phase + Math.PI]
-          : [phase + Math.acos(ratio), phase - Math.acos(ratio)];
-    const outside: boolean = ratio >= 1 || ratio <= -1;
-    const short = (theta: number): number =>
-      Math.abs(
-        Math.sqrt(
-          Math.max(0, k + alpha * Math.cos(theta) + beta * Math.sin(theta)),
-        ) - distance,
-      );
-    // A hinge angle outside the joint's own range stops at the nearer limit,
-    // so the effector rests on the legal shell along the line to the target.
-    const range: { min: number; max: number } | undefined = chain.range;
-    return thetas.map((theta: number): IStop => {
-      if (range === undefined)
-        return { theta, shortfall: outside ? short(theta) : 0 };
-      const centre: number = (range.min + range.max) / 2;
-      const wrapped: number =
-        theta - 2 * Math.PI * Math.round((theta - centre) / (2 * Math.PI));
-      const legal: number = Math.min(range.max, Math.max(range.min, wrapped));
-      return {
-        theta: legal,
-        shortfall: legal === wrapped && !outside ? 0 : short(legal),
-      };
-    });
+    return branchStops(chain);
   }
 
   /**
@@ -213,7 +144,82 @@ export namespace hingedArmSwivel {
     upper: IAutoMovieQuaternion;
     lower: IAutoMovieQuaternion;
   } {
-    const { lower, line, aim } = aimed(chain, theta);
+    return poseBranch(chain, theta);
+  }
+
+  /**
+   * Source geometry and one target's independent branch/pose readers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged borrowed source geometry, model-metre target points and per-target range ownership.
+   * @evidence contracts/development/design.md#principled-representation The source fixes span coefficients and inverse root frame; a target fixes its reach distance and local aim goal independently of the swivel and bend branch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The hinged articulation consumes branches and a branch poser; source workspaces need only target construction, with no score, seed or search policy exposed.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every target computes its actual roots and every branch computes its actual aim; no candidate, target history, callback result or approximate key is retained.
+   */
+  export interface IPrepared {
+    /** Borrow one unchanged model-frame point and optional hinge range for this target's search. */
+    target(point: IAutoMovieVector3, range?: IChain["range"]): IPreparedTarget;
+  }
+
+  /**
+   * One target's geometric readers under one unchanged prepared source.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the same ordered branch roots and degree-valued swivel poser as the direct functions.
+   * @evidence contracts/development/design.md#principled-representation The target's local aim direction is shared by its two bend branches, while their lower rotations and swivel axes remain distinct.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The articulation search consumes only the ordered stops and one poser for each hinge angle.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Degenerate branches return null under the same thresholds; the poser does not clamp, score or change a requested target.
+   */
+  export interface IPreparedTarget {
+    /** Actual hinge roots in direct branch order, or null at the same degeneracy gates. */
+    branches(): IStop[] | null;
+
+    /** Actual branch articulation for a swivel, degrees, without any rig policy. */
+    pose(theta: number): ReturnType<typeof hingedArmSwivel.pose>;
+  }
+
+  /**
+   * Borrow unchanged source frames/offsets for one synchronous chain operation.
+   * Construction performs no numeric admission. Branch queries lazily share
+   * exact lengths, normalized hinge and span coefficients; pose queries share
+   * the exact inverse root frame and each target's local aim goal. Target
+   * roots, range stops, branch directions, aims and every swivel remain actual.
+   *
+   * Constant-size source/target records retain no candidate or score history.
+   * The caller releases each target after its search and the source after all
+   * fits; changed frames, offsets or hinge require a new preparation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed immutable source scope, lazy original-use geometry, independent target/range scope and caller release.
+   * @evidence contracts/development/implementation.md#principled-implementation The hinge-span sinusoid depends only on source offsets/rest/axis, and the lowered goal depends only on source root and target; their unchanged completed arithmetic can serve both bend branches and all target swivel probes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepared entries share branchStops, geometry, aimed and poseBranch, keeping the exact hinge law with one owner and leaving all search/ROM policy to callers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps root/segment/hinge/span degeneracy thresholds, root order, range wrapping, shortfall formula and actual branch/quaternion formulas; no reached-point proxy or cached answer replaces a demand.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One constant source sinusoid/inverse preparation serves all targets, and one constant lowered goal serves each target's branches. Every requested root, branch aim and swivel still runs; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only source-fixed scalars/vectors and a target's unchanged local goal are shared. Each target owns its own point/range and outputs, with no seed, score, clamp or user callback cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One source owns a boolean, optional fixed geometry and inverse frame; each target owns one borrowed chain request and optional goal until caller release, with no growing collection, handles or tasks.
+   */
+  export function prepare(
+    source: Omit<IChain, "target" | "range">,
+  ): IPrepared {
+    const state: IPreparation = {};
+    return {
+      target: (point: IAutoMovieVector3, range?: IChain["range"]): IPreparedTarget => {
+        const chain: IChain = { ...source, target: point, ...(range === undefined ? {} : { range }) };
+        const target: ITargetPreparation = {};
+        return {
+          branches: (): IStop[] | null => branchStops(chain, state),
+          pose: (theta: number): ReturnType<typeof hingedArmSwivel.pose> =>
+            poseBranch(chain, theta, state, target),
+        };
+      },
+    };
+  }
+
+  /** A branch's fixed pose generator, shared by direct and prepared entries. */
+  function poseBranch(
+    chain: IChain,
+    theta: number,
+    source?: IPreparation,
+    target?: ITargetPreparation,
+  ): ReturnType<typeof hingedArmSwivel.pose> {
+    const { lower, line, aim }: ReturnType<typeof aimed> = aimed(chain, theta, source, target);
     return (swivel: number) => ({
       upper: Quaternion.multiply(aim, Quaternion.fromAxisAngle(line, swivel)),
       lower,
@@ -242,7 +248,7 @@ export namespace hingedArmSwivel {
     upper: IAutoMovieQuaternion,
     theta: number,
   ): number {
-    const { line, aim } = aimed(chain, theta);
+    const { line, aim }: ReturnType<typeof aimed> = aimed(chain, theta);
     const rest: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.inverse(aim),
       upper,
@@ -260,13 +266,15 @@ export namespace hingedArmSwivel {
   function aimed(
     chain: IChain,
     theta: number,
+    source?: IPreparation,
+    target?: ITargetPreparation,
   ): {
     lower: IAutoMovieQuaternion;
     line: IAutoMovieVector3;
     aim: IAutoMovieQuaternion;
   } {
     const lower: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      Vector3.normalize(chain.hinge),
+      source?.geometry?.hinge ?? Vector3.normalize(chain.hinge),
       theta * RAD2DEG,
     );
     const mid: IAutoMovieVector3 = Vector3.add(
@@ -276,15 +284,117 @@ export namespace hingedArmSwivel {
         Quaternion.rotateVector(lower, chain.endOffset),
       ),
     );
-    const goal: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(chain.upper.worldRotation),
-      Vector3.subtract(chain.target, chain.upper.worldPosition),
-    );
+    let goal: IAutoMovieVector3 | undefined = target?.goal;
+    if (goal === undefined) {
+      let inverse: IAutoMovieQuaternion | undefined = source?.inverse;
+      if (inverse === undefined) {
+        inverse = Quaternion.inverse(chain.upper.worldRotation);
+        if (source !== undefined) source.inverse = inverse;
+      }
+      goal = Quaternion.rotateVector(inverse,
+        Vector3.subtract(chain.target, chain.upper.worldPosition));
+      if (target !== undefined) target.goal = goal;
+    }
     return {
       lower,
       line: Vector3.normalize(mid),
       aim: aimRotation(mid, goal),
     };
+  }
+
+  /** Source-only hinge span coefficients, independent of target and range. */
+  interface IGeometry {
+    /** Actual normalized hinge, shared with branch posing after admission. */
+    hinge: IAutoMovieVector3;
+    /** Constant term of the squared root-to-effector span. */
+    k: number;
+    /** Cosine coefficient of that span. */
+    alpha: number;
+    /** Sine coefficient of that span. */
+    beta: number;
+    /** Magnitude of the two harmonic coefficients. */
+    span: number;
+    /** Phase of that sinusoid, radians. */
+    phase: number;
+  }
+
+  /** Lazy source quantities, retained only by explicit unchanged preparation. */
+  interface IPreparation {
+    /** Segment-length admission, before the target gate. */
+    valid?: boolean;
+    /** Hinge/span admission, after a nondegenerate target. */
+    geometry?: IGeometry | null;
+    /** Root-frame inverse, first read during branch posing. */
+    inverse?: IAutoMovieQuaternion;
+  }
+
+  /** The exact target goal lowered through the unchanged source root frame. */
+  interface ITargetPreparation {
+    /** Shared between branch aims, never between targets. */
+    goal?: IAutoMovieVector3;
+  }
+
+  /** Read the hinge-only sinusoid after the existing length/target gates. */
+  function geometry(chain: IChain): IGeometry | null {
+    if (Vector3.length(chain.hinge) < 1e-6) return null;
+    const hinge: IAutoMovieVector3 = Vector3.normalize(chain.hinge);
+    const along: number = Vector3.dot(hinge, chain.endOffset);
+    const swung: IAutoMovieVector3 = Vector3.subtract(
+      chain.endOffset, Vector3.scale(hinge, along),
+    );
+    const radius: number = Vector3.length(swung);
+    const k: number = Vector3.dot(chain.midOffset, chain.midOffset) +
+      Vector3.dot(chain.endOffset, chain.endOffset) +
+      2 * along * Vector3.dot(chain.midOffset,
+        Quaternion.rotateVector(chain.midRest, hinge));
+    let alpha: number = 0;
+    let beta: number = 0;
+    if (radius >= SPAN_EPSILON) {
+      const unit: IAutoMovieVector3 = Vector3.scale(swung, 1 / radius);
+      alpha = 2 * radius * Vector3.dot(chain.midOffset,
+        Quaternion.rotateVector(chain.midRest, unit));
+      beta = 2 * radius * Vector3.dot(chain.midOffset,
+        Quaternion.rotateVector(chain.midRest, Vector3.cross(hinge, unit)));
+    }
+    const span: number = Math.hypot(alpha, beta);
+    return span < SPAN_EPSILON ? null
+      : { hinge, k, alpha, beta, span, phase: Math.atan2(beta, alpha) };
+  }
+
+  /** Preserve root/length/target/hinge admission, root order and range stops. */
+  function branchStops(chain: IChain, source?: IPreparation): IStop[] | null {
+    const root: IAutoMovieVector3 = chain.upper.worldPosition;
+    let valid: boolean | undefined = source?.valid;
+    if (valid === undefined) {
+      valid = !(Vector3.length(chain.midOffset) < 1e-6 ||
+        Vector3.length(chain.endOffset) < 1e-6);
+      if (source !== undefined) source.valid = valid;
+    }
+    if (!valid) return null;
+    const distance: number = Vector3.length(Vector3.subtract(chain.target, root));
+    if (distance < 1e-6) return null;
+    let fixed: IGeometry | null | undefined = source?.geometry;
+    if (fixed === undefined) {
+      fixed = geometry(chain);
+      if (source !== undefined) source.geometry = fixed;
+    }
+    if (fixed === null) return null;
+    const { k, alpha, beta, span, phase }: IGeometry = fixed;
+    const ratio: number = (distance * distance - k) / span;
+    const thetas: number[] = ratio >= 1 ? [phase] : ratio <= -1
+      ? [phase + Math.PI] : [phase + Math.acos(ratio), phase - Math.acos(ratio)];
+    const outside: boolean = ratio >= 1 || ratio <= -1;
+    const short: (theta: number) => number = (theta: number): number => Math.abs(
+      Math.sqrt(Math.max(0, k + alpha * Math.cos(theta) + beta * Math.sin(theta))) - distance,
+    );
+    const range: IChain["range"] = chain.range;
+    return thetas.map((theta: number): IStop => {
+      if (range === undefined) return { theta, shortfall: outside ? short(theta) : 0 };
+      const centre: number = (range.min + range.max) / 2;
+      const wrapped: number = theta - 2 * Math.PI * Math.round((theta - centre) / (2 * Math.PI));
+      const legal: number = Math.min(range.max, Math.max(range.min, wrapped));
+      return { theta: legal, shortfall: legal === wrapped && !outside ? 0 : short(legal) };
+    });
   }
 
   /** Below this the mid joint cannot change the chain's span at all. */

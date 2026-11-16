@@ -45,12 +45,14 @@ export namespace HumanPreshape {
   ): { joints: IHumanPosture["joints"]; aperture: number } {
     const want: number = HumanPrehension.aperture(width);
     const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
+    const aperture: ReturnType<typeof HumanGrip.prepareAperture> =
+      HumanGrip.prepareAperture(body, side);
+    const bones: Set<AutoMovieHumanoidBone> = new Set([
+      ...Object.keys(closed), ...Object.keys(flat),
+    ] as AutoMovieHumanoidBone[]);
     const blend = (w: number): IHumanPosture["joints"] => {
       const out: IHumanPosture["joints"] = {};
-      for (const bone of new Set([
-        ...Object.keys(closed),
-        ...Object.keys(flat),
-      ]) as Set<AutoMovieHumanoidBone>) {
+      for (const bone of bones) {
         const a: readonly [number, number, number] = closed[bone] ?? [0, 0, 0];
         const b: readonly [number, number, number] = flat[bone] ?? [0, 0, 0];
         out[bone] = [
@@ -67,22 +69,22 @@ export namespace HumanPreshape {
     ): { joints: IHumanPosture["joints"]; aperture: number } => {
       let lo: number = 0;
       let top: number = hi;
-      if (HumanGrip.aperture(body, side, shape(top)) <= want)
+      const upper: IHumanPosture["joints"] = shape(top);
+      const upperAperture: number = aperture(upper);
+      if (upperAperture <= want)
         return {
-          joints: shape(top),
-          aperture: HumanGrip.aperture(body, side, shape(top)),
+          joints: upper,
+          aperture: upperAperture,
         };
       for (let i: number = 0; i < 30; i++) {
         const mid: number = (lo + top) / 2;
-        if (HumanGrip.aperture(body, side, shape(mid)) < want) lo = mid;
+        if (aperture(shape(mid)) < want) lo = mid;
         else top = mid;
       }
-      return {
-        joints: shape(top),
-        aperture: HumanGrip.aperture(body, side, shape(top)),
-      };
+      const chosen: IHumanPosture["joints"] = shape(top);
+      return { joints: chosen, aperture: aperture(chosen) };
     };
-    if (HumanGrip.aperture(body, side, flat) >= want) return solve(blend, 1);
+    if (aperture(flat) >= want) return solve(blend, 1);
 
     // Wider than the flat hand: abduct the thumb's carpometacarpal joint, in
     // whichever sense widens the span.
@@ -95,8 +97,7 @@ export namespace HumanPreshape {
         [thumb]: [0, sense * 60 * x, 0] as const,
       });
     const sense: number =
-      HumanGrip.aperture(body, side, abducted(1)(0.5)) >=
-      HumanGrip.aperture(body, side, abducted(-1)(0.5))
+      aperture(abducted(1)(0.5)) >= aperture(abducted(-1)(0.5))
         ? 1
         : -1;
     return solve(abducted(sense), 1);

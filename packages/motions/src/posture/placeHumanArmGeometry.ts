@@ -20,7 +20,7 @@ import type { HumanArmGeometry as G } from "./HumanArmGeometry";
  * @evidence contracts/development/implementation.md#principled-implementation A hand-local fingertip and each segment-local surface probe are transformed by their actual completed chain frames; axis probes retain the existing interpolation positions and measured-body radius scaling.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner attaches probes only; HumanArmGeometry.chain owns the actual parent-first FK, so chain-only consumers can omit this unused observation phase without copying motion calculations or creating an import cycle.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing coarse interpolation/radius-taper coefficients are unchanged conventions rather than claimed anatomical measurements; frame surface-owner indices remain aligned, and actual joint transforms are supplied rather than approximated.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight fixed axis probes plus O(P) requested surface transforms for P collider probes; full placement additionally owns one fixed-size intermediate chain record, while chain-only readers allocate neither tip nor probes. No net runtime improvement is claimed without measurement.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Eight axis probes plus O(P) selected surface transforms remain. Disabled surface skips its mapper/result array; enabled surface selects origin/rotation by scalar references without a temporary pair per probe. Full placement still owns its fixed chain wrapper and requested probe output; runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same completed chain that the full placed result exposes; every selected world probe is actually transformed for this candidate and no result is retained across requests.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state; the caller owns the new placed wrapper and eight-plus-P probe array, sharing its completed chain vectors with the output and corresponding probe entries.
  */
@@ -53,21 +53,24 @@ export function placeHumanArmGeometry(
       [ph, m.forearmRadius * 0.7],
       [Vector3.lerp(ph, tip, 0.5), m.forearmRadius * 0.6],
       [tip, m.forearmRadius * 0.4],
-      ...(surface ? at.surface : []).map(
-        (
-          s: IAutoMovieVector3,
-          i: number,
-        ): readonly [IAutoMovieVector3, number] => {
-          const owner: "upper" | "lower" | "hand" = at.owners[i]!;
-          const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
-            owner === "upper"
-              ? [pu, wu]
-              : owner === "lower"
-                ? [pl, wl]
-                : [ph, wh];
-          return [Vector3.add(o, Quaternion.rotateVector(w, s)), 0];
-        },
-      ),
+      ...(surface
+        ? at.surface.map(
+            (
+              s: IAutoMovieVector3,
+              i: number,
+            ): readonly [IAutoMovieVector3, number] => {
+              const owner: "upper" | "lower" | "hand" = at.owners[i]!;
+              const origin: IAutoMovieVector3 =
+                owner === "upper" ? pu : owner === "lower" ? pl : ph;
+              const rotation: IAutoMovieQuaternion =
+                owner === "upper" ? wu : owner === "lower" ? wl : wh;
+              return [
+                Vector3.add(origin, Quaternion.rotateVector(rotation, s)),
+                0,
+              ];
+            },
+          )
+        : []),
     ],
     shoulder: pu,
     elbow: pl,

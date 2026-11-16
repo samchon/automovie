@@ -18,9 +18,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#principled-implementation Returns q(t) R(t)^-1 about the tabulated centre, with the existing linear centre and slerped unturned root; the physical trajectory reads its own dense extension.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Clamp the action time to the flight, find its tabulated interval and form the relative rigid rotation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original playback arithmetic; no displayed pose or shape history is read after solving.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time table lookup plus the solved trajectory's lookup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the solved trajectory and precomputed numeric centre/root table.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Captures only numeric table data and the completed flight. Performance, body, action segment, history and right-hand side are outside this factory's scope.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time table lookup plus the solved trajectory's lookup. Each visited interval lazily prepares its endpoint dot, shorter-arc branch and spherical constants once; each actual read still evaluates its own weights and normalization.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the solved trajectory and numeric centre/root table. Copied root endpoint coordinates are compared with Object.is before sharing a prepared slerp, so editing a caller-owned table entry invalidates that interval without relying on identity.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Captures only numeric table data, completed flight and at most one fixed-size endpoint interpolation per visited table interval; shrinking the table truncates old slots. Performance, body, action segment, history and right-hand side are outside this factory's scope.
  */
 export function HumanPerformanceFlightRotation(props: {
   start: number;
@@ -31,6 +31,7 @@ export function HumanPerformanceFlightRotation(props: {
   table: readonly { about: IAutoMovieVector3; root: IAutoMovieQuaternion }[];
   flight: integrateAirborneRotation.IFlight;
 }): (seconds: number) => IHumanPosture.IRotation {
+  const roots: (IRootInterpolation | undefined)[] = [];
   return (seconds: number): IHumanPosture.IRotation => {
     const t: number = Math.max(
       props.t0,
@@ -42,22 +43,41 @@ export function HumanPerformanceFlightRotation(props: {
     );
     const a: number = props.times[i]!;
     const u: number = (t - a) / (props.times[i + 1]! - a);
+    roots.length = Math.min(roots.length, props.table.length);
+    const from: IAutoMovieQuaternion = props.table[i]!.root;
+    const to: IAutoMovieQuaternion = props.table[i + 1]!.root;
+    let root: IRootInterpolation | undefined = roots[i];
+    if (root === undefined || !sameQuaternion(root.from, from) || !sameQuaternion(root.to, to)) {
+      const before: IAutoMovieQuaternion = { x: from.x, y: from.y, z: from.z, w: from.w };
+      const after: IAutoMovieQuaternion = { x: to.x, y: to.y, z: to.z, w: to.w };
+      root = { from: before, to: after, read: Quaternion.prepareSlerp(before, after) };
+      roots[i] = root;
+    }
     return {
-      about: Vector3.add(
-        props.table[i]!.about,
-        Vector3.scale(
-          Vector3.subtract(props.table[i + 1]!.about, props.table[i]!.about),
-          u,
-        ),
-      ),
+      about: Vector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
       turn: Quaternion.normalize(
         Quaternion.multiply(
           props.flight.orientation(t),
-          Quaternion.inverse(
-            Quaternion.slerp(props.table[i]!.root, props.table[i + 1]!.root, u),
-          ),
+          Quaternion.inverse(root.read(u)),
         ),
       ),
     };
   };
+}
+
+/** One interval's copied keys and prepared scalar interpolation prerequisites. */
+interface IRootInterpolation {
+  /** Copied unturned root at the left table endpoint. */
+  from: IAutoMovieQuaternion;
+
+  /** Copied unturned root at the right table endpoint. */
+  to: IAutoMovieQuaternion;
+
+  /** Same endpoint slerp, with a fresh result at each requested share. */
+  read: ReturnType<typeof Quaternion.prepareSlerp>;
+}
+
+/** Exact copied keys preserve table mutation and signed-zero behavior. */
+function sameQuaternion(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
+  return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z) && Object.is(a.w, b.w);
 }

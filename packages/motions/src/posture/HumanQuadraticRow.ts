@@ -1,4 +1,5 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
+import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 
 /**
  * Add one weighted row outer product to a banded reduced system. The ADMM
@@ -15,10 +16,10 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
  *
  * @evidence contracts/development/implementation.md#principled-implementation Accumulates the symmetric weighted row outer product in the stored upper band, including all cross products of duplicate variable indices.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the weighted outer-product kernel shared by Band.factor and Band.polish, while Preparation owns original-input admission and CSR metadata.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original accumulation order and multiplication association (w*coef[a])*coef[b], the band rejection and unsorted fallback; no coefficient or valid product is dropped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(k squared) time and O(1) auxiliary storage for k entries; nondecreasing rows skip only the original lower-triangle continue range with an amortized O(k) first-equal cursor.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Hoists the unchanged CSR row end and uses ordering metadata derived from its exact sequence, but recomputes weighted products for each current w; no numeric product is reused after the row weight changes.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates nothing, mutates only the supplied owned system and retains no row, matrix, body or global state.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves accumulation order, (w*coef[a])*coef[b] association, band rejection and unsorted fallback. Finite positive w comes from admitted rho or inverse delta; when its first product overflows, original zero b terms are restored to preserve actual nonfinite propagation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Finite rows take O(k squared) time and O(1) auxiliary storage for k CSR entries; ordered rows skip only lower-triangle continues. An overflowing weighted product scans its H original b entries and may acquire one O(H) restored row, bounded by O(H squared) work overall.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Hoists CSR bounds and uses exact singleton/ordering metadata while rebuilding every current weighted product; exceptional original coefficients share only the owning unchanged raw layout, never a product from another weight or solve.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Normal calls allocate nothing and mutate only the owned system; exceptional restoration belongs to its one-shot wrapper or fixed-model owner, without entering prepared core, body state or public iterates.
  * @evidence contracts/development/common.md#meaningful-documentation Defines the two actual system consumers, weighted product, duplicate ordering, fast-path invariant and band failure.
  */
 export function HumanQuadraticRow(
@@ -27,6 +28,16 @@ export function HumanQuadraticRow(
   r: number,
   w: number,
 ): void {
+  const single: number = s.singleton[r]!;
+  if (single >= 0) {
+    const coefficient: number = s.vals[single]!;
+    const weighted: number = w * coefficient;
+    if (Number.isFinite(weighted)) {
+      const row: Float64Array = k[s.cols[single]!]!;
+      row[0] = row[0]! + weighted * coefficient;
+      return;
+    }
+  }
   let first: number = s.start[r]!;
   const end: number = s.start[r + 1]!;
   const ordered: boolean = s.ordered[r] === 1;
@@ -34,6 +45,18 @@ export function HumanQuadraticRow(
     const i: number = s.cols[a]!;
     const row: Float64Array = k[i]!;
     const weighted: number = w * s.vals[a]!;
+    if (!Number.isFinite(weighted)) {
+      const original: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+      for (let b: number = 0; b < original.index.length; ++b) {
+        const j: number = original.index[b]!;
+        if (j < i) continue;
+        const offset: number = j - i;
+        if (offset > s.band)
+          throw new Error("A row couples variables beyond the band");
+        row[offset] = row[offset]! + weighted * original.coef[b]!;
+      }
+      continue;
+    }
     if (ordered) while (s.cols[first]! < i) ++first;
     for (let b: number = first; b < end; ++b) {
       const j: number = s.cols[b]!;

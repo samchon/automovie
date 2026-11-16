@@ -1,4 +1,5 @@
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
+import { prepareLinearSystem } from "../math/prepareLinearSystem";
 
 /**
  * One prioritized descent of a digit's fit: a primary residual (where the
@@ -28,6 +29,10 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
  * Algorithm 3.16, tau = 1e-3): a third on an accepted step, a doubling growth
  * on a rejected one, so the steps shrink until the descent stops, when the
  * step it would take moves no variable by more than `step`.
+ * Residual, projection and tolerance callbacks are pure functions of their
+ * supplied values throughout this synchronous descent, as the finite-difference
+ * and damping law require. Rejected damping trials keep the accepted point,
+ * Jacobians and active set unchanged; only acceptance rebuilds linearization.
  *
  * @param props The start, the residuals, the projection, the resolution and the primary's tolerance.
  * @returns The variables where the descent stops, projected.
@@ -36,14 +41,14 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
  * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) with a projected Newton active set (Bertsekas 1982) and Levenberg-Marquardt damping (Madsen, Nielsen and Tingleff 2004).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop: Jacobians, active set, primary step, null-space secondary step, acceptance.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the primary is never traded for the secondary, and the descent stops at the resolution.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two residual evaluations per variable per Jacobian and two small dense solves per step, the variables at most a digit's nine.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the caller keeps the result.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Both task Jacobians share central-difference probes. One accepted point prepares its active set, gradients, primary Gram and restricted secondary Jacobian once across rejected damping retries. Each retry factors its changed primary matrix once in O(F^3), then serves the primary step and F null-space columns in O(F^2) per right-hand side; the secondary solve remains. Reduction/pivot/subtraction orders stay unchanged and runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure fixed-dimension callbacks make unchanged x/residual/Jacobian/tolerance/active-set data equivalent throughout damping rejection. Acceptance replaces x/residuals/Jacobians and invalidates that local linearization. Only one retry's identical primary matrix shares Gaussian factors across right-hand sides; changed damping prepares another factor and no point, solution or workspace crosses descents.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
   const { primary, secondary, project, step }: fitDigitDescent.IProps = props;
   const n: number = props.start.length;
-  const jacobian = (
+  const jacobian: (f: (x: readonly number[]) => number[], x: readonly number[]) => number[][] = (
     f: (x: readonly number[]) => number[],
     x: readonly number[],
   ): number[][] => {
@@ -60,9 +65,9 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       columns.map((c: number[]): number => c[k]!),
     );
   };
-  const squared = (r: readonly number[]): number =>
+  const squared: (r: readonly number[]) => number = (r: readonly number[]): number =>
     r.reduce((sum: number, v: number): number => sum + v * v, 0);
-  const gram = (
+  const gram: (J: readonly (readonly number[])[], at: readonly number[]) => number[][] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
   ): number[][] =>
@@ -74,7 +79,7 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
         ),
       ),
     );
-  const times = (
+  const times: (J: readonly (readonly number[])[], at: readonly number[], r: readonly number[]) => number[] = (
     J: readonly (readonly number[])[],
     at: readonly number[],
     r: readonly number[],
@@ -86,7 +91,7 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
         0,
       ),
     );
-  const damped = (A: number[][], mu: number): number[][] =>
+  const damped: (A: number[][], mu: number) => number[][] = (A: number[][], mu: number): number[][] =>
     A.map((row: number[], i: number): number[] =>
       row.map((v: number, j: number): number => (i === j ? v + mu : v)),
     );
@@ -94,8 +99,11 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
   let x: number[] = project(props.start);
   let r1: number[] = primary(x);
   let r2: number[] = secondary(x);
-  let J1: number[][] = jacobian(primary, x);
-  let J2: number[][] = r2.length === 0 ? [] : jacobian(secondary, x);
+  const together: (at: readonly number[]) => number[] = (at: readonly number[]): number[] =>
+    r2.length === 0 ? primary(at) : [...primary(at), ...secondary(at)];
+  let J: number[][] = jacobian(together, x);
+  let J1: number[][] = J.slice(0, r1.length);
+  let J2: number[][] = J.slice(r1.length);
   const all: number[] = Array.from(
     { length: n },
     (_: unknown, i: number): number => i,
@@ -109,51 +117,59 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       ),
     );
   let nu: number = 2;
+  let linearization: ILinearization | undefined;
   for (;;) {
     // The active set, by the gradient of the task being served: the
     // primary's while it is unmet, so a bound the secondary pushes against
     // never holds a joint the primary needs; the whole residual's once met.
-    const met: number = props.tolerance(x, J1);
-    const served: boolean = Math.sqrt(squared(r1)) <= met;
-    const g: number[] = all.map(
-      (i: number): number =>
-        times(J1, [i], r1)[0]! +
-        (J2.length === 0 || !served ? 0 : times(J2, [i], r2)[0]!),
-    );
-    const free: number[] = all.filter((i: number): boolean => {
-      if (g[i] === 0) return true;
-      const probe: number[] = [...x];
-      probe[i] = x[i]! - Math.sign(g[i]!) * step;
-      return Math.abs(project(probe)[i]! - x[i]!) >= step / 2;
-    });
-    if (free.length === 0) break;
+    if (linearization === undefined) {
+      const met: number = props.tolerance(x, J1);
+      const served: boolean = Math.sqrt(squared(r1)) <= met;
+      const primaryGradient: number[] = times(J1, all, r1);
+      const secondaryGradient: number[] | undefined =
+        J2.length === 0 || !served ? undefined : times(J2, all, r2);
+      const free: number[] = all.filter((i: number): boolean => {
+        const gradient: number = primaryGradient[i]! +
+          (secondaryGradient?.[i] ?? 0);
+        if (gradient === 0) return true;
+        const probe: number[] = [...x];
+        probe[i] = x[i]! - Math.sign(gradient) * step;
+        return Math.abs(project(probe)[i]! - x[i]!) >= step / 2;
+      });
+      if (free.length === 0) break;
+      linearization = {
+        met,
+        served,
+        free,
+        gram: gram(J1, free),
+        right: free.map((i: number): number => -primaryGradient[i]!),
+        secondary: J2.map((row: number[]): number[] =>
+          free.map((i: number): number => row[i]!),
+        ),
+      };
+    }
+    const { met, served, free, gram: G, right, secondary: J2f }: ILinearization =
+      linearization;
 
     // The primary's damped step and its damped null space.
-    const A1: number[][] = damped(gram(J1, free), mu);
-    const h1: number[] | null = AutoMovieSolidVector.solve(
-      A1,
-      times(J1, free, r1).map((v: number): number => -v),
-    );
-    if (h1 === null) break;
+    const A1: number[][] = damped(G, mu);
+    const solvePrimary: ((right: readonly number[]) => number[]) | null =
+      prepareLinearSystem(A1);
+    if (solvePrimary === null) break;
+    const h1: number[] = solvePrimary(right);
     let h: number[] = h1;
     if (J2.length !== 0) {
-      const G: number[][] = gram(J1, free);
-      const P: (number[] | null)[] = free.map(
-        (_c: number, c: number): number[] | null =>
-          AutoMovieSolidVector.solve(
-            A1,
+      const P: number[][] = free.map(
+        (_c: number, c: number): number[] =>
+          solvePrimary(
             G.map((row: number[]): number => row[c]!),
           ),
       );
-      if (P.some((col: number[] | null): boolean => col === null)) break;
       // N = I - P, P's columns solved above.
       const N: number[][] = free.map((_r: number, a: number): number[] =>
         free.map(
           (_c: number, c: number): number => (a === c ? 1 : 0) - P[c]![a]!,
         ),
-      );
-      const J2f: number[][] = J2.map((row: number[]): number[] =>
-        free.map((i: number): number => row[i]!),
       );
       const M: number[][] = J2f.map((row: number[]): number[] =>
         free.map((_c: number, c: number): number =>
@@ -203,8 +219,10 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
       x = trial;
       r1 = t1;
       r2 = t2;
-      J1 = jacobian(primary, x);
-      J2 = r2.length === 0 ? [] : jacobian(secondary, x);
+      J = jacobian(together, x);
+      J1 = J.slice(0, r1.length);
+      J2 = J.slice(r1.length);
+      linearization = undefined;
       mu /= 3;
       nu = 2;
     } else {
@@ -213,6 +231,27 @@ export function fitDigitDescent(props: fitDigitDescent.IProps): number[] {
     }
   }
   return x;
+}
+
+/** Quantities fixed by one accepted iterate, independent of damping retries. */
+interface ILinearization {
+  /** Existing primary reach tolerance, metres, at this exact x/Jacobian. */
+  met: number;
+
+  /** Whether the primary is served under that unchanged tolerance. */
+  served: boolean;
+
+  /** Active-set complement, in the original variable order. */
+  free: number[];
+
+  /** Primary normal matrix before adding the changing damping. */
+  gram: number[][];
+
+  /** Negative primary gradient restricted to those free variables. */
+  right: number[];
+
+  /** Secondary Jacobian restricted to the same free variables. */
+  secondary: number[][];
 }
 
 /**
@@ -229,10 +268,10 @@ export namespace fitDigitDescent {
     /** The start, the variables' values. */
     start: readonly number[];
 
-    /** The primary residual, metres. */
+    /** The pure primary residual, metres, with a fixed dimension. */
     primary: (x: readonly number[]) => number[];
 
-    /** The secondary residual, metres; empty when there is none. */
+    /** The pure secondary residual, metres, with a fixed dimension; empty when there is none. */
     secondary: (x: readonly number[]) => number[];
 
     /** The variables projected into their range. */

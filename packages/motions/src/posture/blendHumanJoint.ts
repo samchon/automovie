@@ -142,8 +142,8 @@ function frameOf(
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation owner keeps endpoint and hinge ordering while standalone and prepared callers choose only metadata lookup; forward/inverse OnBasis primitives share one lazily admitted basis and swing frames use explicit operation preparation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is named: the joint's own range says whether it is a ball joint and whether it is gated by swing and twist. The share is clamped so the joint cannot pass either end, and an end keeps its own triple instead of a re-read one.
  * @evidence contracts/development/implementation.md#efficient-algorithms Standalone constraint lookup and a ball joint's axis merge are O(B) for B bones, followed by existing rotation/chart mathematics; one basis serves both endpoint conversions and decomposition, and one prepared swing frame serves its chart reads. A prepared multi-joint operation shares O(B+D) metadata across D requested names; no runtime speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the actual interpolation owner and canonical mappings, with only invariant basis/frame metadata reused inside this call; prepare additionally shares first-bone and axes metadata while the body and canonical ROM/axes/rest mappings stay unchanged for one synchronous operation, never its from/to/share results.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the actual interpolation owner and canonical mappings plus the inverse's existing box-preparation owner, with invariant basis/frame metadata reused inside this call; prepare additionally shares first-bone and axes metadata within one unchanged operation, never its from/to/share results.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh interior triple or borrows the unchanged endpoint. Local frame/basis preparation ends with this call; the inverse's existing weak per-constraint cache owns its optional box copy, and a prepared blender's caller releases its own metadata with the synchronous operation. No input triple or blended result is retained.
  */
 export function blendHumanJoint(
   body: IHumanBody,
@@ -303,7 +303,10 @@ function blend(
     {
       bone,
       constraint:
-        constraint === null ? null : { ...constraint, swingTwist: null },
+        constraint === null ||
+        (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
+          ? constraint
+          : { ...constraint, swingTwist: null },
     },
   );
   return [read.flexion, read.abduction, read.twist];

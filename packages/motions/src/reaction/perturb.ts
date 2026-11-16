@@ -131,8 +131,8 @@ export namespace perturb {
    * @evidence contracts/development/implementation.md#principled-implementation The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the impulse, decide the outcome, then plan one of three motions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An outcome the impulse cannot give is refused with the feasible range; no impulse is scaled to fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One mass model and one base of support per plan, and `stagger`'s plan laid once past the absorb, its landing read and the same plan returned for the step; the absorb is a closed form per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stagger`'s and `knockdown`'s plans for the step and the fall, and the engine's outcome.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's prepared mass model and reads one base of support per plan; stagger's plan is laid once past the absorb, its landing read and the same plan returned for the step, while the absorb is a closed form per evaluated second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body owns the unchanged skeleton/profile mass model. Both outcome decisions share the same current entry's bone map and support outline, and step/fall reuse the shipped action plans.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its composed parts for as long as the performance does.
    */
   export function plan(
@@ -141,7 +141,7 @@ export namespace perturb {
     const body: IHumanBody = context.body;
     const entry: IHumanEntryState = context.entry;
     const model: resolveAutoMovieCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      body.massModel;
     const length: number = resolveAutoMovieCenterOfMass.pendulum(
       body.measure.hipHeight,
     );
@@ -168,6 +168,11 @@ export namespace perturb {
     );
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
+    );
+    const support: IAutoMovieVector3[] = HumanFoot.base(
+      body,
+      bones,
+      planted.length === 0 ? ["left", "right"] : planted,
     );
     // The steps' times are `stagger`'s: each later one after the swing of a
     // recovery step in the push's direction from the heading, the first at
@@ -197,11 +202,7 @@ export namespace perturb {
         mass: model.mass,
         impulse,
         length,
-        support: HumanFoot.base(
-          body,
-          bones,
-          planted.length === 0 ? ["left", "right"] : planted,
-        ),
+        support,
         reach: body.measure.thigh + body.measure.shank,
         margin: body.measure.footLength / 2,
         step: swing,

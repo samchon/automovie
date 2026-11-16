@@ -12,6 +12,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieFootPlant } from "../motion/IAutoMovieFootPlant";
 import { IAutoMoviePlantedFeet } from "../motion/IAutoMoviePlantedFeet";
@@ -40,7 +41,7 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actor meeting the stated conditions is planted the same way; a rig without recognized feet is left as authored rather than given invented contacts.
  * @evidence contracts/development/common.md#meaningful-documentation States which actors are planted and which are left alone, the frame conversions and their premise, the ground source, the effect on `motions`, the footless-rig rule and why, and the order of the result.
  * @evidence contracts/development/implementation.md#efficient-algorithms Sorts A motion entries in O(A log A), scans staged nodes per qualifying actor and runs one delegated plantStanceFeet solve per such actor; that solve's motion sampling, FK and IK costs depend on rig and clip populations, rather than sample count alone.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted actor's clip is planted once. One genuine immutable FK producer snapshots its rig and selected clinical tables for detection/correction, while prior plants are indexed by node. Stage/rig dependencies remain unchanged through the synchronous solve.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */
 export function plantPerformShotStanceFeet(props: {
@@ -112,11 +113,16 @@ export function plantPerformShotStanceFeet(props: {
               z: plan.z,
             }).y;
           };
+    const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined =
+      props.jointAxes?.(actor);
+    const restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined =
+      props.restFrames?.(actor);
     const planted: IAutoMoviePlantedFeet = plantStanceFeet({
       skeleton: rig,
       motion,
-      jointAxes: props.jointAxes?.(actor),
-      restFrames: props.restFrames?.(actor),
+      jointAxes,
+      restFrames,
+      poseResolution: prepareSkeletonPoseResolution(rig, jointAxes, restFrames),
       ...(modelGround === null ? {} : { groundY: modelGround }),
       openingPlants: (prior ?? []).map(
         (

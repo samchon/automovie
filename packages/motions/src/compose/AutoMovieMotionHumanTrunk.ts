@@ -120,6 +120,8 @@ export namespace AutoMovieMotionHumanTrunk {
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, posture),
+      undefined,
+      new Set(["leftFoot", "rightFoot"]),
     );
     const at = (side: AutoMovieMotionHumanLeg.Side): HumanFoot.IPlacement => ({
       ankle: bones.get(`${side}Foot`)!.worldPosition,
@@ -257,6 +259,45 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments, the two feet and one solved number.
    */
   export function crouch(props: ICrouch): IAutoMovieMotionHumanPrimitive {
+    const lower: (posture: IHumanPosture, share: number) => IHumanPosture =
+      prepareCrouch(props);
+    const legs: readonly AutoMovieMotionHumanLeg.Side[] = props.legs ?? ["left", "right"];
+    return {
+      channels: [
+        "root",
+        "trunk",
+        ...legs.map(
+          (side: AutoMovieMotionHumanLeg.Side): "leftLeg" | "rightLeg" => `${side}Leg`,
+        ),
+      ],
+      from: props.clock.at(props.rise[0]),
+      to: props.clock.at(props.fall[1]),
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
+        lower(posture, props.clock.envelope(props.rise, props.fall, seconds)),
+    };
+  }
+
+  /**
+   * Prepare one crouch's planted feet and full-depth balance shift so
+   * repeated clock windows can apply the same geometry with their own share.
+   * The body, standing posture and dimensional inputs remain unchanged for
+   * the returned reader's lifetime; a different stance or depth prepares anew.
+   *
+   * @param props The body, fixed stance, depth in metres, inclination in degrees and planted legs.
+   * @returns A posture writer at the supplied share in [0, 1], without a clock or sampled pose cache.
+   * @throws {Error} When depth or pitch is negative or non-numeric.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States unchanged geometry, world/clinical units, caller-supplied clock share and preparation failure.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the standing feet once, plants before sinking and uses the original HumanBalance.shift at full depth. Each write applies exactly the original scaled depth, pitch and solved hip shift through sunk and planted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One low builder serves both the static balance search and every dynamic write; crouch supplies its envelope while repeated laws can share only this invariant preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every write still reads its actual incoming posture and the original share; the balance search, ROM, plant goals and tolerance are unchanged, and no representative repetition replaces another repetition's clock.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One footing solve and original bounded balance search serve all R repetitions of identical geometry instead of repeating them R times. Each write performs constant-size planted-goal and trunk arithmetic, with no per-second fitted result retention; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The consumer explicitly shares only fixed body, stance, depth, inclination and selected leg geometry; a changed one requires fresh preparation. Incoming posture and share remain actual per-write inputs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns the two foot frames and one solved shift and borrows its fixed input record until its action releases it; the search's trial readings do not survive preparation and no time-indexed history is kept.
+   */
+  export function prepareCrouch(
+    props: Pick<ICrouch, "body" | "standing" | "depth" | "pitch" | "legs">,
+  ): (posture: IHumanPosture, share: number) => IHumanPosture {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
     const legs: readonly AutoMovieMotionHumanLeg.Side[] = props.legs ?? [
@@ -290,26 +331,8 @@ export namespace AutoMovieMotionHumanTrunk {
       props.body,
       (b: number): IHumanPosture => low(props.standing, 1, b),
     );
-    return {
-      channels: [
-        "root",
-        "trunk",
-        ...legs.map(
-          (side: AutoMovieMotionHumanLeg.Side): "leftLeg" | "rightLeg" =>
-            `${side}Leg`,
-        ),
-      ],
-      from: props.clock.at(props.rise[0]),
-      to: props.clock.at(props.fall[1]),
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const share: number = props.clock.envelope(
-          props.rise,
-          props.fall,
-          seconds,
-        );
-        return low(posture, share, back * share);
-      },
-    };
+    return (posture: IHumanPosture, share: number): IHumanPosture =>
+      low(posture, share, back * share);
   }
 
   /**

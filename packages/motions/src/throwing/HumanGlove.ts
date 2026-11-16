@@ -96,6 +96,8 @@ export namespace HumanGlove {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     );
     const palm: HumanHand.IFrame = HumanHand.frame(
       context.body,

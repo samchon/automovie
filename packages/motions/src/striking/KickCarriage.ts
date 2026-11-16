@@ -8,6 +8,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickForm } from "./KickForm";
@@ -37,6 +38,9 @@ export namespace KickCarriage {
 
     /** The posture the kick starts from. */
     entry: IHumanPosture;
+
+    /** The entry joints with the fixed fighting hand/neck posture already applied, when prepared by the kick planner. */
+    joints?: IHumanPosture["joints"];
 
     /** The feet the kick starts on. */
     feet: Record<"left" | "right", HumanFoot.IPlacement>;
@@ -120,7 +124,7 @@ export namespace KickCarriage {
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,
       joints: StrikingStance.facing(
-        { ...entry.joints, ...StrikingStance.joints() },
+        props.joints ?? { ...entry.joints, ...StrikingStance.joints() },
         carriage.turn * w,
       ),
       limbs: {},
@@ -151,14 +155,16 @@ export namespace KickCarriage {
    * @param body The body.
    * @param posture The posture; its limbs are not read.
    * @param side The hip's side.
+   * @param resolution Optional exact FK workspace borrowed from this synchronous evaluation.
    * @returns The hip joint, world metres.
    */
   export function hip(
     body: IHumanBody,
     posture: IHumanPosture,
     side: "left" | "right",
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieVector3 {
-    return StrikingBody.trunk(body, posture).get(
+    return StrikingBody.trunk(body, posture, resolution, HIPS[side]).get(
       `${side}UpperLeg` as AutoMovieHumanoidBone,
     )!.worldPosition;
   }
@@ -175,6 +181,8 @@ export namespace KickCarriage {
     axis: IAutoMovieVector3,
     degrees: number,
   ): IHumanPosture {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle(axis, degrees),
@@ -189,8 +197,17 @@ export namespace KickCarriage {
       ...turned,
       root: Vector3.add(
         turned.root,
-        Vector3.subtract(hip(body, flat, support), hip(body, turned, support)),
+        Vector3.subtract(
+          hip(body, flat, support, resolution),
+          hip(body, turned, support, resolution),
+        ),
       ),
     };
   }
 }
+
+/** Immutable requested outputs; each hip query still admits every authored joint. */
+const HIPS: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
+  left: new Set<AutoMovieHumanoidBone>(["leftUpperLeg"]),
+  right: new Set<AutoMovieHumanoidBone>(["rightUpperLeg"]),
+};

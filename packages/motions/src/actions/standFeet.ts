@@ -39,6 +39,8 @@ export namespace standFeet {
   export interface ICourse {
     /** Final ankle points, world metres. */
     flat: Record<"left" | "right", IAutoMovieVector3>;
+    /** Read both rockers once for one share; the caller owns the sample. */
+    sample(share: number): ISample;
     /** Mean ankle displacement from the flat targets at share 0 to 1. */
     offset(share: number): IAutoMovieVector3;
     /** Write the feet and toes at a share, optionally carried by their support. */
@@ -47,6 +49,22 @@ export namespace standFeet {
       share: number,
       carry?: HumanSupportCarry.ICarry,
     ): IHumanPosture;
+  }
+
+  /**
+   * One synchronous course reading, shared by root placement and its feet.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the single-reading lifetime and the root/foot consumers; members state metres and carrying semantics.
+   * @evidence contracts/development/design.md#principled-representation The same two rigid foot placements determine their mean displacement and the written goals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Quiet standing consumes both fields in one posture evaluation; the course retains no last query or sample history.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses existing posture and support-carry types and preserves the original rocker geometry.
+   */
+  export interface ISample {
+    /** Mean world-metre ankle displacement from the final flat targets. */
+    offset: IAutoMovieVector3;
+
+    /** Write the already read feet, optionally moved by the current support. */
+    write(posture: IHumanPosture, carry?: HumanSupportCarry.ICarry): IHumanPosture;
   }
 
   /**
@@ -78,9 +96,9 @@ export namespace standFeet {
    * @evidence contracts/development/implementation.md#principled-implementation Each planted foot rolls about its lowest displayed sole socket; pitch, roll, heading and toe flexion approach their quiet values, and HumanFoot.pivot derives the ankle from that fixed contact at every share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the two contacts once, then evaluates the two rockers and their mean displacement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No ankle-height floor inference or contact translation is used for a planted foot.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry forward kinematics, then constant work per share.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work stand.plan and stand.feet read the same placed foot course; sitting does not consume it yet.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures retain only the current body and two entry contacts for the plan's lifetime.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK requests only planted socket bones and their ancestry; each socket set is measured once and each writer evaluates its rockers once per share.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry socket sets serve floor and pivot selection; each caller-owned sample shares its two exact rocker placements between offset and writing, without retaining samples across queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains the body, two entry contacts and final targets for its plan; each fresh sample retains two placements only until its caller releases that reading.
    */
   export function of(
     body: IHumanBody,
@@ -88,19 +106,28 @@ export namespace standFeet {
     yaw: number,
   ): ICourse {
     const sides: readonly ["left", "right"] = ["left", "right"];
+    const requested: Set<AutoMovieHumanoidBone> = new Set();
+    for (const side of sides)
+      if (entry.feet[side].planted)
+        for (const socket of ["heel", "ball", "toe"] as const)
+          requested.add(body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`].bone);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       entry.pose,
+      undefined,
+      requested,
     );
     const planted: ("left" | "right")[] = sides.filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
+    const socketsBySide: Partial<Record<"left" | "right", HumanFoot.ISocket[]>> = {};
+    for (const side of planted) socketsBySide[side] = HumanFoot.sockets(body, bones, side);
     const floor: number =
       planted.length === 0
         ? 0
         : Math.min(
             ...planted.flatMap((side: "left" | "right"): number[] =>
-              HumanFoot.sockets(body, bones, side).map(
+              socketsBySide[side]!.map(
                 (s: HumanFoot.ISocket): number => s.point.y,
               ),
             ),
@@ -124,7 +151,7 @@ export namespace standFeet {
           contact: (_: number): IAutoMovieVector3 =>
             HumanFoot.offset(body, side, "mtp"),
         };
-      const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+      const sockets: HumanFoot.ISocket[] = socketsBySide[side]!;
       const pivot: HumanFoot.ISocket = sockets.reduce(
         (a: HumanFoot.ISocket, b: HumanFoot.ISocket): HumanFoot.ISocket =>
           b.point.y < a.point.y ? b : a,
@@ -143,8 +170,8 @@ export namespace standFeet {
         flexion * (1 - share);
       return {
         side,
-        at: (share: number): HumanFoot.IPlacement =>
-          HumanFoot.pivot(
+        at: (share: number): HumanFoot.IPlacement => {
+          const placement: HumanFoot.IPlacement = HumanFoot.pivot(
             body,
             side,
             pivot.socket,
@@ -153,7 +180,9 @@ export namespace standFeet {
             pitch * (1 - share),
             toes(share),
             roll * (1 - share),
-          ),
+          );
+          return placement;
+        },
         toes,
         contact: (share: number): IAutoMovieVector3 =>
           HumanFoot.offset(body, side, pivot.socket, toes(share)),
@@ -165,15 +194,16 @@ export namespace standFeet {
         p.at(1).ankle,
       ]),
     ) as ICourse["flat"];
-    return {
-      flat,
-      offset: (share: number): IAutoMovieVector3 =>
-        Vector3.scale(
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
+    const sample = (share: number): ISample => {
+      const placed: HumanFoot.IPlacement[] = plans.map((p: IPlan): HumanFoot.IPlacement => p.at(share));
+      return {
+        offset: Vector3.scale(
           plans.reduce(
-            (sum: IAutoMovieVector3, p: IPlan): IAutoMovieVector3 =>
+            (sum: IAutoMovieVector3, p: IPlan, i: number): IAutoMovieVector3 =>
               Vector3.add(
                 sum,
-                Vector3.subtract(p.at(share).ankle, flat[p.side]),
+                Vector3.subtract(placed[i]!.ankle, flat[p.side]),
               ),
             { x: 0, y: 0, z: 0 },
           ),
@@ -181,36 +211,38 @@ export namespace standFeet {
         ),
       write: (
         posture: IHumanPosture,
-        share: number,
         carry?: HumanSupportCarry.ICarry,
       ): IHumanPosture => {
         const feet: ICourse["flat"] = Object.fromEntries(
-          plans.map((p: IPlan): [IPlan["side"], IAutoMovieVector3] => [
+          plans.map((p: IPlan, i: number): [IPlan["side"], IAutoMovieVector3] => [
             p.side,
-            carry?.point(p.at(share).ankle) ?? p.at(share).ankle,
+            carry?.point(placed[i]!.ankle) ?? placed[i]!.ankle,
           ]),
         ) as ICourse["flat"];
-        const limbs: IHumanPosture["limbs"] = stand.legs(
-          body,
-          posture.root,
-          posture.yaw,
-          feet,
-        );
+        const limbs: IHumanPosture["limbs"] = posture.yaw === yaw ? legged(posture.root, feet) : stand.legs(body, posture.root, posture.yaw, feet);
         const joints: IHumanPosture["joints"] = { ...posture.joints };
-        for (const p of plans) {
+        for (let i: number = 0; i < plans.length; i++) {
+          const p: IPlan = plans[i]!;
           const goal: IHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
           limbs[`${p.side}Leg`] = {
             ...goal,
             rotation:
               carry === undefined
-                ? p.at(share).rotation
-                : Quaternion.multiply(carry.turn, p.at(share).rotation),
+                ? placed[i]!.rotation
+                : Quaternion.multiply(carry.turn, placed[i]!.rotation),
             contact: p.contact(share),
           };
           joints[`${p.side}Toes`] = [p.toes(share), 0, 0];
         }
         return { ...posture, joints, limbs: { ...posture.limbs, ...limbs } };
       },
+      };
+    };
+    return {
+      flat,
+      sample,
+      offset: (share: number): IAutoMovieVector3 => sample(share).offset,
+      write: (posture: IHumanPosture, share: number, carry?: HumanSupportCarry.ICarry): IHumanPosture => sample(share).write(posture, carry),
     };
   }
 }

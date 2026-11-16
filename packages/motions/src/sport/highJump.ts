@@ -18,10 +18,12 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
+import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
 /**
  * A high jump in the Fosbury flop (#3377): a one-foot take-off, a half turn
@@ -216,9 +218,9 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#principled-implementation The vertical launch is sqrt(2 g (bar - centre)), the fall time to the lying centre's height closes the horizontal launch, the turns are constant rates over their phases, and the touchdown is the bisected instant the lowest shape meets the surface.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The lying height, the take-off, the flight posture, the touchdown, the landing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans, about fifteen flight postures for the touchdown, and two forward kinematics per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the take-off, flight and mat kernels and `lieDown`'s supine posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the take-off plan and the mass model.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and the original touchdown bisection stations remain. Each flight query resolves one canonical bone map for COM and, only when touchdown needs it, collider floor bounds; no second floor FK is required. Playback does not evaluate unused collision bounds; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses take-off, flight, mat and lying-posture owners; two fixed key pairs prepare their ordered blend unions once. Each actual dynamic shape shares its own canonical map between COM placement and floor bounds, with no memoization across distinct times/articulations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its take-off, body mass model and two fixed key-pair readers. Each query releases its frame, bone map and optional floor reader at return or throw; no prepared frame or previous-query state enters the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -322,7 +324,7 @@ export namespace highJump {
       lift: 0,
       joints: from.joints,
     };
-    const ease = (x: number): number => {
+    const ease: (x: number) => number = (x: number): number => {
       const u: number = Math.min(1, Math.max(0, x));
       return u * u * (3 - 2 * u);
     };
@@ -331,16 +333,19 @@ export namespace highJump {
     // at the constant rate that lays the body level at the apex.
     const ramp: number = 0.5 * rising;
     const spin: number = 90 / (rising - ramp / 2);
-    const somersault = (t: number): number =>
+    const somersault: (t: number) => number = (t: number): number =>
       t < ramp ? (spin * t * t) / (2 * ramp) : spin * (t - ramp / 2);
     const arch: ExerciseKey.IKey = arched(body);
     const pike: ExerciseKey.IKey = piked(body);
-    const flying = (t: number): IHumanPosture => {
+    const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(start, arch);
+    const piking: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(arch, pike);
+    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => prepareGymnasticsFrame.IFrame =
+      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): prepareGymnasticsFrame.IFrame => {
       const key: ExerciseKey.IKey =
         t <= rising
-          ? ExerciseKey.blend(start, arch, ease(t / rising))
-          : ExerciseKey.blend(arch, pike, ease((t - rising) / rising));
-      return GymnasticsFlight.placed(
+          ? arching(ease(t / rising))
+          : piking(ease((t - rising) / rising));
+      return prepareGymnasticsFrame(
         body,
         model,
         {
@@ -350,27 +355,29 @@ export namespace highJump {
           pitch: -somersault(t),
         },
         GymnasticsFlight.at(c0, v, t),
+        resolution,
       );
     };
+    const flying: (t: number) => IHumanPosture = (t: number): IHumanPosture => frameAt(t).posture;
 
     // The touchdown: the lowest shape meets the surface on the way down.
-    const lowest = (t: number): number =>
-      GymnasticsFlight.lowest(body, flying(t));
-    if (!(lowest(rising) > surface))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "bar",
-        value: bar,
-        reason: `at the apex the body's lowest point is at ${lowest(rising).toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
-        fix: "raise the bar, or land on a lower surface",
-      });
-    const fallen: number = GymnasticsFlight.fall(c0.y, v.y, surface)!;
-    const down: number = GymnasticsFlight.touchdown(
-      rising,
-      fallen,
-      lowest,
-      surface,
-    );
+    const down: number = ((): number => {
+      const floorResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const lowest: (t: number) => number = (t: number): number => {
+        const frame: prepareGymnasticsFrame.IFrame = frameAt(t, floorResolution);
+        return frame.posture.root.y - frame.floor();
+      };
+      if (!(lowest(rising) > surface))
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "bar",
+          value: bar,
+          reason: `at the apex the body's lowest point is at ${lowest(rising).toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
+          fix: "raise the bar, or land on a lower surface",
+        });
+      const fallen: number = GymnasticsFlight.fall(c0.y, v.y, surface)!;
+      return GymnasticsFlight.touchdown(rising, fallen, lowest, surface);
+    })();
     const landing: (seconds: number) => IHumanPosture = GymnasticsMat.lie({
       body,
       model,

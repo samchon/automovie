@@ -42,6 +42,14 @@ export class WalkTurn {
    *
    * @param seconds The instant.
    * @returns Degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the query time, angular result and held endpoint behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Binary-selects the same first span whose right knot reaches the query, then evaluates the existing monotone cubic Hermite basis and prepared rates.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Endpoint holds precede interval lookup and one cubic evaluation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No knot, rate, time or angle is dropped; exact knot equality selects the preceding span as before.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Logarithmic selection in heading knots and constant-size cubic evaluation with each power computed once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses constructor-prepared rates and this take's fixed heading knots, without a query cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no query state.
    */
   public at(seconds: number): number {
     const first: { seconds: number; yaw: number } = this.knots[0]!;
@@ -49,19 +57,26 @@ export class WalkTurn {
     if (seconds <= first.seconds) return first.yaw;
     if (seconds >= last.seconds) return last.yaw;
     let i: number = 0;
-    while (this.knots[i + 1]!.seconds < seconds) i++;
+    let high: number = this.knots.length - 2;
+    while (i < high) {
+      const middle: number = (i + high) >>> 1;
+      if (this.knots[middle + 1]!.seconds < seconds) i = middle + 1;
+      else high = middle;
+    }
     const a: { seconds: number; yaw: number } = this.knots[i]!;
     const b: { seconds: number; yaw: number } = this.knots[i + 1]!;
     const h: number = b.seconds - a.seconds;
     if (h < 1e-9) return b.yaw;
     const u: number = (seconds - a.seconds) / h;
+    const square: number = u ** 2;
+    const cube: number = u ** 3;
 
     // The cubic Hermite basis over the span.
     return (
-      (2 * u ** 3 - 3 * u ** 2 + 1) * a.yaw +
-      (u ** 3 - 2 * u ** 2 + u) * h * this.rates[i]! +
-      (-2 * u ** 3 + 3 * u ** 2) * b.yaw +
-      (u ** 3 - u ** 2) * h * this.rates[i + 1]!
+      (2 * cube - 3 * square + 1) * a.yaw +
+      (cube - 2 * square + u) * h * this.rates[i]! +
+      (-2 * cube + 3 * square) * b.yaw +
+      (cube - square) * h * this.rates[i + 1]!
     );
   }
 }

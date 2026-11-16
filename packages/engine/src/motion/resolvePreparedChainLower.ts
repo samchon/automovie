@@ -43,30 +43,30 @@ interface IProps extends Pick<
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh frame and retains no input or handle after the call.
  */
 export function resolvePreparedChainLower(props: IProps): IAutoMovieChainBone {
-  /** Reuse admitted bases without changing the original clinical-record order. */
-  const rotation: (
-    joint: IAutoMovieJointPose,
-    bone: IAutoMovieJointPose["bone"],
-  ) => IAutoMovieQuaternion = (
-    joint: IAutoMovieJointPose,
-    bone: IAutoMovieJointPose["bone"],
-  ): IAutoMovieQuaternion =>
-    props.rig === undefined
-      ? jointToQuaternion(
-          joint,
-          props.jointAxes?.[bone],
-          props.restFrames?.[bone],
-        )
-      : jointToQuaternionOnBasis(
-          joint,
-          props.rig.jointBasis(bone, "jointToQuaternion axes"),
-          props.restFrames?.[bone],
-        );
   return resolvePreparedChainLower.fromRotations(
     props.prepared,
-    rotation(props.upper, props.prepared.chain.upper),
-    rotation(props.lower, props.prepared.chain.lower),
+    rotation(props, props.upper, props.prepared.chain.upper),
+    rotation(props, props.lower, props.prepared.chain.lower),
   );
+}
+
+/** Reuse admitted bases at the same clinical-record sites without a new closure per frame read. */
+function rotation(
+  props: IProps,
+  joint: IAutoMovieJointPose,
+  bone: IAutoMovieJointPose["bone"],
+): IAutoMovieQuaternion {
+  return props.rig === undefined
+    ? jointToQuaternion(
+        joint,
+        props.jointAxes?.[bone],
+        props.restFrames?.[bone],
+      )
+    : jointToQuaternionOnBasis(
+        joint,
+        props.rig.jointBasis(bone, "jointToQuaternion axes"),
+        props.restFrames?.[bone],
+      );
 }
 
 /**

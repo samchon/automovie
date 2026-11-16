@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -122,6 +123,8 @@ export namespace regrasp {
     const placed: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
     const hand: IHumanProp.IFrame = {
       position: placed.worldPosition,
@@ -160,6 +163,11 @@ export namespace regrasp {
       kind === "twist"
         ? line(read.prop, frame, need(context.params.axis, "axis"))
         : null;
+    const contact: IAutoMovieVector3 | undefined = axis === null ? undefined :
+      Quaternion.rotateVector(Quaternion.inverse(hand.rotation),
+        Vector3.subtract(axis.pivot, hand.position));
+    const orbit: IAutoMovieVector3 | undefined = axis === null ? undefined :
+      Vector3.subtract(hand.position, axis.pivot);
     return {
       duration,
       events: [{ name: "done", share: 1 }],
@@ -181,15 +189,12 @@ export namespace regrasp {
 
               // The object turns about its axis, so that axis point is the
               // contact the fit must keep when the wrist gives up rotation.
-              contact: Quaternion.rotateVector(
-                Quaternion.inverse(hand.rotation),
-                Vector3.subtract(axis.pivot, hand.position),
-              ),
+              contact: contact!,
               point: Vector3.add(
                 axis.pivot,
                 Quaternion.rotateVector(
                   turn,
-                  Vector3.subtract(hand.position, axis.pivot),
+                  orbit!,
                 ),
               ),
               rotation: Quaternion.normalize(

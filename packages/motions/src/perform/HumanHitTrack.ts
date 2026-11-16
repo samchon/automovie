@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
+import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -34,7 +35,14 @@ import type { HumanPerformanceState } from "./HumanPerformanceState";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hits are the record's; the provisional sweep uses the one contact resolver.
  */
 export namespace HumanHitTrack {
-  /** A hit to sync to. */
+  /**
+   * A hit to sync to.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines struck subject, optional producer filter and zero-based hit selection.
+   * @evidence contracts/development/design.md#principled-representation Addresses the existing interaction track by plain subject strings and an optional numeric event index.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only target, optional striker/prop and occurrence are authored.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared track rather than introducing another physical hit model.
+   */
   export interface IHit {
     /** The struck subject, a performer or a prop. */
     on: string;
@@ -46,10 +54,18 @@ export namespace HumanHitTrack {
     index?: number;
   }
 
-  /** The instant name of every hit on a track. */
+  /**
+   * The instant name of every hit on a track.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the common event label used by hit-track cues.
+   */
   export const EVENT: string = "hit";
 
-  /** The prefix of a hit track's name. */
+  /**
+   * The prefix of a hit track's name.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the routing prefix recognized by instants.
+   */
   export const PREFIX: string = "hit:";
 
   /**
@@ -57,6 +73,14 @@ export namespace HumanHitTrack {
    *
    * @param hit The hit.
    * @returns `hit:<on>` or `hit:<on>:<by>`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States exact generated track forms and optional producer suffix.
+   * @evidence contracts/development/implementation.md#principled-implementation Concatenates the declared target and optional producer in the hit-track address convention.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional-producer branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves plain authored ids without guessing an actor or prop.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Work and output space scale with address string length.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure address formatting.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function name(hit: IHit): string {
     return hit.by === undefined
@@ -70,6 +94,14 @@ export namespace HumanHitTrack {
    * @param self The performance being placed.
    * @param of The track's name.
    * @returns The instants.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States unknown-prefix behavior and the namespace documents provisional versus committed sources.
+   * @evidence contracts/development/implementation.md#principled-implementation During placement actual per-weapon sweeps supply provisional melee contacts; the common hit record supplies blasts/flights and committed contacts, filtered by target/producer and ordered by time.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Parses one hit-track address, selects current producers, then filters/maps/sorts cue records.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every provisional live window, original STEP/bisections/taper and actual struck-body distance; no event is fabricated or skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Provisional work retains actual weapon/body/sample geometry; registered head/tail reads share one exact chain evaluation. H selected records cost O(H log H) sorting and O(H) temporary space, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The common record owns committed reuse; provisional scans remain independent by weapon/context and only one sampled capsule's two ends share a synchronous source read.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call sweep inputs/events and cue arrays end at return or throw; returned cues keep only names/seconds and retain no callbacks, bodies or sampled poses.
    */
   export function instants(
     self: HumanPerformanceState,
@@ -108,6 +140,8 @@ export namespace HumanHitTrack {
   ): IAutoMovieInteractionEvent[] {
     const struck = self.people.get(on);
     if (struck === undefined) return [];
+    const requested: ReadonlySet<import("@automovie/interface").AutoMovieHumanoidBone> =
+      HumanColliders.bones(struck.performer.body);
     const out: IAutoMovieInteractionEvent[] = [];
     for (const person of self.people.values()) {
       if (person === struck) continue;
@@ -125,6 +159,10 @@ export namespace HumanHitTrack {
                   owner: person.performer.subject,
                   radius: w.radius,
                   position: (t: number): IAutoMovieVector3 => w.path(t),
+                  sample: (t: number): resolveAutoMovieContactEvents.IWeaponFrame => {
+                    const [position, end]: StrikingWeapon.IAxis = StrikingWeapon.read(w, t);
+                    return { position, ...(end === undefined ? {} : { tail: end }) };
+                  },
                   ...(tail === undefined
                     ? {}
                     : {
@@ -141,7 +179,7 @@ export namespace HumanHitTrack {
                   distance: (p: IAutoMovieVector3, t: number): number =>
                     HumanColliders.distance(
                       struck.performer.body,
-                      HumanPerformanceRead.bones(self, on, t),
+                      HumanPerformanceRead.bones(self, on, t, requested),
                       p,
                     ).distance,
                   axis: (
@@ -153,7 +191,7 @@ export namespace HumanHitTrack {
                   ): number =>
                     HumanColliders.distanceToSegment(
                       struck.performer.body,
-                      HumanPerformanceRead.bones(self, on, t),
+                      HumanPerformanceRead.bones(self, on, t, requested),
                       a,
                       b,
                       taper,

@@ -19,7 +19,7 @@ import { walkReach } from "./walkReach";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and who reads it.
  * @evidence contracts/development/design.md#principled-representation The course's half of the walk's pelvis, apart from the walk's own settling.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions, read by the stagger's knots and feet.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Tilt, its fixed-heading preparation and held-course reading serve stagger's knots and feet.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `walkReach.pelvis` and its records.
  */
 export namespace walkReachHeld {
@@ -34,6 +34,14 @@ export namespace walkReachHeld {
    * @param joints The upright hip joints under that root, world metres.
    * @param trunk The posture's added pitch and roll, degrees.
    * @returns The pelvis's world rotation and the tilted hip joints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed hips pivot, world-metre geometry and added trunk angles.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original rigid turn from upright heading to trunk heading about the body's hips bone; preparation owns the same quaternion order and pivot calculation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates one requested tilt to prepareTilt's shared fixed-heading calculation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same heading convention, body rest hip and both joint offsets without a changed angle or position.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and two-joint rigid transformation; repeated fixed-heading callers can prepare once explicitly.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same tilt producer as the derivative-loop consumer, with no global cache or cross-call pose memo.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary reader releases after this call and the result belongs to its caller.
    */
   export function tilt(
     body: IHumanBody,
@@ -45,11 +53,44 @@ export namespace walkReachHeld {
     rotation: IAutoMovieQuaternion;
     hips: Record<"left" | "right", IAutoMovieVector3>;
   } {
+    return prepareTilt(body, yaw)(root, joints, trunk);
+  }
+
+  /**
+   * Prepare a pelvis tilt whose body and upright heading remain fixed.
+   *
+   * @param body The body with unchanged rest hips for this operation.
+   * @param yaw The fixed upright heading, degrees.
+   * @returns A reader of the varying root, upright world hip joints and trunk tilt.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/heading premises, varying world geometry, degrees and operation lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Precomputes only the original upright heading inverse and rotated rest-hip offset; each reading preserves rotation*inverse(upright), root+offset and both rotated hip differences in their original order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed heading data precedes one two-hip reader of the existing rigid-pivot law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tilt is approximated or cached, and varying root/joint inputs retain their original arithmetic and units.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and constant per-read work; upright inverse, rest-map lookup and rest-offset rotation occur once for the owning knot rather than for each derivative probe.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller may share the reader only while body rest geometry and upright yaw remain fixed; each different trunk/root/joint input is evaluated directly with fresh output records.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned reader retains a quaternion inverse, rest offset and heading until its problem is released, without query-dependent storage or handles.
+   */
+  export function prepareTilt(
+    body: IHumanBody,
+    yaw: number,
+  ): (
+    root: IAutoMovieVector3,
+    joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+    trunk: { pitch: number; roll: number },
+  ) => ReturnType<typeof tilt> {
     const upright: IAutoMovieQuaternion = resolveHumanPosture.heading({
       yaw,
       pitch: 0,
       roll: 0,
     });
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(upright);
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(upright, body.rest.get("hips")!);
+    return (
+      root: IAutoMovieVector3,
+      joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+      trunk: { pitch: number; roll: number },
+    ): ReturnType<typeof tilt> => {
     const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading({
       yaw,
       pitch: trunk.pitch,
@@ -57,18 +98,19 @@ export namespace walkReachHeld {
     });
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       rotation,
-      Quaternion.inverse(upright),
+      inverse,
     );
     const centre: IAutoMovieVector3 = Vector3.add(
       root,
-      Quaternion.rotateVector(upright, body.rest.get("hips")!),
+      offset,
     );
-    const at = (side: "left" | "right"): IAutoMovieVector3 =>
+    const at: (side: "left" | "right") => IAutoMovieVector3 = (side: "left" | "right"): IAutoMovieVector3 =>
       Vector3.add(
         centre,
         Quaternion.rotateVector(turn, Vector3.subtract(joints[side], centre)),
       );
     return { rotation, hips: { left: at("left"), right: at("right") } };
+    };
   }
 
   /**
@@ -85,6 +127,14 @@ export namespace walkReachHeld {
    * @param feet Each foot as scheduled.
    * @param course The course read at the second: its drop, metres, each foot's pitch and turn and the trunk's tilt, degrees.
    * @returns The pelvis and each stance as held.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world root/foot inputs, clinical hips, course drop/angles and the held result.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps walkReach's stance-directed pelvis, lowers it by the authored course drop, tilts about the hips and holds each planted rocker with the original pitch/turn while swing feet retain their schedule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pelvis reading and tilt precede a two-foot loop delegated to the existing stance-rocker owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the course's actual drop, pitches, turns and trunk without refitting the trajectory or changing a contact.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One existing pelvis solve and at most two stance readers per query, with no full-body fit or time-keyed result cache in this helper.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical pelvis and rocker owners; the supplied course is the same synchronous sample consumed by the trunk writer.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh ground records and retains no state after the synchronous query.
    */
   export function held(
     body: IHumanBody,
@@ -105,7 +155,7 @@ export namespace walkReachHeld {
       hips: upright,
     }: walkReach.IPelvis = walkReach.pelvis(body, root, planned, hips, feet);
     const lowered: IAutoMovieVector3 = { ...root, y: root.y - course.drop };
-    const tilted = tilt(
+    const tilted: ReturnType<typeof tilt> = tilt(
       body,
       lowered,
       yaw,

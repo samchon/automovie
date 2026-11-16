@@ -43,7 +43,7 @@ export namespace HumanSegmentCarry {
    * @evidence contracts/development/implementation.md#principled-implementation Captures the actual displayed source hand/elbow relative to its chest, then composes that rigid relation with the current chest. Every capture still evaluates the source pose; borrowed FK shares only exactly equal scalar prerequisites under the same unchanged skeleton topology.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An empty-hold return, one current chest read and one ordered map of holding hands keep capture and ordinary FK in private helpers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hold, source pose, capture, hand transform or fit is skipped; standalone calls retain their ordinary fresh-FK path, and the optional source never enters h.carry or a returned goal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For H holds, one current FK plus O(H) rigid transforms; each of M uncaptured holds adds its full source-pose evaluation and FK. FK still scans J joints and B bones with fresh maps/frames; only a supplied parent shares identical math, and standalone single-use reads allocate no FK cache. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For H holds, one demanded current chest FK plus O(H) rigid transforms; each of M uncaptured holds adds its complete source-pose evaluation and demanded chest/hand/elbow FK. Ordered joint admission remains, while unrelated world-bone outputs are omitted. A supplied parent shares exact math; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing h.carry stores each hand's numerical source relation once until forget. An explicit parent may lend the same lazy exact reader to current and captured FK; changed pose/rest/parent scalars miss normally and all source evaluations remain independent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The optional local getter borrows its parent's reader until this synchronous call ends; the parent owns O(K) last successful joint/world snapshots for K visited bone names. Holds retain only existing numerical carry frames/reference until HumanSegment.forget. Returned arrays/tuples/goals and transform vectors are fresh, reference remains borrowed, and none retains the getter or reader.
    */
@@ -58,7 +58,7 @@ export namespace HumanSegmentCarry {
       resolution === undefined
         ? undefined
         : prepareHumanPoseResolution(resolution);
-    const chest: IAutoMovieResolvedBone = bones(person, pose, read).get(
+    const chest: IAutoMovieResolvedBone = bones(person, pose, read, CHEST).get(
       "chest",
     )!;
     return holds.map(
@@ -93,8 +93,9 @@ export namespace HumanSegmentCarry {
     person: HumanSegment.IPerson,
     pose: IAutoMoviePose,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return poseBones(person.performer.body, pose, resolution?.());
+    return poseBones(person.performer.body, pose, resolution?.(), requested);
   }
 
   /** A holding arm relative to the chest at the end of the action that took hold. */
@@ -109,6 +110,11 @@ export namespace HumanSegmentCarry {
       person,
       pose,
       resolution,
+      new Set<AutoMovieHumanoidBone>([
+        "chest",
+        `${held.side}Hand`,
+        `${held.side}LowerArm`,
+      ]),
     );
     const chest: IAutoMovieResolvedBone = map.get("chest")!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
@@ -134,4 +140,7 @@ export namespace HumanSegmentCarry {
       ),
     };
   }
+
+  /** Current carrying goals depend only on the chest's rigid world frame. */
+  const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);
 }

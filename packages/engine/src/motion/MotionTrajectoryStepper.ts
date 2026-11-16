@@ -5,6 +5,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { MotionTrajectoryDense } from "./MotionTrajectoryDense";
+import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
@@ -16,7 +18,7 @@ import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/common.md#meaningful-documentation Each member states its formula, its order and its source.
  * @evidence contracts/development/design.md#principled-representation The orientation advanced in the Lie algebra of rotations, a rotation vector relative to a step's start, by Runge-Kutta-Munthe-Kaas; the vector state and that vector share one tableau, one error norm and one continuous extension.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The integrator alone calls this adaptive builder; shared rotation algebra and completed numeric playback each have their existing separate owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The adaptive path is opt-in, so the fixed grid's every number stays as it was for every caller that does not ask for it.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Adaptive stepping remains opt-in and fixed requests keep their explicit grid; exact endpoint differential matching is shared by both numeric readers without changing generic RMS budgets.
  */
 export namespace MotionTrajectoryStepper {
   const { turn, dexpinv }: typeof MotionTrajectoryRotation =
@@ -58,24 +60,6 @@ export namespace MotionTrajectoryStepper {
   ];
 
   /**
-   * The continuous extension's fourth-order coefficients, read digit by
-   * digit from the same code's `d` (its `d2` left out, zero), used as its
-   * DOPCOR stores the dense output and CONTD5 reads it: with `ydiff` the
-   * step's change and `bspl = h k1 - ydiff`, the terms `ydiff`, `bspl`,
-   * `ydiff - h k7 - bspl` and `h Σ dⱼ kⱼ`, read at the step's share `θ` as
-   * `θ (ydiff + (1 - θ)(bspl + θ (term3 + (1 - θ) term4)))`.
-   */
-  const D: readonly number[] = [
-    -12715105075 / 11282082432,
-    0,
-    87487479700 / 32700410799,
-    -10690763975 / 1880347072,
-    701980252875 / 199316789632,
-    -1453857185 / 822651844,
-    69997945 / 29380423,
-  ];
-
-  /**
    * The step controller, as the same code's DOPCOR defaults and applies it,
    * read there line by line: the safety factor `safe`, the bounds `fac1`
    * and `fac2` on a step's change, the stabilizing exponent `beta` on the
@@ -114,20 +98,23 @@ export namespace MotionTrajectoryStepper {
    * Euclidean error and endpoint norms; the maximum of those errors and
    * the orientation's original RMS controls admission. Zero error at zero
    * scale is zero; nonzero error there rejects without an absolute floor.
+   * An explicit physical rotation defect additionally uses the paired
+   * quintic continuous extension and its actual angular derivative. Its
+   * normalized error is combined by max with the unchanged RMS criterion.
    *
    * @param props The integrator's props, with a tolerance.
    * @param rate The callback with the wrapper's vector-length and required-angular-rate presence checks; finite numeric components remain a caller premise.
    * @param step The first step tried, seconds, positive.
    * @returns The trajectory, its knots the accepted steps' ends.
-   * @throws {Error} When a step shrinks below the resolution of its time: a right-hand side the tolerance cannot follow.
+   * @throws {MotionTrajectoryFailure} When the existing time-resolution guard catches the attempted step, including its roundoff margin, with the last rejected estimates and optional physical probe. Foreign model errors propagate unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the accepted-error norm, dense interpolation, time units, callback-shape checks, finite-data caller premise and time-resolution failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the cited Dormand-Prince tableau and controller with the RKMK rotation-vector differential. The wrapper checks the finite forward interval, positive finite step, tolerance, partition, nonempty state shape, rate length and required angular-rate presence; x0, dx and w components are not checked for finiteness. Finite data and valid input orientation remain caller premises. The embedded estimate controls local step admission and does not certify a global physical error bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Form trial stages, measure their error, reject or retain the continuous extension, then expose binary-search sampling over accepted steps.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the cited DP tableau/controller and generic RMS or explicit block norm. MotionTrajectoryDense matches endpoint body slopes by exact Jr^-1 and optionally constructs the cited paired continuous quintics, whose derivative defects are normalized in the caller's physical units and combined by max. Nonfinite/unresolved numeric trials reject before the physical callback; invalid model errors propagate. Local and sampled estimates do not certify global error or arbitrary black-box histories.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Form trial stages, measure their error, reject or retain the continuous extension, then expose binary-search sampling. An unresolvable step reports the last rejected estimates without changing admission or adding a runtime observer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tableau and controller constants retain their cited provenance; no fixture-specific time grid, cached answer or tolerance relaxation is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For n vector components, A accepted and R rejected trials, integration adds O((A+R)(n+1)) vector and optional rotation work and six right-hand-side calls per trial after the initial call. Reusing the last stage removes one n-component six-term weighted sum and array per trial, and one exponential per oriented acceptance. Only oriented trials allocate rotation-rate scratch; only the last rotation vector is retained. Dense output is O(A(n+1)); a new time costs O(log A+n+1), and a repeated exact time still copies O(n+1) output components. The tolerance can require arbitrarily many steps before time-resolution failure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each trial has six new RHS stages after the initial call and O(n+1) scalar/rotation work. Physical dense control adds four RHS evaluations on RMS-admitted trials and model probes at method nodes and paired component extrema. Numeric output is O(A(n+1)) for A accepted steps; full reads cost O(log A+n+1), quaternion projection O(log A). No fixed accepted-step bound exists before time-resolution failure.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the accepted last stage as the next first stage. Its already computed vector state is the identical fifth-order weighted sum, and its orientation is the same exponential used for the normalized endpoint, so neither is recomputed. Stages one through five share one private rotation-vector workspace: turn and dexpinv read its components without retaining it. Stage six, error and dense sums get fresh vectors. An absent vector block shares its private empty state and empty coefficients without component arithmetic. Dense coefficients are stored once and the reader reuses its immediately preceding exact time without reintegration.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One private three-component stage workspace is released on return or throw and never enters accepted records or callback inputs. Nonempty trial arrays die after rejection or acceptance; the last trial state becomes the accepted endpoint without mutation. A zero-dimensional state and its empty coefficients are shared privately, while public output is always fresh. The reader retains accepted steps, endpoint state and at most one previous numeric read for its lifetime. Retention grows with accepted-step count without a fixed byte bound; no external handle or task is acquired.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One private three-component stage workspace never enters callback inputs or accepted records. One FSAL quaternion reference keeps the raw input of the retained rate, before knot normalization. Rejected trial arrays release; one constant-size numeric rejection record copies its actual angular RHS endpoints and failed probe only on rejection, then replaces or clears them on the next rejection or acceptance. It escapes only on time exhaustion, holding no dense step, RHS or history. Accepted numeric steps, endpoint and bounded previous full/q/interval reads live with playback. Empty states/coefficients share private records while public output is fresh. Accepted-step storage has no fixed byte bound and no external handle is acquired.
    */
   export function dormandPrince(
     props: integrateMotionTrajectory.IProps,
@@ -153,20 +140,20 @@ export namespace MotionTrajectoryStepper {
       ? Quaternion.normalize(props.q0!)
       : null;
     let k1: integrateMotionTrajectory.IRate = rate(t, x, q);
+    let rateQ: IAutoMovieQuaternion | null = q;
     const stage: IAutoMovieVector3 | undefined = oriented
       ? { x: 0, y: 0, z: 0 }
       : undefined;
     let h: number = first;
     let rejected: boolean = false;
     let previous: number = CONTROL.previous;
+    let rejection: MotionTrajectoryFailure["rejection"];
     const exponent: number = 0.2 - CONTROL.beta * 0.75;
     while (t < t1) {
       const last: boolean = t + CONTROL.stretch * h - t1 > 0;
       if (last) h = t1 - t;
       if (0.1 * Math.abs(h) <= Math.abs(t) * Number.EPSILON || !(t + h > t))
-        throw new Error(
-          `integrateMotionTrajectory: the step shrank below the resolution of ${t} s`,
-        );
+        throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
       // The stages, the orientation's in the algebra from the step's start.
       const ks: integrateMotionTrajectory.IRate[] = [k1];
       const us: (IAutoMovieVector3 | undefined)[] | undefined = oriented
@@ -255,14 +242,45 @@ export namespace MotionTrajectoryStepper {
         rotationSquares =
           ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
       }
-      const norm: number =
+      let norm: number =
         blocks === undefined
           ? Math.sqrt(
               (squares + rotationSquares) / (controlled + (oriented ? 3 : 0)),
             )
           : Math.max(blockError, oriented ? Math.sqrt(rotationSquares / 3) : 0);
+      let dense: MotionTrajectoryRead.IDenseStep | undefined;
+      const rms: number = norm;
+      let physical: number | undefined;
+      let kind: NonNullable<MotionTrajectoryFailure["rejection"]>["kind"] = "rms";
+      let probe: NonNullable<MotionTrajectoryFailure["rejection"]>["probe"];
+      if (norm <= 1) {
+        const built: ReturnType<typeof MotionTrajectoryDense> = MotionTrajectoryDense({
+          t, h, x, q, end: xn, rotation: r, stages: ks, algebra: us,
+          empty: emptyTerms, rate, defect: props.rotationDefect,
+        });
+        if (built === null) {
+          norm = Infinity;
+          kind = "numeric-dense";
+        }
+        else {
+          dense = built.step;
+          physical = built.error;
+          probe = built.probe;
+          kind = "physical";
+          norm = Math.max(norm, built.error);
+        }
+      }
       const stretched: number = norm ** exponent;
       if (!(norm <= 1)) {
+        rejection = { step: h, rms, physical, kind, probe,
+          start: oriented ? {
+            q: { x: rateQ!.x, y: rateQ!.y, z: rateQ!.z, w: rateQ!.w },
+            w: { x: ks[0]!.w!.x, y: ks[0]!.w!.y, z: ks[0]!.w!.z },
+          } : undefined,
+          end: oriented ? {
+            q: { x: endpointQ!.x, y: endpointQ!.y, z: endpointQ!.z, w: endpointQ!.w },
+            w: { x: ks[6]!.w!.x, y: ks[6]!.w!.y, z: ks[6]!.w!.z },
+          } : undefined };
         h /= Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
         rejected = true;
         continue;
@@ -279,46 +297,14 @@ export namespace MotionTrajectoryStepper {
 
       // Accepted: keep the continuous extension and step on from the last stage.
       const k7: integrateMotionTrajectory.IRate = ks[6]!;
-      const terms: number[][] =
-        emptyTerms ??
-        x.map((v: number, c: number): number[] => {
-          const diff: number = xn[c]! - v;
-          const spline: number = h * ks[0]!.dx[c]! - diff;
-          return [
-            diff,
-            spline,
-            diff - h * k7.dx[c]! - spline,
-            h *
-              D.reduce(
-                (s: number, d: number, j: number): number =>
-                  s + d * ks[j]!.dx[c]!,
-                0,
-              ),
-          ];
-        });
-      const turns: IAutoMovieVector3[] = [];
-      if (oriented) {
-        const diff: IAutoMovieVector3 = r!;
-        const spline: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.scale(us![0]!, h),
-          diff,
-        );
-        turns.push(
-          diff,
-          spline,
-          Vector3.subtract(
-            Vector3.subtract(diff, Vector3.scale(us![6]!, h)),
-            spline,
-          ),
-          sum(D, us!, h)!,
-        );
-      }
-      steps.push({ t, h, x, terms, q, turns });
+      steps.push(dense!);
       t = last ? t1 : t + h;
       x = xn;
       q = oriented ? Quaternion.normalize(endpointQ!) : null;
       k1 = k7;
+      rateQ = endpointQ;
       rejected = false;
+      rejection = undefined;
       h = next;
     }
 

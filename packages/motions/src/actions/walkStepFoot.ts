@@ -173,11 +173,11 @@ export namespace walkStepFoot {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Each stance is `walkFoot.stance` between a heel strike and the next toe-off; a swing's first half reads the stance it leaves and its second the one it reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk over the footfalls per read.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares one stance reader per footprint, then selects the first unfinished footfall by its heel strike.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The last stance is held open, so a foot after its last footfall stays planted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the foot's footfalls per read, a few dozen at most.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `walkFoot.stance`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The schedule holds the footfalls only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation and storage in the foot's footfalls, logarithmic selection and one stance evaluation per planted read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each swing reuses its two scheduled endpoint stances; the body, side, footfalls and raised pitch remain fixed for the schedule.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned schedule owns its readers and two endpoints per footfall, released with that plan; no query history is retained.
    */
   export function schedule(
     body: IHumanBody,
@@ -186,68 +186,53 @@ export namespace walkStepFoot {
     own: readonly IStep[],
     raised: number,
   ): (t: number) => walkFoot.IScheduled {
-    return (t: number): walkFoot.IScheduled => {
-      let flat: HumanFoot.IPlacement = start;
-      let facing: number = HumanFoot.heading(flat.rotation);
-      let strike: number = -Infinity;
-      let back: boolean = false;
-      for (const [i, step] of own.entries()) {
-        // A starting stance leaves the way its first step goes.
-        const backward: boolean = Number.isFinite(strike)
-          ? back
-          : step.backward === true;
-        const leave = (at: number): walkFoot.IFoot =>
-          walkFoot.stance(
-            body,
-            side,
-            flat,
-            facing,
-            strike,
-            step.toeOff,
-            at,
-            step.push,
-            raised,
-            backward,
-          );
-        if (t < step.toeOff) return leave(t);
-        if (t < step.heelStrike) {
-          const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
-          const next: IStep | undefined = own[i + 1];
-          return {
-            ...(u < 0.5
-              ? leave(step.toeOff)
-              : walkFoot.stance(
-                  body,
-                  side,
-                  step.flat,
-                  step.heading,
-                  step.heelStrike,
-                  next?.toeOff ?? Infinity,
-                  step.heelStrike,
-                  next?.push ?? -PUSH,
-                  raised,
-                  step.backward === true,
-                )),
-            swing: { u, off: step.toeOff, on: step.heelStrike },
-          };
-        }
-        flat = step.flat;
-        facing = step.heading;
-        strike = step.heelStrike;
-        back = step.backward === true;
-      }
-      return walkFoot.stance(
-        body,
-        side,
-        flat,
-        facing,
-        strike,
-        Infinity,
-        t,
-        -PUSH,
-        raised,
-        back,
+    const stances: ((t: number) => walkFoot.IFoot)[] = [];
+    for (let i: number = 0; i <= own.length; i++) {
+      const previous: IStep | undefined = own[i - 1];
+      const next: IStep | undefined = own[i];
+      const flat: HumanFoot.IPlacement = previous?.flat ?? start;
+      const facing: number =
+        previous?.heading ?? HumanFoot.heading(start.rotation);
+      const strike: number = previous?.heelStrike ?? -Infinity;
+
+      // The opening stance follows its first step's direction; later ones
+      // retain the direction of the footprint they stand on.
+      const backward: boolean = (previous ?? next)?.backward === true;
+      stances.push(
+        walkFoot.prepareStance(
+          body,
+          side,
+          flat,
+          facing,
+          strike,
+          next?.toeOff ?? Infinity,
+          next?.push ?? -PUSH,
+          raised,
+          backward,
+        ),
       );
+    }
+    const ends: { from: walkFoot.IFoot; to: walkFoot.IFoot }[] = own.map(
+      (step: IStep, i: number): { from: walkFoot.IFoot; to: walkFoot.IFoot } => ({
+        from: stances[i]!(step.toeOff),
+        to: stances[i + 1]!(step.heelStrike),
+      }),
+    );
+    return (t: number): walkFoot.IScheduled => {
+      let low: number = 0;
+      let high: number = own.length;
+      while (low < high) {
+        const middle: number = (low + high) >>> 1;
+        if (t < own[middle]!.heelStrike) high = middle;
+        else low = middle + 1;
+      }
+      const step: IStep | undefined = own[low];
+      if (step === undefined || t < step.toeOff) return stances[low]!(t);
+      const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
+      return {
+        ...(u < 0.5 ? ends[low]!.from : ends[low]!.to),
+        swing: { u, off: step.toeOff, on: step.heelStrike },
+      };
     };
   }
 }

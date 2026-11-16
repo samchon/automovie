@@ -74,6 +74,7 @@ export function walkPaced(
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (film: number): IHumanPosture => plan.posture(toPlan(film)),
+    posture: (film: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture =>
+      plan.posture(toPlan(film), channels),
   };
 }

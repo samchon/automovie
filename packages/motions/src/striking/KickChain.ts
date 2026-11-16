@@ -14,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
@@ -117,11 +118,21 @@ export namespace KickChain {
    *
    * @param props The kick's body, side, technique, line, travel and planned point.
    * @param base The body's posture at contact.
+   * @param origin The kicking hip already read from this exact base, when supplied.
    * @returns The solve: the knee, the ankle, the knee's flexion and whether the point is reached, jammed or short.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States technique, world target, same-base optional hip and the unchanged two-segment reach result.
+   * @evidence contracts/development/implementation.md#principled-implementation Places the shin axis behind its measured tapered radius or the ankle behind the rotated foot ball, then solves the original two-segment chain within the technique's flexion band.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The technique selects the physical contact offset before one shared reach solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains actual measured segment lengths, target, shin share, bend and flexion band; a supplied hip must be the exact same body's base hip.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant contact arithmetic plus the shared closed-form reach; only an omitted hip needs its trunk FK ancestry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller may share an already-read hip across this candidate's solve and fit; no posed result or time history is retained.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns only the reach result and retains no state.
    */
   export function solve(
     props: IProps,
     base: IHumanPosture,
+    origin?: IAutoMovieVector3,
   ): StrikingReach.ISolution {
     const m: IHumanBody["measure"] = props.body.measure;
     const round: boolean = props.technique === "round";
@@ -143,7 +154,7 @@ export namespace KickChain {
         )
       : Vector3.subtract(props.planned, ball(props));
     return StrikingReach.chain({
-      root: KickCarriage.hip(props.body, base, props.side),
+      root: origin ?? KickCarriage.hip(props.body, base, props.side),
       point,
       upper: m.thigh,
       along: round ? KickForm.SHIN_SHARE * m.shank : m.shank,
@@ -170,15 +181,28 @@ export namespace KickChain {
    * @param props The kick's body, side, technique, line, travel and planned point.
    * @param base The body's posture at contact, its support leg planted.
    * @param solved The solve.
+   * @param origin The kicking hip already read from this exact base, when supplied.
    * @returns The fitted leg, with how far it is from the support plant and from the planned point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed base, contact target, iterative weapon correction and optional same-base hip.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps every original bounded weapon refit and its best-residual decision; only the unchanged base hip and exact FK prerequisites are shared within this synchronous fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The fixed hip and lazy resolution reader belong to the refit loop that consumes them, while read owns each actual whole-posture solve and weapon measurement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains all REFITS, residual thresholds, support plants, target corrections and cold limb searches; no posture or fit answer is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most eight whole-posture refits retain their numerical costs and full FK output scans; the unchanged hip is read once and identical FK scalar prerequisites share one reader. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller-supplied hip must belong to the exact body/base. A local resolution reader shares only equal scalar FK inputs across the synchronous refits and their displayed-bone reads; each changed goal is solved normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and hip live until fit returns or throws; IFit retains only its existing pose and measurements, with no reader, closure or new body memory.
    */
   export function fit(
     props: IProps,
     base: IHumanPosture,
     solved: StrikingReach.ISolution,
+    origin?: IAutoMovieVector3,
   ): IFit {
     const { body, side } = props;
     const round: boolean = props.technique === "round";
+    const hip: IAutoMovieVector3 = origin ?? KickCarriage.hip(body, base, side);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
 
     // A round kick's foot is pointed along the shank with the instep facing
     // the travel, so the instep and the lower shin present one surface.
@@ -194,20 +218,19 @@ export namespace KickChain {
         : sole(props.line);
     let goal: IAutoMovieVector3 = solved.end;
     let hint: IAutoMovieVector3 = StrikingReach.hint(
-      KickCarriage.hip(body, base, side),
+      hip,
       solved,
       bend(props),
       KickForm.HINT_SHARE * body.measure.thigh,
     );
     let asked: IAutoMovieQuaternion = pointed(solved.middle, solved.end);
-    let best: IFit = read(props, base, solved, { goal, hint, asked });
+    let best: IFit = read(props, base, solved, { goal, hint, asked }, resolution);
     let last: IFit = best;
 
     // A moved goal stays inside the hip's sphere of the leg's length at the
     // technique's least flexion, so no refit opens the knee past the band:
     // what the weapon then still lacks is the kick's honest shortfall, which
     // the carriage answers with a step, not the knee with a lock.
-    const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, side);
     const longest: number = StrikingReach.reach(
       body.measure.thigh,
       body.measure.shank,
@@ -226,7 +249,7 @@ export namespace KickChain {
       );
       hint = last.knee;
       asked = pointed(last.knee, last.ankle);
-      last = read(props, base, solved, { goal, hint, asked });
+      last = read(props, base, solved, { goal, hint, asked }, resolution);
       if (last.residual < best.residual) best = last;
     }
     return best;
@@ -250,11 +273,12 @@ export namespace KickChain {
     base: IHumanPosture,
     solved: StrikingReach.ISolution,
     ask: IAsked,
+    resolution: ReturnType<typeof prepareHumanPoseResolution>,
   ): IFit {
     const { body, side } = props;
     const m: IHumanBody["measure"] = body.measure;
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const pose: IAutoMoviePose = resolveHumanPosture(body, {
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...base,
       limbs: {
         ...base.limbs,
@@ -264,10 +288,12 @@ export namespace KickChain {
           rotation: ask.asked,
         },
       },
-    });
+    }, undefined, {}, resolution).pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
+      resolution(),
+      CONTACT_BONES[side],
     );
     const knee: IAutoMovieVector3 = bones.get(
       `${side}LowerLeg` as AutoMovieHumanoidBone,
@@ -359,3 +385,9 @@ export namespace KickChain {
     );
   }
 }
+
+/** Read-back needs the kicking knee/foot and the planted support foot only. */
+const CONTACT_BONES: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
+  left: new Set<AutoMovieHumanoidBone>(["leftLowerLeg", "leftFoot", "rightFoot"]),
+  right: new Set<AutoMovieHumanoidBone>(["rightLowerLeg", "rightFoot", "leftFoot"]),
+};

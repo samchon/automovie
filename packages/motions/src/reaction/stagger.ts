@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
-import { walkStanceCourse } from "../actions/walkStanceCourse";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -210,12 +209,15 @@ export namespace stagger {
       ),
       y: 0,
     });
+    const bend: Record<"pitch" | "roll", IAutoMovieVector3> = staggerKnots.bending(body, context.entry);
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       body,
       context.entry,
       push,
       p.speed,
       righting,
+      true,
+      (): Record<"pitch" | "roll", IAutoMovieVector3> => bend,
     );
     if (recovery === null) {
       const caught: number = staggerLimit.of(
@@ -250,14 +252,14 @@ export namespace stagger {
       body,
       context.entry,
       recovery,
-      staggerKnots.bending(body, context.entry),
+      bend,
     );
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const { feet: scheduled, settled, reached } = feet.solve(seconds);
+        const { feet: scheduled, settled, reached, reading } = feet.solve(seconds);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           // The knee points over the foot's own heading.
@@ -292,7 +294,7 @@ export namespace stagger {
             },
             limbs,
           },
-          walkStanceCourse.at(feet.course(), seconds).trunk,
+          reading.trunk,
         );
       },
     };

@@ -15,11 +15,11 @@ import type { HumanColliders } from "./HumanColliders";
 
 /**
  * The rig, frame and placed-geometry records shared by arm trajectories.
- * HumanArmGeometry keeps aliases for its existing public type names.
+ * HumanArmGeometry keeps its existing public interfaces by inheriting these fields.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines each record's coordinate frame, units, shape/probe ordering and borrowed ownership, including the setup's unchanged-operation scope.
  * @evidence contracts/development/design.md#principled-representation Separates fixed rig metadata, per-instant collision geometry and resulting FK points, with world metres, clinical degrees and unit quaternion rotations imported from their existing owners.
- * @evidence contracts/development/design.md#minimal-and-owned-surface These five records are the existing geometry, trajectory, Jacobian and clearance consumers' shared data; HumanArmGeometry aliases keep their established names without duplicating their shapes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface These five records are the existing geometry, trajectory, Jacobian and clearance consumers' shared data; HumanArmGeometry interfaces inherit these shapes and preserve their established declaration-merging surface.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No new motion or collider representation is introduced; parallel probe arrays and nine-coordinate arrays still require caller-consistent ordering and sizes.
  */
 export namespace HumanArmGeometryTypes {

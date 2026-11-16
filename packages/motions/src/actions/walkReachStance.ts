@@ -65,159 +65,189 @@ export namespace walkReachStance {
     rocker: number,
     course?: number,
   ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
-    let placement: HumanFoot.IPlacement = foot.placement;
-    const heading: number = HumanFoot.heading(placement.rotation);
-    let pitch: number = HumanFoot.pitch(placement.rotation);
-    const about: "heel" | "mtp" = pitch > 1e-6 ? "heel" : "mtp";
+    return prepare(body, side, foot, yaw, pivoted, rocker, course)(h);
+  }
+
+  /**
+   * Prepare a scheduled stance while its hip varies in the root's height solve.
+   *
+   * @param body The fixed body.
+   * @param side The foot.
+   * @param foot The scheduled foot's fixed placement and toe flexion.
+   * @param yaw The fixed pelvis heading, degrees.
+   * @param pivoted The fixed toe-pad turn, degrees.
+   * @param rocker The fixed rocker onset room, degrees.
+   * @param course The fixed course pitch, degrees, when a stance course owns it.
+   * @returns The unchanged stance rule evaluated at each hip in world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which stance inputs remain fixed, angular units and the varying world-space hip.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves only the foot's heading, initial pitch, sole pivot and rigid pivot reader once; each hip still runs every original rocker, trail, pivot and edge-range rule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed stance geometry precedes one hip reader, keeping the constraint rules and their ordering in one owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all search calls, iterations, range bounds, sole probes and contact formulas; no trial hip or fit result is memoized.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance and the original bounded constraint work per hip; repeated root trials skip fixed quaternion decompositions and socket/pivot preparation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn, rocker width and course pitch determine the shared geometry; each returned reader is local to that fixed stance.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one fixed foot and rigid-pivot reader until its root solve and deferred endpoint result release it, with no hip/query history.
+   */
+  export function prepare(
+    body: IHumanBody,
+    side: "left" | "right",
+    foot: walkFoot.IFoot,
+    yaw: number,
+    pivoted: number,
+    rocker: number,
+    course?: number,
+  ): (hip: IAutoMovieVector3) => { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
+    const initial: HumanFoot.IPlacement = foot.placement;
+    const heading: number = HumanFoot.heading(initial.rotation);
+    const starting: number = HumanFoot.pitch(initial.rotation);
+    const about: "heel" | "mtp" = starting > 1e-6 ? "heel" : "mtp";
     const pivot: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
       about,
-      placement,
+      initial,
     );
-    const at = (degrees: number): HumanFoot.IPlacement =>
-      HumanFoot.pivot(body, side, about, pivot, heading, degrees);
-    // The heel rises about the ball once the shank leans past the ankle's
-    // dorsal limit: the forefoot rocker begins where the ankle can bend no
-    // further (Perry and Burnfield), so the ball never slides. A heel
-    // strike's toes come down about the heel the same way.
-    // A stance course (`walkStanceCourse`) gives the pitch about the ball
-    // the take's optimisation chose; the rules below are the take's without one.
-    if (course !== undefined && about === "mtp") {
-      pitch = Math.min(pitch, course);
-      placement = at(pitch);
-    } else if (
-      HumanFoot.point(
-        body,
-        side,
-        about === "heel" ? "heel" : "toe",
-        placement,
-        foot.toes,
-      ).y < 0.01
-    )
-      if (about === "heel")
-        for (let k: number = 0; k < 4; k++) {
-          const top: number =
-            -walkLeg.lean(body, h, placement.ankle, heading) +
-            20 -
-            walkLeg.ANKLE;
-          if (pitch <= top + 1e-6) break;
-          pitch = Math.max(0, top);
-          placement = at(pitch);
+    const at: (degrees: number) => HumanFoot.IPlacement =
+      HumanFoot.preparePivot(body, side, about, pivot, heading);
+    const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, about);
+    const bears: boolean = !(course !== undefined && about === "mtp") &&
+      HumanFoot.point(body, side, about === "heel" ? "heel" : "toe", initial, foot.toes).y < 0.01;
+    let rockerRise: ReturnType<typeof walkLeg.prepareHeelRise> | undefined;
+    return (h: IAutoMovieVector3): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
+      let placement: HumanFoot.IPlacement = initial;
+      let pitch: number = starting;
+      // The heel rises about the ball once the shank leans past the ankle's
+      // dorsal limit: the forefoot rocker begins where the ankle can bend no
+      // further (Perry and Burnfield), so the ball never slides. A heel
+      // strike's toes come down about the heel the same way.
+      // A stance course (`walkStanceCourse`) gives the pitch about the ball
+      // the take's optimisation chose; the rules below are the take's without one.
+      if (course !== undefined && about === "mtp") {
+        pitch = Math.min(pitch, course);
+        placement = at(pitch);
+      } else if (bears)
+        if (about === "heel")
+          for (let k: number = 0; k < 4; k++) {
+            const top: number =
+              -walkLeg.lean(body, h, placement.ankle, heading) +
+              20 -
+              walkLeg.ANKLE;
+            if (pitch <= top + 1e-6) break;
+            pitch = Math.max(0, top);
+            placement = at(pitch);
+          }
+        else {
+          const risen: number = (rockerRise ??= walkLeg.prepareHeelRise(
+            body,
+            side,
+            pivot,
+            heading,
+            rocker,
+          ))(h, pitch);
+          if (risen !== pitch) {
+            pitch = risen;
+            placement = at(pitch);
+          }
         }
-      else {
-        const risen: number = walkLeg.heelRise(
-          body,
-          side,
-          h,
-          pivot,
-          heading,
+      // The heel rises further about the ball while the thigh would trail more
+      // than TRAIL behind vertical and the ankle can still plantarflex: the
+      // knee then bends and the thigh comes forward, the trailing-limb posture
+      // of terminal stance and pre-swing (Perry and Burnfield). The room is the
+      // thigh's distance from the bound, and none is asked of a pitch at the
+      // ankle's plantar limit. Raising the heel only brings the thigh forward,
+      // so this room has no fold.
+      if (about === "mtp" && course === undefined) {
+        const risen: number = walkLeg.rise(
+          (degrees: number): number => {
+            const ankle: IAutoMovieVector3 = at(degrees).ankle;
+            return degrees + walkLeg.lean(body, h, ankle, heading) + 50 >
+              walkLeg.ANKLE
+              ? TRAIL - walkLeg.trailing(body, h, ankle, yaw)
+              : Infinity;
+          },
           pitch,
-          rocker,
+          EASE,
+          false,
         );
         if (risen !== pitch) {
           pitch = risen;
           placement = at(pitch);
         }
       }
-    // The heel rises further about the ball while the thigh would trail more
-    // than TRAIL behind vertical and the ankle can still plantarflex: the
-    // knee then bends and the thigh comes forward, the trailing-limb posture
-    // of terminal stance and pre-swing (Perry and Burnfield). The room is the
-    // thigh's distance from the bound, and none is asked of a pitch at the
-    // ankle's plantar limit. Raising the heel only brings the thigh forward,
-    // so this room has no fold.
-    if (about === "mtp" && course === undefined) {
-      const risen: number = walkLeg.rise(
-        (degrees: number): number => {
-          const ankle: IAutoMovieVector3 = at(degrees).ankle;
-          return degrees + walkLeg.lean(body, h, ankle, heading) + 50 >
-            walkLeg.ANKLE
-            ? TRAIL - walkLeg.trailing(body, h, ankle, yaw)
-            : Infinity;
-        },
-        pitch,
-        EASE,
-        false,
-      );
-      if (risen !== pitch) {
-        pitch = risen;
-        placement = at(pitch);
-      }
-    }
-    const toes: number = Math.max(foot.toes, -pitch);
-    // The pivot turn: the foot turns about its toe pad by its pivot.
-    if (about === "mtp" && Math.abs(pivoted) > 1e-9) {
-      const pad: IAutoMovieVector3 = HumanFoot.point(
-        body,
-        side,
-        "toe",
-        placement,
-        toes,
-      );
-      const turned: IAutoMovieQuaternion = HumanFoot.rotation(
-        heading + pivoted,
-        pitch,
-      );
-      placement = {
-        ankle: Vector3.subtract(
-          pad,
-          Quaternion.rotateVector(
-            turned,
-            HumanFoot.offset(body, side, "toe", toes),
+      const toes: number = Math.max(foot.toes, -pitch);
+      // The pivot turn: the foot turns about its toe pad by its pivot.
+      if (about === "mtp" && Math.abs(pivoted) > 1e-9) {
+        const pad: IAutoMovieVector3 = HumanFoot.point(
+          body,
+          side,
+          "toe",
+          placement,
+          toes,
+        );
+        const turned: IAutoMovieQuaternion = HumanFoot.rotation(
+          heading + pivoted,
+          pitch,
+        );
+        placement = {
+          ankle: Vector3.subtract(
+            pad,
+            Quaternion.rotateVector(
+              turned,
+              HumanFoot.offset(body, side, "toe", toes),
+            ),
           ),
-        ),
-        rotation: turned,
-      };
-    }
-    // The foot rolls onto its edge once the leg's line leans further to the
-    // side of the foot than the ankle inverts or everts: the border on the
-    // side the ankle lies from the hip stays on the floor and the other
-    // rises, as a foot set wide of the body bears on its outer border.
-    const flat = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.normalize({ x: v.x, y: 0, z: v.z });
-    const across: IAutoMovieVector3 = flat(
-      Quaternion.rotateVector(placement.rotation, { x: 1, y: 0, z: 0 }),
-    );
-    const aside: number = Vector3.dot(
-      Vector3.subtract(placement.ankle, h),
-      across,
-    );
-    const down: number = h.y - placement.ankle.y;
-    const excess: number =
-      (Math.atan2(Math.abs(aside), down) * 180) / Math.PI - SIDE;
-    if (down > 0 && excess > 0) {
-      const sign: number = Math.sign(aside);
-      let edge: IAutoMovieVector3 = placement.ankle;
-      let most: number = -Infinity;
-      for (const q of HumanFoot.sole(body, side, placement)) {
-        const out: number =
-          sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
-        if (out > most) {
-          most = out;
-          edge = q;
+          rotation: turned,
+        };
+      }
+      // The foot rolls onto its edge once the leg's line leans further to the
+      // side of the foot than the ankle inverts or everts: the border on the
+      // side the ankle lies from the hip stays on the floor and the other
+      // rises, as a foot set wide of the body bears on its outer border.
+      const flat: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.normalize({ x: v.x, y: 0, z: v.z });
+      const across: IAutoMovieVector3 = flat(
+        Quaternion.rotateVector(placement.rotation, { x: 1, y: 0, z: 0 }),
+      );
+      const aside: number = Vector3.dot(
+        Vector3.subtract(placement.ankle, h),
+        across,
+      );
+      const down: number = h.y - placement.ankle.y;
+      const excess: number =
+        (Math.atan2(Math.abs(aside), down) * 180) / Math.PI - SIDE;
+      if (down > 0 && excess > 0) {
+        const sign: number = Math.sign(aside);
+        let edge: IAutoMovieVector3 = placement.ankle;
+        let most: number = -Infinity;
+        for (const q of HumanFoot.sole(body, side, placement)) {
+          const out: number =
+            sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
+          if (out > most) {
+            most = out;
+            edge = q;
+          }
         }
-      }
-      const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        flat(Quaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: 1 })),
-        -sign * excess,
-      );
-      placement = {
-        ankle: Vector3.add(
-          edge,
-          Quaternion.rotateVector(
-            roll,
-            Vector3.subtract(placement.ankle, edge),
+        const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          flat(Quaternion.rotateVector(placement.rotation, { x: 0, y: 0, z: 1 })),
+          -sign * excess,
+        );
+        placement = {
+          ankle: Vector3.add(
+            edge,
+            Quaternion.rotateVector(
+              roll,
+              Vector3.subtract(placement.ankle, edge),
+            ),
           ),
-        ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(roll, placement.rotation),
-        ),
+          rotation: Quaternion.normalize(
+            Quaternion.multiply(roll, placement.rotation),
+          ),
+        };
+      }
+      return {
+        end: { ankle: placement.ankle, rotation: placement.rotation, toes },
+        contact,
       };
-    }
-    return {
-      end: { ankle: placement.ankle, rotation: placement.rotation, toes },
-      contact: HumanFoot.offset(body, side, about),
     };
   }
 }

@@ -15,6 +15,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 
@@ -73,6 +74,14 @@ export namespace HumanGraspReach {
    * @param required What a grip must hold before its cost counts: a measure of its per-key errors, judgements and the bounds the keys hold their judgements to (the grasp's, then each stroke key's, `IKey.judge` and `IKey.bound`; `NaN` where none) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all (a pick-up's wrist within the straight arm's reach, which it refuses beyond): a candidate it refuses is tried only when it refuses every one, so a cheaper fit never wins a grip the caller must then refuse. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States candidate, stroke, reference, required-judgement and admission semantics, including the original mixed-unit cost and tie preference.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the existing exact lower-bound candidate ordering and all coupled posture fits; unjudged keys demand only the three arm frames their error and bend departure read, while arbitrary judges still receive every bone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidate admission and grasp fitting precede the original ordered stroke search; one local fit owns the common goal construction and displayed-pose judgement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No key, legal fit, error, bound, candidate or preference changes; the original required-first and least-miss fallback choices remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of C turn/tilt pairs constructs its wrist once; the original bounded full coupled fits remain, with demanded FK readback for unjudged keys and lower-bound pruning of stroke work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous search shares an exact FK dependency reader across actual fits and readbacks; changed goals still solve independently and no candidate's fitted answer substitutes for another.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate records and one FK reader are local to this search; only the chosen original pose, wrist, reference and scalar reports escape, with no reader or search map retained.
    */
   export function reachable(
     body: IHumanBody,
@@ -97,6 +106,12 @@ export namespace HumanGraspReach {
     admits?: (wrist: HumanHand.IWrist) => boolean,
   ): HumanGrasp.IReach {
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    let prepared: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
+    ]);
     // One key pose fitted, its elbow left to the body (`elbow`): the pose and
     // the error the arm leaves there, the rotation in degrees plus the
     // position in millimetres. The rotation is the fit's own optimal value
@@ -119,27 +134,24 @@ export namespace HumanGraspReach {
       // its own goal, on its own arm solution, not the grasp's.
       const anchored: IHumanPosture.IReference | undefined =
         key.reference === false ? undefined : reference;
-      const resolved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
-        body,
-        {
-          ...key.posture,
-          limbs: {
-            ...key.posture.limbs,
-            [limb]: {
-              ...(key.goal ?? {
-                point: key.wrist.point,
-                rotation: key.wrist.rotation,
-                bend: key.bend,
-                elbow: "strain",
-              }),
-              ...(anchored === undefined ? {} : { reference: anchored }),
-            },
-          },
+      const limbs: IHumanPosture["limbs"] = {
+        ...key.posture.limbs,
+        [limb]: {
+          ...(key.goal ?? {
+            point: key.wrist.point,
+            rotation: key.wrist.rotation,
+            bend: key.bend,
+            elbow: "strain",
+          }),
+          ...(anchored === undefined ? {} : { reference: anchored }),
         },
-      );
+      };
+      const resolved: resolveHumanPosture.ISeeded = key.posture === posture
+        ? (prepared ??= resolveHumanPosture.prepareBase(body, posture)).seeded(limbs, {}, resolution)
+        : resolveHumanPosture.seeded(body, { ...key.posture, limbs }, undefined, {}, resolution);
       const pose: IAutoMoviePose = resolved.pose;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, pose);
+        poseBones(body, pose, resolution(), key.judge === undefined ? requested : undefined);
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       // How far the elbow sits from its hint about the shoulder-to-wrist
       // line, the one freedom the wrist's place leaves it.
@@ -223,18 +235,18 @@ export namespace HumanGraspReach {
       floor: number;
     }[] = [];
     // The candidates the caller can take, or every one when it can take none.
-    const pairs: [number, number][] = turns.flatMap(
-      (turn: number): [number, number][] =>
-        tilts.map((tilt: number): [number, number] => [turn, tilt]),
+    const pairs: { turn: number; tilt: number; wrist: HumanHand.IWrist }[] = turns.flatMap(
+      (turn: number): { turn: number; tilt: number; wrist: HumanHand.IWrist }[] =>
+        tilts.map((tilt: number): { turn: number; tilt: number; wrist: HumanHand.IWrist } =>
+          ({ turn, tilt, wrist: goal(turn, tilt) })),
     );
-    const taken: [number, number][] =
+    const taken: typeof pairs =
       admits === undefined
         ? pairs
-        : pairs.filter(([turn, tilt]: [number, number]): boolean =>
-            admits(goal(turn, tilt)),
+        : pairs.filter((candidate: (typeof pairs)[number]): boolean =>
+            admits(candidate.wrist),
           );
-    for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
-      const wrist: HumanHand.IWrist = goal(turn, tilt);
+    for (const { turn, tilt, wrist } of taken.length === 0 ? pairs : taken) {
       const grasp = fit({ posture, wrist, bend }, undefined);
       const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
       candidates.push({

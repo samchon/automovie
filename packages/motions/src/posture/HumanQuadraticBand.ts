@@ -1,5 +1,10 @@
 import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
+import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
+import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
+import { HumanQuadraticPolish } from "./HumanQuadraticPolish";
+import { HumanQuadraticResiduals } from "./HumanQuadraticResiduals";
 import { HumanQuadraticRow } from "./HumanQuadraticRow";
+import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
 /**
@@ -22,8 +27,8 @@ export namespace HumanQuadraticBand {
    * `l̄ = E l`, `ū = E u`, and soft weight `c w / E`.
    *
    * @evidence contracts/development/design.md#principled-representation Stores an upper-band symmetric P, ordered CSR rows and positive D/E/c transformations; Preparation admits finite matrices and preserves absent infinite bounds, while types alone cannot enforce dimensions or convexity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies exactly the matrices, row intervals, penalties and scales used by the existing ADMM, certificate and polish readers, including the unchanged inverse dual scale shared by residual checks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains generic dimensions and CSR duplicates without a body category; -1 is the existing hard-row sentinel, and callers treat shared numeric core arrays as read-only.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies matrices, intervals, penalties, scales and diagonal metadata to the existing readers; one-shot solves borrow original layouts while fixed models copy only zero-bearing rows, with owner-local restoration excluded from the retained numeric core.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains generic dimensions/duplicates without a body category; -1 remains the hard-row sentinel. Numeric core arrays and borrowed or copied original layouts stay unchanged, and exceptional products restore actual zeros instead of suppressing nonfinite propagation.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the scaling equations, compression offsets, hard-weight sentinel and the purpose of each numeric member.
    */
   export interface IScaled {
@@ -39,8 +44,17 @@ export namespace HumanQuadraticBand {
     /** The scaled curvature's in-range upper band, without unused trailing padding. */
     p: Float64Array[];
 
+    /** Admitted canonical P is exactly diagonal; finite positive Ruiz factors preserve its off-diagonal signed zeros, and factors still use the full band. */
+    diagonal: boolean;
+
     /** The scaled linear term. */
     q: Float64Array;
+
+    /** Infinity norm of unchanged scaled q for every dual residual normalization. */
+    qNorm: number;
+
+    /** Infinity norm of q[i]/(c*d[i]), using the unchanged residual multiplication order and its original nonfinite propagation. */
+    unscaledQNorm: number;
 
     /** Each row's first entry, compressed; `start[m]` is the entries' count. */
     start: Int32Array;
@@ -53,6 +67,15 @@ export namespace HumanQuadraticBand {
 
     /** One when a row's retained column indices are nondecreasing; duplicate columns stay in their original order. */
     ordered: Uint8Array;
+
+    /** CSR entry position of a row with exactly one stored coefficient; -1 for empty or multi-entry rows. */
+    singleton: Int32Array;
+
+    /** Original index/coef layout for exceptional zero restoration; one-shot wrappers borrow admitted rows, fixed models copy only zero-bearing rows. Absence means CSR already preserves that entire original row. */
+    raw: readonly (Pick<Q.IRow, "index" | "coef"> | undefined)[];
+
+    /** Lazily restored exceptional rows for this one-shot solve or fixed model; O(R) original-layout storage, excluded from prepared core and public iterates. */
+    restored?: Map<number, Pick<Q.IRow, "index" | "coef">>;
 
     /** Each row's scaled lower end. */
     lo: Float64Array;
@@ -118,15 +141,15 @@ export namespace HumanQuadraticBand {
    * @param rho Each row's step size.
    * @param sigma The proximal term.
    * @param work Optional mutable owner for adaptive factorizations; absent for the independently cached initial factor.
-   * @returns Upper U of K=UᵀU; with work it is overwritten by that solve's next factorization.
+   * @returns Upper U of K=UᵀU; persistent work retains it read-only until an exact dependency miss replaces it.
    * @throws {Error} When a row couples variables beyond the band.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Forms the cited indirect OSQP reduced system and banded Cholesky factor; convex P and positive rho/sigma are caller premises, with the existing diagonal guard documented by HumanQuadraticCholesky.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resets canonical upper storage, adds the proximal diagonal and row products, then overwrites that system with U through one Cholesky helper.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses a persistent owner's exactly matching last adapted factor or resets canonical upper storage, adds the proximal diagonal and row products, then overwrites that system with U through one Cholesky helper.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all row contributions, including duplicate indices, and the band-coupling rejection; no threshold or physical tolerance changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Assembly takes O(n*w+sum(k_r*k_r)) and Cholesky O(n*w*w); canonical bands need O(n*w) storage and repeated solve-local factorizations allocate no matrix arrays.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation may retain an independent initial factor; adaptive calls reuse only owned matrix storage and reset every P entry before recomputing the current rho-weighted system.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Calls without work own a fresh in-place factor; calls with work overwrite one solve-owned band, which never aliases the prepared initial factor or returned iterates.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An exact persistent hit compares O(m) row steps; misses assemble O(n*w+sum(k_r*k_r)) and factor O(n*w*w), using O(n*w) band storage and a reused m-entry dependency copy.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation owns the independent initial factor; persistent adaptive reuse requires identical scaled-core identity, sigma and every rho value, while any miss fully resets P and recomputes the weighted system. Resetting initial rho and convergence policy remain the solver's responsibility.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One-shot work owns one mutable factor; persistent work retains one adapted factor plus one polishing factor and one mutable owner, each with upper/forward layouts, rotating replaced owners independently of initial factors and public outputs.
    * @evidence contracts/development/common.md#meaningful-documentation Gives the matrix equation, parameter roles, band failure and convex-data premise.
    */
   export function factor(
@@ -134,52 +157,61 @@ export namespace HumanQuadraticBand {
     rho: Float64Array,
     sigma: number,
     work?: Work.IWork,
-  ): Float64Array[] {
+  ): Work.IFactor {
+    const retained: Work.IAdaptive | undefined =
+      work?.persistent ? work.adaptive : undefined;
+    if (
+      retained !== undefined &&
+      retained.p === s.p &&
+      Object.is(retained.sigma, sigma) &&
+      retained.rho.length === rho.length &&
+      rho.every((value: number, r: number): boolean =>
+        Object.is(value, retained.rho[r]),
+      )
+    )
+      return retained.matrices;
     const matrices: Work.IFactor = Work.system(s, sigma, work);
     const k: Float64Array[] = matrices.system;
     for (let r: number = 0; r < s.m; ++r)
       HumanQuadraticRow(s, k, r, rho[r]!);
-    return HumanQuadraticCholesky(k, s.n, s.band);
+    const upper: Work.IFactor = HumanQuadraticCholesky(matrices);
+    if (work?.persistent) {
+      const copied: Float64Array = retained?.rho.length === rho.length
+        ? retained.rho
+        : new Float64Array(rho.length);
+      copied.set(rho);
+      work.adaptive = { p: s.p, sigma, rho: copied, matrices };
+      work.matrices = retained?.matrices;
+    }
+    return upper;
   }
 
   /**
    * Solve `Uᵀ U x = b` into `x`, using the in-place upper factor.
    *
-   * @param u Canonical upper factor, each row storing min(band+1,n-i) entries.
-   * @param n The size.
-   * @param band The half-bandwidth.
+   * @param u Completed upper factor and exact forward-row copies, with compatible stored dimensions.
    * @param b The right-hand side.
    * @param x The solution.
+   * @param relaxed Optional distinct n-entry vector receiving alpha*x+(1-alpha)*old during final-value emission.
+   * @param alpha Existing ADMM relaxation coefficient, one when no mixing is requested.
+   * @returns Whether every final x component is finite, for the caller's unchanged exceptional-product branch.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses forward and backward triangular substitution for the supplied finite nonsingular Cholesky factor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two band-limited sweeps solve U-transpose then U directly into the caller's destination, using the original scalar term order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the original two band-limited sweeps to HumanQuadraticSubstitute, shared with active polishing, into the caller's destination in the same scalar order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Solves every in-band contribution without dropping coefficients or changing precision thresholds; valid dimensions and factor remain internal caller premises.
    * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(n*w) time, including diagonal systems, and O(1) auxiliary storage beyond the supplied destination.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads an unchanged factor across right-hand sides; upper row lengths encode the backward bound and each stored U(t,i) is the original L(i,t) value.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays and retains nothing; only the caller-owned output x is changed.
-   * @evidence contracts/development/common.md#meaningful-documentation States the factored equation, band layout, input-factor premise and destination mutation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads unchanged upper/forward layouts across right-hand sides; exact copies retain original coefficients, and final x production supplies its finite flag and optional componentwise relaxation without another vector traversal.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays and retains nothing; only caller-owned x and optional distinct relaxed are changed.
+   * @evidence contracts/development/common.md#meaningful-documentation States the factored equation, exact layout premise, optional distinct relaxation destination, finite-output flag and mutation.
    */
   export function substitute(
-    u: Float64Array[],
-    n: number,
-    band: number,
+    u: Work.IFactor,
     b: Float64Array,
     x: Float64Array,
-  ): void {
-    for (let i: number = 0; i < n; ++i) {
-      let v: number = b[i]!;
-      for (let t: number = Math.max(0, i - band); t < i; ++t)
-        v -= u[t]![i - t]! * x[t]!;
-      x[i] = v / u[i]![0]!;
-    }
-    for (let i: number = n - 1; i >= 0; --i) {
-      const row: Float64Array = u[i]!;
-      let v: number = x[i]!;
-      const end: number = i + row.length;
-      for (let t: number = i + 1; t < end; ++t)
-        v -= row[t - i]! * x[t]!;
-      x[i] = v / row[0]!;
-    }
+    relaxed?: Float64Array,
+    alpha: number = 1,
+  ): boolean {
+    return HumanQuadraticSubstitute(u, b, x, relaxed, alpha);
   }
 
   /**
@@ -197,9 +229,9 @@ export namespace HumanQuadraticBand {
    * @returns Borrowed residuals, overwritten by the next residual check.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates the cited primal Ax-z and dual Px+q+A-transpose-y infinity norms and reverses D/E/c scaling for the original-unit termination check.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Accumulates row products and transpose contributions, then curvature products and both sets of residual scales.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the complete ordered products and norm measurement to HumanQuadraticResiduals, separating diagnostics from factorization and active polishing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every stored contribution and its ordered accumulation in computed or producer-supplied products; all original unscaled/scaled infinity norms and tolerances remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(Z+m+n*w); the immediate supplied-products check takes O(m+n*w) after polishing produced Ax and A-transpose-y together, with no new numeric-array allocation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(Z+m+n*w); supplied products take O(m+n*w), and exact diagonal finite-x curvature replaces n*w by n. Exceptional products may visit R original entries and acquire solve-local restored rows; normal checks allocate no numeric arrays.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the prepared unchanged 1/(c*d[i]) values; normal checks rebuild all products and only the immediate post-polish reader reuses completed Ax and A-transpose-y for unchanged x/y/A, while Px and every residual norm are still evaluated.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Products and borrowed diagnostics belong to the solve workspace; the solver copies accepted scalar diagnostics before another check may overwrite them.
    * @evidence contracts/development/common.md#meaningful-documentation Defines both residual equations, the unit reversal and the normalization values used by termination and rho adaptation.
@@ -212,63 +244,7 @@ export namespace HumanQuadraticBand {
     work: Work.IWork,
     known?: Pick<Work.IWork, "rows" | "transpose">,
   ): IResiduals {
-    const out: IResiduals = work.residuals;
-    out.primal = 0;
-    out.primalScale = 0;
-    out.dual = 0;
-    out.dualScale = 0;
-    out.scaledPrimal = 0;
-    out.scaledPrimalScale = 0;
-    out.scaledDual = 0;
-    out.scaledDualScale = 0;
-    const aty: Float64Array = known === undefined ? work.transpose : known.transpose;
-    if (known === undefined) aty.fill(0);
-    for (let r: number = 0; r < s.m; ++r) {
-      let ax: number = known === undefined ? 0 : known.rows[r]!;
-      if (known === undefined) {
-        const multiplier: number = y[r]!;
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
-          const index: number = s.cols[a]!;
-          const coefficient: number = s.vals[a]!;
-          ax += coefficient * x[index]!;
-          aty[index] = aty[index]! + coefficient * multiplier;
-        }
-      }
-      const e: number = s.e[r]!;
-      out.scaledPrimal = Math.max(out.scaledPrimal, Math.abs(ax - z[r]!));
-      out.scaledPrimalScale = Math.max(
-        out.scaledPrimalScale,
-        Math.abs(ax),
-        Math.abs(z[r]!),
-      );
-      out.primal = Math.max(out.primal, Math.abs((ax - z[r]!) / e));
-      out.primalScale = Math.max(
-        out.primalScale,
-        Math.abs(ax / e),
-        Math.abs(z[r]! / e),
-      );
-    }
-    const px: Float64Array = work.curvature;
-    Work.curvature(s, x, px);
-    for (let i: number = 0; i < s.n; ++i) {
-      const unscale: number = s.unscale[i]!;
-      const r: number = px[i]! + s.q[i]! + aty[i]!;
-      out.scaledDual = Math.max(out.scaledDual, Math.abs(r));
-      out.scaledDualScale = Math.max(
-        out.scaledDualScale,
-        Math.abs(px[i]!),
-        Math.abs(aty[i]!),
-        Math.abs(s.q[i]!),
-      );
-      out.dual = Math.max(out.dual, Math.abs(r * unscale));
-      out.dualScale = Math.max(
-        out.dualScale,
-        Math.abs(px[i]! * unscale),
-        Math.abs(aty[i]! * unscale),
-        Math.abs(s.q[i]! * unscale),
-      );
-    }
-    return out;
+    return HumanQuadraticResiduals(s, x, z, y, work, known);
   }
 
   /**
@@ -287,7 +263,7 @@ export namespace HumanQuadraticBand {
    * @evidence contracts/development/implementation.md#principled-implementation Tests the cited primal-infeasibility certificate on original-unit hard-row multiplier changes, with the support function of each possibly unbounded interval.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the hard-row delta and its support, rejects a missing separating direction, then checks its transpose product norm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Excludes soft rows because their penalties permit interval violations; keeps the existing epsilon and honest infinite-bound support behavior.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(m+Z+n) time without allocating vectors; the consumed before buffer holds delta-y and the workspace holds its transpose product.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Normal checks take O(m+Z+n) without new vectors, reusing before and transpose; exceptional multiplier changes may restore and visit R original row entries through the solve-local owner.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Recomputes the certificate from current iterates and intervals; before is disposable after this check and the next ADMM prox overwrites every entry before it is read again.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes only solve-local before and transpose scratch, zeroes soft-row deltas and returns a boolean without retaining data.
    * @evidence contracts/development/common.md#meaningful-documentation States the certificate inequalities, original units, soft-row exclusion and behavior for absent bounds or a zero direction.
@@ -322,9 +298,17 @@ export namespace HumanQuadraticBand {
     for (let r: number = 0; r < s.m; ++r) {
       const change: number = delta[r]!;
       const scale: number = s.e[r]!;
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
-        const index: number = s.cols[a]!;
-        aty[index] = aty[index]! + (s.vals[a]! * change) / scale;
+      if (Number.isFinite(change)) {
+        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
+          const index: number = s.cols[a]!;
+          aty[index] = aty[index]! + (s.vals[a]! * change) / scale;
+        }
+      } else {
+        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+        for (let a: number = 0; a < row.index.length; ++a) {
+          const index: number = row.index[a]!;
+          aty[index] = aty[index]! + (row.coef[a]! * change) / scale;
+        }
       }
     }
     let norm: number = 0;
@@ -351,10 +335,10 @@ export namespace HumanQuadraticBand {
    * @returns Scaled candidate iterates and borrowed products for their immediate residual admission before x, y or A changes.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Implements the cited active-set regularized KKT solve and iterative refinement; the outer solver accepts its result only when the original residual checks permit it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects bound rows and fixed soft multipliers, factors their reduced system once, then shares its factor and overwrite buffers across the initial solve and refinement passes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates active row selection, exact factor reuse and current-rhs refinement to HumanQuadraticPolish, the single numerical owner shared by one-shot and fixed-model solves.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps existing delta, active-row rules and refinement count; the Cholesky diagonal guard is retained and a polish is not itself a success certificate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Assembly takes O(n*w+sum(active k_r*k_r)), factorization O(n*w*w), and each refinement O(n*w+Z+m); working storage is O(n*w+n+m), with no unused curvature padding.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rebuilds the active system and reuses one refinement factor; active multipliers accumulate directly in final row coordinates, ADMM's consumed before buffer holds constraint residuals, and final x/y share one sparse traversal producing Ax and A-transpose-y for their immediate reader.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A persistent exact active-set hit skips assembly and O(n*w*w) Cholesky; misses assemble O(n*w+sum(active k_r*k_r)), and each current-rhs refinement costs O(n*w+Z+m). Exceptional products may visit R original entries, while exact diagonal finite-x curvature takes O(n).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Requires identical immutable scaled core, delta and ordered active row indices for factor reuse; bounds and fixed soft multipliers are recomputed into each current rhs. Refinement and final products remain current-iterate calculations and exceptional zero terms come from the owning raw rows.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate x/z and the local multiplier vector are independent of scratch; consumed before first holds active constraint residuals and then final Ax, while the cost-rhs buffer holds final A-transpose-y only after its refinement use ends; neither buffer escapes in public state.
    * @evidence contracts/development/common.md#meaningful-documentation Describes hard and soft active rows, regularized reduction, iterative refinement, scaled outputs and outer acceptance ownership.
    */
@@ -371,101 +355,7 @@ export namespace HumanQuadraticBand {
     y: Float64Array;
     products: Pick<Work.IWork, "rows" | "transpose">;
   } {
-    const active: number[] = [];
-    const bound: number[] = [];
-    const fixed: Float64Array = new Float64Array(s.m);
-    for (let r: number = 0; r < s.m; ++r) {
-      const l: number = s.lo[r]!;
-      const u: number = s.hi[r]!;
-      const w: number = s.weight[r]!;
-      if (w < 0) {
-        if (l === u || z[r]! - l < -y[r]!) {
-          active.push(r);
-          bound.push(l);
-        } else if (u - z[r]! < y[r]!) {
-          active.push(r);
-          bound.push(u);
-        }
-      } else if (z[r]! > l && z[r]! < u) continue;
-      else if (Math.abs(y[r]!) < w && (z[r] === l || z[r] === u)) {
-        active.push(r);
-        bound.push(z[r]!);
-      } else fixed[r] = Math.sign(y[r]!) * w;
-    }
-
-    // The reduced system P̄ + δI + Σ āᵢ āᵢᵀ / δ over the active rows.
-    const matrices: Work.IFactor = Work.system(s, delta, work);
-    const k: Float64Array[] = matrices.system;
-    const rowWeight: number = 1 / delta;
-    for (const r of active) HumanQuadraticRow(s, k, r, rowWeight);
-    const upper: Float64Array[] = HumanQuadraticCholesky(k, s.n, s.band);
-
-    // The right-hand side: -q̄ less the fixed multipliers' rows.
-    const rhs: Float64Array = work.transpose;
-    for (let i: number = 0; i < s.n; ++i) rhs[i] = -s.q[i]!;
-    for (let r: number = 0; r < s.m; ++r)
-      if (fixed[r] !== 0)
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          rhs[s.cols[a]!] = rhs[s.cols[a]!]! - s.vals[a]! * fixed[r]!;
-    const dot: (r: number, v: Float64Array) => number = (
-      r: number,
-      v: Float64Array,
-    ): number => {
-      let out: number = 0;
-      const end: number = s.start[r + 1]!;
-      for (let a: number = s.start[r]!; a < end; ++a)
-        out += s.vals[a]! * v[s.cols[a]!]!;
-      return out;
-    };
-
-    // The regularised KKT system [P̄ + δI, Āᵀ; Ā, -δI] [Δx; Δy] = [r₁; r₂],
-    // reduced: Δy = (Ā Δx - r₂) / δ.
-    const xs: Float64Array = new Float64Array(s.n);
-    const b: Float64Array = Float64Array.from(rhs);
-    const r2: Float64Array = work.rows;
-    for (let j: number = 0; j < bound.length; ++j) r2[j] = bound[j]!;
-    const dx: Float64Array = work.curvature;
-    const step: () => void = (): void => {
-      active.forEach((r: number, j: number): void => {
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          b[s.cols[a]!] = b[s.cols[a]!]! + (s.vals[a]! * r2[j]!) / delta;
-      });
-      substitute(upper, s.n, s.band, b, dx);
-      for (let i: number = 0; i < s.n; ++i) xs[i] = xs[i]! + dx[i]!;
-      active.forEach((r: number, j: number): void => {
-        fixed[r] = fixed[r]! + (dot(r, dx) - r2[j]!) / delta;
-      });
-    };
-    step();
-
-    // Iterative refinement toward the unregularised system.
-    for (let pass: number = 0; pass < refine; ++pass) {
-      Work.curvature(s, xs, dx);
-      for (let i: number = 0; i < s.n; ++i) b[i] = rhs[i]! - dx[i]!;
-      active.forEach((r: number): void => {
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          b[s.cols[a]!] = b[s.cols[a]!]! - s.vals[a]! * fixed[r]!;
-      });
-      active.forEach((r: number, j: number): void => {
-        r2[j] = bound[j]! - dot(r, xs);
-      });
-      step();
-    }
-    const zs: Float64Array = new Float64Array(s.m);
-    const aty: Float64Array = work.transpose;
-    aty.fill(0);
-    for (let r: number = 0; r < s.m; ++r) {
-      let v: number = 0;
-      const multiplier: number = fixed[r]!;
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
-        const index: number = s.cols[a]!;
-        const coefficient: number = s.vals[a]!;
-        v += coefficient * xs[index]!;
-        aty[index] = aty[index]! + coefficient * multiplier;
-      }
-      work.rows[r] = v;
-      zs[r] = s.weight[r]! < 0 ? Math.min(s.hi[r]!, Math.max(s.lo[r]!, v)) : v;
-    }
-    return { x: xs, z: zs, y: fixed, products: work };
+    return HumanQuadraticPolish(s, z, y, delta, refine, work);
   }
 }
+

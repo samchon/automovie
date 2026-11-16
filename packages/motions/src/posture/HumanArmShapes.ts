@@ -68,6 +68,7 @@ export namespace HumanArmShapes {
    * @param probe The probe.
    * @param reach The reach, metres.
    * @param screened The placement's screen (`screen`), when it is read for many probes; taken here when absent.
+   * @param gaps Optional caller-owned scratch indexed by shape, receiving the current sphere gap, metres, at every traversed index. Read only indices returned by this call; another probe overwrites its own traversed slots.
    * @returns The shapes' indices.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
@@ -75,8 +76,8 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An axis probe reads the frame's shapes directly; a collider probe filters its segment's screen.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only shapes that surely lie out of reach are left out; the exact distance stays the caller's.
    * @evidence contracts/development/implementation.md#efficient-algorithms One point-to-sphere distance per shape, over the segment's screen when one is given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A screen taken once is read for every probe of the placement, and one private difference vector serves every comparison in this query.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh index list; its private difference vector is consumed synchronously by Vector3.length and retained nowhere.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A screen taken once serves every probe, and the exact scalar Vector3.distance avoids a displacement object. Optional shape-indexed gaps let deepest use the same completed sphere distance while frame geometry and this candidate's probe remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh index list and retains no scratch. The caller owns the optional gap buffer, reads only this call's returned indices, and releases it with its candidate evaluation; untouched slots are unspecified.
    */
   export function nearby(
     at: G.IFrame,
@@ -84,18 +85,17 @@ export namespace HumanArmShapes {
     probe: number,
     reach: number,
     screened?: IScreen,
+    gaps?: number[],
   ): number[] {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
-    if (probe < G.SURFACE) return near(at, p, r + reach);
+    if (probe < G.SURFACE) return near(at, p, r + reach, gaps);
     const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
-    const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     return (screened ?? screen(at, placed, reach))[owner].filter(
       (i: number): boolean => {
         const shape: G.IShape = at.shapes[i]!;
-        delta.x = p.x - shape.centre.x;
-        delta.y = p.y - shape.centre.y;
-        delta.z = p.z - shape.centre.z;
-        return Vector3.length(delta) - shape.radius < r + reach;
+        const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+        if (gaps !== undefined) gaps[i] = gap;
+        return gap < r + reach;
       },
     );
   }
@@ -236,6 +236,7 @@ export namespace HumanArmShapes {
    * @param at The frame.
    * @param p The point.
    * @param reach The reach, metres.
+   * @param gaps Optional caller-owned scratch receiving each traversed shape's sphere gap, metres, by index; no scratch is retained here.
    * @returns The shapes' indices.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
@@ -243,21 +244,20 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the frame's shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach is the caller's; nothing is added to it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One distance per shape.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One private difference vector replaces per-shape vector allocations while the shared robust length calculation and shape order stay unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and releases the private synchronous scratch vector after the query; source placements are never retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact scalar Vector3.distance preserves the robust norm and shape order without a displacement object. Optional gap output supplies actual completed sphere distances without another norm query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list; an optional gap buffer remains caller-owned and is never retained, nor are source placements or computed point pairs.
    */
   export function near(
     at: G.IFrame,
     p: IAutoMovieVector3,
     reach: number,
+    gaps?: number[],
   ): number[] {
     const out: number[] = [];
-    const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     at.shapes.forEach((shape: G.IShape, i: number): void => {
-      delta.x = p.x - shape.centre.x;
-      delta.y = p.y - shape.centre.y;
-      delta.z = p.z - shape.centre.z;
-      if (Vector3.length(delta) - shape.radius < reach) out.push(i);
+      const gap: number = Vector3.distance(p, shape.centre) - shape.radius;
+      if (gaps !== undefined) gaps[i] = gap;
+      if (gap < reach) out.push(i);
     });
     return out;
   }
@@ -318,6 +318,31 @@ export namespace HumanArmShapes {
   ): number {
     const s: G.IShape = at.shapes[shape]!;
     return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
+  }
+
+  /**
+   * Read changing segment gaps against one fixed frame shape during one
+   * synchronous candidate evaluation; the first actual query prepares its
+   * geometry, and all later queries still read their actual signed distance.
+   *
+   * @param at This candidate's unchanged frame.
+   * @param shape Its fixed shape index, with unchanged pose and shape geometry.
+   * @returns A world-metre distance reader, released with the candidate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed frame/index provenance, lazy geometry preparation, actual varying world segments and candidate-local release.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's opaque prepared distance reader shares only exact fixed shape transforms and retains the same signed proximity mathematics as gap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the original frame shape and delegate preparation to the existing scalar distance owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual shape, all segment queries, bounds, branch/error order and metre sign; it supplies no alternate frame numbers, clearance allowance or result callback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed-geometry preparation per selected shape serves repeated probes while changed-point transforms and original closest/hull/search work remain; one-off gap callers create no reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual deepest-pair candidate owns this reader while its frame geometry stays unchanged; another candidate or frame owns a new reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases this opaque reader with the synchronous candidate. Only borrowed fixed pose/shape and private geometry are retained; no probe, distance result or global history is kept.
+   */
+  export function prepareGap(
+    at: G.IFrame,
+    shape: number,
+  ): ReturnType<typeof physicalShapeSegmentDistance.prepare> {
+    const s: G.IShape = at.shapes[shape]!;
+    return physicalShapeSegmentDistance.prepare(s.pose, s.shape);
   }
 
   /**
