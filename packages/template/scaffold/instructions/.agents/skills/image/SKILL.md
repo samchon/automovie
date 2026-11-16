@@ -5,7 +5,7 @@ description: Generates the still images that carry the appearance of a productio
 
 # Image
 
-A generated image carries what polygon men and coarse forms cannot show: how a person, place or object looks. Canon references carry each subject's look to the video model while the motion hint gives every shot's pose and camera. A shot frame restyles a frame rendered from the hint, so a model that starts from a frame takes that look at the hint's pose. Turnaround views give an image-to-3D model or a modeler a subject's sides for a commissioned detail option.
+A generated image carries what polygon men and coarse forms cannot show: how a person, place or object looks. Canon references carry each subject's look to the video model while the [motion hint](../production/workflow.md) gives every shot's pose and camera. A shot frame restyles a frame rendered from the hint, so a model that starts from a frame takes that look at the hint's pose. Turnaround views give an image-to-3D model or a modeler a subject's sides for a commissioned detail option.
 
 | Task | Read |
 | --- | --- |

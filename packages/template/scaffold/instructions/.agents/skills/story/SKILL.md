@@ -5,7 +5,7 @@ description: Authors a video's research, requirements, direction, settings or a 
 
 # Story
 
-Make the commissioned audience experience and a usable handoff to the next layer, keeping what the user fixed and deciding what was delegated. Read the request, [project context](../production/project-context.md) and the current work to find the task, route, layer and pass, then open only the page it needs.
+Make the commissioned audience experience and a usable handoff to the next layer, keeping what the user fixed and deciding what was delegated. Read the request, [project context](../production/project-context.md) and the current work to find the task, route, layer and pass, then open only the page it needs. The [production workflow](../production/workflow.md) connects the screenplay to the film.
 
 | Task | Read |
 | --- | --- |

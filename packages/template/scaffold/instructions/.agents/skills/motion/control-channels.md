@@ -8,7 +8,7 @@ Render only the channels the actual receiver needs, such as the hint video, pose
 
 Read the installed packages' documentation for what each channel really outputs, because a mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
 
-Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form. Render it without inspection overlays such as axes, paths or marks, which a model draws as objects, and keep its forms plain, without textures or lettering, because surface detail competes with the references.
+Render the hint video in the [entity colors](../development/entities.md#coarse-first), with lighting that makes each simple form's volume readable. Omit inspection overlays such as axes, paths or marks, which a model draws as objects, and keep the forms free of textures and lettering, because surface detail competes with the references.
 
 Render from the scene any control mask a [request](../video/requests.md) asks for, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess.
 

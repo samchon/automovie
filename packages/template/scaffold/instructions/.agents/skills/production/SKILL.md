@@ -1,6 +1,6 @@
 ---
 name: production
-description: Keeps what belongs to the production as a whole and to no single task, namely its commissioned output, project context, sustained runs, stage caches, media records, reorganization, captions and final assembly and handoff. Use when starting, resuming, restructuring or handing off a production; story, development, motion, image, video, audio and review own their own work.
+description: Guides the whole production from the request through story, images, motion and video to delivery, and keeps its scope, context, caches, media and assembly. Use when learning or planning the workflow, or starting, resuming, restructuring or handing off a production.
 ---
 
 # Production
@@ -9,6 +9,7 @@ Carry the commission from its adopted scope to the handed-off output. Read the r
 
 | Task | Read |
 | --- | --- |
+| Understand or plan the whole path, its branches and each task's handoff | [Production workflow](workflow.md) |
 | Establish scope, the delivery profile, decisions and setup authority | [Project context](project-context.md) |
 | Run, observe or resume sustained work | [Sustained runs](sustained-runs.md) |
 | Cache and resume expensive stages | [Stage caches](stage-caches.md) |
@@ -31,15 +32,4 @@ Carry the commission from its adopted scope to the handed-off output. Read the r
 
 ## Routing
 
-Every other task has one owner, taken in the order of [one chain](../story/workflow/routes.md#one-chain):
-
-| Work | Owner |
-| --- | --- |
-| Canon, the screenplay and their research | [Story](../story/SKILL.md) |
-| Entities, source, integrations and tests | [Development](../development/SKILL.md) |
-| Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
-| Generated images | [Image](../image/SKILL.md) |
-| The video model, its prompts and its takes | [Video](../video/SKILL.md) |
-| A direct 3D film's detail, look, faces and render | [Direct film](../direct-film/SKILL.md) |
-| Sound | [Audio](../audio/SKILL.md) |
-| Judgment of the work | [Review](../review/SKILL.md) |
+Find each task's owner in the [skill router](../../../AGENTS.md#skills).
