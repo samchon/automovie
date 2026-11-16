@@ -44,6 +44,14 @@ The primary sources behind shipped instructions, with what each supports and whe
 | [LooseControl](https://arxiv.org/html/2312.03079v1) | Why depth from boxes makes boxy objects, and a looser condition | A research method hosted models do not expose |
 | [Unity humanoid avatar](https://docs.unity.com/en-us/engine/current/manual/assets-and-media/asset-types/models/importing/configuringthe-avatar), [Unreal retargeting](https://dev.epicgames.com/documentation/en-us/unreal-engine/ik-rig-animation-retargeting-in-unreal-engine), [Meshy pose and hands](https://help.meshy.ai/en/articles/16102152-fix-character-pose-face-and-hand-issues-in-meshy) | The rest pose a skeleton expects; images for rigged bodies | The A-pose's shoulder benefit is claimed only in vendor blogs |
 
+[SDXL's model card](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) and [Stable Diffusion 3.5's card](https://huggingface.co/stabilityai/stable-diffusion-3.5-large) distinguish checkpoint families and licenses. The official [3.5 ControlNets](https://huggingface.co/stabilityai/stable-diffusion-3.5-controlnets) target Large with Canny, depth and blur; they do not establish compatibility with other bases.
+
+[ControlNet](https://huggingface.co/docs/diffusers/en/using-diffusers/controlnet) and [IP-Adapter](https://huggingface.co/docs/diffusers/en/using-diffusers/ip_adapter) supply structural and reference conditioning to compatible generators. Their presence does not establish exact pixel preservation or the rights of every component's weights.
+
+[FLUX 3 Image](https://docs.bfl.ml/flux_3/flux3_image_overview.md) describes multi-reference and box-guided editing; [Klein's guide](https://docs.bfl.ml/flux_3/flux3_image_klein.md) requires prompt expansion. Retain exposed expansions, and record the observation limit where a service hides them.
+
+[Seedream's image API](https://docs.byteplus.com/en/docs/modelark/image-generation-api) distinguishes sequential sets from other editing features by version. [Midjourney](https://docs.midjourney.com/hc/en-us/articles/36285124473997-Omni-Reference) likewise changes its subject-reference route by version; a [style reference](https://docs.midjourney.com/hc/en-us/articles/32180011136653-Style-Reference) does not copy identity.
+
 ## Video
 
 | Source | Supports | Limit |
