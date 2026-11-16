@@ -25,6 +25,14 @@ export namespace MotionTrajectoryStepper {
    * @param q The orientation, or null for a state without one.
    * @param v The rotation vector, radians, body frame; absent for none.
    * @returns The turned orientation, or null.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the quaternion composition, body frame, radian input and missing-orientation result.
+   * @evidence contracts/development/implementation.md#principled-implementation Converts the rotation-vector length to the degree unit Quaternion.fromAxisAngle accepts, then right-multiplies its exponential into the current orientation; integrator callers supply normalized orientations and finite vectors.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Missing and zero turns preserve the input; the remaining path delegates axis-angle construction and quaternion composition to their owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the supplied rotation vector without a fixture-specific axis or minimum angle.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of scalar and quaternion operations.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure scalar-sized calculation with no cross-request work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; a zero or absent turn returns the borrowed input.
    */
   export function turn(
     q: IAutoMovieQuaternion | null,
@@ -45,6 +53,14 @@ export namespace MotionTrajectoryStepper {
    * @param v The vector, or undefined.
    * @param s The scale.
    * @returns `s v`, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States component scaling and preservation of an absent vector.
+   * @evidence contracts/development/implementation.md#principled-implementation Multiplies all three components by the supplied scale; the caller owns its units and the finite-input premise.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One absence branch and one vector literal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No replacement value is invented for an absent orientation rate.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three multiplications with no input-sized traversal.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No repeated request or retained calculation is coordinated.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned vector is caller-owned; no state or resource is retained.
    */
   export function scaled(
     v: IAutoMovieVector3 | undefined,
@@ -69,6 +85,14 @@ export namespace MotionTrajectoryStepper {
    * @param r The rotation vector, radians; absent for a state without orientation.
    * @param w The body-frame rate, radians per second.
    * @returns The vector's derivative, radians per second, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the body-frame inverse differential, angular units, truncated terms and absent-orientation behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the cited Bernoulli expansion through the double cross product with coefficients one half and one twelfth; this is the local RKMK series, not an exact inverse differential at arbitrary rotation-vector magnitude.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two shared cross products followed by componentwise accumulation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The coefficients are the stated series coefficients; missing orientation leaves the supplied rate unchanged rather than choosing a body axis.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size vector arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the first cross product in the double bracket and the shared Vector3.cross implementation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function retaining no input or intermediate between calls.
    */
   export function dexpinv(
     r: IAutoMovieVector3 | undefined,
@@ -193,6 +217,14 @@ export namespace MotionTrajectoryStepper {
    * @param step The first step tried, seconds, positive.
    * @returns The trajectory, its knots the accepted steps' ends.
    * @throws {Error} When a step shrinks below the resolution of its time: a right-hand side the tolerance cannot follow.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the accepted-error norm, dense interpolation, time units, admitted callback and time-resolution failure.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the cited Dormand-Prince tableau and controller with the RKMK rotation-vector differential; integrateMotionTrajectory admits the finite interval, initial state, tolerance and callback results. The embedded estimate controls local step admission and does not certify a global physical error bound.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Form trial stages, measure their error, reject or retain the continuous extension, then expose binary-search sampling over accepted steps.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tableau and controller constants retain their cited provenance; no fixture-specific time grid, cached answer or tolerance relaxation is introduced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For n scalar components, A accepted and R rejected trials, integration adds O((A+R)n) vector work and six right-hand-side calls per trial after the initial call; retained dense output is O(An), and each read costs O(log A+n). The tolerance can require arbitrarily many steps before the time-resolution failure.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the accepted last stage as the next first stage and stores dense coefficients once so repeated reads do not reintegrate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Trial arrays die after rejection or acceptance; the returned reader retains accepted steps and endpoint state for its lifetime. Retention grows with accepted-step count and has no fixed byte bound; the operation acquires no external handle or task.
    */
   export function dormandPrince(
     props: integrateMotionTrajectory.IProps,
