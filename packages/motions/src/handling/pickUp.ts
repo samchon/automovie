@@ -16,7 +16,6 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
-import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -283,11 +282,12 @@ export namespace pickUp {
       reach,
     );
     const peak: number = HumanPrehension.peak(context.random("peak"));
-    const shapes = {
+    const shapes: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open,
       closed,
     };
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     const rest: AutoMovieMotionHumanArm.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
@@ -351,12 +351,11 @@ export namespace pickUp {
         // straightened after it, back to the entry.
         let base: IHumanPosture = held;
         if (t < reach) {
-          if (lowered !== null) base = lowered.at(minimumJerk(t / reach).s);
+          if (lowered !== null) base = lowered.at(minimumJerk.share(t / reach));
         } else if (t <= end) {
           const k: number =
             rising && rise > 0
-              ? minimumJerk(Math.min(1, Math.max(0, (t - reach - LOAD) / rise)))
-                  .s
+              ? minimumJerk.share(Math.min(1, Math.max(0, (t - reach - LOAD) / rise)))
               : 0;
           if (k > 0)
             base = pickUpLift.posed(
@@ -367,7 +366,7 @@ export namespace pickUp {
               k,
             );
         } else {
-          const m: number = 1 - minimumJerk((t - end) / up).s;
+          const m: number = 1 - minimumJerk.share((t - end) / up);
           base = rising
             ? pickUpLift.posed(body, raise, way, raise.share * m, m)
             : lowered!.at(m);
@@ -384,7 +383,7 @@ export namespace pickUp {
           ...base,
           joints: {
             ...base.joints,
-            ...HumanPrehension.shape(shapes, peak, shaped / reach),
+            ...shapeAt(shaped / reach),
           },
           limbs: {
             ...base.limbs,
@@ -398,8 +397,7 @@ export namespace pickUp {
                         grasp.point.y +
                         (rise > 0
                           ? lift *
-                            minimumJerk(Math.min(1, (at - reach - LOAD) / rise))
-                              .s
+                            minimumJerk.share(Math.min(1, (at - reach - LOAD) / rise))
                           : 0),
                     }),
               rotation: at < reach ? transport.turn(at) : chosen.shown.rotation,
@@ -423,16 +421,12 @@ export namespace pickUp {
         // apart 1/120 s apart). From there the transport's goal alone leads
         // to the grip. The blend eases in and arrives moving.
         const leave: number = LEAVE * reach;
-        // Gripped, the hand keeps the rotation it showed as the fingers
-        // closed, solved at the wrist (`HumanHandAttitude`), so what it holds
-        // keeps the attitude it was taken in: a glass is lifted upright.
-        if (t >= reach)
-          return HumanHandAttitude.held(
-            body,
-            goaled(t, t),
-            side,
-            chosen.shown.rotation,
-          );
+
+        // Keep the complete position-and-attitude request after closure.
+        // A wrist-only attitude edit after the fit can move the hand by
+        // twisting the forearm and would discard the lift's position goal.
+        // The ordinary resolver keeps the other limb/digit constraints and
+        // the original grip reference while fitting both at the actual time.
         return t >= leave
           ? goaled(t, t)
           : AutoMovieMotionHumanArm.carry(

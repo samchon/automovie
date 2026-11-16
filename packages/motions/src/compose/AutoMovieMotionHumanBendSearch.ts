@@ -466,23 +466,23 @@ export namespace AutoMovieMotionHumanBendSearch {
       AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
     const neutral: IAngles | null = neutralOf(props.body, props.side, hang);
     return (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]): ICandidate | string => {
-    if (chain === null || neutral === null) return "the rig has no arm chain";
-    const distance: number = Vector3.length(
-      Vector3.subtract(goal.point, chain.shoulder),
-    );
-    if (distance > chain.span)
-      return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
-    return (
-      best(
-        chain,
-        props.body,
-        props.side,
-        goal.point,
-        goal.rotation,
-        neutral,
-        rank(chain),
-      ) ?? "the arm chain is degenerate"
-    );
+      if (chain === null || neutral === null) return "the rig has no arm chain";
+      const distance: number = Vector3.length(
+        Vector3.subtract(goal.point, chain.shoulder),
+      );
+      if (distance > chain.span)
+        return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
+      return (
+        best(
+          chain,
+          props.body,
+          props.side,
+          goal.point,
+          goal.rotation,
+          neutral,
+          rank(chain),
+        ) ?? "the arm chain is degenerate"
+      );
     };
   }
 }

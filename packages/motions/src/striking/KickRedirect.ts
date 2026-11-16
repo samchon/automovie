@@ -57,7 +57,7 @@ export namespace KickRedirect {
     );
     const cut: number = context.start - t0;
     const span: number = Math.max(1e-3, timing.impact - cut);
-    const blend = (t: number): number => minimumJerk((t - cut) / span).s;
+    const blend = (t: number): number => minimumJerk.share((t - cut) / span);
     const mix = (from: number, to: number, w: number): number =>
       from + (to - from) * w;
     return KickGeometry.compose(body, timing, t0, {

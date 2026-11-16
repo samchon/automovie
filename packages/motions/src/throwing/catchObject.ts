@@ -4,7 +4,7 @@ import {
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -25,6 +25,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -267,7 +268,7 @@ export namespace catchObject {
       meet,
       Vector3.scale(along, GIVE),
     );
-    const object = (
+    const object: (seconds: number, posture: IHumanPosture) => IAutoMovieVector3 = (
       seconds: number,
       posture: IHumanPosture,
     ): IAutoMovieVector3 => {
@@ -279,7 +280,7 @@ export namespace catchObject {
           given,
           clock.progress("contact", "secured", seconds),
         );
-      const sternum = HumanTrunk.region(body, posture, "sternum");
+      const sternum: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(body, posture, "sternum");
       const before: IAutoMovieVector3 = Vector3.add(
         sternum.point,
         Vector3.scale(sternum.normal, radius + 0.15 * arm),
@@ -309,35 +310,16 @@ export namespace catchObject {
       undefined, new Set(sides.map((side: HumanHand.Side): AutoMovieHumanoidBone => `${side}Hand`)));
     // The hand on the ball: its palm's target, or with a glove the palm's
     // turn moved so the pocket meets the ball.
-    const meeting = (
-      side: HumanHand.Side,
-      posture: IHumanPosture,
+    const pocketPoint: (back: IAutoMovieVector3, rotation: IAutoMovieQuaternion) => IAutoMovieVector3 = (
       back: IAutoMovieVector3,
-      outward: IAutoMovieVector3,
-      fingers: IAutoMovieVector3,
-    ): AutoMovieMotionHumanArm.ITarget => {
-      const target: AutoMovieMotionHumanArm.ITarget =
-        AutoMovieMotionHumanTarget.hand(
-          body,
-          posture,
-          side,
-          { point: back, normal: outward },
-          { surface: "palm", shape: "relaxed", forward: fingers },
-        );
-      return pocket === undefined
-        ? target
-        : {
-            ...target,
-            point: Vector3.subtract(
-              back,
-              Quaternion.rotateVector(target.rotation, pocket),
-            ),
-          };
-    };
+      rotation: IAutoMovieQuaternion,
+    ): IAutoMovieVector3 => pocket === undefined ? back : Vector3.subtract(
+      back, Quaternion.rotateVector(rotation, pocket),
+    );
     // Which way the fingers point on the ball: of the turns about the palm's
     // normal, upward first, the one the arm holds at the contact with the
     // least strain, so the wrist's range decides it.
-    const pointing = (
+    const pointing: (side: HumanHand.Side, outward: IAutoMovieVector3) => IAutoMovieVector3 = (
       side: HumanHand.Side,
       outward: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
@@ -368,26 +350,17 @@ export namespace catchObject {
           Quaternion.fromAxisAngle(outward, degrees),
           first,
         );
-        const target: AutoMovieMotionHumanArm.ITarget = meeting(
-          side,
-          standing,
-          back,
-          outward,
-          fingers,
-        );
+        const frame: ReturnType<ReturnType<typeof HumanHandTarget.prepareFrame>> =
+          HumanHandTarget.prepareFrame(body, side, outward, {
+            surface: "palm", shape: "relaxed", forward: fingers,
+          })(standing);
+        const point: IAutoMovieVector3 = pocketPoint(back, frame.rotation);
         const solve: AutoMovieMotionHumanBend.ISolve = {
           body,
           posture: standing,
           side,
-          point: HumanHand.place(
-            body,
-            side,
-            "palm",
-            target.point,
-            target.rotation,
-            "relaxed",
-          ).point,
-          rotation: target.rotation,
+          point: frame.place(point).point,
+          rotation: frame.rotation,
         };
         const strain: number = bends.strain(
           solve,
@@ -397,12 +370,16 @@ export namespace catchObject {
       }
       return best.fingers;
     };
-    const hand = (side: HumanHand.Side): IAutoMovieMotionHumanPrimitive => {
+    const hand: (side: HumanHand.Side) => IAutoMovieMotionHumanPrimitive = (side: HumanHand.Side): IAutoMovieMotionHumanPrimitive => {
       const outward: IAutoMovieVector3 =
         sides.length === 2
           ? Vector3.scale(left, side === "left" ? 1 : -1)
           : along;
       const fingers: IAutoMovieVector3 = pointing(side, outward);
+      const prepared: ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand> =
+        AutoMovieMotionHumanTarget.prepareHand(body, side, outward, {
+          surface: "palm", shape: "relaxed", forward: fingers,
+        });
       return AutoMovieMotionHumanArm.move({
         body,
         side,
@@ -418,7 +395,7 @@ export namespace catchObject {
           side,
           "palm",
         ),
-        target: (posture: IHumanPosture, seconds: number) => {
+        target: (posture: IHumanPosture, seconds: number): AutoMovieMotionHumanArm.ITarget => {
           const centre: IAutoMovieVector3 = object(
             Math.max(seconds, contact),
             posture,
@@ -427,10 +404,13 @@ export namespace catchObject {
             centre,
             Vector3.scale(outward, radius),
           );
-          return meeting(side, posture, back, outward, fingers);
+          const target: AutoMovieMotionHumanArm.ITarget = prepared(posture, back);
+          return pocket === undefined ? target : {
+            ...target, point: pocketPoint(back, target.rotation),
+          };
         },
         weight: (seconds: number): number =>
-          minimumJerk(clock.linear("reach", "contact", seconds)).s,
+          minimumJerk.share(clock.linear("reach", "contact", seconds)),
       });
     };
 

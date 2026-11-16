@@ -106,8 +106,8 @@ export namespace walkReach {
     if (foot.swing === undefined) return 1;
     const u: number = foot.swing.u;
     return u < 0.5
-      ? 1 - minimumJerk(Math.min(1, u / FADE)).s
-      : minimumJerk(Math.max(0, (u - (1 - FADE)) / FADE)).s;
+      ? 1 - minimumJerk.share(Math.min(1, u / FADE))
+      : minimumJerk.share(Math.max(0, (u - (1 - FADE)) / FADE));
   }
 
   /**
@@ -148,6 +148,38 @@ export namespace walkReach {
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
   ): IPelvis {
+    const { yaw, pivots }: Pick<IPelvis, "yaw" | "pivots"> = turn(planned, feet);
+    return {
+      yaw,
+      pivots,
+      hips: hipJoints(
+        body,
+        root,
+        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+        hips,
+      ),
+    };
+  }
+
+  /**
+   * Read the pelvis heading and stance pivots before any root or hip placement.
+   *
+   * @param planned The unconstrained heading, degrees.
+   * @param feet Each actual scheduled foot and its swing share.
+   * @returns The same heading and toe-pad pivots used by pelvis, in degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States heading/pivot units and the scheduled-foot dependency; root and pelvis-joint angles cannot affect this orientation decision.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies each claiming foot's original weighted hip-twist band, heel-rise pivot share and two-band gap rule in the same left/right order as pelvis.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One orientation owner serves full pelvis placement and contact-window pivot reads, separating the later hip FK that only full placement consumes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every heading/pitch, weight, strict comparison, wrap, twist and heel-rise coefficient; no contact sample or bound changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for two feet; pivot-only contact sampling omits unread root-path evaluation, pelvic-angle trigonometry and hip FK while retaining all actual stance samples.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Full placement and pivot-only reading share this exact formula owner; every distinct scheduled-foot pair is actually evaluated and no completed orientation is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only two local bands and one fresh pivot record per call; no body, pose, query history or external resource is retained.
+   */
+  export function turn(
+    planned: number,
+    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+  ): Pick<IPelvis, "yaw" | "pivots"> {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
     // Each claiming foot's band: its pivoted heading, near the planned one,
@@ -158,12 +190,13 @@ export namespace walkReach {
       const w: number = weight(feet[side]);
       if (w <= 0) continue;
       const rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
-      const heading: number = HumanFoot.heading(rotation);
+      const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
+      const heading: number = direction.heading;
       const off: number = wrapDegrees(planned - heading);
       const excess: number =
         Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
       pivots[side] =
-        excess * Math.min(1, Math.max(0, -HumanFoot.pitch(rotation) / HEEL_UP));
+        excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
       bands.push({
         centre: planned + wrapDegrees(heading + pivots[side] - planned),
         half: TWIST / w,
@@ -184,16 +217,7 @@ export namespace walkReach {
       const lower: number = b.centre - b.half;
       if (upper < lower) yaw = Math.min(lower, Math.max(upper, planned));
     }
-    return {
-      yaw,
-      pivots,
-      hips: hipJoints(
-        body,
-        root,
-        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
-        hips,
-      ),
-    };
+    return { yaw, pivots };
   }
 
   /**

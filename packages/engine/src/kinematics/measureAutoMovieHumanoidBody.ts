@@ -39,7 +39,7 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
  * @evidence contracts/development/implementation.md#principled-implementation Joint-centre anthropometry on the rest rig and exact collider bounds, the segment definitions of Winter ch. 4.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-position pass and a first-name segment index feed direct anthropometric reads. The existing stature traversal also supplies each segment's complete axis bounds to every later measure.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or segment throws rather than being guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(B+S) indexing for B bones and S segments, then one bounds computation per profile shape, including its O(V) hull vertex rotations. Head, chest, hands and repeated foot measures reuse those extents; hull-radius face costs remain with physicalHullFaces.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(B+S) indexing for B bones and S segments precedes one bounds computation per profile shape, including O(V) hull rotations. Head/chest/hand/repeated foot measures reuse extents. Hull topology remains physicalHullFaces-owned; each requested least width scans F faces against V vertices in O(F V) time and constant scratch, without per-face projection arrays.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The rig/profile are unchanged through this pure synchronous call. Exact segment identity in that epoch shares its actual neutral bounds; the first-name index preserves the old first matching segment when names repeat. No value crosses calls or substitutes for changed geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns O(B+S) rest, name and numeric-bounds data until return or throw. Only the fresh numeric measure escapes, without a source, callback, geometry cache or handle.
  */
@@ -116,19 +116,14 @@ export function measureAutoMovieHumanoidBody(
           // Half the hull's least width: the narrowest slab between a face
           // plane and the vertex farthest behind it.
           const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
-          return (
-            Math.min(
-              ...hull.faces.map(
-                (face: physicalHullFaces.IFace): number =>
-                  face.offset -
-                  Math.min(
-                    ...hull.vertices.map((vertex: IAutoMovieVector3): number =>
-                      Vector3.dot(face.normal, vertex),
-                    ),
-                  ),
-              ),
-            ) / 2
-          );
+          let width: number = Infinity;
+          for (const face of hull.faces) {
+            let back: number = Infinity;
+            for (const vertex of hull.vertices)
+              back = Math.min(back, Vector3.dot(face.normal, vertex));
+            width = Math.min(width, face.offset - back);
+          }
+          return width / 2;
         }
         shape satisfies never;
         throw new Error("Unknown physical shape kind");
@@ -173,19 +168,25 @@ export function measureAutoMovieHumanoidBody(
     }
     return far;
   };
-  // The foot's extents span the toes too when the profile gives them their own segment.
-  const foot = (
+  // Length, heel and breadth read the same foot/toe union; keep its numeric
+  // bounds once rather than rebuilding that fixed union for every measure.
+  const feet: Map<"left" | "right", ReturnType<typeof physicalShapeBounds>> = new Map();
+  const foot: (side: "left" | "right") => ReturnType<typeof physicalShapeBounds> = (
     side: "left" | "right",
   ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+    const known: ReturnType<typeof physicalShapeBounds> | undefined = feet.get(side);
+    if (known !== undefined) return known;
     const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Foot"),
     );
-    if (!segments.has(bone(side, "Toes")))
+    if (!segments.has(bone(side, "Toes"))) {
+      feet.set(side, rear);
       return rear;
+    }
     const toes: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
       bone(side, "Toes"),
     );
-    return {
+    const extent: ReturnType<typeof physicalShapeBounds> = {
       min: {
         x: Math.min(rear.min.x, toes.min.x),
         y: Math.min(rear.min.y, toes.min.y),
@@ -197,6 +198,8 @@ export function measureAutoMovieHumanoidBody(
         z: Math.max(rear.max.z, toes.max.z),
       },
     };
+    feet.set(side, extent);
+    return extent;
   };
   const eyes: boolean = rest.has("leftEye") && rest.has("rightEye");
   return {

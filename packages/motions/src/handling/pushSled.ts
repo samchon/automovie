@@ -440,7 +440,7 @@ export namespace pushSled {
       hands: sides,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const share: number = minimumJerk(Math.min(1, t / SETTLE)).s;
+        const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
         const posture: IHumanPosture = leaned(base.posture(t), share);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         const current: pushSledCarry.IFrame | undefined = t < SETTLE ? undefined : carry(chest(posture));

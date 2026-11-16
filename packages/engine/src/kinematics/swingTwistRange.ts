@@ -27,43 +27,24 @@ import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 
 const DEG: number = swingTwistBasis.DEG;
 
+/** Original dimensionless disc coordinates and clinical-degree twist. */
+type IChart = ReturnType<typeof swingTwistRange.chart>;
+
 /**
  * The range of a ball joint read by swing and twist: where the limb's long
  * axis may point, and how far the limb may turn about it.
  *
- * A joint rotation `q`, rest-relative in the bone's own frame, splits into a
- * twist about the limb's rest axis `u` (the joint's twist axis) taken first
- * and a swing, the shortest turn that carries `u` to the limb's direction
- * `q u`. The twist is that turn's angle about `u`, lifted to clinical degrees
- * by the rest frame's twist mapping. The decomposition is singular only where
- * the limb points at `-u`, the rest direction's antipode.
+ * A joint rotation q, rest-relative in the bone's own frame, splits into a twist about its rest axis u (the joint's twist axis) taken first and a swing, the shortest turn carrying u to the limb's direction q u. The twist is that turn's angle about u, lifted to clinical degrees by the rest frame's twist map. Decomposition is singular only where the limb points at -u, the rest direction's antipode.
  *
- * The swing is limited by the directions the constraint's `flexion` and
- * `abduction` intervals reach with no twist (and its `swingDeg`, when it has
- * one), taken as a star about the rest direction: every direction between
- * the rest direction and a reached one, along the great circle through both.
- * Through a three-angle chart the reached directions pinch where two of the
- * angles turn about one axis (a hip flexed to 90 degrees, where abduction
- * turns the thigh about itself), and the star fills the pinch, so a flexed
- * hip may still swing aside. The star is stored as its radius along each
- * great circle leaving the rest direction, `swingTwistBasis.RAYS` of them, the farthest swing
- * along it that the ranges reach, raised where it would turn faster than
- * `SLOPE` with the azimuth (beside an edge of the region that runs along a
- * ray, where the farthest reach jumps), and interpolated linearly between
- * rays. A direction outside is brought back along its own great circle to
- * the radius there, which moves continuously with the direction because the
- * radius does.
+ * Swing is limited by directions the constraint's flexion/abduction intervals reach with no twist (and swingDeg, when present), taken as a star about rest: every direction between rest and a reached direction along their great circle. A three-angle chart pinches where two angles turn about one axis (a hip flexed 90 degrees, where abduction turns the thigh about itself); the star fills that pinch so the flexed hip may swing aside. Its radius is stored on swingTwistBasis.RAYS great circles leaving rest: the farthest reached swing, raised where its azimuth slope exceeds SLOPE (beside a ray-aligned edge with a jumping farthest reach), then linearly interpolated between rays. Outside directions return along their own great circle to that radius, continuously because the radius is continuous.
  *
- * The twist is limited by the constraint's `swingTwist.twist` interval, and
- * clamped to it. A clamp of a turn onto an arc must break somewhere on the
- * circle: here at the turn farthest from the interval on either side, which
- * no limb reaches.
+ * Twist is clamped to the constraint's swingTwist.twist interval. A circle-to-arc clamp must break somewhere: here at the turn farthest from the interval on either side, which no limb reaches.
  *
  * The construction is this module's; no published method is claimed for it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the decomposition, its singular direction, how the swing region is read from the constraint, how a direction outside it is brought back and the premise that keeps that continuous.
  * @evidence contracts/development/design.md#principled-representation A rotation is split into the two quantities a ball joint's range limits independently, where the limb points and how it is turned about itself, neither read through a three-angle chart.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rig frame, explicit lazy frame preparation, reading, range measure, projection and circle radius serve actual clamp/chart consumers; radius tables remain with the existing constraint/basis owner.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Rig/frame preparation, reading, range measure, projection, chart blending and radius serve actual clamp/chart consumers. prepareBlend additionally serves unchanged endpoint pairs without exposing chart metadata or adding a result cache; radius tables retain their existing owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named: the axes, the rest frame and the intervals are the caller's.
  */
 export namespace swingTwistRange {
@@ -430,15 +411,42 @@ export namespace swingTwistRange {
       constraint,
       joint,
     );
-    return placed(
-      {
-        x: from.x + (to.x - from.x) * share,
-        y: from.y + (to.y - from.y) * share,
-        twist: from.twist + (to.twist - from.twist) * share,
-      },
-      constraint,
-      joint,
-    );
+    return blendCharts(from, to, share, constraint, joint);
+  }
+
+  /**
+   * Prepare the same chart blend for unchanged endpoints, constraint and joint.
+   * Construction reads chart(a) then chart(b), at the caller's actual first
+   * blend site; every share still runs the original coordinate blend/placed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed rest-relative endpoints/rig lifetime, ordered eager chart admission, actual per-share inversion, fresh rotation and caller-owned release.
+   * @evidence contracts/development/implementation.md#principled-implementation Endpoint chart coordinates depend only on those unchanged rotations and the same region/frame. Sharing their exact completed values leaves from+(to-from)*share and the existing placed inversion unchanged, including extrapolation/nonfinite share arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct blend and this fixed-pair reader share one private three-coordinate interpolation owner and the same chart/placed functions; no chart algorithm is copied into a Human consumer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share clamp, new endpoint shortcut, projection, tolerance or normalization skip is added. First construction preserves chart(a) before chart(b); later reads assume the declared immutable endpoints/constraint/frame and evaluate every current share normally.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation performs the original two constant-size chart computations once; each share retains three coordinate expressions and actual placed/radius/rotation work, omitting repeated endpoint readings and their records. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual fixed-endpoint Human joint blender borrows this reader only under one unchanged pair/rig. Only endpoint coordinates cross reads; share-dependent coordinates/quaternions and outputs remain fresh, with no result history or global key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure holds two three-scalar chart records plus borrowed constraint/joint until pair release. Endpoint quaternions need not remain retained after construction. Every share returns its actual placed quaternion and retains no input share/output, handle or task.
+   */
+  export function prepareBlend(
+    a: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
+    constraint: IAutoMovieJointConstraint, joint: IJoint,
+  ): (share: number) => IAutoMovieQuaternion {
+    const from: IChart = chart(a, constraint, joint);
+    const to: IChart = chart(b, constraint, joint);
+    return (share: number): IAutoMovieQuaternion =>
+      blendCharts(from, to, share, constraint, joint);
+  }
+
+  /** Original chart expressions, shared without a second interpolation algorithm. */
+  function blendCharts(
+    from: IChart, to: IChart, share: number,
+    constraint: IAutoMovieJointConstraint, joint: IJoint,
+  ): IAutoMovieQuaternion {
+    return placed({
+      x: from.x + (to.x - from.x) * share,
+      y: from.y + (to.y - from.y) * share,
+      twist: from.twist + (to.twist - from.twist) * share,
+    }, constraint, joint);
   }
   /**
    * The swing region's radius on one great circle, degrees, read off the
@@ -471,3 +479,4 @@ export namespace swingTwistRange {
     return table[before]! + (table[after]! - table[before]!) * share;
   }
 }
+

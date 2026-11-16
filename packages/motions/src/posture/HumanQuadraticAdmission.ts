@@ -6,21 +6,28 @@ import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
  *
  * @param problem Original numeric storage, including any supplied curvature padding and explicit zero row entries.
  * @param prepared Optional copied candidate located by the owning Preparation cache.
- * @returns Nonzero row-entry count and whether every fixed numeric dependency exactly matches the candidate.
+ * @returns Nonzero count, complete numeric equality and exact curvature/linear/row/topology groups for safe independent raw-data reuse.
  * @throws {RangeError} For malformed dimensions, row storage, bounds, weights, nonfinite values, band violations or Int32 overflow.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Checks finite convex-program storage before zero omission, then compares copied P/q and ordered nonzero A; positive semidefiniteness remains the documented caller premise.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Combines whole-input admission and exact comparison in one scan for Preparation, so changed data never skip validation and a hit needs no second dependency traversal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Checks zero-coefficient indices, original spans, row holes and supplied padding; preserves unsorted duplicates and exact signed-zero P/q comparisons, rejecting Int32 overflow instead of truncating it.
+ * @evidence contracts/development/implementation.md#principled-implementation Admits every original storage fact before zero omission: exact numeric zero is finite, and strict equality with an admitted copied number/index proves its finite/integer/range facts. Other entries execute the original predicates; convexity remains a caller premise.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Combines whole-input admission and independent curvature, q, numeric-row and row-topology comparisons in one scan; the owning Preparation reuses only proven raw groups or the completely equal scaled core.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains complete zero-coefficient index/span, hole, padding and Int32 admission. Reused finite/index proofs require exact copied values with compatible dimensions, never source identity; unsorted duplicates and signed-zero P/q comparisons remain unchanged.
  * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(S+n+R+m) time for S supplied curvature entries, R original row entries and m rows, with scalar auxiliary storage and one fixed-size result object.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching dimensions and every fixed numeric dependency prove reuse; source identity only located this candidate in Preparation. Bounds and weights are admitted here but refresh independently of matrix equivalence.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only two scalars and retains no original problem, row, candidate or resource after the synchronous call.
- * @evidence contracts/development/common.md#meaningful-documentation Defines original-storage admission, exact comparison, original-zero validation, count/match outputs and failure conditions.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Curvature includes n/band, full row lengths and P values; q requires n and exact values; rows require n/m, ordered nonzero indices/values, while topology ignores values. Failed groups stop comparing without suppressing validation; all groups must match for scaled-core reuse, and bounds/weights refresh separately.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns six scalars and retains no original problem, row, candidate or resource after the synchronous call.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines original storage admission, independent exact dependency groups, original-zero validation, count/complete-match outputs and failures.
  */
 export function HumanQuadraticAdmission(
   problem: Q.IProblem,
   prepared: Prep.IPrepared | undefined,
-): { entries: number; same: boolean } {
+): {
+  entries: number;
+  same: boolean;
+  curvature: boolean;
+  linear: boolean;
+  rows: boolean;
+  topology: boolean;
+} {
   const { n, band, p, q, rows }: Q.IProblem = problem;
   if (
     !Number.isSafeInteger(n) ||
@@ -32,26 +39,31 @@ export function HumanQuadraticAdmission(
     rows.length > MAX_CSR
   )
     throw new RangeError("Malformed quadratic dimensions");
-  let same: boolean =
-    prepared !== undefined &&
-    prepared.core.n === n &&
-    prepared.core.band === band &&
-    prepared.core.m === rows.length;
+  const dimensions: boolean = prepared !== undefined && prepared.core.n === n;
+  let curvature: boolean = dimensions && prepared!.core.band === band;
+  let linear: boolean = dimensions;
+  let topology: boolean = dimensions && prepared!.core.m === rows.length;
+  let matchingRows: boolean = topology;
   for (let i: number = 0; i < n; ++i) {
     const row: Float64Array | undefined = p[i];
-    const previous: Float64Array | undefined = same ? prepared!.p[i] : undefined;
+    const previous: Float64Array | undefined = curvature ? prepared!.p[i] : undefined;
     if (row === undefined || row.length < Math.min(band + 1, n - i))
       throw new RangeError(`Malformed quadratic curvature row ${i}`);
-    if (!Number.isFinite(q[i]!))
-      throw new RangeError(`Quadratic linear term entry ${i} must be finite`);
-    if (same && (!Object.is(q[i], prepared!.q[i]) || row.length !== previous?.length))
-      same = false;
+    const value: number = q[i]!;
+    if (!linear || !Object.is(value, prepared!.q[i])) {
+      if (value !== 0 && !Number.isFinite(value))
+        throw new RangeError(`Quadratic linear term entry ${i} must be finite`);
+      linear = false;
+    }
+    if (curvature && row.length !== previous?.length) curvature = false;
     for (let j: number = 0; j < row.length; ++j) {
-      if (!Number.isFinite(row[j]!))
+      const coefficient: number = row[j]!;
+      if (curvature && Object.is(coefficient, previous![j])) continue;
+      if (coefficient !== 0 && !Number.isFinite(coefficient))
         throw new RangeError(
           `Quadratic curvature row ${i} entry ${j} must be finite`,
         );
-      if (same && !Object.is(row[j], previous![j])) same = false;
+      curvature = false;
     }
   }
   let entries: number = 0;
@@ -69,35 +81,41 @@ export function HumanQuadraticAdmission(
       throw new RangeError(`Malformed quadratic row ${r}`);
     let first: number = Infinity;
     let last: number = -Infinity;
-    let at: number = same ? prepared!.core.start[r]! : 0;
-    const end: number = same ? prepared!.core.start[r + 1]! : 0;
+    let at: number = topology ? prepared!.core.start[r]! : 0;
+    const end: number = topology ? prepared!.core.start[r + 1]! : 0;
     for (let a: number = 0; a < row.index.length; ++a) {
       const index: number = row.index[a]!;
       const coef: number = row.coef[a]!;
+      const nonzero: boolean = coef !== 0;
+      const knownIndex: boolean = nonzero && topology && at < end &&
+        index === prepared!.core.cols[at];
+      const knownCoefficient: boolean = knownIndex && matchingRows &&
+        Object.is(coef, prepared!.vals[at]);
       if (
-        !Number.isInteger(index) ||
-        index < 0 ||
-        index >= n ||
-        index > MAX_CSR ||
-        !Number.isFinite(coef)
+        (!knownIndex && (
+          !Number.isInteger(index) || index < 0 || index >= n || index > MAX_CSR
+        )) ||
+        (nonzero && !knownCoefficient && !Number.isFinite(coef))
       )
         throw new RangeError(`Malformed quadratic row ${r} entry ${a}`);
       first = Math.min(first, index);
       last = Math.max(last, index);
-      if (coef !== 0) {
+      if (nonzero) {
         ++entries;
-        if (same) {
-          if (
-            at >= end ||
-            index !== prepared!.core.cols[at] ||
-            !Object.is(coef, prepared!.vals[at])
-          )
-            same = false;
+        if (topology) {
+          if (!knownIndex) {
+            topology = false;
+            matchingRows = false;
+          } else if (matchingRows && !knownCoefficient)
+            matchingRows = false;
           ++at;
         }
       }
     }
-    if (same && at !== end) same = false;
+    if (topology && at !== end) {
+      topology = false;
+      matchingRows = false;
+    }
 
     // Preserve the original band contract even when a distant entry is zero.
     if (last - first > band)
@@ -107,7 +125,14 @@ export function HumanQuadraticAdmission(
   }
   if (entries > MAX_CSR)
     throw new RangeError("Quadratic rows exceed Int32 storage");
-  return { entries, same };
+  return {
+    entries,
+    same: curvature && linear && matchingRows,
+    curvature,
+    linear,
+    rows: matchingRows,
+    topology,
+  };
 }
 
 /** Maximum entry count and column index representable by the signed Int32 CSR arrays. */

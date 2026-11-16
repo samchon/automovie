@@ -1,4 +1,7 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -31,27 +34,49 @@ export function standingLegs(
   yaw: number,
   feet: Record<"left" | "right", IAutoMovieVector3>,
   toeOut: number,
-  fixed?: Readonly<Record<"left" | "right", {
-    /** The fixed toe-out heading in degrees. */
-    yaw: number;
+  fixed?: Readonly<
+    Record<
+      "left" | "right",
+      {
+        /** The fixed toe-out heading in degrees. */
+        yaw: number;
 
-    /** The heading quaternion prepared from the same yaw and toe-out. */
-    rotation: IAutoMovieQuaternion;
+        /** The heading quaternion prepared from the same yaw and toe-out. */
+        rotation: IAutoMovieQuaternion;
 
-    /** The unchanged body's local metatarsophalangeal offset, metres. */
-    contact: IAutoMovieVector3;
-  }>>,
+        /** The unchanged body's local metatarsophalangeal offset, metres. */
+        contact: IAutoMovieVector3;
+      }
+    >
+  >,
 ): IHumanPosture["limbs"] {
   const limbs: IHumanPosture["limbs"] = {};
   for (const side of ["left", "right"] as const) {
-    const prepared: NonNullable<typeof fixed>["left"] | undefined = fixed?.[side];
-    const heading: number = prepared?.yaw ?? yaw + (side === "left" ? toeOut : -toeOut);
+    const prepared: NonNullable<typeof fixed>["left"] | undefined =
+      fixed?.[side];
+    const heading: number =
+      prepared?.yaw ?? yaw + (side === "left" ? toeOut : -toeOut);
     limbs[`${side}Leg`] = {
       point: feet[side],
-      bend: HumanFrame.point({ origin: HumanFrame.point({ origin: root, yaw }, body.rest.get(`${side}LowerLeg`)!), yaw: heading }, { x: 0, y: 0, z: 1 }),
-      rotation: prepared === undefined ? HumanFrame.turn(heading) : { ...prepared.rotation },
+      bend: HumanFrame.point(
+        {
+          origin: HumanFrame.point(
+            { origin: root, yaw },
+            body.rest.get(`${side}LowerLeg`)!,
+          ),
+          yaw: heading,
+        },
+        { x: 0, y: 0, z: 1 },
+      ),
+      rotation:
+        prepared === undefined
+          ? HumanFrame.turn(heading)
+          : { ...prepared.rotation },
       planted: true,
-      contact: prepared === undefined ? HumanFoot.offset(body, side, "mtp") : { ...prepared.contact },
+      contact:
+        prepared === undefined
+          ? HumanFoot.offset(body, side, "mtp")
+          : { ...prepared.contact },
     };
   }
   return limbs;

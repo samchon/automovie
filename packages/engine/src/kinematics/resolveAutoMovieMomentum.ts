@@ -51,9 +51,9 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @evidence contracts/development/implementation.md#principled-implementation The angular momentum of a rigid multibody about its centre of mass is the sum of each part's orbital `m (c - C) × v` and spin `I ω` (any rigid-body dynamics text); the velocities are central differences, second order in the interval for sufficiently smooth segment trajectories, with the relative rotation's rotation vector for the angular one.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pose both ends once, then delegate their ordered parts and centres to the shared interval reduction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or a non-positive interval throws; no momentum is clamped.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments: one combined parts-and-centre pass at each end, one centre transform per segment and one momentum pass. Each spin consumes the physical tensor owner's nine scalar entries directly, without copied parts or temporary tensor rows. Fresh midpoint, displacement and rotation-vector results are scaled in place, avoiding one further record per segment and two per interval. Orbital coordinates accumulate as scalars without temporary vector records; tensor, cross-product, dot-product and segment-sum association remain unchanged.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear segment passes pose both ends and reduce momentum with one centre transform per segment. Spins consume physical tensor scalars without temporary part arrays/rows, and orbital coordinates accumulate directly. Prepared intervals reuse copied-key and current-rate storage even on changes, omitting replacement cache records and per-read rate vectors; every actual reciprocal and product retains its original association.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each endpoint's centres serve the mean and orbital terms; raw and between entries share reduceBetween. PrepareIntervals compares eight copied endpoint quaternion coordinates per index, reusing only raw shortest-arc turn and midpoint frame; its physical tensor reader separately compares actual midpoint moments/rotation. Current points, masses, seconds and spin products are always evaluated, and no momentum answer or mutable bone object is cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct and between calls borrow endpoints and return fresh numeric records without retained state. PrepareIntervals owns at most one copied quaternion-pair/turn/midpoint and intrinsic slot per current part, truncates after shrink, and releases with its enclosing mass-model token; no endpoint pose, model, target or result population is held.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct and between calls borrow endpoints and return fresh numeric records without retained state. PrepareIntervals owns one copied quaternion-pair/turn/midpoint, overwritten rate scratch and intrinsic slot per current part; it truncates on shrink and releases with its mass token. Rate scratch never escapes or supplies a cached answer, and no endpoint pose/model/target population is held.
  */
 export function resolveAutoMovieMomentum(
   model: resolveAutoMovieCenterOfMass.IModel,
@@ -202,12 +202,28 @@ export namespace resolveAutoMovieMomentum {
       const known: IRotationInterval | undefined = intervals[i];
       if (known !== undefined && sameQuaternion(known.from, from) && sameQuaternion(known.to, to))
         return known;
-      const interval: IRotationInterval = {
-        from: { x: from.x, y: from.y, z: from.z, w: from.w },
-        to: { x: to.x, y: to.y, z: to.z, w: to.w },
-        turn: samplePoseVelocity.rotationVector(Quaternion.multiply(to, Quaternion.inverse(from))),
-        middle: Quaternion.slerp(from, to, 0.5),
+      const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(Quaternion.multiply(to, Quaternion.inverse(from)));
+      const middle: IAutoMovieQuaternion = Quaternion.slerp(from, to, 0.5);
+
+      // Finish both pure quaternion computations before replacing copied
+      // keys. Private slots can then be reused without retaining endpoints.
+      const interval: IRotationInterval = known ?? {
+        from: { x: 0, y: 0, z: 0, w: 1 },
+        to: { x: 0, y: 0, z: 0, w: 1 },
+        turn,
+        middle,
+        rate: { x: 0, y: 0, z: 0 },
       };
+      interval.from.x = from.x;
+      interval.from.y = from.y;
+      interval.from.z = from.z;
+      interval.from.w = from.w;
+      interval.to.x = to.x;
+      interval.to.y = to.y;
+      interval.to.z = to.z;
+      interval.to.w = to.w;
+      interval.turn = turn;
+      interval.middle = middle;
       intervals[i] = interval;
       return interval;
     };
@@ -356,7 +372,12 @@ function reduceBetween(
       ? samplePoseVelocity.rotationVector(
           Quaternion.multiply(p1.inertiaRotation, Quaternion.inverse(p0.inertiaRotation)),
         )
-      : { x: rotation.turn.x, y: rotation.turn.y, z: rotation.turn.z };
+      : rotation.rate;
+    if (rotation !== undefined) {
+      w.x = rotation.turn.x;
+      w.y = rotation.turn.y;
+      w.z = rotation.turn.z;
+    }
     w.x *= reciprocal;
     w.y *= reciprocal;
     w.z *= reciprocal;
@@ -392,6 +413,9 @@ interface IRotationInterval {
 
   /** Half-way principal frame used for the intrinsic momentum tensor. */
   middle: IAutoMovieQuaternion;
+
+  /** Current interval-rate scratch, overwritten before use and never returned or used as a cache key. */
+  rate: IAutoMovieVector3;
 }
 
 /** Copied component keys detect mutation without retaining either endpoint. */

@@ -9,6 +9,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanTrunk } from "./HumanTrunk";
 import type { rest } from "./rest";
 
@@ -42,9 +43,9 @@ import type { rest } from "./rest";
  * @evidence contracts/development/implementation.md#principled-implementation A point and normal of the true colliders, a comfortable elbow flexion for the height, and a neutral wrist from the arm's triangle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One surface point per place, one laid hand, one hand stacked on it.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is bounded by the regions the trunk names, not moved until a verdict passes; a ray that misses the trunk throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk/shoulder FK supplies all anatomical points and the 12-step front-height ray-cast bisection; every ray and three substitutions per hand retain their original geometric work, once per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous HumanTrunk.prepare reading shares the fixed posture's actual FK frames across regions, shoulders and rays; each ray hit and HumanHand surface placement is recomputed for its actual query.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk/shoulder FK supplies all anatomical points and the 12-step front-height ray-cast bisection; fixed ray direction, arm lengths, hand-local point and rest alignment are prepared once per side. Every ray, world alignment and three actual wrist substitutions per hand remain.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous HumanTrunk.prepare reading shares the fixed posture's FK/collider frames across regions, shoulders and rays. Each side's lazy hand reader shares its unchanged rest basis through HumanHand.prepareAlignment and its existing point-placement owner; each current normal, forward, wrist and ray hit is recomputed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local trunk and two hand readers end with goal preparation or throw; lazy hand preparation remains after the first actual surface query, and only the returned fresh goals survive, without time/history or body-result caches.
  */
 export namespace restClasped {
   /**
@@ -84,27 +85,25 @@ export namespace restClasped {
     const shoulders: Record<HumanHand.Side, IAutoMovieVector3> = joints(
       trunk,
     );
+    const ray: IAutoMovieVector3 = Vector3.add(groin, Vector3.scale(ahead, body.measure.stature));
+    const inward: IAutoMovieVector3 = Vector3.scale(ahead, -1);
+    const layLeft: Lay = prepareLaid(body, "left", "palm", shoulders.left, elbows.left, "relaxed");
+    const layRight: Lay = prepareLaid(body, "right", "palm", shoulders.right, elbows.right, "relaxed");
     const at = (
       y: number,
     ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
       trunk.surface(
         {
-          ...Vector3.add(groin, Vector3.scale(ahead, body.measure.stature)),
+          ...ray,
           y,
         },
-        Vector3.scale(ahead, -1),
+        inward,
       );
     const goals = (y: number): Record<HumanHand.Side, rest.IGoal> => {
       const place = at(y);
-      const left: rest.IGoal = laid(
-        body,
-        "left",
-        "palm",
+      const left: rest.IGoal = layLeft(
         place.point,
         place.normal,
-        shoulders.left,
-        elbows.left,
-        "relaxed",
       );
       return {
         left,
@@ -112,10 +111,7 @@ export namespace restClasped {
           body,
           left,
           "handBack",
-          "right",
-          "palm",
-          shoulders.right,
-          elbows.right,
+          layRight,
         ),
       };
     };
@@ -190,15 +186,11 @@ export namespace restClasped {
       },
       ahead,
     );
-    const left: rest.IGoal = laid(
-      body,
-      "left",
-      "handBack",
+    const layLeft: Lay = prepareLaid(body, "left", "handBack", shoulders.left, elbows.left, "flat");
+    const layRight: Lay = prepareLaid(body, "right", "handBack", shoulders.right, elbows.right, "flat");
+    const left: rest.IGoal = layLeft(
       place.point,
       place.normal,
-      shoulders.left,
-      elbows.left,
-      "flat",
     );
     return {
       left,
@@ -206,10 +198,7 @@ export namespace restClasped {
         body,
         left,
         "palm",
-        "right",
-        "handBack",
-        shoulders.right,
-        elbows.right,
+        layRight,
       ),
     };
   }
@@ -302,48 +291,56 @@ function forearm(
  * the surface's outward normal exactly, and the fingers along the forearm as far
  * as that allows. The wrist depends on the fingers and the forearm on the
  * wrist, so the direction starts at the line from the shoulder to the point
- * and is substituted three times.
+ * and is substituted three times. Fixed hand and arm geometry is prepared
+ * lazily after the first actual surface query and shared across heights.
  */
-function laid(
+function prepareLaid(
   body: IHumanBody,
   side: HumanHand.Side,
   surface: HumanHand.Surface,
-  point: IAutoMovieVector3,
-  normal: IAutoMovieVector3,
   shoulder: IAutoMovieVector3,
   elbow: IAutoMovieVector3,
   shape: HumanHand.Shape,
-): rest.IGoal {
-  const upper: number = segment(body, side, "UpperArm", "LowerArm");
-  const lower: number = segment(body, side, "LowerArm", "Hand");
-  const local: HumanHand.IFrame = HumanHand.offset(body, side, surface);
-  const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
-  const turned = (fingers: IAutoMovieVector3): IAutoMovieQuaternion =>
-    HumanHand.align(
-      {
+): Lay {
+  let fixed: { upper: number; lower: number; local: HumanHand.IFrame; align: ReturnType<typeof HumanHand.prepareAlignment> } | undefined;
+  return (point: IAutoMovieVector3, normal: IAutoMovieVector3): rest.IGoal => {
+    // Keep the original first ray/stacked-surface query ahead of hand preparation.
+    if (fixed === undefined) {
+      const upper: number = segment(body, side, "UpperArm", "LowerArm");
+      const lower: number = segment(body, side, "LowerArm", "Hand");
+      const local: HumanHand.IFrame = HumanHand.offset(body, side, surface);
+      fixed = { upper, lower, local, align: HumanHand.prepareAlignment({
         normal: local.normal,
         forward: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-      },
-      { normal: into, forward: fingers },
+      }) };
+    }
+    const hand: NonNullable<typeof fixed> = fixed;
+    const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
+    const turned: (fingers: IAutoMovieVector3) => IAutoMovieQuaternion =
+      (fingers: IAutoMovieVector3): IAutoMovieQuaternion =>
+        hand.align({ normal: into, forward: fingers });
+    let rotation: IAutoMovieQuaternion = turned(
+      across(into, Vector3.subtract(point, shoulder)),
     );
-  let rotation: IAutoMovieQuaternion = turned(
-    across(into, Vector3.subtract(point, shoulder)),
-  );
-  for (let i: number = 0; i < 3; i++)
-    rotation = turned(
-      across(
-        into,
-        forearm(
-          upper,
-          lower,
-          shoulder,
-          HumanHand.place(body, side, surface, point, rotation).point,
-          elbow,
+    for (let i: number = 0; i < 3; i++)
+      rotation = turned(
+        across(
+          into,
+          forearm(
+            hand.upper,
+            hand.lower,
+            shoulder,
+            placeHumanHandSurface(hand.local.point, point, rotation).point,
+            elbow,
+          ),
         ),
-      ),
-    );
-  return { surface, shape, point, rotation, elbow };
+      );
+    return { surface, shape, point, rotation, elbow };
+  };
 }
+
+/** Actual world surface inputs of one fixed hand/shoulder configuration. */
+type Lay = (point: IAutoMovieVector3, normal: IAutoMovieVector3) => rest.IGoal;
 
 /**
  * A hand surface laid on a surface of the left hand as the left hand holds
@@ -353,10 +350,7 @@ function stacked(
   body: IHumanBody,
   left: rest.IGoal,
   on: HumanHand.Surface,
-  side: HumanHand.Side,
-  surface: HumanHand.Surface,
-  shoulder: IAutoMovieVector3,
-  elbow: IAutoMovieVector3,
+  lay: Lay,
 ): rest.IGoal {
   const wrist: HumanHand.IWrist = HumanHand.place(
     body,
@@ -367,17 +361,11 @@ function stacked(
     left.shape,
   );
   const face: HumanHand.IFrame = HumanHand.offset(body, "left", on, left.shape);
-  return laid(
-    body,
-    side,
-    surface,
+  return lay(
     Vector3.add(
       wrist.point,
       Quaternion.rotateVector(wrist.rotation, face.point),
     ),
     Quaternion.rotateVector(wrist.rotation, face.normal),
-    shoulder,
-    elbow,
-    left.shape,
   );
 }

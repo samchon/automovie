@@ -30,6 +30,7 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
+import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -174,9 +175,9 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum (`staggerRecover`); the feet, the pelvis and the trunk on one stance course under the legs' ranges (`StaggerFeet`); the arms abducted from their measured onset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One recovery search and two posture solves per plan; per posture one pelvis settling and a swing's hold, with each step's two stance ends memoised.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `staggerRecover`, `staggerLimit`, `StaggerFeet`, `HumanArmSwing` and `ReactionSource`; the push, its recovery and the trunk's shift of the centre of mass are read once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the recovery and its feet, released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original recovery search serves a successful plan; a refusal retains the original full speed-limit search. Entry mass/sole preparation and the three-centre bending observation run once per plan, with each step's declared stance ends shared and actual per-time settlement/reach preserved.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing recovery, feet, arm and causal-target owners. The same body and complete entry establish bending/entry-geometry equivalence for the first recovery and its refusal's speed search; only the scalar part of each minimum-jerk arm envelope is requested, with the original quintic arithmetic.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and two bending vectors until release; temporary refusal search preparation/results end on throw, without a global entry or solved-pose history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -185,7 +186,7 @@ export namespace stagger {
       staggerBounds;
     const p: IParams = context.params;
     if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
-    const body = context.body;
+    const body: IHumanActionContext["body"] = context.body;
     const entry: IHumanPosture = context.entry.posture;
     const righting: number =
       AutoMovieMotionManner.of(context, p.manner).tempo *
@@ -210,6 +211,8 @@ export namespace stagger {
       y: 0,
     });
     const bend: Record<"pitch" | "roll", IAutoMovieVector3> = staggerKnots.bending(body, context.entry);
+    const geometry: ReturnType<typeof prepareStaggerPendulumEntry> =
+      prepareStaggerPendulumEntry(body, context.entry);
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       body,
       context.entry,
@@ -218,6 +221,7 @@ export namespace stagger {
       righting,
       true,
       (): Record<"pitch" | "roll", IAutoMovieVector3> => bend,
+      geometry,
     );
     if (recovery === null) {
       const caught: number = staggerLimit.of(
@@ -225,6 +229,8 @@ export namespace stagger {
         context.entry,
         push,
         p.speed,
+        bend,
+        geometry,
       );
       throw new HumanRefusal({
         kind: "parameter",
@@ -247,7 +253,7 @@ export namespace stagger {
       ],
     );
     const duration: number = clock.duration;
-    const last = (): number => recovery.steps.at(-1)!.land;
+    const last: () => number = (): number => recovery.steps.at(-1)!.land;
     const feet: StaggerFeet = new StaggerFeet(
       body,
       context.entry,
@@ -306,14 +312,14 @@ export namespace stagger {
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
     const onset: number = AutoMovieMotionHumanTiming.seconds(ONSET);
-    const raised = (seconds: number): number => {
+    const raised: (seconds: number) => number = (seconds: number): number => {
       const end: number = last();
-      const rise: number = minimumJerk(
+      const rise: number = minimumJerk.share(
         Math.min(1, Math.max(0, (seconds - onset) / (swing - onset))),
-      ).s;
-      const fall: number = minimumJerk(
+      );
+      const fall: number = minimumJerk.share(
         Math.min(1, Math.max(0, (seconds - end) / (duration - end))),
-      ).s;
+      );
       return ABDUCTION * Math.max(0, rise - fall);
     };
     const arms: IAutoMovieMotionHumanPrimitive = {
@@ -322,7 +328,7 @@ export namespace stagger {
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const more: number = raised(seconds);
-        const abducted = (
+        const abducted: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles = (
           side: "left" | "right",
         ): AutoMovieMotionHumanArm.IAngles => ({
           ...held[side],

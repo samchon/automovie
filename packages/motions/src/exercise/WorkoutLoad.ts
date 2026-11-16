@@ -124,7 +124,7 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the holding hand's grip socket is kept where the key's joints put it and the tool's line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder, elbow and wrist from FK; both original elbow solves remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder, elbow and wrist from FK; mid-foot geometry and projection are demanded only by midfoot rows, and both original elbow solves remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fixed fist shape and the holding-chain demand are prepared once for the unchanged body and holding side; every changed posture and arm target is still solved.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
@@ -185,26 +185,31 @@ export namespace WorkoutLoad {
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.
-    const balance: IAutoMovieVector3 = Vector3.scale(
-      (["left", "right"] as const).reduce(
-        (sum: IAutoMovieVector3, foot: "left" | "right"): IAutoMovieVector3 =>
-          Vector3.add(
-            sum,
-            Vector3.add(
-              HumanFoot.point(body, foot, "heel", {
-                ankle: context.entry.feet[foot].ankle,
-                rotation: context.entry.feet[foot].rotation,
-              }),
-              HumanFoot.point(body, foot, "toe", {
-                ankle: context.entry.feet[foot].ankle,
-                rotation: context.entry.feet[foot].rotation,
-              }),
-            ),
+    const balance: IAutoMovieVector3 | undefined = !midfoot
+      ? undefined
+      : Vector3.scale(
+          (["left", "right"] as const).reduce(
+            (
+              sum: IAutoMovieVector3,
+              foot: "left" | "right",
+            ): IAutoMovieVector3 =>
+              Vector3.add(
+                sum,
+                Vector3.add(
+                  HumanFoot.point(body, foot, "heel", {
+                    ankle: context.entry.feet[foot].ankle,
+                    rotation: context.entry.feet[foot].rotation,
+                  }),
+                  HumanFoot.point(body, foot, "toe", {
+                    ankle: context.entry.feet[foot].ankle,
+                    rotation: context.entry.feet[foot].rotation,
+                  }),
+                ),
+              ),
+            { x: 0, y: 0, z: 0 },
           ),
-        { x: 0, y: 0, z: 0 },
-      ),
-      0.25,
-    );
+          0.25,
+        );
     const bend = (
       posture: IHumanPosture,
       arm: HumanHand.Side,
@@ -269,45 +274,49 @@ export namespace WorkoutLoad {
         // keeps its distance from the shoulder: moved level instead, a
         // straight arm fell short of the handle and the other hand slid
         // 20.6 mm along the bar on the small woman.
-        const ahead: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-          { x: 0, y: 0, z: 1 },
-        );
-        const shoulder: IAutoMovieVector3 = bones.get(
-          `${side}UpperArm`,
-        )!.worldPosition;
-        const reach: IAutoMovieVector3 = Vector3.subtract(
-          keyed.point,
-          shoulder,
-        );
-        const off: IAutoMovieVector3 = Vector3.subtract(
-          balance,
-          Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
-        );
-        const aside: number =
-          Vector3.dot(reach, across) + Vector3.dot(off, across);
-        const radius: number = Math.sqrt(
-          Math.max(0, Vector3.dot(reach, reach) - aside * aside),
-        );
-        const forth: number = Math.max(
-          -radius,
-          Math.min(radius, Vector3.dot(reach, ahead) + Vector3.dot(off, ahead)),
-        );
-        const frame: StrikingHeld.IHandFrame = !midfoot
-          ? keyed
-          : {
-              ...keyed,
-              point: Vector3.add(
-                Vector3.add(shoulder, Vector3.scale(across, aside)),
-                Vector3.add(Vector3.scale(ahead, forth), {
-                  x: 0,
-                  y:
-                    (reach.y > 0 ? 1 : -1) *
-                    Math.sqrt(radius * radius - forth * forth),
-                  z: 0,
-                }),
-              ),
-            };
+        let frame: StrikingHeld.IHandFrame = keyed;
+        if (balance !== undefined) {
+          const ahead: IAutoMovieVector3 = HumanFrame.point(
+            { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+            { x: 0, y: 0, z: 1 },
+          );
+          const shoulder: IAutoMovieVector3 = bones.get(
+            `${side}UpperArm`,
+          )!.worldPosition;
+          const reach: IAutoMovieVector3 = Vector3.subtract(
+            keyed.point,
+            shoulder,
+          );
+          const off: IAutoMovieVector3 = Vector3.subtract(
+            balance,
+            Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
+          );
+          const aside: number =
+            Vector3.dot(reach, across) + Vector3.dot(off, across);
+          const radius: number = Math.sqrt(
+            Math.max(0, Vector3.dot(reach, reach) - aside * aside),
+          );
+          const forth: number = Math.max(
+            -radius,
+            Math.min(
+              radius,
+              Vector3.dot(reach, ahead) + Vector3.dot(off, ahead),
+            ),
+          );
+          frame = {
+            ...keyed,
+            point: Vector3.add(
+              Vector3.add(shoulder, Vector3.scale(across, aside)),
+              Vector3.add(Vector3.scale(ahead, forth), {
+                x: 0,
+                y:
+                  (reach.y > 0 ? 1 : -1) *
+                  Math.sqrt(radius * radius - forth * forth),
+                z: 0,
+              }),
+            ),
+          };
+        }
         const first: IHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,

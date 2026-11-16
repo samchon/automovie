@@ -55,7 +55,7 @@ export namespace AutoMovieMotionInterval {
       linear(opening, closing, seconds);
     return {
       linear: read,
-      progress: (seconds: number): number => minimumJerk(read(seconds)).s,
+      progress: (seconds: number): number => minimumJerk.share(read(seconds)),
     };
   }
 

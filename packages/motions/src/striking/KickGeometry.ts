@@ -177,7 +177,7 @@ export namespace KickGeometry {
       rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
     };
     const origin: IAutoMovieVector3 = feet[side].ankle;
-    const knee: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
+    const knee: IAutoMovieVector3 = poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>([`${side}LowerLeg`])).get(
       `${side}LowerLeg` as AutoMovieHumanoidBone,
     )!.worldPosition;
 
@@ -327,11 +327,11 @@ export namespace KickGeometry {
         1e-3,
         timing.duration - s - StrikingStroke.DWELL,
       );
-      const w: number = minimumJerk((t - s - StrikingStroke.DWELL) / rest).s;
+      const w: number = minimumJerk.share((t - s - StrikingStroke.DWELL) / rest);
       const back: number = s * (1 - w);
-      const stepped: number = minimumJerk(
+      const stepped: number = minimumJerk.share(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      ).s;
+      );
       const base: IHumanPosture = parts.base(s, parts.shown(back), back, resolution);
       const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution);
       return {

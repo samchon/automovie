@@ -46,7 +46,14 @@ import { knockdown } from "../reaction/knockdown";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the engine's (`AutoMovieGravity`); every length is the body's or the plan's.
  */
 export namespace GymnasticsFlight {
-  /** The engine's mass model of a body. */
+  /**
+   * The engine's segment mass model of one unchanged body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the original engine model supplying segment masses, local centres and inertias in SI units; model(body) borrows the body's actual canonical instance.
+   * @evidence contracts/development/design.md#principled-representation The alias preserves the engine's physical model directly, without reinterpreting posed FK or authored posture demands.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The same model type serves actual COM placement, flight launch and gymnastics floor/placement preparations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no alternative mass table, manually asserted canonical flag, numerical cache key or ownership wrapper.
+   */
   export type Model = ReturnType<typeof resolveAutoMovieCenterOfMass>;
 
   /**
@@ -317,11 +324,11 @@ export namespace GymnasticsFlight {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the premise and the units.
    * @evidence contracts/development/implementation.md#principled-implementation Two samples a millisecond and two after the instant: for c(t) = c0 + v t - g t² / 2, v = (c(2δ) - c(δ)) / δ + 3 g δ / 2 and c0 = c(δ) - v δ + g δ² / 2, exact on a parabola.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two centres and two formulas.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation-owned lazy reader lends the same FK workspace to each actual raw plan evaluation and its COM read; two original centres feed two formulas.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the displayed postures, so a plan that is not ballistic there gives what it shows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two resolutions.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Both original millisecond samples retain their complete actual resolution and mass reduction; their shared exact FK workspace avoids repeated unchanged dependency work, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The two changing raw plan postures, canonical preparations and actual COM reads borrow one explicitly scoped FK source. Equal dependencies alone share arithmetic; no sample, goal, result or velocity is cached or substituted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local lazy getter and dynamic workspace release on synchronous return or throw; only fresh centre/velocity vectors escape, without a reader, source posture or query history.
    */
   export function launch(
     body: IHumanBody,
@@ -330,15 +337,18 @@ export namespace GymnasticsFlight {
     seconds: number,
   ): { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } {
     const delta: number = 1e-3;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const one: IAutoMovieVector3 = centre(
       body,
       model,
-      plan.posture(seconds + delta),
+      plan.posture(seconds + delta, undefined, resolution),
+      resolution,
     );
     const two: IAutoMovieVector3 = centre(
       body,
       model,
-      plan.posture(seconds + 2 * delta),
+      plan.posture(seconds + 2 * delta, undefined, resolution),
+      resolution,
     );
     const velocity: IAutoMovieVector3 = {
       x: (two.x - one.x) / delta,

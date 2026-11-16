@@ -73,19 +73,20 @@ export namespace SwimStroke {
   const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
 
   /** A backstroke key: one arm's shoulder flexion and abduction, the other's, and which leg is up. */
-  const back = (
+  function back(
     body: IHumanBody,
     right: readonly [number, number],
     left: readonly [number, number],
     kick: number,
-  ): ExerciseKey.IKey =>
-    ExerciseKey.from(
+  ): ExerciseKey.IKey {
+    return ExerciseKey.from(
       body,
       { pitch: -90, neck: 10 },
       { ankle: -40, elbow: 5 },
       { shoulder: left[0], raise: left[1], hip: 10 * kick, knee: 10 },
       { shoulder: right[0], raise: right[1], hip: -10 * kick, knee: 10 },
     );
+  }
 
   /**
    * The strokes on a body (provisional angles, seconds and speeds).
@@ -268,7 +269,7 @@ export namespace SwimStroke {
           }
           within -= span;
         }
-        const u: number = minimumJerk(within).s;
+        const u: number = minimumJerk.share(within);
         return ExerciseKey.pinned(
           props.body,
           blends[index]!(u),

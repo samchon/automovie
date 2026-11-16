@@ -133,8 +133,8 @@ export namespace climbLadder {
    * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation and per-limb beat arrays; separate support and arm primitives let root/leg demand omit arm work.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored rung count, beat order, clearance, approach bounds and contact windows retain their original formulas.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in climbed rungs; each pose uses four logarithmic limb lookups and the original fixed-size lowering and hand/leg goal computations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share rung geometry, root line and entry arms. A completed two-foot contact state shares its exact root/leg goals, and a stationary hand at that state shares its exact rung goal; a moving foot or hand always recomputes its dependent result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in climbed rungs; fixed foot rotations/socket offsets, adjacent-footprint quaternion arcs and directional heading prepare once. Each pose uses four logarithmic limb lookups and the original fixed-size lowering and hand/leg goal computations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share rung geometry, foot-placement/arc preparation, root line and entry arms. A completed two-foot contact state shares its exact root/leg goals, and a stationary hand at that state shares its exact rung goal; a moving foot or hand always recomputes its dependent result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned rung/beat arrays and completed support/hand contact states grow with the authored beat sequence and release with the plan; arbitrary queried seconds are not retained.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
@@ -197,33 +197,37 @@ export namespace climbLadder {
     HumanBound.within("rungs", reach + count, 1, ladder.count, "");
 
     // A foot's placement on a rung: the ball on the rung's top.
+    const onRung: Record<"left" | "right", ReturnType<typeof HumanFoot.prepareAt>> = {
+      left: HumanFoot.prepareAt(body, "left", "ball", HumanFoot.heading(flats.left.rotation), 0),
+      right: HumanFoot.prepareAt(body, "right", "ball", HumanFoot.heading(flats.right.rotation), 0),
+    };
     const footOn: (side: "left" | "right", index: number) => HumanFoot.IPlacement = (
       side: "left" | "right",
       index: number,
     ): HumanFoot.IPlacement =>
       index === 0
         ? flat(side)
-        : HumanFoot.pivot(
-            body,
-            side,
-            "ball",
+        : onRung[side](
             Vector3.add(rung(ladder, index, lateral(side)), {
               x: 0,
               y: ladder.radius,
               z: 0,
             }),
-            HumanFoot.heading(flat(side).rotation),
-            0,
           );
     const footprints: Record<"left" | "right", HumanFoot.IPlacement[]> = {
       left: Array.from({ length: count + 1 }, (_: unknown, i: number): HumanFoot.IPlacement => footOn("left", i)),
       right: Array.from({ length: count + 1 }, (_: unknown, i: number): HumanFoot.IPlacement => footOn("right", i)),
+    };
+    const footArcs: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>[]> = {
+      left: footprints.left.slice(1).map((to: HumanFoot.IPlacement, i: number): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> => AutoMovieMotionHumanLeg.prepareArc(footprints.left[i]!, to, CLEARANCE)),
+      right: footprints.right.slice(1).map((to: HumanFoot.IPlacement, i: number): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> => AutoMovieMotionHumanLeg.prepareArc(footprints.right[i]!, to, CLEARANCE)),
     };
     const handholds: Record<"left" | "right", IAutoMovieVector3[]> = {
       left: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => rung(ladder, reach + i, lateral("left"))),
       right: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => rung(ladder, reach + i, lateral("right"))),
     };
     const direction: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
+    const directional: HumanFrame.IPrepared = HumanFrame.prepare(direction);
     const normal: IAutoMovieVector3 = HumanFrame.point(direction, { x: 0, y: 0, z: -1 });
     const hands: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>> = {
       left: AutoMovieMotionHumanTarget.prepareHand(body, "left", normal, { surface: "grip", shape: "relaxed", curl: 50 }),
@@ -280,7 +284,7 @@ export namespace climbLadder {
         return {
           index: base + move.n,
           from: base + move.n - 1,
-          u: minimumJerk((seconds - move.from) / (move.to - move.from)).s,
+          u: minimumJerk.share((seconds - move.from) / (move.to - move.from)),
           moving: true,
         };
       const index: number = base + (own[low - 1]?.n ?? 0);
@@ -328,18 +332,16 @@ export namespace climbLadder {
         };
         for (const side of ["left", "right"] as const) {
           const at: ReturnType<typeof level> = footLevels[side];
-          const a: HumanFoot.IPlacement = footprints[side][at.from]!;
           const b: HumanFoot.IPlacement = footprints[side][at.index]!;
           feet[side] = at.moving
             ? (() => {
-                const out: HumanFoot.IPlacement = AutoMovieMotionHumanLeg.arc(a, b, CLEARANCE, at.u);
+                const out: HumanFoot.IPlacement = footArcs[side][at.index - 1]!(at.u);
                 // Move back off the rungs and in again so the toe clears them.
                 return {
                   ...out,
                   ankle: Vector3.add(
                     out.ankle,
-                    HumanFrame.point(
-                      direction,
+                    directional.point(
                       {
                         x: 0,
                         y: 0,
@@ -385,8 +387,7 @@ export namespace climbLadder {
           const lifted: IAutoMovieVector3 = at.moving
             ? Vector3.add(
                 grip,
-                HumanFrame.point(
-                  direction,
+                directional.point(
                   { x: 0, y: 0, z: -0.08 * Math.sin(Math.PI * at.u) },
                 ),
               )

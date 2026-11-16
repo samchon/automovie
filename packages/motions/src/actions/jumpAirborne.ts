@@ -145,7 +145,7 @@ export namespace jumpAirborne {
       right: Quaternion.prepareSlerp(shape.start.legs.right.rotation, shape.end.legs.right.rotation),
     };
     return (root: IAutoMovieVector3, u: number): IHumanPosture => {
-      const s: number = minimumJerk(u).s;
+      const s: number = minimumJerk.share(u);
       const joints: IHumanPosture["joints"] = { ...shape.start.joints };
       for (const track of tracks)
         joints[track.bone] = [

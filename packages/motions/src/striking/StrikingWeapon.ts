@@ -16,6 +16,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
+import { StrikingWeaponSample } from "./StrikingWeaponSample";
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
@@ -40,7 +41,8 @@ export namespace StrikingWeapon {
    * The striking action's free course: its posture at a film second before
    * any committed stop moves it.
    *
-   * @param seconds Film seconds; channels are observational demands whose values equal the complete course, with unsupported producers returning the complete posture.
+   * @param seconds Film seconds.
+   * @param channels Optional demands whose observed values equal the complete course; unsupported producers return the complete posture.
    * @param resolution Optional exact FK supplier borrowed only for this synchronous sample, never retained by the course.
    * @returns The posture.
    *
@@ -49,7 +51,11 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/design.md#minimal-and-owned-surface One time reader supplies the actual limb course; optional channels select observation demand and an optional synchronous FK supplier coordinates lowering and final fitting without storing a result.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A callback leaves the actual action law responsible for its free course.
    */
-  export type Course = (seconds: number, channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture;
+  export type Course = (
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IHumanPosture;
 
   /**
    * A striking arm at a film second, fitted on its action's free course:
@@ -177,7 +183,12 @@ export namespace StrikingWeapon {
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(
-      body, course(seconds, channels, resolution), undefined, {}, resolution, requested,
+      body,
+      course(seconds, channels, resolution),
+      undefined,
+      {},
+      resolution,
+      requested,
     ).pose;
     return poseBones(body, pose, resolution(), requested);
   }
@@ -258,7 +269,7 @@ export namespace StrikingWeapon {
           tail: (seconds: number): IAutoMovieVector3 =>
             chain.ends(seconds)[i + 1]!,
         };
-        CHAINS.set(weapon, { chain, index: i });
+        StrikingWeaponSample.bind(weapon, chain, i);
         return weapon;
       },
     );
@@ -290,10 +301,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak weapon keys retain only their owning chain/index while the plan owns the weapons; each read retains only its returned endpoint vectors, with no query history.
    */
   export function read(weapon: IHumanActionPlan.IWeapon, seconds: number): IAxis {
-    const binding: IBinding | undefined = CHAINS.get(weapon);
-    if (binding === undefined) return [weapon.path(seconds), weapon.tail?.(seconds)];
-    const ends: readonly IAutoMovieVector3[] = binding.chain.ends(seconds);
-    return [ends[binding.index]!, ends[binding.index + 1]!];
+    return StrikingWeaponSample.read(weapon, seconds);
   }
 
   /**
@@ -315,35 +323,9 @@ export namespace StrikingWeapon {
     weapons: readonly IHumanActionPlan.IWeapon[],
     seconds: number,
   ): ReadonlyMap<IHumanActionPlan.IWeapon, IAxis> {
-    const chains: Map<IChain, readonly IAutoMovieVector3[]> = new Map();
-    const axes: Map<IHumanActionPlan.IWeapon, IAxis> = new Map();
-    for (const weapon of weapons) {
-      const binding: IBinding | undefined = CHAINS.get(weapon);
-      if (binding === undefined) {
-        axes.set(weapon, read(weapon, seconds));
-        continue;
-      }
-      let ends: readonly IAutoMovieVector3[] | undefined = chains.get(binding.chain);
-      if (ends === undefined) {
-        ends = binding.chain.ends(seconds);
-        chains.set(binding.chain, ends);
-      }
-      axes.set(weapon, [ends[binding.index]!, ends[binding.index + 1]!]);
-    }
-    return axes;
+    return StrikingWeaponSample.sample(weapons, seconds);
   }
 
-  /** Immutable metadata associating a capsule with its constructor-owned chain. */
-  interface IBinding {
-    /** The body/course/ends owner shared by this chain's capsules. */
-    chain: IChain;
-
-    /** The first of its adjacent ends. */
-    index: number;
-  }
-
-  /** Weak metadata only; sampled poses and endpoints are never retained here. */
-  const CHAINS: WeakMap<IHumanActionPlan.IWeapon, IBinding> = new WeakMap();
 
   /**
    * A shown leg's girths at its joints, metres, as its tapered capsules'

@@ -1,11 +1,11 @@
 import {
   type IAutoMovieResolvedBone,
   Quaternion,
-  preparePoseResolution,
   samplePoseVelocity,
 } from "@automovie/engine";
 import type {
   IAutoMoviePose,
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,6 +19,7 @@ import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * The state a person enters an action from: the displayed pose and its
@@ -41,12 +42,12 @@ export namespace HumanSegmentEntry {
    * @returns The entry state.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines film-second entry, optional decay duration, displayed pose/rates and the feet/support/base/hold state returned to the next action.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves the existing shown or cold-plus-continued one-sided samples at STEP seconds. World foot velocity, acceleration and spin retain their original difference formulas; four full FK reads share only exact scalar prerequisites under the same unchanged skeleton topology.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the leaving state, assemble its four bone maps with one local reader, then derive the two feet and one support list read by both the entry and its base classification.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the existing complete shown or cold-plus-continued one-sided pose/rate samples at STEP seconds. World foot velocity, acceleration and spin consume only the two foot frames and retain their original difference formulas; four demanded FK reads share exact scalar prerequisites under the same unchanged skeleton topology.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One same-body evaluation preparation reaches every actual source pose, raw posture, layer and four foot FK reads; then derive the two feet and one support list read by both the entry and its base classification.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the cold pose distinct from a continued instant, every source-pose evaluation, all four FK admissions and their fresh outputs. No rate sample, contact comparison, difference interval, normalization or fitted pose is replaced by a cached answer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Existing pose/rate evaluations remain the dominant solve cost; four FK calls still scan J joints and B bones, while identical clinical/rest/parent math reuses one reader. Direct reads of the fixed three-sample tuple avoid temporary map/vector arrays. One O(C) support scan replaces two for a previous action; base classification only reads that list. Hold scans retain their policy; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The four actual FK inputs may differ in time and cold/near fit history; only exactly equal scalar dependencies are shared. Shown's existing exact-time pose reads and continued's separate cold/refined instant remain unchanged. Base classification borrows the same current support list without mutating or retaining it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local reader owns last successful joint/world scalar snapshots per visited bone name, O(K) for K identities, until return or throw. The four fresh maps are local; returned foot vectors/quaternions retain their original value ownership, while pose/posture/from-plan/support references remain as before. No reader or supplier enters the returned entry or a retained plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Existing complete pose/rate evaluations retain every solve/sample; four FK calls admit J authored joints and compute only foot ancestors/output. Repeated source poses share rig clamp metadata and exact FK prerequisites. Direct reads of the fixed three-sample tuple avoid temporary map/vector arrays. One O(C) support scan serves entry/base; hold scans retain their policy and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The source pose and four FK inputs may differ in time and cold/near history; only rig metadata and exactly equal scalar dependencies share the explicit preparation. Shown's existing exact-time pose reads and continued's separate cold/refined instant remain unchanged. Base classification borrows the same current support list without mutating or retaining it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One entry-owned preparation holds rig metadata and last successful joint/world scalar snapshots per visited bone name, O(K) for K identities, until return or throw. The four fresh demanded maps are local; returned foot vectors/quaternions retain their original value ownership, while complete pose/posture/from-plan/support references remain as before. No reader or supplier enters the returned entry or a retained plan.
    */
   export function entry(
     person: HumanSegment.IPerson,
@@ -55,6 +56,7 @@ export namespace HumanSegmentEntry {
     blend?: number,
   ): IHumanEntryState {
     const body: IHumanBody = person.performer.body;
+    const prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
 
     // The difference interval of every rate read here, seconds.
     const step: number = HumanSegmentPose.STEP;
@@ -67,8 +69,8 @@ export namespace HumanSegmentEntry {
     // shown.
     const read: HumanSegmentPose.IContinued =
       previous !== undefined && blend !== undefined
-        ? left(person, previous, seconds, blend)
-        : shown(person, previous, seconds, step);
+        ? left(person, previous, seconds, blend, prepared)
+        : shown(person, previous, seconds, step, prepared);
     const state: samplePoseVelocity.IState = read.state;
     const posture: IHumanPosture =
       previous === undefined
@@ -80,15 +82,17 @@ export namespace HumanSegmentEntry {
                 previous.plan.duration,
                 Math.max(0, seconds - previous.start),
               ),
+              undefined,
+              prepared.resolution,
             ),
             seconds,
+            prepared.resolution,
           );
-    const resolution: ReturnType<typeof preparePoseResolution> =
-      preparePoseResolution();
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       state.pose,
-      resolution,
+      prepared.resolution(),
+      FEET,
     );
     const planted: (part: "leftFoot" | "rightFoot") => boolean = (
       part: "leftFoot" | "rightFoot",
@@ -112,17 +116,20 @@ export namespace HumanSegmentEntry {
     const instant: ReturnType<typeof poseBones> = poseBones(
       body,
       read.samples[0],
-      resolution,
+      prepared.resolution(),
+      FEET,
     );
     const near: ReturnType<typeof poseBones> = poseBones(
       body,
       read.samples[1],
-      resolution,
+      prepared.resolution(),
+      FEET,
     );
     const far: ReturnType<typeof poseBones> = poseBones(
       body,
       read.samples[2],
-      resolution,
+      prepared.resolution(),
+      FEET,
     );
     const foot: (side: "left" | "right") => IHumanEntryState.IFoot = (
       side: "left" | "right",
@@ -324,6 +331,7 @@ export namespace HumanSegmentEntry {
     previous: HumanSegment.ISegment | undefined,
     seconds: number,
     step: number,
+    prepared: prepareHumanSegmentPose.IPrepared,
   ): HumanSegmentPose.IContinued {
     const poses: Map<number, IAutoMoviePose> = new Map();
     const read: (t: number) => IAutoMoviePose = (t: number): IAutoMoviePose => {
@@ -331,8 +339,8 @@ export namespace HumanSegmentEntry {
       if (pose === undefined) {
         pose =
           previous === undefined
-            ? HumanSegmentPose.initial(person)
-            : HumanSegmentPose.of(person, previous, t);
+            ? HumanSegmentPose.initial(person, undefined, prepared)
+            : HumanSegmentPose.of(person, previous, t, prepared);
         poses.set(t, pose);
       }
       return pose;
@@ -366,10 +374,11 @@ export namespace HumanSegmentEntry {
     previous: HumanSegment.ISegment,
     seconds: number,
     blend: number,
+    prepared: prepareHumanSegmentPose.IPrepared,
   ): HumanSegmentPose.IContinued {
     return HumanSegmentPose.continued(
       (t: number, near?: HumanSegmentPose.INear): HumanSegmentPose.ISeeded =>
-        HumanSegmentPose.seeded(person, previous, t, near),
+        HumanSegmentPose.seeded(person, previous, t, near, prepared),
       seconds,
       "before",
       humanRig(person.performer.body),
@@ -377,3 +386,6 @@ export namespace HumanSegmentEntry {
     );
   }
 }
+
+/** Entry foot rates consume no world frames outside these two end bones. */
+const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);

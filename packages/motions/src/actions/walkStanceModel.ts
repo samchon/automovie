@@ -37,7 +37,7 @@ export namespace walkStanceModel {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure walkStanceGeometry owns prepared physical readings and walkStanceRows owns linear row topology; this builder alone assembles the course's residuals and nonlinear constraints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original residual, constraint order, landing-region sample, held-knot acceleration and physical bound without changing sample rate or tolerances.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each knot reads at most two legs and seven probes per leg when linearizing; clearance reuses those identical base/probe legs instead of posing them again, and merit reads request no gradient probes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact single-coordinate readings within the same sweep feed both each leg's own constraints and two-leg clearance; prepared goals and bounded pelvis/pivot/support readings share fixed problem geometry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact single-coordinate readings within the same sweep feed both each leg's own constraints and two-leg clearance; prepared goals and bounded pelvis/pivot/support readings share fixed problem geometry. A landing's complete x/z region-probe arrays are each read once and feed every bound component at those exact inputs.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned problem retains its initial vector and geometry/row closures, linear in knots for fixed foot geometry; per-knot gradient records release after each sweep and no history is retained.
    */
   export function of(
@@ -245,16 +245,19 @@ export namespace walkStanceModel {
             residual((here.x - landing.goal.x) / walkStanceTerms.PLACE, [d], [1 / walkStanceTerms.PLACE]);
             residual((here.z - landing.goal.z) / walkStanceTerms.PLACE, [d + 1], [1 / walkStanceTerms.PLACE]);
             const excess: number[] = landing.region(here);
+            const h: number = walkStanceTerms.STEPS[slideOf(s.side) % walkStanceTerms.WIDTH]!;
+            let probes: readonly [number[], number[]] | undefined;
+            const shifted: () => readonly [number[], number[]] = (): readonly [number[], number[]] =>
+              (probes ??= [
+                landing.region(ankle(x[d]! + h, x[d + 1]!)),
+                landing.region(ankle(x[d]!, x[d + 1]! + h)),
+              ]);
             excess.forEach((value: number, b: number): void => {
               constraint(value * lengthwise, [d, d + 1], (): number[] => {
-                const h: number = walkStanceTerms.STEPS[slideOf(s.side) % walkStanceTerms.WIDTH]!;
+                const [across, along]: readonly [number[], number[]] = shifted();
                 return [
-                  (landing.region(ankle(x[d]! + h, x[d + 1]!))[b]! - value) /
-                    h *
-                    lengthwise,
-                  (landing.region(ankle(x[d]!, x[d + 1]! + h))[b]! - value) /
-                    h *
-                    lengthwise,
+                  (across[b]! - value) / h * lengthwise,
+                  (along[b]! - value) / h * lengthwise,
                 ];
               });
             });

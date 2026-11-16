@@ -20,6 +20,7 @@ import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
 
@@ -97,24 +98,31 @@ export namespace HumanCarriedCouplingPose {
    * @param body The body.
    * @param posture The posture.
    * @param anchor The anchor bone.
-   * @returns The resolved bones, the anchor's among them.
+   * @param resolution Optional exact FK supplier borrowed only during this synchronous person's evaluation.
+   * @param requested Optional displayed outputs; omitted preserves the complete original bone map.
+   * @returns The resolved bones, restricted to requested outputs when supplied.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when.
    * @evidence contracts/development/implementation.md#principled-implementation A trunk bone stands from the root and the joints alone; a limb's stands where its fit puts it, so only then are the limbs fitted.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership test, one resolution.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb anchor is never read off the trunk-only resolution, whose limb bones stand at clinical zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics pass for a trunk anchor; the limb fits only for a limb anchor.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanTrunk.resolve`, `resolveHumanPosture` and `poseBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All authored joints still reach admission. A requested set limits final FK to actual outputs and ancestry; a limb anchor retains the complete original posture/arm/rival fits, with one borrowed exact reader shared by its solve and read-back.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical trunk/posture/FK owners remain shared. An explicitly borrowed reader shares only equal scalar prerequisites within one synchronous person evaluation; changed current postures still execute and return fresh maps.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An optional exact supplier is borrowed only until synchronous return or throw. A local lazy getter and temporary fitted pose are not retained; the caller owns fresh output bone records without a reader, body or query history captured in them.
    */
   export function bones(
     body: IHumanBody,
     posture: IHumanPosture,
     anchor: AutoMovieHumanoidBone,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return TRUNK.includes(anchor)
-      ? HumanTrunk.resolve(body, posture)
-      : poseBones(body, resolveHumanPosture(body, posture));
+    if (TRUNK.includes(anchor))
+      return HumanTrunk.resolve(body, posture, undefined, resolution, requested);
+    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+    return poseBones(body,
+      resolveHumanPosture.seeded(body, posture, undefined, {}, read).pose,
+      read(), requested);
   }
 
   /**

@@ -11,15 +11,16 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 import type { IHumanPosture } from "./IHumanPosture";
+import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
- * Checked transport of one cold canonical free-leg solve. Only the explicit
+ * Checked transport of one cold canonical free-leg solve or direct-joint projection. Only the explicit
  * producer's private evidence can lend that solve to a translated raw posture;
  * ordinary postures and copied/changed context retain ordinary resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States source provenance, free-leg scope, explicit transport and ordinary fallback.
- * @evidence contracts/development/design.md#principled-representation A private actual solution plus exact raw/rig prerequisites proves translation equivariance; raw authoring demands remain separate from achieved joint output.
+ * @evidence contracts/development/design.md#principled-representation A private actual solution plus exact raw/rig prerequisites proves free-leg translation equivariance or joint-only rigid placement independence; raw authoring demands remain separate from achieved joint output.
  * @evidence contracts/development/design.md#minimal-and-owned-surface prepare, translated, carried and read serve the resolver and its jump COM/display producer without a general pose cache or caller-set resolved flag.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Evidence is held in private weak maps keyed by exact issued objects; a spread, forged wrapper, changed body, scalar mutation, base or continued seed cannot certify a prepared solution.
  */
@@ -43,7 +44,7 @@ export namespace HumanPosturePreparation {
    * The producer calls the resolver's ordinary cold seeded path itself.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines cold producer provenance, raw snapshot, public/private copies and eligibility scope.
-   * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary resolver once before recording its exact solution; only finite free world-leg demands with no extra context are eligible for translation equivalence.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary resolver once before recording its exact solution; finite free world-leg demands with no extra context admit translation equivalence, while an empty limb set admits rigid placement of the same direct-joint projection.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns numerical admission/solving; this owner records raw/rig evidence and transfers fresh output observations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No prior time, quantized key, fitted target or manually asserted resolved state supplies the solution; unsupported source contexts remain ineligible and resolve normally after translation.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds linear source/result copying and one typed rig/table snapshot to the cold solve; consumption directly compares current scalar fields without rebuilding nested signature strings, and an eligible consumer removes duplicate IK without a measured speedup claim.
@@ -53,10 +54,14 @@ export namespace HumanPosturePreparation {
   export function prepare(
     body: IHumanBody,
     posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IPrepared {
     const solved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
       body,
       { ...posture },
+      undefined,
+      undefined,
+      resolution,
     );
     const raw: IHumanPosture = structuredClone(posture);
     const prepared: IPrepared = { pose: structuredClone(solved.pose) };
@@ -208,9 +213,9 @@ export namespace HumanPosturePreparation {
    * decline so the ordinary resolver admits and solves the current request.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines exact current context checks, fresh complete metadata and ordinary admission fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation A free-leg pose is equivariant under world translation; unchanged clinical/raw goal scalars, body/rig/table inputs and cold context prove that the source's actual joint/seed/value solution applies at the translated root.
+   * @evidence contracts/development/implementation.md#principled-implementation A free-leg pose is equivariant under world translation; exact clinical/raw/rig/table and cold-context checks prove its joint/seed/value solution. A joint-only source has placement-independent projection, so its current Euler root is constructed by the ordinary heading owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver checks base/near eligibility before this call; this owner checks issued evidence, exact current raw signature and live rig prerequisites before cloning the actual source solution.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Added or changed contacts, goals, joints, orientation, digits, layers/copies, topology, ROM, axes or rest frames decline reuse; original raw goals remain for audits and no acceptance bound or numerical result is invented.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changed contacts/goals/joints/digits, unsupported layers/copies or changed rig/table inputs decline reuse; free-leg sources also require identical orientation. Only empty-goal sources admit current Euler placement, with original heading arithmetic, untouched raw demands and unchanged acceptance bounds.
    * @evidence contracts/development/implementation.md#efficient-algorithms Checks raw joints/goals and live rig scalars against owned typed snapshots, then copies source pose/metadata in linear space; it removes eligible duplicate fitting and repeated rig serialization without a measured runtime claim.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Private evidence belongs to the exact candidate object and source body; its source numerical output is reused only after every supported mutable scalar dependency matches, with fresh nested output ownership.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Clones result records for the current caller and retains no returned output; source evidence remains weakly owned by its issued preparation/transported candidate and contains no FK reader, callback or external handle.

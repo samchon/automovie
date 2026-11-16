@@ -28,13 +28,33 @@ import { walkLegClearance } from "./walkLegClearance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every capsule is the body's own probes'.
  */
 export namespace walkLegCapsules {
-  /** The leg's four bones as posed, world frame (`walkLegClearance.placed`). */
+  /**
+   * The leg's requested posed bones, world frame; omitted demand reads all four.
+   *
+   * @param body The unchanged body supplying the foot-to-toes rest offset.
+   * @param leg The actual posed hip, knee, ankle and segment rotations.
+   * @param requested Optional canonical bone demand; a binding derivative requests only its actual probe or hull segment.
+   * @returns Fresh resolved-bone records in the original thigh/shank/foot/toes order, restricted only by explicit demand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world frames, actual leg geometry, optional canonical demand, full default and output order.
+   * @evidence contracts/development/implementation.md#principled-implementation Constructs the original four rigid leg frames; toes retain the exact foot-rotated rest-joint offset, and explicit demand omits only frames the collision consumer never reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolved-record constructor serves ordered thigh/shank/foot records and the conditionally required toe offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose fitting, contact, rotation or rest offset changes; omitted demand retains all four original records and absent names are not fabricated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for four possible bones; a bound derivative creates one actual record and avoids the unrelated toes-vector arithmetic unless toes are requested.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the body's existing canonical rest joints and the caller's actual solved leg; no posed record or queried result is reused across legs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call owns a fresh bounded map/records and retains no leg, demand, query history or external handle after its caller releases them.
+   */
   export function bones(
     body: IHumanBody,
     leg: walkLegClearance.ILeg,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const names: Record<string, AutoMovieHumanoidBone> = NAMES[leg.side];
-    const resolved = (
+    const resolved: (
+      bone: AutoMovieHumanoidBone,
+      position: IAutoMovieVector3,
+      rotation: IAutoMovieQuaternion,
+    ) => [AutoMovieHumanoidBone, IAutoMovieResolvedBone] = (
       bone: AutoMovieHumanoidBone,
       position: IAutoMovieVector3,
       rotation: IAutoMovieQuaternion,
@@ -47,11 +67,16 @@ export namespace walkLegCapsules {
         worldRotation: rotation,
       },
     ];
-    return new Map([
-      resolved(names.UpperLeg!, leg.hip, leg.thigh),
-      resolved(names.LowerLeg!, leg.knee, leg.shank),
-      resolved(names.Foot!, leg.ankle, leg.rotation),
-      resolved(
+    const out: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+    for (const [bone, position, rotation] of [
+      [names.UpperLeg!, leg.hip, leg.thigh],
+      [names.LowerLeg!, leg.knee, leg.shank],
+      [names.Foot!, leg.ankle, leg.rotation],
+    ] as const)
+      if (requested === undefined || requested.has(bone))
+        out.set(...resolved(bone, position, rotation));
+    if (requested === undefined || requested.has(names.Toes!))
+      out.set(...resolved(
         names.Toes!,
         Vector3.add(
           leg.ankle,
@@ -64,8 +89,8 @@ export namespace walkLegCapsules {
           ),
         ),
         leg.rotation,
-      ),
-    ]);
+      ));
+    return out;
   }
   /** A segment's bounding capsule (`capsules`). */
   export interface ICapsule {
@@ -113,7 +138,7 @@ export namespace walkLegCapsules {
         const matched: RegExpExecArray | null = LEG.exec(part.bone);
         if (matched === null) return;
         const joint: IAutoMovieVector3 = body.rest.get(part.bone)!;
-        const pose = m.rest[i]!.pose;
+        const pose: IAutoMoviePhysicalProfile.ITransform = m.rest[i]!.pose;
         const points: IAutoMovieVector3[] = part.probes.map(
           (probe: IAutoMovieVector3): IAutoMovieVector3 =>
             Vector3.subtract(
@@ -138,7 +163,7 @@ export namespace walkLegCapsules {
           for (const p of points)
             origin = Vector3.add(origin, Vector3.scale(p, 1 / points.length));
           // The principal direction by power iteration on the scatter.
-          const scatter = (v: IAutoMovieVector3): IAutoMovieVector3 => {
+          const scatter: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 => {
             let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
             for (const p of points) {
               const d: IAutoMovieVector3 = Vector3.subtract(p, origin);
@@ -276,7 +301,7 @@ export namespace walkLegCapsules {
    * The least distance between two segments (Ericson 2005, Real-Time Collision
    * Detection, 5.1.9).
    */
-  export const apart = (
+  export const apart: (p1: IAutoMovieVector3, q1: IAutoMovieVector3, p2: IAutoMovieVector3, q2: IAutoMovieVector3) => number = (
     p1: IAutoMovieVector3,
     q1: IAutoMovieVector3,
     p2: IAutoMovieVector3,
@@ -288,7 +313,7 @@ export namespace walkLegCapsules {
     const a: number = Vector3.dot(d1, d1);
     const e: number = Vector3.dot(d2, d2);
     const f: number = Vector3.dot(d2, r);
-    const clamp = (v: number): number => Math.min(1, Math.max(0, v));
+    const clamp: (v: number) => number = (v: number): number => Math.min(1, Math.max(0, v));
     let s: number;
     let t: number;
     if (a <= 1e-12 && e <= 1e-12) {

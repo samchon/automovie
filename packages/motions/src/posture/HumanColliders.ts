@@ -301,10 +301,10 @@ export namespace HumanColliders {
    * @returns The least world Y of every collider, metres.
    * @throws {Error} When the profile has no shape.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Reduces actual world-axis bounds minima over every currently placed profile shape using the engine's single bounds owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement and one ordered shape-minimum sweep supply the floor height.
+   * @evidence contracts/development/implementation.md#principled-implementation Reduces each currently placed profile shape's actual minimum world Y using the engine bounds owner's same shape formula, frame composition and hull vertex order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement and ordered shape-minimum sweep use the scalar lowest observation of the same physicalShapeBounds owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every shape, the original Math.min sequence and empty-profile refusal without substituting candidate approximations or a contact tolerance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds O(S) placement to each shape's bounds cost; hull bounds retain their vertex scans and no previous posture's minimum is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds O(S) placement to fixed work for each primitive shape or O(V) for a V-vertex hull. The scalar owner omits unused X/Z/max extrema and records while retaining every Y expression/comparison; no previous posture's minimum is reused.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same placement/bounds owners as floor readers while freshly computing the supplied current pose's minimum.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no current pose, shape or bounds array.
    * @evidence contracts/development/common.md#meaningful-documentation Defines exact bounds reduction, world Y units, shape coverage and empty-profile behavior.
@@ -316,7 +316,7 @@ export namespace HumanColliders {
     let low: number = Infinity;
     for (const { pose, shapes } of placed(body, bones))
       for (const shape of shapes)
-        low = Math.min(low, physicalShapeBounds(pose, shape).min.y);
+        low = Math.min(low, physicalShapeBounds.lowest(pose, shape));
     if (low === Infinity)
       throw new Error("A body without colliders has no lowest point");
     return low;

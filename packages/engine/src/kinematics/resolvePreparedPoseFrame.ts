@@ -13,14 +13,16 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * parent position and rest offset must be an own-data value held unchanged
  * by prepareSkeletonPoseResolution. Public outputs are cloned by that owner;
  * this function may update the prior private row and its frame in place.
+ * readRest lends an actually computed immutable rig-rest row into independent
+ * operation storage after its owner proves the current operands are that rest.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines immutable private operands, internal row mutation, the public cloning boundary and IReading's frame, parent operand and rotated metre-offset roles below.
- * @evidence contracts/development/implementation.md#principled-implementation Preserves ordinary FK's parent-times-local quaternion product and parent position plus the parent-rotated rest offset. A local rotation cannot move its own origin; a parent translation changes only the sum, so unchanged private operand identities justify reusing that pure rotation/offset work.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner composes both root-relative and placed prepared frames; dependency revisions and demanded hierarchy remain in prepareSkeletonPoseResolution.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines immutable private operands, internal row mutation, genuine static-rest borrowing, independent operation storage, the public cloning boundary and IReading's operand/offset roles below.
+ * @evidence contracts/development/implementation.md#principled-implementation Preserves ordinary FK's parent-times-local quaternion product and parent position plus the parent-rotated rest offset. A local rotation cannot move its own origin; a parent translation changes only the sum. readRest reuses the actual completed same-operand rest computation only after the owning rig proves current rest/ancestor operands, copying its immutable numerical references into separate mutable operation storage.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner composes root-relative/placed frames and borrows genuinely computed static-rest values. The prepared rig alone owns rest eligibility, dependency revisions and demanded hierarchy.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Identity equivalence is limited to actual private immutable values supplied by the prepared producer, never raw caller objects or a user-set admission flag. No rotation normalization, tolerance, scale convention or arithmetic reassociation is added.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per changed frame. Unchanged parent rotation shares its rotated rest offset; unchanged local and parent rotations share the world quaternion; unchanged parent placement shares world position. First demand allocates one row/frame, later updates reuse them. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller owns fixed rest data and private immutable local/parent records. Exact identity proves equal scalars only under that producer's premise. This row stores the actual private operands and rotated offset, so translation-only root or ancestor changes require only the original vector addition.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One row holds one frame, two private parent operand references and one rotated offset, bounded per demanded rig bone by the operation's owner. No public result, raw pose, source rig, history, task or handle is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per changed frame. Equal parent rotation shares its rotated offset; equal local/parent rotations share the world quaternion; equal parent placement shares world position. Actual static-rest borrowing performs only constant field copies across operations. First demand allocates independent row/frame storage, later updates reuse it. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed rest data/private operands belong to the producer. Exact private identity proves equal values only under that immutable premise. A genuine rig-rest row contains the actual completed neutral computation, never a claimed resolved flag, and readRest shares only its fixed numerical operands/results without lending its mutable container.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each row owns one frame, parent operand references and rotated offset. Static rest rows end with the immutable rig; independent operation containers end with that reader, sharing no operation row back into the rig. No public result, raw pose, history, task or handle is retained.
  */
 export function resolvePreparedPoseFrame(
   bone: AutoMovieHumanoidBone,
@@ -60,6 +62,25 @@ export function resolvePreparedPoseFrame(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Operand references are actual private immutable producer values, never shape-based trust, raw caller identity or a special rig. No time, target, chosen solution, admission flag or unbounded result history is represented.
  */
 export namespace resolvePreparedPoseFrame {
+  /**
+   * Borrow actual immutable rig-rest values after the producer proves current
+   * identity articulation and the exact static parent rotation/position.
+   * Constant field copies preserve computed arithmetic and signed zeros; no
+   * raw pose or caller flag is admitted here. Mutable frame/row containers
+   * remain independent of the static row, and public outputs are still cloned
+   * by the operation owner. Release this row with that operation.
+   */
+  export function readRest(rest: IReading, known?: IReading): IReading {
+    if (known === undefined) return { ...rest, frame: { ...rest.frame } };
+    known.frame.localRotation = rest.frame.localRotation;
+    known.frame.worldRotation = rest.frame.worldRotation;
+    known.frame.worldPosition = rest.frame.worldPosition;
+    known.parentRotation = rest.parentRotation;
+    known.parentPosition = rest.parentPosition;
+    known.offset = rest.offset;
+    return known;
+  }
+
   /**
    * Mutable private storage whose referenced numerical operands remain immutable.
    *

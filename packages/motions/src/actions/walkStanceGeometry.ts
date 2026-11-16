@@ -45,8 +45,8 @@ export namespace walkStanceGeometry {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Goal construction is shared by planted and read; prepared sole/load data serve support, while walkStanceOutline owns polygon mathematics.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original heading, twist, support clipping, load interpolation and reach-shell behavior with unchanged thresholds and body measures.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is linear in knots and their fixed foot outlines. A planted read performs only its requested goal geometry; a full read additionally poses one leg, and support forms the original two-sole hull.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot shares three exact pitch/roll pelvis readings; each stance shares five exact pitch/turn/slide pivot readings and six exact clipped support regions under its fixed placement. Public planted outputs copy pivot records, fixed outlines/loads retain their original inputs, and full readings always read current held swivels.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains fixed per-knot geometry, three pelvis records per knot and at most five pivot plus six clipped-region records per stance, O(k) for bounded sole size, released with its closure; no query history or global cache grows.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot shares three exact pitch/roll pelvis readings; each stance shares five exact pitch/turn/slide pivot readings, their identical nonpitch rigid-pivot preparation, and six clipped support regions. Four fixed pelvis/hip sources share hinge invariants, pelvis inverse and heading; Object.is compares every quaternion/hip scalar while every changed target/branch/swivel is posed anew. Public planted rotations/placements and posed source hips are copied so output mutation cannot alter private preparation, and full readings always read current held swivels.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains fixed per-knot geometry, three pelvis records per knot and at most five pivot, six clipped-region and four fixed leg-source records per stance, O(k) for bounded sole size, released with its closure; no posed-leg answer, query history or global cache grows.
    */
   export function of(
     body: IHumanBody,
@@ -113,7 +113,7 @@ export namespace walkStanceGeometry {
     const pelvisAt: (k: number, pitch: number, roll: number) => walkStanceCourse.IPelvis = (k: number, pitch: number, roll: number): walkStanceCourse.IPelvis => {
       const entries: (typeof pelves)[number] = pelves[k]!;
       const kept: (typeof entries)[number] | undefined = entries.find(
-        (entry: (typeof entries)[number]): boolean => entry.pitch === pitch && entry.roll === roll,
+        (entry: (typeof entries)[number]): boolean => Object.is(entry.pitch, pitch) && Object.is(entry.roll, roll),
       );
       if (kept !== undefined)
         return kept.pelvis;
@@ -131,6 +131,7 @@ export namespace walkStanceGeometry {
       dz: number;
       foot: HumanFoot.IPlacement;
       heading: number;
+      at: ReturnType<typeof HumanFoot.preparePivot>;
     };
     const pivots: IPivot[][][] = knots.map(
       (knot: walkStanceCourse.IKnot): IPivot[][] => knot.stances.map((): IPivot[] => []),
@@ -149,13 +150,25 @@ export namespace walkStanceGeometry {
         (entry: IPivot): boolean => Object.is(entry.pitch, pitch) && Object.is(entry.turn, turn) && Object.is(entry.dx, dx) && Object.is(entry.dz, dz),
       );
       if (known !== undefined) return known;
-      const placement: HumanFoot.IPlacement = HumanFoot.turned(
-        walkStanceOutline.slid(s.placement, dx, dz), turn,
+      const rigid: IPivot | undefined = entries.find(
+        (entry: IPivot): boolean => Object.is(entry.turn, turn) && Object.is(entry.dx, dx) && Object.is(entry.dz, dz),
       );
-      const heading: number = HumanFoot.heading(placement.rotation);
+      let heading: number;
+      let at: ReturnType<typeof HumanFoot.preparePivot>;
+      if (rigid !== undefined) {
+        heading = rigid.heading;
+        at = rigid.at;
+      } else {
+        const placement: HumanFoot.IPlacement = HumanFoot.turned(
+          walkStanceOutline.slid(s.placement, dx, dz), turn,
+        );
+        heading = HumanFoot.heading(placement.rotation);
+        at = HumanFoot.preparePivot(
+          body, s.side, "mtp", HumanFoot.point(body, s.side, "mtp", placement), heading,
+        );
+      }
       const made: IPivot = {
-        pitch, turn, dx, dz, heading,
-        foot: HumanFoot.pivot(body, s.side, "mtp", HumanFoot.point(body, s.side, "mtp", placement), heading, pitch),
+        pitch, turn, dx, dz, heading, at, foot: at(pitch),
       };
       if (entries.length === 5) entries.shift();
       entries.push(made);
@@ -183,13 +196,47 @@ export namespace walkStanceGeometry {
       const pivoted: IPivot = footAt(x, k, j);
       return {
         side: s.side,
-        pelvis: pelvis.rotation,
+        pelvis: { ...pelvis.rotation },
         hip,
         ankle: { ...pivoted.foot.ankle },
         rotation: { ...pivoted.foot.rotation },
         heading: pivoted.heading,
         drop: x[o]!,
       };
+    };
+
+    /** An exact source preparation, independent of target and held swivel. */
+    type ISource = {
+      pelvis: IAutoMovieQuaternion;
+      hip: IAutoMovieVector3;
+      pose: ReturnType<typeof HumanLegChain.prepare>;
+      inverse: IAutoMovieQuaternion;
+      heading: number;
+    };
+    const sources: ISource[][][] = knots.map(
+      (knot: walkStanceCourse.IKnot): ISource[][] => knot.stances.map((): ISource[] => []),
+    );
+    const sourceAt: (k: number, j: number, p: walkStanceCourse.IPlanted) => ISource = (
+      k: number, j: number, p: walkStanceCourse.IPlanted,
+    ): ISource => {
+      const entries: ISource[] = sources[k]![j]!;
+      const known: ISource | undefined = entries.find(
+        (entry: ISource): boolean => Object.is(entry.pelvis.x, p.pelvis.x) &&
+          Object.is(entry.pelvis.y, p.pelvis.y) && Object.is(entry.pelvis.z, p.pelvis.z) &&
+          Object.is(entry.pelvis.w, p.pelvis.w) && Object.is(entry.hip.x, p.hip.x) &&
+          Object.is(entry.hip.y, p.hip.y) && Object.is(entry.hip.z, p.hip.z),
+      );
+      if (known !== undefined) return known;
+      const pelvis: IAutoMovieQuaternion = { ...p.pelvis };
+      const hip: IAutoMovieVector3 = { ...p.hip };
+      const made: ISource = {
+        pelvis, hip, pose: HumanLegChain.prepare(body, p.side, pelvis, hip),
+        inverse: Quaternion.inverse(pelvis),
+        heading: HumanFoot.heading(pelvis),
+      };
+      if (entries.length === 4) entries.shift();
+      entries.push(made);
+      return made;
     };
 
     // A stance's full constraint reading extends the same planted goals;
@@ -228,10 +275,10 @@ export namespace walkStanceGeometry {
       // the leg cannot reach stands on its reachable shell along the line to
       // the ankle (`hingedArmSwivel.branches`), as the shown leg does, and
       // the reach's own constraint answers for the excess.
-      const posed: HumanLegChain.IPosed | null =
-        swivel === undefined
-          ? null
-          : HumanLegChain.pose(body, s.side, plant.pelvis, hip, ankle, swivel);
+      const source: ISource | undefined = swivel === undefined ? undefined : sourceAt(k, j, plant);
+      const posed: HumanLegChain.IPosed | null = source === undefined
+        ? null
+        : source.pose(ankle, swivel!);
       const held: IAutoMovieVector3 = posed?.ankle ?? ankle;
       const forward: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
@@ -250,16 +297,16 @@ export namespace walkStanceGeometry {
           body,
           { x: 0, y: 0, z: 0 },
           Quaternion.rotateVector(
-            Quaternion.inverse(plant.pelvis),
+            source?.inverse ?? Quaternion.inverse(plant.pelvis),
             Vector3.subtract(held, hip),
           ),
           0,
         ),
-        twist: wrapDegrees(heading - HumanFoot.heading(plant.pelvis)),
+        twist: wrapDegrees(heading - (source?.heading ?? HumanFoot.heading(plant.pelvis))),
         leg:
           posed === null
             ? null
-            : { ...posed, side: s.side, rotation: plant.rotation },
+            : { ...posed, hip: { ...posed.hip }, side: s.side, rotation: plant.rotation },
         planted: plant,
       };
     };

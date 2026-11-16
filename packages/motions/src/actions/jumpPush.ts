@@ -16,6 +16,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpPath } from "./jumpPath";
 import { jumpPushEnd } from "./jumpPushEnd";
@@ -158,9 +159,9 @@ export namespace jumpPush {
      * @evidence contracts/development/implementation.md#principled-implementation jumpPush.of supplies the existing heel/forefoot rocker and carried reaching leg; the exact end delegates to the shared jumpPushEnd producer where all entry-rate terms vanish.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Write the shared terminal state or the existing interior pelvis, support and reaching goals.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves physical plant/contact and actual heel rule through release; flight independently starts from the achieved state rather than a fixed-angle substitute.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One heel-rule read and fixed goal writes per call; no FK or alternate solver is introduced here.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoint preparation and normal playback share jumpPushEnd; the phase sample supplies the same root/pelvis/yaw/progress already used by arm assembly, while jumpPushPosture still owns lowering.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the provided fresh records; its closure borrows immutable plan geometry and holds no external handle.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One actual hip-ancestry FK read, original heel-rule search and fixed goal writes remain per call. A supplied lazy workspace can share exactly unchanged hip dependencies with the following lowering; no alternative solver is introduced and speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoint preparation and playback share jumpPushEnd; the phase sample supplies the same root/pelvis/yaw/progress already used by arm assembly. The optional synchronous getter is passed only to actual hip FK; jumpPushPosture owns the same workspace and lowering.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the provided fresh records; its closure borrows immutable plan geometry and retains neither the optional query getter/reader nor an external handle.
      */
     write: (
       phase: IPhase,
@@ -168,6 +169,7 @@ export namespace jumpPush {
         Record<AutoMovieHumanoidBone, readonly [number, number, number]>
       >,
       limbs: IHumanPosture["limbs"],
+      resolution?: ReturnType<typeof prepareHumanPoseResolution>,
     ) => void;
   }
 
@@ -293,7 +295,7 @@ export namespace jumpPush {
       entry.velocity.joints.get("hips") ?? [0, 0, 0];
     const turning: number = (entry.velocity.angular.y * 180) / Math.PI;
     const sample: (t: number) => IPhase = (t: number): IPhase => {
-      const s: number = minimumJerk(t / P).s;
+      const s: number = minimumJerk.share(t / P);
       const k: number = carry(t);
       return {
         seconds: t, root: rootAt(t), progress: s, carry: k,
@@ -333,11 +335,11 @@ export namespace jumpPush {
     // The flat foot's heel then rises by the rule a walking stance rises by:
     // asked from flat to its take-off pitch, and no later than the ankle's
     // dorsal limit asks. A foot the walk held by that rule is met by it.
-    const ruled: (phase: IPhase) => number = (phase: IPhase): number =>
+    const ruled: (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>) => number = (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>): number =>
       heelRise(
         hipJoints(body, phase.root,
-          resolveHumanPosture.heading({ yaw: phase.yaw, pitch: 0, roll: 0 }), phase.pelvis)[takeoff],
-        Math.min(start, -40) * minimumJerk((phase.seconds - lowered) / span).s,
+          resolveHumanPosture.heading({ yaw: phase.yaw, pitch: 0, roll: 0 }), phase.pelvis, resolution?.())[takeoff],
+        Math.min(start, -40) * minimumJerk.share((phase.seconds - lowered) / span),
       );
     // What the entry's pitch and pitch rate differ from the rule's by is
     // eased out over the rise. A heel coming down about the ball is carried
@@ -350,14 +352,14 @@ export namespace jumpPush {
       (-3 * met + 4 * ruled(sample(lowered + 1e-3)) - ruled(sample(lowered + 2e-3))) / 2e-3;
     const carried: number =
       excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
-    const pitchAt: (phase: IPhase) => number = (phase: IPhase): number => {
+    const pitchAt: (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>) => number = (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>): number => {
       const t: number = phase.seconds;
       return (
         t < lowered
-          ? supportPitch * (1 - minimumJerk(t / lowered).s) +
+          ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
             rolling * carriedRate(lowered, t)
-          : ruled(phase) +
-            gap * (1 - minimumJerk((t - lowered) / span).s) +
+          : ruled(phase, resolution) +
+            gap * (1 - minimumJerk.share((t - lowered) / span)) +
             (carried > 1e-6 ? excess * carriedRate(carried, t - lowered) : 0)
       );
     };
@@ -369,11 +371,12 @@ export namespace jumpPush {
         phase: IPhase,
         joints: IHumanPosture["joints"],
         limbs: IHumanPosture["limbs"],
+        resolution?: ReturnType<typeof prepareHumanPoseResolution>,
       ): void => {
         const t: number = phase.seconds;
         const root: IAutoMovieVector3 = phase.root;
         if (t >= P) {
-          const end: Pick<IHumanPosture, "joints" | "limbs"> = jumpPushEnd(props, root);
+          const end: Pick<IHumanPosture, "joints" | "limbs"> = jumpPushEnd(props, root, resolution);
           Object.assign(joints, end.joints);
           Object.assign(limbs, end.limbs);
           return;
@@ -382,7 +385,7 @@ export namespace jumpPush {
         // Push-off: the take-off foot rolls over its ball; the reaching leg withdraws under the body.
         // From the entry's own pitch and pitch rate, so a foot rolling on
         // its heel or its ball keeps rolling.
-        const pitch: number = pitchAt(phase);
+        const pitch: number = pitchAt(phase, resolution);
         const about: "heel" | "mtp" = t < lowered ? "heel" : "mtp";
         const foot: HumanFoot.IPlacement = about === "heel" ? heelAt!(pitch) : ballAt(pitch);
         limbs[`${takeoff}Leg`] = {

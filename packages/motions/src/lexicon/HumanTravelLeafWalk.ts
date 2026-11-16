@@ -95,7 +95,7 @@ export namespace HumanTravelLeafWalk {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the plan and retains nothing.
    */
   export function plan(props: IProps): IHumanActionPlan | null {
-    const { context, seconds, take } = props;
+    const { context, seconds, take }: IProps = props;
     const entry: IHumanActionContext["entry"] = context.entry;
     const yaw0: number = entry.posture.yaw;
     const mid0: IAutoMovieVector3 = {
@@ -107,9 +107,10 @@ export namespace HumanTravelLeafWalk {
       (Math.atan2(v.x, v.z) * 180) / Math.PI;
     const turned: (from: number, to: number) => number = (from: number, to: number): number =>
       ((((to - from) % 360) + 540) % 360) - 180;
+    const yaw: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
     const yawY: (v: IAutoMovieVector3, degrees: number) => IAutoMovieVector3 = (v: IAutoMovieVector3, degrees: number): IAutoMovieVector3 =>
       Quaternion.rotateVector(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
+        yaw(degrees),
         v,
       );
     const taken: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
@@ -181,7 +182,7 @@ export namespace HumanTravelLeafWalk {
     // behind it: at each second the body has gone the share of its way the
     // stance it asks has gone of its own, and once the leaf rests the walk
     // closes at its own pace.
-    const travelled = (
+    const travelled: (at: (t: number) => IAutoMovieVector3, to: number) => number[] = (
       at: (t: number) => IAutoMovieVector3,
       to: number,
     ): number[] => {

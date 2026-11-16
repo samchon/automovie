@@ -25,7 +25,7 @@ import { HumanBalance } from "./HumanBalance";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelClock } from "./prepareKneelClock";
-import { prepareKneelFoot } from "./prepareKneelFoot";
+import { prepareKneelPhases } from "./prepareKneelPhases";
 
 /**
  * Kneeling from standing: on one knee (half kneel), on both knees upright,
@@ -217,28 +217,13 @@ export namespace kneel {
 
     // A foot between two keys: pivoting on its toes' joint when that stays,
     // swinging on an arc when it moves.
-    const feetAt: Record<
-      "left" | "right",
-      ReturnType<typeof prepareKneelFoot>
-    >[] = phases.map(
-      (
-        phase: IPhase,
-      ): Record<"left" | "right", ReturnType<typeof prepareKneelFoot>> => ({
-        left: prepareKneelFoot(
-          body,
-          "left",
-          keys[phase.from]!.feet.left,
-          keys[phase.to]!.feet.left,
-          CLEARANCE * m.shank,
-        ),
-        right: prepareKneelFoot(
-          body,
-          "right",
-          keys[phase.from]!.feet.right,
-          keys[phase.to]!.feet.right,
-          CLEARANCE * m.shank,
-        ),
-      }),
+    const geometry: ReturnType<typeof prepareKneelPhases> = prepareKneelPhases(
+      body,
+      keys,
+      phases,
+      CLEARANCE * m.shank,
+      solved.pivot,
+      kind === "sitBack",
     );
 
     // The body at a second. While it stands on its feet (the step and the
@@ -257,8 +242,8 @@ export namespace kneel {
       const a: kneelKeys.IKey = keys[phase.from]!;
       const b: kneelKeys.IKey = keys[phase.to]!;
       const feet = {
-        left: feetAt[index]!.left(u),
-        right: feetAt[index]!.right(u),
+        left: geometry[index]!.feet.left(u),
+        right: geometry[index]!.feet.right(u),
       };
       const pair: number = phase.from + phase.to;
       let root: IAutoMovieVector3;
@@ -316,8 +301,8 @@ export namespace kneel {
           },
           solved.forward,
         );
-      } else if (kind === "sitBack" && Math.max(phase.from, phase.to) === 4) {
-        root = kneelKeys.turn(solved.pivot, a.root, b.root, u);
+      } else if (geometry[index]!.root !== undefined) {
+        root = geometry[index]!.root!(u);
       } else root = Vector3.lerp(a.root, b.root, u);
       const placed: IHumanPosture = AutoMovieMotionHumanLean.tip(
         body,

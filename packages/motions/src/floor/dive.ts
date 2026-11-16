@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -14,6 +15,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
@@ -61,7 +63,14 @@ export namespace dive {
     any: [{ window: ["landed", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** The kinds. */
+  /**
+   * The deliberate side flight and grounded forward slide variants.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two existing movement/contact families; their metre ratios, angles and phase seconds belong to the shared tables.
+   * @evidence contracts/development/design.md#principled-representation A closed literal union selects the original joint table, root path, single rotation axis and support timing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The law's optional kind parameter accepts exactly these variants, defaulting to dive.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no body selector, solver mode, tolerance, alternate target or hidden movement kind.
+   */
   export type Kind = "dive" | "slide";
 
   /** Each kind's joint angles at full extent, clinical degrees, for a dive to the performer's left; a dive to the right mirrors the arms (provisional). */
@@ -138,17 +147,17 @@ export namespace dive {
    * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by planted leg goals, so the lowered root bends the knees; the flight starts from the crouch's solved joints (`GymnasticsFlight.frozen`), so the pose is continuous at take-off; the flight's root is a parabola over the chord from take-off to the landed root, which is read off the landed body's lowest joint; the turn is about the one axis the kind names.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the landed root, the three phases, the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two posture resolves at plan time and up to two per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver's heading and the entry's feet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the landed root.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare target start/difference triples and actual ankle/hip name demand once. Crouch observations retain complete direct admission but resolve only supported goals that can affect requested ankle ancestry; start-hip observation omits independent leg fits. The landing still scans every joint centre and displayed goals still receive full resolution; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Two immutable articulation sources prepare their own exact target differences: entered joints for crouch and actually solved launch joints for flight. Body-owned fixed-demand FK and an explicitly scoped source share only unchanged dependencies; original digit/unsupported constraints retain the resolver's conservative full fallback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original entry, two bounded interpolation-track readers, fixed ankle/hip demands and landed geometry. Query getters/maps release on return or throw; a borrowed workspace stays with its synchronous parent and never enters returned raw postures or retained callbacks. No previous-query results, handles or tasks are retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const body = context.body;
+    const body: IHumanBody = context.body;
     const kind: Kind = context.params.kind ?? "dive";
     const toLeft: number = (context.params.side ?? "left") === "left" ? 1 : -1;
-    const feet = context.entry.feet;
+    const feet: IHumanActionContext<IParams>["entry"]["feet"] = context.entry.feet;
     if (!(feet.left.planted && feet.right.planted))
       throw new HumanRefusal({
         kind: "base",
@@ -160,7 +169,7 @@ export namespace dive {
       });
     const entry: IHumanPosture = context.entry.posture;
     const stature: number = body.measure.stature;
-    const [crouch, travel, rest] = PHASES[kind];
+    const [crouch, travel, rest]: readonly [number, number, number] = PHASES[kind];
     const ankles: IAutoMovieVector3 = {
       x: (feet.left.ankle.x + feet.right.ankle.x) / 2,
       y: (feet.left.ankle.y + feet.right.ankle.y) / 2,
@@ -186,7 +195,7 @@ export namespace dive {
         readonly [number, number, number],
       ][]
     ).map(
-      ([bone, angles]): [
+      ([bone, angles]: [AutoMovieHumanoidBone, readonly [number, number, number]]): [
         AutoMovieHumanoidBone,
         readonly [number, number, number],
       ] => [
@@ -198,38 +207,44 @@ export namespace dive {
         angles,
       ],
     );
-    const shape = (
-      share: number,
-      turn: number,
-      from: IHumanPosture["joints"] = entry.joints,
-    ): IHumanPosture => {
-      const joints: IHumanPosture["joints"] = { ...from };
+    const prepareShape: (from: IHumanPosture["joints"]) => ShapeReader = (from: IHumanPosture["joints"]): ShapeReader => {
+      const tracks: ShapeTrack[] = [];
       for (const [mirrored, angles] of targets) {
         const was: readonly [number, number, number] = from[mirrored] ?? [
           0, 0, 0,
         ];
-        joints[mirrored] = [
-          was[0] + (angles[0] - was[0]) * share,
-          was[1] + (angles[1] - was[1]) * share,
-          was[2] + (angles[2] - was[2]) * share,
-        ];
+        tracks.push({
+          bone: mirrored,
+          from: [was[0], was[1], was[2]],
+          delta: [angles[0] - was[0], angles[1] - was[1], angles[2] - was[2]],
+        });
       }
-      return {
-        ...entry,
-        root: { x: 0, y: 0, z: 0 },
-        joints,
-        limbs: {},
-        ...(kind === "dive"
-          ? { roll: entry.roll - toLeft * turn }
-          : { pitch: entry.pitch + turn }),
+      return (share: number, turn: number): IHumanPosture => {
+        const joints: IHumanPosture["joints"] = { ...from };
+        for (const track of tracks)
+          joints[track.bone] = [
+            track.from[0] + track.delta[0] * share,
+            track.from[1] + track.delta[1] * share,
+            track.from[2] + track.delta[2] * share,
+          ];
+        return {
+          ...entry,
+          root: { x: 0, y: 0, z: 0 },
+          joints,
+          limbs: {},
+          ...(kind === "dive"
+            ? { roll: entry.roll - toLeft * turn }
+            : { pitch: entry.pitch + turn }),
+        };
       };
     };
-    const ankleMid = (posture: IHumanPosture): IAutoMovieVector3 => {
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture(body, posture),
-        undefined,
-        FEET,
+    const shape: ShapeReader = prepareShape(entry.joints);
+    const readAnkles: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, FEET);
+    const ankleMid: (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieVector3 = (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieVector3 => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const bones: ReturnType<typeof poseBones> = readAnkles(
+        resolveHumanPosture.seeded(body, posture, undefined, undefined, read, FEET).pose,
+        read(),
       );
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
@@ -239,9 +254,9 @@ export namespace dive {
     // Take-off: crouched on the feet, a third of the way into the shape. The
     // root goes down with the legs planted on the entry's feet, so the knees
     // bend under it instead of the straight legs sinking into the floor.
-    const crouched = (share: number): IHumanPosture => {
+    const crouched: (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
       const posture: IHumanPosture = shape(share / 3, 0);
-      const local: IAutoMovieVector3 = ankleMid(posture);
+      const local: IAutoMovieVector3 = ankleMid(posture, resolution);
       return AutoMovieMotionHumanTrunk.planted(
         body,
         {
@@ -269,11 +284,12 @@ export namespace dive {
       body,
       takeoff,
     ).joints;
+    const launchShape: ShapeReader = prepareShape(launch);
 
     // Landed: the full shape, its lowest joint at the ankles' height, the
     // hips joint `REACH` statures from where it took off (the turn moves the
     // hips about the root, so the root is placed for the hips).
-    const landedShape: IHumanPosture = shape(1, TURN[kind], launch);
+    const landedShape: IHumanPosture = launchShape(1, TURN[kind]);
     const landedBones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, landedShape),
@@ -281,10 +297,11 @@ export namespace dive {
     let lowest: number = Infinity;
     for (const bone of landedBones.values())
       lowest = Math.min(lowest, bone.worldPosition.y);
-    const hips = (posture: IHumanPosture): IAutoMovieVector3 =>
-      poseBones(body, resolveHumanPosture(body, posture), undefined, HIPS).get(
-        "hips",
-      )!.worldPosition;
+    const readHips: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, HIPS);
+    const hips: (posture: IHumanPosture) => IAutoMovieVector3 = (posture: IHumanPosture): IAutoMovieVector3 => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      return readHips(resolveHumanPosture.seeded(body, posture, undefined, undefined, read, HIPS).pose, read()).get("hips")!.worldPosition;
+    };
     const startHips: IAutoMovieVector3 = hips(takeoff);
     const landedHips: IAutoMovieVector3 =
       landedBones.get("hips")!.worldPosition;
@@ -295,7 +312,7 @@ export namespace dive {
     };
 
     const duration: number = crouch + travel + rest;
-    const share = (seconds: number): number => seconds / duration;
+    const share: (seconds: number) => number = (seconds: number): number => seconds / duration;
     const contacts: IHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).map(
         (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
@@ -332,13 +349,13 @@ export namespace dive {
         { name: "landed", share: share(crouch + travel) },
       ],
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= crouch) return crouched(minimumJerk(t / crouch).s);
+        if (t <= crouch) return crouched(minimumJerk.share(t / crouch), resolution);
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
-        const s: number = kind === "dive" ? u : minimumJerk(u).s;
-        const posture: IHumanPosture = shape(s, TURN[kind] * s, launch);
+        const s: number = kind === "dive" ? u : minimumJerk.share(u);
+        const posture: IHumanPosture = launchShape(s, TURN[kind] * s);
         const rise: number =
           kind === "dive" ? 4 * APEX * stature * u * (1 - u) : 0;
         return {
@@ -361,4 +378,17 @@ export namespace dive {
 
   /** The planned travel is stated at the hips joint. */
   const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);
+
+  /** One changing share/turn of a fixed entered or solved-launch articulation. */
+  type ShapeReader = (share: number, turn: number) => IHumanPosture;
+
+  /** One mirrored target's fixed clinical start and difference, both in degrees. */
+  interface ShapeTrack {
+    /** The actual mirrored rig joint. */
+    bone: AutoMovieHumanoidBone;
+    /** The source clinical triple. */
+    from: readonly [number, number, number];
+    /** Target minus source, with the original subtraction grouping. */
+    delta: readonly [number, number, number];
+  }
 }

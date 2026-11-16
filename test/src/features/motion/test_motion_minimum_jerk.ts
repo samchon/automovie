@@ -2,7 +2,9 @@ import { minimumJerk, superposeMinimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
 /**
  * Minimum-jerk units and their superposition reach their goals at rest and
@@ -21,15 +23,22 @@ import { throwsError } from "../internal/throwsError";
  *    instant and at the first unit's end: one-sided values 1e-6 s apart differ
  *    by no more than their derivatives times that step.
  * 5. A non-finite time and a non-positive duration throw.
+ * 6. Scalar-only share evaluates the same specified quintic independently:
+ *    quarter/half/three-quarter values are53/512,1/2,459/512 in any query
+ *    order. Finite outside values hold; NaN and either infinity refuse.
+ * 7. Position-only superposition at0.5s combines half of one unit and53/512
+ *    of another, giving(309/128,117/64,587/128)m. Endpoint/reverse reads and
+ *    output mutation preserve current points. Empty units still clone the
+ *    origin without time admission; invalid durations retain their refusal.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public profile and superposition and reads positions, velocities and accelerations; a profile with nonzero end derivatives, a unit summed with the wrong sign or scale, or a seam at a unit boundary fails.
- * @evidence contracts/development/testing.md#independent-expectations The quintic's values follow from its definition s = 10u^3 - 15u^4 + 6u^5 (s(1/2) = 1/2, s'(1/2) = 15/8); the end state of superposed units is the origin plus every displacement by linearity; continuity is checked against finite differences of the same function.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers the ends, the middle, a nonzero and a zero redirection, both unit boundaries and invalid input.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates public full/scalar profiles and complete/position-only superposition. It reads shares, positions, velocities and accelerations and checks current literal points, output ownership and admission: nonzero end derivatives, a wrong scalar polynomial, dropped unit, altered refusal, wrong sign/scale or a boundary seam fails.
+ * @evidence contracts/development/testing.md#independent-expectations The quintic s=10u^3-15u^4+6u^5 gives53/512,1/2,459/512 at quarter/half/three-quarter time and s'(1/2)=15/8. Those rational values independently specify the scalar reader rather than copying full.s. At0.5s, adding(2,-2,4)/2 and(4,8,-4)*53/512 to(1,2,3) fixes the literal position. Superposed end states are the origin plus displacements by linearity; continuity is checked against finite differences of the same function.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both scalar/full ends, outside finite values and signed zero, three rational interior values in arbitrary order, NaN/both infinity refusal, a nonzero and a zero redirection, both unit boundaries and invalid duration.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists seven scenarios, full versus scalar/position demand, normalized polynomial/rational values, output ownership, endpoint/admission semantics and the superposed-unit continuity bounds.
  */
 export function test_motion_minimum_jerk(): void {
-  const close = (a: number, b: number, e: number = 1e-12): boolean =>
+  const close: (a: number, b: number, e?: number) => boolean = (a: number, b: number, e: number = 1e-12): boolean =>
     Math.abs(a - b) <= e;
   const p0: minimumJerk.IProfile = minimumJerk(0);
   const p1: minimumJerk.IProfile = minimumJerk(1);
@@ -122,5 +131,42 @@ export function test_motion_minimum_jerk(): void {
     throwsError((): unknown =>
       superposeMinimumJerk(origin, [{ ...first, duration: 0 }], 0),
     ),
+  );
+  for (const [u, expected] of [[0.75, 459 / 512], [0.25, 53 / 512], [0.5, 0.5], [0.75, 459 / 512],
+    [-3, 0], [-0, 0], [0, 0], [1, 1], [4, 1]] as const)
+    TestValidator.predicate("scalar share keeps the independently evaluated normalized quintic",
+      nclose(minimumJerk.share(u), expected, 1e-12),
+    );
+  for (const u of [NaN, Infinity, -Infinity])
+    TestValidator.predicate("scalar share retains finite admission before endpoint hold",
+      throwsError((): number => minimumJerk.share(u), "time must be finite"),
+    );
+
+  const shifted: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
+  const units: readonly superposeMinimumJerk.IUnit[] = [
+    { start: 0, duration: 1, displacement: { x: 2, y: -2, z: 4 } },
+    { start: 0, duration: 2, displacement: { x: 4, y: 8, z: -4 } },
+  ];
+  let earlier: IAutoMovieVector3 | undefined;
+  for (const [seconds, expected] of [
+    [0.5, { x: 309 / 128, y: 117 / 64, z: 587 / 128 }],
+    [2, { x: 7, y: 8, z: 3 }], [0, { x: 1, y: 2, z: 3 }],
+    [1, { x: 5, y: 4, z: 5 }], [0.5, { x: 309 / 128, y: 117 / 64, z: 587 / 128 }],
+  ] as const) {
+    const point: IAutoMovieVector3 = superposeMinimumJerk.position(shifted, units, seconds);
+    TestValidator.predicate("position-only demand preserves the independent superposition equation",
+      vclose(point, expected, 1e-12) && point !== shifted &&
+      (earlier === undefined || point !== earlier && earlier.x === 123),
+    );
+    point.x = 123;
+    earlier = point;
+  }
+  const empty: IAutoMovieVector3 = superposeMinimumJerk.position(shifted, [], NaN);
+  TestValidator.predicate("empty position superposition retains fresh origin and no time admission",
+    empty !== shifted && vclose(empty, shifted, 0),
+  );
+  TestValidator.predicate("position-only reads preserve actual per-unit duration admission",
+    throwsError((): IAutoMovieVector3 => superposeMinimumJerk.position(shifted,
+      [{ ...units[0]!, duration: 0 }], 3), "duration is positive"),
   );
 }

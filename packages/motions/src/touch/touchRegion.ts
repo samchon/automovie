@@ -12,6 +12,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchSite } from "./touchSite";
 
@@ -47,8 +48,8 @@ export namespace touchRegion {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One site, one shoulder, one closure over them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The other hand's region is never moved by the first hand's site.
    * @evidence contracts/development/implementation.md#efficient-algorithms One leg resolve per frame, and only for a leg's region under a lean.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTouch.region` and `touchSite.of`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader closes over the bones, the shoulder and the fixed site.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates region/site geometry to its owners. Each actual leaning-leg query lends one synchronous exact FK reader to its original leg fits and selected-region read-back; no pose or time result is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan reader closes over entry bones, shoulder, fixed site and at most one selected-bone set; each leaning-leg query owns one exact FK workspace until return or throw, and only the actual frame escapes.
    */
   export function reader(
     context: Pick<
@@ -94,6 +95,8 @@ export namespace touchRegion {
             ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
             : undefined;
         return (posture: IHumanPosture, seconds: number): touchSite.IFrame => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+          requested === undefined ? undefined : prepareHumanPoseResolution();
         const frame: touchSite.IFrame = AutoMovieMotionHumanTouch.region(
           context,
           aimed,
@@ -112,8 +115,8 @@ export namespace touchRegion {
                       ? {}
                       : { rightLeg: posture.limbs.rightLeg }),
                   },
-                }, undefined, {}, undefined, requested).pose,
-                undefined,
+                }, undefined, {}, resolution, requested).pose,
+                resolution?.(),
                 requested,
               )
             : bones,

@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
@@ -9,6 +9,7 @@ import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
@@ -107,21 +108,22 @@ export namespace AutoMovieMotionHumanTrunk {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the frame and that either kind of leg is read.
    * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the resolved posture reads the foot bones' world frames, so a leg written as goals reads where its solve put it and a leg written as angles where its angles put it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and two lookups.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy exact FK workspace feeds the full resolution and final two-foot observation, followed by two lookups.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the feet are read, never rebuilt from a stance width.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution, linear in bones.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; `crouch` calls it once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every limb/digit/contact still fits fully; final FK admits every authored joint but transforms only foot ancestry, sharing exact unchanged work already performed during that solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A local same-operation reader serves the actual full fitting and final foot FK; changed joint/root dependencies remain checked, without solved-pose or time-result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The getter and temporary map end with synchronous return or throw; only the two fresh foot placements escape.
    */
   export function footing(
     body: IHumanBody,
     posture: IHumanPosture,
   ): Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
-      resolveHumanPosture(body, posture),
-      undefined,
-      new Set(["leftFoot", "rightFoot"]),
+      resolveHumanPosture.seeded(body, posture, undefined, {}, resolution).pose,
+      resolution(),
+      FEET,
     );
     const at = (side: AutoMovieMotionHumanLeg.Side): HumanFoot.IPlacement => ({
       ankle: bones.get(`${side}Foot`)!.worldPosition,
@@ -256,7 +258,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative or non-numeric depth or pitch throws; no shift is stated; the feet are the posture's own, never a stance rebuilt from a width.
    * @evidence contracts/development/implementation.md#efficient-algorithms The balance and the feet are solved once when the phrase is built, not per evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk`, the solve to `HumanBalance.shift` and the leg goals to `AutoMovieMotionHumanLeg.goal`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments, the two feet and one solved number.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments and the bounded prepareCrouch writer: two feet, at most two fixed goal readers and one solved shift, without sampled posture results.
    */
   export function crouch(props: ICrouch): IAutoMovieMotionHumanPrimitive {
     const lower: (posture: IHumanPosture, share: number) => IHumanPosture =
@@ -289,11 +291,11 @@ export namespace AutoMovieMotionHumanTrunk {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States unchanged geometry, world/clinical units, caller-supplied clock share and preparation failure.
    * @evidence contracts/development/implementation.md#principled-implementation Reads the standing feet once, plants before sinking and uses the original HumanBalance.shift at full depth. Each write applies exactly the original scaled depth, pitch and solved hip shift through sunk and planted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One low builder serves both the static balance search and every dynamic write; crouch supplies its envelope while repeated laws can share only this invariant preparation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fixed foot-goal readers feed the same planted posture before and after sunk; one low builder serves the static search and dynamic writes while each clock supplies its actual share.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every write still reads its actual incoming posture and the original share; the balance search, ROM, plant goals and tolerance are unchanged, and no representative repetition replaces another repetition's clock.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One footing solve and original bounded balance search serve all R repetitions of identical geometry instead of repeating them R times. Each write performs constant-size planted-goal and trunk arithmetic, with no per-second fitted result retention; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The consumer explicitly shares only fixed body, stance, depth, inclination and selected leg geometry; a changed one requires fresh preparation. Incoming posture and share remain actual per-write inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns the two foot frames and one solved shift and borrows its fixed input record until its action releases it; the search's trial readings do not survive preparation and no time-indexed history is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One footing solve and original bounded balance search serve all R identical repetitions. Each selected fixed foot heading/contact prepares once across both plant stages and all trials/writes; actual knee transforms, trunk arithmetic and every leg goal remain, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The consumer explicitly shares only fixed body, stance, depth, inclination and selected leg geometry through Leg.prepareGoal; a changed one requires fresh preparation. Incoming posture, root/yaw, knee hints and share remain actual per-write inputs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns two foot frames, at most two bounded fixed-goal readers and one solved shift until its action ends. The search's trial readings do not survive preparation and no time-indexed history is kept.
    */
   export function prepareCrouch(
     props: Pick<ICrouch, "body" | "standing" | "depth" | "pitch" | "legs">,
@@ -306,6 +308,15 @@ export namespace AutoMovieMotionHumanTrunk {
     ];
     const feet: Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> =
       footing(props.body, props.standing);
+    const goals: Partial<Record<AutoMovieMotionHumanLeg.Side, ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>>> = {};
+    for (const side of legs)
+      if (goals[side] === undefined)
+        goals[side] = AutoMovieMotionHumanLeg.prepareGoal(props.body, side, feet[side], true);
+    const plant: (posture: IHumanPosture) => IHumanPosture = (posture: IHumanPosture): IHumanPosture => {
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      for (const side of legs) limbs[`${side}Leg`] = goals[side]!(posture);
+      return { ...posture, limbs };
+    };
 
     // The legs are planted before the hips sink, so `sunk` reads the thighs
     // the pelvis's share is limited by, and the knees bend as the root goes
@@ -315,17 +326,14 @@ export namespace AutoMovieMotionHumanTrunk {
       share: number,
       back: number,
     ): IHumanPosture =>
-      planted(
-        props.body,
+      plant(
         sunk(
           props.body,
-          planted(props.body, posture, feet, legs),
+          plant(posture),
           props.depth * share,
           props.pitch * share,
           back,
         ),
-        feet,
-        legs,
       );
     const back: number = HumanBalance.shift(
       props.body,
@@ -397,3 +405,6 @@ export namespace AutoMovieMotionHumanTrunk {
     });
   }
 }
+
+/** Both displayed foot frames; their parent closure is owned by canonical FK. */
+const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]);

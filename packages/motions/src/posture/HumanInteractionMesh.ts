@@ -122,9 +122,9 @@ export namespace HumanInteractionMesh {
    * @evidence contracts/development/implementation.md#principled-implementation The interaction mesh's least inverse-distance Laplacian deformation with bone edges omitted (Ho et al. 2010, equation 3 and section 5.1), under the bones and contacts by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty, inside the positive-determinant domain of every recorded side (Schueller et al. 2013, section 3); inverted trials have infinite merit, so the region shrinks before another trial, starting from the reference if the optional guess inverts a side. Bones and contact coordinates must meet the whole-body fit's 0.5 mm tolerance and every side remain strictly positive, or the adaptation throws; a feasible reference has zero deformation energy and is returned exactly, preserving identity.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, mesh, coordinates, then one minimisation over a reading and a convex model.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Malformed input throws; no point is clamped after the solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Mesh insertion is quadratic in points at worst; each convexification solves a QP over three coordinates per point. One fixed P/q/A preparation serves its bound-only radius retries, replacing repeated coefficient/scaling scans with O(m) interval updates; actual OSQP and nonlinear trial costs remain.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The loop and QP retain their owners; each convexification snapshots its actual fixed matrices/unit trust rows, while new iterates or penalties build another model and every radius supplies current bounds. Returned mesh reuse remains explicit through props.mesh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or completion; returned points/mesh remain caller-owned, with no cached deformation or query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Mesh insertion is quadratic in points at worst; each linearization solves a QP over three coordinates per point. Fixed Laplacian curvature is assembled once per objective flag. Penalty steering reprices O(m) rows without repeating bone/side linearization; radius retries refresh intervals on one admitted P/q/A. Actual OSQP and nonlinear trials remain, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The Laplacian, dimensions and objective flag fix P throughout one adapt call. At fixed x/e/objective, bone/contact/side coefficients and q do not depend on mu: fresh penalty shells change only existing soft weights, retain hard side rows and reset local warm state while sharing numeric preparation. Accepted-step keyed multipliers and radius warm policy remain unchanged; mesh reuse stays explicit through props.mesh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One adapt call owns at most two fixed curvatures; its current linearization owns coefficients, one numeric preparation and bounded scratch shared by fresh penalty shells without linked history. Returned points/mesh remain caller-owned, with no cached deformation or query history.
    */
   export function adapt(props: IProps): IResult {
     const n: number = props.reference.length;
@@ -200,6 +200,7 @@ export namespace HumanInteractionMesh {
       ),
     ];
     const band: number = Math.max(0, ...spans);
+    const curvatures: (Float64Array[] | undefined)[] = [undefined, undefined];
 
     // The sides the mesh records (`HumanInteractionMeshSide`).
     const sided: Side.ISide[] = Side.record(mesh, props.reference, extent);
@@ -245,25 +246,28 @@ export namespace HumanInteractionMesh {
         _radius: number,
         objective: boolean,
       ): SCO.IModel<Float64Array> => {
-        const p: Float64Array[] = Array.from(
+        const retained: Float64Array[] | undefined = curvatures[objective ? 1 : 0];
+        const p: Float64Array[] = retained ?? Array.from(
           { length: 3 * n },
           (): Float64Array => new Float64Array(band + 1),
         );
         const q: Float64Array = new Float64Array(3 * n);
         if (objective) {
-          for (const [key, value] of couplings) {
-            const [a, b] = key.split("|").map(Number) as [number, number];
-            // Each pair once, the band's upper half: `x^T P x / 2` reads a
-            // diagonal entry halved and an off-diagonal one whole.
-            for (let k: number = 0; k < 3; k++)
-              p[3 * a + k]![3 * (b - a)]! += value;
-          }
+          if (retained === undefined)
+            for (const [key, value] of couplings) {
+              const [a, b] = key.split("|").map(Number) as [number, number];
+              // Each pair once, the band's upper half: `x^T P x / 2` reads a
+              // diagonal entry halved and an off-diagonal one whole.
+              for (let k: number = 0; k < 3; k++)
+                p[3 * a + k]![3 * (b - a)]! += value;
+            }
           for (let i: number = 0; i < n; i++)
             for (let k: number = 0; k < 3; k++) {
               const r: number = coordinate(x, i, k) - delta[3 * i + k]!;
               for (const e of rows[i]!) q[3 * e.point + k]! += e.value * r;
             }
         }
+        curvatures[objective ? 1 : 0] = p;
         const held: QP.IRow[] = [
           ...props.bones.map((bone: IBone, b: number): QP.IRow => {
             const d: number[] = [0, 1, 2].map(
@@ -310,66 +314,72 @@ export namespace HumanInteractionMesh {
               Side.row(x, t, extent, `o|${s}`),
           ),
         ];
-        const model: QP.IProblem = { n: 3 * n, band, p, q, rows: held };
-        let zero: number | undefined;
         let prepared: ReturnType<typeof QP.prepare> | undefined;
-        let trusted: QP.IProblem | undefined;
-        let warm: QP.IState | undefined;
-        return {
-          solve: (r: number): SCO.IStep<Float64Array> => {
-            trusted = {
-              ...model,
-              rows: [
-                ...held,
-                ...Array.from(
-                  { length: 3 * n },
-                  (_: unknown, i: number): QP.IRow => ({
-                    index: [i],
-                    coef: [1],
-                    l: -r,
-                    u: r,
-                    key: `t|${i}`,
-                  }),
+        const priced: (price: number) => SCO.IModel<Float64Array> = (price: number): SCO.IModel<Float64Array> => {
+          const current: QP.IRow[] = price === mu ? held : held.map((row: QP.IRow): QP.IRow =>
+            row.weight === undefined ? row : { ...row, weight: price });
+          const model: QP.IProblem = { n: 3 * n, band, p, q, rows: current };
+          let zero: number | undefined;
+          let trusted: QP.IProblem | undefined;
+          let warm: QP.IState | undefined;
+          return {
+            reprice: priced,
+            solve: (r: number): SCO.IStep<Float64Array> => {
+              trusted = {
+                ...model,
+                rows: [
+                  ...current,
+                  ...Array.from(
+                    { length: 3 * n },
+                    (_: unknown, i: number): QP.IRow => ({
+                      index: [i],
+                      coef: [1],
+                      l: -r,
+                      u: r,
+                      key: `t|${i}`,
+                    }),
+                  ),
+                ],
+              };
+              prepared ??= QP.prepare(trusted);
+              warm = prepared.solve(trusted.rows, warm, duals);
+              const solved: Float64Array = warm.x;
+              let longest: number = 0;
+              for (let i: number = 0; i < warm.x.length; ++i)
+                longest = Math.max(longest, Math.abs(warm.x[i]!));
+              // The constraints the step leaves unmet on their linearisation,
+              // which the steered penalty reads.
+              const left: number[] = current.map((row: QP.IRow): number => {
+                let s: number = 0;
+                for (let a: number = 0; a < row.index.length; ++a)
+                  s += row.coef[a]! * warm!.x[row.index[a]!]!;
+                return Math.max(0, row.l - s, s - row.u);
+              });
+              let trial: Float64Array | undefined;
+              return {
+                violation: left.reduce(
+                  (s: number, v: number): number => s + v,
+                  0,
                 ),
-              ],
-            };
-            prepared ??= QP.prepare(trusted);
-            warm = prepared.solve(trusted.rows, warm, duals);
-            const solved: Float64Array = warm.x;
-            let longest: number = 0;
-            for (let i: number = 0; i < warm.x.length; ++i)
-              longest = Math.max(longest, Math.abs(warm.x[i]!));
-            // The constraints the step leaves unmet on their linearisation,
-            // which the steered penalty reads.
-            const left: number[] = held.map((row: QP.IRow): number => {
-              let s: number = 0;
-              for (let a: number = 0; a < row.index.length; ++a)
-                s += row.coef[a]! * warm!.x[row.index[a]!]!;
-              return Math.max(0, row.l - s, s - row.u);
-            });
-            let trial: Float64Array | undefined;
-            return {
-              violation: left.reduce(
-                (s: number, v: number): number => s + v,
-                0,
-              ),
-              met: Math.max(0, ...left) <= accuracy,
-              get trial(): Float64Array {
-                return (trial ??= Float64Array.from(
-                  x,
-                  (v: number, i: number): number => v + solved[i]!,
-                ));
-              },
-              predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
-              length: longest,
-              // The step at the region's edge, to the solver's own accuracy.
-              full: longest >= r * (1 - QP.TOLERANCE),
-            };
-          },
-          taken: (): void => {
-            duals = QP.multipliers(trusted!, warm!);
-          },
+                met: Math.max(0, ...left) <= accuracy,
+                get trial(): Float64Array {
+                  return (trial ??= Float64Array.from(
+                    x,
+                    (v: number, i: number): number => v + solved[i]!,
+                  ));
+                },
+                predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
+                length: longest,
+                // The step at the region's edge, to the solver's own accuracy.
+                full: longest >= r * (1 - QP.TOLERANCE),
+              };
+            },
+            taken: (): void => {
+              duals = QP.multipliers(trusted!, warm!);
+            },
+          };
         };
+        return priced(mu);
       },
     };
     // Zero deformation is the global minimum. Returning a feasible

@@ -142,7 +142,7 @@ export namespace cartwheel {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ease: (x: number) => number = (x: number): number => minimumJerk(x).s;
+    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
     const between: ReturnType<typeof ExerciseKey.prepareBlend> =
       ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheel(body));
 

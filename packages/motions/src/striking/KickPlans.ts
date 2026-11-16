@@ -129,9 +129,9 @@ export namespace KickPlans {
         (u: superposeMinimumJerk.IUnit, i: number): IStarted => ({
           from: plans[i]!,
           to: plans[i + 1]!,
-          weight: minimumJerk(
+          weight: minimumJerk.share(
             (props.t0 + clock - u.start) / Math.max(1e-9, u.duration),
-          ).s,
+          ),
         }),
       );
     };

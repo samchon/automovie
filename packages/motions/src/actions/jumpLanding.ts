@@ -54,9 +54,9 @@ export namespace jumpLanding {
    * @evidence contracts/development/implementation.md#principled-implementation Each place is an offset in the heading's frame at the destination, lifted by the surface's height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two footprints and three roots.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The footprints keep the body's rest separation, so the stance is the body's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFrame` and `HumanFoot.rotation`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size work prepares one heading sine/cosine pair for the two footprints and three root offsets, instead of recomputing it at each conversion; each actual foot rotation remains evaluated and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The five original local offsets share one actual HumanFrame.prepare snapshot with identical multiply/add grouping; HumanFoot.rotation still owns each turned-out foot's quaternion.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local frame and footprint reader release on synchronous return/throw; only fresh footprint and root vectors escape, without source frames, callbacks or history.
    */
   export function of(
     body: IHumanBody,
@@ -65,11 +65,11 @@ export namespace jumpLanding {
     rise: number,
     lean: number,
   ): ILanding {
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
-    const frame: HumanFrame.IFrame = { origin: { ...to, y: 0 }, yaw: heading };
-    const footprint = (s: "left" | "right"): HumanFoot.IPlacement => ({
-      ankle: HumanFrame.point(frame, {
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { ...to, y: 0 }, yaw: heading });
+    const footprint: (s: "left" | "right") => HumanFoot.IPlacement = (s: "left" | "right"): HumanFoot.IPlacement => ({
+      ankle: frame.point({
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
         y: m.ankleHeight + rise,
         z: 0,
@@ -81,13 +81,13 @@ export namespace jumpLanding {
     });
     return {
       feet: { left: footprint("left"), right: footprint("right") },
-      touched: HumanFrame.point(frame, {
+      touched: frame.point({
         x: 0,
         y: rise - 0.005 - 0.03 * l,
         z: -0.1 * l,
       }),
-      stood: HumanFrame.point(frame, { x: 0, y: rise - 0.005, z: lean }),
-      absorbed: HumanFrame.point(frame, {
+      stood: frame.point({ x: 0, y: rise - 0.005, z: lean }),
+      absorbed: frame.point({
         x: 0,
         y: rise - 0.005 - 0.12 * l,
         z: 0.3 * lean,

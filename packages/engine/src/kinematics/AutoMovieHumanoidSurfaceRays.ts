@@ -33,11 +33,14 @@ export namespace AutoMovieHumanoidSurfaceRays {
 
   /** A rest collider shares fixed exit/normal metadata, never a ray or surface answer. */
   interface IShapeReading {
+    /** Original admitted collider, borrowed only with its unchanged segment. */
+    shape: P.IShape;
+
     /** Actual origin/direction intersection through the collider. */
     exit: Exit;
 
-    /** Current-point outward normal from the physical normal owner. */
-    normal: ReturnType<typeof physicalShapeNormal.prepare>;
+    /** Acquired only when this collider first wins a surface ray. */
+    normal?: ReturnType<typeof physicalShapeNormal.prepare>;
   }
 
   /** Prepare the fixed shape frame; every actual ray retains the original exact intersection. */
@@ -187,7 +190,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bone, segment or hit still throws. Every current ray tests all original colliders with the same discriminants, plane/slab order, BOUNDARY and 1e-12 branches; only fixed frames, capsule axes/endpoints and hull planes are prepared.
    * @evidence contracts/development/implementation.md#efficient-algorithms One pose and O(S) index precede lazy segment bounds and exit preparation. Fixed rest transforms/inverses/capsule ends serve all rays, and only a winning normal's first actual point prepares its physical axis/inverse/planes. Hull bounds rotate V points once per segment; actual rays retain their collider/face work and returned bounds copy six coordinates.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged rig/profile epoch proves equal rest bounds and shape frames. First-name indexing preserves duplicate-name precedence, and every ray's origin/direction, exit, winning collider and outward normal are computed anew without query-result reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bundle owns one O(B) rest map, O(S) name/bounds records and one fixed exit/normal reader pair per queried collider, with normal plane metadata acquired only when used. The caller releases all on completion or throw; no query point/result enters these maps and no body-global pose or ray history is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bundle owns O(B) rest data, O(S) names/bounds and one fixed exit per queried collider. A normal reader and its planes are acquired only after that collider first wins a ray. The caller releases all on completion or throw; no query point/result enters these maps and no body-global pose or ray history is retained.
    */
   export function tools(skeleton: IAutoMovieSkeleton, profile: P) {
     const segments: Map<string, P.ISegment> = new Map();
@@ -290,8 +293,8 @@ export namespace AutoMovieHumanoidSurfaceRays {
       let readings: IShapeReading[] | undefined = exits.get(s);
       if (readings === undefined) {
         readings = s.shapes.map((shape: P.IShape): IShapeReading => ({
+          shape,
           exit: prepareExit(s.neutral, shape),
-          normal: physicalShapeNormal.prepare(s.neutral, shape),
         }));
         exits.set(s, readings);
       }
@@ -310,7 +313,9 @@ export namespace AutoMovieHumanoidSurfaceRays {
         origin,
         Vector3.scale(d, far),
       );
-      return { point, normal: left.normal(point, d) };
+      const normal: ReturnType<typeof physicalShapeNormal.prepare> = left.normal ??=
+        physicalShapeNormal.prepare(s.neutral, left.shape);
+      return { point, normal: normal(point, d) };
     };
     const exit = (
       bone: AutoMovieHumanoidBone,

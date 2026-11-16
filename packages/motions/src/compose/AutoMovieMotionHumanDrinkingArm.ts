@@ -20,6 +20,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionHumanTouch } from "./AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
@@ -163,9 +164,9 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidence contracts/development/implementation.md#principled-implementation The flexion and the abduction are the source's own measure (`measured`), the twist room the forearm's twist against its own range, and the tilt the asked rotation's up axis read again through the reached rotation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve, one bone read and four readings.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The readings are the resolver's fit within the joints' ranges, never the asked goal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve, two when referred, whose first the resolver's memory holds once the unreferred fit is read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver, `poseBones`, the joint constraints and `AutoMovieMotionHumanTouchLaid.reference`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the actual arm fit and referred reference fit; canonical selection omits only proven unrelated digit goals and final FK requests upper/lower arm, hand and hip frames. Every direct joint is still admitted, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local exact reader connects the actual canonical fit and its demanded FK; resolver source provenance is retained only for its exact free-leg dependency checks. Joint constraints and referred reference retain their owning implementations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The four-name demand and lazy exact FK preparation end on synchronous return/throw; the scalar result retains no pose, reader or candidate history.
    */
   export function read(
     body: IHumanBody,
@@ -176,7 +177,11 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     axis?: IAutoMovieVector3,
   ): IArm {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const pose: IAutoMoviePose = resolveHumanPosture(body, {
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
+    ]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
       ...posture,
       limbs: {
         ...posture.limbs,
@@ -192,10 +197,12 @@ export namespace AutoMovieMotionHumanDrinkingArm {
             }
           : goal,
       },
-    });
+    }), undefined, undefined, resolution, requested).pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
+      resolution(),
+      requested,
     );
     const shoulder: { flexion: number; abduction: number } = measured(
       bones,

@@ -32,7 +32,7 @@ interface ISettled {
  * @param arms The authored and manner-scaled arm swing multiplier.
  * @param elbows The authored added shoulder abduction, degrees.
  * @param steps The take's fixed step clock and phase readers.
- * @param solve The take's same-second pelvis and requested-foot solve.
+ * @param solve The take's same-second pelvis/foot solve, sharing the phase and amount this reader already evaluated at that exact second.
  * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body preparation, arm units, action time and the optional leg demand.
@@ -49,7 +49,7 @@ export function walkPosture(
   arms: number,
   elbows: number,
   steps: walkSteps.IPlan,
-  solve: (seconds: number, legs: readonly ("left" | "right")[]) => ISettled,
+  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number) => ISettled,
 ): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[]) => IHumanPosture {
   let upright: standUpright.IAlignment | undefined;
   let relaxed: IHumanPosture["joints"] | undefined;
@@ -68,7 +68,7 @@ export function walkPosture(
     const phase: number = steps.phase(t);
     const amount: number = steps.amount(t);
     const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-    const { feet, hips, settled, reached }: ISettled = solve(t, legs);
+    const { feet, hips, settled, reached }: ISettled = solve(t, legs, phase, amount);
     const root: IAutoMovieVector3 = settled.root;
     const yaw: number = settled.yaw;
 

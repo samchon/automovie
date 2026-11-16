@@ -456,11 +456,11 @@ export namespace HumanGaze {
           active.with ?? "auto",
         );
         const going: (duration: number) => number = (duration: number): number => {
-          const on: number = minimumJerk((seconds - active!.from) / duration).s;
+          const on: number = minimumJerk.share((seconds - active!.from) / duration);
           const off: number =
             active!.to === undefined
               ? 0
-              : minimumJerk((seconds - active!.to) / duration).s;
+              : minimumJerk.share((seconds - active!.to) / duration);
           return on * (1 - off);
         };
         return aim(

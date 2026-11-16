@@ -16,7 +16,7 @@ import type {
  * A performer's body as motion laws read it: the canonical VRM rig and its
  * physical profile, with the measure, the anatomical surfaces, the rig's
  * topology, rest joint positions, immutable FK prerequisites and bone-local
- * mass model derived once.
+ * mass model derived once on its first actual read.
  *
  * Any canonical humanoid serves: a Human adapted by
  * `AutoMovieHumanCanonicalBody.adapt` (the polygon man), an imported VRM
@@ -50,7 +50,7 @@ export interface IHumanBody {
   /** Immutable canonical FK prerequisites, prepared once with this body's rig. */
   poseResolution: prepareSkeletonPoseResolution.IRig;
 
-  /** Bone-local mass/inertia model derived once from the unchanged rig/profile. */
+  /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: resolveAutoMovieCenterOfMass.IModel;
 
   /** Rest joint positions, canonical metres. */

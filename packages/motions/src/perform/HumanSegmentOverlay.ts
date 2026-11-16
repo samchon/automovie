@@ -93,7 +93,7 @@ export namespace HumanSegmentOverlay {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Lazy posture/weight slots and prepared fixed-claim mergers feed the recursive branch builder, then ordinary contact refitting. Exact-name continuation and attachment admission retain their existing owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All active overlay branches, fade weights, seed names and contact windows remain. rebased transfers only existing issued-source provenance; the resolver still admits/clamps current joints and accepts an unchanged free-leg solution only after its exact raw/root/ancestor/body checks. Every changed or unsupported fit remains native.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each demanded overlay samples raw posture, weight and ordinal once per query. Fixed claims classify encountered bone names once per merger; no-digit merges omit digit-goal traversal. Contact windows are scanned once and missing explicit goals demand only their effector/lower FK ancestry. Up to 2^N fade leaves remain for N simultaneous partial overlays; checked source-leg reuse or bare observational selection may avoid only their proven independent fits. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw posture, scalar fade weight, original ordinal, fixed claims, hand-drive metadata and unchanged-rig blend preparation share within this query. An explicit parent lends exact FK prerequisites. Source provenance survives a raw merge only so the resolver can revalidate actual current free-leg dependencies; distinct goals, near contexts and all other fits remain separate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw posture, scalar fade weight, original ordinal, fixed claims, hand-drive metadata and unchanged-rig blend preparation share within this query. The same synchronous FK source reaches each actual overlay plan's raw producer and canonical leaf/contact consumers. Source provenance survives a raw merge only so the resolver can revalidate actual current free-leg dependencies; distinct goals, near contexts and all other fits remain separate.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query-owned slots, mergers and their bone booleans, branch indexes, optional blender and local lazy FK supplier release on return or throw. A borrowed parent reader stays with its synchronous parent. Raw merge provenance follows only the raw candidate's weak lifetime at the resolver; returned canonical poses, seed maps and contact goals retain no query context or reader.
    */
   export function overlaid(
@@ -200,18 +200,20 @@ export namespace HumanSegmentOverlay {
         under,
         ((postures ??= [])[k] ??= overlay.plan.posture(
           Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
+          undefined,
+          resolution,
         )),
       ));
       const weight: number = ((weights ??= [])[k] ??= Math.min(
-        minimumJerk(
+        minimumJerk.share(
           Math.min(
             1,
             Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
           ),
-        ).s,
-        minimumJerk(
+        ),
+        minimumJerk.share(
           Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
-        ).s,
+        ),
       ));
 
       // The prefix names exactly the included overlays, in their original

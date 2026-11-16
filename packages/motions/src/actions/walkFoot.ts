@@ -178,7 +178,7 @@ export namespace walkFoot {
         // up about the heel before the toe-off.
         if (struck && t < strike + settle) {
           const degrees: number =
-            push * (1 - minimumJerk((t - strike) / settle).s);
+            push * (1 - minimumJerk.share((t - strike) / settle));
           return {
             placement: rock(degrees, "mtp"),
             toes: -degrees,
@@ -187,9 +187,9 @@ export namespace walkFoot {
         if (leaves && t > toeOff - HEEL_SHARE * length) {
           const degrees: number =
             STRIKE *
-            minimumJerk(
+            minimumJerk.share(
               (t - (toeOff - HEEL_SHARE * length)) / (HEEL_SHARE * length),
-            ).s;
+            );
           return {
             placement: rock(degrees, "heel"),
             toes: 0,
@@ -201,11 +201,11 @@ export namespace walkFoot {
         // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
         const held: number =
           raised *
-          (struck ? 1 : minimumJerk(t / RISE).s) *
-          (leaves ? 1 : 1 - minimumJerk((t - strike) / RISE).s);
+          (struck ? 1 : minimumJerk.share(t / RISE)) *
+          (leaves ? 1 : 1 - minimumJerk.share((t - strike) / RISE));
         const degrees: number = Math.min(
           -held,
-          t > rise ? push * minimumJerk((t - rise) / (toeOff - rise)).s : 0,
+          t > rise ? push * minimumJerk.share((t - rise) / (toeOff - rise)) : 0,
         );
         return {
           placement: rock(degrees, "mtp"),
@@ -214,7 +214,7 @@ export namespace walkFoot {
       }
       if (struck && t < strike + HEEL_SHARE * length) {
         const degrees: number =
-          STRIKE * (1 - minimumJerk((t - strike) / (HEEL_SHARE * length)).s);
+          STRIKE * (1 - minimumJerk.share((t - strike) / (HEEL_SHARE * length)));
         return {
           placement: rock(degrees, "heel"),
           toes: 0,
@@ -224,7 +224,7 @@ export namespace walkFoot {
         if (t > rise) {
           const u: number = (t - rise) / (toeOff - rise);
           const degrees: number =
-            push * (minimumJerk(u).s - LEAVE * carriedRate(1, 1 - u));
+            push * (minimumJerk.share(u) - LEAVE * carriedRate(1, 1 - u));
           return {
             placement: rock(degrees, "mtp"),
             toes: -degrees,
@@ -316,7 +316,7 @@ export namespace walkFoot {
     return (share: number): IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - settle));
-      const s: number = minimumJerk(travel).s;
+      const s: number = minimumJerk.share(travel);
       const carried: number = carriedRate(
         (1 - settle) * props.seconds,
         travel * (1 - settle) * props.seconds,
@@ -324,7 +324,7 @@ export namespace walkFoot {
       const bump: number = Math.sin(Math.PI * u) ** 2;
 
       // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
-      const level: number = stiff ? minimumJerk(Math.min(1, u / LEVEL)).s : s;
+      const level: number = stiff ? minimumJerk.share(Math.min(1, u / LEVEL)) : s;
       const rising: number = stiff
         ? carriedRate(LEVEL * props.seconds, u * props.seconds)
         : carried;
@@ -345,8 +345,8 @@ export namespace walkFoot {
         u * props.seconds,
       );
       const toes: number =
-        props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
-        props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
+        props.from.toes * (1 - minimumJerk.share(Math.min(1, 2 * u))) +
+        props.to.toes * minimumJerk.share(Math.max(0, 2 * u - 1)) +
         (props.rates?.toes ?? 0) * turning;
 
       // A foot that leaves or lands on its edge rolls between the two as its

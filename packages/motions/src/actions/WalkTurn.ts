@@ -18,10 +18,10 @@ export class WalkTurn {
   public constructor(
     private readonly knots: readonly { seconds: number; yaw: number }[],
   ) {
-    const slope = (i: number): number =>
+    const slope: (i: number) => number = (i: number): number =>
       (knots[i + 1]!.yaw - knots[i]!.yaw) /
       Math.max(1e-9, knots[i + 1]!.seconds - knots[i]!.seconds);
-    this.rates = knots.map((_, i: number): number => {
+    this.rates = knots.map((_: unknown, i: number): number => {
       // The heading rests at both ends, and at any knot where it reverses.
       if (i === 0 || i === knots.length - 1) return 0;
       const before: number = slope(i - 1);

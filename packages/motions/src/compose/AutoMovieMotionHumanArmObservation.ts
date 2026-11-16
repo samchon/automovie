@@ -2,7 +2,6 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
-  preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -19,6 +18,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
@@ -61,14 +61,16 @@ export namespace AutoMovieMotionHumanArmObservation {
     side: HumanHand.Side,
     from: HumanArmClearance.IArm,
     to: HumanArmClearance.IArm,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): number {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
-    const base: IAutoMoviePose = resolveHumanPosture(body, resolveHumanPosture.rebased(posture, {
+    const base: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
       ...posture,
       limbs,
-    }));
-    return reachingPose(body, base, side, from, to);
+    }), undefined, undefined, resolution).pose;
+    return reachingPose(body, base, side, from, to, resolution);
   }
 
   /**
@@ -88,8 +90,8 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure reaching owns raw-posture admission/resolution, this companion owns identical probe integration, and the existing single-arm planner supplies its already completed exact removed-arm base.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sample, blend, arc increment, speed bound or tolerance changes. Multiarm planner bases still use the original raw resolver because removing both arms differs from removing only the measured arm.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps ARC+1 actual probe FK admissions and the original integration; a valid existing canonical base avoids one duplicate posture solve. One local exact FK reader and demanded ancestry remain; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-arm planner's at(t).pose resolved exactly the same body/posture after removing that sole arm goal; its body and raw posture stay unchanged during this synchronous planning query. Cold reaching still resolves its actual raw base normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the caller's completed base only until the scalar returns, with one local reader, prior probe array and three accumulated lengths. No new time/pose history or numerical result is retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-arm planner's at(t).pose resolved exactly the same body/posture after removing that sole arm goal; its body and raw posture stay unchanged during this synchronous planning query. An explicit same-body operation may lend exact FK metadata from native base/endpoint solves to every original probe. Cold reaching still resolves its actual raw base normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the caller's completed base and optional exact FK source only until the scalar returns, with a local getter, prior probe array and three accumulated lengths. No new time/pose history or numerical result is retained, and no source enters the scalar result.
    */
   export function reachingPose(
     body: IHumanBody,
@@ -97,12 +99,13 @@ export namespace AutoMovieMotionHumanArmObservation {
     side: HumanHand.Side,
     from: HumanArmClearance.IArm,
     to: HumanArmClearance.IArm,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): number {
     const probes: readonly AutoMovieHumanoidBone[] = [
       `${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`,
     ];
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(probes);
-    const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const points = (w: number): IAutoMovieVector3[] => {
       const arm: HumanArmClearance.IArm = {
         upper: blendHumanJoint(
@@ -122,7 +125,7 @@ export namespace AutoMovieMotionHumanArmObservation {
         hand: blendHumanJoint(body, `${side}Hand`, from.hand, to.hand, w),
       };
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, HumanArmClearance.posed(base, side, arm), resolution, requested);
+        poseBones(body, HumanArmClearance.posed(base, side, arm), resolution(), requested);
       return probes.map(
         (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
           bones.get(bone)!.worldPosition,

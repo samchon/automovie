@@ -37,7 +37,7 @@ import type { rest } from "./rest";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one palm goal and one bisection of the width.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible width keeps the nearest feasible one, as stated; the least flexion is named provisional.
  * @evidence contracts/development/implementation.md#efficient-algorithms A 30-step width bisection retains every closed-form goal query. One observational posture solve demands only the actual shoulder-parent frames, falling back to full fitting when dependencies require it; shoulder frames, lengths, directions and elbow forward/down geometry are prepared once per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Bisection trials share only fixed body geometry, clamped shoulder origins and raw sternum placement; each changed width recomputes its elbows, hand surfaces and excess. The universal resolver owns the safe fit dependency proof and preserves full fallback.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Bisection trials share fixed body geometry, clamped shoulder origins and raw sternum placement; each changed width computes its two elbows once for both hand surfaces and excesses. The universal resolver owns the safe fit dependency proof and preserves full fallback.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restCrossedArms(
@@ -97,12 +97,12 @@ export function restCrossedArms(
   };
   const goal = (
     side: HumanHand.Side,
-    inward: number,
+    elbows: Record<HumanHand.Side, IAutoMovieVector3>,
   ): { goal: rest.IGoal; excess: number } => {
     const other: HumanHand.Side = side === "left" ? "right" : "left";
     const from: IAutoMovieVector3 = geometry[other].world;
     const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(elbowAt(other, inward), from),
+      Vector3.subtract(elbows[other], from),
     );
     const front: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))),
@@ -118,7 +118,7 @@ export function restCrossedArms(
       fingers: geometry[other].outward,
       palm: Vector3.scale(front, -1),
     });
-    const elbow: IAutoMovieVector3 = elbowAt(side, inward);
+    const elbow: IAutoMovieVector3 = elbows[side];
     const wrist: IAutoMovieVector3 = HumanHand.place(
       body,
       side,
@@ -134,8 +134,14 @@ export function restCrossedArms(
         geometry[side].lower,
     };
   };
-  const excess = (inward: number): number =>
-    (goal("left", inward).excess + goal("right", inward).excess) / 2;
+  const elbowsAt: (inward: number) => Record<HumanHand.Side, IAutoMovieVector3> =
+    (inward: number): Record<HumanHand.Side, IAutoMovieVector3> => ({
+      left: elbowAt("left", inward), right: elbowAt("right", inward),
+    });
+  const excess = (inward: number): number => {
+    const elbows: Record<HumanHand.Side, IAutoMovieVector3> = elbowsAt(inward);
+    return (goal("left", elbows).excess + goal("right", elbows).excess) / 2;
+  };
   let lo: number = 0;
   let hi: number = Math.abs(geometry.left.shoulder.x - geometry.right.shoulder.x) / 2;
   if (excess(lo) <= 0) hi = lo;
@@ -145,7 +151,8 @@ export function restCrossedArms(
     if (excess(mid) > 0) lo = mid;
     else hi = mid;
   }
-  return { left: goal("left", hi).goal, right: goal("right", hi).goal };
+  const elbows: Record<HumanHand.Side, IAutoMovieVector3> = elbowsAt(hi);
+  return { left: goal("left", elbows).goal, right: goal("right", elbows).goal };
 
   /** Prepare fixed anatomical values used by every width trial. */
   function prepare(side: HumanHand.Side): IArm {

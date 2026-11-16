@@ -250,7 +250,7 @@ export namespace clinch {
       { ...context, params: { seconds: duration } },
       context.params.hand ?? "right",
     );
-    const bones = poseBones(body, context.entry.pose);
+    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
     const arm = (side: HumanHand.Side) =>
       AutoMovieMotionHumanArm.visit({
         body,
@@ -320,7 +320,7 @@ export namespace clinch {
         who.surfaces.regions[region];
       return resolveAutoMovieHumanoidSurfaces.place(
         frame,
-        HumanTrunk.resolve(who, posture).get(frame.bone)!,
+        HumanTrunk.resolve(who, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
       ).point.y;
     };
     const theirs: IHumanPosture | undefined = partner.posture?.(context.start);

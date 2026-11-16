@@ -88,14 +88,13 @@ export namespace KickCarriage {
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const w: number =
-      minimumJerk(turning / timing.chamber).s -
-      minimumJerk((turning - timing.impact) / (timing.duration - timing.impact))
-        .s;
+      minimumJerk.share(turning / timing.chamber) -
+      minimumJerk.share((turning - timing.impact) / (timing.duration - timing.impact));
     const stepped: number =
       carriage.step *
-      minimumJerk(
+      minimumJerk.share(
         (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      ).s;
+      );
 
     // The root travels toward the support ankle and rides the step.
     const centre: IAutoMovieVector3 = Vector3.add(

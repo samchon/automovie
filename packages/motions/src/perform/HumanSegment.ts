@@ -22,6 +22,7 @@ import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { IHumanPerformer } from "./IHumanPerformer";
+import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * One placed action of one person, and how a person's displayed pose is
@@ -329,8 +330,9 @@ export namespace HumanSegment {
     person: IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    return HumanSegmentPose.displayed(person, seconds, requested);
+    return HumanSegmentPose.displayed(person, seconds, requested, prepared);
   }
 
   /**

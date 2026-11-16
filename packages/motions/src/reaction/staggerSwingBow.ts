@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { walkLegClearance } from "../actions/walkLegClearance";
 import type { walkFoot } from "../actions/walkFoot";
@@ -28,7 +28,7 @@ import { staggerKnots } from "./staggerKnots";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed observed frames prepare per-instant leg posing; one worst-clearance reader serves the original two-sided bisection.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every sampled instant, original fit, reach adjustment, bound, bisection width and signed winner; no candidate or leg fit is replaced by a cached answer.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each candidate still fits one swinging leg per instant. The standing leg fits once per instant, fixed pelvis/hip posing is prepared once per instant, and each widest-side result is read once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prepared swinging-leg poser fixes its own actual sample body, side, pelvis and hip; changing target/branch/swivel still runs the original target-specific solve and posing math.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prepared swinging-leg fit/poser fixes its own actual sample body, side, pelvis and hip. Every changing ankle, bend and rotation still reaches the original cold remembered fit, and each actual target/branch/swivel reaches the original target-specific posing math; no fitted answer or continuation seed is reused by this search.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search retains O(k) sample poses/readers for k supplied instants and scalar bisection state, released on return or failure; only the returned scalar survives.
  */
 export function staggerSwingBow(
@@ -43,6 +43,7 @@ export function staggerSwingBow(
   /** One fixed observed pelvis and its reusable swinging-leg source frame. */
   type IObserved = (typeof instants)[number] & {
     pelvis: IAutoMovieQuaternion;
+    fit: ReturnType<typeof HumanLegChain.prepareSeeded>;
     pose: ReturnType<typeof HumanLegChain.prepare>;
     knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>>;
   };
@@ -53,6 +54,7 @@ export function staggerSwingBow(
       return {
         ...instant,
         pelvis,
+        fit: HumanLegChain.prepareSeeded(body, step.side, pelvis, instant.settled.hips[step.side]),
         pose: HumanLegChain.prepare(body, step.side, pelvis, instant.settled.hips[step.side]),
         knees: {
           left: HumanFrame.preparePoint(instant.settled.yaw, body.rest.get("leftLowerLeg")!),
@@ -64,30 +66,24 @@ export function staggerSwingBow(
 
   // Each leg as the posture's own fit poses it there (`HumanLegChain`),
   // its knee bent toward the hint the posture gives it.
-  const legOf: (side: "left" | "right", instant: IObserved, foot: walkFoot.IEnd, pose?: ReturnType<typeof HumanLegChain.prepare>) => walkLegClearance.ILeg = (
+  const legOf: (side: "left" | "right", instant: IObserved, foot: walkFoot.IEnd) => walkLegClearance.ILeg = (
     side: "left" | "right",
     instant: IObserved,
     foot: walkFoot.IEnd,
-    pose?: ReturnType<typeof HumanLegChain.prepare>,
   ): walkLegClearance.ILeg => {
     const { settled, pelvis }: IObserved = instant;
-    const swivel: HumanLegChain.ISwivel = HumanLegChain.fit(
+    const bend: IAutoMovieVector3 = staggerKnots.kneePole(
       body,
+      settled.root,
+      settled.yaw,
       side,
-      pelvis,
-      settled.hips[side],
-      foot.ankle,
-      staggerKnots.kneePole(
-        body,
-        settled.root,
-        settled.yaw,
-        side,
-        HumanFoot.heading(foot.rotation),
-        instant.knees[side],
-      ),
-      foot.rotation,
+      HumanFoot.heading(foot.rotation),
+      instant.knees[side],
     );
-    const posed: HumanLegChain.IPosed | null = pose === undefined
+    const swivel: HumanLegChain.ISwivel = side === step.side
+      ? instant.fit(foot.ankle, bend, foot.rotation).swivel
+      : HumanLegChain.fit(body, side, pelvis, settled.hips[side], foot.ankle, bend, foot.rotation);
+    const posed: HumanLegChain.IPosed | null = side !== step.side
       ? HumanLegChain.pose(
         body,
         side,
@@ -96,7 +92,7 @@ export function staggerSwingBow(
         foot.ankle,
         swivel,
       )
-      : pose(foot.ankle, swivel);
+      : instant.pose(foot.ankle, swivel);
     return {
       ...posed!,
       side,
@@ -120,7 +116,7 @@ export function staggerSwingBow(
         out,
         walkLegClearance.excess(
           body,
-          legOf(step.side, instant, reached, instant.pose),
+          legOf(step.side, instant, reached),
           standingLegs[i]!,
         ),
       );

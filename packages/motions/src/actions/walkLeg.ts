@@ -12,6 +12,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareWalkLegLean } from "./prepareWalkLegLean";
 
 /**
  * The two-bone geometry of a stepping leg, read without solving it: where the
@@ -44,77 +45,11 @@ export namespace walkLeg {
     ankle: IAutoMovieVector3,
     heading: number,
   ): number {
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
-      { x: 0, y: 0, z: 1 },
-    );
-    return leanAlong(body, hip, ankle, forward);
+    return prepareWalkLegLean(body, heading)(hip, ankle);
   }
 
-  /** Read the same knee geometry on a fixed heading's prepared forward axis. */
-  function leanAlong(
-    body: IHumanBody,
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    forward: IAutoMovieVector3,
-  ): number {
-    const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const d: number = Vector3.length(v);
-    const a: number = body.measure.thigh;
-    const b: number = body.measure.shank;
-    if (d < 1e-6) return 0;
-    const axis: IAutoMovieVector3 = Vector3.scale(v, 1 / d);
-    const along: number = (a * a - b * b + d * d) / (2 * d);
-    const across: number = Math.sqrt(Math.max(0, a * a - along * along));
-    let perpendicular: IAutoMovieVector3 = Vector3.subtract(
-      forward,
-      Vector3.scale(axis, Vector3.dot(forward, axis)),
-    );
-    if (Vector3.length(perpendicular) < 1e-9) return 0;
-    perpendicular = Vector3.normalize(perpendicular);
-    // The swing about the hip-to-ankle line at which the foot needs no twist:
-    // the shank's forward axis, `across * axis - (along - d) * e` in the leg's
-    // plane, is perpendicular to the foot's lateral axis, so
-    // `e . lateral = across * (axis . lateral) / (along - d)`.
-    const lateral: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
-    const side: IAutoMovieVector3 = Vector3.cross(axis, perpendicular);
-    const p: number = Vector3.dot(perpendicular, lateral);
-    const q: number = Vector3.dot(side, lateral);
-    const size: number = Math.hypot(p, q);
-    let swing: number = 0;
-    if (size > 1e-9 && d - along > 1e-9) {
-      const middle: number = Math.atan2(q, p);
-      const half: number = Math.acos(
-        Math.min(
-          1,
-          Math.max(
-            -1,
-            (across * Vector3.dot(axis, lateral)) / ((along - d) * size),
-          ),
-        ),
-      );
-      const wrap = (angle: number): number =>
-        Math.atan2(Math.sin(angle), Math.cos(angle));
-      const one: number = wrap(middle + half);
-      const other: number = wrap(middle - half);
-      swing = Math.abs(one) <= Math.abs(other) ? one : other;
-    }
-    const knee: IAutoMovieVector3 = Vector3.add(
-      hip,
-      Vector3.add(
-        Vector3.scale(axis, along),
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(perpendicular, Math.cos(swing)),
-            Vector3.scale(side, Math.sin(swing)),
-          ),
-          across,
-        ),
-      ),
-    );
-    const shank: IAutoMovieVector3 = Vector3.subtract(knee, ankle);
-    return (Math.atan2(Vector3.dot(shank, forward), shank.y) * 180) / Math.PI;
-  }
+  /** Fixed body/heading preparation for the exact same shank lean (`prepareWalkLegLean`). */
+  export const prepareLean: typeof prepareWalkLegLean = prepareWalkLegLean;
 
   /**
    * The angle the bent knee puts between the thigh and the hip-to-ankle line.
@@ -154,17 +89,39 @@ export namespace walkLeg {
     ankle: IAutoMovieVector3,
     yaw: number,
   ): number {
+    return prepareTrailing(body, yaw)(hip, ankle);
+  }
+
+  /**
+   * Prepare one pelvis heading for repeated trailing-thigh queries.
+   *
+   * @param body The unchanged body's measured leg lengths.
+   * @param yaw The unchanged pelvis heading, degrees.
+   * @returns The same trailing-positive degree angle for each actual world-metre hip and ankle.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/yaw, varying world-space joints and trailing-positive angular result.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps trailing's original heading-plane hip-to-ankle angle minus behind's cosine-law knee angle, then the same degree conversion.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed forward axis precedes the shared actual-joint reader; raw trailing delegates here.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reach clamp, degeneracy threshold, heading convention or arithmetic grouping changes; each actual hip and ankle is read.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation avoids repeating heading trigonometry through the stance's original bounded trail-room search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A stance fixes body and pelvis yaw through all its trial hips/pitches; changing either requires a new reader, without caching a trial result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One stance-owned closure holds its body and private forward axis until released, without joint, angle or query history.
+   */
+  export function prepareTrailing(
+    body: IHumanBody,
+    yaw: number,
+  ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    return (
-      ((Math.atan2(-(v.x * forward.x + v.z * forward.z), -v.y) -
-        behind(body, Vector3.length(v))) *
-        180) /
-      Math.PI
-    );
+    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
+      const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
+      return (
+        ((Math.atan2(-(v.x * forward.x + v.z * forward.z), -v.y) -
+          behind(body, Vector3.length(v))) * 180) / Math.PI
+      );
+    };
   }
 
   /**
@@ -184,9 +141,10 @@ export namespace walkLeg {
     ankle: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
-    const heading: number = HumanFoot.heading(rotation);
+    const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
+    const heading: number = direction.heading;
     const shank: number = lean(body, hip, ankle, heading);
-    const pitch: number = HumanFoot.pitch(rotation);
+    const pitch: number = direction.pitch;
     const clamped: number = Math.min(
       -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
       Math.max(-shank - 50 + ANKLE, pitch),
@@ -260,14 +218,11 @@ export namespace walkLeg {
   ): (hip: IAutoMovieVector3, pitch: number) => number {
     const at: (degrees: number) => HumanFoot.IPlacement =
       HumanFoot.preparePivot(body, side, "mtp", pivot, heading);
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
-      { x: 0, y: 0, z: 1 },
-    );
+    const lean: ReturnType<typeof prepareWalkLegLean> = prepareWalkLegLean(body, heading);
     return (hip: IAutoMovieVector3, pitch: number): number => rise(
       (degrees: number): number => {
         const ankle: IAutoMovieVector3 = at(degrees).ankle;
-        return roomAt(body, hip, ankle, forward, degrees);
+        return roomAt(body, hip, ankle, lean, degrees);
       },
       pitch,
       width,
@@ -302,11 +257,7 @@ export namespace walkLeg {
       heading,
       pitch,
     ).ankle;
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
-      { x: 0, y: 0, z: 1 },
-    );
-    return roomAt(body, hip, ankle, forward, pitch);
+    return roomAt(body, hip, ankle, prepareWalkLegLean(body, heading), pitch);
   }
 
   /** The common dorsal-room rule, after fixed-heading and sole-pivot preparation. */
@@ -314,7 +265,7 @@ export namespace walkLeg {
     body: IHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
-    forward: IAutoMovieVector3,
+    lean: ReturnType<typeof prepareWalkLegLean>,
     pitch: number,
   ): number {
     if (
@@ -322,7 +273,7 @@ export namespace walkLeg {
       body.measure.thigh + body.measure.shank
     )
       return -Infinity;
-    return -leanAlong(body, hip, ankle, forward) + 20 - ANKLE - pitch;
+    return -lean(hip, ankle) + 20 - ANKLE - pitch;
   }
 
   /**
@@ -429,7 +380,7 @@ export namespace walkLeg {
     if (!folds) return low;
     const share: number =
       width > 0 ? Math.min(1, Math.max(0, (width - asked) / width)) : 1;
-    return pitch + (low - pitch) * minimumJerk(share).s;
+    return pitch + (low - pitch) * minimumJerk.share(share);
   }
 
   /** The room left to a stance's ankle before its dorsal limit, degrees, under which a stepping foot's heel begins to rise (provisional): the heel is leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of the way into this rounding under the 18° limit this body keeps, and the rounding is wide enough that the step past the fold is crossed in a stance's few hundredths of a second without a jolt at the knee. */

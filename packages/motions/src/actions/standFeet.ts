@@ -88,6 +88,15 @@ export namespace standFeet {
     contact(share: number): IAutoMovieVector3;
   }
 
+  /** Fixed share-one geometry used by both flat targets and completed rockers. */
+  interface ISettled {
+    /** The final ankle and foot rotation in the world. */
+    placement: HumanFoot.IPlacement;
+
+    /** The final bearing offset in the foot's local frame, metres. */
+    contact: IAutoMovieVector3;
+  }
+
   /**
    * Build the foot course from the displayed entry.
    *
@@ -99,9 +108,9 @@ export namespace standFeet {
    * @evidence contracts/development/implementation.md#principled-implementation Each planted foot rolls about its lowest displayed sole socket; pitch, roll, heading and toe flexion approach their quiet values, and HumanFoot.pivot derives the ankle from that fixed contact at every share.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the two contacts once, then evaluates the two rockers and their mean displacement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No ankle-height floor inference or contact translation is used for a planted foot.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK requests only planted socket bones and their ancestry; each socket set is measured once and each writer evaluates its rockers once per share.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry socket sets serve floor and pivot selection; each caller-owned sample shares its two exact rocker placements between offset and writing, without retaining samples across queries.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains the body, two entry contacts and final targets for its plan; each fresh sample retains two placements only until its caller releases that reading.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK requests only planted socket bones and their ancestry; each socket set is measured once and each moving writer evaluates its rockers once per share. At exactly completed progress the already required flat endpoint geometry supplies fresh vector copies without repeating its fixed rotations and contact construction.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry sockets serve floor and pivot selection, and fixed share-one foot/contact geometry also serves the flat targets. Each caller-owned sample shares its placements between offset and writing; no time-query result is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains the body, two entry contacts and two fixed endpoint placements/offsets for its plan; outward endpoint vectors are fresh copies, and each sample's two current placements end with that reading.
    */
   export function of(
     body: IHumanBody,
@@ -198,10 +207,16 @@ export namespace standFeet {
           HumanFoot.offset(body, side, pivot.socket, toes(share)),
       };
     });
+    const settled: ISettled[] = plans.map(
+      (p: IPlan): ISettled => ({
+        placement: p.at(1),
+        contact: p.contact(1),
+      }),
+    );
     const flat: ICourse["flat"] = Object.fromEntries(
-      plans.map((p: IPlan): [IPlan["side"], IAutoMovieVector3] => [
+      plans.map((p: IPlan, i: number): [IPlan["side"], IAutoMovieVector3] => [
         p.side,
-        p.at(1).ankle,
+        { ...settled[i]!.placement.ankle },
       ]),
     ) as ICourse["flat"];
     const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
@@ -210,7 +225,13 @@ export namespace standFeet {
     );
     const sample = (share: number): ISample => {
       const placed: HumanFoot.IPlacement[] = plans.map(
-        (p: IPlan): HumanFoot.IPlacement => p.at(share),
+        (p: IPlan, i: number): HumanFoot.IPlacement =>
+          share === 1
+            ? {
+                ankle: { ...settled[i]!.placement.ankle },
+                rotation: { ...settled[i]!.placement.rotation },
+              }
+            : p.at(share),
       );
       return {
         offset: Vector3.scale(
@@ -250,7 +271,8 @@ export namespace standFeet {
                 carry === undefined
                   ? placed[i]!.rotation
                   : Quaternion.multiply(carry.turn, placed[i]!.rotation),
-              contact: p.contact(share),
+              contact:
+                share === 1 ? { ...settled[i]!.contact } : p.contact(share),
             };
             joints[`${p.side}Toes`] = [p.toes(share), 0, 0];
           }

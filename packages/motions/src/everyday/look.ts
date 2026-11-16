@@ -160,7 +160,7 @@ export namespace look {
         ? stand.plan({ ...context, params: { seconds: duration } })
         : AutoMovieMotionHumanBase.under(context, duration);
     const weight = (seconds: number, span: number): number =>
-      minimumJerk((seconds - delay) / span).s;
+      minimumJerk.share((seconds - delay) / span);
     return {
       duration,
       events: [

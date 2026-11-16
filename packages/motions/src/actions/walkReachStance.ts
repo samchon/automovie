@@ -98,8 +98,9 @@ export namespace walkReachStance {
     course?: number,
   ): (hip: IAutoMovieVector3) => { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
     const initial: HumanFoot.IPlacement = foot.placement;
-    const heading: number = HumanFoot.heading(initial.rotation);
-    const starting: number = HumanFoot.pitch(initial.rotation);
+    const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(initial.rotation);
+    const heading: number = direction.heading;
+    const starting: number = direction.pitch;
     const about: "heel" | "mtp" = starting > 1e-6 ? "heel" : "mtp";
     const pivot: IAutoMovieVector3 = HumanFoot.point(
       body,
@@ -113,6 +114,9 @@ export namespace walkReachStance {
     const bears: boolean = !(course !== undefined && about === "mtp") &&
       HumanFoot.point(body, side, about === "heel" ? "heel" : "toe", initial, foot.toes).y < 0.01;
     let rockerRise: ReturnType<typeof walkLeg.prepareHeelRise> | undefined;
+    let sole: ReturnType<typeof HumanFoot.prepareSole> | undefined;
+    const lean: ReturnType<typeof walkLeg.prepareLean> = walkLeg.prepareLean(body, heading);
+    const trailing: ReturnType<typeof walkLeg.prepareTrailing> = walkLeg.prepareTrailing(body, yaw);
     return (h: IAutoMovieVector3): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
       let placement: HumanFoot.IPlacement = initial;
       let pitch: number = starting;
@@ -129,7 +133,7 @@ export namespace walkReachStance {
         if (about === "heel")
           for (let k: number = 0; k < 4; k++) {
             const top: number =
-              -walkLeg.lean(body, h, placement.ankle, heading) +
+              -lean(h, placement.ankle) +
               20 -
               walkLeg.ANKLE;
             if (pitch <= top + 1e-6) break;
@@ -160,9 +164,9 @@ export namespace walkReachStance {
         const risen: number = walkLeg.rise(
           (degrees: number): number => {
             const ankle: IAutoMovieVector3 = at(degrees).ankle;
-            return degrees + walkLeg.lean(body, h, ankle, heading) + 50 >
+            return degrees + lean(h, ankle) + 50 >
               walkLeg.ANKLE
-              ? TRAIL - walkLeg.trailing(body, h, ankle, yaw)
+              ? TRAIL - trailing(h, ankle)
               : Infinity;
           },
           pitch,
@@ -219,7 +223,7 @@ export namespace walkReachStance {
         const sign: number = Math.sign(aside);
         let edge: IAutoMovieVector3 = placement.ankle;
         let most: number = -Infinity;
-        for (const q of HumanFoot.sole(body, side, placement)) {
+        for (const q of (sole ??= HumanFoot.prepareSole(body, side))(placement)) {
           const out: number =
             sign * Vector3.dot(Vector3.subtract(q, placement.ankle), across);
           if (out > most) {

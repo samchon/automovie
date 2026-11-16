@@ -2,6 +2,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 
 /**
@@ -87,7 +88,8 @@ export namespace AutoMovieMotionHumanBase {
       posture: (
         seconds: number,
         channels?: readonly AutoMovieMotionHumanChannel[],
-      ): IHumanPosture => carrier.posture(seconds, channels),
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      ): IHumanPosture => carrier.posture(seconds, channels, resolution),
     };
   }
 

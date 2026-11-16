@@ -24,6 +24,7 @@ import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
 import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
+import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
 
@@ -262,12 +263,18 @@ export namespace handOver {
         share,
       ),
     });
+    const openAt: ReturnType<typeof HumanPrehension.prepareShape> | undefined = opens
+      ? HumanPrehension.prepareShape({ entry: closed, open: flat, closed: flat }, 1) : undefined;
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> | undefined = opens
+      ? HumanPrehension.prepareShape({ entry: flat, open: relaxed, closed: relaxed }, 1) : undefined;
+
     // The body at a second with the held hand turned by a yaw, degrees,
     // about the world's up. The offer's rotation is shared with the
     // receiver's grip, so the way out keeps it at both ends and chooses the
     // turn between them its arm meets with the prop upright
-    // (`HumanHandover.upright`).
-    const pose = (seconds: number, yaw: number): IHumanPosture => {
+    // (`HumanHandoverUpright`). At a fixed second only that rotation varies;
+    // transport, digits, direct body and all other goals are prepared once.
+    const frameAt: (seconds: number) => HumanHandoverUpright.IFrame = (seconds: number): HumanHandoverUpright.IFrame => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
       let rotation: IAutoMovieQuaternion;
@@ -275,43 +282,28 @@ export namespace handOver {
       let share: number = 1;
       if (t <= shared.offer) {
         wrist = out.wrist(t);
-        rotation = Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-          out.turn(t),
-        );
-        share = minimumJerk(t / shared.offer).s;
+        rotation = out.turn(t);
+        share = minimumJerk.share(t / shared.offer);
       } else if (t <= pullback) {
         wrist = shared.giverAt.point;
         rotation = shared.giverAt.rotation;
       } else if (opens && t <= pullback + OPEN) {
         wrist = shared.giverAt.point;
         rotation = shared.giverAt.rotation;
-        digits = HumanPrehension.shape(
-          { entry: closed, open: flat, closed: flat },
-          1,
-          minimumJerk((t - pullback) / OPEN).s,
-        );
+        digits = openAt!(minimumJerk.share((t - pullback) / OPEN));
       } else {
         const r: number = t - pullback - (opens ? OPEN : 0);
         wrist = home.wrist(r);
         rotation = home.turn(r);
-        share = 1 - minimumJerk(r / back).s;
+        share = 1 - minimumJerk.share(r / back);
         if (opens)
-          digits = HumanPrehension.shape(
-            { entry: flat, open: relaxed, closed: relaxed },
-            1,
-            r / back,
-          );
+          digits = returnShape!(r / back);
       }
       const base: IHumanPosture = leaned(share);
       return {
-        ...base,
-        joints: { ...base.joints, ...digits },
-        limbs: {
-          ...base.limbs,
-          [limb]: {
+        posture: { ...base, joints: { ...base.joints, ...digits } },
+        goal: {
             point: wrist,
-            rotation,
             bend,
             // Each named instant's solution counts in full at its instant.
             // Between them the blend is no arm's solution of the goal
@@ -322,14 +314,16 @@ export namespace handOver {
               weight: (2 * share - 1) ** 2,
             },
             ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
-          },
         },
+        rotation: (yaw: number): IAutoMovieQuaternion => t <= shared.offer
+          ? Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), rotation)
+          : rotation,
       };
     };
-    const turn: (seconds: number) => number = HumanHandover.upright(
+    const turn: (seconds: number) => number = HumanHandoverUpright.prepared(
       body,
       side,
-      pose,
+      frameAt,
       0,
       shared.offer,
       [0, 0],
@@ -366,7 +360,7 @@ export namespace handOver {
         },
       ],
       contact: shared.offer,
-      posture: (seconds: number): IHumanPosture => pose(seconds, turn(seconds)),
+      posture: (seconds: number): IHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
     };
   }
 }

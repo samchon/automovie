@@ -1,4 +1,4 @@
-import type { IAutoMovieRandom } from "@automovie/engine";
+import type { IAutoMovieRandom, preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -157,6 +157,15 @@ export namespace IHumanLayer {
 
     /** The person's group attributes (`IHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. */
     attributes?: Readonly<Partial<Record<HumanAttribute.Name, number>>>;
+
+    /**
+     * Exact FK metadata borrowed only during this synchronous layer apply.
+     * Call lazily for the same unchanged body; neither the reader nor this
+     * getter may be stored in a plan, output posture or callback. The host
+     * revokes its borrowed source on return or throw; a retained getter then
+     * creates an independent fresh reader rather than retaining the source.
+     */
+    resolution?: () => ReturnType<typeof preparePoseResolution>;
 
     /**
      * A target's world point and outward normal at a film second.

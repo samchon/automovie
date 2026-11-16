@@ -14,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "./HumanColliders";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -76,6 +77,7 @@ export namespace HumanFloorReading {
    * @param posture The posture, written by its joint angles alone.
    * @param bearing Each bearing part, as the bones it bears through.
    * @param targets The points read: each a bone and a point in its frame, its origin when absent.
+   * @param source Optional exact FK reader or lazy supplier borrowed only during this synchronous reading.
    * @returns The reading.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -83,8 +85,8 @@ export namespace HumanFloorReading {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the placed colliders.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every collider is read; none is skipped by its height.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds one posture resolution/FK to collider bounds and candidate work, B regex checks per collider for B bearing parts, and T target transforms; hull work still scans its vertices, while duplicate shape-frame composition is removed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Current bounds and candidates share one fresh shape frame; after hull extrema consume each fresh rotated point, the candidate collector adopts it and applies the original translation. Shape/pose reads stay fresh and bearing regex tests retain their original order and effects.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the reading arrays and posed snapshot references without module-level query retention; target points/turns may borrow their resolved bone vectors, which consumers keep unchanged with that reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied operation reader shares only exact current authored/ancestor FK dependencies through canonical limb/digit resolution and final bone reading. Current bounds/candidates share one fresh shape frame; hull points retain original rotation/translation arithmetic. Shape/pose reads and bearing regex order/effects remain current.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The FK source is borrowed synchronously and never enters the result. Returned arrays and fresh posed snapshots belong to the reading; target points/turns may borrow its resolved bone vectors, which consumers keep unchanged, without module-level query retention.
    */
   export function of(
     body: IHumanBody,
@@ -94,10 +96,15 @@ export namespace HumanFloorReading {
       bone: AutoMovieHumanoidBone;
       point?: IAutoMovieVector3;
     }[],
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IReading {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+      source === undefined ? undefined : prepareHumanPoseResolution(source);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      resolveHumanPosture(body, posture),
+      resolution === undefined ? resolveHumanPosture(body, posture) :
+        resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution).pose,
+      resolution?.(),
     );
     const lows: number[] = [];
     const owners: AutoMovieHumanoidBone[] = [];

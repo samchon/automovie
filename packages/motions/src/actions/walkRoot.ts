@@ -62,8 +62,8 @@ export function walkRoot(props: IProps): Pick<walkSteps.IPlan, "root" | "amount"
   const over: number = props.firstLeft + props.front * T;
   const middle: number = props.firstLeft + (T - props.swing / 2);
   const amount: (t: number) => number = (t: number): number => {
-    const up: number = minimumJerk((t - props.lag) / (props.first + T)).s;
-    const down: number = 1 - minimumJerk((t - props.stop) / (props.last + 0.2 - props.stop)).s;
+    const up: number = minimumJerk.share((t - props.lag) / (props.first + T));
+    const down: number = 1 - minimumJerk.share((t - props.stop) / (props.last + 0.2 - props.stop));
     return Math.max(0, Math.min(1, Math.min(up, down)));
   };
   const planned: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
@@ -90,7 +90,7 @@ export function walkRoot(props: IProps): Pick<walkSteps.IPlan, "root" | "amount"
   return {
     amount,
     root: (t: number): IAutoMovieVector3 => {
-      const fade: number = 1 - minimumJerk(t / 0.3).s;
+      const fade: number = 1 - minimumJerk.share(t / 0.3);
       const point: IAutoMovieVector3 = planned(t);
       return { x: point.x + offset.x * fade, y: point.y + offset.y * fade, z: point.z + offset.z * fade };
     },

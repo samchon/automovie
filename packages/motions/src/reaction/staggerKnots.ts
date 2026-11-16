@@ -13,6 +13,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -79,13 +80,15 @@ export namespace staggerKnots {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing reference and one shared axis-trial reader produce the two actual bending vectors.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original body, entry, pivot, lowering and reference angle; no fitted body proxy or sampled trajectory replaces the mass reading.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three original centre readings and two lowered trial postures per preparation; callers explicitly share this invariant within their unchanged-entry operation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the common balance and lowering owners, with no global body/entry result cache; a parent may borrow the actual completed result only under the same unchanged body and entry.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh shift vectors and retains no reader, posture or history after return.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous operation lends its exact FK workspace to the three actual full centre solves and both lowerings; only unchanged scalar FK prerequisites are shared while every changed posture/goal still solves normally. A parent may borrow the actual completed bending only under the same unchanged body and entry, with no global result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local lazy FK getter ends on return or throw; only two fresh shift vectors escape, without a reader, posture, sampled history or handle.
    */
   export function bending(
     body: IHumanActionContext["body"],
     entry: IHumanActionContext["entry"],
   ): Record<"pitch" | "roll", IAutoMovieVector3> {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const standing: IHumanPosture = {
       ...entry.posture,
       limbs: {
@@ -96,6 +99,7 @@ export namespace staggerKnots {
     const upright: IAutoMovieVector3 = HumanBalance.centre(
       body,
       standing,
+      resolution,
     );
     const sine: number = Math.sin((staggerBounds.REFERENCE * Math.PI) / 180);
     const shift: (more: walkStanceCourse.ITrunk) => IAutoMovieVector3 = (more: {
@@ -107,10 +111,14 @@ export namespace staggerKnots {
         standing,
         more,
       );
-      const centre: IAutoMovieVector3 = HumanBalance.centre(body, {
-        ...tilted,
-        root: resolveHumanPosture.lower(body, tilted).root,
-      });
+      const centre: IAutoMovieVector3 = HumanBalance.centre(
+        body,
+        {
+          ...tilted,
+          root: resolveHumanPosture.lower(body, tilted, resolveHumanPosture.KNEE, resolution).root,
+        },
+        resolution,
+      );
       return {
         x: (centre.x - upright.x) / sine,
         y: 0,

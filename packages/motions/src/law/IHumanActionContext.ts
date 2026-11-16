@@ -18,6 +18,7 @@ import type { HumanForce } from "../perform/HumanForce";
 import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanActionLaw } from "./IHumanActionLaw";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
@@ -313,11 +314,13 @@ export namespace IHumanActionContext {
      *
      * @param seconds Seconds of the overlay's own clock.
      * @param channels Optional requested channels; omitted for a whole-posture read.
+     * @param resolution Optional same-body exact FK source borrowed only by this synchronous posture call, never retained by the carrier or returned posture.
      * @returns The carrier's posture at that instant; its last posture once it has ended. Only requested channels are valid when supplied.
      */
     posture(
       seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IHumanPosture;
 
     /**

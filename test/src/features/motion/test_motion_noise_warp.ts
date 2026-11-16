@@ -1,12 +1,14 @@
 import {
   createAutoMovieRandom,
   deriveAutoMovieSeed,
+  type IAutoMovieRandom,
   seededSmoothNoise,
   warpRoot,
 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 
 /**
@@ -23,17 +25,23 @@ import { throwsError } from "../internal/throwsError";
  *    untouched before 0.5 s, reaches the full displacement and turn at 1.5 s
  *    and after, and has zero rate at both window ends.
  * 4. A window that does not move forward throws.
+ * 5. An owned pure indexed spectrum gives four literal sine terms under
+ *    256u^4(1-u)^4. Preparation draws nothing at construction or outside its
+ *    open window; its first interior read draws indices0..7 once, then
+ *    arbitrary query order evaluates the same analytic function.
+ * 6. Invalid fixed parameters refuse on the first read, including an
+ *    endpoint, before any draw. A one-term reader retains its own spectrum.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public noise and warp; a window without vanishing derivatives, a stream not keyed by its ids, or a warp profile with a velocity step fails.
- * @evidence contracts/development/testing.md#independent-expectations The window (16u^2(1-u)^2)^2 has a fourth-order zero at both ends, so values and differences near the ends scale as the step to the fourth; a sum of 4 sines over sqrt(4) is bounded by 2; the warp's endpoints are its declared displacement.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers both window ends, the middle, equal and different streams, the warp before, inside and after its window and an invalid window.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates public direct/prepared noise and warp. Literal sinusoidal values and owned draw traces catch stale time answers, missing terms, changed draw order, eager draws or invalid first-read admission alongside stream identity and warp continuity.
+ * @evidence contracts/development/testing.md#independent-expectations The window256u^4(1-u)^4 has fourth-order zeros, and four unit sines divided by2 are bounded by2. Literal alternating draws0,1/8,1/4,3/8,1/2,5/8,3/4,7/8 at2Hz and1.25s give phase/pi pairs(1.5u+.25),(2.375u+.75),(3.25u+1.25),(4.125u+1.75). This equation, with1e-12 scalar roundoff, supplies prepared/direct expectations independently of their common implementation. Warp endpoints are the declared displacement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both ends/outside/NaN, interior reverse and repeated seeks, literal four-term versus singleton spectra, no-draw inactive times, required first ordered draws, first-read invalid duration/frequency/count, equal/different streams and warp boundary/refusal. It adds no noise-result cache or new public API.
+ * @evidence contracts/development/testing.md#execution-ownership A pure discoverable in-memory unit owns the indexed stream adapter and its callback trace; it replaces no foreign random function/global, starts no host/compiler and runs through the existing feature harness.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists six scenarios, the independent frequency/phase/window equation, lazy admission/draw semantics and the distinction between reusable coefficients and current output.
  */
 export function test_motion_noise_warp(): void {
   const seed: string = deriveAutoMovieSeed("film", "a", "jab", "path");
-  const a = createAutoMovieRandom(seed);
-  const n = (u: number): number => seededSmoothNoise(a, u, 0.8, 3);
+  const a: IAutoMovieRandom = createAutoMovieRandom(seed);
+  const n: (u: number) => number = (u: number): number => seededSmoothNoise(a, u, 0.8, 3);
   TestValidator.predicate("zero at ends", n(0) === 0 && n(1) === 0);
   for (const h of [1e-2, 1e-3]) {
     const near: number = Math.max(Math.abs(n(h)), Math.abs(n(1 - h)));
@@ -42,8 +50,8 @@ export function test_motion_noise_warp(): void {
       near <= 2 * 256 * h ** 4,
     );
   }
-  TestValidator.equals("repeatable", n(0.37), n(0.37));
-  const other = createAutoMovieRandom(
+  TestValidator.predicate("repeatable", nclose(n(0.37), n(0.37), 1e-12));
+  const other: IAutoMovieRandom = createAutoMovieRandom(
     deriveAutoMovieSeed("film", "a", "jab", "guard"),
   );
   TestValidator.predicate(
@@ -54,6 +62,43 @@ export function test_motion_noise_warp(): void {
   for (let u: number = 0; u <= 1; u += 0.001)
     if (Math.abs(n(u)) > 2 + 1e-12) bounded = false;
   TestValidator.predicate("bounded", bounded);
+
+  const draws: number[] = [];
+  const indexed: IAutoMovieRandom = {
+    ...a,
+    float: (index: number): number => { draws.push(index); return (index % 8) / 8; },
+  };
+  const prepared: (u: number) => number = seededSmoothNoise.prepare(indexed, 1.25, 2);
+  TestValidator.equals("spectrum construction performs no indexed draw", draws, []);
+  for (const u of [-1, -0, 0, 1, 2, NaN])
+    TestValidator.predicate("outside the open window needs no spectrum", nclose(prepared(u), 0, 0));
+  TestValidator.equals("inactive time reads perform no indexed draw", draws, []);
+  for (const u of [0.83, 0.11, 0.5, 0.83, 0.37])
+    TestValidator.predicate(`prepared spectrum evaluates all literal terms at u=${u}`,
+      nclose(prepared(u), literalNoise(u), 1e-12),
+    );
+  TestValidator.equals("fixed pure spectrum draws each required index once in authored order", draws, [0, 1, 2, 3, 4, 5, 6, 7]);
+  for (const u of [0.11, 0.83])
+    TestValidator.predicate("direct noise retains the same independent four-term equation",
+      nclose(seededSmoothNoise(indexed, u, 1.25, 2), literalNoise(u), 1e-12),
+    );
+  TestValidator.equals("ordinary entry still performs each current set of draws",
+    draws.slice(8), [0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7],
+  );
+  draws.length = 0;
+  for (const [duration, frequency, terms] of [[0, 2, 4], [1, -2, 4], [1, 2, 0], [1, 2, 1.5]] as const) {
+    const invalid: (u: number) => number = seededSmoothNoise.prepare(indexed, duration, frequency, terms);
+    TestValidator.predicate("fixed invalid parameters refuse at the first endpoint read",
+      throwsError((): number => invalid(0), "positive duration, frequency and term count"),
+    );
+  }
+  TestValidator.equals("invalid admission never consumes the source spectrum", draws, []);
+  const singleton: (u: number) => number = seededSmoothNoise.prepare(indexed, 1.25, 2, 1);
+  for (const u of [0.19, 0.72, 0.19])
+    TestValidator.predicate("a separate singleton reader retains its own exact sine and window",
+      nclose(singleton(u), 256 * u ** 4 * (1 - u) ** 4 * Math.sin(Math.PI * (1.5 * u + 0.25)), 1e-12),
+    );
+  TestValidator.equals("singleton preparation consumes only its own two declared indices", draws, [0, 1]);
 
   const root: IAutoMovieTransform = {
     translation: { x: 1, y: 0, z: 2 },
@@ -66,7 +111,7 @@ export function test_motion_noise_warp(): void {
     start: 0.5,
     end: 1.5,
   };
-  const at = (s: number): IAutoMovieTransform => warpRoot(root, warp, s);
+  const at: (s: number) => IAutoMovieTransform = (s: number): IAutoMovieTransform => warpRoot(root, warp, s);
   TestValidator.predicate(
     "before untouched",
     at(0.2).translation.x === 1 && at(0.2).rotation.w === 1,
@@ -88,5 +133,13 @@ export function test_motion_noise_warp(): void {
   TestValidator.predicate(
     "backward window",
     throwsError((): unknown => warpRoot(root, { ...warp, end: 0.5 }, 1)),
+  );
+}
+
+/** Four independently expanded phase equations under the authored contact window. */
+function literalNoise(u: number): number {
+  return 128 * u ** 4 * (1 - u) ** 4 * (
+    Math.sin(Math.PI * (1.5 * u + 0.25)) + Math.sin(Math.PI * (2.375 * u + 0.75)) +
+    Math.sin(Math.PI * (3.25 * u + 1.25)) + Math.sin(Math.PI * (4.125 * u + 1.75))
   );
 }

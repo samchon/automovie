@@ -258,7 +258,9 @@ export namespace operate {
     const origin: AutoMovieMotionHumanArm.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
-        poseBones(body, context.entry.pose),
+        poseBones(body, context.entry.pose, undefined, HumanHand.frameBones(
+          body, side, mechanism.kind === "button" ? "indexTip" : "grip",
+        )),
         { origin: context.entry.posture.root, yaw: context.entry.posture.yaw },
         side,
         mechanism.kind === "button" ? "indexTip" : "grip",
@@ -295,6 +297,9 @@ export namespace operate {
     const rigid: ReturnType<typeof operateState.prepare> | undefined =
       part === undefined && mechanism.kind !== "insert"
         ? operateState.prepare(mechanism, place, hinge) : undefined;
+    const insertion: ReturnType<typeof operateInsert.prepare> | undefined =
+      mechanism.kind === "insert"
+        ? operateInsert.prepare(context, mechanism, inserted!, place) : undefined;
     const strokeStart: number = clock.at("strokeStart");
     const strokeEnd: number = clock.at("strokeEnd");
     // Arbitrary-progress plan probes invert the original clock to adjacent
@@ -319,14 +324,7 @@ export namespace operate {
       seconds?: number,
     ): AutoMovieMotionHumanArm.ITarget => {
       if (mechanism.kind === "insert")
-        return operateInsert.target(
-          context,
-          mechanism,
-          inserted!,
-          place,
-          posture,
-          progress,
-        );
+        return insertion!(posture, progress);
       const now: {
         point: IAutoMovieVector3;
         normal: IAutoMovieVector3;

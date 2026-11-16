@@ -30,7 +30,7 @@ export function walkDelayed(
   wait: number,
 ): IHumanActionPlan {
   const duration: number = wait + plan.duration;
-  const share = (was: number): number =>
+  const share: (was: number) => number = (was: number): number =>
     was <= 1e-12 ? 0 : (wait + was * plan.duration) / duration;
   return {
     ...plan,

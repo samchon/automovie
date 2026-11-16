@@ -336,6 +336,8 @@ export namespace putDown {
     );
     const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
     const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const openAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape({ entry: closed, open: flat, closed: flat }, 1);
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape({ entry: flat, open: relaxed, closed: relaxed }, 1);
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     const part: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
@@ -404,20 +406,12 @@ export namespace putDown {
         } else if (t <= down + OPEN) {
           wrist = place;
           turned = rotation;
-          digits = HumanPrehension.shape(
-            { entry: closed, open: flat, closed: flat },
-            1,
-            (t - down) / OPEN,
-          );
+          digits = openAt((t - down) / OPEN);
         } else {
           const r: number = t - down - OPEN;
           wrist = retreat.wrist(back - r);
           turned = retreat.turn(back - r);
-          digits = HumanPrehension.shape(
-            { entry: flat, open: relaxed, closed: relaxed },
-            1,
-            r / back,
-          );
+          digits = returnShape(r / back);
         }
         return {
           ...held,

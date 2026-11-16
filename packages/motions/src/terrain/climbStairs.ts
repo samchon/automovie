@@ -158,6 +158,7 @@ export namespace climbStairs {
       .posture(0);
     const yaw: number = standing.yaw;
     const stairs: IFlight = flight(body, standing, p);
+    const framed: HumanFrame.IPrepared = HumanFrame.prepare(stairs.frame);
     const sign: number = stairs.direction === "up" ? 1 : -1;
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
@@ -188,8 +189,8 @@ export namespace climbStairs {
         );
         return {
           z:
-            HumanFrame.local(stairs.frame, at).z -
-            HumanFrame.local(stairs.frame, flat(side).ankle).z,
+            framed.local(at).z -
+            framed.local(flat(side).ankle).z,
           y: at.y - flat(side).ankle.y,
         };
       });
@@ -200,7 +201,7 @@ export namespace climbStairs {
     const sole: (side: "left" | "right") => AutoMovieMotionHumanClearance.IPoint[] = (side: "left" | "right"): AutoMovieMotionHumanClearance.IPoint[] => soles[side];
     const printOf: (side: "left" | "right", level: number) => IPrint = (side: "left" | "right", level: number): IPrint => {
       if (level === 0) return { placement: flat(side), level: 0 };
-      const [heel, , toe] = sole(side);
+      const [heel, , toe]: AutoMovieMotionHumanClearance.IPoint[] = sole(side);
       const length: number = toe!.z - heel!.z;
       const edge: number = stairs.first + (level - 1) * stairs.tread;
       // The last tread is the landing: it has no far edge to keep from.
@@ -215,8 +216,8 @@ export namespace climbStairs {
       const ankle: IAutoMovieVector3 = flat(side).ankle;
       return {
         placement: {
-          ankle: HumanFrame.point(stairs.frame, {
-            x: HumanFrame.local(stairs.frame, ankle).x,
+          ankle: framed.point({
+            x: framed.local(ankle).x,
             y: ankle.y + sign * level * stairs.riser,
             z: heelAt - heel!.z,
           }),
@@ -266,7 +267,7 @@ export namespace climbStairs {
     // The clock: a step period per swing, the swing at its end, and a settle.
     const period: number = (60 / CADENCE) * Math.sqrt(m.hipHeight / 0.93);
     const instants: AutoMovieMotionClock.IInstant[] = [];
-    steps.forEach((_, j: number): void => {
+    steps.forEach((_: unknown, j: number): void => {
       instants.push(
         { name: `toeOff${j + 1}`, seconds: (j + 1 - SWING) * period },
         { name: `treadContact${j + 1}`, seconds: (j + 1) * period },
@@ -286,17 +287,17 @@ export namespace climbStairs {
         left: [{ print: print("left", 0), step: 0 }],
         right: [{ print: print("right", 0), step: 0 }],
       };
-    steps.forEach((s, j: number): void => {
+    steps.forEach((s: (typeof steps)[number], j: number): void => {
       prints[s.side].push({ print: print(s.side, s.level), step: j + 1 });
     });
 
     // The stances: both feet after each step, and the root over their
     // middle as high as both legs reach from it.
-    const reached = (
+    function reached(
       posture: IHumanPosture,
       feet: Record<"left" | "right", HumanFoot.IPlacement>,
-    ): IAutoMovieVector3 =>
-      resolveHumanPosture.lower(body, {
+    ): IAutoMovieVector3 {
+      return resolveHumanPosture.lower(body, {
         ...posture,
         limbs: {
           ...posture.limbs,
@@ -316,6 +317,7 @@ export namespace climbStairs {
           ),
         },
       }).root;
+    }
     const stance: IAutoMovieVector3[] = [standing.root];
     {
       const now: Record<"left" | "right", IPrint> = {
@@ -351,22 +353,22 @@ export namespace climbStairs {
 
     // A swinging foot's path: the shortest one over the flight's profile,
     // travelled on minimum-jerk progress.
-    const swing = (
+    function swing(
       side: "left" | "right",
       a: HumanFoot.IPlacement,
       b: HumanFoot.IPlacement,
-    ): ((s: number) => HumanFoot.IPlacement) => {
-      const from: IAutoMovieVector3 = HumanFrame.local(stairs.frame, a.ankle);
-      const to: IAutoMovieVector3 = HumanFrame.local(stairs.frame, b.ankle);
-    const path: ReturnType<typeof AutoMovieMotionHumanClearance.path> = AutoMovieMotionHumanClearance.path(
+    ): (s: number) => HumanFoot.IPlacement {
+      const from: IAutoMovieVector3 = framed.local(a.ankle);
+      const to: IAutoMovieVector3 = framed.local(b.ankle);
+      const path: ReturnType<typeof AutoMovieMotionHumanClearance.path> = AutoMovieMotionHumanClearance.path(
         { z: from.z, y: a.ankle.y },
         { z: to.z, y: b.ankle.y },
         required(side),
       );
       return (s: number): HumanFoot.IPlacement => {
-        const at: AutoMovieMotionHumanClearance.IPoint = path(minimumJerk(Math.min(1, Math.max(0, s))).s);
+        const at: AutoMovieMotionHumanClearance.IPoint = path(minimumJerk.share(Math.min(1, Math.max(0, s))));
         return {
-          ankle: HumanFrame.point(stairs.frame, {
+          ankle: framed.point({
             x:
               from.x +
               ((to.x - from.x) * (at.z - from.z)) /
@@ -377,7 +379,7 @@ export namespace climbStairs {
           rotation: b.rotation,
         };
       };
-    };
+    }
     const footAt: ReturnType<typeof climbStairsFeet> =
       climbStairsFeet(prints, clock, swing);
     const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis.of(

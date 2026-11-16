@@ -168,24 +168,24 @@ export namespace HumanMountOff {
       ? [0.3 * duration, 0.8 * duration]
       : [seatOff, 0.8 * duration];
     const frameAt = (t: number): Frame => {
-      const across: number = minimumJerk(
+      const across: number = minimumJerk.share(
         (t - crossing[0]) / (crossing[1] - crossing[0]),
-      ).s;
+      );
       const socket: IAutoMovieVector3 = {
         x: start.x + (goal.x - start.x) * across,
         y:
           start.y +
-          hop * minimumJerk((t - seatOff) / (0.2 * duration)).s +
+          hop * minimumJerk.share((t - seatOff) / (0.2 * duration)) +
           (goal.y - start.y - hop) *
-            minimumJerk((t - 0.35 * duration) / (0.5 * duration)).s,
+            minimumJerk.share((t - 0.35 * duration) / (0.5 * duration)),
         z: start.z + (goal.z - start.z) * across,
       };
       const lean: number =
         t < 0.4 * duration
           ? pitch0 +
-            (HumanMount.LEAN - pitch0) * minimumJerk(t / (0.4 * duration)).s
+            (HumanMount.LEAN - pitch0) * minimumJerk.share(t / (0.4 * duration))
           : HumanMount.LEAN *
-            (1 - minimumJerk((t - 0.4 * duration) / (0.6 * duration)).s);
+            (1 - minimumJerk.share((t - 0.4 * duration) / (0.6 * duration)));
       const tilt: { pitch: number; joints: IHumanPosture["joints"] } =
         HumanTrunk.incline(relaxed, lean);
       return {
@@ -341,7 +341,7 @@ export namespace HumanMountOff {
                   bend: down.bend,
                   yaw: yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
                 },
-                minimumJerk((t - departs) / (arrives - departs)).s,
+                minimumJerk.share((t - departs) / (arrives - departs)),
                 0.1 * m.shank,
                 sideways && side === leader ? over : undefined,
               ),
@@ -351,7 +351,7 @@ export namespace HumanMountOff {
         return seated.arms(
           body,
           { ...frame, roll: 0, limbs },
-          1 - minimumJerk(t / (0.3 * duration)).s,
+          1 - minimumJerk.share(t / (0.3 * duration)),
         );
       },
     };

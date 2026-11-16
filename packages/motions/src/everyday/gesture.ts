@@ -378,10 +378,10 @@ export namespace gesture {
     // and the transport's share.
     const weight: (t: number) => number = (t: number): number =>
       t < prepare
-        ? minimumJerk(t / prepare).s
+        ? minimumJerk.share(t / prepare)
         : t <= retractAt
           ? 1
-          : 1 - minimumJerk((t - retractAt) / retract).s;
+          : 1 - minimumJerk.share((t - retractAt) / retract);
     const prior = (t: number, geometry: boolean = true): gestureHands.IPrior => {
       const envelope: number = weight(t);
       const u: number = Math.min(1, Math.max(0, (t - prepare) / stroke));

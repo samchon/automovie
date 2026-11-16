@@ -320,13 +320,13 @@ export namespace knee {
       const lift: number = KneeForm.LIFT_SHARE * span;
       const lower: number = KneeForm.LIFT_SHARE * recoil;
       const whole: number =
-        minimumJerk((t - prep) / span).s - minimumJerk((t - impact) / recoil).s;
+        minimumJerk.share((t - prep) / span) - minimumJerk.share((t - impact) / recoil);
       const rise: number =
-        minimumJerk((t - prep) / lift).s -
-        minimumJerk((t - (duration - lower)) / lower).s;
+        minimumJerk.share((t - prep) / lift) -
+        minimumJerk.share((t - (duration - lower)) / lower);
       const drive: number =
-        minimumJerk((t - (impact - lift)) / lift).s -
-        minimumJerk((t - impact) / lower).s;
+        minimumJerk.share((t - (impact - lift)) / lift) -
+        minimumJerk.share((t - impact) / lower);
       const posture: IHumanPosture = carriage(g.thrust, g.turn, whole, drive, resolution);
 
       // The thigh swung about the hip the carriage leaves, the shank folding
@@ -460,10 +460,10 @@ export namespace knee {
         // lets go at the contact: the hands withdraw from where the nape was
         // at the stop, since the struck body reels out of the arms' reach.
         const s: number = at - t0;
-        const w: number = minimumJerk(
+        const w: number = minimumJerk.share(
           (t - s - StrikingStroke.DWELL) /
             Math.max(1e-3, duration - s - StrikingStroke.DWELL),
-        ).s;
+        );
         return carried(free(s * (1 - w), at), t);
       },
     };

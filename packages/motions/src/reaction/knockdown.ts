@@ -18,7 +18,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionSource } from "./ReactionSource";
@@ -120,9 +120,9 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#principled-implementation Overlapping minimum-jerk sit and roll-back profiles over one pose function, the root height solved each posture by the floor rest and the root's travel by the pose's own ankles and hips, so the feet and then the seat stay in place on any body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fits the body and reads the blow's heading once, then evaluates each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One phase/fold evaluation, one trunk resolution and one collider pass per posture, replacing three evaluations of the same fold and three channel merges with one combined writer; the original three 16-step fit bisections remain, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Floor measurement, root placement and checked joint addition retain their existing owners. The writer reuses its one sampled fold for floor, trunk and joints; fit and standing/seated measures remain once per plan and the heading cache is dropped on settle.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the fitted angles, two measures and one cached heading, cleared on settle and released with the plan. KnockdownFloor.fit releases its operation-local exact reader before returning; no phase or FK reader is retained by the time evaluator.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One phase/fold evaluation, one demanded trunk resolution and one collider pass per posture; the original three 16-step fit bisections remain. Fixed named phase intervals and entry-frame transforms prepare once, and the two planning-only measures share exact FK preparation without a runtime speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The writer shares one actual fold across floor/trunk/joints, while a planning IIFE lends one exact FK workspace to standing then seated measures. Fixed entry yaw/initial ankle establish frame equivalence; clock preparation verifies native method identities and otherwise preserves live callbacks. Floor/root/joint owners and settle's heading reset remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed frame/phase coefficients and one heading cleared on settle. Fit's reader and the planning IIFE's borrowed workspace release before plan return; every time evaluation creates its actual measure locally, without retaining an FK reader, sampled pose or query history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -142,26 +142,32 @@ export namespace knockdown {
       ],
     );
     const duration: number = clock.duration;
-    const sit = (seconds: number): number =>
-      clock.progress(AutoMovieMotionClock.START, "seated", seconds);
-    const back = (seconds: number): number =>
-      clock.progress("rolling", "down", seconds);
+    const sit: (seconds: number) => number = AutoMovieMotionClock.prepare(
+      clock, AutoMovieMotionClock.START, "seated",
+    ).progress;
+    const back: (seconds: number) => number = AutoMovieMotionClock.prepare(
+      clock, "rolling", "down",
+    ).progress;
 
     // The angles this body needs to rest on the floor, and where its ankles
     // and hips are along its heading standing and seated: the feet stay where
     // they stood until the seat lands, and the seat stays where it landed.
     const fitted: KnockdownFloor.IFit = KnockdownFloor.fit(body, back(SEATED));
-    const at = (seconds: number): KnockdownFloor.IMeasure =>
-      KnockdownFloor.measure(
-        body,
-        KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
-      );
-    const standing: KnockdownFloor.IMeasure = at(0);
-    const seated: KnockdownFloor.IMeasure = at(SEATED);
+    const [standing, seated]: readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] =
+      ((): readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+        const at: (seconds: number) => KnockdownFloor.IMeasure = (seconds: number): KnockdownFloor.IMeasure =>
+          KnockdownFloor.measure(
+            body,
+            KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
+            resolution,
+          );
+        return [at(0), at(SEATED)];
+      })();
 
     // The heading that faces the blow, so the back falls away from it.
     let cached: number | undefined;
-    const heading = (): number => {
+    const heading: () => number = (): number => {
       if (cached !== undefined) return cached;
       const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
@@ -178,11 +184,15 @@ export namespace knockdown {
       return cached;
     };
 
-    const flat = (yaw: number, forward: number): IAutoMovieVector3 =>
+    const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (yaw: number, forward: number): IAutoMovieVector3 =>
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: forward },
       );
+    const start: IAutoMovieVector3 = flat(entry.yaw, standing.ankle);
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw,
+    });
     return composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(
@@ -243,7 +253,7 @@ export namespace knockdown {
             const landed: boolean = seconds >= SEATED;
             const world: IAutoMovieVector3 = Vector3.add(
               Vector3.subtract(
-                flat(entry.yaw, standing.ankle),
+                start,
                 flat(
                   entry.yaw + turn * share,
                   (landed ? seated : now).ankle,
@@ -253,10 +263,7 @@ export namespace knockdown {
             );
             const placed: IHumanPosture = AutoMovieMotionHumanRoot.place(posture, {
               point: {
-                ...HumanFrame.local(
-                  { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-                  world,
-                ),
+                ...frame.local(world),
                 y: now.floor - entry.root.y,
               },
               yaw: turn * share,

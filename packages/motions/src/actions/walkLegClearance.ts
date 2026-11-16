@@ -106,9 +106,9 @@ export namespace walkLegClearance {
    * @evidence contracts/development/implementation.md#principled-implementation The tangle audit's own reading of every ordered pair of the two legs' segments, the probes it sets aside set aside; a pair whose bounding capsules keep apart holds the probes read apart from the other's collider.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The bones' frames, a capsule test per ordered pair, then the placements and one reading per pair that may meet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every ordered pair of the two legs is tested, and every pair that may meet is read against the audit's reference depths.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen segment distances; the probes are read only for the pairs whose capsules meet, and only those the audit reads; the capsules, the readable probes, the model and its references are built once per body.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanAuditTangleModel`'s model, references and depths.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the per-body memos.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen segment distances; only meeting segments are placed and only their readable probes are tested. Per-pair relative and per-shape fixed frames prepare once rather than per probe; the binding derivative places only its two actual segments. Body geometry/reference preparation remains once per body.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the audit model/references, one unchanged relative frame per meeting pair and one fixed-frame depth reader per visited shape. The binding keeps its original immutable profile shape/face and requests only its actual probe and hull bones from HumanColliders on each moved-leg query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Operation-local relative frames and at most the placed shapes' depth readers release after this reading; the returned binding closure retains only its bound/model/body dependencies until the caller releases it, without moved-leg or query history.
    */
   export function reading(
     body: IHumanBody,
@@ -119,7 +119,7 @@ export namespace walkLegClearance {
       AutoMovieMotionHumanAuditTangleModel.model(body);
     const fits: ReadonlyMap<AutoMovieHumanoidBone, walkLegCapsules.ICapsule> = walkLegCapsules.capsules(body);
     const index: ReadonlyMap<AutoMovieHumanoidBone, number> = walkLegCapsules.indices(body);
-    const legs = [one, other].map((leg: ILeg) => {
+    const legs: { leg: ILeg; axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] }[] = [one, other].map((leg: ILeg): { leg: ILeg; axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] } => {
       const k: IAutoMovieVector3 = leg.knee;
       const names: Record<string, AutoMovieHumanoidBone> = walkLegCapsules.NAMES[leg.side];
       const toes: IAutoMovieVector3 = Vector3.add(
@@ -135,7 +135,7 @@ export namespace walkLegClearance {
       // Each segment's capsule as posed: along the thigh's or the shank's
       // line from its joint, and carried rigidly with the foot for the foot
       // and the toes.
-      const lined = (
+      const lined: (bone: AutoMovieHumanoidBone, joint: IAutoMovieVector3, end: IAutoMovieVector3) => [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3] = (
         bone: AutoMovieHumanoidBone,
         joint: IAutoMovieVector3,
         end: IAutoMovieVector3,
@@ -150,7 +150,7 @@ export namespace walkLegClearance {
           Vector3.add(joint, Vector3.scale(along, fit.hi)),
         ];
       };
-      const rigid = (
+      const rigid: (bone: AutoMovieHumanoidBone, joint: IAutoMovieVector3) => [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3] = (
         bone: AutoMovieHumanoidBone,
         joint: IAutoMovieVector3,
       ): [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3] => {
@@ -206,38 +206,47 @@ export namespace walkLegClearance {
     // its depth the least of its distances inside the hull's face planes,
     // less its reference; the deepest is kept with the probe, the hull and
     // the face that bound it.
-    const segmentsOf = (leg: ILeg): Map<number, HumanColliders.IPlaced> =>
+    const segmentsOf: (leg: ILeg, requested?: ReadonlySet<AutoMovieHumanoidBone>) => Map<number, HumanColliders.IPlaced> = (leg: ILeg, requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<number, HumanColliders.IPlaced> =>
       new Map(
-        HumanColliders.placed(body, walkLegCapsules.bones(body, leg)).map(
+        HumanColliders.placed(body, walkLegCapsules.bones(body, leg, requested)).map(
           (segment: HumanColliders.IPlaced): [number, HumanColliders.IPlaced] => [
             index.get(segment.bone)!,
             segment,
           ],
         ),
       );
+    const meetingBones: readonly Set<AutoMovieHumanoidBone>[] = [new Set<AutoMovieHumanoidBone>(), new Set<AutoMovieHumanoidBone>()];
+    for (const [from, i, to, j] of meeting) {
+      meetingBones[from]!.add(m.parts[i]!.bone);
+      meetingBones[to]!.add(m.parts[j]!.bone);
+    }
     const segments: Map<number, HumanColliders.IPlaced>[] = [
-      segmentsOf(one),
-      segmentsOf(other),
+      segmentsOf(one, meetingBones[0]),
+      segmentsOf(other, meetingBones[1]),
     ];
+    const depths: Map<HumanColliders.IPlaced["shapes"][number], ReturnType<typeof walkLegBinding.prepareInside>> = new Map();
     let worst: number = 0;
     let binding: walkLegBinding.IBinding | undefined;
     for (const [from, i, to, j] of meeting) {
       const { probes, references } = walkLegCapsules.readable(m, body, i, j);
       const a: HumanColliders.IPlaced = segments[from]!.get(i)!;
       const b: HumanColliders.IPlaced = segments[to]!.get(j)!;
+      const relative: ReturnType<typeof walkLegBinding.prepareRelative> = walkLegBinding.prepareRelative(a, b);
       // A probe outside the bounding sphere of the second segment's corners
       // lies outside every hull of it.
       const sphere: AutoMovieMotionHumanAuditTangleModel.IPart = m.parts[j]!;
       for (let k: number = 0; k < probes.length; k++) {
-        const local: IAutoMovieVector3 = walkLegBinding.relative(probes[k]!, a, b);
+        const local: IAutoMovieVector3 = relative(probes[k]!);
         if (Vector3.length(Vector3.subtract(local, sphere.centre)) >= sphere.radius)
           continue;
         for (let s: number = 0; s < b.shapes.length; s++) {
-          const { depth, face } = walkLegBinding.inside(
-            b.shapes[s]!,
-            local,
-            Math.max(0, worst + references[k]!),
-          );
+          const shape: HumanColliders.IPlaced["shapes"][number] = b.shapes[s]!;
+          let inside: ReturnType<typeof walkLegBinding.prepareInside> | undefined = depths.get(shape);
+          if (inside === undefined) {
+            inside = walkLegBinding.prepareInside(shape);
+            depths.set(shape, inside);
+          }
+          const { depth, face }: ReturnType<typeof walkLegBinding.inside> = inside(local, Math.max(0, worst + references[k]!));
           if (depth > 0 && depth - references[k]! > worst) {
             worst = depth - references[k]!;
             binding = {
@@ -255,13 +264,26 @@ export namespace walkLegClearance {
       }
     }
     const bound: walkLegBinding.IBinding | undefined = binding;
+    const requested: readonly ReadonlySet<AutoMovieHumanoidBone>[] = bound === undefined
+      ? []
+      : bound.from === 0
+        ? [new Set<AutoMovieHumanoidBone>([m.parts[bound.i]!.bone]), new Set<AutoMovieHumanoidBone>([m.parts[bound.j]!.bone])]
+        : [new Set<AutoMovieHumanoidBone>([m.parts[bound.j]!.bone]), new Set<AutoMovieHumanoidBone>([m.parts[bound.i]!.bone])];
+    let plane: ((local: IAutoMovieVector3) => number) | undefined;
+    if (bound !== undefined) {
+      const shape: HumanColliders.IPlaced["shapes"][number] = segments[bound.to]!.get(bound.j)!.shapes[bound.shape]!;
+      if (bound.face === undefined) {
+        const inside: ReturnType<typeof walkLegBinding.prepareInside> = depths.get(shape) ?? walkLegBinding.prepareInside(shape);
+        plane = (local: IAutoMovieVector3): number => inside(local, -Infinity).depth;
+      } else plane = walkLegBinding.preparePlanar(shape, bound.face);
+    }
     return {
       excess: worst,
       at: (first: ILeg, second: ILeg): number => {
         if (bound === undefined) return 0;
         const moved: Map<number, HumanColliders.IPlaced>[] = [
-          segmentsOf(first),
-          segmentsOf(second),
+          segmentsOf(first, requested[0]),
+          segmentsOf(second, requested[1]),
         ];
         const b: HumanColliders.IPlaced = moved[bound.to]!.get(bound.j)!;
         const local: IAutoMovieVector3 = walkLegBinding.relative(
@@ -269,12 +291,7 @@ export namespace walkLegClearance {
           moved[bound.from]!.get(bound.i)!,
           b,
         );
-        const shape: HumanColliders.IPlaced["shapes"][number] = b.shapes[bound.shape]!;
-        return (
-          (bound.face === undefined
-            ? walkLegBinding.inside(shape, local, -Infinity).depth
-            : walkLegBinding.planar(shape, local, bound.face)) - bound.reference
-        );
+        return plane!(local) - bound.reference;
       },
     };
   }

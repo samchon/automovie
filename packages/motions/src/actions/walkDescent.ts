@@ -94,7 +94,7 @@ export namespace walkDescent {
     return Math.max(
       actual,
       from +
-        (schedule.need - from) * minimumJerk(x).s -
+        (schedule.need - from) * minimumJerk.share(x) -
         schedule.rate * span * carriedRate(1, 1 - x) +
         schedule.bend * span * span * carriedAcceleration(1, 1 - x),
     );

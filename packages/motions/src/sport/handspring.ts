@@ -150,6 +150,14 @@ export namespace handspring {
      *
      * @param point The hands' middle as they come down, world metres.
      * @throws {HumanRefusal} When the point is off the surface.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the actual descending-hand midpoint in world metres and refusal for an off-surface place.
+     * @evidence contracts/development/implementation.md#principled-implementation The floor provider accepts its unbounded plane; vault's actual provider transforms the midpoint into its declared top frame and compares original width/depth half-extents.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure handspring calls the supplied surface owner once on the actual two-hand mean; that owner keeps the existing bounds check and refusal text.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An off-top place is refused and never moved, clamped or replaced by the support's centre.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Existing floor and vault providers perform constant work; requested hand-only FK reduces only the caller's unobserved hierarchy work, without reducing checks.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The callback reads the same fixed declared top/frame used to author this vault's actual hand support, without a cached acceptance answer.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Actual providers retain no queried point, result, numerical workspace or handle; the construction-time call lends one fresh midpoint and returns or throws synchronously.
      */
     within(point: IAutoMovieVector3): void;
   }
@@ -191,9 +199,9 @@ export namespace handspring {
    * @evidence contracts/development/implementation.md#principled-implementation The wheel to the release, the release's centre and its rate of change with the angle read from the table, the rate solved so the flight's turn over its fall time reaches `LAND`, and the support's constant angular acceleration ending at that rate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the table, the release, the rate, the timing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rate past the bound or a landing no rate reaches is refused, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Demanded spoke FK per table row and forty unchanged bisection steps of closed-form fall times remain. The fixed arched flight prepares one canonical local COM; each flight query rotates that vector and copies the original joints without another FK/mass reduction. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses wheel/flight owners, jump landing durations and standing plan. Three fixed key pairs prepare their ordered blend unions once; only the immutable arched flight shares local COM, while changing supported shapes retain their actual row computations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table, body mass model, three fixed key-pair readers and one copied arched flight articulation/local COM. Returned postures own fresh joint records, with no FK reader or query history retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Demanded spoke FK per table row, two-hand-only surface observation and forty unchanged bisection steps of closed-form fall times remain. The fixed arched flight prepares one canonical local COM/projected articulation; each flight query rotates that offset and copies original joints without another FK/mass scan or eligible projection. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses wheel/flight owners, jump landing durations and standing plan. Three fixed key pairs prepare their ordered blend unions once; only the immutable arched flight shares local COM and checked projected joints, while changing supported shapes retain their actual row computations. Landing lowering may explicitly borrow its synchronous parent's exact FK workspace.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table, body mass model, three fixed key-pair readers and one copied arched flight articulation/local COM. Returned postures own fresh joint records; an optional borrowed reader stays with its synchronous query caller and never enters the plan or output evidence.
    */
   export function over(
     context: IHumanActionContext<IParams>,
@@ -206,7 +214,7 @@ export namespace handspring {
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = standing.yaw;
-    const ease: (x: number) => number = (x: number): number => minimumJerk(x).s;
+    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
     const reached: ExerciseKey.IKey = left
       ? lunged(body)
       : ExerciseKey.mirror(lunged(body));
@@ -280,7 +288,7 @@ export namespace handspring {
         fix: "lower the surface, or place the hands' support where the lunge reaches",
       });
     const placing: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      StrikingBody.trunk(body, placedAt(down.angle));
+      StrikingBody.trunk(body, placedAt(down.angle), undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
     surface.within(
       Vector3.lerp(
         placing.get("leftHand")!.worldPosition,
@@ -424,7 +432,7 @@ export namespace handspring {
       right: Vector3.add(landed.right, { x: forward.x, y: body.measure.hipHeight / 2, z: forward.z }),
     };
     const span: number = jump.ABSORB + jump.RISE;
-    const after: (t: number) => IHumanPosture = (t: number): IHumanPosture => {
+    const after: (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IHumanPosture = (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
       const u: number = ease(t / span);
       const root: IAutoMovieVector3 = Vector3.add(
         Vector3.lerp(rootDown, rootUp, u),
@@ -445,7 +453,7 @@ export namespace handspring {
         pitch: (LAND - 360) * (1 - u),
         root,
         limbs,
-      });
+      }, undefined, resolution);
     };
 
     const contacts: IHumanContactWindow[] = [
@@ -472,11 +480,11 @@ export namespace handspring {
       events,
       contacts,
       contact: touchdown,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t < support) return placedAt(angleAt(t));
         if (t < touchdown) return flying(t - support);
-        return after(t - touchdown);
+        return after(t - touchdown, resolution);
       },
     };
   }

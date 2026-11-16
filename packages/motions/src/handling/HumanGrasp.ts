@@ -46,12 +46,9 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
  * `HumanPreshape` opens the hand for it on the way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame convention, the socket alignment, the width rule and who owns the pre-shape.
- * @evidence contracts/development/implementation.md#principled-implementation Affordance frame composition, socket-to-frame alignment, and collider extents along an axis read from the engine's shape span.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Target reading, hand placement and the reachable grip search as functions over one target record.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing prop affordance or collider throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms HumanGraspTarget prepares handle admission once; authored-aperture hand frames omit collider scans/allocations, inferred widths retain the original exact shape scan, and complete targets still supply all colliders. Reach search retains each original candidate/key fit.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The same target producer serves complete grasp closure and the hand-only support path, with no parallel geometry formula; fixed tool callers explicitly own one preparation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold facades retain nothing; explicit prepared target readers retain only their unchanged prop geometry for the consuming plan, without pose/time history or numerical readers.
+ * @evidence contracts/development/design.md#principled-representation World-metre grip points/widths and unit approach/wrapped axes describe a grasp; body-local hand offsets and rest-relative rotations place the wrist, and key/reach records report actual constrained fits.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The facade owns shared target/key/reach declarations and existing target, placement, reach and span entry points; HumanGraspTarget owns affordance geometry and HumanGraspReach owns numerical selection/standing prediction.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Complete targets retain real collider/grip data while IFrame narrows actual hand-only needs; no body, prop, fixture, guessed width or alternate solver is encoded in the shared surface.
  */
 export namespace HumanGrasp {
   /**
@@ -59,12 +56,19 @@ export namespace HumanGrasp {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Reuses the target's world grip point, inward approach, wrapped axis and metre width without requiring collider output a hand placement never reads.
    * @evidence contracts/development/design.md#principled-representation A Pick of the complete target retains its exact frames/units while distinguishing a hand's geometric goal from digit-closure collider data.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGraspTarget produces this view for HumanHeldUse.support; hand and around consume precisely these members.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGraspTarget produces this view for HumanHeldUse.second; hand and around consume precisely these members.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No field is guessed, widened or substituted; complete target consumers retain ITarget and its actual colliders/grip kind.
    */
   export type IFrame = Pick<ITarget, "point" | "approach" | "axis" | "width">;
 
-  /** A grasp target in the world. */
+  /**
+   * A grasp target in the world.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state world-metre point/width, unit approach/axis, grip kind and actual placed collider list.
+   * @evidence contracts/development/design.md#principled-representation A complete affordance target carries the frame a hand approaches and the geometry its digits close on; runtime construction checks handle/shapes while scalar/unit invariants remain numerical contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGraspTarget produces this record for pickUp, handover and grip closure; IFrame separately narrows placement-only needs without weakening closure data.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every field is actual affordance/body geometry; the grip kind is the interface's closed union and no guessed collider, aperture or fixture branch is represented.
+   */
   export interface ITarget {
     /** The grip point, world metres. */
     point: IAutoMovieVector3;
@@ -94,6 +98,14 @@ export namespace HumanGrasp {
    * @param seconds Film seconds.
    * @returns The target.
    * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Inputs identify a context prop, affordance and absolute film second; output is the complete world target and missing geometry retains its original refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The context supplies the actual displayed frame at that second and at performs the same rigid affordance transform and width reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop read and frame evaluation delegate geometry to at and its shared HumanGraspTarget owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame is inferred or reused across seconds, and absent affordance/colliders keep their existing refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds constant dispatch to at's O(S+V) shape/selected-span work, plus the context frame reader's own cost; it creates no independent solve or scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the complete target geometry owner without caching an effectful context lookup or displayed frame.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no context/frame/history after return; the caller owns fresh target wrappers borrowing the actual prop shape records.
    */
   export function target(
     context: Pick<IHumanActionContext, "prop">,
@@ -114,6 +126,14 @@ export namespace HumanGrasp {
    * @param frame The prop's world frame.
    * @returns The target.
    * @throws {HumanRefusal} When the prop declares no such affordance or no colliders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States prop/affordance/current world frame, complete world target output and missing-handle/shape refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanGraspTarget composes the same rigid affordance, inward normal and wrapped axis, choosing authored aperture or the nearest collider's exact projected span.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cold invocation of the shared target producer preserves a single geometry and admission owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Width, strict nearest-centre ties, shape list and original refusals remain; complete targets always contain their actual collider wrappers.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admission scans A affordances; complete wrapping scans S shapes, and inferred width adds its original S centre comparisons plus selected-shape span cost V. Authored aperture omits that width scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both complete and hand-only targets use HumanGraspTarget; explicit fixed-geometry consumers retain its producer, while this facade admits current inputs on every call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cold builder is released at return; only the fresh target/collider wrappers borrowing prop shape records and the supplied frame escape, with no result cache or handle.
    */
   export function at(
     prop: IHumanProp,
@@ -131,6 +151,14 @@ export namespace HumanGrasp {
    * @param target The target.
    * @param tilt Degrees the hand turns about the approach, for an oblique grip; 0 when absent.
    * @returns The wrist point and the hand's rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States unchanged canonical body/side, world target, optional degree tilt and fresh world wrist point/rest-relative hand rotation.
+   * @evidence contracts/development/implementation.md#principled-implementation prepareHand applies the same grip-frame alignment, approach tilt and half-width palm placement using the body's actual grip/palm offsets.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade delegates to the existing prepared hand-geometry owner for this actual target.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No width, point, tilt or normalization policy changes and no collider placeholders are required by the narrow target.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed hand geometry preparation and one rigid goal calculation; there is no IK, candidate scan or unused grip-wrist translation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same prepareHand producer serves this cold goal, grasp searches and other-hand support without another alignment or palm-placement formula.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cold preparation is released at return and retains no body/result history; output point and rotation are fresh numeric records.
    */
   export function hand(
     body: IHumanBody,
@@ -183,33 +211,11 @@ export namespace HumanGrasp {
   }
 
   /**
-   * The reachable variant of a symmetric hand goal: among the goals a
-   * family of turns produces (about a grasped part's own axis, where any
-   * azimuth wraps it alike, or about the palm's normal, where the palm's
-   * contact is unchanged), the one the arm can actually take from a posture,
-   * by the error left after the arm's fit over its three goals: the hand's
-   * rotation in degrees, the wrist's position in millimetres and the elbow's
-   * turn from its hint about the shoulder-to-wrist line in degrees, the one
-   * freedom a placed wrist leaves the elbow (Tolani, Goswami and Badler
-   * 2000). The fit gives up the elbow hint before the hand, so a hand turn
-   * the wrist's range cannot hold with the hinted elbow is reached by the
-   * other arm pose, the elbow raised; counting that turn as error ranks the
-   * grip the arm takes as the law asked above one it takes by leaving its
-   * bend. The authored turn wins ties by a hundredth of a
-   * degree per degree of turn. Grasp planners rank a part's symmetric grasps
-   * by reachability the same way (Miller et al. 2003, Automatic grasp
-   * planning using shape primitives), since an authored grip frame alone may
-   * ask the wrist for more deviation than it has.
-   *
-   * A grip is held through a stroke, not at one instant: a lifted bottle is
-   * still in the same grip at the top of the lift, a clasped hand at both
-   * ends of the pump. `stroke` names those further key poses for a candidate
-   * grip, and a candidate's error is the worst over the grasp and its keys,
-   * so the chosen grip is the one the arm keeps over the whole stroke. Each
-   * key is fitted with the grasp's own arm solution as its reference, the way
-   * the law will show it. The returned `reference` is that solution, for the
-   * law to pass on every goal of the stroke
-   * (`IHumanPosture.IGoal.reference`).
+   * Choose a symmetric grip by its actual constrained fit through the grasp
+   * and every reached stroke key. HumanGraspReach.reachable owns the
+   * complete numerical method and its cited grasp-planning basis: required
+   * judgements precede the original mixed degree/millimetre cost, with the
+   * grasp's own arm solution anchoring its stroke keys.
    *
    * @param body The body.
    * @param posture The posture the arm is fitted in (its other limbs and trunk).
@@ -222,6 +228,14 @@ export namespace HumanGrasp {
    * @param required What a grip must hold before its cost counts: a measure of its per-key errors, judgements and the bounds the keys hold their judgements to (the grasp's, then each stroke key's; `NaN` where none) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all: a candidate it refuses is tried only when it refuses every one. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents world wrist goals, degree turns/tilts, lazy stroke keys, actual shown hand, required judgements/bounds, caller admission and chosen arm reference.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to HumanGraspReach's actual full coupled posture fits and original required-first/lower-bound ordered search, preserving its physical joint ranges and key judgments.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This public facade passes every input to the single numerical owner without a second candidate selector or fit path.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All supplied turns, tilts, keys, admission callbacks, bounds, degree/millimetre cost and authored-turn preference retain their original policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owner fits C admitted turn/tilt goals and reached stroke keys, preserving original lower-bound pruning and complete numerical searches; this facade adds constant dispatch only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The numerical owner shares one exact FK reader and fixed-posture canonical base only where dependencies match, with every distinct complete goal still actually fitted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate/key/FK workspaces are local to the delegated synchronous search; only the chosen wrist, pose, reference and scalar reports escape without a reader or history.
    */
   export function reachable(
     body: IHumanBody,
@@ -265,7 +279,14 @@ export namespace HumanGrasp {
     (_: unknown, i: number): number => -90 + 15 * i,
   );
 
-  /** A key pose of a stroke: the posture the arm is fitted in, the wrist goal and the elbow hint. */
+  /**
+   * A key pose of a stroke: the posture the arm is fitted in, the wrist goal and the elbow hint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish world-metre wrist/elbow goals, other-limb posture, optional actual metre judgement/bound, complete goal and reference policy.
+   * @evidence contracts/development/design.md#principled-representation A key is a real whole-body posture and arm goal; optional judgement/bound measure the placed thing separately from mixed hand error. Runtime callers/resolver retain numerical unit/range obligations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Grasp, tool-use, dressing and next-action demand builders supply these fields to the single reachable owner; goal/reference options express actual differing fit contracts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses canonical posture, wrist, bone and goal types; no phantom successful judgment, guessed collider or fixture-specific alternative is represented.
+   */
   export interface IKey {
     /** The posture's other limbs and trunk at the key. */
     posture: IHumanPosture;
@@ -307,7 +328,14 @@ export namespace HumanGrasp {
     reference?: false;
   }
 
-  /** The reachable grip {@link reachable} chose. */
+  /**
+   * The reachable grip {@link reachable} chose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state degree turn/tilt/departure, wanted and achieved wrists, complete pose/reference, original mixed-unit error and ordered key metre judgements/bounds with original NaN absence.
+   * @evidence contracts/development/design.md#principled-representation One chosen candidate separates requested wrist from actual displayed hand and records the original full fitted pose/reference; runtime search owns feasibility and ordered array correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Pick-up, handover, clasp and held-support consumers read the chosen geometry/reference and reports; the numerical owner builds the record once for its retained best candidate.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Wanted and achieved frames are not conflated, errors keep their existing units, and no successful-contact flag or body/prop-specific result is invented.
+   */
   export interface IReach {
     /** Degrees of the chosen turn. */
     turn: number;
@@ -353,6 +381,14 @@ export namespace HumanGrasp {
    * @param body The person's body.
    * @param bones The person's displayed world bones.
    * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines displayed bone input and the stand-law posture centred on its feet under the hips' heading.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanGraspReach takes the displayed hips heading and foot midpoint, subtracts the body's rotated rest-foot midpoint and calls the existing stand law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegated owner supplies the same prediction used by handshake and handover.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guessed body proportions or root substitution replaces the actual displayed feet and canonical body rest geometry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant bone lookups and rigid arithmetic precede stand.posture's normal construction; this facade introduces no FK or body scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one standing prediction with all grasp consumers and the same stand law the partner actually performs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh stand posture and retains no displayed bone map, body memory, query history or handle.
    */
   export function standing(
     body: IHumanBody,
@@ -397,6 +433,14 @@ export namespace HumanGrasp {
    * @param colliders Placed colliders.
    * @param axis A unit direction.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States actual placed colliders, unit world axis and metre union width.
+   * @evidence contracts/development/implementation.md#principled-implementation The width of the projected union is its existing maximum support minus minimum support, computed by span.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One span query and one subtraction retain one shape-projection owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No axis normalization, collider approximation, tolerance or empty-list policy is added; original infinite endpoints propagate unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(S+V) span traversal covers S shapes and their total queried hull vertices V, with constant additional arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses span and the engine physicalShapeSpan rather than recomputing width with another geometric formula.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no collider list, span history or handles; only the numeric width is returned.
    */
   export function extent(
     colliders: readonly curlChainUntilContact.ICollider[],
@@ -414,6 +458,14 @@ export namespace HumanGrasp {
    * @param colliders Placed colliders.
    * @param axis A unit direction.
    * @returns The low and high projections, metres along the axis from the world origin.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines unit world-axis input and low/high world-origin metre projections of all actual placed shapes.
+   * @evidence contracts/development/implementation.md#principled-implementation Reduces each exact engine physicalShapeSpan by ordered minimum/maximum, which is the support interval of their union on the same axis.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shape loop and low/high accumulator delegate shape-specific support geometry to the engine.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every collider is queried in supplied order; original Infinity/-Infinity for an empty list, ties and all projection arithmetic remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S+V) time for S placed shapes and total queried hull vertices V; two scalar accumulators add constant space and the full scan is required for exact union extrema.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Extent and all grasp consumers use this same union reducer and shared engine projection owner without result caching or copied shape geometry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each engine span is consumed immediately; the fresh two-number tuple is the only output and no shapes, frames, history or handle are retained.
    */
   export function span(
     colliders: readonly curlChainUntilContact.ICollider[],

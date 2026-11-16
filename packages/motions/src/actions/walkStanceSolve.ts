@@ -76,8 +76,8 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The course problem owns physical evaluations, HumanSequentialConvex owns acceptance and steering, and a prepared quadratic model owns each fixed P/q/A convexification's numeric solves.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original QP calls, warm/cold choices, penalties, attempts and tolerance tests; preparation shares numeric prerequisites only while changing row intervals remain explicit solve inputs.
    * @evidence contracts/development/implementation.md#efficient-algorithms One x/objective linearization shares fixed matrices/preparation across steering prices, radius retries and bound-only corrections. Corrections reuse trial merit's raw bounds instead of unused derivatives/P/q; value/violation share one row pass and discarded steering proposals defer trial-vector allocation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed layout, ordered A and P/q stay private to one x/objective linearization. Repricing changes only original nonlinear rows to the exact new mu and starts fresh model-local cold/keyed-dual state; radius retries keep their original warm state and corrections remain cold while borrowing the exact trial's unclamped bounds.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve retains current multipliers, last-step metadata and active prepared-model state, each bounded by its course dimensions; model closures and numeric scratch release with the solve and no history or global cache is added.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed layout, ordered A and P/q stay private to one x/objective linearization. Repricing changes only original nonlinear rows to the exact new mu and starts fresh model-local cold/keyed-dual state; radius retries keep their original warm state. Reading the selected step's trial selects that exact proposal's model/d/radius for the cold correction, whose raw bounds come from the same trial evaluation; discarded feasibility proposals cannot replace this context.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve retains current multipliers, selected-proposal metadata and active prepared-model state, each bounded by its course dimensions. Each live step owns one fixed metadata record until release; no history/map or global cache is added, and model closures/scratch release with the solve.
    */
   export function optimise(
     body: IHumanBody,
@@ -94,17 +94,18 @@ export namespace walkStanceSolve {
     // starts from.
     let duals: Map<string, number> | undefined;
 
-    // The last step solved, its model and region, which a correction of it reads.
-    let last:
-      | {
-          x: Float64Array;
-          model: Q.IProblem;
-          rows: number;
-          radius: number;
-          step: Float64Array;
-          prepared: ReturnType<typeof Q.prepare>;
-        }
-      | undefined;
+    /** A proposal's exact numeric context for its second-order correction. */
+    type IProposal = {
+      x: Float64Array;
+      model: Q.IProblem;
+      rows: number;
+      radius: number;
+      step: Float64Array;
+      prepared: ReturnType<typeof Q.prepare>;
+    };
+    // Steering can solve a discarded feasibility model after its chosen
+    // proposal. Only reading the chosen trial selects correction context.
+    let last: IProposal | undefined;
     const problem: SCO.IProblem<Float64Array, walkStanceCourse.IEvaluation> = {
       evaluate: (x: Float64Array): walkStanceCourse.IEvaluation => {
         return at(x, false).problem.evaluate(x);
@@ -153,7 +154,7 @@ export namespace walkStanceSolve {
               // coefficients belong to this one convexification.
               prepared ??= Q.prepare(trusted);
               warm = prepared.solve(trusted.rows, warm, duals);
-              last = {
+              const proposal: IProposal = {
                 x,
                 model,
                 rows: convex.rows.length,
@@ -176,6 +177,7 @@ export namespace walkStanceSolve {
                 // Steering compares scalar diagnostics before choosing a model;
                 // only a proposal actually evaluated needs its course vector.
                 get trial(): Float64Array {
+                  last = proposal;
                   return (trial ??= shape.stepped(x, delta));
                 },
                 predicted: zero - value,

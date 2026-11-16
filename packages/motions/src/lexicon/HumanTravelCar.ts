@@ -46,11 +46,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  * round with the body and are not lifted over the sill, and the door's leaf
  * is taken as open.
  *
- * Each sampled headroom search owns a lazy exact-FK workspace across that
- * sample's flexion bisection. The workspace and posed readings end with the
- * search; refusal diagnostics reuse its measured maximum-duck excess.
+ * Crown metadata is prepared once for the entry. Each sampled headroom
+ * search owns a lazy exact-FK workspace across that sample's flexion
+ * bisection. The workspace and posed readings end with the search; refusal
+ * diagnostics reuse its measured maximum-duck excess.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search, refusals and first-pass limits, together with synchronous sample-workspace lifetime and exact diagnostic reuse without a measured speedup claim.
+ * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search, refusals and first-pass limits, together with fixed crown metadata, synchronous sample-workspace lifetime and exact diagnostic reuse without a measured speedup claim.
  * @evidence contracts/development/design.md#principled-representation A law record over `sit`: the seat and the opening are the affordances the car declares (`HumanObject.seat`, `HumanObstacle.apertures`).
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No car is special-cased; the headroom is the opening's own and the duck is solved against it for each body.
@@ -174,7 +175,7 @@ export namespace HumanTravelCar {
           { position: pivot, rotation: HumanFrame.turn(0) },
           {
             position: pivot,
-            rotation: HumanFrame.turn(turn * minimumJerk(Math.min(1, u)).s),
+            rotation: HumanFrame.turn(turn * minimumJerk.share(Math.min(1, u))),
           },
         );
       const undocked = (t: number): IHumanPosture =>
@@ -198,16 +199,13 @@ export namespace HumanTravelCar {
               },
             };
       };
+      const crownOf: ReturnType<typeof HumanTrunk.prepareRegion> =
+        HumanTrunk.prepareRegion(body, "crown");
       const over = (
         posture: IHumanPosture,
         resolution: ReturnType<typeof prepareHumanPoseResolution>,
       ): number => {
-        const crown: IAutoMovieVector3 = HumanTrunk.region(
-          body,
-          posture,
-          "crown",
-          resolution,
-        ).point;
+        const crown: IAutoMovieVector3 = crownOf(posture, resolution).point;
         const beyond: number =
           (crown.x - through.at.x) * out.x + (crown.z - through.at.z) * out.z;
         return beyond > HEAD ? -Infinity : crown.y - top;
@@ -261,12 +259,12 @@ export namespace HumanTravelCar {
           most = Math.max(
             most,
             need.degrees *
-              minimumJerk(
+              minimumJerk.share(
                 Math.min(
                   1,
                   Math.max(0, (LEAD + spacing - Math.abs(t - need.at)) / LEAD),
                 ),
-              ).s,
+              ),
           );
         }
         return most;

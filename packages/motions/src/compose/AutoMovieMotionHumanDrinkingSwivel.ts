@@ -8,6 +8,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanSwivelBound } from "./AutoMovieMotionHumanSwivelBound";
@@ -47,18 +48,25 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    * @evidence contracts/development/implementation.md#principled-implementation The range constrains the hint the arm is fitted with, in the source's own measure, solved in closed form on the swivel circle: the hint inside it is kept, one outside it moves to the nearest end of its refused arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk once, the four bounds once; per hint one call of the shared bound.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep and no sampling beyond the exact three-point fit; a wrist out of the arm's reach and a fully refused circle keep the hint for the admission to judge.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per posture, then constant work per hint.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closed-form bound on an elbow (`AutoMovieMotionHumanSwivelBound`), over the engine's arcs (`swivelArcs`), and the bounds `AutoMovieMotionHumanDrinkingArm.drinks` admits by.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over the arm and its four bounds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual limb-free canonical solve and ordered joint admission request only shoulder/elbow/wrist/hip FK ancestry/output, then constant work per hint. Proven unrelated digit fits may be omitted by the shared selector.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical observation and final FK share one exact local reader; all numerical projection/fit work remains actual. The closed-form bound and drinking measure retain their existing owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and four-name demand end when preparation returns/throws; the returned function retains only the original numerical arm/bounds, without poses, body history or the reader.
    */
   export function bounded(
     body: IHumanBody,
     posture: IHumanPosture,
     side: HumanHand.Side,
   ): (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
+    ]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      resolveHumanPosture(body, { ...posture, limbs: {} }),
+      resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined,
+        resolution, requested).pose,
+      resolution(),
+      requested,
     );
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)!.worldPosition;

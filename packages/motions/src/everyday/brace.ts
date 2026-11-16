@@ -192,7 +192,7 @@ export namespace brace {
       const ankle: IAutoMovieVector3 = Vector3.lerp(
         feet[side],
         placed,
-        minimumJerk(u).s,
+        minimumJerk.share(u),
       );
       return {
         ankle: { ...ankle, y: ankle.y + 0.03 * Math.sin(Math.PI * u) },
@@ -277,7 +277,7 @@ export namespace brace {
     // the set curve, and the hands opened flat once the brace begins.
     const bodyAt: (seconds: number) => IHumanPosture = (seconds: number): IHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      const s: number = minimumJerk(t / SET).s;
+      const s: number = minimumJerk.share(t / SET);
       const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
       const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
         relaxed,
@@ -382,7 +382,7 @@ export namespace brace {
         right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
       };
     const envelope: (at: number) => number = (at: number): number =>
-      minimumJerk(Math.min(1, Math.max(0, at) / SET)).s;
+      minimumJerk.share(Math.min(1, Math.max(0, at) / SET));
     const arms: Map<"left" | "right", HumanArmTrajectory.Trajectory> =
       gestureHands.planned(
         body,

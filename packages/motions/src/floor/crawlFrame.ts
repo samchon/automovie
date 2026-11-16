@@ -193,6 +193,29 @@ export namespace crawlFrame {
   }
 
   /**
+   * Write the crawl's flat fingers without constructing palm goals. This
+   * serves descent phases whose joint-space arm writer replaces both goals
+   * immediately, while retaining the laid posture's finger fallback.
+   *
+   * @param posture The current kneeling posture with its leg goals.
+   * @returns A new posture and joint map, with all other fields preserved.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unused-goal consumer, retained finger fallback and new output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Writes the same ordered left/right flat shape maps that prepareLaid writes; joint-space descent arms then apply their original held-finger fallback.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint-map merge exposes the finger shaping separately from the independently demanded palm targets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No actual contact goal or fitted arm is replaced: callers use this only where both original palm goals were overwritten before resolution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies J current joints plus the thirty fixed digit entries; no unused default elbow search or target goal is constructed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same two immutable side-only flat maps as the laid-palm owner, while current posture joints and returned maps remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No state is retained by a call; its returned posture owns a fresh joint map and borrows only immutable angle tuples.
+   */
+  export function flatHands(posture: IHumanPosture): IHumanPosture {
+    return {
+      ...posture,
+      joints: { ...posture.joints, ...FLAT.left, ...FLAT.right },
+    };
+  }
+
+  /**
    * A posture with both arms written by their joints, carried in joint space
    * from held angles toward others by a share, each hand shaped flat with
    * them (`HumanHand.shape`), and the arms' goals removed.
@@ -208,7 +231,7 @@ export namespace crawlFrame {
    * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the arm is blended between two sets of angles (`blendHumanJoint`), never re-solved toward a goal that moves.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three blended joints and the fingers per arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fingers start from the held ones, or the posture's where the arm holds none.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy O(B) rig index serves the six interior joint blends for B rig bones, with each actual interpolation's existing cost; endpoint shares need no metadata index and fixed flat shapes/key lists are not rebuilt.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy O(B) rig index serves the six interior joint blends for B rig bones, with each actual interpolation's existing cost; endpoint shares allocate no metadata reader, and fixed flat shapes/key lists are not rebuilt.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous blendHumanJoint metadata owner serves the six actual arm joints, and the two side-only flat shapes/key lists are shared constants; current endpoints and posture fingers remain per-query.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous joint-metadata reader ends on return or throw; two side-only immutable flat shape maps and key lists are bounded module constants, and no current posture or blended result is retained.
    */
@@ -221,8 +244,8 @@ export namespace crawlFrame {
   ): IHumanPosture {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    const blend: ReturnType<typeof blendHumanJoint.prepare> =
-      blendHumanJoint.prepare(body);
+    const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
+      share <= 0 || share >= 1 ? undefined : blendHumanJoint.prepare(body);
     for (const side of ["left", "right"] as const) {
       const from: AutoMovieMotionHumanArm.IAngles = held[side];
       const to: AutoMovieMotionHumanArm.IAngles = toward[side];
@@ -231,7 +254,12 @@ export namespace crawlFrame {
         [`${side}LowerArm`, "lower"],
         [`${side}Hand`, "hand"],
       ] as const)
-        joints[bone] = blend(bone, from[key], to[key], share);
+        joints[bone] =
+          share <= 0
+            ? from[key]
+            : share >= 1
+              ? to[key]
+              : blend!(bone, from[key], to[key], share);
       const flat: IHumanPosture["joints"] = FLAT[side];
       const was: IHumanPosture["joints"] = {};
       for (const bone of FLAT_BONES[side]) {
@@ -373,8 +401,16 @@ export namespace crawlFrame {
   }
 
   /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
-  const FLAT: Readonly<Record<"left" | "right", IHumanPosture["joints"]>> = { left: HumanHand.shape("left", "flat"), right: HumanHand.shape("right", "flat") };
+  const FLAT: Readonly<Record<"left" | "right", IHumanPosture["joints"]>> = {
+    left: HumanHand.shape("left", "flat"),
+    right: HumanHand.shape("right", "flat"),
+  };
 
   /** The same deterministic digit order is used when reading held finger endpoints. */
-  const FLAT_BONES: Readonly<Record<"left" | "right", readonly AutoMovieHumanoidBone[]>> = { left: Object.keys(FLAT.left) as AutoMovieHumanoidBone[], right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[] };
+  const FLAT_BONES: Readonly<
+    Record<"left" | "right", readonly AutoMovieHumanoidBone[]>
+  > = {
+    left: Object.keys(FLAT.left) as AutoMovieHumanoidBone[],
+    right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[],
+  };
 }

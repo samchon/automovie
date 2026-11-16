@@ -109,8 +109,8 @@ export function prepareWalkReachSwing(
 
     // The caller's nonstandard stance endpoints retain the same range fade.
     const held: number = Math.min(
-      minimumJerk(Math.min(1, Math.max(0, share) / bounds.fade)).s,
-      minimumJerk(Math.min(1, Math.max(0, 1 - share) / bounds.fade)).s,
+      minimumJerk.share(Math.min(1, Math.max(0, share) / bounds.fade)),
+      minimumJerk.share(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),
     );
     let joined: IAutoMovieVector3 = Vector3.lerp(foot.placement.ankle, ankle, held);
     const turned: IAutoMovieQuaternion = Quaternion.slerp(foot.placement.rotation, rotation, held);

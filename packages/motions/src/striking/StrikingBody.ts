@@ -69,16 +69,43 @@ export namespace StrikingBody {
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       resolution === undefined ? undefined : prepareHumanPoseResolution(resolution);
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-      body,
-      { ...posture, limbs: {} },
-      undefined,
-      undefined,
-      read,
-    ).pose;
+    const pose: IAutoMoviePose = trunkPose(body, posture, read);
     return poseBones(body, pose, read?.(), requested);
   }
 
+  /**
+   * Prepare a fixed genuine bone demand for repeated complete trunk queries.
+   * No posed result or FK workspace is retained by the returned producer.
+   *
+   * @param body The unchanged canonical body and its existing rig producer.
+   * @param requested Optional real output demand, snapshotted once; all outputs when absent.
+   * @returns A reader of each actual posture and optional synchronous borrowed FK source.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed canonical body/name demand, snapshot behavior, changing posture/source and independent output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The same trunkPose owner clears only limb goals and executes original seeded assembly/clamping/digit semantics. poseBones.prepare binds the body's genuine requested-name producer once; each current admitted pose still supplies its actual FK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demand preparation returns one reader; the original one-shot trunk and this repeated-demand path share the exact posture owner, and canonical poseBones retains name/topology/FK ownership.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint, root rotation, digit demand and clamp remains. No fabricated indices, caller resolved flag, pose answer, target, seed or query history enters the factory; omitting demand preserves complete FK output.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed K-name sorting/reachable-demand preparation runs once for N queries. Each query retains full authored admission and actual digit work, followed by its original requested FK ancestry and fresh maps/frames; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body and snapshotted real bone set establish demand equivalence. Every changing posture and borrowed reader is used only by its current synchronous invocation, with exact scalar dependencies checked by the FK owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one bounded body/demand producer until its action or search ends; it retains neither source set, pose, reader nor answers. Each invocation creates or borrows one local exact workspace released on return or throw, and only its fresh bone map escapes.
+   */
+  export function prepareTrunk(
+    body: IHumanBody,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const frames: ReturnType<typeof poseBones.prepare> | undefined =
+      requested === undefined ? undefined : poseBones.prepare(body, requested);
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const pose: IAutoMoviePose = trunkPose(body, posture, read);
+      return frames === undefined ? poseBones(body, pose, read()) : frames(pose, read());
+    };
+  }
+
+  /** The exact original complete admission/digit path with only limb goals cleared. */
+  function trunkPose(body: IHumanBody, posture: IHumanPosture, read?: ReturnType<typeof prepareHumanPoseResolution>): IAutoMoviePose {
+    return resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined, read).pose;
+  }
   /**
    * A region of a body at its resolved bones.
    *

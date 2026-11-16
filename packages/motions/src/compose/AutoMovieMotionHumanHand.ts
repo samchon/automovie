@@ -15,7 +15,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the primitives write, on which channel, and what the weight's two ends and its middle are.
  * @evidence contracts/development/design.md#principled-representation A hand shape is a set of segment flexions, so a hand on its way to a shape is their weighted mean with the resting hand.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The interpolation (`fingers`), one primitive (`shape`) and one named time course (`form`); the arm primitives read `fingers` so the rule exists once.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The interpolation and its fixed-shape preparation, one primitive (`shape`) and one named time course (`form`); arm and hand primitives share one finger interpolation owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand owner's shape vocabulary and angles; no shape is defined here.
  */
 export namespace AutoMovieMotionHumanHand {
@@ -71,7 +71,7 @@ export namespace AutoMovieMotionHumanHand {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and range and what the result covers.
    * @evidence contracts/development/implementation.md#principled-implementation Each segment's flexion is the weighted mean of the relaxed cascade's and the asked shape's; the curl is added to the fingers of the asked shape.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the shape's bones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop reads the current named shapes and delegates each unchanged scalar interpolation to the owner shared with prepareFingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The curl is not added to the thumb, whose flexion axis closes across the palm and not with the fingers.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the hand's fifteen segments.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads both shapes from `HumanHand.shape`, their owner.
@@ -86,12 +86,32 @@ export namespace AutoMovieMotionHumanHand {
     const asked: IHumanPosture["joints"] = HumanHand.shape(side, shape);
     const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
     const out: IHumanPosture["joints"] = {};
-    for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[]) {
-      const a: number = asked[bone]![0] + (bone.includes("Thumb") ? 0 : curl);
-      const r: number = relaxed[bone]![0];
-      out[bone] = [r + (a - r) * weight, 0, 0];
-    }
+    for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[])
+      out[bone] = interpolated(asked[bone]![0], relaxed[bone]![0], !bone.includes("Thumb"), curl, weight);
     return out;
+  }
+
+  /**
+   * Prepare one side's fixed named finger shape for varying curl and weight.
+   *
+   * @param side The hand whose named fifteen-joint shapes are read.
+   * @param shape The unchanged working shape at weight one.
+   * @returns Fresh clinical finger triples for each actual curl in degrees and weight in [0,1]; weight admission remains with the caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed side/shape, varying curl degrees/weight, unchanged thumb exclusion and fresh output ownership without adding a weight clamp.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads both named shapes from HumanHand once and applies the same relaxed-plus-weighted-difference scalar interpolation as fingers, retaining curl addition before subtraction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered scalar-entry producer feeds one interpolation owner used by cold fingers and the returned reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all fifteen named bones, their order, thumb curl exclusion, zero abduction/twist and exact arithmetic; no clamping, sample, result or altered shape is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepares fifteen scalar entries once, avoiding two shape maps, thirty temporary angle triples and repeated key/thumb scans per query; each actual read still writes fifteen fresh triples in O(15) work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed side and named shape determine the same asked/relaxed scalar entries; curl and weight remain current inputs of every interpolation and no completed finger result is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains one bounded fifteen-entry array and reader until its primitive ends; returned joint maps/triples are fresh and no body, posture or time history is retained.
+   */
+  export function prepareFingers(
+    side: HumanHand.Side,
+    shape: HumanHand.Shape,
+  ): (curl: number, weight: number) => IHumanPosture["joints"] {
+    const fixed: readonly IFinger[] = entries(side, shape);
+    return (curl: number, weight: number): IHumanPosture["joints"] => shaped(fixed, curl, weight);
   }
 
   /**
@@ -102,30 +122,30 @@ export namespace AutoMovieMotionHumanHand {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is shaped, by what, and the channel claimed.
    * @evidence contracts/development/implementation.md#principled-implementation The finger joints of the weighted shape replace the hand's own in the posture's joints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp and one joint update.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the posture/joints, read this second's weight and configuration, then use one fixed-shape reader for the joint update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1], so an overshooting time course cannot bend a finger past its shape.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `fingers`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed shape scalars are compiled only on first use or changed side/shape; each written second reads the actual weight and creates fifteen output triples without temporary named-shape maps.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareFingers supplies the same interpolation as fingers. Exact current side/shape keys guard one last preparation, preserving live props and recomputing changed configurations without a growing cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds props and at most one fixed fifteen-entry reader until release, retaining no per-second posture, weight, curl, result or time history.
    */
   export function shape(props: IShape): IAutoMovieMotionHumanPrimitive {
+    let fixed: { side: HumanHand.Side; shape: HumanHand.Shape; read: ReturnType<typeof prepareFingers> } | undefined;
     return {
       channels: [`${props.side}Hand`],
       reads: [`${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
-        ...posture,
-        joints: {
-          ...posture.joints,
-          ...fingers(
-            props.side,
-            props.shape,
-            props.curl ?? 0,
-            Math.min(1, Math.max(0, props.weight(seconds))),
-          ),
-        },
-      }),
+      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        const out: IHumanPosture = { ...posture, joints: { ...posture.joints } };
+        const side: HumanHand.Side = props.side;
+        const asked: HumanHand.Shape = props.shape;
+        const curl: number = props.curl ?? 0;
+        const weight: number = Math.min(1, Math.max(0, props.weight(seconds)));
+        if (fixed === undefined || fixed.side !== side || fixed.shape !== asked)
+          fixed = { side, shape: asked, read: prepareFingers(side, asked) };
+        Object.assign(out.joints, fixed.read(curl, weight));
+        return out;
+      },
     };
   }
 
@@ -148,7 +168,7 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The windows are named instants of the clock, so no time is written twice.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `shape` and the clock.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned shape primitive retains these fixed arguments, its clock and the one bounded named-shape reader documented by shape, without time or joint-result history.
    */
   export function form(
     clock: AutoMovieMotionClock.IClock,
@@ -167,4 +187,44 @@ export namespace AutoMovieMotionHumanHand {
       weight: (seconds: number): number => clock.envelope(rise, fall, seconds),
     });
   }
+}
+
+/** Fixed scalar values of one named finger segment, in original shape order. */
+interface IFinger {
+  bone: AutoMovieHumanoidBone;
+  asked: number;
+  relaxed: number;
+  curls: boolean;
+}
+
+/** Compile only unchanged named-shape scalars; every output remains independent. */
+function entries(side: HumanHand.Side, shape: HumanHand.Shape): readonly IFinger[] {
+  const asked: IHumanPosture["joints"] = HumanHand.shape(side, shape);
+  const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+  return (Object.keys(asked) as AutoMovieHumanoidBone[]).map(
+    (bone: AutoMovieHumanoidBone): IFinger => ({
+      bone, asked: asked[bone]![0], relaxed: relaxed[bone]![0], curls: !bone.includes("Thumb"),
+    }),
+  );
+}
+
+/** The original curl-then-subtract interpolation shared by cold and prepared reads. */
+function shaped(fixed: readonly IFinger[], curl: number, weight: number): IHumanPosture["joints"] {
+  const out: IHumanPosture["joints"] = {};
+  for (const entry of fixed)
+    out[entry.bone] = interpolated(entry.asked, entry.relaxed, entry.curls, curl, weight);
+  return out;
+}
+
+/** Preserve the original curl addition, subtraction and multiplication grouping. */
+function interpolated(
+  asked: number,
+  relaxed: number,
+  curls: boolean,
+  curl: number,
+  weight: number,
+): [number, number, number] {
+  const a: number = asked + (curls ? curl : 0);
+  const r: number = relaxed;
+  return [r + (a - r) * weight, 0, 0];
 }

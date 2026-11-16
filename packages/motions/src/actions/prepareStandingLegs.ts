@@ -57,5 +57,6 @@ export function prepareStandingLegs(
   return (
     root: IAutoMovieVector3,
     feet: Record<"left" | "right", IAutoMovieVector3>,
-  ): IHumanPosture["limbs"] => standingLegs(body, root, yaw, feet, toeOut, fixed);
+  ): IHumanPosture["limbs"] =>
+    standingLegs(body, root, yaw, feet, toeOut, fixed);
 }

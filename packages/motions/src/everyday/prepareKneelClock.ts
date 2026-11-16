@@ -40,7 +40,7 @@ export function prepareKneelClock<T extends { name: string }>(
     return {
       phase,
       index,
-      u: minimumJerk(clock.linear(phase.name, next, seconds)).s,
+      u: minimumJerk.share(clock.linear(phase.name, next, seconds)),
     };
   };
 }

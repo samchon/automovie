@@ -28,6 +28,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanToolWork } from "./HumanToolWork";
 
 /**
@@ -171,7 +172,7 @@ export namespace useTool {
    * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or the two coincide, or a stir's work point is no vessel the spoon reaches into.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The namespace states tool frames, working goals, cycle timing and sources; parameters and refusals identify each admitted input.
-   * @evidence contracts/development/implementation.md#principled-implementation The held face follows the original per-kind cyclic goal and tool-line attitude, with the measured rigid grip offset preserved and each changing posture receiving the same least-strain elbow solve.
+   * @evidence contracts/development/implementation.md#principled-implementation The held face follows the original per-kind cyclic goal and tool-line attitude. Its actual wrist-local offset is the existing limb contact, so a rotation residual re-aims the working face rather than only the grip; each changing posture still receives the same least-strain elbow solve.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Tool/work preparation precedes pose selection, clock construction and composition through the existing arm primitive.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original cycle count, periods, amplitudes, saw slopes, work targets, grip contacts and refusals remain unchanged.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed held geometry, clock period and edge-cycle frame are prepared once; each active cyclic goal still computes its actual pose and elbow solution, with only entry hand ancestry read for the origin.
@@ -234,17 +235,19 @@ export namespace useTool {
       length,
     });
     const on: IAutoMovieVector3 = work.on;
+    const gripOffset: IAutoMovieVector3 = HumanHand.offset(body, side, "grip", "relaxed").point;
+    const contact: IAutoMovieVector3 = Vector3.add(gripOffset, face.point);
 
     // The working pose: the hand turned the least that lays the tool's line
     // on the work's, with a hammer's face and a saw's teeth turned down.
     const keyed: boolean =
       (kind === "hammer" || kind === "saw") &&
       Math.abs(Vector3.dot(face.direction, line)) < 0.95;
+    const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(
+      { normal: line, forward: keyed ? face.direction : PALM },
+    );
     const posed: (axis: IAutoMovieVector3) => IWork = (axis: IAutoMovieVector3): IWork => {
-      const rotation: IAutoMovieQuaternion = HumanHand.align(
-        { normal: line, forward: keyed ? face.direction : PALM },
-        { normal: axis, forward: keyed ? down : inward },
-      );
+      const rotation: IAutoMovieQuaternion = align({ normal: axis, forward: keyed ? down : inward });
       return {
         axis,
         grip: Vector3.subtract(
@@ -261,14 +264,7 @@ export namespace useTool {
         body,
         posture: context.entry.posture,
         side,
-        point: HumanHand.place(
-          body,
-          side,
-          "grip",
-          pose.grip,
-          pose.rotation,
-          "relaxed",
-        ).point,
+        point: placeHumanHandSurface(gripOffset, pose.grip, pose.rotation).point,
         rotation: pose.rotation,
       };
       return bends.strain(
@@ -414,14 +410,7 @@ export namespace useTool {
           body,
           posture,
           side,
-          point: HumanHand.place(
-            body,
-            side,
-            "grip",
-            at.grip,
-            at.rotation,
-            "relaxed",
-          ).point,
+          point: placeHumanHandSurface(gripOffset, at.grip, at.rotation).point,
           rotation: at.rotation,
           fallback: "hang",
         }),
@@ -462,7 +451,15 @@ export namespace useTool {
       wields: { prop: subject, side, tip: "face" },
       posture: (seconds: number): IHumanPosture => {
         const posture: IHumanPosture = composed.posture(seconds);
-        return { ...posture, joints: { ...posture.joints, ...fingers } };
+        const limb: IHumanPosture.Limb = `${side}Arm`;
+
+        // The task acts at the held face. Re-aim that existing rigid contact
+        // when the wrist cannot attain the asked tool attitude.
+        return {
+          ...posture,
+          joints: { ...posture.joints, ...fingers },
+          limbs: { ...posture.limbs, [limb]: { ...posture.limbs[limb]!, contact: { ...contact } } },
+        };
       },
       tool: { offset: face.point, on, kind },
     };

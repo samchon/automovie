@@ -28,6 +28,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { HumanForce } from "../perform/HumanForce";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -131,8 +132,8 @@ export namespace perturb {
    * @evidence contracts/development/implementation.md#principled-implementation The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the impulse, decide the outcome, then plan one of three motions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An outcome the impulse cannot give is refused with the feasible range; no impulse is scaled to fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's prepared mass model and reads one base of support per plan; stagger's plan is laid once past the absorb, its landing read and the same plan returned for the step, while the absorb is a closed form per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body owns the unchanged skeleton/profile mass model. Both outcome decisions share the same current entry's bone map and support outline, and step/fall reuse the shipped action plans.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's prepared mass model and transforms only profile-bearing ancestry plus the actual bearing-foot sockets after complete entry-joint admission. One base serves both outcome decisions; stagger's plan is laid once past absorb and reused for step, while absorb is closed form per evaluated second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body owns the unchanged skeleton/profile mass model and matching profile-bone demand. The entry's actual planted sides add every socket frame that its unchanged base reader consumes; both outcome decisions share this exact bone map/support outline, and step/fall reuse the shipped plans.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its composed parts for as long as the performance does.
    */
   export function plan(
@@ -158,21 +159,29 @@ export namespace perturb {
         Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      entry.pose,
-    );
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model,
-      bones,
-    );
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
+    const bearing: readonly ("left" | "right")[] = planted.length === 0 ? ["left", "right"] : planted;
+    const requestedBones: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
+    // The profile demand already includes every collider-outline frame;
+    // sockets can ride an additional foot/toe bone in the same actual base.
+    for (const side of bearing) {
+      const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
+      for (const socket of ["heel", "ball", "toe"] as const)
+        requestedBones.add(body.surfaces.sockets[`${socket}${suffix}`].bone);
+    }
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      entry.pose,
+      undefined,
+      requestedBones,
+    );
+    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, bones);
     const support: IAutoMovieVector3[] = HumanFoot.base(
       body,
       bones,
-      planted.length === 0 ? ["left", "right"] : planted,
+      bearing,
     );
     // The steps' times are `stagger`'s: each later one after the swing of a
     // recovery step in the push's direction from the heading, the first at

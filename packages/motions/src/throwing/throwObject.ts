@@ -331,8 +331,7 @@ export namespace throwObject {
               : Quaternion.slerp(
                   lever.rotation(carried),
                   finished,
-                  minimumJerk(clock.linear("release", "followThrough", seconds))
-                    .s,
+                  minimumJerk.share(clock.linear("release", "followThrough", seconds)),
                 ),
         };
       if (seconds <= at("release")) {
@@ -347,7 +346,7 @@ export namespace throwObject {
           rotation: Quaternion.slerp(
             carriedOut,
             finished,
-            minimumJerk(clock.linear("release", "followThrough", seconds)).s,
+            minimumJerk.share(clock.linear("release", "followThrough", seconds)),
           ),
         };
       }

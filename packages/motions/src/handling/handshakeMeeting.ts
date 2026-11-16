@@ -227,10 +227,10 @@ export namespace handshakeMeeting {
         const t: number = Math.min(reach + shake + back, Math.max(0, seconds));
         const w: number =
           t < reach
-            ? minimumJerk(t / reach).s
+            ? minimumJerk.share(t / reach)
             : t <= reach + shake
               ? 1
-              : Math.max(0, 1 - minimumJerk((t - reach - shake) / back).s);
+              : Math.max(0, 1 - minimumJerk.share((t - reach - shake) / back));
         return HumanSeatedReach.posed(
           body,
           base.posture(seconds),

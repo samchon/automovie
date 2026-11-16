@@ -9,8 +9,9 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import { StrikingRoll } from "../striking/StrikingRoll";
+import { StrikingRollHand } from "../striking/StrikingRollHand";
 
 /**
  * Inserting a held prop along a socket's axis: a rammer down a bore, a sword
@@ -120,44 +121,66 @@ export namespace operateInsert {
     posture: IHumanPosture,
     progress: number,
   ): AutoMovieMotionHumanArm.ITarget {
+    return prepare(context, mechanism, tool, socket)(posture, progress);
+  }
+
+  /**
+   * Prepare one fixed socket and held tool for the operation's actual goals.
+   * The socket frame, tool geometry and body remain unchanged for the plan;
+   * posture and insertion progress are evaluated at each requested instant.
+   *
+   * @param context The body used by the actual roll and elbow fits.
+   * @param mechanism The unchanged insertion and its original depth policy.
+   * @param tool The tool's measured rigid held geometry.
+   * @param socket The fixed initial world mouth and outward normal.
+   * @returns The original target for each current posture and progress.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which source values must remain unchanged, the varying world-posture/progress inputs, and original grip/elbow target output.
+   * @evidence contracts/development/implementation.md#principled-implementation The original normalized inward axis and held-tool roll grid are prepared once; each actual depth point still runs the original posture-dependent ranks, legal fits/refinement and elbow solve.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis and one shared StrikingRollHand producer precede a depth point, actual hand selection and existing wrist/elbow target construction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original depth/reversal arithmetic, cone zero, candidate grid, fit admission, grip geometry, fallback and all contact bounds remain; no placement or pose result is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed socket normalization and G rigid grid orientations are prepared once for Q requests; every actual request retains G ranks and original bounded numerical searches. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work operate supplies the same initial socket, tool and body for the plan; a changed source frame requires new preparation, while each progress/posture computes its own actual depth, ranks and fitted target.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed source records, axis and the original bounded roll-grid readers until release; no changing posture, queried time, target-result history or external handle is retained.
+   */
+  export function prepare(
+    context: IHumanActionContext,
+    mechanism: IMechanism,
+    tool: StrikingHeld.ITool,
+    socket: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  ): (posture: IHumanPosture, progress: number) => AutoMovieMotionHumanArm.ITarget {
     const side: HumanHand.Side = tool.side;
     const inward: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(socket.normal),
       -1,
     );
-    const hand: StrikingHeld.IHandFrame = StrikingRoll.hand(
-      context,
-      tool,
-      0,
-      Vector3.add(
-        socket.point,
-        Vector3.scale(inward, depth(mechanism, progress)),
-      ),
-      inward,
-      0,
-      posture,
+    const read: ReturnType<typeof StrikingRollHand> = StrikingRollHand(
+      context, tool, 0, inward, 0,
     );
-    const wrist: HumanHand.IWrist = HumanHand.place(
-      context.body,
-      side,
-      "grip",
-      hand.point,
-      hand.rotation,
-      "relaxed",
-    );
-    return {
-      surface: "grip",
-      shape: "relaxed",
-      point: hand.point,
-      rotation: hand.rotation,
-      bend: AutoMovieMotionHumanBend.solve({
-        body: context.body,
+    const grip: IAutoMovieVector3 = HumanHand.offset(context.body, side, "grip", "relaxed").point;
+    return (posture: IHumanPosture, progress: number): AutoMovieMotionHumanArm.ITarget => {
+      const hand: StrikingHeld.IHandFrame = read(
+        Vector3.add(
+          socket.point,
+          Vector3.scale(inward, depth(mechanism, progress)),
+        ),
         posture,
-        side,
-        point: wrist.point,
+      );
+      const wrist: HumanHand.IWrist = placeHumanHandSurface(grip, hand.point, hand.rotation);
+      return {
+        surface: "grip",
+        shape: "relaxed",
+        point: hand.point,
         rotation: hand.rotation,
-        fallback: "hang",
-      }),
+        bend: AutoMovieMotionHumanBend.solve({
+          body: context.body,
+          posture,
+          side,
+          point: wrist.point,
+          rotation: hand.rotation,
+          fallback: "hang",
+        }),
+      };
     };
   }
 }

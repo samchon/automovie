@@ -317,8 +317,8 @@ export namespace HumanForceExchange {
    * @evidence contracts/development/implementation.md#principled-implementation `(I_c + M r²) φ'' = M g r sin φ + τ`, with the pull's moment `τ` while it lasts, integrated by the engine's fixed-step fourth-order integrator, in spans of the free swing's own time scale `sqrt(I / M g r)` until the angle passes `π / 2` or the rate stops; the release is found by bisection on the integrated angle to the step squared, finer than the step at which the motion is read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Integrate span by span, detect, bisect, read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops short is null, never a scripted push over the fulcrum.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per integrator step over the swing's few spans; the bisection reads the stored trajectory.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrator is `integrateMotionTrajectory` and the root search `bracketedBisection`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original four right-hand sides per integrator step, span extension and release bisection remain. Fixed torque/moment and drive cutoff are prepared once, and one rate closure serves every span; every actual time/state still evaluates the pendulum sine and original drive condition. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical integrator and bracketedBisection remain. This synchronous swing fixes mass, radius, moment, torque and cutoff, so their scalar drive geometry is prepared once; no trajectory sample, numerical state or different-time answer is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The swing holds its spans' trajectories for as long as its plan.
    */
   export function swing(
@@ -350,22 +350,18 @@ export namespace HumanForceExchange {
     const moment: number = props.inertia + mass * radius * radius;
     const k: number = (mass * gravity * radius) / moment;
     const span: number = 1 / Math.sqrt(k);
+    const until: number = props.until ?? 0;
+    const drive: number = (props.torque ?? 0) / moment;
+    const rate = (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => ({
+      dx: [x[1]!, k * Math.sin(x[0]!) + (t < until ? drive : 0)],
+    });
     const spans: integrateMotionTrajectory.ITrajectory[] = [];
     let state: readonly number[] = [props.angle, props.rate];
     let t0: number = 0;
     for (;;) {
       const trajectory: integrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
-          f: (
-            t: number,
-            x: readonly number[],
-          ): integrateMotionTrajectory.IRate => ({
-            dx: [
-              x[1]!,
-              k * Math.sin(x[0]!) +
-                (t < (props.until ?? 0) ? (props.torque ?? 0) / moment : 0),
-            ],
-          }),
+          f: rate,
           x0: state,
           t0,
           t1: t0 + span,

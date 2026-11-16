@@ -48,9 +48,9 @@ export namespace HumanCarriedBorne {
    * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting; each second the key posture rides the first bearer's displayed anchor bone at the key offset (`HumanCarriedCouplingPose.posture`); without a solid meeting the resting region is placed on the carrier's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A second helper on a carry with no other side is refused; the posture is rigid in the carry and its angles provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key resolution, one read of each bearer's bones and one frame composition per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key construction and rigid frame composition remain per posture. Each actual bearer read requests only its coupling anchor and gripping-region bones with required ancestry; conservative pose dependencies still retain full arm/rival or unsupported fitting. Uncoupled fallback demands hips and every actually used region. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work This plan's unchanged carry row, coupling and bearer bodies prove the demanded bone metadata; only those sets are prepared once. Every film-second pose, partner contact, anchor frame and clinging target is evaluated from current displayed bones without a pose/time cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing carry/participant/coupling inputs plus at most three constant-size demanded bone sets. Each actual pose map ends with its synchronous posture evaluation, outputs retain only their physical goals, and plan release drops the metadata.
    */
   export function plan(
     context: IHumanActionContext<HumanCarried.IBorne>,
@@ -119,6 +119,30 @@ export namespace HumanCarriedBorne {
                 : [{ role: HumanCarriedCoupling.SECOND, subject: second }]),
             ],
           ).coupling;
+    // The fixed coupling names exactly the anchor and gripping regions read
+    // from each bearer's actual displayed pose; all their needed fits remain.
+    const demanded = (who: IHumanActionContext.IPerformer, role: string): ReadonlySet<AutoMovieHumanoidBone> => {
+      const selected: Set<AutoMovieHumanoidBone> = new Set();
+      const region = (name: AutoMovieHumanoidRegion): void => {
+        const bone: AutoMovieHumanoidBone | undefined = who.body.surfaces.regions[name]?.bone;
+        if (bone !== undefined) selected.add(bone);
+      };
+      if (coupling === undefined) {
+        selected.add("hips");
+        region(row.theirs);
+        for (const name of row.clings) if (name !== null) region(name);
+      } else {
+        if (role === coupling.bearer) selected.add(coupling.anchor);
+        for (const contact of coupling.contacts)
+          if (contact.kind === "grip" && contact.on.role === role) region(contact.on.region);
+      }
+      return selected;
+    };
+    const carrierBones: ReadonlySet<AutoMovieHumanoidBone> | undefined = carrier === undefined
+      ? undefined : demanded(carrier, HumanCarriedCoupling.BEARER);
+    const helperBones: ReadonlySet<AutoMovieHumanoidBone> | undefined = helper === undefined
+      ? undefined : demanded(helper, HumanCarriedCoupling.SECOND);
+    const ownBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([body.surfaces.regions[row.mine].bone]);
     return HumanCarriedLift.over(context, {
       duration: seconds,
       events: [],
@@ -173,20 +197,20 @@ export namespace HumanCarriedBorne {
           return HumanCarriedCouplingPose.posture(body, coupling, row, {
             [HumanCarriedCoupling.BEARER]: {
               body: carrier.body,
-              bones: carrier.bones(t),
+              bones: carrier.bones(t, carrierBones),
             },
             ...(helper === undefined
               ? {}
               : {
                   [HumanCarriedCoupling.SECOND]: {
                     body: helper.body,
-                    bones: helper.bones(t),
+                    bones: helper.bones(t, helperBones),
                   },
                 }),
           });
         }
         const theirs: ReturnType<IHumanActionContext.IPerformer["bones"]> =
-          carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
+          carrier.bones(context.start + Math.min(seconds, Math.max(0, at)), carrierBones);
         const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
         const turned: IHumanPosture = {
           root: { x: 0, y: 0, z: 0 },
@@ -210,7 +234,7 @@ export namespace HumanCarriedBorne {
                 (carrier.body.measure.upperArm + carrier.body.measure.forearm),
               z: 0,
             }),
-            placed(body, HumanTrunk.resolve(body, turned), row.mine, "carry"),
+            placed(body, HumanTrunk.resolve(body, turned, undefined, undefined, ownBones), row.mine, "carry"),
           ),
         };
         const limbs: IHumanPosture["limbs"] = {};

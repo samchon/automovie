@@ -66,10 +66,10 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @returns The candidate, or null for a degenerate chain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the overshoot-then-continuous-cost ranking with its terms and weights, the continuity premise and the frames of every input.
- * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
+ * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms The unchanged cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. Continuous cost retains its original cheap bound before exact rotation. Task-priority mode omits unused effort and reads the upper-reference geodesic only when its second key is needed; absent obstruction, lower-world composition waits for actual strain use. Exact rotation owns at most five distal queries plus a guarded final fallback. Certified refusal pruning and every actual obstruction/strain evaluation remain, with no measured speedup claim.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A certified exact-zero original first candidate can end a cold search only under the non-negative no-side/no-reference/no-obstruction continuous objective; every other search remains. Task priority omits unused effort and unobstructed midpoint FK; a reference-only second key also needs no unused upper/lower world prefix. Actual upper-reference geodesic and strain lower-world composition remain lazy. Exact rotation owns at most five distal queries plus guarded final fallback. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -212,27 +212,30 @@ export function fitHingedChainCandidate(
   ): IReading => {
     const u: IAutoMovieJointPose = upperOf(upper);
     const known: IMid = midOf(lower);
-    const turnedUpper: IAutoMovieQuaternion = Quaternion.multiply(
-      prepared.upper.worldRotation,
-      upper,
-    );
+
+    // Task priority reads no hint midpoint. A reference also replaces its
+    // strain callback, leaving world frames only to rotation or obstruction.
+    const needsMid: boolean = props.obstruction !== undefined || strain === undefined;
+    const needsAbove: boolean = props.obstruction !== undefined || turn !== null ||
+      (strain !== undefined && props.referencePose === undefined);
+    const turnedUpper: IAutoMovieQuaternion | undefined = needsMid || needsAbove
+      ? Quaternion.multiply(prepared.upper.worldRotation, upper) : undefined;
     const above: IAutoMovieQuaternion | undefined =
-      props.obstruction === undefined && strain === undefined && turn === null
-        ? undefined : Quaternion.multiply(turnedUpper, prepared.lowerRotation);
+      needsAbove ? Quaternion.multiply(turnedUpper!, prepared.lowerRotation) : undefined;
     const lowerWorld: IAutoMovieQuaternion | undefined =
       props.obstruction === undefined
         ? undefined : Quaternion.multiply(above!, lower);
-    const mid: IAutoMovieVector3 = Vector3.add(
+    const mid: IAutoMovieVector3 | undefined = needsMid ? Vector3.add(
       root,
-      Quaternion.rotateVector(turnedUpper, prepared.lowerOffset),
-    );
+      Quaternion.rotateVector(turnedUpper!, prepared.lowerOffset),
+    ) : undefined;
     const blocked: number =
       props.obstruction === undefined
         ? 0
         : props.obstruction(
-            mid,
+            mid!,
             Vector3.add(
-              mid,
+              mid!,
               Quaternion.rotateVector(lowerWorld!, prepared.effectorOffset),
             ),
           );
@@ -282,6 +285,13 @@ export function fitHingedChainCandidate(
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
       ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
+      // With no hint side, reference or obstruction, every actual term is
+      // non-negative in the original arithmetic: ROM excess, rotation angle
+      // and squared clinical effort. An exact-zero original first candidate
+      // cannot be improved, including by the later local refinements.
+      ...(strain === undefined && props.obstruction === undefined &&
+        props.referencePose === undefined && side === null
+        ? { minimum: { overshoot: 0, deviation: 0 } } : {}),
       // The root's box, or its swing-twist range, refuses swivels its
       // overshoot can only score above zero, so the sweep spares them
       // (`boxExcludedSwivels`). The range is read in the frame
@@ -324,7 +334,7 @@ export function fitHingedChainCandidate(
         // The hint's side weighs as the mid joint leaves the line to the
         // target: a straight limb has no side, and a rounding-sized offset's
         // direction must not rank swivels.
-        const offset: IAutoMovieVector3 = across(mid);
+        const offset: IAutoMovieVector3 = across(mid!);
         const off: number = Vector3.length(offset);
         const away: number =
           side === null || off < 1e-12
@@ -440,8 +450,8 @@ interface IReading {
   /** Completed world frame preceding the lower articulation, for this exact upper candidate. */
   above: IAutoMovieQuaternion | undefined;
 
-  /** The mid joint's place, world metres. */
-  mid: IAutoMovieVector3;
+  /** The mid joint's place, world metres; absent when task priority never reads it. */
+  mid: IAutoMovieVector3 | undefined;
 
   /** The mid bone's world rotation. */
   lowerWorld: IAutoMovieQuaternion | undefined;

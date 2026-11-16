@@ -5,20 +5,19 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanSupport } from "../law/HumanSupport";
 import type { HumanBodyFit } from "../posture/HumanBodyFit";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { stand } from "./stand";
+import { prepareSupportContactForm } from "./prepareSupportContactForm";
+import { supportContactOnFloor } from "./supportContactOnFloor";
 
 /**
  * A support planner's contact (`support`) as the whole-body fit takes it
@@ -53,108 +52,16 @@ export namespace supportContact {
     c: HumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
   ): IForm {
-    const side: "left" | "right" = c.part.startsWith("left") ? "left" : "right";
-
-    // A contact without a target lies anywhere on the floor: its normal and
-    // its bearing alone, no place.
-    const point: IAutoMovieVector3 = aimed ?? { x: 0, y: 0, z: 0 };
-    const floor: boolean = point.y <= HumanFoot.BEARING;
-    const axes: readonly ("x" | "y" | "z")[] =
-      aimed === null ? [] : floor ? ["x", "z"] : ["x", "y", "z"];
-    const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-    if (c.part.endsWith("Foot")) {
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(
-          body,
-          resolveHumanPosture(
-            body,
-            stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-          ),
-        );
-      return {
-        target: {
-          bone: `${side}Toes`,
-          goal: point,
-          axes,
-          normal: {
-            local: Quaternion.rotateVector(
-              Quaternion.inverse(bones.get(`${side}Toes`)!.worldRotation),
-              down,
-            ),
-            world: down,
-          },
-        },
-        ...(floor ? { bearing: new RegExp(`^${side}(Foot|Toes)$`) } : {}),
-      };
-    }
-    // On the floor the trunk bears through its own colliders (the buttocks
-    // and the thighs' backs sitting, the back or the front lying) and a knee
-    // through its shin's, their lowest points resting on it. On a raised
-    // surface each lays its own skin on the place, the region's outward
-    // normal facing down onto it, as a palm does: the seat, the upper back,
-    // the abdomen or the knee.
-    const trunk: boolean =
-      c.part === "seat" || c.part === "back" || c.part === "front";
-    if (trunk || c.part.endsWith("Knee")) {
-      if (floor)
-        return {
-          target: {
-            bone: trunk ? "hips" : `${side}LowerLeg`,
-            goal: point,
-            axes,
-          },
-          bearing: trunk
-            ? c.part === "seat"
-              ? /^(hips|leftUpperLeg|rightUpperLeg)$/
-              : /^(hips|spine|chest)$/
-            : new RegExp(`^${side}LowerLeg$`),
-        };
-      const region: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-        body.surfaces.regions[
-          c.part === "seat"
-            ? "seat"
-            : c.part === "back"
-              ? "upperBack"
-              : c.part === "front"
-                ? "abdomen"
-                : side === "left"
-                  ? "kneeLeft"
-                  : "kneeRight"
-        ];
-      return {
-        target: {
-          bone: region.bone,
-          point: region.point,
-          goal: point,
-          axes,
-          normal: { local: region.normal, world: down },
-        },
-      };
-    }
-    const surface: HumanHand.IFrame = HumanHand.offset(
-      body,
-      side,
-      c.kind === "grip" ? "grip" : "palm",
-    );
-    return {
-      target: {
-        bone: `${side}Hand`,
-        ...(floor ? {} : { point: surface.point }),
-        goal: point,
-        axes,
-        ...(c.kind === "bear"
-          ? { normal: { local: surface.normal, world: down } }
-          : {}),
-      },
-      ...(floor
-        ? {
-            bearing: new RegExp(
-              `^${side}(Hand|Thumb|Index|Middle|Ring|Little)`,
-            ),
-          }
-        : {}),
-    };
+    return prepareSupportContactForm(body)(c, aimed);
   }
+
+  /** Body-fixed contact geometry shared within one operation; prepareSupportContactForm owns its lifetime and exact mapping. */
+  export const prepareForm: typeof prepareSupportContactForm =
+    prepareSupportContactForm;
+
+  /** The form's existing floor-height predicate, without constructing unused target geometry. */
+  export const onFloorTarget: typeof supportContactOnFloor =
+    supportContactOnFloor;
 
   /**
    * The target of a part stepping from one contact to another, at the top
@@ -339,18 +246,73 @@ export namespace supportContact {
     contact: HumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
   ): IAutoMovieVector3 {
-    const target: HumanBodyFit.ITarget = form(body, contact, aimed).target;
-    const bone: IAutoMovieResolvedBone = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
-    ).get(target.bone)!;
-    return Vector3.add(
-      bone.worldPosition,
-      Quaternion.rotateVector(
-        bone.worldRotation,
-        target.point ?? { x: 0, y: 0, z: 0 },
+    return points(body, posture, [{ contact, at: aimed }])[0]!;
+  }
+
+  /**
+   * Read contact points on one unchanged candidate posture in their given
+   * order. Its actual canonical observation and FK are shared within this
+   * synchronous call; each local contact offset keeps the form's owner.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States unchanged candidate/body, ordered world-metre outputs, shared synchronous observation and canonical contact offsets.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds each original contact form and transforms its exact local offset through the actual resolved target bone, with the resolver's existing observational-demand guards.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms determine one demanded-bone set, one canonical solve/FK supplies those frames, then one ordered transform pass emits the points.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All target offsets, authored admission, relevant limb/digit fits and unsupported-context full fallbacks remain canonical; no declared target substitutes for an achieved bone point.
+   * @evidence contracts/development/implementation.md#efficient-algorithms N contacts share one candidate pose/FK and one fixed quiet-foot datum instead of N repeated solves; only their target frames and ancestry are requested, and an empty request performs no solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All contacts observe exactly this same unchanged candidate/body in one synchronous operation. The current map, metadata reader and prepared form do not escape or serve a different posture.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources N target records, one bounded name set and current bone map end with this call or throw; only N fresh world points return and no workspace, posed result or history is retained.
+   */
+  export function points(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    contacts: readonly IPoint[],
+  ): IAutoMovieVector3[] {
+    if (contacts.length === 0) return [];
+    const form: ReturnType<typeof prepareSupportContactForm> =
+      prepareSupportContactForm(body);
+    const targets: HumanBodyFit.ITarget[] = contacts.map(
+      (item: IPoint): HumanBodyFit.ITarget =>
+        form(item.contact, item.at).target,
+    );
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+      targets.map(
+        (target: HumanBodyFit.ITarget): AutoMovieHumanoidBone => target.bone,
       ),
     );
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        resolution,
+        requested,
+      ).pose,
+      resolution(),
+      requested,
+    );
+    return targets.map((target: HumanBodyFit.ITarget): IAutoMovieVector3 => {
+      const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
+      return Vector3.add(
+        bone.worldPosition,
+        Quaternion.rotateVector(
+          bone.worldRotation,
+          target.point ?? { x: 0, y: 0, z: 0 },
+        ),
+      );
+    });
+  }
+
+  /** One current contact observation, including an unnamed floor target. */
+  interface IPoint {
+    /** The contact whose actual form supplies its local offset. */
+    contact: HumanSupport.IContact;
+
+    /** The world-metre target, or null for an unnamed floor place. */
+    at: IAutoMovieVector3 | null;
   }
   /** Where a part bears in a posture: the joint or bone its contact rides. */
   export function pinned(

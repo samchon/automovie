@@ -16,6 +16,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -36,7 +37,7 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#principled-implementation Transforms each body's thigh-front surface through its resolved bone and uses its lower leg to orient a flat palm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical solve feeds the shared thigh-goal builder.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the existing provisional hanging-elbow out share of 0.2 and canonical palm goal construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose resolution and FK, then constant work for the two targets.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both targets read the same completed bone map; it is never shared across different input postures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bones and goals are invocation-local and no cache or handle is retained.
    */
@@ -84,8 +85,8 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#principled-implementation Each hand retains the same independently defined thigh or armrest interpolation from the posed hanging origin.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects only the thighs that remain visible, then writes supplied armrests with their existing owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Armrest goals still replace thigh goals on that side and become planted only at full share; no reach refusal is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Avoids measuring and constructing thigh targets that armrests overwrite, including their full pose solve when both hands use armrests.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The thigh operation shares origins and targets within its invocation; armrest origins retain their legs-only pose semantics.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Avoids overwritten thigh targets and, when the input has no arm goals, shares one canonical solve between the actual thigh and armrest consumers instead of repeating its identical leg solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Absence of both input arm goals makes the original posture exactly the legs-only posture armrest origins require; those matching inputs share one call-local map. Inputs with arm goals retain separate full and legs-only readings.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The active-side list and resolved maps end with the invocation; no retained state is added.
    */
   export function rested(
@@ -95,10 +96,35 @@ export namespace seatedHands {
     yaw: number,
     share: number,
   ): IHumanPosture {
-    if (rests === undefined) return arms(body, posture, share);
+    if (share <= 0) return posture;
+    if (
+      rests === undefined ||
+      (rests.left === undefined && rests.right === undefined)
+    )
+      return arms(body, posture, share);
     const sides: HumanHand.Side[] = SIDES.filter(
       (side: HumanHand.Side): boolean => rests[side] === undefined,
     );
+    if (
+      posture.limbs.leftArm === undefined &&
+      posture.limbs.rightArm === undefined
+    ) {
+      const requested: Set<AutoMovieHumanoidBone> = new Set(
+        thighBones(body, sides, share < 1),
+      );
+      for (const side of SIDES)
+        if (rests[side] !== undefined) requested.add(`${side}Hand`);
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        resolved(body, posture, requested);
+      return restGoals(
+        body,
+        towardThighs(body, posture, share, sides, bones),
+        rests,
+        yaw,
+        share,
+        bones,
+      );
+    }
     return onArmrests(
       body,
       towardThighs(body, posture, share, sides),
@@ -117,7 +143,7 @@ export namespace seatedHands {
    * @evidence contracts/development/implementation.md#principled-implementation Reads hanging origins with leg goals alone, then linearly interpolates points and slerps the original palm-down armrest goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose solve and a two-side pass retain goals on missing sides.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the provisional hand-thickness and elbow shares and leaves out-of-reach reporting to the existing contact audit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Positive share costs one pose resolution and FK plus constant target work; zero share does none.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Positive share with supplied rests costs one observational pose resolution and FK plus constant target work; zero share or no supplied rest needs none.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both supplied armrests use the same completed map, with no cross-posture cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Resolved bones and temporary goals end with the call; the returned posture owns its new limb map.
    */
@@ -137,11 +163,24 @@ export namespace seatedHands {
     const requested: Set<AutoMovieHumanoidBone> = new Set();
     for (const side of SIDES)
       if (rests[side] !== undefined) requested.add(`${side}Hand`);
+    if (requested.size === 0) return posture;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(
       body,
       { ...posture, limbs: legs },
       requested,
     );
+    return restGoals(body, posture, rests, yaw, share, bones);
+  }
+
+  /** Write armrest goals from the exact hanging-origin map owned by this call. */
+  function restGoals(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+    yaw: number,
+    share: number,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IHumanPosture {
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     const s: number = Math.min(1, share);
     for (const side of SIDES) {
@@ -198,13 +237,11 @@ export namespace seatedHands {
     posture: IHumanPosture,
     share: number,
     sides: readonly HumanHand.Side[],
+    prepared?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IHumanPosture {
     if (share <= 0 || sides.length === 0) return posture;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolved(
-      body,
-      posture,
-      thighBones(body, sides, share < 1),
-    );
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      prepared ?? resolved(body, posture, thighBones(body, sides, share < 1));
     const goals: IHumanPosture["limbs"] = thighs(body, posture, bones, sides);
     if (share >= 1)
       return { ...posture, limbs: { ...posture.limbs, ...goals } };
@@ -261,16 +298,25 @@ export namespace seatedHands {
     return limbs;
   }
 
-  /** Resolve precisely the posture passed by the caller; maps stay call-local. */
+  /** Resolve this call's observed frames under the canonical demand guards. */
   function resolved(
     body: IHumanBody,
     posture: IHumanPosture,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     return poseBones(
       body,
-      resolveHumanPosture(body, posture),
-      undefined,
+      resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        resolution,
+        requested,
+      ).pose,
+      resolution(),
       requested,
     );
   }

@@ -60,24 +60,33 @@ export namespace HumanColliderPlacement {
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IPlaced[] {
-    const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
-    const out: IPlaced[] = [];
-    for (const segment of sided(body).segments) {
-      const posed: IAutoMovieResolvedBone | undefined = byName.get(segment.bone);
-      if (posed === undefined) continue;
-      out.push({
-        bone: posed.bone,
-        pose: {
-          position: Vector3.add(
-            posed.worldPosition,
-            Quaternion.rotateVector(posed.worldRotation, segment.offset),
-          ),
-          rotation: Quaternion.multiply(posed.worldRotation, segment.rotation),
-        },
-        shapes: segment.shapes,
-      });
-    }
-    return out;
+    return place(sided(body).segments, bones);
+  }
+
+  /**
+   * Bind the actual neutral entries needed by repeated current-bone queries.
+   * Request names are snapshotted once; later edits require another reader.
+   * Body geometry stays unchanged, while each map supplies fresh posed inputs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed name/body scope, current-map inputs, fresh placements, ordering and request invalidation.
+   * @evidence contracts/development/implementation.md#principled-implementation A profile entry whose name is outside the actual requested frame set cannot be placed by a map containing only those frames. Snapshot those entries in original order and delegate all actual position/rotation arithmetic to the same place owner as of.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One producer binds this body's genuine neutral metadata to copied names; its callback accepts only current bones, so no unrelated body/prepared-list pair can be injected.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every selected profile duplicate, original order, absent-bone skip and transform expression. No shape search, posed answer, contact verdict or tolerance is precomputed, and ordinary of retains its complete profile traversal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(K+S) factory pass copies K requested names and selects R entries from S neutral segments; each later map traverses R entries instead of S and constructs only actual fresh placements. No speedup is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work This body's unchanged rest/profile metadata and copied request names fix the selected list. Every query still reads its actual bone position/quaternion, and changing a frame or its presence recomputes or omits the placement normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one callback and R borrowed immutable neutral entries until its fixed-demand operation ends. Temporary name indexing releases after binding; no bone map, placed frame or query history is retained, and the established neutral-body cache keeps its weak lifetime.
+   */
+  export function preparePlaced(
+    body: IHumanBody,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+  ): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => IPlaced[] {
+    const names: Set<string> = new Set();
+    for (const bone of requested) names.add(bone);
+    const selected: ISided[] = sided(body).segments.filter(
+      (segment: ISided): boolean => names.has(segment.bone),
+    );
+    return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IPlaced[] =>
+      place(selected, bones);
   }
 
   /**
@@ -114,6 +123,28 @@ export namespace HumanColliderPlacement {
   export function bones(body: IHumanBody): ReadonlySet<AutoMovieHumanoidBone> {
     return sided(body).bones;
   }
+}
+
+/** One ordered numerical placement serves both full and fixed-demand readers. */
+function place(
+  segments: readonly ISided[],
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+): HumanColliderPlacement.IPlaced[] {
+  const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
+  const out: HumanColliderPlacement.IPlaced[] = [];
+  for (const segment of segments) {
+    const posed: IAutoMovieResolvedBone | undefined = byName.get(segment.bone);
+    if (posed === undefined) continue;
+    out.push({
+      bone: posed.bone,
+      pose: {
+        position: Vector3.add(posed.worldPosition, Quaternion.rotateVector(posed.worldRotation, segment.offset)),
+        rotation: Quaternion.multiply(posed.worldRotation, segment.rotation),
+      },
+      shapes: segment.shapes,
+    });
+  }
+  return out;
 }
 
 /** Fixed neutral segment data, before current bone placement. */

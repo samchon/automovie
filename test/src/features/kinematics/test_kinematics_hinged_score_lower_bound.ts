@@ -16,11 +16,19 @@ import { nclose } from "../internal/nclose";
  * 2. Constant primary value1, cheap bound0 and an explicit primary tie leave
  *    the secondary objective1-cos(s-37) to choose37 degrees. The deferred
  *    primary value must still be1 and cannot be replaced by its zero bound.
+ * 3. A constant positive ROM overshoot1 makes a legal result impossible.
+ *    Certifying the70..130-degree interval as excluded cannot prevent the
+ *    required full fallback from finding the same analytic periodic minimum
+ *    as the unpruned solve, with its actual positive overshoot unchanged.
+ * 4. A certified zero minimum preserves the first0-degree solution when
+ *    its actual exact score is zero. With the same zero cheap bound but
+ *    an actual minimum at50 degrees, the search must continue. An explicit
+ *    secondary tie still selects37 even with a valid primary certificate.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the actual public score callback, valid nonnegative lower-bound construction, analytic periodic optima, degree units, declared refinement precision and two complete-order scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual public score callbacks, valid nonnegative lower bounds/minimum certificates, analytic periodic optima, degree units, declared refinement precision and four complete-order/fallback scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual hingedArmArticulation with deferred exact callbacks and optional second-key tie; reads the chosen swivel, complete deviation and secondary value, catching an uncomputed necessary objective or a bound reported as the true score.
  * @evidence contracts/development/testing.md#independent-expectations Adding weighted cosines gives1-R*cos(s-phi), where phi=atan2(sum weighted sines,sum weighted cosines) and R is that vector's length. Hence phi and1-R are independent exact optima. The secondary cosine has its unique circular minimum at37. Angular error uses existing ROM_TOLERANCE and objective error its derived R*(1-cos(tolerance)) bound, without another solver as oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a bound whose own minimizer differs from the full objective, deferred nonnegative terms, explicit primary ties and a genuinely necessary second key. Existing articulation entries own legality precedence, unreachable shells and certified branch exclusion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a bound whose own minimizer differs from the full objective, deferred nonnegative terms, explicit primary ties with a valid minimum certificate, a genuinely necessary second key, all-positive overshoot requiring full fallback, and first-exact-zero versus merely cheap-zero candidates. Existing articulation entries own general legality precedence and unreachable shells.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable numerical unit owns analytic score callbacks on the existing isolated chain seam; it starts no Human producer, process, host or compiler and replaces no library operation or global.
  */
 export function test_kinematics_hinged_score_lower_bound(): void {
@@ -54,23 +62,58 @@ export function test_kinematics_hinged_score_lower_bound(): void {
       const angle: number = swivel(upper);
       return { overshoot: 0, deviation: 0, exact: (): number => 1,
         tiebreak: (): number => 1 - Math.cos((angle - 37) * radians) };
-    }, 0.1,
+    }, 0.1, undefined, { overshoot: 0, deviation: 1 },
   );
   TestValidator.predicate("a necessary secondary objective keeps its full tied-primary meaning",
     tied !== null && circular(tied.swivel - 37) <= ROM_TOLERANCE &&
     nclose(tied.deviation, 1, 1e-12) && tied.second !== undefined &&
     nclose(tied.second, 0, 1 - Math.cos(ROM_TOLERANCE * radians) + 1e-12),
   );
+  for (const pruning of [false, true]) {
+    const positive: ReturnType<typeof hingedArmArticulation> = solve(
+      (upper: IAutoMovieQuaternion): ReturnType<Parameters<typeof hingedArmArticulation>[0]["score"]> => {
+        const angle: number = swivel(upper);
+        const cheap: number = 0.3 * (1 - Math.cos((angle - 100) * radians));
+        return { overshoot: 1, deviation: cheap,
+          exact: (): number => cheap + 0.7 * (1 - Math.cos((angle + 20) * radians)) };
+      }, undefined, pruning ? (): ((low: number, high: number) => boolean) =>
+        (low: number, high: number): boolean => low >= 70 && high <= 130 : undefined,
+    );
+    TestValidator.predicate("certified positive regions retain the original full-fallback optimum",
+      positive !== null && nclose(positive.overshoot, 1, 0) &&
+      circular(positive.swivel - optimum) <= ROM_TOLERANCE &&
+      nclose(positive.deviation, 1 - magnitude,
+        magnitude * (1 - Math.cos(ROM_TOLERANCE * radians)) + 1e-12),
+    );
+  }
+  for (const target of [0, 50]) {
+    const minimum: ReturnType<typeof hingedArmArticulation> = solve(
+      (upper: IAutoMovieQuaternion): ReturnType<Parameters<typeof hingedArmArticulation>[0]["score"]> => {
+        const angle: number = swivel(upper);
+        return { overshoot: 0, deviation: 0,
+          exact: (): number => 1 - Math.cos((angle - target) * radians) };
+      }, undefined, undefined, { overshoot: 0, deviation: 0 },
+    );
+    TestValidator.predicate("a certified minimum requires the first candidate's actual exact score",
+      minimum !== null && circular(minimum.swivel - target) <= ROM_TOLERANCE &&
+      nclose(minimum.deviation, 0, 1 - Math.cos(ROM_TOLERANCE * radians) + 1e-12) &&
+      (target !== 0 || minimum.swivel === 0),
+    );
+  }
 }
 
 /** Supply the same ordinary straight chain for either actual score contract. */
-function solve(score: Parameters<typeof hingedArmArticulation>[0]["score"], tie?: number): ReturnType<typeof hingedArmArticulation> {
+function solve(score: Parameters<typeof hingedArmArticulation>[0]["score"], tie?: number,
+  excluded?: Parameters<typeof hingedArmArticulation>[0]["excluded"],
+  minimum?: Parameters<typeof hingedArmArticulation>[0]["minimum"]): ReturnType<typeof hingedArmArticulation> {
   return hingedArmArticulation({
     upper: { worldPosition: { x: 0, y: 0, z: 0 }, worldRotation: { x: 0, y: 0, z: 0, w: 1 } },
     midOffset: { x: 0.3, y: 0, z: 0 }, midRest: { x: 0, y: 0, z: 0, w: 1 },
     endOffset: { x: 0.25, y: 0, z: 0 }, hinge: { x: 0, y: 0, z: 1 },
     target: { x: 0.55, y: 0, z: 0 }, score,
     ...(tie === undefined ? {} : { tie }),
+    ...(excluded === undefined ? {} : { excluded }),
+    ...(minimum === undefined ? {} : { minimum }),
   });
 }
 

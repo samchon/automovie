@@ -25,7 +25,7 @@ export namespace HumanSequentialConvex {
 
   /** The convex model's step within a region. */
   export interface IStep<X> {
-    /** The iterate reached, projected onto the caller's hard set; may be a lazy getter because steering reads only merit/violation diagnostics and the outer loop requests a trial only when judging that step. */
+    /** The iterate reached, projected onto the caller's hard set; may be lazy and select its proposal-local correction metadata. Steering reads only diagnostics; the outer loop reads the chosen trial before its evaluation and correction. */
     trial: X;
 
     /** The model's decrease of the merit from the iterate to the step, `m(0) - m(p)`. */
@@ -361,6 +361,8 @@ export namespace HumanSequentialConvex {
             ended = "model";
             break;
           }
+          // The chosen trial also selects its producer's correction data;
+          // steering may have solved another violation-only model last.
           let trial: X = step.trial;
           let next: E = problem.evaluate(trial);
           let ratio: number = gain(next, step.predicted);

@@ -28,7 +28,7 @@ export namespace AutoMovieMotionHumanHead {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the axis, the unit and what is returned.
    * @evidence contracts/development/implementation.md#principled-implementation The rig has two cervical joints, so a head angle is split between them in the stated share and the two parts sum to the whole.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper builds each joint's triple.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fresh zero triples receive the same selected-axis products directly, without a per-sample helper closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The share is the named constant `NECK`; an even split is a modelling choice for a rig that lumps seven vertebrae into two joints, stated as such in the namespace comment.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every head phrase splits its angle here.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
@@ -38,32 +38,34 @@ export namespace AutoMovieMotionHumanHead {
     axis: 0 | 1 | 2,
     degrees: number,
   ): AutoMovieMotionHumanJoints.Angles {
-    const of = (part: number): [number, number, number] => {
-      const out: [number, number, number] = [0, 0, 0];
-      out[axis] = part * degrees;
-      return out;
-    };
-    return { neck: of(NECK), head: of(1 - NECK) };
+    const neck: [number, number, number] = [0, 0, 0];
+    neck[axis] = NECK * degrees;
+    const head: [number, number, number] = [0, 0, 0];
+    head[axis] = (1 - NECK) * degrees;
+    return { neck, head };
   }
 
   /** An oscillation of one head angle over a window. */
-  const oscillate = (
+  function oscillate(
     axis: 0 | 1 | 2,
     clock: AutoMovieMotionClock.IClock,
     window: readonly [string, string],
     cycles: number,
     degrees: number,
-  ): IAutoMovieMotionHumanPrimitive =>
-    AutoMovieMotionHumanJoints.add({
+  ): IAutoMovieMotionHumanPrimitive {
+    const from: number = clock.at(window[0]);
+    const to: number = clock.at(window[1]);
+    let wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> | undefined;
+    return AutoMovieMotionHumanJoints.add({
       channels: ["head"],
-      from: clock.at(window[0]),
-      to: clock.at(window[1]),
-      delta: (seconds: number): AutoMovieMotionHumanJoints.Angles =>
-        share(
-          axis,
-          degrees * AutoMovieMotionClock.wave(clock, window, cycles, seconds),
-        ),
+      from,
+      to,
+      delta: (seconds: number): AutoMovieMotionHumanJoints.Angles => {
+        if (wave === undefined) wave = AutoMovieMotionClock.prepareWave(clock, window, cycles);
+        return share(axis, degrees * wave(seconds));
+      },
     });
+  }
 
   /**
    * A nod: the head flexes and extends about where the posture holds it.
@@ -78,9 +80,9 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#principled-implementation A nod is a repeated flexion about the held pose, so the angle is the amplitude times `AutoMovieMotionClock.wave`, which leaves and rejoins the pose at rest.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the shared oscillation with the flexion axis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and the count are the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the oscillation with `shake`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the oscillation with shake; its first actual sample admits the fixed count and prepares the same Clock wave constants, while every sample still calls the current clock.linear implementation.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its arguments and at most one fixed wave reader until released, without retaining samples or postures.
    */
   export function nod(
     clock: AutoMovieMotionClock.IClock,
@@ -104,9 +106,9 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#principled-implementation A shake is a repeated twist about the held pose, so the angle is the amplitude times `AutoMovieMotionClock.wave`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the shared oscillation with the twist axis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and the count are the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the oscillation with `nod`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nod's first-sample fixed-count preparation through the Clock owner; actual custom clock.linear callbacks and current sample evaluation remain.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its fixed arguments and one lazy wave reader, without per-second samples or posture results.
    */
   export function shake(
     clock: AutoMovieMotionClock.IClock,

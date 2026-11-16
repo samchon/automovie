@@ -133,9 +133,9 @@ export namespace hingedArmSwivel {
    * @evidence contracts/development/implementation.md#principled-implementation The swivel about the root-to-effector line is an exact null space of the effector's position.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hinge, the line and the aim once, then the swivel per call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The mid direction and the aim are read once for every swivel of a branch.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `aimRotation`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the branch's mid rotation, line and aim in the returned function only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Mid direction/aim and the lazy swivel-axis magnitude/norm are read once for a branch; each swivel retains its actual half-angle sine/cosine and original quaternion product.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares aimRotation and Quaternion.prepareAxisAngle's actual fixed-line arithmetic, with no prior angle or rotation result reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned branch closure owns its mid rotation, line, aim and bounded lazy axis reader until caller release, with no target history or handles.
    */
   export function pose(
     chain: IChain,
@@ -199,7 +199,7 @@ export namespace hingedArmSwivel {
      * @evidence contracts/development/implementation.md#principled-implementation poseBranch and aimed turn about the actual hinge, aim the branch's root-to-end direction at the actual target, then apply its position-preserving swivel.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure The same branch poser/aim owners serve direct and prepared entries; this reader supplies only the matching source/target metadata.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No branch angle, target, quaternion or ROM policy is approximated, replaced or remembered from a previous request.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant branch direction/aim work precedes constant per-swivel axis-angle/product work; exact source inverse and this target's lowered goal avoid repeated fixed preparation.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant branch direction/aim work and one lazy fixed-axis normalization precede actual per-swivel trigonometry/product work; source inverse and this target's lowered goal avoid repeated fixed preparation.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged source inverse/normalized hinge and this unchanged target's lowered goal are shared; every branch aim and requested swivel is actual.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned branch closure owns its lower rotation, line and aim until caller release, with no score/target history or handles; callers keep its borrowed lower record unchanged during use.
      */
@@ -250,8 +250,10 @@ export namespace hingedArmSwivel {
     target?: ITargetPreparation,
   ): ReturnType<typeof hingedArmSwivel.pose> {
     const { lower, line, aim }: ReturnType<typeof aimed> = aimed(chain, theta, source, target);
+    const swivelRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
+      Quaternion.prepareAxisAngle(line);
     return (swivel: number): ReturnType<ReturnType<typeof hingedArmSwivel.pose>> => ({
-      upper: Quaternion.multiply(aim, Quaternion.fromAxisAngle(line, swivel)),
+      upper: Quaternion.multiply(aim, swivelRotation(swivel)),
       lower,
     });
   }

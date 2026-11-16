@@ -36,7 +36,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: every place follows from the spokes.
  */
 export namespace GymnasticsWheel {
-  /** A part of the body that may bear. */
+  /**
+   * One actual joint group that may bear during rolling.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Bones identify one bearing joint or a pair whose mean is read; height is world metres and support is the original declared floor/prop contact.
+   * @evidence contracts/development/design.md#principled-representation The same physical joint group supplies the rolling mean and emitted per-joint support windows.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The rolling law needs only these ordered joint names, bearing height and declared support.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No alternative root, precomputed winning-spoke verdict, tolerance or manual body dimension is stored.
+   */
   export interface ISpoke {
     /** Its joints: one, or two that bear together at their middle. */
     bones: readonly (AutoMovieHumanoidBone & IHumanContactWindow["part"])[];
@@ -48,7 +55,14 @@ export namespace GymnasticsWheel {
     support: IHumanContactWindow.Support;
   }
 
-  /** One row of the table. */
+  /**
+   * One original sampled angle's root and selected bearing group.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Angle is degrees, root is world metres, and bears indexes the original ordered spoke list.
+   * @evidence contracts/development/design.md#principled-representation One actual geometric station couples its root placement to the support selected by the unchanged LEVEL comparison.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Interpolation and contact extraction consume exactly these three values.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no fitted flag, replacement collider or skipped-station marker.
+   */
   export interface IRow {
     /** The turn's angle, degrees. */
     angle: number;
@@ -60,7 +74,14 @@ export namespace GymnasticsWheel {
     bears: number;
   }
 
-  /** A rolled table. */
+  /**
+   * Every original rolling station and its piecewise-linear root reader.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Rows run from zero to the full turn in degrees; the reader clamps angles to that span and returns world metres.
+   * @evidence contracts/development/design.md#principled-representation The existing station table supplies both continuous root interpolation and exact ordered bearing runs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The laws inspect rows for support and call root for the same table's placement; no second sampled trajectory is represented.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains every authored station and original interpolation rather than a coarser table, predicted support or alternate clock.
+   */
   export interface IWheel {
     /** The rows, by growing angle, the first at 0 and the last at the turn's end. */
     rows: readonly IRow[];
@@ -70,6 +91,14 @@ export namespace GymnasticsWheel {
      *
      * @param angle Degrees, clamped into the table.
      * @returns World metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the degree input, endpoint clipping and world-metre output from this wheel's original ordered stations.
+     * @evidence contracts/development/implementation.md#principled-implementation roll's actual reader converts the clipped angle to the original station index/share and interpolates the two adjacent root vectors componentwise.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One clipped coordinate, index and linear vector expression reuse the station producer's span/count.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No station, bearing transition, interpolation order or endpoint convention is changed by prepared FK during construction.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each actual read takes constant arithmetic and two indexed row reads without solving or traversing the body; all construction stations remain.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader and contacts consume the same actual wheel rows; changing angles are evaluated directly without a time/result memo.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The wheel retains its original rows/span/count until released; each query returns a fresh vector and retains neither an input angle, previous result nor construction FK reader.
      */
     root(angle: number): IAutoMovieVector3;
   }
@@ -85,9 +114,9 @@ export namespace GymnasticsWheel {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Rolling without slipping: within a spoke's run the root is the spoke's place less its offset from the root, and at a change the place is handed over while both are down.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collect demanded spoke bones once, then resolve the original trunk, read every spoke's mean once and choose the bearing/root for each row.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bind the body's actual fixed spoke-bone demand once, then resolve the original trunk, read every spoke's mean once and choose the bearing/root for each row.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A spoke takes the weight only when lower by `LEVEL`, so a pair level with its single feet keeps bearing as the pair and the choice does not flicker on rounding.
-   * @evidence contracts/development/implementation.md#efficient-algorithms R rows retain ordinary canonical joint admission; demanded FK visits spoke ancestry instead of unrelated descendants. Each row reduces each spoke once in O(P) named incidences using three scalars and one result vector per spoke, avoiding repeated means and per-bone sum vectors. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms R rows retain ordinary canonical joint admission; demanded FK visits spoke ancestry instead of unrelated descendants, with fixed name lookup/sorting paid once by the body's producer. Each row reduces each spoke once in O(P) named incidences using three scalars and one result vector per spoke, avoiding repeated means and per-bone sum vectors. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each row's spoke means supply every comparison and support handover. One explicitly scoped exact FK reader shares unchanged joint/ancestor arithmetic across real rows, while changed shapes and root headings still compute normally; no shape or time is rounded into a key.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains one record per row. The spoke set, operation-scoped lazy FK reader and row maps/means release at construction return or throw; no reader or temporal cache enters the table.
    */
@@ -105,12 +134,13 @@ export namespace GymnasticsWheel {
     const requested: Set<AutoMovieHumanoidBone> = new Set();
     for (const spoke of props.spokes)
       for (const bone of spoke.bones) requested.add(bone);
+    const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(props.body, requested);
     let place: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (let i: number = 0; i <= count; i++) {
       const angle: number = (props.until * i) / count;
       const shaped: IHumanPosture = props.shaped(angle);
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(props.body, resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution).pose, resolution(), requested);
+        readBones(resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution).pose, resolution());
       const middles: IAutoMovieVector3[] = props.spokes.map((spoke: ISpoke): IAutoMovieVector3 => {
         let x: number = 0;
         let y: number = 0;
@@ -254,7 +284,7 @@ export namespace GymnasticsWheel {
     let high: number = 1;
     for (let i: number = 0; i < 30; i++) {
       const middle: number = (low + high) / 2;
-      if (until * minimumJerk(middle).s < angle) low = middle;
+      if (until * minimumJerk.share(middle) < angle) low = middle;
       else high = middle;
     }
     return ((low + high) / 2) * duration;

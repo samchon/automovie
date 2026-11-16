@@ -25,9 +25,9 @@ import type { combinePhysicalMassProperties } from "./combinePhysicalMassPropert
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both tensor terms, common frame, SI units, zero-moment parts and caller admission. Namespace prepare returns a callable assembly reader with spin for an actual indexed part; both return fresh values, reject invalid spin indices, compare exact copied intrinsic inputs and release with the owning physical operation.
  * @evidence contracts/development/implementation.md#principled-implementation The rotation of a principal tensor into another frame, `R diag(I) R^T`, written as the sum over the principal axes `a_k` of `I_k a_k a_kᵀ`, and the parallel-axis (Huygens-Steiner) theorem for the shift of each part's mass to the point; both are exact, so the sum is the rigid assembly's tensor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar component kernel serves both assembly and a single part's spin. Three principal-axis rotations feed nine explicit entries; one consumer per part accumulates them into the result without nested callbacks or dynamic coordinate keys.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct assembly/spin share an allocation-free scalar component kernel. Prepared reads retain those same intrinsic expressions in private rotated storage, then apply current parallel-axis terms through preparedComponents; both paths share the same tensor/spin consumers. The separate direct path avoids preparation metadata for one-shot calls while this module remains the sole tensor owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No input is clamped or skipped: a non-finite input yields a non-finite tensor that the caller's admission refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts: three axis rotations, nine shared moment-times-row products and nine entries per part. Scalar displacement coordinates need no vector record, and their norm is computed once; the row/column products and segment accumulation retain their original arithmetic association, including independently evaluating both off-diagonal orders. Spin consumes the same scalar entries without a one-element part array, copied part or tensor rows. Private consumers receive their tensor or velocity explicitly, avoiding one closure per assembly or spin.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts, with three axis rotations and nine shared moment-times-row products for a changed intrinsic frame. Direct scalar displacement/consumer paths omit vector, part-array and tensor-row intermediates. Prepared entries reuse their private key/tensor storage even on misses, so a moving part allocates no replacement cache record after first use. Unchanged frames omit intrinsic work; current shifts and independent off-diagonal association remain.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct assembly/spin share the scalar kernel, immutable axes and consumers. Prepare separately caches each part index's nine intrinsic entries only after Object.is matches three copied moments and four quaternion coordinates, with independent assembly/spin slots. Current mass/centre/reference shifts, velocity products and model-order sums always run; changed coordinates recompute without a target/time/identity key.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct calls retain no caller data and return fresh rows/vectors. A prepared reader owns at most one seven-scalar key plus nine intrinsic entries per current part for each of assembly and spin; either use truncates both populations when its part array shrinks. The mass-model/interval owner releases the closure with its operation, and no part, pose, query point or result history is held.
  */
@@ -178,7 +178,7 @@ function readRotated(
     Object.is(known.rotation.x, rotation.x) && Object.is(known.rotation.y, rotation.y) &&
     Object.is(known.rotation.z, rotation.z) && Object.is(known.rotation.w, rotation.w)
   ) return known;
-  const value: IRotated = rotated(moments, rotation);
+  const value: IRotated = rotated(moments, rotation, known);
   entries[index] = value;
   return value;
 }
@@ -214,7 +214,7 @@ function preparedComponents<T, Context>(
  * Its nine expressions retain the scalar kernel's independent row/column
  * products; caching them does not fold unequal off-diagonal rounding.
  */
-function rotated(moments: IAutoMovieVector3, rotation: IAutoMovieQuaternion): IRotated {
+function rotated(moments: IAutoMovieVector3, rotation: IAutoMovieQuaternion, target?: IRotated): IRotated {
   const a: IAutoMovieVector3 = Quaternion.rotateVector(rotation, BASIS_X);
   const b: IAutoMovieVector3 = Quaternion.rotateVector(rotation, BASIS_Y);
   const c: IAutoMovieVector3 = Quaternion.rotateVector(rotation, BASIS_Z);
@@ -227,21 +227,31 @@ function rotated(moments: IAutoMovieVector3, rotation: IAutoMovieQuaternion): IR
   const cx: number = moments.z * c.x;
   const cy: number = moments.z * c.y;
   const cz: number = moments.z * c.z;
-  return {
-    moments: { x: moments.x, y: moments.y, z: moments.z },
-    rotation: { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w },
-    tensor: [
-      0 + ax * a.x + bx * b.x + cx * c.x,
-      0 + ax * a.y + bx * b.y + cx * c.y,
-      0 + ax * a.z + bx * b.z + cx * c.z,
-      0 + ay * a.x + by * b.x + cy * c.x,
-      0 + ay * a.y + by * b.y + cy * c.y,
-      0 + ay * a.z + by * b.z + cy * c.z,
-      0 + az * a.x + bz * b.x + cz * c.x,
-      0 + az * a.y + bz * b.y + cz * c.y,
-      0 + az * a.z + bz * b.z + cz * c.z,
-    ],
+  const value: IRotated = target ?? {
+    moments: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    tensor: [],
   };
+
+  // These private scalar slots never escape. Reusing their storage on a
+  // changed frame avoids allocating a new key/tensor record per moving part.
+  value.moments.x = moments.x;
+  value.moments.y = moments.y;
+  value.moments.z = moments.z;
+  value.rotation.x = rotation.x;
+  value.rotation.y = rotation.y;
+  value.rotation.z = rotation.z;
+  value.rotation.w = rotation.w;
+  value.tensor[0] = 0 + ax * a.x + bx * b.x + cx * c.x;
+  value.tensor[1] = 0 + ax * a.y + bx * b.y + cx * c.y;
+  value.tensor[2] = 0 + ax * a.z + bx * b.z + cx * c.z;
+  value.tensor[3] = 0 + ay * a.x + by * b.x + cy * c.x;
+  value.tensor[4] = 0 + ay * a.y + by * b.y + cy * c.y;
+  value.tensor[5] = 0 + ay * a.z + by * b.z + cy * c.z;
+  value.tensor[6] = 0 + az * a.x + bz * b.x + cz * c.x;
+  value.tensor[7] = 0 + az * a.y + bz * b.y + cz * c.y;
+  value.tensor[8] = 0 + az * a.z + bz * b.z + cz * c.z;
+  return value;
 }
 
 /** A row-major scalar tensor consumer that needs no intermediate row arrays. */

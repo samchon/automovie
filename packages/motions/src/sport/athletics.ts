@@ -163,7 +163,7 @@ export namespace athletics {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Set, clock, root row, two leg rows, two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place is the body's; provisional times are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg arc, the placed arm and the posture heading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed entry/block pair prepares each leg's original quaternion arc once; actual shares and fresh placements still evaluate at every queried second. Placed-arm and posture-heading formulas remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the set position and the clock.
    */
   export function plan(
@@ -276,6 +276,7 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: HumanFoot.IPlacement = target.feet[side];
+      const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> = AutoMovieMotionHumanLeg.prepareArc(stance, block, 0.05 * body.measure.stature);
       const half: number = ready / 2;
       const a: number = from === "start" ? 0 : half;
       const b: number = to === "half" ? half : ready;
@@ -291,12 +292,7 @@ export namespace athletics {
             _: IHumanPosture,
             seconds: number,
           ): HumanFoot.IPlacement =>
-            AutoMovieMotionHumanLeg.arc(
-              stance,
-              block,
-              0.05 * body.measure.stature,
-              share(seconds),
-            ),
+            trajectory(share(seconds)),
           planted: (seconds: number): boolean => {
             const at: number = share(seconds);
             return at <= 0 || at >= 1;

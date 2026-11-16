@@ -155,7 +155,7 @@ export namespace carryHang {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const posture: IHumanPosture = base.posture(t);
         if (sides.length === 0) return posture;
-        const share: number = minimumJerk(Math.min(1, t / SETTLE)).s;
+        const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
         const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           HumanTrunk.resolve(body, posture, undefined, undefined, shoulders);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };

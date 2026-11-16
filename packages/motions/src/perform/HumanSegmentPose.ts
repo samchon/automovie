@@ -53,6 +53,7 @@ export namespace HumanSegmentPose {
     person: HumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
     const cached: IAutoMoviePose | undefined = person.resolving
       ? undefined
@@ -61,7 +62,7 @@ export namespace HumanSegmentPose {
     const active: HumanSegment.ISegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose =
-      active === undefined ? initial(person, requested) : of(person, active, seconds, undefined, requested);
+      active === undefined ? initial(person, requested, prepared) : of(person, active, seconds, prepared, requested);
     if (person.resolving || requested !== undefined) return pose;
     if (person.cache.size >= 4096)
       person.cache.delete(person.cache.keys().next().value!);
@@ -118,7 +119,7 @@ export namespace HumanSegmentPose {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A shown-posture reader, one named-fit adapter and ordered stop/transition/contact stages retain their separate physical responsibilities; HumanSegmentStop owns the stopped-frame reader and HumanSegmentPlant the final planted refit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different under-postures, overlay sets and nearby seeds still receive separate fits; no clamp, contact solve, transition sample or tolerance is removed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Hold selection is O(H), with at most two lazy plan-side drive scans and a two-side riding set per shown evaluation; no carried holds means no second active-overlay scan. Finger application copies the J existing joint entries once plus the F held entries, O(J+F). Cold final plants retain attachment-order checks but omit unused nearby keys and tuple arrays. The clamps prepare B skeleton bones and D distinct joint names once; all projection and fit work remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit same-body preparation shares rig ROM metadata and lazy exact FK prerequisites across shown poses, overlays, carries, stops, final plants and recursive transition samples. Every actual projection, target and near fit remains separate; observational omission belongs only to the resolver's conservative dependency proof. The offset capture also shares its unchanged-rig codec without sharing numerical conversions.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit same-body preparation shares ROM metadata and lazy exact FK prerequisites across raw action calls, synchronous layer contexts, overlays/carries/stops, final plants and transition samples. Actual projections, goals and near fits remain separate; observational omission belongs only to conservative dependency proofs. Offset capture also shares its unchanged-rig codec without sharing numerical conversions.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer evaluation owns its preparation, local pose/seed maps and per-side metadata until return or throw. Only last successful FK dependency tuples and rig metadata are retained during that operation; no returned pose, fit seed or transition offset captures the preparation. Existing held carry numbers and concrete transition codecs retain their original forget lifetime.
    */
   export function seeded(
@@ -159,8 +160,10 @@ export namespace HumanSegmentPose {
         person,
         segment.plan.posture(
           Math.min(segment.plan.duration, Math.max(0, t - segment.start)),
+          undefined, prepared.resolution,
         ),
         t,
+        prepared.resolution,
       );
 
       // A hold rides an action entered before its takeover even past that
@@ -461,8 +464,9 @@ export namespace HumanSegmentPose {
     person: HumanSegment.IPerson,
     posture: IHumanPosture,
     seconds: number,
+    resolution?: prepareHumanSegmentPose.IPrepared["resolution"],
   ): IHumanPosture {
-    return HumanSegmentLayer.apply(person, posture, seconds);
+    return HumanSegmentLayer.apply(person, posture, seconds, resolution);
   }
 
   /**
@@ -479,9 +483,10 @@ export namespace HumanSegmentPose {
   export function initial(
     person: HumanSegment.IPerson,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
     return resolveHumanPosture.seeded(person.performer.body, person.initial,
-      undefined, undefined, undefined, requested).pose;
+      undefined, undefined, prepared?.resolution, requested).pose;
   }
 }
 

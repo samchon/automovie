@@ -34,14 +34,14 @@ export function walkPaced(
   const last: number = clock.length - 1;
   const until: number = last * step;
   if (last < 1) return plan;
-  const toPlan = (film: number): number => {
+  const toPlan: (film: number) => number = (film: number): number => {
     const at: number = Math.min(last, Math.max(0, film / step));
     const i: number = Math.min(last - 1, Math.floor(at));
     return clock[i]! + (clock[i + 1]! - clock[i]!) * (at - i);
   };
 
   // The first film second at which the clock has reached a plan second.
-  const toFilm = (planned: number): number => {
+  const toFilm: (planned: number) => number = (planned: number): number => {
     if (planned <= clock[0]!) return 0;
     let low: number = 0;
     let high: number = last;
@@ -56,7 +56,7 @@ export function walkPaced(
       step
     );
   };
-  const moved = (was: number): number => toFilm(was * plan.duration) / until;
+  const moved: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / until;
   return {
     ...plan,
     duration: until,

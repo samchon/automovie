@@ -161,7 +161,7 @@ export namespace regrasp {
         : { inHand: inHand(context, read.prop, frame, hand) }),
     };
     const profile: (seconds: number) => number = (seconds: number): number =>
-      minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s;
+      minimumJerk.share(Math.min(1, Math.max(0, seconds / duration)));
 
     // A twist turns the hand rigidly about the object's axis line.
     const axis: {
@@ -296,7 +296,7 @@ export namespace regrasp {
       Quaternion.multiply(end.rotation, Quaternion.inverse(start.rotation)),
     );
     return (share: number): IHumanProp.IFrame => {
-      const s: number = minimumJerk(Math.min(1, Math.max(0, share))).s;
+      const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
       const rotation: IAutoMovieQuaternion = Quaternion.slerp(
         Quaternion.identity(),
         arc,

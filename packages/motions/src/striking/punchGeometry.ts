@@ -157,7 +157,7 @@ export namespace punchGeometry {
       t: number,
       of: (c: punchReach.ICorrection) => IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      superposeMinimumJerk(
+      superposeMinimumJerk.position(
         origin,
         corrections(t).map(
           (c: punchReach.ICorrection): superposeMinimumJerk.IUnit => ({
@@ -167,7 +167,7 @@ export namespace punchGeometry {
           }),
         ),
         t0 + t,
-      ).position;
+      );
     const step = (t: number): number =>
       carry(
         { x: contact.advance, y: 0, z: 0 },
@@ -190,11 +190,11 @@ export namespace punchGeometry {
     )!.worldPosition;
 
     // Shares through the punch: out to the contact, back to the guard.
-    const out = (t: number): number => minimumJerk(t / shown).s;
-    const back = (t: number): number => minimumJerk((t - shown) / recoil).s;
+    const out = (t: number): number => minimumJerk.share(t / shown);
+    const back = (t: number): number => minimumJerk.share((t - shown) / recoil);
     const sag = (t: number): number =>
       drop.seconds > 0
-        ? back(t) - minimumJerk((t - shown - recoil) / drop.seconds).s
+        ? back(t) - minimumJerk.share((t - shown - recoil) / drop.seconds)
         : 0;
     const walk = (advance: (t: number) => number): punchFootwork.IFootwork =>
       punchFootwork.create({
@@ -235,7 +235,7 @@ export namespace punchGeometry {
             origin,
             solved.end,
             StrikingRoom.feint(context, p.at, {
-              declared: minimumJerk(p.feint).s,
+              declared: minimumJerk.share(p.feint),
               aimed: contact.first,
               origin,
               end: solved.end,
@@ -332,7 +332,7 @@ export namespace punchGeometry {
       let at: IHumanPosture.IReference = anchor(contact.launched);
       for (const c of corrections(clock)) {
         if (!c.moved) continue;
-        const s: number = minimumJerk((t0 + clock - c.start) / c.duration).s;
+        const s: number = minimumJerk.share((t0 + clock - c.start) / c.duration);
         const next: IHumanPosture.IReference = anchor(c.reach);
         at = {
           upper: blendHumanJoint(
@@ -447,10 +447,10 @@ export namespace punchGeometry {
         // Held for the dwell, then the approach is retraced on a minimum-jerk
         // clock, the wrist carried onto the guard it returns to.
         const s: number = at - t0;
-        const w: number = minimumJerk(
+        const w: number = minimumJerk.share(
           (t - s - StrikingStroke.DWELL) /
             Math.max(1e-3, duration - s - StrikingStroke.DWELL),
-        ).s;
+        );
         const clock: number = s * (1 - w);
         return compose(
           t,

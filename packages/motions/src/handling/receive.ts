@@ -21,6 +21,7 @@ import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrip } from "./HumanGrip";
 import { HumanHandover } from "./HumanHandover";
 import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
+import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { handshake } from "./handshake";
@@ -275,19 +276,23 @@ export namespace receive {
       shared.target.width,
     ).joints;
     const peak: number = HumanPrehension.peak(context.random("peak"));
-    const shapes = {
+    const shapes: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open,
       closed,
     };
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> | undefined = takes
+      ? undefined : HumanPrehension.prepareShape({ entry: open, open: shapes.entry, closed: shapes.entry }, 1);
+ 
     // The body at a second with the carried hand turned by a yaw, degrees,
     // about the world's up: a hand that took the prop keeps the rotation it
     // showed at the grip, not the one it was asked there, since the prop sits
     // in the hand as the hand was shown, and its upright carry leaves only
     // the turn about the vertical, which the take-away chooses
-    // (`HumanHandover.upright`).
-    const pose = (seconds: number, yaw: number): IHumanPosture => {
+    // (`HumanHandoverUpright`). At a fixed second only that rotation varies;
+    // transport, digits, direct body and all other goals are prepared once.
+    const frameAt: (seconds: number) => HumanHandoverUpright.IFrame = (seconds: number): HumanHandoverUpright.IFrame => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
       let rotation: IAutoMovieQuaternion;
@@ -300,43 +305,28 @@ export namespace receive {
       } else if (t <= shared.gripClosed) {
         wrist = out.wrist(t - shared.reachStart);
         rotation = out.turn(t - shared.reachStart);
-        digits = HumanPrehension.shape(
-          shapes,
-          peak,
-          (t - shared.reachStart) / shared.reach,
-        );
-        share = minimumJerk((t - shared.reachStart) / shared.reach).s;
+        digits = shapeAt((t - shared.reachStart) / shared.reach);
+        share = minimumJerk.share((t - shared.reachStart) / shared.reach);
       } else if (t <= leave) {
         wrist = arrive;
         rotation = shared.receiverAt.rotation;
         digits = closed;
         share = 1;
       } else {
-        share = 1 - Math.min(1, minimumJerk((t - leave) / back).s);
+        share = 1 - Math.min(1, minimumJerk.share((t - leave) / back));
         wrist = home.wrist(t - leave);
         rotation = takes
-          ? Quaternion.multiply(
-              Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-              shared.receiverShown.rotation,
-            )
+          ? shared.receiverShown.rotation
           : home.turn(t - leave);
         digits = takes
           ? closed
-          : HumanPrehension.shape(
-              { entry: open, open: shapes.entry, closed: shapes.entry },
-              1,
-              minimumJerk((t - leave) / back).s,
-            );
+          : returnShape!(minimumJerk.share((t - leave) / back));
       }
       const base: IHumanPosture = leaned(share);
       return {
-        ...base,
-        joints: { ...base.joints, ...digits },
-        limbs: {
-          ...base.limbs,
-          [limb]: {
+        posture: { ...base, joints: { ...base.joints, ...digits } },
+        goal: {
             point: wrist,
-            rotation,
             bend,
             // The grasp's own arm solution anchors the hold, the reach
             // more and more as it arrives, and the take-away less and
@@ -349,7 +339,7 @@ export namespace receive {
                     ...shared.receiverReference,
                     // The share is held at 1 first: at the take-away's end it
                     // rounds a hair past 1, and its complement below 0.
-                    weight: 1 - Math.min(1, minimumJerk((t - leave) / back).s),
+                    weight: share,
                   },
                 }
               : takes && t >= shared.gripClosed
@@ -358,21 +348,21 @@ export namespace receive {
                   ? {
                       reference: {
                         ...shared.receiverReference,
-                        weight: minimumJerk(
-                          (t - shared.reachStart) / shared.reach,
-                        ).s,
+                        weight: share,
                       },
                     }
                   : {}),
             ...(takes && t >= shared.gripClosed && t <= leave
               ? { planted: true }
               : {}),
-          },
         },
+        rotation: (yaw: number): IAutoMovieQuaternion => takes && t > leave
+          ? Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), rotation)
+          : rotation,
       };
     };
     const turn: (seconds: number) => number = takes
-      ? HumanHandover.upright(body, side, pose, leave, duration, [0, undefined])
+      ? HumanHandoverUpright.prepared(body, side, frameAt, leave, duration, [0, undefined])
       : (): number => 0;
 
     const part: IHumanContactWindow["part"] =
@@ -430,7 +420,7 @@ export namespace receive {
         : {}),
       hands: [side],
       contact: shared.gripClosed,
-      posture: (seconds: number): IHumanPosture => pose(seconds, turn(seconds)),
+      posture: (seconds: number): IHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, turn(seconds)),
     };
   }
 }

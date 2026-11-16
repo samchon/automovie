@@ -13,6 +13,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -31,6 +32,7 @@ export namespace jumpState {
  *
  * @param body The actual unchanged body.
  * @param posture The law's already lowered raw endpoint.
+ * @param resolution Optional exact FK source borrowed from this same synchronous endpoint preparation.
  * @returns Owned canonical joint values and root-local achieved foot/knee geometry.
  * @throws {Error} When preparation is attempted after a whole-body flight rotation or without a physical canonical root.
  *
@@ -39,20 +41,21 @@ export namespace jumpState {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve and finalize once, admit its root, then copy clinical joints and the two legs' achieved root-frame geometry.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not move or certify the original planted goal, change a range, drop a contact solve or fake a plant in flight. Original push/landing targets remain authored and audited independently.
  * @evidence contracts/development/implementation.md#efficient-algorithms One existing canonical resolution, clamp and planted refit remain per endpoint, followed by full joint admission/copy and FK only for the four ankle/knee bones' ancestor closure. Endpoints prepare once per plan and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanSegmentPlant's actual policy rather than duplicating its planted filter, and each FK map supplies foot and knee geometry together.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned pose, joint table and small leg records belong to this plan; temporary bone maps release on return. No reader, callback, global memo or body handle is added to the result.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanSegmentPlant's actual policy rather than duplicating its planted filter, and each FK map supplies foot/knee geometry together. One explicitly scoped getter shares exactly unchanged FK prerequisites across the actual initial solve, final planted refit and local observations, optionally borrowing its synchronous parent's workspace.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned pose, joint table and small leg records belong to this plan; temporary bone maps and the local getter release on return/throw. An optional borrowed reader stays with its synchronous parent and no reader, callback, history or body handle enters the result.
  */
-export function of(body: IHumanBody, posture: IHumanPosture): jumpState.IState {
+export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): jumpState.IState {
   if (posture.rotation !== undefined)
     throw new Error("Jump endpoint preparation precedes whole-body flight rotation");
-  const resolved: IAutoMoviePose = resolveHumanPosture(body, posture);
+  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+  const resolved: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, read).pose;
   const clamped: IAutoMoviePose = clampPose(resolved, body.skeleton);
-  const pose: IAutoMoviePose = HumanSegmentPlant.fit(body, clamped, posture.limbs).pose;
+  const pose: IAutoMoviePose = HumanSegmentPlant.fit(body, clamped, posture.limbs, undefined, read).pose;
   if (pose.root === null) throw new Error("A jump endpoint requires its physical root");
   const joints: IHumanPosture["joints"] = {};
   for (const joint of pose.joints)
     joints[joint.bone] = [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...pose, root: null }, undefined, LEG_BONES);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...pose, root: null }, read(), LEG_BONES);
   const leg: (side: "left" | "right") => jumpState.ILeg = (
     side: "left" | "right",
   ): jumpState.ILeg => {

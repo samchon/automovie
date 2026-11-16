@@ -116,7 +116,7 @@ export namespace crawlCourse {
       const at: IAutoMovieVector3 = Vector3.lerp(
         course.points[lo]!,
         course.points[lo + 1]!,
-        minimumJerk(p).s,
+        minimumJerk.share(p),
       );
       return { ...at, y: at.y + 4 * course.height * p * (1 - p) };
     };

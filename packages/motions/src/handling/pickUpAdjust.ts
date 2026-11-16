@@ -253,7 +253,7 @@ export namespace pickUpAdjust {
             (timed(share) - STEPPING[0]) / (STEPPING[1] - STEPPING[0]),
           ),
         );
-        const moved: number = length * minimumJerk(u).s;
+        const moved: number = length * minimumJerk.share(u);
         const shifted: IAutoMovieVector3 = Vector3.add(
           posture.root,
           Vector3.scale(toward, (length * share) / 2),
@@ -378,7 +378,7 @@ export namespace pickUpAdjust {
     // had then.
     const down = (time: number): number => (reach * time) / duration;
     const back = (time: number): number =>
-      (end + up * timed(1 - minimumJerk(time).s / share)) / duration;
+      (end + up * timed(1 - minimumJerk.share(time) / share)) / duration;
     return (["left", "right"] as const).flatMap(
       (foot: "left" | "right"): IHumanContactWindow[] => {
         const part: "leftFoot" | "rightFoot" =
@@ -431,7 +431,7 @@ export namespace pickUpAdjust {
     let high: number = 1;
     for (let i: number = 0; i < 40; i++) {
       const middle: number = (low + high) / 2;
-      if (minimumJerk(middle).s < share) low = middle;
+      if (minimumJerk.share(middle) < share) low = middle;
       else high = middle;
     }
     return (low + high) / 2;

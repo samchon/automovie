@@ -30,7 +30,14 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The push-off is the jump's, never restated.
  */
 export namespace GymnasticsTakeoff {
-  /** A planned take-off. */
+  /**
+   * The last actual jump plan and its displayed take-off reading.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish the borrowed push-off plan, its take-off seconds, world-metre COM and measured launch velocity in metres per second.
+   * @evidence contracts/development/design.md#principled-representation One actual planned push and its own physical readings preserve their shared provenance for high-jump and pole-vault consumers.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The caller needs exactly this plan prefix, instant, centre and velocity to author its original subsequent flight.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the last plan's actual displayed values, never the requested aim, a synthetic endpoint or an asserted flight certificate.
+   */
   export interface ITakeoff {
     /** The jump's plan; its postures up to `seconds` are the push-off. */
     plan: IHumanActionPlan;
@@ -79,7 +86,7 @@ export namespace GymnasticsTakeoff {
       y: root.y + 0.55 * context.body.measure.stature,
       z: root.z,
     });
-    const apexOf = (velocity: IAutoMovieVector3): number => {
+    const apexOf: (velocity: IAutoMovieVector3) => number = (velocity: IAutoMovieVector3): number => {
       if (!(velocity.y > 0))
         throw new HumanRefusal({
           kind: "parameter",
@@ -97,7 +104,7 @@ export namespace GymnasticsTakeoff {
       y: 0,
       z: root.z + first.z * guess,
     };
-    const at = (plan: IHumanActionPlan, event: string): number =>
+    const at: (plan: IHumanActionPlan, event: string) => number = (plan: IHumanActionPlan, event: string): number =>
       (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
         ?.share ?? 0) * plan.duration;
 

@@ -131,20 +131,20 @@ export namespace KickSwing {
       opening <= 0 || most <= 0
         ? 1
         : Math.max(
-            minimumJerk(StrikingStroke.impactShare(props.speed)).s,
+            minimumJerk.share(StrikingStroke.impactShare(props.speed)),
             Math.min(1, opening / most),
           );
     const begin: number = chamber - KickForm.VIA_OVERLAP * (chamber - prep);
     const span: number = Math.max(1e-3, impact - begin) / unit(share);
     const angle = (clock: number): number =>
-      ((hinge.degrees * minimumJerk((clock - begin) / span).s) / share) *
-      (1 - minimumJerk((clock - impact) / Math.max(1e-3, folding)).s);
+      ((hinge.degrees * minimumJerk.share((clock - begin) / span)) / share) *
+      (1 - minimumJerk.share((clock - impact) / Math.max(1e-3, folding)));
     const rising = (clock: number): number =>
-      minimumJerk((clock - prep) / Math.max(1e-3, chamber - prep)).s;
+      minimumJerk.share((clock - prep) / Math.max(1e-3, chamber - prep));
     const lowering = (clock: number): number =>
-      minimumJerk(
+      minimumJerk.share(
         (clock - impact - folding) / Math.max(1e-3, recoil - folding),
-      ).s;
+      );
     return (
       clock: number,
       base: IHumanPosture,
@@ -237,7 +237,7 @@ export namespace KickSwing {
     let hi: number = 1;
     for (let i: number = 0; i < 48; i++) {
       const mid: number = (lo + hi) / 2;
-      if (minimumJerk(mid).s < travel) lo = mid;
+      if (minimumJerk.share(mid) < travel) lo = mid;
       else hi = mid;
     }
     return hi;

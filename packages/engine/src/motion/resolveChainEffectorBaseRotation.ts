@@ -10,6 +10,7 @@ import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import type { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import type { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
@@ -24,17 +25,18 @@ type IProps = Pick<
  * Recover the fixed mid-to-effector rotation of a supported descendant chain
  * from two already resolved frames. An unsupported chain keeps the legacy
  * effector-own rest rotation, or identity when its bone is missing.
- * The preceding full FK must have admitted all authored records in order;
+ * The preceding FK must have admitted all authored records in order and
+ * resolved the actual lower/end frames, even when its outputs were demanded;
  * its last effector articulation is removed on the right, retaining every
  * intermediate rest transform and articulation. Topology must belong to the
- * unchanged skeleton, as it does for the preceding full FK.
+ * unchanged skeleton, as it does for the preceding FK.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States prior FK admission, topology validity, supported ancestry and the legacy unsupported-chain fallback.
+ * @evidence contracts/development/common.md#meaningful-documentation States complete prior authored admission with actual lower/end FK, topology validity, supported ancestry and legacy fallback; fromPrepared documents exact static-joint/operation borrowing below.
  * @evidence contracts/development/implementation.md#principled-implementation A reachable strict upper-to-mid-to-end chain admits fixed-frame recovery; fromPrepared owns the exact inverse composition. An unrelated or missing chain retains the former effector-own rest convention.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This entry owns standalone ancestry admission, while fromPrepared owns fixed-frame recovery and isDescendant is the same traversal preparation uses.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This entry owns standalone ancestry admission, while fromPrepared owns fixed-frame recovery and isDescendant is the same traversal preparation uses. Optional genuine static-joint and raw readers meet at one admitted articulation; neither duplicates its convention owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No disconnected branch is treated as fixed below the mid bone; the full FK admission happens first, preserving the authored-record error order.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two bounded descendant walks plus fromPrepared's O(J+B) record/bone reads, without an additional FK. Preparation calls fromPrepared after its existing admission, avoiding duplicate tree walks.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the caller's completed lower/end frames and delegates the fixed-frame formula to the same owner preparation uses; it neither repeats FK nor caches by mutable rig identity.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows actual completed lower/end frames. Preparation's optional same-rig producer and operation key reuse its actual successful effector conversion under immutable axes/frames; raw omission retains original table lookup/reader behavior. Missing end articulation still admits no basis, and no pose result or mutable-rig identity certifies reuse.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one derived quaternion and retains no pose, frame map, rig, handle or task after return.
  */
 export function resolveChainEffectorBaseRotation(
@@ -82,6 +84,9 @@ export namespace resolveChainEffectorBaseRotation {
    * An optional same-operation resolution reader reuses the exact end
    * articulation the preceding FK completed; missing end records still use
    * identity without admitting any clinical basis.
+   * An optional genuine poseResolution must own this exact unchanged rig and
+   * mappings; it actually admits the last joint through the same convention
+   * and operation rows used by preceding prepared FK, returning a fresh value.
    *
    * States completed end/non-chain admission, the caller's remaining chain admission, strict ancestry and exact optional-inverse identity.
    * Full FK gives endWorld = lowerWorld * fixedFrame * endArticulation, so left multiplication by lowerWorld inverse and right multiplication by the last end articulation inverse recover the fixed frame.
@@ -97,12 +102,14 @@ export namespace resolveChainEffectorBaseRotation {
     end: IAutoMovieChainBone,
     inverseLower?: IAutoMovieQuaternion,
     resolution?: ReturnType<typeof preparePoseResolution>,
+    poseResolution?: prepareSkeletonPoseResolution.IRig,
   ): IAutoMovieQuaternion {
     let joint: IAutoMovieJointPose | undefined;
     for (const candidate of props.pose.joints)
       if (candidate.bone === props.chain.effector) joint = candidate;
     let articulation: IAutoMovieQuaternion;
     if (joint === undefined) articulation = Quaternion.identity();
+    else if (poseResolution !== undefined) articulation = poseResolution.joint(joint, resolution);
     else {
       const axes: IAutoMovieJointAxes | undefined =
         props.skeleton.bones.find(

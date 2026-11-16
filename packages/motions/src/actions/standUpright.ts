@@ -56,9 +56,9 @@ export namespace standUpright {
    * @evidence contracts/development/implementation.md#principled-implementation The existing plumb-line, level-head and centre-of-mass searches keep every candidate and stopping rule, with FK requested only for each residual's measured bones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak body cache delegates cold alignment to a synchronous search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle, body scale, candidate ordering or tolerance is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cold residuals visit requested ancestry instead of every bone; the final mass reading still requires the full rig, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares the engine's exact dependency reader across candidates and the body cache retains only the final alignment.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader ends with cold search return or throw; one alignment remains weakly owned per live body.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold residuals visit requested ancestry instead of every bone; the final reading demands precisely its mass-model bones and the two ankles. Golden search keeps its original candidate arithmetic and reuses only an exactly repeated preceding candidate's scalar cost; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares the engine's exact dependency reader across candidates. Its pure golden cost has unchanged body inputs, so identical candidate numbers can share their completed cost; the body cache retains only the final alignment.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and golden search's four scalar slots end with cold search return or throw; one alignment remains weakly owned per live body.
    */
   export function of(body: IHumanBody): IAlignment {
     const known: IAlignment | undefined = CACHE.get(body);
@@ -141,7 +141,19 @@ export namespace standUpright {
     // The centre of mass of the aligned column, relative to the ankles' midpoint.
     const model: ReturnType<typeof resolveAutoMovieCenterOfMass> =
       body.massModel;
-    const aligned = bones({ spine: trunk, chest: trunk, neck, head });
+    const requested: Set<AutoMovieHumanoidBone> = new Set(
+      model.segments.map(
+        (
+          segment: resolveAutoMovieCenterOfMass.ISegment,
+        ): AutoMovieHumanoidBone => segment.bone,
+      ),
+    );
+    requested.add("leftFoot");
+    requested.add("rightFoot");
+    const aligned: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+      { spine: trunk, chest: trunk, neck, head },
+      requested,
+    );
     const ahead: number =
       resolveAutoMovieCenterOfMass.place(model, aligned).z -
       mid(aligned, "leftFoot", "rightFoot").z;
@@ -174,7 +186,11 @@ export namespace standUpright {
     "head",
   ]);
 
-  /** The minimum of a unimodal cost on [lo, hi] degrees by golden-section search to 0.01 degree. */
+  /**
+   * Minimize the pure fixed-body cost to 0.01 degree, keeping the original
+   * candidate expressions. Only the preceding pair's exact numeric costs
+   * are shared; a rounded-nearby candidate is evaluated independently.
+   */
   function golden(
     cost: (angle: number) => number,
     lo: number,
@@ -183,10 +199,26 @@ export namespace standUpright {
     const r: number = (Math.sqrt(5) - 1) / 2;
     let a: number = lo;
     let b: number = hi;
+    let lastC: number | undefined;
+    let lastD: number | undefined;
+    let costC: number = 0;
+    let costD: number = 0;
+    const at = (angle: number): number =>
+      Object.is(angle, lastC)
+        ? costC
+        : Object.is(angle, lastD)
+          ? costD
+          : cost(angle);
     while (b - a > 0.01) {
       const c: number = b - r * (b - a);
       const d: number = a + r * (b - a);
-      if (cost(c) < cost(d)) b = d;
+      const first: number = at(c);
+      const second: number = at(d);
+      lastC = c;
+      lastD = d;
+      costC = first;
+      costD = second;
+      if (first < second) b = d;
       else a = c;
     }
     return (a + b) / 2;

@@ -232,7 +232,9 @@ export namespace sit {
       yaw: number,
       t: number,
     ): IHumanPosture["limbs"] => {
-      const share: number = crossed ? minimumJerk((t - descent) / CROSS).s : 0;
+      const share: number = crossed
+        ? minimumJerk.share((t - descent) / CROSS)
+        : 0;
       const limbs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, {
         left: {
           x: feet.left.x + (crossing.x - feet.left.x) * share,
@@ -338,21 +340,21 @@ export namespace sit {
 
     /** The body at a second with its seat socket a share of the way back to the seat, its arms hanging. */
     function lowered(t: number, back: number): IHumanPosture {
-      const across: number = minimumJerk(t / (0.7 * descent)).s;
-      const down: number = minimumJerk(
+      const across: number = minimumJerk.share(t / (0.7 * descent));
+      const down: number = minimumJerk.share(
         (t - 0.1 * descent) / (contact - 0.1 * descent),
-      ).s;
+      );
       const socket: IAutoMovieVector3 = {
         x: start.x + (goal.x - start.x) * back,
         y: start.y + (goal.y - start.y) * down,
         z: start.z + (goal.z - start.z) * back,
       };
-      const settle: number = minimumJerk(
+      const settle: number = minimumJerk.share(
         (t - 0.6 * descent) / (0.4 * descent),
-      ).s;
+      );
       const pitch: number =
         t < 0.6 * descent
-          ? peak * minimumJerk(t / (0.45 * descent)).s
+          ? peak * minimumJerk.share(t / (0.45 * descent))
           : peak + (final.pitch - peak) * settle;
       const yaw: number = yaw0 + turn * across;
       const joints: IHumanPosture["joints"] = { ...relaxed };
@@ -408,7 +410,7 @@ export namespace sit {
     /** How far a hand is from hanging to resting, at a second. */
     function hand(side: "left" | "right", t: number): number {
       const s: AutoMovieMotionHumanArmPlanned.ISpan = span(side);
-      return minimumJerk((t - s.start) / (s.ready - s.start)).s;
+      return minimumJerk.share((t - s.start) / (s.ready - s.start));
     }
 
     // The weight stays over the feet until the seat takes it (Kralj, Jaeger
@@ -443,7 +445,7 @@ export namespace sit {
     // back to the seat.
     const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
     const balanced = (t: number): number => {
-      const across: number = minimumJerk(t / (0.7 * descent)).s;
+      const across: number = minimumJerk.share(t / (0.7 * descent));
       const behind = (back: number): number => ahead(t, back) - stood;
       const far: number = behind(across);
       if (far >= 0) return across;
@@ -463,7 +465,7 @@ export namespace sit {
         k === 0 ? 0 : balanced((held * k) / SHARES),
     );
     function travel(t: number): number {
-      const across: number = minimumJerk(t / (0.7 * descent)).s;
+      const across: number = minimumJerk.share(t / (0.7 * descent));
       if (t >= contact || held <= 0) return across;
       const kept = (at: number): number => {
         const x: number = (Math.max(0, Math.min(held, at)) / held) * SHARES;
@@ -472,10 +474,10 @@ export namespace sit {
       };
       if (t <= held) return Math.min(across, kept(t));
       const from: number = Math.min(
-        minimumJerk(held / (0.7 * descent)).s,
+        minimumJerk.share(held / (0.7 * descent)),
         kept(held),
       );
-      return from + (across - from) * minimumJerk((t - held) / fall).s;
+      return from + (across - from) * minimumJerk.share((t - held) / fall);
     }
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: lowering,

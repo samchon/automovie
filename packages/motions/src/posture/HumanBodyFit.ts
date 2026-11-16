@@ -145,10 +145,10 @@ export namespace HumanBodyFit {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model equals the merit at no step.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one merit, one model per convexification, the shared loop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading/merit and shared loop; each fixed linearization owns fresh price shells. A selected step's trial getter selects its captured SOC model/delta, so a later discarded steering solve cannot replace the correction's basis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal is a priced row and every collider near the floor a row; a residual is measured on the fitted posture, never taken from the model.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds the owning FK/Jacobian and sequential-convex/QP costs; one canonical preparation serves rig metadata, with actual projections per candidate. Each convexification admits and snapshots its fixed P/q/A once, so radius retries and its SOC refresh O(m) row intervals instead of rescanning coefficients; model steps, actual trials and diagnostics remain unchanged and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A fit-local canonical engine factory shares fixed skeleton metadata. A convexification owns immutable numeric P/q/A while only bound intervals change across its radius/SOC solves; a new Jacobian or penalty builds another model. Written clinical input, contacts, pair witnesses and model products retain their actual candidate equivalence.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Adds the owning FK/Jacobian and sequential-convex/QP costs with actual projections per candidate. Each linearization admits fixed P/q/A once; radius/SOC refresh intervals. When all soft prices are implicit, steering reprices O(m) rows without another Jacobian/geometry pass. Explicit-price problems retain full convexification; actual steps and diagnostics remain unchanged and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A fit-local canonical factory shares skeleton metadata. At fixed x/e/objective, only default soft prices depend on mu; absent every explicit target/angle/centre price, fresh row identities carry exact new weights and retain cold/keyed-dual initialization while sharing fixed P/q/A preparation. Radius retries alone reuse same-row warm iterates; changed geometry builds another model.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns indices, at most two curvatures, canonical metadata and current models/iterates/evaluations. Each convexification's model holds copied fixed rows and bounded solver scratch until replacement or return; final written posture ownership transfers to the result, without a global result/body cache.
    */
   export function fit(props: IProps): IResult {
@@ -157,6 +157,9 @@ export namespace HumanBodyFit {
       props.variables ?? HumanFitVariables.BODY;
     const targets: readonly ITarget[] = props.targets ?? [];
     const angles: readonly HumanFitGoals.IAngle[] = props.angles ?? [];
+    const repriced: boolean = targets.every((t: ITarget): boolean => t.price === undefined)
+      && angles.every((a: HumanFitGoals.IAngle): boolean => a.price === undefined)
+      && props.centre?.price === undefined;
     const bearing: readonly RegExp[] = props.bearing ?? [];
     const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
     const n: number = variables.length;
@@ -197,7 +200,7 @@ export namespace HumanBodyFit {
       price: PRICE,
     });
 
-    // The last model solved, which a rejected trial's second-order correction
+    // The selected trial's model, which its rejected second-order correction
     // re-solves with each row shifted by the trial's miss from its linear model
     // (Nocedal and Wright 2006, (15.36), p. 443, and Algorithm 15.2).
     let last: ILast | null = null;
@@ -316,72 +319,84 @@ export namespace HumanBodyFit {
 
         // Radius trials change only hard bounds, not this model's objective.
         // Compute its zero value lazily, after the first QP admission.
-        let zero: number | undefined;
-        let fixedRows: HumanQuadraticProgram.IRow[] | undefined;
         let model: ReturnType<typeof HumanQuadraticProgram.prepare> | undefined;
-        return {
-          solve: (
-            radius: number,
-          ): HumanSequentialConvex.IStep<Float64Array> => {
-            const qp: HumanQuadraticProgram.IProblem = {
-              n,
-              band: n - 1,
-              p,
-              q,
-              rows: [
-                ...(fixedRows ??= rows.map(
-                  (r: IRead): HumanQuadraticProgram.IRow => r.row,
-                )),
-                ...HumanFitVariables.bounds(variables, x, radius),
-              ],
-            };
-            const prepared: ReturnType<typeof HumanQuadraticProgram.prepare> =
-              (model ??= HumanQuadraticProgram.prepare(qp));
-            const state: HumanQuadraticProgram.IState =
-              previous !== null && previous.rows === rows
-                ? prepared.solve(qp.rows, previous.state)
-                : prepared.solve(
-                    qp.rows,
-                    undefined,
-                    previous === null
-                      ? undefined
-                      : HumanQuadraticProgram.multipliers(
-                          previous.qp,
-                          previous.state,
-                        ),
-                  );
-            previous = { qp, state, rows };
-            const solved: Float64Array = state.x;
-            last = { x, at, rows, model: prepared, radius, moved: solved };
-            let linear: number = 0;
-            let met: boolean = true;
-
-            // Model rows are all priced; appended variable bounds are hard.
-            // One actual soft-row product serves objective and diagnostics.
-            // Both owned curvatures are diagonal; the QP row band stays full.
-            const value: number = HumanQuadraticValue(
-              qp,
-              solved,
-              (row: HumanQuadraticProgram.IRow, miss: number): void => {
-                linear += ((row.weight ?? mu) / mu) * miss;
-                if (miss > BAND * MM) met = false;
-              },
-              0,
-            );
-            let trial: Float64Array | undefined;
-            return {
-              get trial(): Float64Array {
-                return (trial ??= moved(x, solved));
-              },
-              predicted:
-                (zero ??= HumanQuadraticValue(qp)) - value,
-              length: length(solved),
-              full: HumanFitVariables.edge(variables, solved, radius),
-              violation: linear,
-              met,
-            };
-          },
-        };
+        const priced: (price: number, current: IRead[]) => HumanSequentialConvex.IModel<Float64Array> = (
+          price: number,
+          current: IRead[],
+        ): HumanSequentialConvex.IModel<Float64Array> => {
+          let zero: number | undefined;
+          let fixedRows: HumanQuadraticProgram.IRow[] | undefined;
+          return {
+            ...(repriced ? {
+              reprice: (next: number): HumanSequentialConvex.IModel<Float64Array> =>
+                priced(next, current.map((r: IRead): IRead => ({ ...r, row: { ...r.row, weight: next } }))),
+            } : {}),
+            solve: (
+              radius: number,
+            ): HumanSequentialConvex.IStep<Float64Array> => {
+              const qp: HumanQuadraticProgram.IProblem = {
+                n,
+                band: n - 1,
+                p,
+                q,
+                rows: [
+                  ...(fixedRows ??= current.map(
+                    (r: IRead): HumanQuadraticProgram.IRow => r.row,
+                  )),
+                  ...HumanFitVariables.bounds(variables, x, radius),
+                ],
+              };
+              const prepared: ReturnType<typeof HumanQuadraticProgram.prepare> =
+                (model ??= HumanQuadraticProgram.prepare(qp));
+              const state: HumanQuadraticProgram.IState =
+                previous !== null && previous.rows === current
+                  ? prepared.solve(qp.rows, previous.state)
+                  : prepared.solve(
+                      qp.rows,
+                      undefined,
+                      previous === null
+                        ? undefined
+                        : HumanQuadraticProgram.multipliers(
+                            previous.qp,
+                            previous.state,
+                          ),
+                    );
+              previous = { qp, state, rows: current };
+              const solved: Float64Array = state.x;
+              const selected: ILast = { x, at, rows: current, model: prepared, radius, moved: solved };
+              let linear: number = 0;
+              let met: boolean = true;
+  
+              // Model rows are all priced; appended variable bounds are hard.
+              // One actual soft-row product serves objective and diagnostics.
+              // Both owned curvatures are diagonal; the QP row band stays full.
+              const value: number = HumanQuadraticValue(
+                qp,
+                solved,
+                (row: HumanQuadraticProgram.IRow, miss: number): void => {
+                  linear += ((row.weight ?? price) / price) * miss;
+                  if (miss > BAND * MM) met = false;
+                },
+                0,
+              );
+              let trial: Float64Array | undefined;
+              return {
+                get trial(): Float64Array {
+                  // Steering may solve a discarded model after this step.
+                  last = selected;
+                  return (trial ??= moved(x, solved));
+                },
+                predicted:
+                  (zero ??= HumanQuadraticValue(qp)) - value,
+                length: length(solved),
+                full: HumanFitVariables.edge(variables, solved, radius),
+                violation: linear,
+                met,
+              };
+            },
+          };
+          };
+        return priced(mu, rows);
       },
     };
     const moved: (x: Float64Array, s: Float64Array) => Float64Array = (
@@ -471,7 +486,7 @@ export namespace HumanBodyFit {
   /** An iterate's reading for the loop (`HumanBodyFitMerit`). */
   type IEvaluation = HumanBodyFitMerit.IEvaluation;
 
-  /** The last convex model solved: what a second-order correction re-solves. */
+  /** The selected trial's convex model: what its second-order correction re-solves. */
   interface ILast {
     x: Float64Array;
     at: IReading;

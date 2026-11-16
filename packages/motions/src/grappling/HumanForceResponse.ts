@@ -329,7 +329,7 @@ export namespace HumanForceResponse {
           drawn(
             plan.posture(seconds),
             back,
-            shift * minimumJerk(Math.min(1, Math.max(0, seconds * w))).s,
+            shift * minimumJerk.share(Math.min(1, Math.max(0, seconds * w))),
           ),
       };
     }

@@ -61,9 +61,9 @@ export namespace staggerSequential {
    * @evidence contracts/development/implementation.md#principled-implementation Runs the original TrajOpt stance course with each leg's actual seeded hinged fit and the same branch-preserving two-sided fallback; every changed course keeps the original fit, derivative spacing and edge constraints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One private stance problem owns invariant frames, placements and support data; fitted swivels or their first-order pieces are installed immediately before each synchronous reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body sample, phase, support, target, tolerance or solver round is removed; probes still fit each requested leg and fall back to the other side on a branch change.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each course fits its active planted legs; its piece probes seven coordinates per leg with the original possible opposite-side fit. Goal-only reads avoid unrelated leg posing, one private vector serves all probes, and fixed problem geometry is built once per solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses fitted/piece records only for the same immutable course vector, fixed body and knots; the current model's base fits survive rejected trials, while private copied knot records change only held-swivel objects under fixed placements, frames and row topology.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, the current model's base fits, one latest trial-fit record, one latest piece record and one probe vector, each linear in active course size and released on return or failure; returned knots retain only final swivels.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each changed course retains the original cold remembered fit per active leg; every piece keeps its original seven probes and possible opposite-side fit. Goal-only reads, one private probe vector and one fixed-geometry problem avoid unrelated posing and rebuilds.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the latest fitted/piece records reuse their same immutable course-vector identity; a changed course always executes its original live remembered queries, even when one leg's coordinates match a prior course. Each side's four foot-coordinate probes share only fixed hips-only source/FK preparation, while changed drop/trunk probes prepare their own source and every probe still passes its actual goals/near through remembered.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, one latest actual fit record, one latest piece record and one probe vector, each linear in active course size and released on return or failure. One side's prepared source/FK workspace ends with its slope map; returned knots retain only final swivels.
    */
   export function solve(
     body: IHumanActionContext["body"],
@@ -136,33 +136,28 @@ export namespace staggerSequential {
 
     // The posture's fit of a planted leg at a course, continuing a nearby fit
     // of the same leg when one is given (`HumanLegChain.seeded`).
-    const fitOf: (k: number, p: walkStanceCourse.IPlanted, x: Float64Array, near?: IAutoMovieSwivelNear) => ISeeded = (
+    const fitOf: (k: number, p: walkStanceCourse.IPlanted, x: Float64Array, near?: IAutoMovieSwivelNear, prepared?: ReturnType<typeof HumanLegChain.prepareSeeded>) => ISeeded = (
       k: number,
       p: walkStanceCourse.IPlanted,
       x: Float64Array,
       near?: IAutoMovieSwivelNear,
+      prepared?: ReturnType<typeof HumanLegChain.prepareSeeded>,
     ): ISeeded => {
       const root: IAutoMovieVector3 = knots[k]!.frame.root({
         pitch: x[variables[k]![p.side][1]!]!,
         roll: x[variables[k]![p.side][2]!]!,
       });
-      const fitted: ReturnType<typeof HumanLegChain.seeded> = HumanLegChain.seeded(
+      const bend: IAutoMovieVector3 = staggerKnots.kneePole(
         body,
+        { ...root, y: root.y - p.drop },
+        knots[k]!.frame.yaw,
         p.side,
-        p.pelvis,
-        p.hip,
-        p.ankle,
-        staggerKnots.kneePole(
-          body,
-          { ...root, y: root.y - p.drop },
-          knots[k]!.frame.yaw,
-          p.side,
-          p.heading,
-          knees[k]![p.side],
-        ),
-        p.rotation,
-        near,
+        p.heading,
+        knees[k]![p.side],
       );
+      const fitted: ReturnType<typeof HumanLegChain.seeded> = prepared === undefined
+        ? HumanLegChain.seeded(body, p.side, p.pelvis, p.hip, p.ankle, bend, p.rotation, near)
+        : prepared(p.ankle, bend, p.rotation, near);
       return { ...fitted.swivel, seed: fitted.seed };
     };
     /** A leg fit plus the engine's seed used by its nearby coordinate probes. */
@@ -171,10 +166,14 @@ export namespace staggerSequential {
     };
     /** Each knot's active planted-leg fits; held knots have no new fit. */
     type Fitted = (Partial<Record<"left" | "right", ISeeded>> | undefined)[];
+
+    /** The latest original course-identity memo, with no cross-course fit reuse. */
+    type ICachedFits = { x: Float64Array; at: Fitted };
+    let last: ICachedFits | undefined;
     const fits: (x: Float64Array) => Fitted = (x: Float64Array): Fitted =>
       knots.map(
         (
-          _: staggerKnots.IKnot,
+          _knot: staggerKnots.IKnot,
           k: number,
         ): Partial<Record<"left" | "right", ISeeded>> | undefined => {
           if (k < shape.first) return undefined;
@@ -184,12 +183,9 @@ export namespace staggerSequential {
         },
       );
 
-    // Keep the current model's base fits while merit reads rejected trials:
-    // returning to that same immutable course must not fit its legs again.
-    let anchored: { x: Float64Array; at: Fitted } | undefined;
-    let last: { x: Float64Array; at: Fitted } | undefined;
+    // Preserve the latest exact course-identity memo only. A changed vector
+    // must pass every leg through the fit owner's live memory policy.
     const fitted: (x: Float64Array) => Fitted = (x: Float64Array): Fitted => {
-      if (anchored?.x === x) return anchored.at;
       if (last === undefined || last.x !== x) last = { x, at: fits(x) };
       return last.at;
     };
@@ -216,7 +212,6 @@ export namespace staggerSequential {
       // changes. One private vector serves all single-coordinate probes.
       const moved: Float64Array = Float64Array.from(x);
       const baseFits: Fitted = fitted(x);
-      anchored = { x, at: baseFits };
       const swivels: IPieces["swivels"] = baseFits.map(
         (
           fit: Partial<Record<"left" | "right", ISeeded>> | undefined,
@@ -238,6 +233,7 @@ export namespace staggerSequential {
                 ? undefined
                 : { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
             const indices: number[] = variables[k]![side];
+            let prepared: ReturnType<typeof HumanLegChain.prepareSeeded> | undefined;
             const slope: number[] = indices.map((i: number, v: number): number => {
               const h: number =
                 Math.sqrt(hingedArmSwivel.RESOLUTION / hingedArmSwivel.STEP) *
@@ -247,7 +243,12 @@ export namespace staggerSequential {
                 try {
                   const p: walkStanceCourse.IPlanted | undefined =
                     shape.planted(moved, k, side)[0];
-                  return p === undefined ? undefined : fitOf(k, p, moved, near);
+                  if (p === undefined) return undefined;
+                  // Foot pitch/turn/slide never change this knot's pelvis
+                  // or hip. Drop and trunk probes retain their own source.
+                  if (v >= 3 && prepared === undefined)
+                    prepared = HumanLegChain.prepareSeeded(body, side, p.pelvis, p.hip);
+                  return fitOf(k, p, moved, near, v >= 3 ? prepared : undefined);
                 } finally {
                   moved[i] = x[i]!;
                 }

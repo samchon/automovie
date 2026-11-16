@@ -40,6 +40,9 @@ import { qunit } from "../internal/qunit";
  *    construction reads none, the first composition does positive work,
  *    and the same angle in a new query does less positive input work.
  *    Changed angles, invalid input and caller outputs remain query-owned.
+ * 5. Replacing an affine frame admits its current neutral before later
+ *    axes; invalid replacement cannot poison recovery. Finite clinical
+ *    values whose affine subtraction overflows retain raw NaN composition.
  *
  * Degrees are clinical; quaternions are local articulations. On the cardinal
  * basis, for f=F/2 and t=T/2 in radians, Tz*Fx is
@@ -49,16 +52,16 @@ import { qunit } from "../internal/qunit";
  * use existing qclose precision; raw component identity is a secondary API
  * equivalence check, not an independent nearest-rotation oracle.
  *
- * Basis, frame, domain and matching clamp stay unchanged for each factory.
- * Only caller-owned clinical records or returned values change. The direct
+ * Basis, domain and matching clamp stay unchanged for each factory. Each
+ * affine frame object stays unchanged until an explicit replacement. The direct
  * and prepared composer share code, so raw parity alone cannot prove their
  * geometry. No producer candidates, stored outputs or fitted limits supply
  * an expectation, and these deferred CPU cases start no execution process.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios, degrees/local frames, two independent factor equations, operation/query lifetimes, owned axis-input work, output ownership, admission order and the limits of raw parity and fallback checks.
+ * @evidence contracts/development/common.md#meaningful-documentation States five scenarios, degrees/local frames, independent factor equations, operation/query lifetimes, frame replacement and overflowing affine propagation, owned axis-input work, output ownership, admission order and the limits of raw parity and fallback checks.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared/direct composition, independent query composers and the paired projector with its actual clamp, observes mutable clinical reads, ordered failures/recovery, raw outputs, admitted rotations, owned fixed-axis input work and isolation after caller mutation.
  * @evidence contracts/development/testing.md#independent-expectations Two cardinal-axis quaternion factors give the primary physical result and order sign; interval geometry gives each hinge endpoint and the fixed domain's unique rotation. A new query's factors still read their fixed axis, while operation-owned scalars remove repeated magnitude work; owned getter counts observe only this scope contract. Public raw composition is used only for paired/equivalence semantics, not as the nearest-rotation oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Proximal/distal noncommuting factors, mirrored affine clinical mapping, A/B/A on one angle object, warmed good/invalid/good inputs, null versus invalid used frames, positive/negative hinge requests and quaternion signs, fixed nonzero axes, poisoned earlier outputs, bounded fallback feasibility and new-query positive-but-reduced fixed-axis work distinguish the declared lifetimes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Proximal/distal noncommuting factors, mirrored affine clinical mapping, A/B/A on one angle object, warmed good/invalid/good inputs, null versus invalid used frames, frame identity replacement and affine overflow/recovery, positive/negative hinge requests and quaternion signs, fixed nonzero axes, poisoned earlier outputs, bounded fallback feasibility and new-query positive-but-reduced fixed-axis work distinguish the declared lifetimes.
  * @evidence contracts/development/testing.md#execution-ownership One portable test_motion_joint_rotation_prepared_scope entry owns its finite engine rig records and collects failures without a Human imitation, new motion producer, foreign replacement, runner or host. Existing tests own the larger optimum/degeneracy matrix and actual Human FK.
  */
 export function test_motion_joint_rotation_prepared_scope(): void {
@@ -296,6 +299,38 @@ export function test_motion_joint_rotation_prepared_scope(): void {
       qunit(recovered) && qclose(recovered, physical(-30, 20)) &&
       qunit(untouched) && qclose(untouched, physical(-30, 20)) &&
       qclose(b, physical(30, -20)) && Number.isNaN(a.x));
+  });
+
+  scenario("replaced affine frame and raw overflow", (): void => {
+    const basis: IAutoMovieJointAxes = normalizeJointAxes(canonical, "replacement basis");
+    const frame: IAutoMovieRestFrame = { flexion: { sign: -1, neutral: 10 } };
+    const original: IAutoMovieRestFrame["flexion"] = frame.flexion;
+    const joint: IAutoMovieJointPose = { bone: "spine", flexion: 40, abduction: null, twist: null };
+    for (const read of [jointToQuaternionOnBasis.prepare(basis, frame),
+      jointToQuaternionOnBasis.prepareQueries(basis, frame)()]) {
+      const initial: IAutoMovieQuaternion = read(joint);
+      check("initial affine frame has its literal rig angle", qclose(initial, physical(-30, 0)));
+      frame.flexion = { sign: 1, neutral: NaN };
+      joint.abduction = NaN;
+      refused("replacement neutral precedes later current abduction",
+        (): IAutoMovieQuaternion => jointToQuaternionOnBasis(joint, basis, frame),
+        (): IAutoMovieQuaternion => read(joint), "neutral");
+      frame.flexion = original;
+      joint.abduction = null;
+      check("invalid replacement leaves valid recovery", qclose(read(joint), physical(-30, 0)));
+      frame.flexion = { sign: 1, neutral: 20 };
+      check("new valid frame changes the actual affine angle", qclose(read(joint), physical(20, 0)));
+      frame.flexion = { sign: 1, neutral: -Number.MAX_VALUE };
+      joint.flexion = Number.MAX_VALUE;
+      const overflow: IAutoMovieQuaternion = read(joint);
+      check("finite admission preserves overflowing rig-angle propagation",
+        [overflow.x, overflow.y, overflow.z, overflow.w].every(Number.isNaN) &&
+        sameRaw(overflow, jointToQuaternionOnBasis(joint, basis, frame)));
+      frame.flexion = original;
+      joint.flexion = 40;
+      check("overflow does not poison later finite frame reads",
+        qclose(read(joint), physical(-30, 0)) && qclose(initial, physical(-30, 0)));
+    }
   });
 
   const basis: IAutoMovieJointAxes = normalizeJointAxes(

@@ -1,10 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { GymnasticsFlight } from "./GymnasticsFlight";
+import type { GymnasticsFlight } from "./GymnasticsFlight";
 
 /** The root orientation that changes while the prepared articulation stays fixed. */
 type Heading = Pick<IHumanPosture, "yaw" | "pitch" | "roll">;
@@ -21,12 +22,12 @@ type Heading = Pick<IHumanPosture, "yaw" | "pitch" | "roll">;
  * @throws {Error} When goals or a separate whole-body rotation make the articulation depend on its placement.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the fixed-articulation premise, allowed query changes, units, body lifetime and refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The mass-weighted mean commutes with a rigid transform: Cworld = root + R Clocal. One ordinary canonical resolution at the origin supplies Clocal; each query uses the same heading owner as the resolver, then subtracts the rotated offset from its demanded world centre.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit a goal-free shape, copy its clinical table, resolve its local centre once, then return the rigid-placement reader. Varying articulations continue to use GymnasticsFlight.placed.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original clinical demands and normal resolver clamp. It refuses position-dependent goals instead of dropping them, changes no flight curve, and supplies no resolved flag or achieved target substitute.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation performs one existing canonical resolution/FK and mass reduction in B bones and S segments. Each query rotates one vector and copies J joint triples, with no FK or mass scan; runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan shares only the fixed shape's canonical local COM. Body/model and copied clinical joints stay fixed, while every changing heading and world centre is evaluated. Returned joints are copied so a consumer cannot mutate subsequent queries.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one copied clinical table and one COM vector for its plan's lifetime. Each query returns fresh root, table, triples and empty limbs; there is no global cache, history or external handle.
+ * @evidence contracts/development/implementation.md#principled-implementation A mass-weighted mean commutes with rigid placement: Cworld = root + R Clocal. One actual canonical preparation at the origin supplies both Clocal and the fixed projected articulation. Each query uses the ordinary heading owner and subtracts the rotated offset from its demanded centre; resolver admission alone proves whether its carried joint-only solution still applies.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit a goal-free shape, copy its clinical table, prepare the actual canonical shape and local COM once, then return fresh rigid demands with the producer's checked capability. Varying articulations continue through their ordinary query preparation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original clinical demands and ordinary ROM projection; positional goals are refused rather than dropped. The resolver independently checks current joint/body/ROM/context and constructs the actual current root orientation, without a caller-set resolved flag, achieved target substitute or unchecked clamping bypass.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation resolves/clamps once and requests mass-bearing FK plus O(S) mass reduction. Queries rotate one offset and copy J clinical triples, without FK/mass scans; an eligible displayed consumer also reuses the actual projected joints instead of reassembling/projecting them. Dependency checks and fresh outputs remain; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan shares its actual fixed canonical articulation and COM. Every root/heading is still evaluated, original demands stay present, and live raw/body/ROM/context checks govern consumption; changed overlays or unsupported goals use ordinary solving. Fresh joint tuples isolate caller mutation from this preparation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one copied clinical table, canonical preparation and COM vector. Per-query raw postures and weakly owned checked capabilities retain no history or FK reader; every root/table/tuple/limb record is fresh and no external handle is acquired.
  */
 export function prepareGymnasticsPlacement(
   body: IHumanBody,
@@ -41,7 +42,7 @@ export function prepareGymnasticsPlacement(
     throw new Error("Fixed gymnastic placement requires joint-only articulation");
 
   const joints: IHumanPosture["joints"] = copyJoints(posture.joints);
-  const local: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, {
+  const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -49,17 +50,24 @@ export function prepareGymnasticsPlacement(
     joints,
     limbs: {},
   });
+  const requested: Set<AutoMovieHumanoidBone> = new Set();
+  for (const segment of model.segments) requested.add(segment.bone);
+  const local: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    model, poseBones(body, prepared.pose, undefined, requested),
+  );
   return (heading: Heading, centre: IAutoMovieVector3): IHumanPosture => {
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading(heading),
       local,
     );
-    return {
-      ...heading,
+    return resolveHumanPosture.carried(prepared, {
       root: { x: centre.x - offset.x, y: centre.y - offset.y, z: centre.z - offset.z },
+      yaw: heading.yaw,
+      pitch: heading.pitch,
+      roll: heading.roll,
       joints: copyJoints(joints),
       limbs: {},
-    };
+    });
   };
 }
 

@@ -3,7 +3,6 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
-  type IAutoMovieSeededChainFit,
   type IAutoMovieSwivelNear,
   type IAutoMovieSwivelSeed,
   type IPreparedChainPlant,
@@ -23,7 +22,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
 
 /**
  * A leg posed as the posture's own fit poses it, read through the engine's
@@ -294,42 +293,30 @@ export namespace HumanLegChain {
     rotation: IAutoMovieQuaternion,
     near?: IAutoMovieSwivelNear,
   ): { swivel: ISwivel; seed: IAutoMovieSwivelSeed | null } {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
-    const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-    const hips: IAutoMoviePose = {
-      skeleton: body.skeleton.id,
-      root: {
-        translation: Vector3.subtract(
-          hip,
-          Quaternion.rotateVector(pelvis, restHip),
-        ),
-        rotation: pelvis,
-        scale: { x: 1, y: 1, z: 1 },
-      },
-      joints: [],
-    };
+    return prepareSeeded(body, side, pelvis, hip)(target, bend, rotation, near);
+  }
 
-    // The posture's own fit, remembered by its exact inputs as the posture's
-    // fits are (`HumanLimbFit.remembered`), so a held leg is not fitted again.
-    const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
-      body,
-      hips,
-      side === "left" ? "leftLeg" : "rightLeg",
-      { point: target, bend, rotation },
-      [],
-      undefined,
-      near,
-      resolution,
-    );
-    return {
-      swivel: read(
-        body,
-        side,
-        poseBones(body, fitted.pose, resolution(), LEG_BONES[side]),
-      ),
-      seed: fitted.seed,
-    };
+  /**
+   * Prepare a fixed hips-only leg source for changing complete goal requests.
+   * Body, pelvis and hip stay unchanged until this synchronous piece ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed model-frame pelvis/hip, changing target/bend/rotation/near and caller-owned piece lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing hips-only root is constant for fixed pelvis/hip; each query still executes the original remembered limb fit and reads its actual shown branch/swivel.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareHumanLegSeededFit owns fixed construction/reader, HumanLimbFit owns every actual solve/memory policy and read owns swivel extraction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target, bend, rotation or near seed is substituted or cached; original mirror/floor/grid/LRU/disabled behavior remains with its owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed root construction and bounded exact FK workspace serve repeated coordinate probes, while every query retains its actual fit/memory read and current four-frame FK. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed source scalars and same-operation exact FK prerequisites are shared; changed goals/near remain actual query inputs and changed body/pelvis/hip require new preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One piece owns fixed source/root and bounded reader state until release; temporary fitted maps end per query and no fitted answer, target history or handle is retained here.
+   */
+  export function prepareSeeded(
+    body: IHumanBody,
+    side: "left" | "right",
+    pelvis: IAutoMovieQuaternion,
+    hip: IAutoMovieVector3,
+  ): ReturnType<typeof prepareHumanLegSeededFit> {
+    return prepareHumanLegSeededFit(body, side, pelvis, hip,
+      (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): ISwivel =>
+        read(body, side, bones));
   }
   /** The leg's hinged chain at a pelvis toward a target. */
   function chainOf(
@@ -431,12 +418,6 @@ export namespace HumanLegChain {
 
   /** Each body's legs at rest (`restOf`). */
   const RESTS: WeakMap<IHumanBody, Map<string, IRest>> = new WeakMap();
-
-  /** Bone frames consumed by read, with their parent prefixes resolved internally. */
-  const LEG_BONES: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
-    left: new Set(["hips", "leftUpperLeg", "leftLowerLeg", "leftFoot"]),
-    right: new Set(["hips", "rightUpperLeg", "rightLowerLeg", "rightFoot"]),
-  };
 
   /** The single neutral parent frame required while preparing a leg. */
   const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);

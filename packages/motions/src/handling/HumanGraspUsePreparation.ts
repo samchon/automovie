@@ -58,6 +58,9 @@ export namespace HumanGraspUsePreparation {
     /** The admitted working-point affordance in the prop's local frame. */
     tip: IAutoMovieAffordance;
 
+    /** That actual working point at the fixed prop start frame, world metres. */
+    tipWorld: IAutoMovieVector3;
+
     /** The unchanged direct-joint/root assembly; every candidate still fits its full goals. */
     base: ReturnType<typeof resolveHumanPosture.prepareBase>;
   }
@@ -84,7 +87,6 @@ export namespace HumanGraspUsePreparation {
         turn: IAutoMovieQuaternion;
         ahead: IAutoMovieVector3;
         socket: IAutoMovieVector3;
-        tipWorld: IAutoMovieVector3;
         hang: IAutoMovieVector3;
       });
 
@@ -148,8 +150,10 @@ export namespace HumanGraspUsePreparation {
         reason: "a tool laid along a surface needs a surface of the performer's own body to lie on, and this use is ahead of the body",
         fix: "name the mouth or a region as the use's place, or another line",
       });
+    const tipWorld: IAutoMovieVector3 = Vector3.add(world.position,
+      Quaternion.rotateVector(world.rotation, tip.frame.translation));
     if (props.use.line === "worn")
-      return { kind: "worn", held, world, tip, at: at!, site: placed!.point,
+      return { kind: "worn", held, world, tip, tipWorld, at: at!, site: placed!.point,
         worn: HumanWorn.prepare(context.body, context.entry.posture, held.prop, at!),
         base: resolveHumanPosture.prepareBase(context.body, context.entry.posture) };
 
@@ -176,13 +180,11 @@ export namespace HumanGraspUsePreparation {
     const axis: IAutoMovieVector3 = Vector3.length(across) > 1e-9
       ? Vector3.normalize(across) : { x: Math.cos(yaw), y: 0, z: -Math.sin(yaw) };
     return {
-      kind: "presented", held, world, tip, site: placed?.point, asked,
+      kind: "presented", held, world, tip, tipWorld, site: placed?.point, asked,
       turn: Quaternion.fromAxisAngle(axis,
         (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) * 180) / Math.PI),
       ahead: HumanGraspUse.place(bones, props.side, context.entry.posture.yaw),
       socket: HumanHand.offset(context.body, props.side, "grip").point,
-      tipWorld: Vector3.add(world.position,
-        Quaternion.rotateVector(world.rotation, tip.frame.translation)),
       hang: AutoMovieMotionHumanBend.hang(context.body, context.entry.posture, props.side),
       base: resolveHumanPosture.prepareBase(context.body, context.entry.posture),
     };

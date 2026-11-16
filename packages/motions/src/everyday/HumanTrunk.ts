@@ -7,6 +7,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieJointPose,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -61,31 +62,9 @@ export namespace HumanTrunk {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const list: IAutoMovieJointPose[] = [];
-    for (const bone of Object.keys(joints) as AutoMovieHumanoidBone[]) {
-      const angles: readonly [number, number, number] = joints[bone]!;
-      list.push({
-        bone,
-        flexion: angles[0],
-        abduction: angles[1],
-        twist: angles[2],
-      });
-    }
-
-    // A whole-body turn changes the same root as full posture resolution;
-    // no limb goal participates in this authored-trunk observation.
-    const turned: turnHumanPosture.ITurned = turnHumanPosture({
-      ...posture,
-      limbs: {},
-    });
     return poseBones(
       body,
-      {
-        skeleton: body.skeleton.id,
-
-        root: Transform.of(turned.position, turned.rotation),
-        joints: list,
-      },
+      authored(body, posture, joints),
       typeof resolution === "function" ? resolution() : resolution,
       requested,
     );
@@ -177,7 +156,7 @@ export namespace HumanTrunk {
     yaw: number,
     ankles: Record<"left" | "right", IAutoMovieVector3>,
   ): number {
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const turn: number = (yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = {
       x: Math.sin(turn),
@@ -188,9 +167,9 @@ export namespace HumanTrunk {
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
       const hip: IAutoMovieVector3 = {
-        x: root.x + rest.x * Math.cos(turn) + rest.z * Math.sin(turn),
+        x: root.x + rest.x * forward.z + rest.z * forward.x,
         y: root.y + rest.y,
-        z: root.z - rest.x * Math.sin(turn) + rest.z * Math.cos(turn),
+        z: root.z - rest.x * forward.x + rest.z * forward.z,
       };
       const ankle: IAutoMovieVector3 = ankles[side];
       const d: number = Math.min(
@@ -243,6 +222,38 @@ export namespace HumanTrunk {
       resolve(body, posture, undefined, resolution, new Set([frame.bone])).get(frame.bone)!,
     );
     return { point: placed.point, normal: placed.normal };
+  }
+
+  /**
+   * Prepare one fixed anatomical region for changing authored postures.
+   *
+   * @param body The unchanged body owning the region and canonical rig.
+   * @param region The fixed trunk/head/hip region; limb goals remain ignored.
+   * @returns Its actual world point and normal reader, optionally borrowing the current operation's exact FK workspace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/region, changing raw authored posture, ignored limbs, world-metre point/unit normal and optional current-operation workspace.
+   * @evidence contracts/development/implementation.md#principled-implementation The same authored-pose conversion, canonical FK admission and engine region placement as region run for every actual posture, while poseBones.prepare binds the actual region bone once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One immutable region lookup and bound bone reader precede the returned posture-to-surface function; authored owns the pose conversion shared with resolve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint still reaches ordered engine admission; the raw trunk policy, root turn, actual region frame and numerical placement remain, with no limb fit, target proxy, pose sample or contact verdict reuse.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Resolves and sorts the one region-bone demand once rather than constructing a Set and sorting names in every repeated probe. Each probe retains O(J) authored admission, current ancestor FK and fresh surface placement; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body fixes its actual region frame and rig demand. Every changed posture is converted and resolved afresh, and an optional borrowed workspace shares only exact unchanged dynamic dependencies within its current synchronous operation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the unchanged body, region frame and bounded name reader until its plan/operation ends. No posture, output, time history or current operation workspace is stored across calls; outputs are fresh.
+   */
+  export function prepareRegion(
+    body: IHumanBody,
+    region: AutoMovieHumanoidRegion,
+  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => ISurface {
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+    const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, new Set([frame.bone]));
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): ISurface => {
+      const bones: ReturnType<typeof read> = read(
+        authored(body, posture, posture.joints),
+        typeof resolution === "function" ? resolution() : resolution,
+      );
+      const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+        resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
+      return { point: placed.point, normal: placed.normal };
+    };
   }
 
   /**
@@ -399,6 +410,25 @@ export namespace HumanTrunk {
       );
     return { point: hit.point, normal: hit.normal };
   }
+}
+
+/** Build the exact raw authored pose; no limb or digit goal participates. */
+function authored(
+  body: IHumanBody,
+  posture: IHumanPosture,
+  joints: IHumanPosture["joints"],
+): IAutoMoviePose {
+  const list: IAutoMovieJointPose[] = [];
+  for (const bone of Object.keys(joints) as AutoMovieHumanoidBone[]) {
+    const angles: readonly [number, number, number] = joints[bone]!;
+    list.push({ bone, flexion: angles[0], abduction: angles[1], twist: angles[2] });
+  }
+  const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
+  return {
+    skeleton: body.skeleton.id,
+    root: Transform.of(turned.position, turned.rotation),
+    joints: list,
+  };
 }
 
 /** The existing trunk-ray subset: every canonical name without a side prefix. */

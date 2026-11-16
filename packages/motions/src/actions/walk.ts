@@ -234,9 +234,11 @@ export namespace walk {
     });
     const duration: number = steps.duration;
 
-    const pelvis: (t: number) => readonly [number, number, number] = (t: number): readonly [number, number, number] => {
-      const phase: number = steps.phase(t);
-      const amount: number = steps.amount(t);
+    const pelvis: (t: number, phase?: number, amount?: number) => readonly [number, number, number] = (
+      t: number,
+      phase: number = steps.phase(t),
+      amount: number = steps.amount(t),
+    ): readonly [number, number, number] => {
       return [
         0,
         4 * Math.cos(2 * Math.PI * phase) * amount,
@@ -244,7 +246,11 @@ export namespace walk {
       ];
     };
     const { events, contacts }: ReturnType<typeof walkWindows.of> =
-      walkWindows.of(body, steps, pelvis);
+      walkWindows.of(body, steps, pelvis, (t: number): walkReach.IPelvis["pivots"] =>
+        walkReach.turn(steps.yaw(t), {
+          left: steps.foot("left", t), right: steps.foot("right", t),
+        }).pivots,
+      );
     // A foot as its schedule alone has it, before any pelvis is settled.
     const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd => {
       const foot: walkFoot.IScheduled = steps.foot(side, t);
@@ -277,6 +283,8 @@ export namespace walk {
     function settle(
       t: number,
       feet: Record<"left" | "right", walkFoot.IScheduled>,
+      amount: number = steps.amount(t),
+      hips: readonly [number, number, number] = pelvis(t, steps.phase(t), amount),
     ): walkReach.IGround {
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
@@ -315,12 +323,12 @@ export namespace walk {
         body,
         steps.root(t),
         steps.yaw(t),
-        pelvis(t),
+        hips,
         feet,
         claims,
 
         // The forefoot rocker is a stepping foot's: it comes in with the gait and goes with it, so a walk stands flat where it starts and stops.
-        walkLeg.ROCKER * steps.amount(t),
+        walkLeg.ROCKER * amount,
       );
     }
     // A foot's stance as reached at a swing's end, memoised by its second: every sample of that swing reads the same three.
@@ -344,6 +352,8 @@ export namespace walk {
     function solve(
       t: number,
       legs: readonly ("left" | "right")[],
+      phase: number,
+      amount: number,
     ): {
       feet: Record<"left" | "right", walkFoot.IScheduled>;
       hips: readonly [number, number, number];
@@ -354,7 +364,8 @@ export namespace walk {
         left: steps.foot("left", t),
         right: steps.foot("right", t),
       };
-      const settled: walkReach.IGround = settle(t, feet);
+      const hips: readonly [number, number, number] = pelvis(t, phase, amount);
+      const settled: walkReach.IGround = settle(t, feet, amount, hips);
       const reached: Record<"left" | "right", walkFoot.IEnd> = {} as Record<"left" | "right", walkFoot.IEnd>;
       for (const side of ["left", "right"] as const) {
         const swing: walkFoot.IScheduled["swing"] = feet[side].swing;
@@ -371,7 +382,7 @@ export namespace walk {
           reachedSwing(side, swing, swing.u),
         );
       }
-      return { feet, hips: pelvis(t), settled, reached };
+      return { feet, hips, settled, reached };
     }
     const unswung: ReturnType<typeof walkPosture> =
       walkPosture(body, gait, arms, elbows, steps, solve);

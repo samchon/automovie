@@ -162,22 +162,24 @@ export namespace HumanMountOn {
       ? [0.3 * climb, contact]
       : [0, 0.7 * climb];
     const frameAt = (t: number): Frame => {
-      const across: number = minimumJerk(
+      const across: number = minimumJerk.share(
         (t - crossing[0]) / (crossing[1] - crossing[0]),
-      ).s;
+      );
       const socket: IAutoMovieVector3 = {
         x: start.x + (goal.x - start.x) * across,
         y:
           start.y +
           (goal.y + hop - start.y) *
-            minimumJerk((t - 0.1 * climb) / (0.45 * climb)).s -
-          hop * minimumJerk((t - 0.55 * climb) / (0.25 * climb)).s,
+            minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
+          hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
         z: start.z + (goal.z - start.z) * across,
       };
-      const settle: number = minimumJerk((t - 0.6 * climb) / (0.4 * climb)).s;
+      const settle: number = minimumJerk.share(
+        (t - 0.6 * climb) / (0.4 * climb),
+      );
       const lean: number =
         t < 0.6 * climb
-          ? HumanMount.LEAN * minimumJerk(t / (0.4 * climb)).s
+          ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
           : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
       const joints: IHumanPosture["joints"] = { ...relaxed };
       for (const [bone, a] of finish) {
@@ -427,9 +429,9 @@ export namespace HumanMountOn {
             limbs[limb] = planted;
             continue;
           }
-          const share: number = minimumJerk(
+          const share: number = minimumJerk.share(
             (t - leaves) / (arrives - leaves),
-          ).s;
+          );
           limbs[limb] = HumanMount.leg(
             body,
             side,
@@ -453,7 +455,7 @@ export namespace HumanMountOn {
         return seated.arms(
           body,
           { ...frame, roll: 0, limbs },
-          minimumJerk((t - 0.5 * climb) / (0.5 * climb)).s,
+          minimumJerk.share((t - 0.5 * climb) / (0.5 * climb)),
         );
       },
     };

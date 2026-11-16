@@ -18,6 +18,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
@@ -186,6 +187,7 @@ export namespace HumanPerformancePlace {
               posture: (
                 seconds: number,
                 channels?: readonly AutoMovieMotionHumanChannel[],
+                resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
               ): IHumanPosture => {
                 // The overlay's primitives and the display each ask for the
                 // carrier at the same few instants, and a gait's posture is
@@ -196,9 +198,9 @@ export namespace HumanPerformancePlace {
                 );
                 let posture: IHumanPosture | undefined = carried.get(at);
                 if (posture === undefined && channels !== undefined)
-                  return previous.plan.posture(at, channels);
+                  return previous.plan.posture(at, channels, resolution);
                 if (posture === undefined) {
-                  posture = previous.plan.posture(at);
+                  posture = previous.plan.posture(at, undefined, resolution);
                   if (carried.size >= 64)
                     carried.delete(carried.keys().next().value!);
                   carried.set(at, posture);
@@ -414,9 +416,10 @@ export namespace HumanPerformancePlace {
     plan.posture = (
       seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IHumanPosture => {
       try {
-        return posture(seconds, channels);
+        return posture(seconds, channels, resolution);
       } catch (error) {
         throw error instanceof HumanRefusal ? error.locate(where) : error;
       }

@@ -154,7 +154,7 @@ export namespace step {
       const k: number = Math.min(count - 1, Math.floor(t / PERIOD));
       const local: number = (t - k * PERIOD) / PERIOD;
       const [a, b] = windows[side];
-      const s: number = minimumJerk((local - a) / (b - a)).s;
+      const s: number = minimumJerk.share((local - a) / (b - a));
       return {
         travelled: (k + s) * length,
         swinging: local > a && local < b,
@@ -209,7 +209,7 @@ export namespace step {
           };
           down[side] = !g.swinging;
         }
-        const carried: number = count * length * minimumJerk(t / duration).s;
+        const carried: number = count * length * minimumJerk.share(t / duration);
         const posture: IHumanPosture = resolveHumanPosture.lower(
           body,
           {

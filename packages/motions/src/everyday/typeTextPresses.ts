@@ -72,9 +72,9 @@ export function typeTextPresses(
     if (seconds < active.press - reach) return world(active.from, hover);
     if (seconds < active.press) {
       const start: number = Math.max(active.fromTime, active.press - reach);
-      const share: number = minimumJerk(
+      const share: number = minimumJerk.share(
         (seconds - start) / Math.max(1e-3, active.press - start),
-      ).s;
+      );
       return world(
         {
           x: active.from.x + (active.at.x - active.from.x) * share,
@@ -84,7 +84,7 @@ export function typeTextPresses(
         hover - (hover + travel) * share * share,
       );
     }
-    const share: number = minimumJerk((seconds - active.press) / lift).s;
+    const share: number = minimumJerk.share((seconds - active.press) / lift);
     return world(active.at, -travel + (hover + travel) * share);
   };
 }

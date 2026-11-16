@@ -4,6 +4,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
@@ -15,6 +16,7 @@ import { walkLeg } from "./walkLeg";
  *
  * @param props The push's body, geometry and knee rule, without its timed root path.
  * @param root The unlowered terminal root, world metres.
+ * @param resolution Optional exact FK source borrowed only for this synchronous terminal hip read.
  * @returns The terminal pelvis/toes and leg goals; the caller still owns lowering and physical resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the raw root and goals from subsequent lowering and canonical resolution, and states why carried entry terms are absent.
@@ -22,8 +24,8 @@ import { walkLeg } from "./walkLeg";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the terminal hip and heel rule, construct the actual support placement, then return the same two goals used by the push writer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual ruled pitch, toes, support heading and plant/contact. No fake trajectory, epsilon, fixed flight angle or alternate range replaces the body rule.
  * @evidence contracts/development/implementation.md#efficient-algorithms One ordinary heel-rule evaluation plus fixed-size frame operations per terminal read; the timed push retains its existing entry-rate calculations.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both the raw push writer and flight endpoint preparation consume this same terminal producer; heelRise, hipJoints and HumanFoot keep their existing algorithm ownership.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and vectors with borrowed immutable body geometry; no resource or cache is retained.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both the raw push writer and flight endpoint preparation consume this same terminal producer; heelRise, hipJoints and HumanFoot keep their algorithm ownership. The optional synchronous source shares only exact hip FK dependencies with the caller's actual lowering/resolution.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records/vectors with borrowed immutable body geometry; neither its local lazy getter nor an optionally borrowed exact FK source enters the returned goals or retained plan.
  */
 export function jumpPushEnd(
   props: Pick<
@@ -40,12 +42,15 @@ export function jumpPushEnd(
     | "knee"
   >,
   root: IAutoMovieVector3,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): Pick<IHumanPosture, "joints" | "limbs"> {
+  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
   const hip: IAutoMovieVector3 = hipJoints(
     props.body,
     root,
     resolveHumanPosture.heading({ yaw: props.heading, pitch: 0, roll: 0 }),
     props.upright.joints.hips,
+    read(),
   )[props.takeoff];
   const pitch: number = walkLeg.heelRise(
     props.body,

@@ -209,7 +209,7 @@ export namespace runStance {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function airborne(ends: readonly [number, number], u: number): number {
-    const s: number = minimumJerk(Math.min(1, Math.max(0, u))).s;
+    const s: number = minimumJerk.share(Math.min(1, Math.max(0, u)));
     return ends[0] + (ends[1] - ends[0]) * s;
   }
 

@@ -20,6 +20,7 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { IAutoMovieCompiledPerformance } from "../perform/IAutoMovieCompiledPerformance";
 import { IAutoMovieMaskedContent } from "../perform/IAutoMovieMaskedContent";
 import { compilePerformance } from "../perform/compilePerformance";
@@ -256,7 +257,7 @@ export function performShot(props: IPerformShotProps): IAutoMoviePerformedShot {
   }
   if (out.items.length > 0) return failure();
 
-  // 4. Coupling, now that the parents' poses have compiled.
+  // 4. Admitted parent rigs can prepare only their demanded attachment ancestry.
   const coupled: ReturnType<typeof coupleObjects> = coupleObjects({
     attachments: plan.attachments,
     mounts: staged.mounts,
@@ -265,6 +266,7 @@ export function performShot(props: IPerformShotProps): IAutoMoviePerformedShot {
     skeleton,
     jointAxes: props.jointAxes,
     restFrames: props.restFrames,
+    prepareRig: prepareSkeletonPoseResolution,
     duration: performance.duration,
   });
   objectMotions.push(...coupled.clips);

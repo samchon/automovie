@@ -20,13 +20,13 @@ import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
  * @param delta The regularisation.
  * @param refine The refinement steps.
  * @param work Disposable ADMM buffers after that phase has ended.
- * @returns Scaled candidate iterates and borrowed products for their immediate residual admission before x, y or A changes.
+ * @returns Scaled candidate iterates and borrowed products with final-x finiteness for immediate residual admission before x, y or A changes.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Implements the cited active-set regularized KKT solve and iterative refinement; the outer solver accepts its result only when the original residual checks permit it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects current bound rows and fixed soft multipliers, reuses an exactly equivalent retained system or factors it, then shares that factor across the current initial solve and refinement passes.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps existing delta, active-row rules and refinement count; the Cholesky diagonal guard is retained and a polish is not itself a success certificate.
  * @evidence contracts/development/implementation.md#efficient-algorithms Matching persistent factors need O(active rows) comparison; misses assemble O(n*w+sum(active k_r*k_r)) and factor O(n*w*w). Every current-rhs refinement costs O(n*w+Z+m), with O(n*w+n+m) workspace; exceptional products may additionally visit R original entries, and exact diagonal finite-x curvature takes O(n).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains only a factor for identical immutable scaled P/A, exact delta and ordered active indices; current bounds and fixed soft multipliers always rebuild the rhs. Reuses selection/rhs scratch, and final current x/y share one ordered Ax/A-transpose-y pass with original-zero restoration for exceptional operands.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains only an exact P/A/delta/active factor; current q, bounds and fixed soft multipliers rebuild the rhs. Final x/y share one ordered Ax/A-transpose-y pass and its producer-maintained finite-x proof feeds immediate curvature/residual reading; exceptional zero terms stay original.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate x/z/y remain independent of workspace; the solver transfers accepted candidates and may reset only discarded candidates as later scratch. Persistent owners retain one read-only polish factor and rotate its replaced predecessor into the bounded mutable-band slot; one-shot scratch releases at return.
  * @evidence contracts/development/common.md#meaningful-documentation Describes hard and soft active rows, regularized reduction, iterative refinement, scaled outputs and outer acceptance ownership.
  */
@@ -41,7 +41,7 @@ export function HumanQuadraticPolish(
   x: Float64Array;
   z: Float64Array;
   y: Float64Array;
-  products: Pick<Work.IWork, "rows" | "transpose">;
+  products: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">;
 } {
   const selection: { rows: number[]; bounds: number[] } =
     (work.active ??= { rows: [], bounds: [] });
@@ -230,5 +230,6 @@ export function HumanQuadraticPolish(
     work.rows[r] = v;
     zs[r] = s.weight[r]! < 0 ? Math.min(s.hi[r]!, Math.max(s.lo[r]!, v)) : v;
   }
+  work.productFiniteX = finiteXS;
   return { x: xs, z: zs, y: fixed, products: work };
 }

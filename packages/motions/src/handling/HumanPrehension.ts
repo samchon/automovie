@@ -52,12 +52,9 @@ import { HumanSkill } from "../skill/HumanSkill";
  * the second unit's start, so it is oriented before the final approach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each law, its source and units, which constants are provisional, and the path and turn construction.
- * @evidence contracts/development/implementation.md#principled-implementation McIntosh 2018's two-factor movement time, Smeets and Brenner's aperture slope, Jeannerod's peak band, and superposed minimum-jerk units for the transport.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Small pure functions a grasping law composes: time, aperture, peak share, transport, shape schedule.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The provisional aperture intercept is named with its derivation; the movement-time fit is not extrapolated below its shortest tested amplitude.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per evaluation; the shape schedule is linear in the digit bones.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions; a law plans once and evaluates per frame.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Closures retain only their plan's numbers.
+ * @evidence contracts/development/design.md#principled-representation Metre distances/widths determine second-based timing; transports expose world-metre wrist points and world hand rotations, and clinical-degree digit endpoints vary through a dimensionless peak/share schedule.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Handling laws share timing, aperture, transport and shape owners; ITransport exposes only duration/wrist/turn, and prepareShape shares fixed endpoints used by actual pick-up, release and exchange plans.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Body/prop geometry remains caller data, timing delegates its canonical owner, and original cited/provisional constants remain named; no fixture, cached pose or parallel motion model is represented.
  */
 export namespace HumanPrehension {
   /** McIntosh et al. 2018 two-factor intercept, seconds. */
@@ -102,6 +99,14 @@ export namespace HumanPrehension {
    * @param distance Wrist travel, metres.
    * @param width Grasped width, metres; 0 for a touch.
    * @returns Seconds; positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States skill, duration draw stream, metre travel/width and realised seconds; the namespace cites the movement-time and cross-task variability models.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes the existing two-factor nominal time then HumanSkill.jitter's original additive/proportional timing variation and positive floor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One nominal call feeds the existing skill-variation owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Draw indices, skill quantities, measured amplitude floor and original duration floor remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar/logarithm/normal-draw work; there is no body scan or numerical search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nominal and HumanSkill.jitter with existing timing consumers; the actual random stream is read afresh without a duration cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no skill, draw stream, caller state or handle.
    */
   export function duration(
     skill: HumanSkill.ISkill,
@@ -118,6 +123,14 @@ export namespace HumanPrehension {
    * @param distance Wrist travel, metres.
    * @param width Grasped width, metres.
    * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines metre wrist travel/grasp width and unvaried second output under the cited two-factor model.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to Timing.aimed's McIntosh coefficients, shortest-amplitude floor and nonnegative width term.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade preserves a single canonical aimed movement-time owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No duration fitting, coefficient change, new validation or extrapolation rule is introduced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar/logarithm work in the delegated formula, with no allocation or scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The prehension facade and other aimed actions share the same timing formula and constants without caching inputs/results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a number and retains no arguments, state, history or external handle.
    */
   export function nominal(distance: number, width: number): number {
     return AutoMovieMotionHumanTiming.aimed(distance, width);
@@ -130,6 +143,14 @@ export namespace HumanPrehension {
    *
    * @param distance Wrist travel, metres.
    * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States loaded travel in metres, returned seconds and the provisional CARRY_PEAK origin/peak-to-mean relation.
+   * @evidence contracts/development/implementation.md#principled-implementation Takes the maximum of the original unloaded nominal time and minimum-jerk peak-speed duration 1.875*distance/CARRY_PEAK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One nominal query and one direct speed bound feed Math.max.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the named provisional speed and original ratio, with no body/prop-specific timing compensation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant formula work with no per-frame state, scan or numerical solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses nominal rather than copying its movement-time formula; every actual distance is evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no body, path, result history or handle.
    */
   export function carry(distance: number): number {
     return Math.max(nominal(distance, 0), (1.875 * distance) / CARRY_PEAK);
@@ -140,6 +161,14 @@ export namespace HumanPrehension {
    *
    * @param width The object's width across the grip, metres.
    * @returns The aperture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States width/aperture metre units and the namespace's cited slope/provisional intercept basis.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the original linear aperture-width relation APERTURE_SLOPE*width+APERTURE_INTERCEPT.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One named slope/intercept expression owns the family relation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No width clipping, guessed collider width or extra safety margin changes the original formula.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One multiplication and addition, with no allocation or varying population.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All pre-shape callers use this same relation; no effectful input or computed answer is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no input, state, history or handle.
    */
   export function aperture(width: number): number {
     return APERTURE_SLOPE * width + APERTURE_INTERCEPT;
@@ -151,20 +180,55 @@ export namespace HumanPrehension {
    *
    * @param random The draw stream.
    * @returns The share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the stream and dimensionless seeded peak share in the cited 0.6-to-0.7 transport band.
+   * @evidence contracts/development/implementation.md#principled-implementation Maps the original stream.float(0) by the unchanged affine 0.6+0.1*draw rule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One indexed draw and affine map own the family's peak timing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original stream index and cited band without extra draws, quantization or fixture variation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One stream read and constant scalar arithmetic with no scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every requested draw uses its supplied stream; no output or in-flight randomness is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no draw stream, state, history or handle.
    */
   export function peak(random: IAutoMovieRandom): number {
     return 0.6 + 0.1 * random.float(0);
   }
 
-  /** A planned transport of the wrist and the hand's turn. */
+  /**
+   * A planned transport of the wrist and the hand's turn.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state duration seconds, world-metre wrist query and world hand-rotation query; each reader consumes transport-relative seconds.
+   * @evidence contracts/development/design.md#principled-representation One positive-duration path exposes independent point and attitude evaluations; transport admits duration and the engine retains finite-time/quaternion numerical contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Pick-up, put-down, clasp and handover read exactly these three members; vectors and quaternions remain interface-owned types.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No stored samples, previous frame, body-specific path, fabricated contact or overloaded time unit is represented.
+   */
   export interface ITransport {
     /** Seconds the transport lasts. */
     duration: number;
 
-    /** The wrist at a second of the transport (clamped to its span), metres. */
+    /**
+     * The wrist at a second of the transport (clamped to its span), metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The argument is transport-relative seconds and output a fresh world-metre point held at the path endpoints outside its span.
+     * @evidence contracts/development/implementation.md#principled-implementation transport supplies the original one/two-unit minimum-jerk superposition at the same clamped second and returns its position.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamped evaluation delegates all unit polynomial/accumulation arithmetic to the engine owner.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No path samples, time quantization, derivative approximation or contact adjustment replaces the original exact query.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates the original one direct unit or two overlapping units in constant work; the engine's position-only read omits unused derivative profiles, velocity/acceleration vectors and state wrapper while returning the same fresh point. Speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable plan owns its original origin/unit geometry; each second is actually evaluated without a time/result cache.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed origin/unit vectors and duration until release; a query returns a fresh point without retaining its time or output.
+     */
     wrist(seconds: number): IAutoMovieVector3;
 
-    /** The hand's world rotation at a second of the transport. */
+    /**
+     * The hand's world rotation at a second of the transport.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The argument is transport-relative seconds and output the original world hand attitude, reaching its final rotation by APPROACH.start of duration.
+     * @evidence contracts/development/implementation.md#principled-implementation transport slerps the original endpoint rotations by the same minimum-jerk scalar at t/(APPROACH.start*duration).
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar profile query and one quaternion interpolation retain shared polynomial/quaternion owners.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original finite admission, endpoint clipping, slerp grouping and approach timing remain unchanged.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar and quaternion work; only requested displacement share is computed and derivative profiles are not allocated.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed endpoint rotations/duration are plan data while every time computes its actual interpolation, without answer reuse across times.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan borrows the fixed rotation pair until release and retains no queried second, prior quaternion, history or handle.
+     */
     turn(seconds: number): IAutoMovieQuaternion;
   }
 
@@ -178,6 +242,15 @@ export namespace HumanPrehension {
    * @param rotation The hand's world rotation at the start and at the grasp.
    * @param seconds The transport's duration.
    * @returns The transport.
+   * @throws {Error} When duration is not positive; numerical readers retain the engine's original admission.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world-metre endpoints/setback, approach direction, endpoint attitudes, second duration, positive-time refusal and returned independent point/turn readers.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original normalized approach setback and one direct unit or two overlapping minimum-jerk units (Flash/Henis), with an attitude slerp finishing by the approach unit's start.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed via/unit preparation precedes two stateless readers that delegate profiles, superposition and slerp to their existing engine owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original positive-duration admission, exact-zero setback branch, APPROACH timing and all displacement/arithmetic ordering remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepares one or two unit records once, then each requested point/turn takes constant work; full body, collider and trajectory searches are absent.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan explicitly fixes origin, unit displacements, duration and endpoint rotations; differing times compute actual values without sampled or previous-frame reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned two-reader plan and its at-most-two units until release; only fixed vectors/rotations/scalars remain, with no time history, numerical reader, external handle or task.
    */
   export function transport(
     from: IAutoMovieVector3,
@@ -219,13 +292,12 @@ export namespace HumanPrehension {
     return {
       duration: seconds,
       wrist: (t: number): IAutoMovieVector3 =>
-        superposeMinimumJerk(from, units, Math.min(seconds, Math.max(0, t)))
-          .position,
+        superposeMinimumJerk.position(from, units, Math.min(seconds, Math.max(0, t))),
       turn: (t: number): IAutoMovieQuaternion =>
         Quaternion.slerp(
           rotation.from,
           rotation.to,
-          minimumJerk(t / (APPROACH.start * seconds)).s,
+          minimumJerk.share(t / (APPROACH.start * seconds)),
         ),
     };
   }
@@ -240,6 +312,14 @@ export namespace HumanPrehension {
    * @param peak The share of the peak aperture.
    * @param u The share of the transport, clamped to [0, 1].
    * @returns The angles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines clinical-degree entry/open/closed joints, peak/share inputs, clamped two-phase timing and fresh joint-angle output.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original Jeannerod peak schedule and minimum-jerk blend through prepareShape, keeping the original per-component tuple arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-shot facade delegates to the same fixed-schedule producer retained by actual grasp/placement plans.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Phase choice, inclusive peak, key insertion order, absent-joint zeros and original minimum-jerk admission/clipping are unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One cold call prepares/evaluates the actual phase in O(D) digit bones, without full-body geometry or IK; fixed plans can avoid repeated key/set/tuple preparation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both cold calls and plan-owned preparations use the same ordered phase-key and tuple interpolation owner, without retaining any evaluated shape result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The one-shot builder is released at return; fresh output angle tuples escape and no source shape, phase list, time history or handle is retained by this facade.
    */
   export function shape(
     shapes: Readonly<
@@ -253,26 +333,67 @@ export namespace HumanPrehension {
     peak: number,
     u: number,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const s: number = Math.min(1, Math.max(0, u));
-    const [a, b, w] =
-      s <= peak
-        ? [shapes.entry, shapes.open, minimumJerk(s / peak).s]
-        : [shapes.open, shapes.closed, minimumJerk((s - peak) / (1 - peak)).s];
-    const out: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {};
-    for (const bone of new Set([
-      ...Object.keys(a),
-      ...Object.keys(b),
-    ]) as Set<AutoMovieHumanoidBone>) {
-      const x: readonly [number, number, number] = a[bone] ?? [0, 0, 0];
-      const y: readonly [number, number, number] = b[bone] ?? [0, 0, 0];
-      out[bone] = [
+    return prepareShape(shapes, peak)(u);
+  }
+
+  /**
+   * Prepare one unchanged entry/open/closed digit schedule for actual shares.
+   * The source tuples and peak stay unchanged for the plan's lifetime. Each
+   * phase reads its ordered key union and endpoints on first actual use;
+   * later shares still run the original clipping, weight and tuple blend.
+   *
+   * @param shapes The fixed clinical-degree endpoint tuples.
+   * @param peak The fixed original peak share.
+   * @returns Fresh angle tuples for each current transport share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed source/peak lifetime, lazy per-phase endpoint admission, actual share input and fresh clinical-degree output.
+   * @evidence contracts/development/implementation.md#principled-implementation Prepares the same ordered union and absent-zero tuples independent of time; the actual inclusive peak branch and original minimum-jerk weight feed unchanged x+(y-x)*w component arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stage builder owns endpoint/key preparation; one actual query selects its phase, computes the original weight and writes fresh tuples.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each phase keeps its own original key union and order, with no whole-schedule union, clamping change, baked shape, skipped weight admission or dropped digit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two O(D) stage preparations replace per-frame Object.keys/Set/endpoint work; every actual output still performs O(D) required interpolation/allocation, and inactive phases remain unprepared. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicitly unchanged endpoint tuples and peak establish phase geometry equivalence; scalar snapshots isolate output edits, and changed schedules require new preparation rather than a time/result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan retains source endpoints plus at most two D-key scalar snapshots until release; every output object/tuple is fresh and no sampled share, pose history, external handle or task is retained.
+   */
+  export function prepareShape(
+    shapes: Parameters<typeof shape>[0],
+    peak: number,
+  ): (u: number) => ReturnType<typeof shape> {
+    const stage: (a: ReturnType<typeof shape>, b: ReturnType<typeof shape>) => IShapeKey[] = (
+      a: ReturnType<typeof shape>, b: ReturnType<typeof shape>,
+    ): IShapeKey[] => [...new Set([...Object.keys(a), ...Object.keys(b)])].map(
+      (key: string): IShapeKey => {
+        const bone: AutoMovieHumanoidBone = key as AutoMovieHumanoidBone;
+        const x: readonly [number, number, number] = a[bone] ?? [0, 0, 0];
+        const y: readonly [number, number, number] = b[bone] ?? [0, 0, 0];
+        return { bone, x: [x[0], x[1], x[2]], y: [y[0], y[1], y[2]] };
+      },
+    );
+    let opening: IShapeKey[] | undefined;
+    let closing: IShapeKey[] | undefined;
+    return (u: number): ReturnType<typeof shape> => {
+      const s: number = Math.min(1, Math.max(0, u));
+      const opens: boolean = s <= peak;
+      const w: number = opens ? minimumJerk.share(s / peak) : minimumJerk.share((s - peak) / (1 - peak));
+      const keys: IShapeKey[] = opens
+        ? (opening ??= stage(shapes.entry, shapes.open))
+        : (closing ??= stage(shapes.open, shapes.closed));
+      const out: ReturnType<typeof shape> = {};
+      for (const { bone, x, y } of keys) out[bone] = [
         x[0] + (y[0] - x[0]) * w,
         x[1] + (y[1] - x[1]) * w,
         x[2] + (y[2] - x[2]) * w,
       ];
-    }
-    return out;
+      return out;
+    };
   }
+}
+
+/** One phase's original ordered bone and fixed clinical-degree endpoints. */
+interface IShapeKey {
+  /** The actual authored bone key. */
+  bone: AutoMovieHumanoidBone;
+  /** The first endpoint, degrees, with the original absent-zero default. */
+  x: readonly [number, number, number];
+  /** The second endpoint in the same clinical axes, degrees. */
+  y: readonly [number, number, number];
 }

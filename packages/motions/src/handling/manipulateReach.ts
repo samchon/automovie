@@ -32,13 +32,13 @@ import { HumanHand } from "../posture/HumanHand";
  * @param rotation The hand's world rotation from its rest for the act.
  * @returns The wrist's world point.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the placement, the swing's geometry and who fits the press.
+ * @evidence contracts/development/common.md#meaningful-documentation States the placement and swing geometry; prepare fixes an unchanged body/hand/rotation and takes each actual digit, world site/normal and metre key depth, returning the wrist's world-metre point.
  * @evidence contracts/development/implementation.md#principled-implementation The chord of a swing about the digit's first joint: a straight digit of length r dropped by d reaches sqrt(r^2 - d^2) ahead.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The digit's length from the rest skeleton, the drawback, the hover point, the wrist.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The cold facade invokes the same prepared owner used by manipulation/fingering; one lazy digit record precedes depth-dependent drawback and actual world translation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No offset is chosen: the drawback is the swing's own, from the body's digit and the key's travel.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per press.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per press by the plan and the fingering.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each of at most five supported digits reads skeletal span and rotated tip/direction once per preparation; N subsequent placements perform constant chord/translation work without repeated hand geometry. The cold facade prepares for its one query; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Only explicitly unchanged body, side and rotation share digit geometry through a sequence/fingering operation; actual site, normal and depth remain query inputs, with no computed wrist answer reused.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold placement retains nothing. The synchronous sequence/fingering owner retains at most five local digit records until its builder is released before the motion plan returns, without global, pose/time history or external handles.
  */
 export function manipulateReach(
   body: IHumanBody,
@@ -69,13 +69,13 @@ export namespace manipulateReach {
    * @param rotation The fixed hand rotation from its rest for this sequence.
    * @returns The wrist point for a digit, world site and normal, and key depth in metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the immutable inputs, per-contact inputs and returned wrist's frame and unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains the original chord drawback r-sqrt(max(0,r*r-d*d)) and rigid fingertip offset; digit span, rotated unit direction and rotated tip are independent of the site's place and key depth.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lazy digit record owns fixed skeletal geometry; each contact computes only its depth-dependent drawback and world translation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No authored site, travel, hover height, digit or hand rotation is approximated or clamped differently.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each of at most five supported digits reads its skeleton/hand offset once; N contact placements then perform constant translation/chord work without repeating those geometric queries.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only an unchanged body, side and fixed sequence rotation share digit geometry; the plan and each fingering search create their own builders, while every changed site and depth is evaluated.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous preparation owns at most five digit records for its plan-construction or fingering call and is released before the resulting motion plan is returned; no global or time-result cache exists.
+   * The original chord drawback r-sqrt(max(0,r*r-d*d)) and rigid fingertip
+   * offset retain all sites, travels, hover height and rotations. Each of
+   * at most five digits reads fixed span/rotated direction/tip on first use;
+   * every actual contact calculates its own drawback and translation. Only
+   * unchanged body/side/rotation geometry is shared, and the synchronous
+   * owner releases these records before returning its plan, without a
+   * result, pose or time history.
    */
   export function prepare(
     body: IHumanBody,

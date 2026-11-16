@@ -5,6 +5,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "./StrikingBody";
+import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingStance } from "./StrikingStance";
 
 /**
@@ -37,11 +38,7 @@ export function StrikingGuard(
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed ?? StrikingBody.trunk(
-    body, posture, resolution, new Set<AutoMovieHumanoidBone>([
-      body.surfaces.regions.chin.bone, body.surfaces.regions.face.bone,
-      body.surfaces.regions.jawLeft.bone, body.surfaces.regions.jawRight.bone,
-      "leftUpperArm", "rightUpperArm",
-    ]),
+    body, posture, resolution, StrikingGuardBones(body),
   );
   const m: IHumanBody["measure"] = body.measure;
   const chin: IAutoMovieVector3 = StrikingBody.region(body, bones, "chin").point;

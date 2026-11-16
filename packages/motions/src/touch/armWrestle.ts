@@ -364,10 +364,10 @@ export namespace armWrestle {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const envelope: number =
           t < arrive
-            ? minimumJerk(t / arrive).s
+            ? minimumJerk.share(t / arrive)
             : t <= relax
               ? 1
-              : 1 - minimumJerk((t - relax) / arrive).s;
+              : 1 - minimumJerk.share((t - relax) / arrive);
         const degrees: number =
           t <= go
             ? 0
@@ -376,13 +376,13 @@ export namespace armWrestle {
               : t <= pin
                 ? SWAY * Math.sin((2 * Math.PI * struggle) / 1.5) +
                   (asked - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
-                    minimumJerk((t - turn) / (pin - turn)).s
+                    minimumJerk.share((t - turn) / (pin - turn))
                 : asked;
         const pinned: number =
           t <= turn
             ? 0
             : t <= pin
-              ? minimumJerk((t - turn) / (pin - turn)).s
+              ? minimumJerk.share((t - turn) / (pin - turn))
               : 1;
         const posed: IHumanPosture = set(base.posture(t), degrees, envelope);
         return AutoMovieMotionHumanArm.carry(

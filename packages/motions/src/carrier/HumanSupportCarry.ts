@@ -9,6 +9,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
@@ -150,10 +151,11 @@ export namespace HumanSupportCarry {
       posture: (
         seconds: number,
         channels?: readonly AutoMovieMotionHumanChannel[],
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       ): IHumanPosture =>
         posture(
           of(frame, context.start, context.start + seconds),
-          plan.posture(seconds, channels),
+          plan.posture(seconds, channels, resolution),
         ),
     };
   }
@@ -198,11 +200,12 @@ export namespace HumanSupportCarry {
     const carried = (
       seconds: number,
       requested?: readonly AutoMovieMotionHumanChannel[],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IHumanPosture => {
       const carry: ICarry = of(frame, context.start, context.start + seconds);
       // The root and the heading are the carrier's, which its own plan has
       // already carried; only the goals this plan made at its start ride on.
-      const own: IHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined);
+      const own: IHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined, resolution);
       const made: IHumanPosture = {
         ...posture(carry, own),
         root: own.root,

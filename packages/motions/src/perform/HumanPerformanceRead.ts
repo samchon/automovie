@@ -19,6 +19,7 @@ import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import type { IHumanProp } from "./IHumanProp";
+import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * What a performance is read by: a person's pose, posture and bones, a
@@ -38,7 +39,7 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @returns The pose.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States person and exact film second; an optional bone observation guarantees those canonical frames and the original root only, while omission requests the complete pose.
+   * @evidence contracts/development/common.md#meaningful-documentation States person/exact film second; optional bone demand guarantees those frames and original root, while omission is complete. An optional same-body preparation is lent by the synchronous owner and never retained here.
    * @evidence contracts/development/implementation.md#principled-implementation Resolves the actual person and delegates to HumanSegment.displayed, preserving its placement, transition, overlay, contact and clamp policy.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup and one displayed evaluation keep numerical ownership at the existing evaluator.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing persons retain their refusal. Bone observations preserve the root and every demanded frame, never enter the complete-pose cache and conservatively keep full complex composition; public pose queries omit the demand and remain complete.
@@ -51,11 +52,13 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
     return HumanSegment.displayed(
       HumanPerformanceRead.person(self, subject),
       seconds,
       requested,
+      prepared,
     );
   }
 
@@ -96,8 +99,8 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup feeds the private fresh-bones adapter also used by hand-frame queries.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every call still runs full FK admission and returns a fresh map and transforms; no bone-result cache is added.
    * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, the demanded displayed evaluation and ordered joint admission plus demanded FK ancestry and output. Full queries keep their existing complete costs; no speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolved participant within this synchronous call and the existing displayed evaluator; different queries retain separate FK results.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores no reader or map; the caller owns the fresh FK map and nested transforms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolved participant and one explicit same-body preparation across the actual displayed evaluation and final demanded FK. Different queries retain separate readers and fresh FK results; no canonical result is cached here.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous query owns one lazy rig/FK preparation until return or throw; no returned map or transform retains it. The caller owns the fresh FK map and nested transforms.
    */
   export function bones(
     self: HumanPerformanceState,
@@ -242,8 +245,8 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup, one private fresh-bones read and one socket-frame composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual grip socket's bone and offset and ordered FK admission; observational resolution preserves that bone's exact displayed frame rather than substituting a wrist origin.
    * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, the demanded displayed evaluation, the socket bone's FK ancestry and one rigid-frame composition; unrelated FK outputs are not built.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the already resolved person and the same fresh-bones adapter as bones(), without sharing bone maps across queries.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Stores no frame or reader; the returned frame keeps HumanPropHold.frame's existing value ownership.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the already resolved person and same fresh-bones adapter as bones(); its one query-owned rig/FK preparation reaches displayed fitting and final socket FK, without sharing bone maps across queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous preparation releases on return or throw and no frame retains it; the returned frame keeps HumanPropHold.frame's existing value ownership.
    */
   export function hand(
     self: HumanPerformanceState,
@@ -428,10 +431,12 @@ export namespace HumanPerformanceRead {
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const prepared: prepareHumanSegmentPose.IPrepared =
+      prepareHumanSegmentPose(person.performer.body);
     return poseBones(
       person.performer.body,
-      HumanSegment.displayed(person, seconds, requested),
-      undefined,
+      HumanSegment.displayed(person, seconds, requested, prepared),
+      prepared.resolution(),
       requested,
     );
   }

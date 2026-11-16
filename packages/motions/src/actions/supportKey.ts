@@ -26,7 +26,7 @@ import { supportContact } from "./supportContact";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two things the file holds and who reads them.
  * @evidence contracts/development/design.md#principled-representation A key is the static multi-contact posture on its contacts; the course between keys is a blend of their joints.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The key's solve and the blend, read by the support law alone.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The support law owns key solving; it and the squat vault consume the same raw or prepared key interpolation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit and the joint blend are their owners' (`HumanBodyFit`, `blendHumanJoint`); no posture is typed.
  */
 export namespace supportKey {
@@ -48,8 +48,8 @@ export namespace supportKey {
    * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms and bearing hull, seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `supportContact.form` and `HumanBodyFit.fit`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics merit readings and one fit per key; its foot-contact forms share one lazily measured fixed quiet-stance datum.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepareForm operation shares unchanged body geometry across all contacts, and HumanBodyFit.fit remains the actual complete multi-contact solve.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solved(
@@ -62,9 +62,10 @@ export namespace supportKey {
     miss: number,
     swings: readonly HumanBodyFit.ITarget[] = [],
   ): IHumanPosture {
+    const form: ReturnType<typeof supportContact.prepareForm> =
+      supportContact.prepareForm(body);
     const forms: supportContact.IForm[] = contacts.map(
-      (c: HumanSupport.IContact): supportContact.IForm =>
-        supportContact.form(body, c, at(c)),
+      (c: HumanSupport.IContact): supportContact.IForm => form(c, at(c)),
     );
     const bearing: RegExp[] = forms.flatMap(
       (f: supportContact.IForm): RegExp[] =>
@@ -140,8 +141,8 @@ export namespace supportKey {
    * @evidence contracts/development/implementation.md#principled-implementation The stated tilt and joints use the fit's actual local contact offsets. Their mean Cartesian miss places the seed; floor contacts lower it to the floor, while entirely raised contacts retain their target height without floor penetration.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture and one floor reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One contact-point resolution per anchor and one floor reading per stance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.lowest`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All anchors share one current candidate resolution and demanded FK, followed by the existing separately translated floor reading; N points require O(N) transforms rather than N candidate solves.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Anchor points observe the same unchanged turned candidate within supportContact.points; their offsets retain the form owner, and the translated floor posture receives its own actual reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function preferred(
@@ -179,13 +180,14 @@ export namespace supportKey {
     let dx: number = 0;
     let dy: number = 0;
     let dz: number = 0;
-    for (const a of anchors) {
-      const now: IAutoMovieVector3 = supportContact.point(
-        body,
-        turned,
-        a.contact,
-        a.at,
-      );
+    const points: IAutoMovieVector3[] = supportContact.points(
+      body,
+      turned,
+      anchors,
+    );
+    for (let i: number = 0; i < anchors.length; ++i) {
+      const a: (typeof anchors)[number] = anchors[i]!;
+      const now: IAutoMovieVector3 = points[i]!;
       dx += (a.at.x - now.x) / anchors.length;
       if (a.at.y > 0) dy += (a.at.y - now.y) / anchors.length;
       dz += (a.at.z - now.z) / anchors.length;
@@ -204,7 +206,7 @@ export namespace supportKey {
     );
     const grounded: boolean = stance.contacts.some(
       (c: HumanSupport.IContact): boolean =>
-        supportContact.form(body, c, place(c)).bearing !== undefined,
+        supportContact.onFloorTarget(place(c)),
     );
     return {
       ...keyed,
@@ -227,10 +229,10 @@ export namespace supportKey {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is blended and how.
    * @evidence contracts/development/implementation.md#principled-implementation A free movement between two postures is smooth in joint space (Flash and Hogan 1985 for its minimum-jerk share), each joint on its range (`blendHumanJoint`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the joints of either key.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the same prepared interpolation owner as fixed-key consumers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading takes the shorter arc, so a turn across south is not a spin.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the joints, no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `blendHumanJoint`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One-shot pair preparation is O(J) for J union joints; its interior pass shares O(B+J) rig metadata instead of repeated per-joint B-bone lookups, followed by the existing numerical blends.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw and prepared calls share one interpolation owner and blendHumanJoint's current synchronous multi-joint metadata, without retaining the current output.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function blended(
@@ -239,26 +241,82 @@ export namespace supportKey {
     b: IHumanPosture,
     w: number,
   ): IHumanPosture {
-    const joints: IHumanPosture["joints"] = {};
+    return prepareBlended(body, a, b)(w);
+  }
+
+  /**
+   * Prepare interpolation between two unchanged joint-space support keys.
+   * Each read retains the original unclipped root/heading progress and
+   * per-joint ROM interpolation; outputs contain no limb goals.
+   *
+   * @param body The unchanged body and its canonical axes/ranges.
+   * @param a The fixed key at zero progress, in world metres and degrees.
+   * @param b The fixed key at full progress in the same frame.
+   * @returns A reader of the original progress, with a fresh posture and joint map.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable key/body premises, world-metre/degree frame, unclipped root progress, ROM joint interpolation and output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps blended's same ordered joint union, clinical-zero missing endpoints, blendHumanJoint range rule, Vector3.lerp root and original shortest-heading expression.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed joint pairs and trunk deltas precede one current-share pass; the existing joint owner supplies one synchronous metadata reader for that pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No current joint interpolation, range admission, root arithmetic, heading wrap, endpoint tuple identity or empty-goal rule is replaced with a fitted or sampled pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) fixed preparation removes repeated key enumeration and union construction. An interior read shares one O(B+J) rig metadata pass for B bones before the original joint mathematics; endpoint reads allocate no metadata reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only immutable endpoint tuples, their order and trunk deltas survive across reads. Body metadata belongs to the current synchronous pass and changing shares always evaluate their actual joint blends and root.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns J fixed pair records and two authored keys until release; each query's metadata reader ends with that query, and no queried share, blended output or FK workspace is retained. Missing endpoint zeros are fresh per read as before.
+   */
+  export function prepareBlended(
+    body: IHumanBody,
+    a: IHumanPosture,
+    b: IHumanPosture,
+  ): (w: number) => IHumanPosture {
     const bones: Set<AutoMovieHumanoidBone> = new Set([
       ...(Object.keys(a.joints) as AutoMovieHumanoidBone[]),
       ...(Object.keys(b.joints) as AutoMovieHumanoidBone[]),
     ]);
-    for (const bone of bones)
-      joints[bone] = blendHumanJoint(
-        body,
+    const pairs: IBlendPair[] = [...bones].map(
+      (bone: AutoMovieHumanoidBone): IBlendPair => ({
         bone,
-        a.joints[bone] ?? [0, 0, 0],
-        b.joints[bone] ?? [0, 0, 0],
-        w,
-      );
-    return {
-      root: Vector3.lerp(a.root, b.root, w),
-      yaw: a.yaw + (((b.yaw - a.yaw + 540) % 360) - 180) * w,
-      pitch: a.pitch + (b.pitch - a.pitch) * w,
-      roll: a.roll + (b.roll - a.roll) * w,
-      joints,
-      limbs: {},
+        from: a.joints[bone],
+        to: b.joints[bone],
+      }),
+    );
+    const yaw: number = ((b.yaw - a.yaw + 540) % 360) - 180;
+    const pitch: number = b.pitch - a.pitch;
+    const roll: number = b.roll - a.roll;
+    return (w: number): IHumanPosture => {
+      const joints: IHumanPosture["joints"] = {};
+      const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
+        pairs.length === 0 || w <= 0 || w >= 1
+          ? undefined
+          : blendHumanJoint.prepare(body);
+      for (const pair of pairs) {
+        const from: readonly [number, number, number] = pair.from ?? [0, 0, 0];
+        const to: readonly [number, number, number] = pair.to ?? [0, 0, 0];
+        joints[pair.bone] =
+          blend === undefined
+            ? w >= 1
+              ? to
+              : from
+            : blend(pair.bone, from, to, w);
+      }
+      return {
+        root: Vector3.lerp(a.root, b.root, w),
+        yaw: a.yaw + yaw * w,
+        pitch: a.pitch + pitch * w,
+        roll: a.roll + roll * w,
+        joints,
+        limbs: {},
+      };
     };
+  }
+
+  /** One fixed union joint; absent tuples keep their original fresh-zero rule. */
+  interface IBlendPair {
+    /** The canonical joint name in original union order. */
+    bone: AutoMovieHumanoidBone;
+
+    /** Its authored first tuple, absent for clinical zero. */
+    from: readonly [number, number, number] | undefined;
+
+    /** Its authored second tuple, absent for clinical zero. */
+    to: readonly [number, number, number] | undefined;
   }
 }

@@ -78,7 +78,7 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidence contracts/development/implementation.md#principled-implementation The prop's displayed frame at the entry second taken into the displayed hand's grip frame (inverse(hand) times prop), the offset the performance itself keeps while the grip holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The fact of holding, then one change of frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop that is not in the hand is refused instead of being carried from where it lies.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward kinematics of the entry pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK admits all authored joints and computes only HumanHand.frameBones' actual grip-frame dependencies; unrelated world frames are omitted.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -129,6 +129,8 @@ export namespace AutoMovieMotionHumanHeld {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
+      undefined,
+      HumanHand.frameBones(context.body, side, "grip"),
     );
     const rotation: IAutoMovieQuaternion | undefined = bones.get(
       `${side}Hand`,

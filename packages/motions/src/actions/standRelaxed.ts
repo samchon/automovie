@@ -14,6 +14,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "../posture/HumanDigitFit";
 import { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -34,9 +35,9 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#principled-implementation Bisects the abduction range on the digit capsules' signed penetration in the quiet stance. It assumes that swinging the hanging arm outward clears its digits; the model's shoulder range is the bracket.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Shape, signed-depth predicate, range bracket, bisection, cached answer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the existing hand shape, shoulder range, quiet stance, digit depth and angle resolution; no body-specific angle is chosen.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each bisection step retains one posture resolve and one shaped FK traversal, with one placed-collider query for both hands. The readonly hand shapes are built once for the search; the bracket, precision and number of steps are unchanged.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares only its hand-angle tuples and an exact-scalar FK reader; the existing weak body cache still owns the final relaxed record.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader ends with the synchronous search and never enters HUNG; hand-angle tuples retained by the final relaxed record have that same weak body ownership, and intermediate candidate records do not escape.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each bisection step retains one full posture resolve and one shaped FK traversal, with one placed-collider query for both hands. The fixed authored standing root, leg-goal geometry, alignment and hand shapes are built once; all original leg fits, bracket tests, precision and steps remain.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares fixed authored stance geometry and hand-angle tuples, plus one exact-scalar FK reader through actual candidate resolution and shaped observation. It retains no solved candidate; the existing weak body cache still owns only the final relaxed record.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader and one fixed authored two-foot stance end with the synchronous search and never enter HUNG; hand-angle tuples retained by the final relaxed record have that same weak body ownership, and solved candidate records do not escape.
  */
 export function standRelaxed(
   body: IHumanBody,
@@ -49,8 +50,14 @@ export function standRelaxed(
     left: HumanHand.shape("left", "relaxed"),
     right: HumanHand.shape("right", "relaxed"),
   };
-  const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-  const hanging: (abduction: number) => Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = (
+  const prepared: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
+  let standing: IHumanPosture | undefined;
+  const hanging: (
+    abduction: number,
+  ) => Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  > = (
     abduction: number,
   ): Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -67,14 +74,24 @@ export function standRelaxed(
   };
 
   // Read the stated shape before the posture resolver's digit clearing.
-  const sinks: (abduction: number) => boolean = (abduction: number): boolean => {
+  const sinks: (abduction: number) => boolean = (
+    abduction: number,
+  ): boolean => {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = hanging(abduction);
-    const resolved: IAutoMoviePose = resolveHumanPosture(
+    standing ??= stand.stance(body, { x: 0, y: 0, z: 0 }, 0, {});
+    const posture: IHumanPosture = {
+      ...standing,
+      joints: { ...joints, ...standing.joints },
+    };
+    const resolved: IAutoMoviePose = resolveHumanPosture.seeded(
       body,
-      stand.stance(body, { x: 0, y: 0, z: 0 }, 0, joints),
-    );
+      posture,
+      undefined,
+      undefined,
+      prepared,
+    ).pose;
     const shaped: IAutoMoviePose = {
       ...resolved,
       joints: resolved.joints.map(

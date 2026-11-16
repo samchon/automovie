@@ -94,7 +94,7 @@ export function walkStation(
   }
   const whole: number = lengths[walkStation.SAMPLES]!;
   if (whole < 1e-9) return plan;
-  const rate = (i: number): number =>
+  const rate: (i: number) => number = (i: number): number =>
     (lengths[i]! - lengths[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
   const rates: number[] = seconds
     .slice(1)

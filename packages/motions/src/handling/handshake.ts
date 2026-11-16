@@ -269,16 +269,18 @@ export namespace handshake {
       choice,
       ...hands,
     );
-    const shapes = {
+    const shapes: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open: offered,
       closed: fingers,
     };
-    const open = {
+    const open: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: fingers,
       open: offered,
       closed: HumanHand.shape(side, "relaxed"),
     };
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(open, 0.5);
     return {
       duration,
       events: [
@@ -311,7 +313,7 @@ export namespace handshake {
         if (t <= reach) {
           wrist = out.wrist(t);
           rotation = out.turn(t);
-          digits = HumanPrehension.shape(shapes, peak, t / reach);
+          digits = shapeAt(t / reach);
         } else if (t <= reach + shake) {
           const tau: number = t - reach;
           const lift: number =
@@ -324,11 +326,7 @@ export namespace handshake {
         } else {
           wrist = home.wrist(t - reach - shake);
           rotation = home.turn(t - reach - shake);
-          digits = HumanPrehension.shape(
-            open,
-            0.5,
-            minimumJerk((t - reach - shake) / back).s,
-          );
+          digits = returnShape(minimumJerk.share((t - reach - shake) / back));
         }
         const gripping: boolean = t >= reach && t <= reach + shake;
         return {
@@ -350,12 +348,12 @@ export namespace handshake {
                       ...own.reference,
                       weight:
                         t < reach
-                          ? minimumJerk(t / reach).s
+                          ? minimumJerk.share(t / reach)
                           : // Clamped, as the minimum-jerk position
                             // rounds past 1 at the return's end.
                             Math.max(
                               0,
-                              1 - minimumJerk((t - reach - shake) / back).s,
+                              1 - minimumJerk.share((t - reach - shake) / back),
                             ),
                     },
                   }),

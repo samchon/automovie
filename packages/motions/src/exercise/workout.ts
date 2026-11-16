@@ -43,6 +43,7 @@ import { WorkoutPlace } from "./WorkoutPlace";
 import { WorkoutPoses } from "./WorkoutPoses";
 import { WorkoutStanding } from "./WorkoutStanding";
 import { WorkoutSupport } from "./WorkoutSupport";
+import { prepareWorkoutBlends } from "./prepareWorkoutBlends";
 
 /**
  * An exercise, a stretch or a pose done on a support that is not only the
@@ -190,6 +191,13 @@ export namespace workout {
       p.on === undefined ? null : WorkoutSupport.at(context, p.on);
     const route: readonly WorkoutKind.IStep[] = kind.route(body, borne?.y);
     const first: WorkoutKind.IStep = route[0]!;
+    const mirrored: readonly ExerciseKey.IKey[] | undefined =
+      kind.alternate === true && reps >= 2
+        ? route.map(
+            (step: WorkoutKind.IStep, i: number): ExerciseKey.IKey =>
+              i === 0 ? step.key : ExerciseKey.mirror(step.key),
+          )
+        : undefined;
     const stayed = (step: WorkoutKind.IStep): number =>
       step.held === true && p.hold !== undefined ? p.hold : step.hold;
 
@@ -214,7 +222,7 @@ export namespace workout {
         const step: WorkoutKind.IStep = route[i % route.length]!;
         const key: ExerciseKey.IKey =
           i < route.length && kind.alternate === true && r % 2 === 0
-            ? ExerciseKey.mirror(step.key)
+            ? mirrored![i % route.length]!
             : step.key;
         span(`${step.leave}${r}`, step.seconds, last, key);
         span(`${step.event}${r}`, stayed(step), key, key);
@@ -257,10 +265,8 @@ export namespace workout {
     const starts: number[] = spans.map((span: ISpan): number =>
       clock.at(span.from),
     );
-    const blends: ((share: number) => ExerciseKey.IKey)[] = spans.map(
-      (span: ISpan): ((share: number) => ExerciseKey.IKey) =>
-        ExerciseKey.prepareBlend(span.a, span.b),
-    );
+    const blends: ReturnType<typeof prepareWorkoutBlends> =
+      prepareWorkoutBlends(spans);
     const profiled: ReadonlySet<string> = new Set(
       body.profile.segments.map(
         (segment: IHumanBody["profile"]["segments"][number]): string =>
@@ -294,7 +300,7 @@ export namespace workout {
         length > 1e-9
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
-      const u: number = minimumJerk(x).s;
+      const u: number = minimumJerk.share(x);
       const placed: IHumanPosture = ExerciseKey.pinned(
         body,
         blends[index]!(u),

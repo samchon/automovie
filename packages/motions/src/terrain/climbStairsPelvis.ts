@@ -84,9 +84,9 @@ export namespace climbStairsPelvis {
       if (progress < steps) {
         const begin: number = starts[progress]!;
         const end: number = ends[progress]!;
-        const u: number = minimumJerk(
+        const u: number = minimumJerk.share(
           Math.min(1, Math.max(0, (seconds - begin) / (end - begin))),
-        ).s;
+        );
         return { ...Vector3.lerp(stance[progress]!, stance[progress + 1]!, u), y };
       }
       return { ...stance.at(-1)!, y };

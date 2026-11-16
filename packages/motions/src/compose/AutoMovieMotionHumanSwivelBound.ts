@@ -12,6 +12,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -80,18 +81,25 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @evidence contracts/development/implementation.md#principled-implementation The posed trunk carries the shoulder; the lengths are the rig's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve and three reads.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver and `poseBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual limb-free canonical solve keeps direct joint admission and only proven requested-goal selection, followed by shoulder/elbow/wrist FK ancestry/output.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit local reader shares exact canonical/FK prerequisites; the posture and FK numerical owners retain every required actual operation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The three-name demand, pose/map and local lazy reader end on return/throw; only original shoulder/length values escape.
    */
   export function arm(
     body: IHumanBody,
     posture: IHumanPosture,
     side: HumanHand.Side,
   ): IArm {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = trunk(
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
+    ]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      posture,
+      resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined,
+        resolution, requested).pose,
+      resolution(),
+      requested,
     );
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)!.worldPosition;
@@ -202,10 +210,4 @@ export namespace AutoMovieMotionHumanSwivelBound {
       : Vector3.add(shoulder, offset(swivel));
   }
 
-  /** The posture's bones with no limb fitted. */
-  const trunk = (
-    body: IHumanBody,
-    posture: IHumanPosture,
-  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-    poseBones(body, resolveHumanPosture(body, { ...posture, limbs: {} }));
 }

@@ -94,7 +94,7 @@ export namespace pickUpLift {
     // A foot that stepped stays where it landed: the stance straightens no
     // further than the share of the way at which it lands.
     const floor: number =
-      stance?.step === undefined ? 0 : minimumJerk(stance.step.on).s;
+      stance?.step === undefined ? 0 : minimumJerk.share(stance.step.on);
     for (const reach of [bendLower.REACH * arm, arm]) {
       // The trunk, inclined toward the lifted place.
       try {
@@ -177,8 +177,9 @@ export namespace pickUpLift {
    * The plan is solved at the grip's close and at `lifted`, and the hand's
    * rise between them is read against the lift: a hand the body cannot
    * raise as far as asked is refused, never lifted less in silence. Only
-   * the height counts; what the hand's rotation leaves unmet the wrist
-   * takes up (`HumanHandAttitude`). The hand counts as risen where the
+   * the height counts; position and attitude remain one complete limb goal
+   * throughout the lift, with every other limb and digit goal preserved.
+   * The hand counts as risen where the
    * arm's solver counts a wrist constraint as met
    * (`HumanArmTrajectoryTerms.TOLERANCE`, millimetres of place).
    *

@@ -169,7 +169,7 @@ export namespace walkSteps {
     const m: IHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
     const yaw0: number = input.entry.posture.yaw;
-    const flatten = (side: "left" | "right"): HumanFoot.IPlacement => ({
+    const flatten: (side: "left" | "right") => HumanFoot.IPlacement = (side: "left" | "right"): HumanFoot.IPlacement => ({
       ankle: { ...input.entry.feet[side].ankle, y: m.ankleHeight },
       rotation: HumanFoot.rotation(
         HumanFoot.heading(input.entry.feet[side].rotation),
@@ -214,15 +214,15 @@ export namespace walkSteps {
     const delta: number = D / pace.steps;
     // The equivalent of an angle nearest a reference heading, so the headings
     // read along the path never jump by a full turn between footprints.
-    const unwrap = (angle: number, near: number): number =>
+    const unwrap: (angle: number, near: number) => number = (angle: number, near: number): number =>
       near + wrapDegrees(angle - near);
     const heading: number =
       D < 1e-6 ? yaw0 : unwrap(path.heading(0, delta / 2), yaw0);
-    const along$ = (s: number): number =>
+    const along$: (s: number) => number = (s: number): number =>
       D < 1e-6 ? heading : unwrap(path.heading(s, delta / 2), heading);
     // The heading faced at a floor point, nearest the starting heading.
     const facing: walkFacing.IFacing | undefined = input.facing;
-    const faced$ = (at: IAutoMovieVector3): number =>
+    const faced$: (at: IAutoMovieVector3) => number = (at: IAutoMovieVector3): number =>
       facing === undefined
         ? NaN
         : unwrap(
@@ -242,12 +242,12 @@ export namespace walkSteps {
           )
         : unwrap(input.face ?? faced$(path.at(D)), yaw0);
     const frame: HumanFrame.IFrame = { origin: S, yaw: heading };
-    const along = (side: "left" | "right"): number =>
+    const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
     const lead: "left" | "right" =
       along("left") < along("right") - 1e-6 ? "left" : "right";
     const half: number = 0.05 * l;
-    const rest = (side: "left" | "right"): number =>
+    const rest: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       Math.abs(body.rest.get(`${side}Foot`)!.x);
     const T: number = pace.period;
     const swing: number = pace.swing;
@@ -268,7 +268,7 @@ export namespace walkSteps {
     const last: number = pace.last + lag;
     const front: number = pace.front;
     const duration: number = last + 0.35;
-    const progress = (t: number): number => pace.progress(t - lag);
+    const progress: (t: number) => number = (t: number): number => pace.progress(t - lag);
     const flight: runStance.IStance | undefined =
       swing > T
         ? runStance.plan(body, {
@@ -284,7 +284,7 @@ export namespace walkSteps {
     // strike, one cruising step from the last in full stride and closer in
     // the ramps, so a landing is never further ahead of the pelvis than in
     // full stride; the closing pair lies at the destination.
-    const place = (j: number): number =>
+    const place: (j: number) => number = (j: number): number =>
       j >= n
         ? D
         : Math.min(D, progress(first + swing + (j - 1) * T + front * T));
@@ -309,7 +309,7 @@ export namespace walkSteps {
       facing !== undefined
         ? asked
         : walkHeading.about(asked, lead, facings, yaw0, 2);
-    const towardAt = (j: number): number => towards[j - 1]!;
+    const towardAt: (j: number) => number = (j: number): number => towards[j - 1]!;
 
     // The footprints, and the pelvis's heading at each heel strike: midway
     // between the facings of the two feet it then stands on.
@@ -388,8 +388,8 @@ export namespace walkSteps {
       faced = footHeading - toeOut;
     }
     const turn: WalkTurn = new WalkTurn(knots);
-    const yawAt = (t: number): number => turn.at(t);
-    const { events, stances } = walkStepFoot.windows(steps, last, duration);
+    const yawAt: (t: number) => number = (t: number): number => turn.at(t);
+    const { events, stances }: ReturnType<typeof walkStepFoot.windows> = walkStepFoot.windows(steps, last, duration);
 
     // The pelvis: progression with smooth start and stop, sway and bob.
     const firstLeft: number = steps.find(
@@ -422,7 +422,7 @@ export namespace walkSteps {
         raised,
       ),
     };
-    const foot = (side: "left" | "right", t: number): walkFoot.IScheduled =>
+    const foot: (side: "left" | "right", t: number) => walkFoot.IScheduled = (side: "left" | "right", t: number): walkFoot.IScheduled =>
       schedules[side](t);
     const { root, amount }: Pick<IPlan, "root" | "amount"> = walkRoot({
       body, start: input.entry.posture.root, period: T, lag, first, last,

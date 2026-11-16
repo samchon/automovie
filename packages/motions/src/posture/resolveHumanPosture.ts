@@ -63,7 +63,7 @@ import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure assembleHumanPosture owns assembly/admission, refitHumanPosture and HumanDigitFit own actual solves, selectors own proven observational omissions, HumanPosturePreparation owns private issued proof, and prepareHumanPostureBase owns fixed search snapshots; the companion methods delegate to those owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public resolved flag, achieved-target substitution, relaxed ROM/acceptance or prior-time result is accepted. Original raw goals remain auditable; unsupported/changed dependencies, base and near context retain their original solve. Weak issued provenance and independently mutable result copies prevent forged or changed public outputs from certifying another request.
  * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary work scales with rig/joints and actual selected search sizes. Explicit observations omit only proven irrelevant fits; checked source transport replaces a duplicate eligible solve with linear scalar checking/copying, and fixed-base search removes repeated assembly/projection while preserving live memory reads. Every retained target/search remains actual and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-operation FK readers share exact scalar prerequisites. Whole-source and individual free-leg reuse require issued provenance plus current raw/ancestor/rig/table equivalence; fixed-base preparation requires unchanged fixed coordinates/body and actual complete varying goals. Existing mirror/floor/grid memory policy remains unchanged, and copies or mismatches fall back normally.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-operation FK readers share exact scalar prerequisites. Whole-source and individual free-leg reuse require issued provenance plus current raw/ancestor/rig/table equivalence; fixed-base preparation requires unchanged fixed coordinates/body and actual complete varying goals. Existing mirror/root-frame/grid memory policy remains unchanged, and copies or mismatches fall back normally.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation-owned FK ends on return/throw and borrowed readers remain with their synchronous parent. Issued preparation and transported raw objects weakly own bounded source/signature/seeded data; fixed-base workspaces own fixed snapshots until search release. Results own fresh mutable data, body fit memory remains4096 entries per weak body, and no reader, query history or handle enters those entries.
  */
 export function resolveHumanPosture(
@@ -178,8 +178,9 @@ export namespace resolveHumanPosture {
    * Only the same issued source and checked unchanged cold dependencies can lend its solution through translated/carried.
    * The issued wrapper and weakly associated carried postures own bounded private source/result data until release; no FK reader, time history or external resource is retained.
    */
-  export function prepare(body: IHumanBody, posture: IHumanPosture): IPrepared {
-    return HumanPosturePreparation.prepare(body, posture);
+  export function prepare(body: IHumanBody, posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IPrepared {
+    return HumanPosturePreparation.prepare(body, posture, resolution);
   }
 
   /**

@@ -52,7 +52,7 @@ export function prepareRiseFeet(props: {
     const ankle: IAutoMovieVector3 = Vector3.lerp(
       props.feet[side],
       props.drawn[side],
-      minimumJerk(u).s,
+      minimumJerk.share(u),
     );
     return {
       ankle: { ...ankle, y: ankle.y + props.lift * Math.sin(Math.PI * u) },

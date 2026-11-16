@@ -32,20 +32,22 @@ export namespace walkWindows {
    * @param body The body.
    * @param steps The gait's footstep plan.
    * @param pelvis The pelvis joint's clinical angles at a second, degrees.
+   * @param pivots Optional exact orientation-only reader from the same step plan; omitted readers retain the full pelvis path.
    * @returns The plan's named instants and its stances' windows, in the stances' order, as shares of the plan's duration.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the results.
    * @evidence contracts/development/implementation.md#principled-implementation Each instant is its second over the duration; a stance is read at `STEP` for the spin `walkReach.pelvis` gives its foot, and split into runs where the foot spins and where it stands.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map for the instants, one pass per stance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map for the instants and one pass per stance; the stepping law can supply the orientation-only portion of its same pelvis reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stance in which the foot never spins stays one plant, as before.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read per `STEP` of stance.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One read per original STEP of stance. An explicit exact pivot reader avoids computing unread root, pelvic joint angles and hip placements at those same samples.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied reader binds the same fixed steps and walkReach.turn owner used by the take's full pelvis. Omitted demand preserves the original body/root/pelvis evaluation path, and no sampled result is retained.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new arrays and retains nothing.
    */
   export function of(
     body: IHumanBody,
     steps: walkSteps.IPlan,
     pelvis: (seconds: number) => readonly [number, number, number],
+    pivots?: (seconds: number) => walkReach.IPelvis["pivots"],
   ): { events: IAutoMovieMotionEvent[]; contacts: IHumanContactWindow[] } {
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = steps.events.map(
@@ -54,16 +56,18 @@ export namespace walkWindows {
         share: e.seconds / duration,
       }),
     );
-    const spins = (side: "left" | "right", t: number): boolean =>
-      walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
-        left: steps.foot("left", t),
-        right: steps.foot("right", t),
-      }).pivots[side] !== 0;
+    const spins: (side: "left" | "right", t: number) => boolean = (side: "left" | "right", t: number): boolean =>
+      (pivots === undefined
+        ? walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
+            left: steps.foot("left", t),
+            right: steps.foot("right", t),
+          }).pivots
+        : pivots(t))[side] !== 0;
     const contacts: IHumanContactWindow[] = [];
     for (const stance of steps.stances) {
       const part: "leftFoot" | "rightFoot" =
         stance.side === "left" ? "leftFoot" : "rightFoot";
-      const push = (
+      const push: (kind: "plant" | "pivot", from: number, to: number) => void = (
         kind: "plant" | "pivot",
         from: number,
         to: number,

@@ -31,6 +31,8 @@ export namespace staggerLimit {
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param above A speed it does not catch, m/s.
+   * @param bending Optional actual completed bending from this same unchanged body and complete entry, within the current parent operation.
+   * @param prepared Optional actual entry geometry with that same unchanged-body/entry and operation premise.
    * @returns m/s, a whole centimetre per second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the bracket and the result's precision.
@@ -38,20 +40,22 @@ export namespace staggerLimit {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bisections over `recover`: the pendulum's, then the whole model's.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limit is the whole model's, never the pendulum's bound.
    * @evidence contracts/development/implementation.md#efficient-algorithms Pendulum bisection demands no stance course or bending solve; the whole model runs inside that bound, sharing one fixed-entry bending and avoiding duplicate solves of the exact same speed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The call-local speed map fixes body, complete entry, push and righting context; each changed speed still runs the real recovery law. No rounded or incomplete entry key can replay a previous invocation's result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation retains one boolean per distinct queried speed and one lazily read bending record, released on return or failure; no module/body result history remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The call-local speed map fixes body, complete entry, push and righting context; each changed speed still runs the real recovery law. An explicit same-operation parent can lend its actual bending/entry geometry instead of preparing the same entry again. No rounded or incomplete entry key can replay a previous invocation's result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation retains one boolean per distinct queried speed and borrows or lazily owns one bending and fixed entry-geometry record, released on return or failure; no module/body result history remains.
    */
   export function of(
     body: IHumanActionContext["body"],
     entry: IHumanActionContext["entry"],
     push: IAutoMovieVector3,
     above: number,
+    bending?: Record<"pitch" | "roll", IAutoMovieVector3>,
+    prepared?: ReturnType<typeof prepareStaggerPendulumEntry>,
   ): number {
-    const geometry: ReturnType<typeof prepareStaggerPendulumEntry> = prepareStaggerPendulumEntry(body, entry);
-    let bending: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
+    const geometry: ReturnType<typeof prepareStaggerPendulumEntry> = prepared ?? prepareStaggerPendulumEntry(body, entry);
+    let bend: Record<"pitch" | "roll", IAutoMovieVector3> | undefined = bending;
     const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
       (): Record<"pitch" | "roll", IAutoMovieVector3> =>
-        (bending ??= staggerKnots.bending(body, entry));
+        (bend ??= staggerKnots.bending(body, entry));
     const bisect: (lo: number, hi: number, catches: (speed: number) => boolean) => number = (
       lo: number,
       hi: number,

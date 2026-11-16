@@ -10,6 +10,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "./StrikingBody";
+import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -120,7 +121,7 @@ export namespace defendGeometry {
 
     // What the defender sees: the attacker's limb moving most toward the
     // struck region, and the line from it to the region.
-    const own = StrikingBody.trunk(body, entry);
+    const own = StrikingBody.trunk(body, entry, undefined, new Set<AutoMovieHumanoidBone>([body.surfaces.regions[timing.region].bone]));
     // The point within the region is the strike's own, so the defence goes
     // where the strike is aimed.
     const aimed = timing.attack.plan.aimed;
@@ -130,14 +131,16 @@ export namespace defendGeometry {
     const attacker: IHumanActionContext.IPerformer = context.performer(
       timing.attack.subject,
     );
-    const now = attacker.bones(timing.read);
-    const before = attacker.bones(timing.read - 1 / 24);
+
     const limbs: AutoMovieHumanoidBone[] =
       timing.attack.family === "punch"
         ? ["leftHand", "rightHand"]
         : timing.attack.family === "kick"
           ? ["leftFoot", "rightFoot"]
           : ["leftLowerLeg", "rightLowerLeg"];
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(limbs);
+    const now: ReturnType<IHumanActionContext.IPerformer["bones"]> = attacker.bones(timing.read, requested);
+    const before: ReturnType<IHumanActionContext.IPerformer["bones"]> = attacker.bones(timing.read - 1 / 24, requested);
     let weapon: IAutoMovieVector3 = now.get(limbs[0]!)!.worldPosition;
     let best: number = -Infinity;
     for (const bone of limbs) {
@@ -176,8 +179,8 @@ export namespace defendGeometry {
 
     // The movement's share in, and out again after the strike has passed.
     const w = (t: number): number =>
-      minimumJerk((t - timing.begin) / timing.movement).s -
-      minimumJerk((t - timing.hold) / timing.recovery).s;
+      minimumJerk.share((t - timing.begin) / timing.movement) -
+      minimumJerk.share((t - timing.hold) / timing.recovery);
 
     // Whole-body evasions: the head's displacement in the trunk's lean and
     // the root's dip and shift.
@@ -221,6 +224,12 @@ export namespace defendGeometry {
     const over: IAutoMovieVector3 = support === undefined ? { x: 0, y: 0, z: 0 }
       : Vector3.scale({ x: support.x - entry.root.x, y: 0, z: support.z - entry.root.z }, 0.6);
     const movement: IAutoMovieVector3 = Vector3.add(shift, over);
+    const shownBones: Set<AutoMovieHumanoidBone> = new Set(StrikingGuardBones(body));
+    shownBones.add(frame.bone);
+
+    if (p.kind === "highBlock") shownBones.add(body.surfaces.regions[attackedSide === "left" ? "templeLeft" : "templeRight"].bone);
+    if (p.kind === "check") shownBones.add(`${attackedSide}UpperLeg`);
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, shownBones);
     const base = (t: number): IHumanPosture => {
       const k: number = w(t);
       return {
@@ -243,10 +252,7 @@ export namespace defendGeometry {
       posture: (t: number): IHumanPosture => {
         const k: number = w(t);
         const posture: IHumanPosture = base(t);
-        const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
-          body,
-          posture,
-        );
+        const bones: ReturnType<typeof StrikingBody.trunk> = trunk(posture);
         const guard: ReturnType<typeof StrikingStance.guard> =
           StrikingStance.guard(body, posture, { lead }, {}, bones);
 

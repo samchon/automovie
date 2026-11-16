@@ -62,14 +62,15 @@ export namespace HumanHandAttitude {
    * @param posture The posture; the arm is placed by its joints or its goal.
    * @param side The hand.
    * @param rotation The hand's world rotation asked.
+   * @param source Optional exact FK reader or lazy supplier borrowed only during this synchronous solve.
    * @returns The posture with that arm's joints set and its goal removed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, numerical solve order, returned posture, unchanged-rig operation boundary and current-value preparation on a later call.
    * @evidence contracts/development/implementation.md#principled-implementation The wrist's local rotation decomposed on its chart inside its range and clamped; the residual's twist about the forearm's axis, converted to the forearm's clinical twist by its rate read off the rig, added to the current twist.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A wrist solve, one twist share and a second wrist solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both joints are clamped by the rig's range; what neither can turn stays a residual, never reported as reached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The initial posture solve and up to three later posture/FK reads remain in order; other authored limb/digit goals retain their actual solves. Every full FK scans its joints/bones while one exact reader shares identical completed math; wrist rest inverse, first-bone domain, axes merge and clamp metadata are prepared once rather than twice. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One held invocation lends the existing exact FK reader to its posture solves and displayed reads. Its lazy wrist reader reuses only unchanged first-bone rest/domain and last-declared axes, with local quaternion construction, decompose-then-clamp and both residual/rate calculations still executed for every distinct requested input.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Initial placement retains the complete coupled solve. Up to three later wrist/forearm observations request only their chain frames: the shared selector can omit independent unobserved world goals, falling back fully for unsupported coupling. Ordered authored admission remains complete; one reader and prepared wrist metadata avoid repeated same-valued FK/rig math, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One held invocation owns or synchronously borrows its parent's exact FK reader for all actual solves/reads. After its own arm goal is removed, later reads observe only forearm/hand frames; the resolver proves dependency closure. Fixed wrist metadata may be shared, while each residual, clinical decomposition and clamp remains actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local lazy FK getter owns O(B) successful scalar snapshots, and one wrist reader borrows fixed rig metadata plus its rest inverse/clamp closure until return or throw. Neither reader enters the returned posture, a plan, body memory or callback; fresh joints/tuples retain their existing output ownership.
    */
   export function held(
@@ -77,12 +78,14 @@ export namespace HumanHandAttitude {
     posture: IHumanPosture,
     side: HumanHand.Side,
     rotation: IAutoMovieQuaternion,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IHumanPosture {
     const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
     const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
     const hand: AutoMovieHumanoidBone = `${side}Hand`;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([upper, lower, hand]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
+      prepareHumanPoseResolution(source);
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
       body,
       posture,
@@ -127,13 +130,14 @@ export namespace HumanHandAttitude {
         undefined,
         undefined,
         resolution,
+        requested,
       ).pose;
-      return poseBones(body, pose, resolution());
+      return poseBones(body, pose, resolution(), requested);
     };
     const readWrist: ReturnType<typeof wrist> = wrist(body, hand);
     const forearm: [number, number, number] = read(lower);
     const first: [number, number, number] = readWrist(
-      poseBones(body, pose, resolution()).get(lower)!.worldRotation,
+      poseBones(body, pose, resolution(), requested).get(lower)!.worldRotation,
       rotation,
     );
 

@@ -21,10 +21,10 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
 
@@ -36,8 +36,8 @@ import type { HumanSegment } from "./HumanSegment";
  * after placement and the contacts, as the contacts hand back their stops.
  *
  * The shape is the person's displayed body before the flight's rotation:
- * the carrier, its overlays and its layers, read at the integrator's knots
- * from take-off. Forward kinematics starts at an identity root to express
+ * the carrier, overlays and layers at each actual integration or physical
+ * probe instant from take-off. FK starts at an identity root to express
  * that already composed articulation directly in the root's own frame,
  * so a rigid world placement is not applied and then undone for every bone.
  * The result does not depend on where or facing which way the flight happens.
@@ -70,8 +70,8 @@ import type { HumanSegment } from "./HumanSegment";
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * A turn the take-off cannot give is refused, never clamped.
  * Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and their ancestors, using the body's static rig snapshot. Root-space FK omits the rigid world placement and its later reversal. Different queries may rebuild a shared difference node's bones; adaptive shooting controls the query population and runtime improvement remains unmeasured.
- * Exact query times share numeric inertia and relative momentum across the search, fixed boundary stencils share numeric moments, and playback reuses the flight whose residual was judged. A single planning-owned mass snapshot shares unchanged local offsets, principal frames, intrinsic tensors and endpoint quaternion differences by copied scalar keys. The body's mass model is constructed once; every current shape, orbital shift, interval rate and momentum check remains evaluated. One lazy FK reader shares unchanged articulation and ancestor work across shape, ceiling and table requests, with ordered joint admission and fresh requested outputs.
- * The numeric tables and completed flight live with the plan through HumanPerformanceFlightRotation, whose factory receives no performance, model, history or resolution reader. The synchronous build owns O(J+B) last FK rows and O(S) mass/intrinsic/interval prerequisites for S segments, including at most four exact numeric mass-part nodes. It clears the history's O(N) I/h memo and bounded nodes, then releases the prepared mass token in finally on success or refusal; no full canonical pose or raw bone map enters those retained numeric prerequisites.
+ * Exact query times share numeric inertia and relative momentum, fixed stencils share numeric moments, and playback uses the flight whose residual was judged. One planning-owned mass snapshot shares exact local offsets, principal frames, intrinsic tensors and endpoint quaternion differences. A per-flight displayed-evaluation workspace lends the same clamp metadata and lazy exact FK reader to observational composition/IK and its mass FK consumers, so unchanged rig work is shared across history, ceiling and table requests. Every actual goal, current shape, orbital shift, interval rate and momentum check remains evaluated with normal context fallbacks.
+ * The numeric table and completed trajectory escape only through HumanPerformanceFlightRotation, whose factory receives no performance, model, history or evaluation workspace. Each synchronous flight owns O(B+D) clamp metadata and O(J+B) last FK rows; the person's pass owns O(S) mass/intrinsic/interval prerequisites, and history retains at most four numeric mass nodes plus O(N) I/h. Finally clears history on success/refusal, the flight-local workspace ends with the call, and the outer finally releases the mass token. No full pose, raw bone map or live reader enters retained playback.
  */
 export namespace HumanPerformanceFlight {
   /**
@@ -177,12 +177,12 @@ export namespace HumanPerformanceFlight {
       body.massModel;
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
+    const evaluation: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
     const unturned: (seconds: number) => IAutoMoviePose = (
       seconds: number,
     ): IAutoMoviePose =>
-      HumanPerformanceRead.pose(self, subject, seconds, requested);
-    const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
+      HumanPerformanceRead.pose(self, subject, seconds, requested, evaluation);
+    const readResolution: prepareHumanSegmentPose.IPrepared["resolution"] = evaluation.resolution;
     const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
       pose: IAutoMoviePose,
     ): IAutoMovieQuaternion =>
@@ -324,10 +324,13 @@ export namespace HumanPerformanceFlight {
       if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
         throw HumanPerformanceFlightFailure(
           error, body, plan, segment.start, t0,
-          (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds),
+          (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds, undefined, evaluation),
         );
       throw error;
     } finally {
+      // Playback was constructed in a numeric-only factory. Clearing the
+      // history ends its shape ownership; this flight's evaluation workspace
+      // and borrowed FK getter have no escaping consumer and end here.
       history.clear();
     }
   }

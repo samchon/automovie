@@ -4,6 +4,7 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,6 +15,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -25,6 +27,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
@@ -53,9 +56,9 @@ export namespace HumanCarriedBearing {
    * @evidence contracts/development/implementation.md#principled-implementation With the carried person named, each holding palm goes where the coupled carry lays the held region in this bearer's displayed anchor frame, the bone the borne body rides (`HumanCarriedCouplingPose.holds`), a second helper's in its own, the goal attached to that bone (`IGoal.on`) so a layer's tip carries it, and a lone bearer's base takes the coupling's stance (`bendLower.lower`) and tips about the feet by the pair's balance (`HumanCarriedCouplingLoad.lean`) as the hands take the body, two helpers keeping their stances; otherwise each wrist goes to the row's place from one of the carrier's own regions, in arm lengths, and the base is kept.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The role, the coupling, one arm primitive per holding hand, then the inherited base tipped.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands do not read the carried body's displayed bones; the rows' places are provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each holding arm retains its actual goal/target calculations and any required whole posture fits. Final FK requests only its anchor or held-region owner, and both arm callbacks borrow one exact workspace within a single composed posture evaluation; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed role, coupling, hold rows and demanded bone metadata belong to this plan. One explicit synchronous posture call shares exact scalar FK prerequisites only; each arm still reads its actual current posture, so earlier arm writes, limb-anchor full fitting and rival clearance remain authoritative.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its fixed coupling/role/hold metadata and entry state. A posture call owns at most one lazy FK reader, restoring any nested parent scope in finally; returned postures capture no reader or map and plan release drops fixed metadata.
    */
   export function plan(
     context: IHumanActionContext<HumanCarried.IBearing>,
@@ -130,10 +133,14 @@ export namespace HumanCarriedBearing {
       [{ name: "held", seconds: Math.min(seconds, HumanCarried.TAKE) }],
     );
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    const anchorBones: ReadonlySet<AutoMovieHumanoidBone> | undefined = coupled === null
+      ? undefined : new Set<AutoMovieHumanoidBone>([coupled.anchor]);
+    let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
         const hold: HumanCarried.IHold | null = row.holds[index] ?? null;
         if (hold === null) return;
+        const holdBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([body.surfaces.regions[hold.region].bone]);
         primitives.push(
           AutoMovieMotionHumanArm.carried({
             body,
@@ -155,6 +162,8 @@ export namespace HumanCarriedBearing {
                     body,
                     posture,
                     coupled.anchor,
+                    resolution,
+                    anchorBones,
                   ).get(coupled.anchor)!;
                 const inverse: IAutoMovieQuaternion = Quaternion.inverse(
                   anchor.worldRotation,
@@ -204,7 +213,7 @@ export namespace HumanCarriedBearing {
                 point: Vector3.add(
                   HumanCarriedBorne.placed(
                     body,
-                    HumanTrunk.resolve(body, posture),
+                    HumanTrunk.resolve(body, posture, undefined, resolution, holdBones),
                     hold.region,
                     "carry",
                   ),
@@ -259,7 +268,7 @@ export namespace HumanCarriedBearing {
             stance.depth * w,
             0,
           );
-    return composeAutoMovieMotionHumanAction({
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...base,
         // The coupling declares the borne side of every bearing contact.
@@ -311,5 +320,17 @@ export namespace HumanCarriedBearing {
       clock,
       primitives,
     });
+    return {
+      ...composed,
+      posture: (at: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
+        const previous: typeof resolution = resolution;
+        resolution = prepareHumanPoseResolution();
+        try {
+          return composed.posture(at, channels);
+        } finally {
+          resolution = previous;
+        }
+      },
+    };
   }
 }

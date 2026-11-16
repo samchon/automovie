@@ -49,6 +49,18 @@ interface IPrincipalInverse {
   back: IAutoMovieQuaternion;
 }
 
+/** One exact tensor key and independently owned principal numbers for this shape epoch. */
+interface IPrincipalTensor {
+  /** False while a changed matrix is being consumed, including after a failed eigensolve. */
+  ready: boolean;
+
+  /** Copied row-major entries before Jacobi consumes the tensor. */
+  matrix: number[];
+
+  /** Private scalar output; returned history records never alias these vectors. */
+  value: IInstant["inertia"];
+}
+
 /**
  * Reduce pure root-frame shapes to exact-time inertia and relative momentum.
  *
@@ -61,9 +73,9 @@ interface IPrincipalInverse {
  * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and principal-axis owners and the same two-pose rigid-body momentum formula; boundary correction retains the derivative of the quadratic interpolant with the unchanged difference interval.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the model's pose and interval reducers together, then share one bounded exact-node reader and momentum reducer across numeric history queries.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact time reads the actual pure shape; no interpolation, time quantization, reduced stencil or changed physical check replaces evaluation. A private issued-instant registration alone proves only provenance: inverse additionally checks all four actual quaternion coordinates, never trusting a public prepared flag.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each new query needs at most four posed nodes and O(S) mass work; an exact hit in the four-node numeric LRU also omits its repeated shape/IK/FK read. One boundary stencil's maximum footprint supplies the cache bound, without a numerical sampling policy. Prepared models share unchanged scalar transforms and shape suppliers may request only mass-bearing FK.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under one unchanged shape/model/span identifies I/h across trials; four recent numeric posed nodes share stencil overlap and fixed boundaries share momenta. Issued instant identity selects private inverse provenance, then Object.is checks copied principal coordinates including mutation/signed zero; unchanged adjacent rotations may share the owner's last inverse. Evictions compute normally, and the token selects both model reducers without unrelated pairing.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns O(N) numeric I/h instants and weak inverse registrations, at most two boundary moments and four posed mass reductions of O(S) numeric parts. clear unregisters N instants, clears all three maps and forgets the last inverse. Raw bone maps and full canonical poses never enter the retained node cache. A borrowed model separately owns O(S) scalar state released by the planning caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each query needs at most four numeric posed nodes and O(S) mass work; a four-node LRU hit omits repeated shape/IK/FK. One exact last 3x3 tensor additionally avoids repeated Jacobi work after nine Object.is matches, without omitting the current tensor sum or relative-momentum stencil. Shape suppliers may request mass-bearing FK and prepared models share unchanged transforms; runtime gains remain unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under one unchanged shape/model/span identifies I/h; four recent posed nodes share stencil overlap and fixed boundaries share momenta. A copied last tensor proves equal principal numbers only after all nine actual entries match, with fresh returned vectors and invalidation before a failed solve. Issued-instant inverse provenance separately checks copied quaternion coordinates. Every changed/evicted value computes normally and no momentum/target answer is reused.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources History owns O(N) I/h instants and weak inverse registrations, two boundary moments, four O(S) numeric mass nodes and one fixed-size tensor/principal record. clear unregisters N instants, clears all maps and drops both last numeric records; no full pose or raw bone map is retained. A borrowed model separately owns O(S) state released by its planning caller.
  */
 export function AirborneShapeHistory(
   model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -74,6 +86,7 @@ export function AirborneShapeHistory(
   const instants: Map<number, IInstant> = new Map();
   const poses: Map<number, resolveAutoMovieMomentum.IPosed> = new Map();
   const principal: IPrincipalOwner = { kind: "owner" };
+  let previousTensor: IPrincipalTensor | undefined;
   const delta: number = span === undefined
     ? difference
     : Math.min(difference, (span.to - span.from) / 2);
@@ -114,6 +127,36 @@ export function AirborneShapeHistory(
     ? (posed: resolveAutoMovieMomentum.IPosed): number[][] => physicalInertiaTensor(posed.parts, posed.centre)
     : (posed: resolveAutoMovieMomentum.IPosed): number[][] => prepareAutoMovieMassModel.inertia(model, posed);
 
+  /** Only an exactly unchanged current tensor can lend its completed principal numbers. */
+  const axes: (matrix: number[][]) => IInstant["inertia"] = (matrix: number[][]): IInstant["inertia"] => {
+    const cached: IPrincipalTensor = previousTensor ??= {
+      ready: false,
+      matrix: [],
+      value: { moments: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+    };
+    let same: boolean = cached.ready;
+    for (let row: number = 0; row < 3 && same; row++)
+      for (let column: number = 0; column < 3; column++)
+        if (!Object.is(cached.matrix[3 * row + column], matrix[row]![column])) {
+          same = false;
+          break;
+        }
+    if (same)
+      return { moments: { ...cached.value.moments }, rotation: { ...cached.value.rotation } };
+
+    // Jacobi mutates its rows. Copy the actual key first and invalidate the
+    // old result until a complete solve has produced independent numbers.
+    cached.ready = false;
+    for (let row: number = 0; row < 3; row++)
+      for (let column: number = 0; column < 3; column++)
+        cached.matrix[3 * row + column] = matrix[row]![column]!;
+    const value: IInstant["inertia"] = physicalPrincipalAxes(matrix);
+    Object.assign(cached.value.moments, value.moments);
+    Object.assign(cached.value.rotation, value.rotation);
+    cached.ready = true;
+    return value;
+  };
+
   // Only the two boundary stencils recur at different query times.
   // Their numeric moments are sufficient; their bones need not survive.
   const boundaries: Map<
@@ -151,7 +194,7 @@ export function AirborneShapeHistory(
     seconds: number,
   ): IInstant => {
     const posed: resolveAutoMovieMomentum.IPosed = read(seconds);
-    const inertia: IInstant["inertia"] = physicalPrincipalAxes(tensor(posed));
+    const inertia: IInstant["inertia"] = axes(tensor(posed));
     if (stencil === undefined)
       return {
         inertia,
@@ -197,6 +240,7 @@ export function AirborneShapeHistory(
       poses.clear();
       boundaries.clear();
       principal.previous = undefined;
+      previousTensor = undefined;
     },
   });
 }

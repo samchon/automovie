@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,6 +18,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -104,9 +106,9 @@ export namespace legTouch {
    * @evidence contracts/development/implementation.md#principled-implementation The root's shift over the standing ankle is the fixed point of the centre of mass under that shift; the knee's shift is the nearer root of the thigh's length along the level line to the place, taken again from the hip each shift displays, and the knee's goal asks no foot rotation, which would state the knee's plane against its bend point; the leg leaves and returns on one minimum-jerk envelope with a small lift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The place, the balance, the leg's goal, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knee out of the thigh's reach throws with the distance; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four posture resolves for the balance and, for the knee, up to four for the shift at plan time; constant work per frame before the posture resolve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the target resolver, `HumanBalance.support`, the timing owner and the posture resolver's leg goal.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the solved goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The four original balance solves and four knee root-update rounds remain. Each new shift still runs the complete physical posture fit, then requests only the measured hip FK output. Its completed hip feeds that candidate's residual, next update and final direction instead of repeating the same candidate solve; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One synchronous search reader shares only exact FK prerequisites, and an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning-only FK reader and initial/current hip vectors end with synchronous search or refusal. The plan retains its original base, solved goal and physical shift only; no reader, pose map or search history enters its evaluator.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -176,10 +178,12 @@ export namespace legTouch {
       Quaternion.rotateVector(foot.rotation, local);
     // The hip as the body displays it under a shift: the pelvis is fitted
     // over the planted leg, so the hip is read, not carried with the root.
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]);
     const hip = (by: IAutoMovieVector3): IAutoMovieVector3 =>
-      poseBones(body, resolveHumanPosture(body, moved(entry, by))).get(
-        `${side}UpperLeg`,
-      )!.worldPosition;
+      poseBones(body,
+        resolveHumanPosture.seeded(body, moved(entry, by), undefined, {}, resolution).pose,
+        resolution(), requested).get(`${side}UpperLeg`)!.worldPosition;
     let shift: IAutoMovieVector3 = over;
     let goal: IHumanPosture.IGoal;
     if (part === "knee") {
@@ -190,9 +194,11 @@ export namespace legTouch {
       // The shift that puts the displayed hip a thigh from the knee: the
       // nearer root of the thigh's length along the level line to the knee,
       // taken again from the hip each shift displays, four times.
+      const initial: IAutoMovieVector3 = hip(shift);
+      let current: IAutoMovieVector3 = initial;
       let residual: number = Infinity;
       for (let i: number = 0; i < 4; i++) {
-        const from: IAutoMovieVector3 = Vector3.subtract(knee, hip(shift));
+        const from: IAutoMovieVector3 = Vector3.subtract(knee, current);
         const line: IAutoMovieVector3 =
           Vector3.length(level(from)) > 1e-6
             ? Vector3.normalize(level(from))
@@ -207,8 +213,9 @@ export namespace legTouch {
                 (a: number, b: number): number => Math.abs(a) - Math.abs(b),
               )[0]!;
         shift = Vector3.add(shift, Vector3.scale(line, far));
+        current = hip(shift);
         residual = Math.abs(
-          Vector3.length(Vector3.subtract(knee, hip(shift))) - thigh,
+          Vector3.length(Vector3.subtract(knee, current)) - thigh,
         );
         if (!(Vector3.length(Vector3.subtract(shift, over)) <= SHIFT)) break;
       }
@@ -219,13 +226,13 @@ export namespace legTouch {
         throw new HumanRefusal({
           kind: "reach",
           axis: "target",
-          value: `${(Vector3.length(Vector3.subtract(knee, hip(over))) * 1000).toFixed(0)} mm`,
+          value: `${(Vector3.length(Vector3.subtract(knee, initial)) * 1000).toFixed(0)} mm`,
           feasible: { kind: "alternatives", values: ["a nearer place"] },
-          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(Vector3.subtract(knee, hip(over))) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
+          reason: `The knee is a thigh of ${(thigh * 1000).toFixed(0)} mm from the hip, and the place lies ${(Vector3.length(Vector3.subtract(knee, initial)) * 1000).toFixed(0)} mm from it, which a shift of the body within ${(SHIFT * 1000).toFixed(0)} mm does not close (the hip stays ${(residual * 1000).toFixed(0)} mm off the thigh's length)`,
           fix: "stand nearer the place, or aim the knee at a place at the hip's height or below",
         });
       const line: IAutoMovieVector3 = Vector3.normalize(
-        level(Vector3.subtract(knee, hip(shift))),
+        level(Vector3.subtract(knee, current)),
       );
       const down: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract({ x: 0, y: -1, z: 0 }, Vector3.scale(line, 0.5)),
@@ -277,10 +284,10 @@ export namespace legTouch {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t < reach
-            ? minimumJerk(t / reach).s
+            ? minimumJerk.share(t / reach)
             : t <= relax
               ? 1
-              : 1 - minimumJerk((t - relax) / reach).s;
+              : 1 - minimumJerk.share((t - relax) / reach);
         return moved(base.posture(t), Vector3.scale(shift, s), {
           point: Vector3.add(
             Vector3.add(

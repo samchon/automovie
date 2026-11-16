@@ -10,9 +10,11 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -90,8 +92,8 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), each shift read once per call, and one bracketed search per case; the balance measures live in one place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each search reads its bracket's two ends, then the bracketed root converges superlinearly where the centre's place is smooth, and bisection takes log2(range / tolerance), near 10, posture solves; each solve is one forward-kinematics pass with limb fits, read once for both measures and once per shift in the call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call balances its own builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local trial map ends with this balance solve; its mass model is borrowed from the body and no duplicate model/cache is retained here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact FK workspace serves the complete current fits and final display frames across this synchronous search, with every changed dependency independently checked. Each trial's bound foot reader places actual sole sockets once for both its bearing base and heel predicate; changed trial postures receive separate foot readings.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local trial map and exact FK workspace end with this balance solve; each foot reader ends with its synchronous trial, its mass model is borrowed from the body, and no duplicate model/result cache is retained here.
    */
   export function shift(
     body: IHumanBody,
@@ -102,10 +104,11 @@ export namespace HumanBalance {
     // Each shift is read once within a call: the searches below revisit
     // their brackets' ends.
     const read0: Map<number, IReading> = new Map();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const at = (back: number): IReading => {
       let r: IReading | undefined = read0.get(back);
       if (r === undefined) {
-        r = read(body, build(back));
+        r = read(body, build(back), resolution);
         read0.set(back, r);
       }
       return r;
@@ -200,20 +203,26 @@ export namespace HumanBalance {
    *
    * @param body The unchanged body owning its prepared classic mass model.
    * @param posture The actual posture with every limb and digit goal retained.
+   * @param resolution Optional exact FK workspace or lazy supplier borrowed from the same synchronous body operation.
    * @returns The whole-body centre, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States actual complete posture solving, classic mass-model ownership and world-metre output, with support geometry outside this request.
-   * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary canonical posture solver and FK, then the same engine segmental centre-of-mass placement used by support; no leg, contact or digit fit is omitted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual pose/FK and one body-owned mass placement expose the centre-only dependency that reaction entry and bending observations need.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary complete canonical posture solver, then demands the actual profile-bearing FK frames consumed by the same classic mass model and engine placement used by support; no leg, contact or digit fit is omitted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy exact reader serves the actual complete pose solve and final profile FK, then body-owned mass placement exposes the centre-only dependency that reaction entry and bending observations need.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original authored goals, clamping, actual limb/digit fitting and mass model; it omits unused foot-outline/socket/hull work without substituting a guessed centre or achieved target.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Costs one full posture solve, full FK and linear placement over mass segments; centre-only requests allocate no foot bearing points and run no support projection or hull query.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the unchanged body's prepared mass model; every supplied posture is actually solved and placed without retaining time samples or numerical answers.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh world vector and retains no body, pose, model, FK reader or support data after the synchronous query.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Costs one full posture solve, ordered joint admission, demanded profile/ancestor FK and linear placement over mass segments; centre-only requests allocate no unrelated bone frames or foot bearing points and run no support projection/hull query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's classic mass model and collider metadata derive from the same complete profile list, so their actual bone-name demands agree. A local or explicitly borrowed same-operation FK reader shares only exact checked dependencies between full fitting and final display; each supplied posture is actually solved and placed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter ends with the synchronous query, while an optional parent retains only its own operation workspace. The returned fresh vector retains no body, pose, model, reader or support data.
    */
-  export function centre(body: IHumanBody, posture: IHumanPosture): IAutoMovieVector3 {
+  export function centre(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): IAutoMovieVector3 {
+    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     return resolveAutoMovieCenterOfMass.place(
       body.massModel,
-      poseBones(body, resolveHumanPosture(body, posture)),
+      poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, {}, read).pose, read(), HumanColliders.bones(body)),
     );
   }
 
@@ -234,7 +243,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the centre at three instants and hands extrapolation and margin to the engine; the base's gathering repeats `margin`'s reading on the bones already solved for the instant.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1/240 s step is a numerical choice finer than the 24 Hz film and the length is Hof's (`resolveAutoMovieCenterOfMass.pendulum`); the difference amplifies any discontinuity in the caller's posture function, which callers must keep smooth.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three posture solves per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call evaluates its own instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact FK workspace serves all three actual full fits and display readings within this synchronous observation; every changed current dependency is checked, with no fitted-pose or finite-difference sample reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model for these actual three solves, retaining no model, sampled frame or result after return.
    */
   export function extrapolated(
@@ -243,15 +252,20 @@ export namespace HumanBalance {
     seconds: number,
   ): number {
     const h: number = 1 / 240;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const com: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 =>
-      centre(body, at(t));
+      centre(body, at(t), resolution);
     const a: IAutoMovieVector3 = com(seconds - h);
     const b: IAutoMovieVector3 = com(seconds + h);
     const velocity: IAutoMovieVector3 = Vector3.scale(
       Vector3.subtract(b, a),
       1 / (2 * h),
     );
-    const bones = poseBones(body, resolveHumanPosture(body, at(seconds)));
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture.seeded(body, at(seconds), undefined, {}, resolution).pose,
+      resolution(),
+    );
     const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
       resolveAutoMovieCenterOfMass.place(body.massModel, bones),
       velocity,
@@ -370,8 +384,12 @@ interface IReading {
 }
 
 /** A posture's balance, read on one solve of it. */
-function read(body: IHumanBody, posture: IHumanPosture): IReading {
-  const placed: IPlaced = placement(body, posture);
+function read(
+  body: IHumanBody,
+  posture: IHumanPosture,
+  resolution: ReturnType<typeof prepareHumanPoseResolution>,
+): IReading {
+  const placed: IPlaced = placement(body, posture, resolution);
   return {
     offset: projected(placed, posture.yaw),
     margin: resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base),
@@ -379,7 +397,7 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
     // A heel bears within the bearing height of the lowest sole socket.
     flat: (["left", "right"] as const).every(
       (side: "left" | "right"): boolean => {
-        const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(body, placed.bones, side);
+        const sockets: readonly HumanFoot.ISocket[] = placed.feet.sockets(side);
         return sockets[0]!.point.y <=
           Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING;
       },
@@ -389,8 +407,8 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
 
 /** Common solved geometry needed by all static balance measurements. */
 interface IPlaced {
-  /** Actual complete displayed FK, after every limb and digit fit. */
-  bones: ReturnType<typeof poseBones>;
+  /** Borrowed sole geometry bound to this trial's complete displayed FK. */
+  feet: ReturnType<typeof HumanFoot.reading>;
 
   /** Actual whole-body mass centre in world metres. */
   centre: IAutoMovieVector3;
@@ -400,15 +418,22 @@ interface IPlaced {
 }
 
 /** Solve once and prepare only the common mass-centre and support geometry. */
-function placement(body: IHumanBody, posture: IHumanPosture): IPlaced {
+function placement(
+  body: IHumanBody,
+  posture: IHumanPosture,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+): IPlaced {
+  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
   const bones: ReturnType<typeof poseBones> = poseBones(
     body,
-    resolveHumanPosture(body, posture),
+    resolveHumanPosture.seeded(body, posture, undefined, {}, read).pose,
+    read(),
   );
+  const feet: ReturnType<typeof HumanFoot.reading> = HumanFoot.reading(body, bones);
   return {
-    bones,
+    feet,
     centre: resolveAutoMovieCenterOfMass.place(body.massModel, bones),
-    base: HumanFoot.base(body, bones),
+    base: feet.base(),
   };
 }
 

@@ -133,10 +133,10 @@ export namespace kuzushi {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t < TIP
-            ? minimumJerk(t / TIP).s
+            ? minimumJerk.share(t / TIP)
             : t <= TIP + hold
               ? 1
-              : 1 - minimumJerk((t - TIP - hold) / TIP).s;
+              : 1 - minimumJerk.share((t - TIP - hold) / TIP);
         return tipped(base.posture(t), depth * s);
       },
     };

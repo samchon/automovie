@@ -270,10 +270,13 @@ export namespace roll {
       contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= CROUCH) return crouched(minimumJerk(t / CROUCH).s, ankles);
+        if (t <= CROUCH) return crouched(minimumJerk.share(t / CROUCH), ankles);
         if (t <= CROUCH + TURN)
-          return rolled(360 * minimumJerk((t - CROUCH) / TURN).s);
-        return crouched(1 - minimumJerk((t - CROUCH - TURN) / CROUCH).s, end);
+          return rolled(360 * minimumJerk.share((t - CROUCH) / TURN));
+        return crouched(
+          1 - minimumJerk.share((t - CROUCH - TURN) / CROUCH),
+          end,
+        );
       },
     };
   }

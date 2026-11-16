@@ -66,16 +66,18 @@ export namespace HumanLimbFitMemory {
    * fit is kept under its mirror's key, the right limb's (`fit`), so a fit
    * and its mirror image are one entry, with the seed it was chosen at.
    *
-   * The key and the solve are in the root's floor frame (`HumanLimbFitFrame`):
-   * the pose's root, the goal's point, bend, contact and rotation and the
-   * rival wrist are moved by minus the root's floor point and turned by minus
+   * The key and solve use the root-position frame (`HumanLimbFitFrame`):
+   * the pose root, goal point/bend and rival wrist are translated by minus
+   * the root's full world position, and world rotations are turned by minus
    * its heading, so one body doing the same thing in another place or facing
-   * another way reads the same fit, the key read on the frame's grid
+   * another way or at another height reads the same fit, the key read on the frame's grid
    * (`HumanLimbFitFrame.grid`) so the move's rounding does not part two
    * copies of one fit. A hit hands back the stored pose with the
    * caller's own root and the stored seed unchanged: the seed's swivel and
    * branch live in the chain root's bone-local frame, which a turn about +Y
-   * and a floor translation leave invariant. A goal attached to a bone or
+   * and a three-axis translation leave invariant. A contact stays local and
+   * a world-fixed ground goal changes relative Y when the root alone rises.
+   * A goal attached to a bone or
    * naming other bodies' colliders, and a pose without a root, stay keyed in
    * the world.
    *
@@ -96,9 +98,9 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/common.md#meaningful-documentation States why a fit can be remembered, exactly what its key holds and how much is kept.
    * @evidence contracts/development/implementation.md#principled-implementation The key is every input of a pure function; the body owns its fits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup, one insertion in recency order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All existing numerical solve inputs remain keyed under the original mirror/floor/grid policy. The optional reader only shares same-valued FK math, does not affect results or key equality, and is never stored in an entry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All actual numerical inputs remain keyed, using the original mirror, heading and grid policy with full relative translation. World/on/clear/rests exclusions remain; root/target/bend/rival move together, fixed world goals still change their relative key, and no tolerance, raw demand or admission path is weakened.
    * @evidence contracts/development/implementation.md#efficient-algorithms A map read in place of a fit, the key linear in the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing normalized fit entries are read again unchanged. A synchronous miss or disabled call can borrow its parent's exact FK reader; mirror and floor transforms remain actual inputs checked by scalar dependencies, with no reuse of another target's solution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing normalized fit entries are read again unchanged. A synchronous miss or disabled call can borrow its parent's exact FK reader; mirror and root-frame transforms remain actual inputs checked by scalar dependencies, with no reuse of another target's solution.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY fit entries, with key/pose-dependent byte size. Only result data enters FITS; borrowed reader/supplier state is passed synchronously, not invoked on hits, and released by its caller without a retained plan, callback or context.
    */
   export function remembered(
@@ -141,16 +143,16 @@ export namespace HumanLimbFitMemory {
   }
 
   /**
-   * Prepare only fixed mirror/floor/key work for one unchanged limb request.
+   * Prepare only fixed mirror/root-frame/key work for one unchanged limb request.
    * Each invocation still reads the actual bounded body memory and its LRU,
    * and disabled memory still executes the ordinary solver on the raw source.
    * A per-invocation FK supplier is borrowed synchronously and never retained.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines fixed source inputs, reused normalization/key only, live memory switch/LRU and nonretained FK source.
-   * @evidence contracts/development/implementation.md#principled-implementation Mirror/floor transformations and serialization are pure functions of this explicit operation's fixed pose/goal/placed/rival/near inputs, so their completed key may serve repeated ordinary memory reads.
+   * @evidence contracts/development/implementation.md#principled-implementation Mirror/root-frame transformations and serialization are pure functions of this explicit operation's fixed pose/goal/placed/rival/near inputs, so their completed key may serve repeated ordinary memory reads.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure inputs owns the unchanged key construction and query the existing memory policy; this producer adds only fixed-request preparation and delegates actual fits to HumanLimbFit.fit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stores no fitted result or target history, retains the existing grid and complete key, preserves hit counts/LRU/eviction and always bypasses reads/inserts while memory is disabled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Mirror/floor/serialization O(J+G) work runs once at the first enabled read for J joints and G goal data; each later call retains its actual map read/recency update or full miss solve, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Mirror/root-frame/serialization O(J+G) work runs once at the first enabled read for J joints and G goal data; each later call retains its actual map read/recency update or full miss solve, without a measured speedup claim.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged source/body/goal metadata prove key equivalence; each invocation receives its current synchronous FK supplier independently and actual memory contents remain live.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns at most one mirrored/normalized source, goal and key until release; its closure retains no solve result or FK reader, while the existing weak-body pool remains capped at4096 entries.
    */
@@ -191,7 +193,7 @@ export namespace HumanLimbFitMemory {
     root: IAutoMoviePose["root"] | undefined;
   }
 
-  /** Original right-side floor/key construction, shared by cold and fixed-request readers. */
+  /** Original right-side root-frame/key construction, shared by cold and fixed-request readers. */
   function inputs(
     body: IHumanBody,
     pose: IAutoMoviePose,
@@ -201,7 +203,7 @@ export namespace HumanLimbFitMemory {
     rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined,
   ): IRequest {
-    // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
+    // Keyed and solved in the root-position frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
     // fit; handed back with the caller's root and the seed as it is.
     const frame: HumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(

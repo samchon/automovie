@@ -15,6 +15,7 @@ import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -44,8 +45,8 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#principled-implementation The combined centre of the pair moves `m d / (M + m)` ahead of the bearer's own; the lean that balances it is #3431's moment balance, so this returns exactly its inputs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass model, one centre, one difference.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the borne centre's in the bearer's own standing frame, not a constant of the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution and one mass model.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's mass model and the coupling's centre, through the standing read `lean` uses too.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual full stance fit/FK supplies mass and feet; a limb anchor shares that identical read, while a raw trunk anchor retains its separate requested-frame read and complete admission. The unchanged body supplies its classic mass model once; numerical speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's fixed skeleton/profile prove its canonical classic mass model. One explicit standing operation shares its actual full fitted map only for a limb anchor and COM/feet consumers with identical body/posture/solver inputs; a raw trunk anchor remains separate and all changed dependencies still evaluate.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function load(
@@ -76,8 +77,8 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#principled-implementation Static balance of a rigid inverted pendulum: the borne body rides the bearer's anchor bone, so the whole pair turns about the feet, and the combined centre `(M c + m s) / (M + m)` lies over the pivot once turned by `-atan2(z, y)` forward and `atan2(x, y)` toward the right, its offsets ahead and to the left over its height above the pivot.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing read, one combined centre, two angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the balance's, never bounded here; a mass no lean of the bearer holds is `bearable`'s refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution and one mass model.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The standing read `load` uses too.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actual full stance fit/FK supplies mass and feet; a limb anchor shares that identical read, while a raw trunk anchor retains its separate requested-frame read and complete admission. The unchanged body supplies its classic mass model once; numerical speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared standing owner preserves raw-trunk versus fitted-limb semantics, borrows the body's canonical mass model, and shares only the same operation's actual full fitted stance and exact scalar FK prerequisites. Calls, roles and different stances retain independent evaluation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function lean(
@@ -145,20 +146,26 @@ export namespace HumanCarriedCouplingLoad {
             Vector3.subtract(coupling.centre, frame.position),
           );
     const model: resolveAutoMovieCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(bearer.skeleton, bearer.profile);
+      bearer.massModel;
     // The first bearer stands in the stance the key pose was placed on; a
     // further one stands upright.
     const posture: IHumanPosture =
       frame === undefined
         ? HumanCarriedCouplingPose.stance(bearer, coupling.key.stance)
         : HumanCarriedCouplingPose.stance(bearer, { incline: 0, depth: 0 });
-    const anchor: IAutoMovieResolvedBone = HumanCarriedCouplingPose.bones(
-      bearer,
-      posture,
-      frame?.anchor ?? coupling.anchor,
-    ).get(frame?.anchor ?? coupling.anchor)!;
-    const feet: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanCarriedCouplingPose.bones(bearer, posture, "leftFoot");
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const name: AutoMovieHumanoidBone = frame?.anchor ?? coupling.anchor;
+    // A limb anchor and the mass/feet reader ask for the same full fitted
+    // stance. A trunk anchor intentionally keeps its original raw-trunk read.
+    const whole: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
+      HumanCarriedCouplingPose.TRUNK.includes(name) ? undefined
+        : HumanCarriedCouplingPose.bones(bearer, posture, name, resolution);
+    const anchor: IAutoMovieResolvedBone = whole === undefined
+      ? HumanCarriedCouplingPose.bones(bearer, posture, name, resolution,
+        new Set<AutoMovieHumanoidBone>([name])).get(name)!
+      : whole.get(name)!;
+    const feet: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = whole ??
+      HumanCarriedCouplingPose.bones(bearer, posture, "leftFoot", resolution);
     return {
       mass: model.mass,
       own: resolveAutoMovieCenterOfMass.place(model, feet),

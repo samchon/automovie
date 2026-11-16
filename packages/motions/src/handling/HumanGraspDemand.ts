@@ -135,54 +135,112 @@ export namespace HumanGraspDemand {
     body: IHumanBody,
     demand: IHumanActionLaw.IDemand,
   ): HumanGrasp.IKey {
-    const side: HumanHand.Side = demand.tool.side;
-    const socket: IAutoMovieVector3 = HumanHand.offset(
-      body,
-      side,
-      "grip",
-    ).point;
-    const wrist: HumanHand.IWrist = {
-      point: Vector3.subtract(
-        demand.frame.point,
-        Quaternion.rotateVector(demand.frame.rotation, socket),
-      ),
-      rotation: demand.frame.rotation,
-    };
-    // The hanging arm's elbow, only the fallback of a fit that finds no
-    // legal swivel: the goal leaves the elbow to the body.
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      demand.posture,
-      side,
-    );
-    return {
-      posture: demand.posture,
-      wrist,
-      bend,
-      goal: StrikingHeld.goal(
-        { body },
-        demand.tool,
-        demand.frame,
-        demand.back,
-        bend,
-      ),
-      reference: false,
-      judge: (
-        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      ): number =>
-        Math.max(
-          demand.least ?? 0,
-          StrikingHeld.strayed(
-            demand.tool,
-            {
-              point: HumanHand.frame(body, bones, side, "grip").point,
-              rotation: bones.get(`${side}Hand`)!.worldRotation,
-            },
-            demand.frame,
-            demand.back,
-          ),
-        ),
-      bound: demand.bound,
+    return prepareKey(body, demand.posture)(demand);
+  }
+
+  /**
+   * Prepare one unchanged body/posture for actual demanded tool frames.
+   * Each hand's original grip socket and hanging fallback elbow are read
+   * on first use. Consecutive queries may share one tool's immutable local
+   * geometry and kept point; actual world frames and bounds remain inputs,
+   * and each key still carries the complete posture/goals.
+   *
+   * @param body The fixed canonical body and immutable rig/surface geometry.
+   * @param posture The fixed actual posture, including other-limb/digit goals.
+   * @returns The original key for each actual demand on this posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/posture lifetime, lazily admitted per-hand geometry, actual demand fields and complete key/actual-metre judge output.
+   * @evidence contracts/development/implementation.md#principled-implementation A hand's grip offset and hanging fallback depend only on the unchanged body/posture; each actual frame still builds its original rigid wrist, complete StrikingHeld goal and two-point strayed judge.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy per-hand geometry owner precedes the original wrist/goal/judge adapter; key is its cold facade and grasp-use roll selection retains the producer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The demanded tool, kept point, bound, proven least stray, reference=false policy and all coupled posture constraints remain unchanged; no key or fit answer is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two grip/hanging-elbow preparations replace repeated fixed shoulder/FK work across C candidate/roll keys. One bounded last-tool reader prepares fixed contact/limit offsets once per consecutive immutable tool/back context; every actual wrist/goal/judge and original numerical fit remains. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body geometry and exact fixed posture establish per-hand equivalence; HumanGraspUse supplies one immutable tool per candidate's rolls, and exact tool identity/back equality reuses only that local geometry reader. Frames/bounds/least stay actual, and changed geometry requires new preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grasp search owns at most two hand records and one last-tool producer, replaced on a tool/back change and released with the builder. A standalone judge factory prevents returned keys from retaining either preparation context; no FK reader, time history or handle escapes.
+   */
+  export function prepareKey(
+    body: IHumanBody,
+    posture: IHumanPosture,
+  ): (demand: Omit<IHumanActionLaw.IDemand, "posture">) => HumanGrasp.IKey {
+    const hands: Map<HumanHand.Side, IHand> = new Map();
+    const goals: IGoalContext = {};
+    return (demand: Omit<IHumanActionLaw.IDemand, "posture">): HumanGrasp.IKey => {
+      const side: HumanHand.Side = demand.tool.side;
+      let hand: IHand | undefined = hands.get(side);
+      if (hand === undefined) {
+        hand = {
+          socket: HumanHand.offset(body, side, "grip").point,
+        };
+        hands.set(side, hand);
+      }
+      return demandedKey(body, posture, demand, hand, goals);
     };
   }
+}
+
+/** Assemble a key outside the preparation closure so its judge cannot retain the hand map. */
+function demandedKey(
+  body: IHumanBody,
+  posture: IHumanPosture,
+  demand: Omit<IHumanActionLaw.IDemand, "posture">,
+  hand: IHand,
+  goals: IGoalContext,
+): HumanGrasp.IKey {
+  const side: HumanHand.Side = demand.tool.side;
+  const wrist: HumanHand.IWrist = {
+    point: Vector3.subtract(
+      demand.frame.point,
+      Quaternion.rotateVector(demand.frame.rotation, hand.socket),
+    ),
+    rotation: demand.frame.rotation,
+  };
+
+  // The hanging arm's elbow, only the fallback of a fit that finds no
+  // legal swivel: the goal leaves the elbow to the body.
+  hand.bend ??= AutoMovieMotionHumanBend.hang(body, posture, side);
+  const bend: IAutoMovieVector3 = { ...hand.bend };
+  if (goals.tool !== demand.tool || !Object.is(goals.back, demand.back)) {
+    goals.tool = demand.tool;
+    goals.back = demand.back;
+    goals.read = StrikingHeld.prepareGoal({ body }, demand.tool, demand.back);
+  }
+  return {
+    posture,
+    wrist,
+    bend,
+    goal: goals.read!(demand.frame, bend),
+    reference: false,
+    judge: demandedJudge(body, side, demand),
+    bound: demand.bound,
+  };
+}
+
+/** Keep the original current-bone judgement separate from all preparation contexts. */
+function demandedJudge(
+  body: IHumanBody,
+  side: HumanHand.Side,
+  demand: Omit<IHumanActionLaw.IDemand, "posture">,
+): NonNullable<HumanGrasp.IKey["judge"]> {
+  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number =>
+    Math.max(demand.least ?? 0, StrikingHeld.strayed(demand.tool, {
+      point: HumanHand.frame(body, bones, side, "grip").point,
+      rotation: bones.get(`${side}Hand`)!.worldRotation,
+    }, demand.frame, demand.back));
+}
+
+/** Fixed actual geometry of one hand on the prepared body/posture. */
+interface IHand {
+  /** Grip-socket offset from the wrist in hand axes, metres. */
+  socket: IAutoMovieVector3;
+  /** World-metre hanging elbow fallback, read lazily after the first actual wrist transform. */
+  bend?: IAutoMovieVector3;
+}
+
+/** One bounded consecutive immutable tool/back geometry, never a goal or fit result. */
+interface IGoalContext {
+  /** The exact unchanged source of the prepared local tool offsets. */
+  tool?: StrikingHeld.ITool;
+  /** Its kept-point distance in metres, compared without merging signed zero. */
+  back?: number;
+  /** The fixed-geometry owner; replaced as soon as tool or back changes. */
+  read?: ReturnType<typeof StrikingHeld.prepareGoal>;
 }

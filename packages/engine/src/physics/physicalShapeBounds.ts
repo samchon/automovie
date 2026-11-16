@@ -19,7 +19,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#principled-implementation Composes the parent and shape transforms, then uses exact sphere/capsule/box axis extents or the rotated hull vertices' extrema in the existing arithmetic order.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The pose facade and lowest compose the same actual frame. FromFrame owns full bounds and optional hull-point transfer; lowest reads just the corresponding Y expression without unused coordinate/extrema records. Both remain with the geometry's one package owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every shape formula, component extremum, unknown-kind failure and lack of numeric admission here; bounds are not replaced with support-candidate minima or a new tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). Full bounds retain constant live auxiliary storage or V adopted collector points. Lowest omits unused X/Z/max comparisons and extent/min/max records, including two extrema allocations per hull vertex; fixed unit axes are shared by both paths without retaining input geometry.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). Full hull bounds keep six scalar extrema instead of two replacement vectors per vertex, materializing only each rotated point needed by full coordinates/optional ownership transfer. Lowest uses the original rotateVectorY expression and omits that remaining vector plus unused coordinates/maxima. Collector outputs alone retain O(V) points; both paths share fixed unit axes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entries use the same fromFrame equations; current composed-frame readers may additionally adopt each fresh rotated hull point only after its extrema are consumed, avoiding a second identical rotation. Legacy calls always freshly read inputs and request no point transfer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps no pose, shape, frame or result globally; min/max are fresh and independent of adopted hull points, whose ownership transfers only after every bounds component has consumed them.
  */
@@ -65,21 +65,21 @@ export namespace physicalShapeBounds {
     const rotation: P.ITransform["rotation"] = Quaternion.multiply(pose.rotation, shape.transform.rotation);
     if (shape.kind === "sphere") return center.y - shape.radius;
     if (shape.kind === "capsule") {
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
-      return center.y - (Math.abs(axis.y) * shape.halfLength + shape.radius);
+      const axis: number = Quaternion.rotateVectorY(rotation, AXIS_Y);
+      return center.y - (Math.abs(axis) * shape.halfLength + shape.radius);
     }
     if (shape.kind === "box") {
-      const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_X);
-      const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);
-      const z: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Z);
-      const extent: number = Math.abs(x.y) * shape.halfExtents.x +
-        Math.abs(y.y) * shape.halfExtents.y + Math.abs(z.y) * shape.halfExtents.z;
+      const x: number = Quaternion.rotateVectorY(rotation, AXIS_X);
+      const y: number = Quaternion.rotateVectorY(rotation, AXIS_Y);
+      const z: number = Quaternion.rotateVectorY(rotation, AXIS_Z);
+      const extent: number = Math.abs(x) * shape.halfExtents.x +
+        Math.abs(y) * shape.halfExtents.y + Math.abs(z) * shape.halfExtents.z;
       return center.y - extent;
     }
     if (shape.kind === "hull") {
       let minimum: number = Infinity;
       for (const point of shape.points)
-        minimum = Math.min(minimum, Quaternion.rotateVector(rotation, point).y);
+        minimum = Math.min(minimum, Quaternion.rotateVectorY(rotation, point));
       return center.y + minimum;
     }
     shape satisfies never;
@@ -116,23 +116,26 @@ export namespace physicalShapeBounds {
       };
     } else if (shape.kind === "hull") {
       // A hull's bounds are its vertices' bounds about the shape centre.
-      let min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
-      let max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
+      let minX: number = Infinity;
+      let minY: number = Infinity;
+      let minZ: number = Infinity;
+      let maxX: number = -Infinity;
+      let maxY: number = -Infinity;
+      let maxZ: number = -Infinity;
       for (const point of shape.points) {
         const world: IAutoMovieVector3 = Quaternion.rotateVector(rotation, point);
-        min = {
-          x: Math.min(min.x, world.x),
-          y: Math.min(min.y, world.y),
-          z: Math.min(min.z, world.z),
-        };
-        max = {
-          x: Math.max(max.x, world.x),
-          y: Math.max(max.y, world.y),
-          z: Math.max(max.z, world.z),
-        };
+        minX = Math.min(minX, world.x);
+        minY = Math.min(minY, world.y);
+        minZ = Math.min(minZ, world.z);
+        maxX = Math.max(maxX, world.x);
+        maxY = Math.max(maxY, world.y);
+        maxZ = Math.max(maxZ, world.z);
         takeHullPoint?.(world);
       }
-      return { min: Vector3.add(center, min), max: Vector3.add(center, max) };
+      return {
+        min: { x: center.x + minX, y: center.y + minY, z: center.z + minZ },
+        max: { x: center.x + maxX, y: center.y + maxY, z: center.z + maxZ },
+      };
     } else if (shape.kind === "box") {
       const x: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_X);
       const y: IAutoMovieVector3 = Quaternion.rotateVector(rotation, AXIS_Y);

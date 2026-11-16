@@ -94,9 +94,9 @@ export namespace squatVault {
    * @evidence contracts/development/implementation.md#principled-implementation The support planner's keys to the push-off, then a ballistic root under gravity on the least-speed arc to the landing, then the quiet stance beyond the far edge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The box's edges, the support plan, the landing, the flight, one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The push's speed and angle follow from the heights and the run in closed form; a landing not ahead is refused, never given a made-up flight.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The support keys are solved once; a flight posture is one blend and a closed-form root.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the support planner, its key blend, the workout's support reading, the engine's gravity and the stand law's posture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the support plan and the landing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The support keys are solved once. Their fixed ordered joint union, missing-endpoint choices and heading difference prepare once for flight; each actual query retains original range-aware joint interpolation through one synchronous metadata reader, scalar minimum-jerk share and a closed-form root. No flight sample changes; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the support planner and its genuine prepareBlended owner, workout support, gravity and standing posture. Only the fixed tuck/landing prerequisites are prepared; all current shares still run original ROM-aware blending. The support phase explicitly borrows its synchronous parent's FK source when supplied.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its support plan, landing, fixed geometry and bounded joint-pair preparation. Each query's temporary blender/outputs release normally; an optional parent reader is used only synchronously and never enters the retained plan, output or interpolation preparation.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -125,8 +125,8 @@ export namespace squatVault {
           Quaternion.rotateVector(rotation, { x: 0, y: 0, z: sign * half }),
         ),
     );
-    const along = (p: IAutoMovieVector3): number => Vector3.dot(p, heading);
-    const [near, far] = (
+    const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => Vector3.dot(p, heading);
+    const [near, far]: [IAutoMovieVector3, IAutoMovieVector3] = (
       along(ends[0]!) <= along(ends[1]!) ? ends : [ends[1]!, ends[0]!]
     ) as [IAutoMovieVector3, IAutoMovieVector3];
 
@@ -135,7 +135,7 @@ export namespace squatVault {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const palm = (side: "left" | "right"): HumanSupport.IContact => ({
+    const palm: (side: "left" | "right") => HumanSupport.IContact = (side: "left" | "right"): HumanSupport.IContact => ({
       part: `${side}Hand`,
       kind: "bear",
       target: {
@@ -188,6 +188,7 @@ export namespace squatVault {
       joints: { ...landing.joints, ...getUp.quiet(body).joints },
       limbs: {},
     };
+    const flyingShape: ReturnType<typeof supportKey.prepareBlended> = supportKey.prepareBlended(body, tucked, landed);
 
     // The flight: the least-speed ballistic arc from the tucked root to the
     // landing's, the push that reaches it with the least effort. For a rise
@@ -216,7 +217,7 @@ export namespace squatVault {
     const hold: number = context.params.seconds ?? 0.5;
     const touchdown: number = push + flight;
     const duration: number = touchdown + hold;
-    const share = (s: number): number => (s * push) / duration;
+    const share: (s: number) => number = (s: number): number => (s * push) / duration;
     return {
       duration,
       base: { kind: "standing" },
@@ -252,17 +253,12 @@ export namespace squatVault {
         to: touchdown / duration,
         momentum: { kind: "turns", somersault: 0, twist: 0 },
       },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= push) return held.posture(t);
+        if (t <= push) return held.posture(t, channels, resolution);
         if (t >= touchdown) return landing;
         const u: number = t - push;
-        const shaped: IHumanPosture = supportKey.blended(
-          body,
-          tucked,
-          landed,
-          minimumJerk(u / flight).s,
-        );
+        const shaped: IHumanPosture = flyingShape(minimumJerk.share(u / flight));
         return {
           ...shaped,
           root: {

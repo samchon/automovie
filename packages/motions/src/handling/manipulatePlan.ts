@@ -102,18 +102,18 @@ export function manipulatePlan(
         const previous: IPress = hand.prepared[Math.max(0, index - 1)]!;
         const press: manipulate.IPress = current.press;
         Object.assign(joints, current.joints);
-        const approach: number = minimumJerk(Math.min(1, Math.max(0,
+        const approach: number = minimumJerk.share(Math.min(1, Math.max(0,
           (time - (press.time - reach * span)) / (reach * span),
-        ))).s;
+        )));
         limbs[`${hand.side}Arm`] = {
           point: Vector3.lerp(previous.wrist, current.wrist, approach),
           rotation: hand.rotation,
           bend: hand.bend,
         };
         const down: number = time < press.time ? approach * approach :
-          1 - minimumJerk(Math.min(1,
+          1 - minimumJerk.share(Math.min(1,
             (time - press.time) / ((1 - reach) * span),
-          )).s;
+          ));
         const lift: number = typeText.HOVER - (typeText.HOVER + press.depth) * down;
         digits[current.digit] = {
           point: Vector3.add(press.site, Vector3.scale(press.normal, lift)),

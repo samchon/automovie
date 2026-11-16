@@ -89,7 +89,7 @@ export namespace AutoMovieMotionHumanArmRide {
    * @evidence contracts/development/implementation.md#principled-implementation A point on a rigid segment is constant in the segment's frame; its normal is the nearest collider shape's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The segment's bone, its colliders' nearest shape, three readings in its frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The normal is the touched collider's, not the direction from the bone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose of the bones and one scan of the segment's shapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Ordered joint admission and only the selected segment's FK ancestors/output precede one profile scan and its shape distances; unrelated profile frames are not placed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `poseBones`, `HumanColliders.placed`, `physicalShapeSegmentDistance` and `physicalShapeNormal`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -106,13 +106,15 @@ export namespace AutoMovieMotionHumanArmRide {
       : bone.endsWith("LowerArm")
         ? "lower"
         : "hand";
+    const carried: AutoMovieHumanoidBone =
+      `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
+      undefined,
+      new Set([carried]),
     );
-    const by: IAutoMovieResolvedBone = bones.get(
-      `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`,
-    )!;
+    const by: IAutoMovieResolvedBone = bones.get(carried)!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(by.worldRotation);
     const segment: HumanColliders.IPlaced | undefined = HumanColliders.placed(
       body,

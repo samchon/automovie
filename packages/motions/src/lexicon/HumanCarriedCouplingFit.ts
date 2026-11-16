@@ -91,9 +91,9 @@ export namespace HumanCarriedCouplingFit {
    * @evidence contracts/development/implementation.md#principled-implementation The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty (Nocedal and Wright's Algorithm 4.1 schedule), each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end; it settles at the square root of machine epsilon of the arm. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Ranges, gaps, one minimisation, the placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The resting contact is kept exact and every angle stays within its range: the legs within the range table, the trunk within full forward bending, the lowering within a squat; a hold still beyond its arm is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Where upright and the carry's own legs reach, one placement; otherwise eleven placements per model, the bearer's bones resolved once per stance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance is `HumanCarriedCouplingPose.stance`, the turn `fitRigidMeshTransform`, the loop `HumanSequentialConvex`, the models `HumanQuadraticProgram`, the ranges `getConstraint`, and the palm-facing wrist target the same `AutoMovieMotionHumanTarget.hand` and `AutoMovieMotionHumanArmTarget.goal` that `HumanCarriedBearing` uses; the region frames are the engine's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the placement closes over two points and a turn.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Where upright and the carry's own legs reach, one placement; otherwise eleven placements per linearization, with stance FK shared. Penalty steering reprices current rows without repeating those placements; radius retries update intervals on one admitted P/q/A and build trial vectors only when consumed. Actual QP work and acceptance remain current; no speedup is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed range weights own one curvature per objective flag. At the same x/e/objective, gap slopes, P/q/A and row order are penalty-independent, so fresh penalty shells share their numeric preparation while resetting warm state; only radius retries share a shell's actual iterates. Stance, rigid turn, ranges and palm goals still use their original owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fit owns its stance map, two small curvatures and the current linearization/preparation. Repriced shells share those fixed data without a history chain and release their warm state on replacement; the returned placement closes only over two points and a turn.
    */
   export function fit(
     bearer: IHumanBody,
@@ -144,6 +144,13 @@ export namespace HumanCarriedCouplingFit {
       s > 0 ? 1 / s ** 2 : 0,
     );
     const n: number = start.length;
+    const curvatures: readonly Float64Array[][] = [false, true].map(
+      (objective: boolean): Float64Array[] => weight.map((w: number): Float64Array => {
+        const diagonal: Float64Array = new Float64Array(n);
+        diagonal[0] = objective ? w : 0;
+        return diagonal;
+      }),
+    );
     const all: number[] = Array.from(
       { length: n },
       (_: unknown, k: number): number => k,
@@ -279,45 +286,44 @@ export namespace HumanCarriedCouplingFit {
                 (v - b[i]!) / (up[k]! - down[k]!),
             );
           });
-          const model: QP.IProblem = {
-            n,
-            band: n - 1,
-            p: all.map((k: number): Float64Array => {
-              const row0: Float64Array = new Float64Array(n);
-              row0[0] = objective ? weight[k]! : 0;
-              return row0;
-            }),
-            q: Float64Array.from(all, (k: number): number =>
-              objective ? weight[k]! * (x[k]! - start[k]!) : 0,
-            ),
-            rows: [
-              ...e.gaps.map(
-                (g: number, i: number): QP.IRow => ({
-                  key: `g|${i}`,
-                  index: all,
-                  coef: all.map((k: number): number => slope[k]![i]!),
-                  l: -Infinity,
-                  u: -g,
-                  weight: mu,
-                }),
-              ),
-              ...all.map(
-                (k: number): QP.IRow => ({
-                  key: `r|${k}`,
-                  index: [k],
-                  coef: [1],
-                  l: ranges[k]!.min - x[k]!,
-                  u: ranges[k]!.max - x[k]!,
-                }),
-              ),
-            ],
-          };
-          const zero: number = QP.value(model, new Float64Array(n));
-          let warm: QP.IState | undefined;
-          return {
-            solve: (r: number): SCO.IStep<Float64Array> => {
-              warm = QP.solve(
-                {
+          let prepared: ReturnType<typeof QP.prepare> | undefined;
+          const q: Float64Array = Float64Array.from(all, (k: number): number =>
+            objective ? weight[k]! * (x[k]! - start[k]!) : 0,
+          );
+          const priced: (price: number) => SCO.IModel<Float64Array> = (price: number): SCO.IModel<Float64Array> => {
+            const model: QP.IProblem = {
+              n,
+              band: n - 1,
+              p: curvatures[objective ? 1 : 0]!,
+              q,
+              rows: [
+                ...e.gaps.map(
+                  (g: number, i: number): QP.IRow => ({
+                    key: `g|${i}`,
+                    index: all,
+                    coef: all.map((k: number): number => slope[k]![i]!),
+                    l: -Infinity,
+                    u: -g,
+                    weight: price,
+                  }),
+                ),
+                ...all.map(
+                  (k: number): QP.IRow => ({
+                    key: `r|${k}`,
+                    index: [k],
+                    coef: [1],
+                    l: ranges[k]!.min - x[k]!,
+                    u: ranges[k]!.max - x[k]!,
+                  }),
+                ),
+              ],
+            };
+            const zero: number = QP.value(model);
+            let warm: QP.IState | undefined;
+            return {
+              reprice: priced,
+              solve: (r: number): SCO.IStep<Float64Array> => {
+                const problem: QP.IProblem = {
                   ...model,
                   rows: [
                     ...model.rows,
@@ -331,46 +337,49 @@ export namespace HumanCarriedCouplingFit {
                       }),
                     ),
                   ],
-                },
-                warm,
-              );
-              const longest: number = Math.max(
-                ...all.map((k: number): number =>
-                  spans[k]! > 0
-                    ? (Math.abs(warm!.x[k]!) * widest) / spans[k]!
-                    : 0,
-                ),
-              );
-              // The gaps the step leaves on the linearisation, which the
-              // steered penalty reads.
-              const left: number[] = e.gaps.map(
-                (g: number, i: number): number =>
-                  Math.max(
-                    0,
-                    g +
-                      all.reduce(
-                        (s: number, k: number): number =>
-                          s + slope[k]![i]! * warm!.x[k]!,
-                        0,
-                      ),
+                };
+                prepared ??= QP.prepare(problem);
+                warm = prepared.solve(problem.rows, warm);
+                const solved: Float64Array = warm.x;
+                const longest: number = Math.max(
+                  ...all.map((k: number): number =>
+                    spans[k]! > 0
+                      ? (Math.abs(solved[k]!) * widest) / spans[k]!
+                      : 0,
                   ),
-              );
-              return {
-                violation: left.reduce(
-                  (s: number, v: number): number => s + v,
-                  0,
-                ),
-                met: Math.max(0, ...left) <= accuracy,
-                trial: Float64Array.from(
-                  x,
-                  (v: number, k: number): number => v + warm!.x[k]!,
-                ),
-                predicted: zero - QP.value(model, warm.x),
-                length: longest,
-                full: longest >= r * (1 - QP.TOLERANCE),
-              };
-            },
+                );
+                // The gaps the step leaves on the linearisation, which the
+                // steered penalty reads.
+                const left: number[] = e.gaps.map(
+                  (g: number, i: number): number =>
+                    Math.max(
+                      0,
+                      g +
+                        all.reduce(
+                          (s: number, k: number): number =>
+                            s + slope[k]![i]! * solved[k]!,
+                          0,
+                        ),
+                    ),
+                );
+                let trial: Float64Array | undefined;
+                return {
+                  violation: left.reduce(
+                    (s: number, v: number): number => s + v,
+                    0,
+                  ),
+                  met: Math.max(0, ...left) <= accuracy,
+                  get trial(): Float64Array {
+                    return (trial ??= Float64Array.from(x, (v: number, k: number): number => v + solved[k]!));
+                  },
+                  predicted: zero - QP.value(model, solved),
+                  length: longest,
+                  full: longest >= r * (1 - QP.TOLERANCE),
+                };
+              },
+            };
           };
+          return priced(mu);
         },
       },
       Float64Array.from(start),

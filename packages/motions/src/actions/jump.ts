@@ -22,6 +22,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpFlight } from "./jumpFlight";
@@ -155,8 +156,8 @@ export namespace jump {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read entry/support, prepare achieved endpoint values, solve COM flight, prepare the original timed push, then evaluate the three phases through their owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original floor/prop targets, entry velocity/acceleration, ROM, contact windows and momentum acceptance. No nominal root is replaced by its lowered value inside the heel rule; no flight plant, radius projection or epsilon hides the phase seam. World COM and whole-body angular C1 at takeoff remain unproved.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two endpoint preparations add bounded canonical solves/FK per plan. Each free query prepares its raw shape once, reads mass-bearing FK and lends that canonical result through exact resolver admission. Explicitly rebased overlays may independently reuse unchanged free legs; changed goals/parents/context and whole-body turns retain ordinary fitting. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw endpoints and achieved COM boundaries are shared by their phase consumers; timed entry-rate curves remain independent. A free query's own COM and translated displayed demands share one checked canonical preparation without a time-keyed result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/phase geometry, two endpoint states, prepared push/flight closures and a bounded mass-bone set. Each returned free posture carries only its own checked preparation; no previous-frame state, reader, external handle or global pose cache is added here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw endpoints and achieved COM boundaries are shared by their phase consumers; timed entry-rate curves remain independent. A free query's own COM and translated displayed demands share one checked canonical preparation without a time-keyed result cache. Each phase also lends only an explicitly supplied synchronous parent's FK workspace to its actual lowering/canonical solve and COM reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/phase geometry, two endpoint states, prepared push/flight closures and a bounded fixed mass-bone demand. Each returned free posture carries only its own checked preparation; the optional borrowed query reader stays with its synchronous parent and never enters the plan, output evidence or previous-frame history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -354,8 +355,8 @@ export namespace jump {
       knee,
     };
     const push: jumpPush.IPush = jumpPush.of(pushProps);
-    const pushedAt: (seconds: number) => IHumanPosture = (seconds: number): IHumanPosture =>
-      jumpPushPosture(pushProps, push, seconds);
+    const pushedAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture =>
+      jumpPushPosture(pushProps, push, seconds, resolution);
     const shape: jumpAirborne.IShape = { body, takeoff, heading, start: startState, end: endState };
     const flightPosture: ReturnType<typeof prepareJumpFlight> =
       prepareJumpFlight(body, model, shape);
@@ -372,9 +373,9 @@ export namespace jump {
       events,
       contacts,
       ...turning.declared,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= P) return pushedAt(t);
+        if (t <= P) return pushedAt(t, resolution);
         if (t <= touchdown) {
           const u: number = t - P;
           const centre: IAutoMovieVector3 = {
@@ -382,10 +383,10 @@ export namespace jump {
             y: comT.y + launch.y * u - 0.5 * AutoMovieGravity.STANDARD * u * u,
             z: comT.z + launch.z * u,
           };
-          return turning.turned(flightPosture(u / T, centre), t);
+          return turning.turned(flightPosture(u / T, centre, resolution), t);
         }
         const root: IAutoMovieVector3 = rootAt(t);
-        const arms: number = 30 * (1 - minimumJerk((t - touchdown) / (ABSORB + RISE)).s);
+        const arms: number = 30 * (1 - minimumJerk.share((t - touchdown) / (ABSORB + RISE)));
         const joints: IHumanPosture["joints"] = jumpJoints(body, upright.joints, arms, arms);
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const)
@@ -403,7 +404,7 @@ export namespace jump {
           roll: 0,
           joints,
           limbs,
-        });
+        }, undefined, resolution);
       },
     };
   }

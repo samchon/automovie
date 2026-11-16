@@ -3,6 +3,7 @@ import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
+import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
 
 /**
  * The clock of one action: its duration and its named instants, and the only
@@ -16,9 +17,9 @@ import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
  * `strokeEnd`, `retract`. A family adds its own (`chamber`, `takeoff`,
  * `landing`). `start` and `end` always exist, at 0 and at the duration.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States clock ownership, shared instant origins and the fixed start/end names; prepare aliases AutoMovieMotionInterval.prepare for fixed-window readers whose numerical contract remains documented at that function.
+ * @evidence contracts/development/common.md#meaningful-documentation States clock ownership, shared instant origins and fixed start/end names; prepare preserves custom clock callbacks while privately issued native methods share fixed numeric intervals, and wave/prepareWave delegate count admission and waveform ownership to AutoMovieMotionWave.
  * @evidence contracts/development/design.md#principled-representation An action's timing is a duration and named instants in seconds, the phase boundaries of gesture research; every window is a pair of names, so a row never repeats a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two constructors, the clock they return and the two records they take; it names no body part, so any performer's action can use it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Clock constructors, timing transformations and fixed-window/wave readers serve current action primitives without naming any body part; the clock record, interval arithmetic and waveform each retain one owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Instants are plain records and names are checked when the clock is built; an unknown name throws instead of reading as zero.
  */
 export namespace AutoMovieMotionClock {
@@ -71,14 +72,29 @@ export namespace AutoMovieMotionClock {
   export type IClock = IAutoMovieMotionClock;
 
   /**
-   * Fixed named-window readers, resolving each instant once.
+   * Prepare native fixed intervals while preserving arbitrary custom clock callbacks.
    *
-   * AutoMovieMotionInterval.prepare owns the named admission, unchanged
-   * linear/minimum-jerk rule and returned reader lifetime. This alias adds
-   * no wrapper work or result state, and ordinary clock interpolation uses
-   * the same numeric interval owner.
+   * @evidence contracts/development/common.md#meaningful-documentation Native Clock.of instances resolve names once; custom or replaced methods remain actual receiver-bound linear/progress callbacks at every second.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the private constructor record proves the original pure fixed-time method set. Exact current method identities retain that proof; any changed/custom method uses its ordinary callback instead.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One native-method lookup and optional numeric interval feed two guarded readers; the interval owner retains all numeric step/easing rules.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No custom callback/effect, changed method, queried second or original numeric rule is dropped. Native name admission remains at preparation and changed/custom callbacks retain their own admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Native readers replace repeated name-map queries with fixed method comparisons and original scalar arithmetic; custom readers keep every original callback. Setup and retained metadata are constant per interval; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only privately issued native methods and their fixed named instants share numeric preparation; identity checks on each read detect later replacement. Custom callback results are never shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the clock, names, original method references and optional fixed numeric interval until release; native construction records are weakly keyed by their live clock and retain no sample history or handles.
    */
-  export const prepare: typeof AutoMovieMotionInterval.prepare = AutoMovieMotionInterval.prepare;
+  export function prepare(clock: IClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
+    const native: NativeClock | undefined = NATIVE.get(clock);
+    const ready: { methods: NativeClock; interval: AutoMovieMotionInterval.IPrepared } | undefined =
+      native !== undefined && clock.at === native.at && clock.linear === native.linear && clock.progress === native.progress
+        ? { methods: native, interval: AutoMovieMotionInterval.prepare(clock, from, to) } : undefined;
+    return {
+      linear: (seconds: number): number => ready !== undefined && clock.at === ready.methods.at &&
+        clock.linear === ready.methods.linear ? ready.interval.linear(seconds) : clock.linear(from, to, seconds),
+      progress: (seconds: number): number => ready !== undefined && clock.at === ready.methods.at &&
+        clock.linear === ready.methods.linear && clock.progress === ready.methods.progress
+        ? ready.interval.progress(seconds) : clock.progress(from, to, seconds),
+    };
+  }
   /**
    * A clock from a duration and its named instants.
    *
@@ -93,7 +109,7 @@ export namespace AutoMovieMotionClock {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated or reserved name, an instant outside the duration and an unknown name throw; the only tolerance is 1e-9 s on the duration's end, for an instant computed as a sum of phase lengths.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query is two map lookups and a polynomial, constant time, which matters because every primitive asks at every evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `minimumJerk`, the engine's one owner of the minimum-jerk profile.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one map and one sorted array of the instants given, for the clock's own lifetime.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one map, one sorted array and three original method references for the clock's lifetime; the method proof is weakly keyed by the returned clock, retains no query history and needs no external resource cleanup.
    */
   export function of(duration: number, instants: readonly IInstant[]): IClock {
     if (!(duration > 0)) throw new Error("A clock lasts a positive time");
@@ -130,8 +146,8 @@ export namespace AutoMovieMotionClock {
       return AutoMovieMotionInterval.linear(a, b, seconds);
     };
     const progress = (from: string, to: string, seconds: number): number =>
-      minimumJerk(linear(from, to, seconds)).s;
-    return {
+      minimumJerk.share(linear(from, to, seconds));
+    const clock: IClock = {
       duration,
       instants: sorted,
       at,
@@ -155,6 +171,8 @@ export namespace AutoMovieMotionClock {
           }),
         ),
     };
+    NATIVE.set(clock, { at, linear, progress });
+    return clock;
   }
 
   /**
@@ -330,46 +348,14 @@ export namespace AutoMovieMotionClock {
       seconds <= b || arrested
         ? k * clock.linear(window[0], window[1], seconds)
         : k + (1 - k) * clock.linear(window[1], window[2], seconds);
-    return minimumJerk(u).s / minimumJerk(k).s;
+    return minimumJerk.share(u) / minimumJerk.share(k);
   }
 
-  /**
-   * A movement back and forth about a pose between two instants: a sine of a
-   * whole number of cycles, grown over its first half cycle and shrunk over
-   * its last on the minimum-jerk profile, so it leaves and rejoins the pose
-   * at rest.
-   *
-   * @param clock The clock.
-   * @param window The instants the movement starts and ends at.
-   * @param cycles How many cycles; a positive integer.
-   * @param seconds Seconds since the action's start.
-   * @returns A value in [-1, 1]; 0 outside the window.
-   * @throws {Error} On a cycle count that is not a positive integer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape, how it starts and ends, the range, the value outside the window and the refused count.
-   * @evidence contracts/development/implementation.md#principled-implementation A sine of whole cycles is zero at both ends of the window; the product of two minimum-jerk ramps, each one half cycle long, brings its speed to zero there too, so the pose is left and rejoined at rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The window's linear progress, the two ramps and the sine.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A count of zero or a fraction throws instead of giving a wave that ends away from the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the window through the clock's `linear` and the ramps through `minimumJerk`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function wave(
-    clock: IClock,
-    window: readonly [string, string],
-    cycles: number,
-    seconds: number,
-  ): number {
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A movement repeats a positive whole number of times");
-    const u: number = clock.linear(window[0], window[1], seconds);
-    const half: number = 1 / (2 * cycles);
-    const grown: number =
-      minimumJerk(Math.min(1, u / half)).s *
-      minimumJerk(Math.min(1, (1 - u) / half)).s;
-    return grown * Math.sin(2 * Math.PI * cycles * u);
-  }
+  /** The original clock-driven oscillation, owned by AutoMovieMotionWave.sample. */
+  export const wave: typeof AutoMovieMotionWave.sample = AutoMovieMotionWave.sample;
 
+  /** Fixed wave constants with every actual custom clock.linear callback preserved. */
+  export const prepareWave: typeof AutoMovieMotionWave.prepare = AutoMovieMotionWave.prepare;
   /**
    * A clock with each of its spans stretched by a factor of its own. A span
    * runs from one instant to the next in time order and is named by the
@@ -482,4 +468,11 @@ export namespace AutoMovieMotionClock {
     });
   }
 }
+
+/** Only Clock.of's original methods prove fixed native interval semantics. */
+type NativeClock = Pick<AutoMovieMotionClock.IClock, "at" | "linear" | "progress">;
+
+/** A native clock owns its method proof weakly; no numeric query history is stored. */
+const NATIVE: WeakMap<AutoMovieMotionClock.IClock, NativeClock> = new WeakMap();
+
 

@@ -6,6 +6,7 @@ import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import type { HumanColliders } from "../posture/HumanColliders";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import type { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
@@ -218,8 +219,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture, cached goal and exact endpoint second prove fit equivalence within this synchronous plan. A single-arm at(t).pose resolves exactly the removed-goal base reaching would rebuild; multiarm planners retain the original reaching path. Issued-source provenance may survive raw copies only for the resolver's exact dependency revalidation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This plan owns its existing raw/base/site maps across actual refinement instants and at most two endpoint angle records per arm. Only completed fits are published; failure releases local state, and no global result/time cache is added. Returned trajectories retain their existing solved-waypoint data.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture, cached goal and exact endpoint second prove fit equivalence within this synchronous plan. One operation-local exact FK getter serves actual removed-arm bases, endpoint fits and all original reach probes. A single-arm at(t).pose equals the removed-goal base reaching would rebuild; multiarm planners retain the original cold base requests. Issued provenance remains subject to exact dependency checks.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
   export function planned(
     body: IHumanBody,
@@ -227,6 +228,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     carries: readonly IPlanned[],
     before: (seconds: number) => IHumanPosture,
   ): Map<HumanHand.Side, HumanArmTrajectory.Trajectory> {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     // Each phrase is an interval cut into pieces, its own end left to the
     // next one; an empty interval (a hold that lasts to the end, a reach
     // that starts on its site) has no piece, and the last phrase closes on
@@ -258,7 +260,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
         read.get(t);
       if (found === undefined) {
         const posture: IHumanPosture = before(t);
-        found = { posture, pose: resolveHumanPosture(body, without(posture)) };
+        found = { posture, pose: resolveHumanPosture.seeded(body, without(posture),
+          undefined, undefined, resolution).pose };
         read.set(t, found);
       }
       return found;
@@ -282,9 +285,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
       if (found === undefined) {
         const p: IHumanPosture = at(t).posture;
         const c: IPlanned = carries[a]!;
-        found = AutoMovieMotionHumanArmAngles.angles(resolveHumanPosture(body,
+        found = AutoMovieMotionHumanArmAngles.angles(resolveHumanPosture.seeded(body,
           resolveHumanPosture.rebased(p, { ...p,
-            limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } })), c.side);
+            limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } }),
+          undefined, undefined, resolution).pose, c.side);
         fits[a]!.set(t, found);
       }
       return found;
@@ -296,8 +300,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
         const fit: AutoMovieMotionHumanArmAngles.IAngles = fitted(a, t);
         const rest: AutoMovieMotionHumanArmAngles.IAngles = sign === 1 ? c.rest : (c.back ?? c.rest);
         const duration: number = carries.length === 1
-          ? AutoMovieMotionHumanArmObservation.reachingPose(body, at(t).pose, c.side, rest, fit)
-          : reaching(body, p, c.side, rest, fit);
+          ? AutoMovieMotionHumanArmObservation.reachingPose(body, at(t).pose, c.side, rest, fit, resolution)
+          : reaching(body, p, c.side, rest, fit, resolution);
         longest = Math.max(longest, (duration * HumanArmTrajectoryModel.SPEED_LIMIT) / 1.875);
       });
       return longest;

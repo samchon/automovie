@@ -35,11 +35,17 @@ import { vclose } from "../internal/vclose";
  *    map or the fresh full bone map at that same instant.
  * 4. The body's real mass-bearing bone set returns the same current world
  *    frames as full display and cannot publish an incomplete full-pose cache.
+ * 5. During a real arm overlay, a head-only observation keeps the overlay's
+ *    conservative complete solve. A following full pose still contains the
+ *    literal10-degree arm write and the current lifted-foot task.
+ * 6. A real cut at0.4s inertializes for0.2s into a different lifted-foot
+ *    task. During the offset, partial-first full frames equal a separate
+ *    complete performance; after0.6s the target's literal demand holds.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States post-construction timing, partial versus complete pose ownership, canonical Human source, real mass-bearing demand, query order and the unchanged contact bound in four scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Uses only actual registered laws, context.performer.bones requested sets and public HumanPerformance pose/bones. It observes requested membership, full displayed foot contact after partial-first reads, reversed query order and nested returned-transform isolation.
- * @evidence contracts/development/testing.md#independent-expectations The law explicitly asks a foot to rise0.06 metres and move forward0.04 from its initial world point. A complete fit must meet that actual goal within the existing0.001 metre bound, so returning an omitted-leg partial solve as full fails. Ownership comparisons supplement this geometric oracle and do not supply target expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers partial-head before full at a fresh post-construction instant, full before partial, exact replay, returned partial-transform edits and the actual body mass-bone set beside complete display. Composer counters and physical overlay/cut acceptance retain separate owners.
+ * @evidence contracts/development/common.md#meaningful-documentation States post-construction timing, partial/full ownership, canonical Human, real mass demand, query order, active-overlay/cut fallback and the unchanged contact bound in six scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses actual registered laws, context.performer.bones and public HumanPerformance reads. It checks requested membership, foot contact after partial-first reads, mass-frame parity, reversed order, nested output isolation and the real overlay's literal arm write after a selected observation.
+ * @evidence contracts/development/testing.md#independent-expectations The law explicitly asks a foot to rise0.06 metres and move forward0.04 from its initial world point. A complete fit must meet that actual goal within the existing0.001 metre bound, so returning an omitted-leg partial solve as full fails. During an active inertial offset, a separate complete-only performance supplies cache-equivalence expectations at1e-9; free endpoints need not meet the raw target until that offset ends. The subsequent literal target is0.09m up and0.02m forward. Ownership/parity supplement those geometric demands.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers head-before-full at a fresh settled instant, full-before-head, exact replay, partial-output edits, real mass-bone observations, a real active arm overlay and observations during/after a declared inertialized cut. Composer counters and the larger physical cut acceptance matrix retain separate owners.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit uses the canonical Human fixture and actual public extension laws. The captured performer reader is invoked only inside the observer's posture at that same film second, as its supported contract requires; no internal module, test-only export, replacement or host is used.
  */
 export function test_motion_partial_observation_cache(): void {
@@ -62,7 +68,7 @@ export function test_motion_partial_observation_cache(): void {
     demand: ReadonlySet<AutoMovieHumanoidBone>;
   } = { demand: selected };
   const moving: IHumanActionLaw = {
-    name: "observedFreeLeg", interrupts: {},
+    name: "observedFreeLeg", interrupts: {}, yields: ["rightArm"],
     plan: (context: IHumanActionContext): IHumanActionPlan => ({
       duration: 1, events: [], contacts: [],
       posture: (): IHumanPosture => ({
@@ -136,6 +142,102 @@ export function test_motion_partial_observation_cache(): void {
         qclose(value.worldRotation, full.worldRotation, 1e-9);
     }),
   );
+
+  const armOverlay: IHumanActionLaw = {
+    name: "observedArmOverlay", interrupts: {}, overlay: true,
+    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+      duration: 1, events: [], contacts: [], channels: ["rightArm"],
+      posture: (): IHumanPosture => ({ ...context.entry.posture,
+        joints: { ...context.entry.posture.joints, rightUpperArm: [10, 0, 0] } }),
+    }),
+  };
+  observed.demand = selected;
+  const overlaid: HumanPerformance = new HumanPerformance({
+    seed: "partial-observation-overlay",
+    performers: performance.performers.map((performer: HumanPerformance["performers"][number]): HumanPerformance["performers"][number] => ({ ...performer })),
+    laws: [moving, observer, armOverlay],
+    composition: { kind: "parallel", parts: [
+      HumanChain.subject("A").registered("observedFreeLeg").over(
+        (upper: HumanChain): HumanChain => upper.registered("observedArmOverlay"),
+      ).node,
+      HumanChain.subject("B").registered("captureBoneReader").node,
+    ] },
+  });
+  const overlayTime: number = 0.512345;
+  overlaid.posture("B", overlayTime);
+  TestValidator.equals("active overlay observations keep only requested outputs",
+    Array.from(observed.partial!.keys()), ["head"],
+  );
+  const overlayPose: IAutoMoviePose = overlaid.pose("A", overlayTime);
+  const overlayFoot: IAutoMovieVector3 = overlaid.bones("A", overlayTime).get("leftFoot")!.worldPosition;
+  const arm: number | null | undefined = overlayPose.joints.find(
+    (value: IAutoMoviePose["joints"][number]): boolean => value.bone === "rightUpperArm",
+  )?.flexion;
+  TestValidator.predicate("partial reads never omit a necessary active overlay from the full cache",
+    arm !== null && arm !== undefined && nclose(arm, 10, 1e-7) &&
+    Math.hypot(overlayFoot.x - target.x, overlayFoot.y - target.y, overlayFoot.z - target.z) <= 0.001,
+  );
+
+  const cutTarget: IAutoMovieVector3 = { x: foot.x, y: foot.y + 0.09, z: foot.z + 0.02 };
+  const sourceLaw: IHumanActionLaw = {
+    ...moving, name: "observedCutSource",
+    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.2 }] },
+  };
+  const targetLaw: IHumanActionLaw = {
+    name: "observedCutTarget", interrupts: {},
+    plan: (context: IHumanActionContext): IHumanActionPlan => ({
+      duration: 1, events: [], contacts: [],
+      posture: (): IHumanPosture => ({
+        root: { ...context.entry.posture.root }, yaw: 0, pitch: 0, roll: 0,
+        joints: { head: [-10, 0, 0] },
+        limbs: { leftLeg: { point: { ...cutTarget },
+          bend: { x: knee.x, y: knee.y, z: knee.z + 0.3 } } },
+      }),
+    }),
+  };
+  const cut: HumanPerformance = new HumanPerformance({
+    seed: "partial-observation-cut",
+    performers: performance.performers.map((performer: HumanPerformance["performers"][number]): HumanPerformance["performers"][number] => ({ ...performer })),
+    laws: [sourceLaw, targetLaw, observer],
+    composition: { kind: "parallel", parts: [
+      HumanChain.subject("A").registered("observedCutSource").until({ share: 0.4 })
+        .registered("observedCutTarget").node,
+      HumanChain.subject("B").registered("captureBoneReader").node,
+    ] },
+  });
+  const fullCut: HumanPerformance = new HumanPerformance({
+    seed: "partial-observation-cut",
+    performers: [{ ...performance.performers[0]!, body: { ...body } }],
+    laws: [sourceLaw, targetLaw],
+    composition: HumanChain.subject("A").registered("observedCutSource").until({ share: 0.4 })
+      .registered("observedCutTarget").node,
+  });
+  TestValidator.predicate("the declared cut keeps its exact authored boundary",
+    nclose(cut.segments("A")[0]!.end, 0.4, 1e-12) &&
+    nclose(cut.segments("A")[1]!.start, 0.4, 1e-12),
+  );
+  for (const seconds of [0.47, 0.731234, 0.47]) {
+    const whole: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = fullCut.bones("A", seconds);
+    cut.posture("B", seconds);
+    TestValidator.equals("cut observations expose only the requested head", Array.from(observed.partial!.keys()), ["head"]);
+    const raw: IHumanPosture = cut.posture("A", seconds);
+    const frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = cut.bones("A", seconds);
+    const point: IAutoMovieVector3 = frames.get("leftFoot")!.worldPosition;
+    const wanted: IAutoMovieVector3 = raw.limbs.leftLeg!.point;
+    TestValidator.predicate("selected observation preserves every actual full transition frame",
+      frames.size === whole.size && Array.from(whole).every(
+        ([name, expected]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean => {
+          const actual: IAutoMovieResolvedBone | undefined = frames.get(name);
+          return actual !== undefined && vclose(actual.worldPosition, expected.worldPosition, 1e-9) &&
+            qclose(actual.worldRotation, expected.worldRotation, 1e-9);
+        }),
+    );
+    if (seconds > 0.6)
+      TestValidator.predicate("completed inertialization exposes the target law's literal current demand",
+        vclose(wanted, cutTarget, 1e-12) && nclose(raw.joints.head![0], -10, 1e-9) &&
+        Math.hypot(point.x - cutTarget.x, point.y - cutTarget.y, point.z - cutTarget.z) <= 0.001,
+      );
+  }
 
   /** Invoke the cross-performer observation only from its owning public posture. */
   function partialAt(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {

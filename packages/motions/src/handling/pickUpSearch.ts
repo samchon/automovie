@@ -158,8 +158,8 @@ export namespace pickUpSearch {
       if (lift > 0)
         yield {
           posture: held,
-          // Lifted, the hand keeps the rotation it shows at the grasp, as
-          // the lift holds it (`HumanHandAttitude`).
+          // Lifted, the complete position/rotation goal asks the hand to
+          // keep the rotation it shows at the grasp, as the plan does.
           wrist: {
             point: { ...wrist.point, y: wrist.point.y + lift },
             rotation: shown.rotation,

@@ -196,7 +196,7 @@ export namespace guard {
     const foot = (side: "left" | "right", t: number): HumanFoot.IPlacement => {
       if (!moving[side]) return from[side];
       const [a, b] = window[side];
-      const s: number = minimumJerk((t - a) / (b - a)).s;
+      const s: number = minimumJerk.share((t - a) / (b - a));
       const ankle: IAutoMovieVector3 = Vector3.lerp(
         from[side].ankle,
         to[side].ankle,
@@ -242,9 +242,9 @@ export namespace guard {
     return {
       contacts,
       posture: (t: number): IHumanPosture => {
-        const s: number = minimumJerk(t / SET).s;
+        const s: number = minimumJerk.share(t / SET);
         const fade: number =
-          s * (1 - minimumJerk((t - (duration - 0.2)) / 0.2).s);
+          s * (1 - minimumJerk.share((t - (duration - 0.2)) / 0.2));
         const hop: number =
           bounce *
           fade *

@@ -136,7 +136,7 @@ export namespace StrikingStroke {
       begin = d.via.end - d.via.overlap;
     }
     const u: number = impactShare(d.speed);
-    const s: number = minimumJerk(u).s;
+    const s: number = minimumJerk.share(u);
     let span: number = d.contact - begin;
     if (!(span > 0))
       throw new Error("A strike's delivery ends after it begins");
@@ -312,7 +312,7 @@ export namespace StrikingStroke {
    * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units for the paths, a recoil through the optional re-chamber on two overlapping units (Flash and Hogan's via-point fit), and a causal scan for the stop when none is resolved.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The recoil, the free path and the stop as closures, composed into the shown path.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a nested read during a scan sees the free path, as documented in its comment.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units per evaluation; the scan's samples are spent once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the original ordered units per evaluation; every original duration/normalized-time admission remains, including inactive units. Actual path readers request position only, omitting unused derivative polynomials and velocity/acceleration/state records; the unchanged scan spends its samples once and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second are memoised so every evaluation order gives the same stop.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and the scan state, released with the stroke.
    */
@@ -366,7 +366,7 @@ export namespace StrikingStroke {
         );
         units.push(...recoil(settled, input.contact));
       }
-      return superposeMinimumJerk(input.origin, units, seconds).position;
+      return superposeMinimumJerk.position(input.origin, units, seconds);
     };
 
     // The scan advances on a fixed grid and remembers how far it has found no
@@ -447,8 +447,7 @@ export namespace StrikingStroke {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
         const met: IAutoMovieVector3 = free(at);
-        return superposeMinimumJerk(met, recoil(met, at + DWELL), seconds)
-          .position;
+        return superposeMinimumJerk.position(met, recoil(met, at + DWELL), seconds);
       },
     };
   }

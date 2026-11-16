@@ -24,16 +24,17 @@ import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
  * as the bearing feet reach, and is integrated in closed form; the spans
  * are kept as phases the courses read.
  *
+ * Entry preparation owns the unchanged centre, heading and sole facts. This
+ * instance owns the actual state and phases; private source-footprint and
+ * integration helpers serve the public support and advance operations.
+ * Exact footprint snapshots retain at most one outline per side, alongside
+ * the actual phases and steps, until reset or release. Prefix snapshots
+ * remain owned by the same complete body/entry/push/speed search.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the model, its state, its frame and what reads it.
  * @evidence contracts/development/design.md#principled-representation One pendulum's state with the geometry of the entry it starts from, so a recovery's steps share it rather than closing over loose variables.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The state, its spans and its readings, as `staggerStep`, `staggerClose` and `staggerRecover` read them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every quantity is the body's own: its feet, its centre of mass and its pendulum's frequency.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the original Hof held-pressure cosh/sinh pendulum, xi=s+v/omega, measured-bound stepping and midpoint minimum-jerk weight transfer; support projection and capture retain actual placed foot outlines and original containment decisions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Explicit entry preparation owns unchanged mass/heading/sole facts, this class owns current state and actual phase integration, and staggerPendulumCourses owns readings of the retained original phases. Private update and footprint methods serve these same public operations.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every transfer interval, pressure sample, hyperbolic/vector grouping, capture test and measured ellipse bound; reused footprints require Object.is agreement on all seven placement scalars, with no rounded key or substituted dynamics.
- * @evidence contracts/development/implementation.md#efficient-algorithms Entry support/sole facts are prepared once per unchanged-entry operation; hull/projection reads cost O(V log V) for V sole points, and transfer keeps O(C) original intervals while computing their identical cosh/sinh factors once. Snapshot/restore copy O(P+S) phase/step wrappers.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit borrowed geometry belongs to the same fixed body and complete entry; two local footprint slots retain exact copied placement prerequisites, equal-duration transfer factors share the same frequency, and prefix snapshots belong to the same push/speed search context.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search-owned instance retains at most two O(V) footprint records and its actual P phases/S steps, growing only with physical advances/steps until reset or release. Issued snapshots may retain their old arrays until the owning prefix search ends; no global result history or external handle exists.
  */
 export class StaggerPendulum {
   /** The body. */
@@ -195,8 +196,8 @@ export class StaggerPendulum {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct state assignments replace the original step and phase arrays.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the exact original initial values and does not retain a previous order's dynamics.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant reset work independent of the previous phase count.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry anatomy remains shared; exact outline checks independently validate subsequent foot placements.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Replaces this instance's phase/step ownership; already issued snapshots keep their original arrays and footprint storage stays bounded at two records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry centre/heading/sole facts prepared at construction remain shared. Explicit borrowed preparation must belong to the same unchanged body and complete entry; exact outline checks independently validate subsequent foot placements.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Replaces this search-owned instance's phase/step arrays; already issued snapshots retain their original arrays only until the prefix search ends, and footprint storage stays bounded at two records with no global result history or external handle.
    */
   public reset(): void {
     this.feet = { ...this.entered };
@@ -268,7 +269,7 @@ export class StaggerPendulum {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Exact per-foot outline readings precede one shared hull owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every selected sole point and original hull computation without a support margin or simplified shape.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(v log v) hull work for v selected sole points; unchanged placement scalars avoid rebuilding their rigid geometry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each outline reuse requires exact ankle/quaternion scalar agreement under this instance's fixed body and entry centre.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each outline reuse requires Object.is agreement on all seven ankle/quaternion scalars against the side's copied snapshot under this instance's fixed body and entry centre; no rounded key, support result or dynamic state is reused.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh hull array borrowing prepared points; at most one bounded outline record per side is retained by the instance.
    */
   public bearing(sides: readonly ("left" | "right")[]): IAutoMovieVector3[] {
@@ -352,7 +353,7 @@ export class StaggerPendulum {
     const sh: number = Math.sinh(this.w * interval);
     for (let i: number = 0; i < count; i++)
       this.advanceAt(
-        Vector3.lerp(p0, p1, minimumJerk((i + 0.5) / count).s),
+        Vector3.lerp(p0, p1, minimumJerk.share((i + 0.5) / count)),
         interval,
         ch,
         sh,

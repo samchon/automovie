@@ -174,8 +174,8 @@ export namespace HumanBreath {
     const f: number = cycles - cycle;
     const shape: number =
       f < INSPIRATION
-        ? minimumJerk(f / INSPIRATION).s
-        : 1 - minimumJerk((f - INSPIRATION) / (1 - INSPIRATION)).s;
+        ? minimumJerk.share(f / INSPIRATION)
+        : 1 - minimumJerk.share((f - INSPIRATION) / (1 - INSPIRATION));
     const period: number = 60 / perMinute;
     const sighs: boolean =
       sigh.float(Math.max(0, cycle)) < period / SIGH_INTERVAL;

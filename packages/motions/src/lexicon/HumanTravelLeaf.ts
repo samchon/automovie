@@ -141,7 +141,7 @@ export namespace HumanTravelLeaf {
         );
 
       // The handle at a film second: the moving point the door knows, or its rest point carried by the door's frame; its axis is its rest frame's +X carried by the door's frame.
-      const handle = (
+      const handle: (film: number) => Parameters<typeof HumanMountRider.hold>[3] = (
         film: number,
       ): Parameters<typeof HumanMountRider.hold>[3] => {
         const frame: IHumanProp.IFrame = door.frame(film);
@@ -196,7 +196,7 @@ export namespace HumanTravelLeaf {
         Vector3.dot(Vector3.cross(taken.axis, taken.normal), facing) < 0
           ? -1
           : 1;
-      const grip = (
+      const grip: (film: number) => Parameters<typeof HumanMountRider.hold>[3] = (
         film: number,
       ): Parameters<typeof HumanMountRider.hold>[3] => ({
         ...handle(film),
@@ -261,7 +261,7 @@ export namespace HumanTravelLeaf {
       const base: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
         lowered === null
           ? standing.posture(t)
-          : lowered.at(minimumJerk(Math.min(1, t / TAKE)).s);
+          : lowered.at(minimumJerk.share(Math.min(1, t / TAKE)));
 
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
@@ -321,7 +321,7 @@ export namespace HumanTravelLeaf {
         );
         return lowered === null
           ? walking
-          : lowered.lower(walking, minimumJerk(Math.min(1, t / TAKE)).s);
+          : lowered.lower(walking, minimumJerk.share(Math.min(1, t / TAKE)));
       };
 
       // A swing the walk cannot follow is refused with the largest followed.
@@ -410,7 +410,7 @@ export namespace HumanTravelLeaf {
               side,
               posture,
               grip(context.start + at),
-              minimumJerk(Math.min(1, at / TAKE)).s,
+              minimumJerk.share(Math.min(1, at / TAKE)),
               closed,
             );
           return {

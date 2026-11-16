@@ -23,6 +23,7 @@ import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
+import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
 /**
@@ -219,14 +220,15 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The lying height, the take-off, the flight posture, the touchdown, the landing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and the original touchdown bisection stations remain. Each flight query resolves one canonical bone map for COM and, only when touchdown needs it, collider floor bounds; no second floor FK is required. Playback does not evaluate unused collision bounds; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses take-off, flight, mat and lying-posture owners; two fixed key pairs prepare their ordered blend unions once. Each actual dynamic shape shares its own canonical map between COM placement and floor bounds, with no memoization across distinct times/articulations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its take-off, body mass model and two fixed key-pair readers. Each query releases its frame, bone map and optional floor reader at return or throw; no prepared frame or previous-query state enters the plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses take-off, flight, mat and lying-posture owners; two fixed key pairs prepare their ordered blend unions once. Each actual dynamic shape shares its own canonical map between COM placement and floor bounds, with no memoization across times/articulations. Its raw callback explicitly forwards a synchronous parent's FK source through take-off, dynamic flight and landing consumers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its take-off, body mass model and two fixed key-pair readers. Each query releases its frame, bone map and optional floor reader at return or throw; a borrowed FK source remains owned by its synchronous caller, never entering the plan or previous-query state.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const model: GymnasticsFlight.Model = GymnasticsFlight.model(body);
+    const prepareFrame: ReturnType<typeof prepareGymnasticsFrame> = prepareGymnasticsFrame(body, model);
     const p: IParams = context.params;
     const surface: number = p.to.y;
     const bar: number = crossbar(context, p.bar);
@@ -339,15 +341,13 @@ export namespace highJump {
     const pike: ExerciseKey.IKey = piked(body);
     const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(start, arch);
     const piking: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(arch, pike);
-    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => ReturnType<typeof prepareGymnasticsFrame> =
-      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): ReturnType<typeof prepareGymnasticsFrame> => {
+    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IPreparedGymnasticsFrame =
+      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IPreparedGymnasticsFrame => {
       const key: ExerciseKey.IKey =
         t <= rising
           ? arching(ease(t / rising))
           : piking(ease((t - rising) / rising));
-      return prepareGymnasticsFrame(
-        body,
-        model,
+      return prepareFrame(
         {
           ...from,
           joints: key.joints,
@@ -358,13 +358,13 @@ export namespace highJump {
         resolution,
       );
     };
-    const flying: (t: number) => IHumanPosture = (t: number): IHumanPosture => frameAt(t).posture;
+    const flying: (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IHumanPosture = (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => frameAt(t, resolution).posture;
 
     // The touchdown: the lowest shape meets the surface on the way down.
     const down: number = ((): number => {
       const floorResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const lowest: (t: number) => number = (t: number): number => {
-        const frame: ReturnType<typeof prepareGymnasticsFrame> = frameAt(t, floorResolution);
+        const frame: IPreparedGymnasticsFrame = frameAt(t, floorResolution);
         return frame.posture.root.y - frame.floor();
       };
       if (!(lowest(rising) > surface))
@@ -378,7 +378,7 @@ export namespace highJump {
       const fallen: number = GymnasticsFlight.fall(c0.y, v.y, surface)!;
       return GymnasticsFlight.touchdown(rising, fallen, lowest, surface);
     })();
-    const landing: (seconds: number) => IHumanPosture = GymnasticsMat.lie({
+    const landing: ReturnType<typeof GymnasticsMat.lie> = GymnasticsMat.lie({
       body,
       model,
       from: flying(down),
@@ -420,11 +420,11 @@ export namespace highJump {
       contacts,
       contact: off + rising,
       base: { kind: "lying" },
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= off) return takeoff.plan.posture(t);
-        if (t < touchdown) return flying(t - off);
-        return landing(t - touchdown);
+        if (t <= off) return takeoff.plan.posture(t, channels, resolution);
+        if (t < touchdown) return flying(t - off, resolution);
+        return landing(t - touchdown, resolution);
       },
     };
   }

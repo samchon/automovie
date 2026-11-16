@@ -254,7 +254,7 @@ export namespace rise {
     // further back.
     const flex: number = 0.5 * rising;
     const pitchAt = (t: number, peak: number): number =>
-      pitch0 + (peak - pitch0) * minimumJerk(t / flex).s;
+      pitch0 + (peak - pitch0) * minimumJerk.share(t / flex);
     const level: IAutoMovieVector3 = seated.root(body, begin, {
       yaw,
       pitch: 0,
@@ -409,7 +409,7 @@ export namespace rise {
         if (t < prepared) {
           const socket: IAutoMovieVector3 =
             edging > 0
-              ? Vector3.lerp(start, begin, minimumJerk(t / edging).s)
+              ? Vector3.lerp(start, begin, minimumJerk.share(t / edging))
               : begin;
           const root: IAutoMovieVector3 = seated.root(body, socket, {
             yaw,
@@ -432,12 +432,12 @@ export namespace rise {
           );
         }
         const u: number = t - prepared;
-        const forward: number = minimumJerk(
+        const forward: number = minimumJerk.share(
           (u - away) / (0.85 * rising - away),
-        ).s;
-        const up: number = minimumJerk(
+        );
+        const up: number = minimumJerk.share(
           (u - away - 0.03 * rising) / (0.82 * rising - away),
-        ).s;
+        );
         const socket: IAutoMovieVector3 = {
           x: begin.x + (goal.x - begin.x) * forward,
           y: begin.y + (goal.y - begin.y) * up,
@@ -446,7 +446,7 @@ export namespace rise {
         const pitch: number =
           u < flex
             ? pitchAt(u, peak)
-            : peak * (1 - minimumJerk((u - flex) / (rising - flex)).s);
+            : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
         const tilt = HumanTrunk.incline(
           joints,
           pitch,
@@ -475,7 +475,7 @@ export namespace rise {
           posture,
           rests,
           yaw,
-          1 - minimumJerk((u - away) / (0.3 * rising)).s,
+          1 - minimumJerk.share((u - away) / (0.3 * rising)),
         );
       },
     };

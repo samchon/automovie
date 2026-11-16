@@ -151,9 +151,6 @@ export namespace crawlDown {
         ),
       };
     }
-    const feet: (side: "left" | "right") => kneelKeys.IFoot = (
-      side: "left" | "right",
-    ): kneelKeys.IFoot => tucked[side];
     const holding: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
@@ -198,8 +195,8 @@ export namespace crawlDown {
           ankle: goal.point,
           rotation: goal.rotation ?? HumanFrame.turn(S.yaw),
         },
-        feet(side).heading,
-        -feet(side).pitch,
+        tucked[side].heading,
+        -tucked[side].pitch,
       );
     };
     const rollers: Record<
@@ -212,7 +209,7 @@ export namespace crawlDown {
     ): ReturnType<ReturnType<typeof crawlFeet.prepareRoll>> =>
       rollers[side](share);
     const short = (side: "left" | "right"): IAutoMovieVector3 =>
-      Vector3.subtract(feet(side).at, roll(side, 1).mtp);
+      Vector3.subtract(tucked[side].at, roll(side, 1).mtp);
     const shorts = { left: short("left"), right: short("right") };
 
     const armed = (
@@ -221,6 +218,14 @@ export namespace crawlDown {
       share: number,
     ): IHumanPosture =>
       crawlFrame.armed(body, posture, holding, toward ?? holding, share);
+
+    /** Both palm goals are overwritten here; keep their original flat fingers. */
+    const heldKneeling = (
+      base: IHumanPosture,
+      back: number,
+      lean: number,
+    ): IHumanPosture =>
+      crawlFrame.flatHands(props.kneeling(base, back, lean, false));
 
     // The way down's states, solved once.
     interface IStates {
@@ -246,9 +251,9 @@ export namespace crawlDown {
             body,
             side,
             "mtp",
-            feet(side).at,
-            feet(side).heading,
-            feet(side).pitch,
+            tucked[side].at,
+            tucked[side].heading,
+            tucked[side].pitch,
           ).ankle,
       );
       const flexion = (back: number): number =>
@@ -283,11 +288,10 @@ export namespace crawlDown {
       );
       const shoulders = (posture: IHumanPosture): IAutoMovieVector3 =>
         shouldersOf({ ...posture, limbs: {} });
-      const reach: number = Vector3.length(
-        Vector3.subtract(shoulders(crawling), wrist),
-      );
+      const shoulder: IAutoMovieVector3 = shoulders(crawling);
+      const reach: number = Vector3.length(Vector3.subtract(shoulder, wrist));
       const trunk: number = Vector3.length(
-        Vector3.subtract(shoulders(crawling), hipsOf(crawling)),
+        Vector3.subtract(shoulder, hipsOf(crawling)),
       );
       const leanAt = (back: number): number => {
         const short = (degrees: number): number =>
@@ -348,15 +352,15 @@ export namespace crawlDown {
         sitting,
         HumanBalance.shift(
           body,
-          (back: number): IHumanPosture => armed(at(back, 0), null, 0),
+          (back: number): IHumanPosture =>
+            armed(heldKneeling(base, back, 0), null, 0),
           sitting / m.hipHeight,
         ),
       );
 
       // Leaning to the hands, the centre of mass behind the knees.
       const error = (back: number): number =>
-        along(HumanBalance.support(body, at(back, leanAt(back))).centre) -
-        along(knee);
+        along(HumanBalance.centre(body, at(back, leanAt(back)))) - along(knee);
       const leaning: number = Math.min(sitting, furthest(leanAt));
       const leantBack: number =
         error(0) <= 0
@@ -371,7 +375,12 @@ export namespace crawlDown {
       // The time shared by how far the limbs' joints travel.
       const ends: number[] = crawlDownTiming(
         body,
-        [armed(S, null, 0), armed(at(satBack, 0), null, 0), leant, crawling],
+        [
+          armed(S, null, 0),
+          armed(heldKneeling(base, satBack, 0), null, 0),
+          leant,
+          crawling,
+        ],
         props.sit,
       );
       return {
@@ -440,9 +449,9 @@ export namespace crawlDown {
       );
       if (seconds >= s.ends[s.ends.length - 1]!)
         return props.kneeling(base, 0, 1);
-      const u: number = minimumJerk(
+      const u: number = minimumJerk.share(
         (seconds - s.ends[k - 1]!) / (s.ends[k]! - s.ends[k - 1]!),
-      ).s;
+      );
       const lerp = (a: number, b: number): number => a + (b - a) * u;
       // Onto the hands: the hips forward over the knees.
       if (k === s.ends.length - 1)
@@ -451,15 +460,15 @@ export namespace crawlDown {
       // the palms, over the whole way to them; the body sits onto the knees
       // from standing, then leans from them.
       const landing: number = s.ends[s.ends.length - 2]!;
-      const reach: number = minimumJerk(seconds / landing).s;
+      const reach: number = minimumJerk.share(seconds / landing);
       if (k === 1)
         return armed(
-          fromStanding(base, props.kneeling(base, s.back.sat, 0), u),
+          fromStanding(base, heldKneeling(base, s.back.sat, 0), u),
           s.angles,
           reach,
         );
       return armed(
-        props.kneeling(base, lerp(s.back.sat, s.back.leant), lerp(0, s.lean)),
+        heldKneeling(base, lerp(s.back.sat, s.back.leant), lerp(0, s.lean)),
         s.angles,
         reach,
       );

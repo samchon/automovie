@@ -9,6 +9,7 @@ import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
 import type { HumanColliders } from "../posture/HumanColliders";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { poseBones } from "../posture/poseBones";
@@ -64,8 +65,8 @@ export namespace AutoMovieMotionHumanBendChain {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's chain preparation on a pose whose root carries the posture's heading, and the trunk's colliders resolved on that pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose, one preparation, one record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the chain is null, never a guessed chain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's merged raw-axis snapshot instead of scanning skeleton axes. Prepared chain FK demands three chain bones/ancestry, then the subsequent bone map shares exact completed rows through one operation reader; collider selection remains unchanged and runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's genuine immutable FK producer supplies both chain preparation and the canonical poseBones map under the same operation reader. HumanArmClearance.trunk keeps its original collider selection, and all outputs remain fresh.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's merged raw-axis snapshot. Chain FK demands three chain bones/ancestry; the subsequent trunk map requests only the six actual axial obstacle names and shares completed rows through the same reader, without copying unrelated limb/digit frames. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's genuine immutable FK producer supplies chain and trunk reads under one operation reader. The shared HumanArmObstacleBones.TRUNK owner supplies exactly HumanArmClearance.trunk's original membership, while placement preserves profile order and fresh output.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader is released at synchronous return or throw; the fresh chain record retains only its original prepared geometry and colliders, without any reader or time-keyed pose result.
    */
   export function of(
@@ -107,7 +108,7 @@ export namespace AutoMovieMotionHumanBendChain {
       axes,
       shapes: HumanArmClearance.trunk(
         body,
-        poseBones(body, pose, resolution()),
+        poseBones(body, pose, resolution(), HumanArmObstacleBones.TRUNK),
       ),
     };
   }

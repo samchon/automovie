@@ -115,7 +115,7 @@ export namespace punchContact {
     /** The online tracker of the target. */
     tracker: StrikingAim.ITracker;
 
-    /** The bones of the displayed entry pose. */
+    /** The displayed entry's six arm-joint outputs, sufficient for the launch wrist/elbow and both complete arm sweeps. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** The lead foot's step along the line, metres. */
@@ -231,7 +231,7 @@ export namespace punchContact {
         ...entry.joints,
         ...StrikingTwist.trunk(entry.joints, 0.3 * turn),
       },
-    }).get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
+    }, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const dip: number = Math.min(
       0.15 * m.hipHeight,
       Math.max(
@@ -311,7 +311,7 @@ export namespace punchContact {
 
     // The arms at the launch, read from the displayed entry pose.
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand"]));
 
     // The punch returns to the guard where the step ends, so the step never
     // closes past the room in front of the arms ({@link StrikingRoom}). A

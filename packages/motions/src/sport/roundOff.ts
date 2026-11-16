@@ -143,7 +143,7 @@ export namespace roundOff {
     const standing: IHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ease: (x: number) => number = (x: number): number => minimumJerk(x).s;
+    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
     const wheeled: ExerciseKey.IKey = cartwheel.wheel(body);
     const entering: ReturnType<typeof ExerciseKey.prepareBlend> =
       ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheeled);

@@ -260,6 +260,26 @@ export namespace crawl {
       { left: nominal.leftKnee, right: nominal.rightKnee },
       stride * landed,
     );
+
+    // Only the contact point changes as each tucked foot follows its knee.
+    const placing = (
+      side: "left" | "right",
+    ): ReturnType<typeof HumanFoot.prepareAt> =>
+      HumanFoot.prepareAt(
+        body,
+        side,
+        "mtp",
+        tucks[side].foot.heading,
+        tucks[side].foot.pitch,
+      );
+    const placements: Record<"left" | "right", ReturnType<typeof placing>> = {
+      left: placing("left"),
+      right: placing("right"),
+    };
+    const footContacts: Record<"left" | "right", IAutoMovieVector3> = {
+      left: HumanFoot.offset(body, "left", "mtp"),
+      right: HumanFoot.offset(body, "right", "mtp"),
+    };
     const print = (limb: Limb, j: number): IAutoMovieVector3 =>
       HumanFrame.point(
         frame,
@@ -285,11 +305,15 @@ export namespace crawl {
       lean: number,
       palms: boolean = true,
     ): IHumanPosture => {
+      const knees: Record<"left" | "right", IAutoMovieVector3> = {
+        left: at("leftKnee"),
+        right: at("rightKnee"),
+      };
       const hips = crawlFrame.over(
         m.thigh,
         HumanFrame.point(frame, { x: 0, y: 0, z: level - back }),
         forward,
-        { left: at("leftKnee"), right: at("rightKnee") },
+        knees,
         { left: nominal.leftKnee.z, right: nominal.rightKnee.z },
         separation,
         lean * pitch,
@@ -302,21 +326,16 @@ export namespace crawl {
         joints: { ...posture.joints, ...target.joints },
       };
       for (const side of sides) {
-        const kneeAt: IAutoMovieVector3 = at(`${side}Knee`);
+        const kneeAt: IAutoMovieVector3 = knees[side];
         const foot: kneelKeys.IFoot = tucks[side].foot;
-        const placement: HumanFoot.IPlacement = HumanFoot.pivot(
-          body,
-          side,
-          "mtp",
+        const placement: HumanFoot.IPlacement = placements[side](
           Vector3.add(kneeAt, tucks[side].offset),
-          foot.heading,
-          foot.pitch,
         );
         legged.limbs[`${side}Leg`] = {
           point: placement.ankle,
           rotation: placement.rotation,
           bend: kneeAt,
-          contact: HumanFoot.offset(body, side, "mtp"),
+          contact: { ...footContacts[side] },
         };
         legged.joints[`${side}Toes`] = [foot.toes, 0, 0];
       }

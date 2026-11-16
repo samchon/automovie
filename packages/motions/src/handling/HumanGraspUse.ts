@@ -192,9 +192,9 @@ export namespace HumanGraspUse {
    * @evidence contracts/development/implementation.md#principled-implementation Prop contacts and entry geometry are invariant across a grasp search; only the candidate's rigid hand offset and fitted roll change.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The preparation owner reads fixed geometry once; the key builder owns wrist-specific placement and the original roll search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted result is shared across candidate wrists and every roll keeps the original fit and judgement.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry, entry FK and canonical root/direct-joint clamp are prepared once for C candidates; each candidate retains the original full coupled roll fits and only the observed hand is read back.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry, entry FK, per-hand demand fallback/socket and canonical root/direct-joint clamp are prepared once for C candidates; each candidate retains original full coupled roll fits and demanded hand readback. Surface-only tip offset is calculated only when that branch consumes it.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The closure shares only its fixed body, entry pose/posture, prop at start, handle, side and use; each roll still turns/fits all actual limb goals and changed input requires a new builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns fixed geometry and one O(B) canonical base until its synchronous search releases them; each candidate clears its roll scores, exact FK reader, base reference and clearance callback before returning its key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns fixed geometry, one O(B) canonical base and at most two per-hand/one last-tool geometry records until its synchronous search releases them; each candidate clears roll scores, exact FK reader, base reference and clearance callback before its key escapes. Demand judges are built outside preparation contexts.
    */
   export function prepare(
     props: HumanGraspUsePreparation.IInput,
@@ -204,10 +204,12 @@ export namespace HumanGraspUse {
   ) => HumanGrasp.IKey {
     const prepared: HumanGraspUsePreparation.IPrepared =
       HumanGraspUsePreparation.of(props);
+    const demanded: ReturnType<typeof HumanGraspDemand.prepareKey> | undefined = prepared.kind === "presented"
+      ? HumanGraspDemand.prepareKey(props.context.body, props.context.entry.posture) : undefined;
     return (
       wrist: HumanHand.IWrist,
       clear?: (wrist: HumanHand.IWrist) => number,
-    ): HumanGrasp.IKey => presentedKey(props, prepared, wrist, clear);
+    ): HumanGrasp.IKey => presentedKey(props, prepared, wrist, clear, demanded);
   }
 
   /** Fit one candidate's use from geometry shared by its grasp search. */
@@ -216,6 +218,7 @@ export namespace HumanGraspUse {
     prepared: HumanGraspUsePreparation.IPrepared,
     wrist: HumanHand.IWrist,
     clear?: (wrist: HumanHand.IWrist) => number,
+    demanded?: ReturnType<typeof HumanGraspDemand.prepareKey>,
   ): HumanGrasp.IKey {
     const context: HumanGraspUsePreparation.IInput["context"] = props.context;
     const side: HumanHand.Side = props.side;
@@ -226,7 +229,7 @@ export namespace HumanGraspUse {
         tip: prepared.tip,
         at: prepared.at,
         site: prepared.site,
-        prepared: { world: prepared.world, worn: prepared.worn, base: prepared.base },
+        prepared: { world: prepared.world, tipWorld: prepared.tipWorld, worn: prepared.worn, base: prepared.base },
         side: props.side,
         wrist,
         ...(props.use.round === undefined ? {} : { round: props.use.round }),
@@ -234,10 +237,6 @@ export namespace HumanGraspUse {
       });
     const { held, world, site, asked, ahead, socket, tipWorld, hang }: typeof prepared = prepared;
     const laid: IAutoMovieQuaternion = Quaternion.multiply(prepared.turn, wrist.rotation);
-    const inHand: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(wrist.rotation),
-      Vector3.subtract(tipWorld, wrist.point),
-    );
     const tool: StrikingHeld.ITool | undefined =
       props.use.line === "along"
         ? undefined
@@ -254,9 +253,9 @@ export namespace HumanGraspUse {
           );
     const back: number =
       tool === undefined || site !== undefined ? 0 : Vector3.length(tool.tip);
-    const offset: IAutoMovieVector3 = tool === undefined ? inHand : Vector3.add(
-      socket, Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back)),
-    );
+    const offset: IAutoMovieVector3 = tool === undefined
+      ? Quaternion.rotateVector(Quaternion.inverse(wrist.rotation), Vector3.subtract(tipWorld, wrist.point))
+      : Vector3.add(socket, Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back)));
 
     // The roll about the asked line, or the turn about the surface's normal,
     // is free in a use that names only that much: the shared chooser takes
@@ -286,8 +285,7 @@ export namespace HumanGraspUse {
     const key: (roll: number) => HumanGrasp.IKey = (roll: number): HumanGrasp.IKey => {
       const wrist: HumanHand.IWrist = keyed(roll);
       if (tool !== undefined)
-        return HumanGraspDemand.key(context.body, {
-          posture: context.entry.posture,
+        return demanded!({
           tool,
           frame: {
             point: Vector3.add(
@@ -311,7 +309,7 @@ export namespace HumanGraspUse {
             Vector3.subtract(
               Vector3.add(
                 hand.worldPosition,
-                Quaternion.rotateVector(hand.worldRotation, inHand),
+                Quaternion.rotateVector(hand.worldRotation, offset),
               ),
               site!,
             ),

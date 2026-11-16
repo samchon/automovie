@@ -18,7 +18,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 
 /**
- * Snapshot the live scalar prerequisites of one actual cold free-leg source
+ * Snapshot the live scalar prerequisites of one actual cold free-leg or joint-only source
  * and check them directly before lending its solution. No transform, pose,
  * projection or fitted result is stored here. Unsupported snapshot inputs
  * decline preparation, and changed/malformed live inputs decline reuse.

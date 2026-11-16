@@ -14,6 +14,7 @@ import {
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
+import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAttachJob } from "./IAttachJob";
@@ -48,6 +49,9 @@ interface ICoupleContext {
     node: string,
   ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
 
+  /** Optional genuine static-rig producer supplied after the owning shot's admission. */
+  prepareRig?: typeof prepareSkeletonPoseResolution;
+
   /** The shot's length in seconds. */
   duration: number;
 
@@ -72,11 +76,11 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
  * Returns the baked clips in bake order, parents before riders, with a child's attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the handoff events; and the violations.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Builds the child-to-parent coupling graph, orders it by a depth-first post-order so every parent bakes before its riders, and reports a back edge as a cycle; a chained parent's frame is sampled by the same per-channel latest-start authority as playback, which keeps a rider attached to the parent the viewer draws, including before a late coupling and across a handoff.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the shot's coupling order, cycle refusal, mount validation and id uniqueness, and delegates each bake to `compileAttach` and each event set to `handoffEvents`; it lives apart from `performShot` because this is the region that function kept growing.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns coupling order, cycle refusal, mount validation and id uniqueness, delegating bakes/events to compileAttach/handoffEvents. One private adapter lends a genuine immutable rig only when the admitted caller explicitly supplies its producer, keeping raw default behavior and existing lookup sites.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No node, bone or clip id is special-cased; chain selection reads what a clip carries and when it starts rather than its id suffix, and a cycle or rig-less mount is refused instead of baked frozen.
- * @evidence contracts/development/common.md#meaningful-documentation States both coupling sources and their precedence, which source emits events, where mounts are validated, how a chained parent's frame is read including before and between its couplings, the cycle rule, and the order and ids of what it returns.
- * @evidence contracts/development/implementation.md#efficient-algorithms Graph build, topological ordering and grouping visit coupling edges and scene nodes linearly, plus emitted cycle descriptions; each child's J attachment jobs are then sorted by start, adding the sum of O(J log J) costs. One mutable active path and an index map avoid copying ancestor chains. Each bake costs O(S · B) over S samples and B rig bones, plus chained-parent clip sampling per rider sample; recursion needs one call frame per coupling depth.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
+ * @evidence contracts/development/common.md#meaningful-documentation States coupling precedence/events, mount admission, chained-parent sampling, cycle refusal, bake order/ids and the optional actual static-rig producer versus raw-default boundary.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Graph/order/grouping are linear in nodes/edges; per-child job sorting adds summed O(J log J). Each bake retains S actual motion samples: raw FK spans B bones, while an explicit parent snapshot pays static preparation once and computes only attachment ancestry per sample with ordered pose admission. Chained-parent sampling and recursion remain unchanged; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Parent baked clips remain shared by riders. Existing skeleton/axis/frame lookups still run at their original per-job sites; an explicit producer snapshots those actual fixed values only for that synchronous bake, and no callback answer, pose, time sample or target result is cached across jobs or calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
 export function coupleObjects(props: {
@@ -104,6 +108,9 @@ export function coupleObjects(props: {
   restFrames?: (
     node: string,
   ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
+
+  /** Prepare unchanged parent rig inputs for demanded attachment FK; omitted, preserve the raw baker's full live admission. */
+  prepareRig?: typeof prepareSkeletonPoseResolution;
 
   /** The shot's length in seconds. */
   duration: number;
@@ -187,6 +194,7 @@ export function coupleObjects(props: {
     skeleton: props.skeleton,
     jointAxes: props.jointAxes,
     restFrames: props.restFrames,
+    prepareRig: props.prepareRig,
     duration: props.duration,
     // A parent with no baked follow of its own stands on its staged placement
     // all shot, the static path; one with baked follows reads them the way
@@ -252,7 +260,7 @@ function bakeAttachFollows(
       ...handoffEvents(child, parent, job.action.start, end, job.index),
     );
     // The action scan admitted only a staged, rigged parent.
-    const baked: IAutoMovieClip = compileAttach({
+    const baked: IAutoMovieClip = compilePreparedAttach(context, {
       child,
       bone: job.action.bone,
       parentTransform: context.nodes.get(parent)!.transform,
@@ -308,7 +316,7 @@ function bakeMountFollow(
   }
   context.keep(
     mount.node,
-    compileAttach({
+    compilePreparedAttach(context, {
       child: mount.node,
       bone: mount.binding.bone,
       parentTransform: context.nodes.get(parent)!.transform,
@@ -322,4 +330,16 @@ function bakeMountFollow(
       restFrames: context.restFrames?.(parent),
     }),
   );
+}
+
+/** Add genuine immutable prerequisites only when the admitted owner explicitly lends their producer. */
+function compilePreparedAttach(
+  context: ICoupleContext,
+  input: Parameters<typeof compileAttach>[0],
+): IAutoMovieClip {
+  if (context.prepareRig !== undefined)
+    input.poseResolution = context.prepareRig(
+      input.parentSkeleton, input.jointAxes, input.restFrames,
+    );
+  return compileAttach(input);
 }

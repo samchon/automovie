@@ -99,6 +99,7 @@ export const prepareChainPlant: (
       effector,
       lowerInverse,
       resolution,
+      poseResolution,
     );
   return {
     chain,

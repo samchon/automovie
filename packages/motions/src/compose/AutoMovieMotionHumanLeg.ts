@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -23,7 +23,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a foot's placement is, how the leg is solved, what a planted foot declares and where the knee bends.
  * @evidence contracts/development/design.md#principled-representation A leg movement is an ankle placement over time with a flag for bearing on the floor, the two facts a stance and a swing differ by.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One movement (`place`) with two named forms over it (`plant`, `step`), the swing path and the goal builder; the only owner of leg goals built from a foot placement. The phrases built on them are `AutoMovieMotionHumanLegPhrase`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One movement (`place`) with named plant/step forms, the swing path with fixed-pair preparation and the goal builder with fixed-placement preparation; the only owner of leg goals built from foot placements. The phrases built on them are AutoMovieMotionHumanLegPhrase's.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement` and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanLeg {
@@ -109,7 +109,7 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the path's formula, where it peaks and each input's unit.
    * @evidence contracts/development/implementation.md#principled-implementation The lowest-order curve that leaves and lands at the floor with one peak: a parabola over the straight line, with the foot's turn interpolated on the sphere.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation, one added height and one turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared swingAnkle owner interpolates and raises the ankle, then the engine interpolates its turn.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Progress is clamped to [0, 1], so the foot never goes under the floor past either end.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse beyond the engine's vector and quaternion interpolation.
@@ -122,10 +122,37 @@ export namespace AutoMovieMotionHumanLeg {
     progress: number,
   ): HumanFoot.IPlacement {
     const s: number = Math.min(1, Math.max(0, progress));
-    const ankle: IAutoMovieVector3 = Vector3.lerp(from.ankle, to.ankle, s);
     return {
-      ankle: { ...ankle, y: ankle.y + 4 * clearance * s * (1 - s) },
+      ankle: swingAnkle(from.ankle, to.ankle, clearance, s),
       rotation: Quaternion.slerp(from.rotation, to.rotation, s),
+    };
+  }
+
+  /**
+   * Prepare repeated actual progress reads of one fixed foot swing.
+   *
+   * @param from The unchanged departure placement, borrowed for this reader.
+   * @param to The unchanged landing placement, borrowed for this reader.
+   * @param clearance The unchanged greatest ankle rise, metres.
+   * @returns Fresh ankle and rotation at every actual share, clamped exactly as arc.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed borrowed endpoints/clearance, metre units, original progress clamp, lazy quaternion preparation and fresh placement ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses arc's same straight-line plus 4*c*s*(1-s) ankle owner and the engine's exact fixed-endpoint slerp producer, preserving shorter-arc choice, near-parallel threshold and final normalization.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared rotation reader precedes a progress clamp, shared ankle calculation and current rotation evaluation; no alternate swing curve is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual progress computes its original ankle and quaternion. No endpoint shortcut, changed clearance, time sample, lowered contact policy or interpolated result is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Across Q reads, the endpoint dot/shorter-arc choice and spherical fixed angle/sine prepare once; every ankle interpolation, lift expression, current quaternion weights and normalization remain, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit fixed departure/landing pair establishes rotation equivalence for the engine producer; a changed placement or clearance requires a new swing reader. Current progress and output placements are never retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns two borrowed endpoint placements, clearance and one bounded lazy slerp reader until released; every returned placement/vector/quaternion is fresh and retains no reader or time history.
+   */
+  export function prepareArc(
+    from: HumanFoot.IPlacement,
+    to: HumanFoot.IPlacement,
+    clearance: number,
+  ): (progress: number) => HumanFoot.IPlacement {
+    const turn: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(from.rotation, to.rotation);
+    return (progress: number): HumanFoot.IPlacement => {
+      const s: number = Math.min(1, Math.max(0, progress));
+      return { ankle: swingAnkle(from.ankle, to.ankle, clearance, s), rotation: turn(s) };
     };
   }
 
@@ -154,18 +181,46 @@ export namespace AutoMovieMotionHumanLeg {
     placement: HumanFoot.IPlacement,
     planted: boolean,
   ): IHumanPosture.IGoal {
-    return {
-      point: placement.ankle,
-      rotation: placement.rotation,
-      bend: AutoMovieMotionHumanBend.knee(
-        body,
-        posture,
-        side,
-        HumanFoot.heading(placement.rotation),
-      ),
-      ...(planted
-        ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
-        : {}),
+    const point: IAutoMovieVector3 = placement.ankle;
+    const rotation: IAutoMovieQuaternion = placement.rotation;
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.knee(
+      body, posture, side, HumanFoot.heading(placement.rotation),
+    );
+    return formed(point, rotation, bend, planted ? HumanFoot.offset(body, side, "mtp") : undefined);
+  }
+
+  /**
+   * Prepare an unchanged foot placement for current root-dependent leg goals.
+   *
+   * @param body The unchanged body supplying the knee and toe rest geometry.
+   * @param side The leg.
+   * @param placement The unchanged ankle point and foot rotation, borrowed without mutation.
+   * @param planted Whether every emitted goal bears on the floor.
+   * @returns A fresh goal with an actual current knee hint; point/rotation retain goal's borrowed placement convention and contacts are fresh vectors.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/placement/bearing, current root/yaw input, borrowed placement fields, fresh contact/goal ownership and lazy first-read preparation.
+   * @evidence contracts/development/implementation.md#principled-implementation The fixed foot rotation determines one HumanFoot heading and the fixed body determines one toe-contact offset. Every read still computes the same knee hint from its actual root/yaw before the original planted/contact fields are formed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy heading and optional lazy contact feed the goal-record owner shared with goal; the bend remains the existing HumanBend numerical owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves fixed ankle/rotation values, real per-write knee calculation and original contact geometry. The first contact preparation remains after a successful knee calculation, failed contact preparation is not retained, and no goal or posture result is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading rotation/atan2 and body toe-offset subtraction run once across Q reads instead of Q times. Every actual read retains knee transforms and fresh goal/contact allocation, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes unchanged body, side, placement and bearing; a changed one requires a new preparation. Root and yaw are current inputs, and no sampled time, previous knee or achieved target is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader borrows fixed body/placement and retains at most one scalar heading and one contact vector until its owning action ends; returned goals retain no reader or time history.
+   */
+  export function prepareGoal(
+    body: IHumanBody,
+    side: Side,
+    placement: HumanFoot.IPlacement,
+    planted: boolean,
+  ): (posture: Pick<IHumanPosture, "root" | "yaw">) => IHumanPosture.IGoal {
+    let heading: number | undefined;
+    let contact: IAutoMovieVector3 | undefined;
+    return (posture: Pick<IHumanPosture, "root" | "yaw">): IHumanPosture.IGoal => {
+      const point: IAutoMovieVector3 = placement.ankle;
+      const rotation: IAutoMovieQuaternion = placement.rotation;
+      if (heading === undefined) heading = HumanFoot.heading(rotation);
+      const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.knee(body, posture, side, heading);
+      if (planted && contact === undefined) contact = HumanFoot.offset(body, side, "mtp");
+      return formed(point, rotation, bend, contact === undefined ? undefined : { ...contact });
     };
   }
 
@@ -217,11 +272,11 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the window and what the foot does in it.
    * @evidence contracts/development/implementation.md#principled-implementation A stance foot is one placement that bears throughout.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `place` with two constant functions.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed goal reader supplies a direct limb update over the named window.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is two named instants of the clock, so no time is written twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place` and the clock.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareGoal shares only the unchanged foot heading/contact; the actual root/yaw knee is computed every write. Explicit root/own-leg reads preserve direct leg joints during composition without evaluating unrelated channels.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed placement heading/contact prepare once; every write performs its actual knee calculation and fresh limb/goal update, while arbitrary place callbacks keep complete dependencies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains fixed arguments and one bounded goal reader until released; it stores no per-second posture or goal.
    */
   export function plant(
     body: IHumanBody,
@@ -230,14 +285,19 @@ export namespace AutoMovieMotionHumanLeg {
     window: readonly [string, string],
     at: HumanFoot.IPlacement,
   ): IAutoMovieMotionHumanPrimitive {
-    return place({
-      body,
-      side,
-      from: clock.at(window[0]),
-      to: clock.at(window[1]),
-      placement: (): HumanFoot.IPlacement => at,
-      planted: (): boolean => true,
-    });
+    const from: number = clock.at(window[0]);
+    const to: number = clock.at(window[1]);
+    const read: ReturnType<typeof prepareGoal> = prepareGoal(body, side, at, true);
+    const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+    return {
+      channels: [limb],
+      reads: ["root", limb],
+      from,
+      to,
+      write: (posture: IHumanPosture): IHumanPosture => ({
+        ...posture, limbs: { ...posture.limbs, [limb]: read(posture) },
+      }),
+    };
   }
 
   /**
@@ -258,9 +318,9 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#principled-implementation A swing foot travels its arc on the minimum-jerk profile and bears only once it has arrived, so it lands without sliding.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `place` with the arc and the landing test.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bearing is read from the clock's linear share reaching 1 and not from the eased progress, which approaches 1 before the instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place`, `arc` and the clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates current progress and bearing to the clock, while prepareArc shares only the fixed endpoint quaternion invariants through the engine owner. Root/own-leg dependencies preserve direct leg joints and omit unrelated prefix writers; arbitrary place callbacks remain unrestricted.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains fixed endpoints/clearance, clock/window and one bounded prepared arc reader until released, without time samples or placement results.
    */
   export function step(
     body: IHumanBody,
@@ -271,15 +331,38 @@ export namespace AutoMovieMotionHumanLeg {
     to: HumanFoot.IPlacement,
     clearance: number,
   ): IAutoMovieMotionHumanPrimitive {
-    return place({
+    const swing: ReturnType<typeof prepareArc> = prepareArc(from, to, clearance);
+    const primitive: IAutoMovieMotionHumanPrimitive = place({
       body,
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
       placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
-        arc(from, to, clearance, clock.progress(window[0], window[1], seconds)),
+        swing(clock.progress(window[0], window[1], seconds)),
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,
     });
+    return { ...primitive, reads: ["root", `${side}Leg`] };
   }
+}
+
+/** The original ankle interpolation and parabolic lift, with unchanged grouping. */
+function swingAnkle(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  clearance: number,
+  share: number,
+): IAutoMovieVector3 {
+  const ankle: IAutoMovieVector3 = Vector3.lerp(from, to, share);
+  return { ...ankle, y: ankle.y + 4 * clearance * share * (1 - share) };
+}
+
+/** The same borrowed placement, current knee and optional fresh contact goal fields. */
+function formed(
+  point: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  bend: IAutoMovieVector3,
+  contact: IAutoMovieVector3 | undefined,
+): IHumanPosture.IGoal {
+  return { point, rotation, bend, ...(contact === undefined ? {} : { planted: true, contact }) };
 }

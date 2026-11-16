@@ -16,7 +16,7 @@ import { StrikingBody } from "../striking/StrikingBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the owned geometry and the law's separate clock and heading responsibility.
  * @evidence contracts/development/design.md#principled-representation A fitted angle record and one folded posture, measured against the body's own colliders in the original root frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law consumes fold, fit, measure and rest; no new public barrel or motion parameter is added.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The law consumes fold, fit, measure and rest; joint-only gymnastics consumes the same lowest reduction with its actual posed map, without a new public barrel or motion parameter.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The original provisional angles, clinical ranges, collider predicates and 16-step bisections remain unchanged.
  */
 export namespace KnockdownFloor {
@@ -112,18 +112,21 @@ export namespace KnockdownFloor {
    *
    * @param body The body.
    * @param folded The already sampled fold.
+   * @param resolution Optional exact FK source borrowed from the synchronous caller; never retained in the measures.
    * @returns The original three measures, metres in the root frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and already evaluated input.
    * @evidence contracts/development/implementation.md#principled-implementation Resolve the folded trunk at root zero facing +Z, negate its lowest collider bound and read the original ankle mean and hip Z.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk/collider reading and three measures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same full trunk solve and physicalShapeBounds determine the floor.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones, profile segments and shapes; nested shape reduction avoids flattened per-shape wrappers and their map arrays while retaining every actual bound. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes the same folded record the law writes instead of recomputing its phase.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the fold nor the fresh resolved geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same trunk admission and exact collider minimum determine the floor; every authored joint and actual bound remains evaluated under its original owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Final FK observes collider ancestry plus the hips/two feet actually read here; all authored joint admission and original linear segment/shape bounds remain. Nested reduction avoids flattened wrappers, without dropping a bound or sample; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes the same folded record the law writes instead of recomputing its phase. The canonical collider owner supplies actual profile bones and the three direct observations are explicitly added; an optional synchronous source shares only exact FK dependencies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary demanded names, fold geometry and local reader release on return/throw. An optional borrowed workspace stays with its synchronous caller, and only three numeric measures escape without a reader or history.
    */
-  export function measure(body: IHumanBody, folded: IFold): IMeasure {
-    const { bones, placements }: ReturnType<typeof shapes> = shapes(body, folded);
+  export function measure(body: IHumanBody, folded: IFold, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IMeasure {
+    const requested: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
+    requested.add("hips").add("leftFoot").add("rightFoot");
+    const { bones, placements }: ReturnType<typeof shapes> = shapes(body, folded, resolution, requested);
     return {
       floor: -selectedLowest(placements, ALL),
       ankle:
@@ -145,20 +148,30 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#principled-implementation Preserves the original range brackets, endpoint tests, collider predicates, knee/arm/elbow order and sixteen bisections; a range end reached first stays at that end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One gap reader and one unchanged bracket solver serve the three angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every trial still resolves its actual posture and collider bounds; no goal, trial or fit result is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen gap evaluations per angle remain. One exact FK reader avoids unchanged bone computation, while nested segment/shape traversal removes flattened wrappers and tests each segment's part predicate once; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing trunk adapter receives the same synchronous fit's lazy reader for all trials and guards exact scalar dependencies.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen gap evaluations per angle remain. Three genuine fixed-demand trunk producers prepare actual profile unions/name lookup/sorting once; each real trial admits every authored joint but computes only observed collider ancestry. One exact FK reader shares unchanged dependencies and nested bounds avoid flattened wrappers; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same synchronous fit's lazy reader reaches every actual trunk trial. Genuine StrikingBody.prepareTrunk readers share its original admission owner and cover exactly every profile segment either gap predicate observes; fresh placed geometry and every selected shape bound still evaluate independently, without demanding unrelated subtree FK/placements.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader and trial geometry are released at synchronous return or throw; the result retains only three angles and no reader enters the plan.
    */
   export function fit(body: IHumanBody, landed: number): IFit {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const gap: (fitted: IFit, back: number, part: (bone: string) => boolean, support: (bone: string) => boolean) => number = (
+    const demand: (part: (bone: string) => boolean, support: (bone: string) => boolean) => ReadonlySet<AutoMovieHumanoidBone> = (part: (bone: string) => boolean, support: (bone: string) => boolean): ReadonlySet<AutoMovieHumanoidBone> => {
+      const requested: Set<AutoMovieHumanoidBone> = new Set();
+      for (const bone of HumanColliders.bones(body))
+        if (part(bone) || support(bone)) requested.add(bone);
+      return requested;
+    };
+    const knees: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, demand(SHANK, SEAT));
+    const arms: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, demand(UPPER_ARM, BODY));
+    const elbows: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, demand(FOREARM, BODY));
+    const gap: (fitted: IFit, back: number, part: (bone: string) => boolean, support: (bone: string) => boolean, trunk: ReturnType<typeof StrikingBody.prepareTrunk>) => number = (
       fitted: IFit,
       back: number,
       part: (bone: string) => boolean,
       support: (bone: string) => boolean,
+      trunk: ReturnType<typeof StrikingBody.prepareTrunk>,
     ): number => {
-      const { placements }: ReturnType<typeof shapes> = shapes(body, fold(fitted, 1, back), resolution);
+      const { placements }: ReturnType<typeof shapes> = shapes(body, fold(fitted, 1, back), resolution, undefined, trunk);
       return selectedLowest(placements, part) - selectedLowest(placements, support);
     };
 
@@ -183,17 +196,17 @@ export namespace KnockdownFloor {
     fitted.knee = solve(
       0,
       AutoMovieMotionHumanRange.degrees("leftLowerLeg", "flexion", "full"),
-      (knee: number): number => gap({ ...fitted, knee }, landed, SHANK, SEAT),
+      (knee: number): number => gap({ ...fitted, knee }, landed, SHANK, SEAT, knees),
     );
     fitted.arm = solve(
       ANGLES.lift,
       AutoMovieMotionHumanRange.limit("leftUpperArm", "extension") ?? 0,
-      (arm: number): number => gap({ ...fitted, arm }, 1, UPPER_ARM, BODY),
+      (arm: number): number => gap({ ...fitted, arm }, 1, UPPER_ARM, BODY, arms),
     );
 
     // Flexion raises the forearm, so the elbow's bracket runs from 90 to zero.
     fitted.elbow = solve(90, 0, (elbow: number): number =>
-      gap({ ...fitted, elbow }, 1, FOREARM, BODY),
+      gap({ ...fitted, elbow }, 1, FOREARM, BODY, elbows),
     );
     return fitted;
   }
@@ -249,22 +262,23 @@ export namespace KnockdownFloor {
     body: IHumanBody,
     folded: IFold,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    trunk?: ReturnType<typeof StrikingBody.prepareTrunk>,
   ): {
     bones: ReturnType<typeof StrikingBody.trunk>;
     placements: HumanColliders.IPlaced[];
   } {
-    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
-      body,
-      {
+    const posture: IHumanPosture = {
         root: { x: 0, y: 0, z: 0 },
         yaw: 0,
         pitch: folded.pitch,
         roll: 0,
         joints: folded.joints,
         limbs: {},
-      },
-      resolution,
-    );
+    };
+    const bones: ReturnType<typeof StrikingBody.trunk> = trunk === undefined
+      ? StrikingBody.trunk(body, posture, resolution, requested)
+      : trunk(posture, resolution);
     return { bones, placements: HumanColliders.placed(body, bones) };
   }
 

@@ -32,14 +32,24 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A path of the surface that is straight, or bows out to the arm's own side by the movement's `curvature` (a manner's share of the path's length, EMOTE's indirect Space; none when absent), and a spherical interpolation of the hand, both by one weight, with the fingers shaped by the same weight (Jeannerod 1984).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One target evaluation, one blend and one posture update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1] so an overshooting time course cannot extrapolate the hand past its target; at weight 1 the target is used as it is, with no blend error.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `point`, `goal` and `AutoMovieMotionHumanHand.fingers`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every target, weight, path, rotation and wrist goal remains actual; the fifteen output finger triples use fixed scalar shape metadata instead of rebuilding two named-shape maps on each written second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses point/goal and the hand owner's prepareFingers interpolation. One last exact side/shape pair shares only named shape scalars; current curl and weight always produce fresh output.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds props and at most one fifteen-entry side/shape preparation until release, retaining no posture, target, time, curl, weight or completed finger result.
    */
   export function move(
     props: AutoMovieMotionHumanArmTarget.IMove,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    let shaped: { side: HumanHand.Side; shape: HumanHand.Shape;
+      read: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingers> } | undefined;
+    const fingers: (side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
+      weight: number) => IHumanPosture["joints"] =
+      (side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
+        weight: number): IHumanPosture["joints"] => {
+      if (shaped === undefined || shaped.side !== side || shaped.shape !== shape)
+        shaped = { side, shape, read: AutoMovieMotionHumanHand.prepareFingers(side, shape) };
+      return shaped.read(curl, weight);
+    };
     return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
@@ -76,7 +86,7 @@ export namespace AutoMovieMotionHumanArmMove {
           ...posture,
           joints: {
             ...posture.joints,
-            ...AutoMovieMotionHumanHand.fingers(
+            ...fingers(
               props.side,
               target.shape,
               target.curl ?? 0,

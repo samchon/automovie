@@ -11,6 +11,7 @@ import { HumanFloorReading } from "./HumanFloorReading";
 import type { HumanJacobian } from "./HumanJacobian";
 import type { HumanSequentialConvex } from "./HumanSequentialConvex";
 import type { IHumanPosture } from "./IHumanPosture";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * The whole-body fit's merit (`HumanBodyFit`): an iterate read on the body,
@@ -165,8 +166,8 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one pass of misses, one sum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is priced in the merit as the step's model prices it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluation plus the floor, pair and selected-goal readers' costs; merit summation and feasibility scan the current misses without concatenated copies, and one centre displacement serves all selected axes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the exact written clinical input, current ordered supports/membership and actual completed pair witnesses with convexification, and its actual positional mass centre with balance; each new reading still writes/evaluates its actual candidate, and a lazy centre displacement stays within that reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures retain fit inputs and the bearing-name set until release; each evaluation owns its reading, written posture with j stored joints and n variables, misses, T selected support/membership entries and P gap records with 2P witnesses for P pairs, without global or previous-reading state. The fit may transfer its final private written posture to its result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares exact written clinical input, current support/membership and completed pair witnesses with convexification, and its actual mass centre with balance. One fit-owned lazy FK workspace shares only exactly equal current joint/ancestor dependencies through canonical/floor evaluations; each candidate and its full admission remain actual, and lazy centre displacement stays within that reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures own fit inputs, bearing names and one lazy bounded FK workspace until return/throw, without candidate history. Each evaluation owns its written posture, reading/misses, T support/membership entries and P gaps with 2P witnesses; no FK supplier escapes through those outputs. The fit may transfer its final private written posture to its result.
    */
   export function of(props: IProps): IMerit {
     const {
@@ -192,6 +193,7 @@ export namespace HumanBodyFitMerit {
     const n: number = variables.length;
     const BAND: number = HumanBodyFitRows.BAND;
     const MM: number = HumanBodyFitRows.MM;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
 
     // The points the named bearing parts bear on at a reading: each of their
     // support candidates within the bearing margin of the part's lowest.
@@ -223,6 +225,7 @@ export namespace HumanBodyFitMerit {
         written,
         bearing,
         targets,
+        resolution,
       );
       const measured: HumanBodyFitRows.IReading = {
         ...r,

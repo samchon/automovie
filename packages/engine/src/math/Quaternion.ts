@@ -9,8 +9,7 @@ import { quaternionNormalizationDivisor as normalizationDivisor } from "./quater
 import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
 
 /**
- * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z,
- * w)` in glTF order.
+ * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z, w)` in glTF order.
  *
  * Quaternions are the engine's internal rotation representation: the model writes joint angles in degrees, `jointToQuaternion` turns them into quaternions, and the renderer consumes those. Unless a function says otherwise, a rotation argument must be a unit quaternion. Every function leaves its inputs unchanged and returns a new value.
  *
@@ -107,10 +106,7 @@ export namespace Quaternion {
   /**
    * The inverse rotation of `q`, its conjugate normalized.
    *
-   * For a unit quaternion this is the exact inverse, so `multiply(q,
-   * inverse(q))` is the identity; for a near-unit one the normalization keeps
-   * the result a valid rotation. Camera projection, frustum tests, IK and seat
-   * solving use it to bring world vectors into a local frame.
+   * For a unit quaternion this is the exact inverse, so multiply(q,inverse(q)) is identity; for a near-unit one normalization keeps a valid rotation. Camera projection, frustum tests, IK and seat solving use it to bring world vectors into a local frame.
    *
    * @param q Rotation to invert.
    * @returns A new unit quaternion.
@@ -133,8 +129,7 @@ export namespace Quaternion {
    * The rotation of `angleDeg` degrees about `axis`, positive by the
    * right-hand rule.
    *
-   * @param axis Rotation axis of any nonzero length; a zero axis returns the
-   *   identity.
+   * @param axis Rotation axis of any nonzero length; a zero axis returns identity.
    * @param angleDeg Angle in degrees.
    * @returns A new unit quaternion.
    *
@@ -157,11 +152,7 @@ export namespace Quaternion {
   };
 
   /**
-   * Build fresh axis-angle rotations on one unchanged borrowed axis.
-   * Construction reads no component. The first actual angle read prepares the
-   * original scaled direction and its length; later angles keep exactly
-   * `(angleDeg*DEG2RAD)/2`, `sin(half)/len`, component multiplication and cosine.
-   * Keep the axis unchanged from that first read until releasing this closure.
+   * Build fresh axis-angle rotations on one unchanged borrowed axis. Construction reads no component. First actual use prepares the original scaled direction and length; later angles keep exactly (angleDeg*DEG2RAD)/2, sin(half)/len, component multiplication and cosine. Keep the axis unchanged from first use until releasing the closure.
    *
    * @param axis Fixed direction, with the direct entry's zero/nonfinite semantics.
    * @returns A lazy reader producing a fresh quaternion for every angle.
@@ -263,8 +254,7 @@ export namespace Quaternion {
   /**
    * The vector `v` rotated by the unit quaternion `q`, `q · v · q⁻¹`.
    *
-   * A non-unit `q` also scales and distorts the result, so normalize first
-   * when the length is not known to be one.
+   * A non-unit q also scales and distorts the result, so normalize first when its length is not known to be one.
    *
    * @param q Unit rotation.
    * @param v Vector to rotate.
@@ -296,6 +286,26 @@ export namespace Quaternion {
   };
 
   /**
+   * The exact Y component of rotateVector(q,v), without its vector record or
+   * unused X/Z output expressions. The same unit-quaternion premise applies;
+   * no normalization is added and nonunit distortion/nonfinite arithmetic stay.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines equivalence to the existing Y component, output frame inherited from v/q, unit-input premise, scalar ownership and unchanged nonunit/nonfinite behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same tx, ty and tz in their original order, then exactly v.y + q.w*ty + (q.z*tx-q.x*tz). Omitting independent X/Z outputs leaves this binary64 expression and its signed-zero/nonfinite behavior unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One genuinely demanded component serves the actual hull min-Y scan, beside the same math owner's complete vector operation; no matrix, callback wrapper or result cache is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The quaternion is not normalized or assumed cardinal, and neither cross products nor output arithmetic are reassociated. No tolerance, component repair or scene/shape condition selects the result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the shared two-cross-product intermediates and only one output component, omitting six products, six output additions/subtractions and one vector allocation versus full rotateVector. Work/storage are constant and runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual physical-shape floor query requests only world Y; each current rotation/vertex is evaluated normally, with no cached point or rotation result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number, allocates no vector/collection and retains neither quaternion nor vertex, with no state, handle or task.
+   */
+  export function rotateVectorY(q: IAutoMovieQuaternion, v: IAutoMovieVector3): number {
+    const tx: number = 2 * (q.y * v.z - q.z * v.y);
+    const ty: number = 2 * (q.z * v.x - q.x * v.z);
+    const tz: number = 2 * (q.x * v.y - q.y * v.x);
+    return v.y + q.w * ty + (q.z * tx - q.x * tz);
+  }
+
+  /**
    * Spherical linear interpolation from `a` (at `t = 0`) to `b` (at `t = 1`) along the shorter arc.
    *
    * When the quaternions' dot product `cos θ` exceeds `0.9995`, so the two rotations differ by less than about 3.6 degrees, it returns normalized linear interpolation to avoid dividing by a vanishing `sin θ`. A `t` outside `[0, 1]` extrapolates along the same arc.
@@ -324,11 +334,7 @@ export namespace Quaternion {
   ): IAutoMovieQuaternion => interpolateSlerp(a, b, t);
 
   /**
-   * Prepare repeated progress reads between two unchanged borrowed unit rotations.
-   * Construction reads no endpoint. First use prepares the original dot,
-   * shorter-arc endpoint components and, for the spherical branch, theta/sine.
-   * Every progress still evaluates its own original weights and normalization.
-   * Progress outside [0,1] extrapolates; release the reader with its fixed pair.
+   * Prepare repeated progress reads between two unchanged borrowed unit rotations. Construction reads no endpoint. First use prepares the original dot, shorter-arc endpoint components and spherical theta/sine. Every progress retains its original weights and normalization; progress outside [0,1] extrapolates. Release the reader with its fixed pair.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged unit endpoints, lazy endpoint/arc reads, extrapolation inherited from slerp, original weights/normalization, fresh output and operation lifetime.
    * @evidence contracts/development/implementation.md#principled-implementation Shoemake's endpoint dot, shorter-arc sign, angle and angle sine depend only on the unchanged pair. Sharing those exact completed values leaves each t-dependent weight, weighted component and normalization expression unchanged in the common owner.

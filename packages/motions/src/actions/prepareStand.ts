@@ -33,9 +33,9 @@ import { standUpright } from "./standUpright";
  * @evidence contracts/development/implementation.md#principled-implementation Retains stand's exact contact-preserving rocker course, midpoint/root alignment, minimum-jerk settle and seeded smooth sway with the same duration-specific normalization and moving-support carry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry geometry and support choice are prepared once, then each requested duration owns its settle, fresh random channels, events, contacts and joint map.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither a probe's trajectory nor an entry posture substitutes for the duration-specific stance; each query evaluates the original equations and actual support frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms A shared entry performs its socket FK and geometric preparation once; each duration still constructs its own plan and each posture its changing sway, rockers and carry.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed entry/body/alignment/support data are shared; random channels, settle duration, normalized time and contact/event fractions belong to each returned plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains one finite two-foot preparation until release; each child plan owns its streams and joint map, and no FK reader, evaluated pose or query history is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A shared entry performs its socket FK and geometric preparation once; each duration prepares its two fixed four-term sway spectra lazily, while every posture still evaluates the original sines, window, rockers and carry.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry/body/alignment/support data serve both durations. Each child owns its pure indexed random channels and duration-specific spectra, whose exact coefficients are reused without sharing any time-dependent result with another child.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains one finite two-foot preparation until release; each child plan owns two lazy four-term noise readers and its joint map. No FK reader, evaluated pose or query history is retained.
  */
 export function prepareStand(
   context: IHumanActionContext<stand.IParams>,
@@ -92,6 +92,10 @@ export function prepareStand(
     const settle: number = Math.min(0.5, duration);
     const sx: IAutoMovieRandom = context.random("swayX");
     const sz: IAutoMovieRandom = context.random("swayZ");
+    const noiseX: ReturnType<typeof seededSmoothNoise.prepare> =
+      seededSmoothNoise.prepare(sx, duration, 0.8);
+    const noiseZ: ReturnType<typeof seededSmoothNoise.prepare> =
+      seededSmoothNoise.prepare(sz, duration, 0.8);
     const joints: IHumanPosture["joints"] = { ...aligned };
     return {
       duration,
@@ -110,7 +114,7 @@ export function prepareStand(
       ),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number = minimumJerk(t / settle).s;
+        const s: number = minimumJerk.share(t / settle);
         const u: number = t / duration;
         const feet: standFeet.ISample = course.sample(s);
         const offset: IAutoMovieVector3 = feet.offset;
@@ -119,13 +123,9 @@ export function prepareStand(
         const swayed: IAutoMovieVector3 = HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           {
-            x:
-              (side === "left" ? -1 : 1) *
-              sway *
-              Math.SQRT2 *
-              seededSmoothNoise(sx, u, duration, 0.8),
+            x: (side === "left" ? -1 : 1) * sway * Math.SQRT2 * noiseX(u),
             y: 0,
-            z: sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
+            z: sway * Math.SQRT2 * noiseZ(u),
           },
         );
         const root: IAutoMovieVector3 = {

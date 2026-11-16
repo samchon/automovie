@@ -23,11 +23,13 @@ import { vclose } from "../internal/vclose";
  *    shortcut must decline this changed geometry rather than reuse old planes.
  * 4. A flat rectangle stays volumeless after reflection and mass admission
  *    still refuses instead of manufacturing a closed solid.
+ * 5. Mutating a source vertex after reflection but before the first hull
+ *    read cannot move the already returned independent reflected geometry.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States metre/cubic-metre/unit-mass units, reflection ownership, pre-first-use invalidation and independent plane/winding/mass expectations in four scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States metre/cubic-metre/unit-mass units, reflection/source ownership, pre-first-use invalidation and independent plane/winding/mass expectations in five scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Runs public mirrorX, faces and mass consumers, checks literal reflected points, each supporting plane and loop winding, positive analytic mass properties, source/fresh-output ownership, changed pre-admission output and flat-volume refusal.
  * @evidence contracts/development/testing.md#independent-expectations Reflection maps each coordinate to(-x,y,z). Cuboid dimensions2,3,4 give volume24 and sorted principal moments(3²+2²,4²+2²,4²+3²)/12. The edited dimensions4,3,4 give volume48 and moments(25,25,32)/12. Literal axis-aligned support planes and right-hand cross products independently determine outwardness and winding.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers asymmetric translated geometry, redundant coplanar and buried points, six signed face planes, fresh reflected ownership, edited issued output before first hull admission and the adjacent flat case. General hull nearest/segment algorithms remain with existing geometry specifications.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers asymmetric translated geometry, redundant coplanar and buried points, six signed face planes, fresh reflected ownership, edited issued output or changed source before first hull admission and the adjacent flat case. General hull nearest/segment algorithms remain with existing geometry specifications.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable numerical unit owns all small point arrays and invokes existing public hull APIs. It starts no renderer/viewer/compiler or process, replaces no foreign function and makes no visual or anatomical claim.
  */
 export function test_physical_hull_mirror(): void {
@@ -94,6 +96,16 @@ export function test_physical_hull_mirror(): void {
   TestValidator.predicate("edited reflected output never changes the source's next reflection",
     source.every((point: IAutoMovieVector3, i: number): boolean => vclose(point, original[i]!, 0)),
   );
+  const changedSource: IAutoMovieVector3[] = original.map(
+    (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
+  );
+  const independent: IAutoMovieVector3[] = H.mirrorX(changedSource);
+  changedSource[0]!.x = -100;
+  TestValidator.predicate("source changes cannot move an already returned unread reflection",
+    independent.every((point: IAutoMovieVector3, i: number): boolean =>
+      vclose(point, { x: -original[i]!.x, y: original[i]!.y, z: original[i]!.z }, 0)),
+  );
+  mass(independent, 24, { x: -2, y: 0.5, z: 4 }, { x: 13 / 12, y: 20 / 12, z: 25 / 12 });
   const flat: IAutoMovieVector3[] = H.mirrorX([
     { x: 1, y: -1, z: 0 }, { x: 3, y: -1, z: 0 },
     { x: 3, y: 2, z: 0 }, { x: 1, y: 2, z: 0 }, { x: 2, y: 0.5, z: 0 },

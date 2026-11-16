@@ -29,7 +29,7 @@ const STATES: WeakMap<prepareAutoMovieMassModel.IPrepared, IState> = new WeakMap
  * @evidence contracts/development/implementation.md#principled-implementation The family retains the existing ordered segmental mean, bone-position-plus-rotated-local-point placement, bone-times-local-principal quaternion, physical tensor with every current parallel-axis term, and two-pose orbital-plus-spin momentum. Fixed bone-local properties are separate from each actual common-frame transform and interval.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One opaque token owns the admitted model and bounded scalar prerequisites. Namespace readers select the same model: bones exposes names, pose/place share readFrame and the existing mean, inertia delegates prepared physical tensor arithmetic, between delegates the original interval reduction, and release deletes the sole live state.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No posed answer, target, time grid or approximate key substitutes for a requested transform. Non-finite properties, negative mass or inertia, zero principal rotations and an inconsistent total mass are refused at preparation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation, bone-set construction and each posed/centre/tensor/interval read are O(S) for S segments; bones returns O(U) unique names and release is one weak deletion. Pose copies fresh parts, whereas place allocates no unused principal frames or parts. Exact unchanged rotation omits local-offset/principal products, unchanged intrinsic moments/quaternions omit axis products, and unchanged endpoint quaternions omit inverse/log/slerp preparation; all current sums and rates still run.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and each physical read are O(S) for S segments; bones returns O(U) names and release is one weak deletion. Private last-frame and intrinsic-key storage is reused on changes, while public pose results remain fresh. Place omits unused principal/part records; unchanged rotation, intrinsic frame and endpoint quaternions respectively omit local products, axis products and inverse/log/slerp preparation. All current sums/rates still run.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Copied model scalars fix one epoch. ReadFrame compares copied position/quaternion coordinates with Object.is; tensor preparation compares current moments/principal quaternions at each ordered index; interval preparation compares all eight copied endpoint coordinates and separately keys midpoint intrinsic tensors. Mutation and signed zero remain visible, and no bone identity, target, time grid or prior momentum answer establishes equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The token owns O(S) copied model, last frames, intrinsic and endpoint numeric prerequisites, with no query population or bone map. Each pose/centre/tensor/momentum result is fresh and retains no token/source; callers own returned sets and snapshots. Release deletes all private state on success or failure, is idempotent, and every later reader rejects the released token.
  */
@@ -279,23 +279,38 @@ function readFrame(
   const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
   if (bone === undefined) throw new Error(`The momentum needs the posed bone ${segment.bone}`);
   const known: IFrame | undefined = current.frames[i];
-  const samePosition: boolean = known !== undefined && sameVector(known.position, bone.worldPosition);
   const sameRotation: boolean = known !== undefined &&
     sameVector(known.rotation, bone.worldRotation) && Object.is(known.rotation.w, bone.worldRotation.w);
-  if (known !== undefined && samePosition && sameRotation) return known;
+  if (known !== undefined && sameRotation && sameVector(known.position, bone.worldPosition)) return known;
   const offset: IAutoMovieVector3 = sameRotation
     ? known!.offset
     : Quaternion.rotateVector(bone.worldRotation, segment.point);
+  if (known !== undefined) {
+    // Returned posed parts copy these fields, so changing the private last
+    // frame cannot move an earlier stencil endpoint or caller-owned result.
+    known.position.x = bone.worldPosition.x;
+    known.position.y = bone.worldPosition.y;
+    known.position.z = bone.worldPosition.z;
+    known.rotation.x = bone.worldRotation.x;
+    known.rotation.y = bone.worldRotation.y;
+    known.rotation.z = bone.worldRotation.z;
+    known.rotation.w = bone.worldRotation.w;
+    known.offset = offset;
+    known.point.x = bone.worldPosition.x + offset.x;
+    known.point.y = bone.worldPosition.y + offset.y;
+    known.point.z = bone.worldPosition.z + offset.z;
+    if (!sameRotation) known.principal = undefined;
+    return known;
+  }
   const frame: IFrame = {
-    position: samePosition ? known!.position : copyVector(bone.worldPosition),
-    rotation: sameRotation ? known!.rotation : copyQuaternion(bone.worldRotation),
+    position: copyVector(bone.worldPosition),
+    rotation: copyQuaternion(bone.worldRotation),
     offset,
     point: {
       x: bone.worldPosition.x + offset.x,
       y: bone.worldPosition.y + offset.y,
       z: bone.worldPosition.z + offset.z,
     },
-    principal: sameRotation ? known!.principal : undefined,
   };
   current.frames[i] = frame;
   return frame;

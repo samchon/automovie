@@ -156,7 +156,7 @@ export namespace HumanQuadraticBand {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses a persistent owner's exactly matching last adapted factor or resets canonical upper storage, adds the proximal diagonal and row products, then overwrites that system with U through one Cholesky helper.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every row contribution, including duplicates; original index/span admission already proves the coupling band before this reader, so its kernel removes only redundant pairwise checks, without threshold or tolerance changes.
    * @evidence contracts/development/implementation.md#efficient-algorithms An exact persistent hit compares O(m) row steps; misses assemble O(n*w+sum(k_r*k_r)) and factor O(n*w*w), using O(n*w) band storage and a reused m-entry dependency copy.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation owns the independent initial factor; persistent adaptive reuse requires identical scaled-core identity, sigma and every rho value, while any miss fully resets P and recomputes the weighted system. Resetting initial rho and convergence policy remain the solver's responsibility.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation owns the initial factor; adaptive reuse requires exact scaled P/A pair identity, sigma and every rho value, while misses fully reset and rebuild the system. Pair identity excludes q and unit reversal; the current rhs and initial rho policy always recompute.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One-shot work owns one mutable factor; persistent work retains one adapted factor plus one polishing factor and one mutable owner, each with upper/forward layouts, rotating replaced owners independently of initial factors and public outputs.
    * @evidence contracts/development/common.md#meaningful-documentation Gives the matrix equation, parameter roles, band failure and convex-data premise.
    */
@@ -250,7 +250,7 @@ export namespace HumanQuadraticBand {
     z: Float64Array,
     y: Float64Array,
     work: Work.IWork,
-    known?: Pick<Work.IWork, "rows" | "transpose">,
+    known?: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">,
   ): IResiduals {
     return HumanQuadraticResiduals(s, x, z, y, work, known);
   }
@@ -346,7 +346,7 @@ export namespace HumanQuadraticBand {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates active row selection, exact factor reuse and current-rhs refinement to HumanQuadraticPolish, the single numerical owner shared by one-shot and fixed-model solves.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps existing delta, active-row rules and refinement count; the Cholesky diagonal guard is retained and a polish is not itself a success certificate.
    * @evidence contracts/development/implementation.md#efficient-algorithms A persistent exact active-set hit skips assembly and O(n*w*w) Cholesky; misses assemble O(n*w+sum(active k_r*k_r)), and each current-rhs refinement costs O(n*w+Z+m). Exceptional products may visit R original entries, while exact diagonal finite-x curvature takes O(n).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Requires identical immutable scaled core, delta and ordered active row indices for factor reuse; bounds and fixed soft multipliers are recomputed into each current rhs. Refinement and final products remain current-iterate calculations and exceptional zero terms come from the owning raw rows.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Requires exact scaled P/A pair identity, delta and ordered active indices for factor reuse; current q, bounds and fixed soft multipliers always rebuild the rhs. Refinement/final products remain current-iterate calculations with owner-local original zero terms.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate x/z and the local multiplier vector are independent of scratch; consumed before first holds active constraint residuals and then final Ax, while the cost-rhs buffer holds final A-transpose-y only after its refinement use ends; neither buffer escapes in public state.
    * @evidence contracts/development/common.md#meaningful-documentation Describes hard and soft active rows, regularized reduction, iterative refinement, scaled outputs and outer acceptance ownership.
    */
@@ -361,7 +361,7 @@ export namespace HumanQuadraticBand {
     x: Float64Array;
     z: Float64Array;
     y: Float64Array;
-    products: Pick<Work.IWork, "rows" | "transpose">;
+    products: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">;
   } {
     return HumanQuadraticPolish(s, z, y, delta, refine, work);
   }

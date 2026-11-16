@@ -135,7 +135,7 @@ export namespace punchFootwork {
   export function drag(timing: punchGeometry.ITiming, seconds: number): number {
     const from: number = 0.5 * timing.shown;
     const to: number = timing.shown + 0.5 * timing.recoil;
-    return minimumJerk((seconds - from) / (to - from)).s;
+    return minimumJerk.share((seconds - from) / (to - from));
   }
 
   /**
@@ -195,7 +195,7 @@ export namespace punchFootwork {
     const lift: number = 0.015 * body.measure.stature;
     const turnBack = (t: number): number =>
       stepping
-        ? minimumJerk((t - dragTo) / Math.max(1e-3, duration - dragTo)).s
+        ? minimumJerk.share((t - dragTo) / Math.max(1e-3, duration - dragTo))
         : back(t);
 
     // The feet keep the punch's clock; the trunk's turn may run on another

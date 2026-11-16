@@ -216,6 +216,26 @@ export namespace kneelKeys {
     b: IAutoMovieVector3,
     u: number,
   ): IAutoMovieVector3 {
+    return prepareTurn(pivot, a, b)(u);
+  }
+
+  /**
+   * Prepare a kneeling root's fixed circular path about the knees. The
+   * endpoints and pivot remain unchanged while eased progress varies.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed world-metre geometry, changing eased progress and the original circular path.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses turn's same clamped dot-product angle and sine-weighted endpoint vectors about the pivot; the 1e-6-radian near-zero branch still returns the original first point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed pivot-relative vectors, angle and its sine precede one progress reader; raw turn delegates the same owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the angle clamp, near-zero threshold, sine argument grouping and two-vector addition; progress is neither clipped nor sampled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed vector differences, lengths, dot product, acos and denominator sine run once per phase; each actual query evaluates its two varying sines and original vector arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged endpoint/pivot geometry is shared; each progress still produces its own path reading, with the original borrowed-first-point degenerate case.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One phase retains two private relative vectors, its pivot/first endpoint and two scalar values until its plan ends; no queried progress, output or FK reader is retained.
+   */
+  export function prepareTurn(
+    pivot: IAutoMovieVector3,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): (u: number) => IAutoMovieVector3 {
     const from: IAutoMovieVector3 = Vector3.subtract(a, pivot);
     const to: IAutoMovieVector3 = Vector3.subtract(b, pivot);
     const angle: number = Math.acos(
@@ -227,14 +247,16 @@ export namespace kneelKeys {
         ),
       ),
     );
-    if (angle < 1e-6) return a;
-    return Vector3.add(
-      pivot,
+    if (angle < 1e-6) return (_u: number): IAutoMovieVector3 => a;
+    const sine: number = Math.sin(angle);
+    return (u: number): IAutoMovieVector3 =>
       Vector3.add(
-        Vector3.scale(from, Math.sin((1 - u) * angle) / Math.sin(angle)),
-        Vector3.scale(to, Math.sin(u * angle) / Math.sin(angle)),
-      ),
-    );
+        pivot,
+        Vector3.add(
+          Vector3.scale(from, Math.sin((1 - u) * angle) / sine),
+          Vector3.scale(to, Math.sin(u * angle) / sine),
+        ),
+      );
   }
 
   /** How far short of the hip's extension range a thigh reaching behind is kept, degrees (provisional). */

@@ -163,10 +163,10 @@ export namespace relayPass {
       t < at - REACH
         ? 0
         : t < at
-          ? minimumJerk((t - (at - REACH)) / REACH).s
+          ? minimumJerk.share((t - (at - REACH)) / REACH)
           : t <= relax
             ? 1
-            : 1 - minimumJerk(Math.min(1, (t - relax) / REACH)).s;
+            : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
     // The hand's goal at a second, on the run's posture there.
     const goal = (

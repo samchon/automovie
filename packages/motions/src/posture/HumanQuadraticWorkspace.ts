@@ -73,6 +73,9 @@ export namespace HumanQuadraticWorkspace {
     /** Borrowed values, reset and overwritten by every residual check. */
     residuals: B.IResiduals;
 
+    /** Final polishing x finiteness, valid only with its immediately returned rows/transpose products; other phases ignore it. */
+    productFiniteX?: boolean;
+
     /** One mutable system/factor band, distinct from the retained polishing factor. */
     matrices?: IFactor;
 
@@ -92,13 +95,13 @@ export namespace HumanQuadraticWorkspace {
   /**
    * One retained adaptive ADMM factor keyed by its exact row steps.
    *
-   * @evidence contracts/development/design.md#principled-representation Couples immutable scaled-core identity, copied positive row rho and sigma with the factor of P plus sigma I plus A-transpose diag(rho) A.
+   * @evidence contracts/development/design.md#principled-representation Couples exactly shared scaled P/A identity, copied positive row rho and sigma with the factor of P plus sigma I plus A-transpose diag(rho) A; current q and units do not enter this matrix.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Records only the latest adapted system's dependencies and owned band; initial factors remain with Preparation and polishing has its distinct active-set key.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses exact numeric vector comparisons without adapting from a previous solve's rho or substituting an old iterate.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the reduced-system dependency key, one-entry bound and immutable factor ownership.
    */
   export interface IAdaptive {
-    /** Identity of the immutable scaled P/q/A core. */
+    /** Identity shared only by exactly equal scaled P/A pairs with matching dimensions and band. */
     p: Float64Array[];
 
     /** Positive proximal diagonal used by the retained reduced system. */
@@ -115,13 +118,13 @@ export namespace HumanQuadraticWorkspace {
    * One polishing factor and the exact fixed-matrix/active-set dependencies
    * that formed it; current bound values enter only the right-hand side.
    *
-   * @evidence contracts/development/design.md#principled-representation Couples the canonical factor with its scaled core identity, positive regularization and ordered active rows; each private scaled curvature array uniquely belongs to its immutable P/q/A core.
+   * @evidence contracts/development/design.md#principled-representation Couples the canonical factor with exact scaled P/A pair identity, positive regularization and ordered active rows; private curvature-array identity is shared only after full P/A equality with compatible dimensions and topology.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Stores only dependencies needed by the existing polishing reduced system; row bounds, multipliers and candidate iterates are not factor dependencies.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Compares every active row and the exact delta, without approximate numeric keys or reusing a candidate solution.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the matrix equivalence key, independent right-hand side and owned immutable factor lifetime.
    */
   export interface IPolish {
-    /** Scaled core identity, tying together immutable curvature and row coefficients. */
+    /** Exactly shared scaled P/A identity, tying together immutable curvature, row coefficients and dimensions. */
     p: Float64Array[];
 
     /** Regularization used by P plus delta I and active row products divided by delta. */
@@ -138,7 +141,7 @@ export namespace HumanQuadraticWorkspace {
    * Owned storage for successive systems and Cholesky factors. Upper row i
    * has min(band+1,n-i) entries; forward row i has min(band,i) exact copies.
    *
-   * @evidence contracts/development/design.md#principled-representation Stores a canonical upper band transitioning from K to U with K=U-transpose-U and forward rows copying exact finalized U(t,i); dimensions determine both allocations and every mirror is overwritten by its matching Cholesky pass.
+   * @evidence contracts/development/design.md#principled-representation Stores a canonical upper band transitioning from K to U with K=U-transpose-U and one packed forward mirror with exact numeric row prefixes; dimensions fix every offset and the matching Cholesky pass overwrites all mirrored coefficients.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies one system/factor owner and its dimensions to assembly, Cholesky and substitution; forward copies serve repeated ADMM/polish right-hand sides without recomputing or transposing coefficients per solve.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps mutable factorization storage separate from prepared immutable matrices and cached initial factors; no iterate or body state is stored.
    * @evidence contracts/development/common.md#meaningful-documentation Defines row lengths, dimensions, numeric ownership and the distinction from immutable prepared factors.
@@ -215,7 +218,7 @@ export namespace HumanQuadraticWorkspace {
    * @evidence contracts/development/implementation.md#principled-implementation Copies each current in-range P row then adds its original proximal diagonal in row order; zero-valued contributions and signed zeros are retained while mathematically absent padding is omitted.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns one allocation and regularized reset for both systems, copying each admitted canonical row with TypedArray.set then adding its diagonal before Cholesky overwrites that band with its factor.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no coefficient, arithmetic association or regularization; original supplied padding remains validated and compared by Preparation before this internal reader.
-   * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, reset costs O(n*w); the first request allocates upper and forward layouts of at most n*w entries each, and matching later requests allocate no coefficient arrays. Cholesky overwrites forward copies after assembly.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1, reset costs O(n*w); first use allocates n upper rows and one packed forward buffer of at most n*w coefficients plus n+1 numeric offsets. Matching later uses allocate no arrays, and Cholesky overwrites every forward coefficient.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only storage for equal n/band and recopies P plus the current diagonal on every call; changed curvature, regularization, rho and active rows are rebuilt rather than treated as a valid old factor.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A persistent workspace retains at most one mutable factor owner plus one read-only adaptive and one read-only polishing factor, each with upper/forward layouts, rotating replaced owners into mutable storage; one-shot work keeps one owner, and calls without work create a separately owned immutable initial factor.
    * @evidence contracts/development/common.md#meaningful-documentation States canonical shapes, complete P reset, shape invalidation and separate initial-factor versus solve-local ownership.

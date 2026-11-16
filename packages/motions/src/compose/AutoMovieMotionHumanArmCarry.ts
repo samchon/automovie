@@ -14,6 +14,7 @@ import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
@@ -296,9 +297,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#principled-implementation A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, then one hand solve with an attitude.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group and action; per written second one cubic read of it, or `carry`'s posture solve, none at weight 0 or 1; between the ends an attitude adds the hand's forward kinematics on the arm, the held end and the goal's end (a planned arm's own held hand, one more read of its plan), and `HumanHandAttitude.held`.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArmPlanned.planned`, `carry` and `HumanHandAttitude.held`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props and its group, which keeps the group's one solution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group/action; each write reads its cubic or carry, with no carry solve at weights 0/1. An interior attitude still evaluates all three actual hand-end postures, but canonical observations can omit only proven independent goals/digits and FK outputs only the hand; the final held solve retains its physical work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. Each interior write lends one exact FK getter to its three hand observations and final held solve, sharing scalar prerequisites only; distinct posture/goal requests remain actual solves.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A write's hand-demand set and lazy exact reader end on return/throw; no returned posture or stored plan captures them, and no time/result history is added.
    */
   export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
@@ -406,12 +407,17 @@ export namespace AutoMovieMotionHumanArmCarry {
         // (`HumanHandAttitude`), between the hands its two ends show: weight 1
         // writes a planned arm's own hand, so its end is the plan's at the
         // hold's nearer edge, carried on the trunk now; the goal's fit else.
+        const requested: ReadonlySet<AutoMovieHumanoidBone> =
+          new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution();
         const hand = (at: IHumanPosture): IAutoMovieQuaternion =>
           poseBones(
             props.body,
-            resolveHumanPosture(props.body, at),
-            undefined,
-            new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
+            resolveHumanPosture.seeded(props.body, at, undefined, undefined,
+              resolution, requested).pose,
+            resolution(),
+            requested,
           ).get(
             `${props.side}Hand`,
           )!.worldRotation;
@@ -433,6 +439,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             hand(ended),
             weight,
           ),
+          resolution,
         );
       },
     };

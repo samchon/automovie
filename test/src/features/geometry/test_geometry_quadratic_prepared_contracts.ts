@@ -23,11 +23,14 @@ import { throwsError } from "../internal/throwsError";
  * 5. The admitted zero-origin objective reports the actual soft-row excesses
  *    (2,1,0) with cost10; the step (1,2) has excesses (0,3,0) and cost24,
  *    including its coupled curvature and linear terms.
+ * 6. Reusing the same scalar curvature10 and free row while q changes from
+ *    -1 to-2 moves the optimum from0.1 to0.2. An earlier explicitly prepared
+ *    snapshot still returns0.1, independently of any shared matrix factors.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the fixed-model snapshot contract, independent coupled/scalar KKT and objective derivations, mutable bounds/penalties, precision, observer order and ownership checks in five scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the fixed-model snapshot contract, independent coupled/scalar KKT and objective derivations, mutable bounds/penalties/linear objective, precision, observer order and ownership checks in six scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Uses actual prepare/solve/value entries, checking successful statuses, analytic primal values, original-unit stationarity and active-row residuals, changed bounds, source isolation, fresh x/z/y, unchanged warm arrays, admission/recovery and actual ordered soft-row excesses at origin and a step.
- * @evidence contracts/development/testing.md#independent-expectations Two stationarity equations give free (1,2), and their subtraction gives y=x+1 at fixed sum. Scalar l1 solves 2x=weight until its kink. Literal interval distances give origin cost3*2+4*1=10 and step cost12+4*3=24. Primal bounds retain 1e-6 and active rows1e-9 from existing specifications; no solver output supplies an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers free/equality/upper rows, changed source versus new preparation, soft/hard/zero weight, rekeyed multipliers, output/warm ownership, invalid refreshed bounds and recovery, plus origin/actual-step soft observers with an ignored hard row and zero-weight row. General infeasibility and original sparse admission have separate entries.
+ * @evidence contracts/development/testing.md#independent-expectations Two stationarity equations give free (1,2), and their subtraction gives y=x+1 at fixed sum. Scalar l1 solves 2x=weight until its kink. Unconstrained10x+q=0 gives0.1 and0.2 for q=-1/-2. Literal interval distances give origin cost3*2+4*1=10 and step cost12+4*3=24. Primal bounds retain 1e-6 and active rows1e-9 from existing specifications; no solver output supplies an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers free/equality/upper rows, changed source versus new preparation, q-only same-matrix reuse versus a fixed earlier snapshot, soft/hard/zero weight, rekeyed multipliers, output/warm ownership, invalid refreshed bounds and recovery, plus origin/actual-step soft observers with an ignored hard row and zero-weight row. General infeasibility and original sparse admission have separate entries.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit directly imports the solver. All models, bounds, maps and arrays belong to this test; it starts no native artifact, process, browser or renderer and installs no replacement function.
  */
 export function test_geometry_quadratic_prepared_contracts(): void {
@@ -169,6 +172,24 @@ export function test_geometry_quadratic_prepared_contracts(): void {
     observed.every((row: { key: string | undefined; miss: number }, i: number): boolean =>
       nclose(row.miss, [0, 3, 0][i]!, 0)),
   );
+
+  const linear: Q.IProblem = {
+    n: 1, band: 0, p: [Float64Array.of(10)], q: Float64Array.of(-1),
+    rows: [{ index: [0], coef: [1], l: -Infinity, u: Infinity }],
+  };
+  const oldLinear: ReturnType<typeof Q.prepare> = Q.prepare(linear);
+  minimum("initial scalar linear objective", Q.solve(linear), [0.1]);
+  linear.q[0] = -2;
+  const currentLinear: Q.IState = Q.solve(linear);
+  minimum("same matrices read the changed linear objective", currentLinear, [0.2]);
+  TestValidator.predicate("new solve satisfies its actual current stationarity equation",
+    nclose(10 * currentLinear.x[0]! - 2, 0, 1e-7),
+  );
+  minimum("previous explicit snapshot retains its original linear objective",
+    oldLinear.solve(linear.rows), [0.1],
+  );
+  linear.q[0] = -1;
+  minimum("replaying the earlier linear objective solves it again", Q.solve(linear), [0.1]);
 }
 
 /** Keep the existing solver's componentwise tolerance and successful statuses. */

@@ -4,7 +4,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * Bone frames whose colliders the original forearm-clearance policy reads:
  * trunk and thighs, plus each already placed arm's three segments.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines fixed trunk/thigh policy, placed-arm membership and read-only returned names.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the shared original six-name TRUNK set, fixed trunk/thigh policy, placed-arm membership and borrowed read-only names used by trunk filtering and obstacle FK demand.
  * @evidence contracts/development/implementation.md#principled-implementation Converts the existing clearance membership predicate into one canonical bone set, so scoped FK supplies exactly the same collider frames before actual placement/querying.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner supplies both the existing obstacle filter and its FK demand; TRUNK separately serves the trunk-only filter without duplicating the name table.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no collider, approximation, result, margin or contact policy; obstacle filtering still preserves original placed segment order.
@@ -35,7 +35,7 @@ export namespace HumanArmObstacleBones {
   /**
    * Original axial collider names; leave this shared set unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the borrowed canonical trunk names shared by trunk filtering and obstacle demand.
+   * Defines the borrowed canonical trunk names shared by trunk filtering and obstacle demand.
    */
   export const TRUNK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
     "hips", "spine", "chest", "upperChest", "neck", "head",

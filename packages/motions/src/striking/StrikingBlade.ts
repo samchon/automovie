@@ -196,8 +196,8 @@ export namespace StrikingBlade {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The base, then the tool's frame at a second, then the two arm goals written on the base's posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow hint is the arm's least-strain place with the hanging arm as its named fallback; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One lazy decisive-pose fit establishes the existing arm reference. Each time read computes its actual base/path/goals and at most one demanded shoulder/chest trunk map shared by frame carrying and elbow carrying; final physical limb fits remain with the displayed evaluator. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint and fixed hand-angle ownership stays per plan; one explicit posture invocation shares only its exact current body's trunk between its two readers, and decisive-pose fit/read-back may share equal scalar FK prerequisites synchronously.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing stroke/base/entry and fixed hand/reference data; each current trunk map and decisive FK reader ends on return or throw, with no time-history cache or retained evaluation scope.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint, fixed hand-angle and hand-local tool contact/limit geometry stays per plan; every actual frame still creates fresh wrist goals and task records. one explicit posture invocation shares only its exact current body's trunk between its two readers, and decisive-pose fit/read-back may share equal scalar FK prerequisites synchronously.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing stroke/base/entry, fixed hand/reference data and at most one lazy scalar-only tool-goal producer; each current trunk map and decisive FK reader ends on return or throw, with no time-history cache or retained evaluation scope.
    */
   export function plan(
     context: IHumanActionContext,
@@ -232,6 +232,11 @@ export namespace StrikingBlade {
         ? HumanHand.shape(tool.side, "fist")
         : (StrikingHeld.holds(context, tool)[0]?.fingers ?? {});
     const supportingFingers: IHumanPosture["joints"] = stroke.support === null ? {} : HumanHand.shape(other, "fist");
+    let preparedGoal: ReturnType<typeof StrikingHeld.prepareGoal> | undefined;
+    const goalFor = (at: StrikingHeld.IHandFrame): IHumanPosture.IGoal => {
+      if (preparedGoal === undefined) preparedGoal = StrikingHeld.prepareGoal(context, tool, stroke.back);
+      return preparedGoal(at, { x: 0, y: 0, z: 0 });
+    };
 
     // How far the tool is from the entry hold to its path, in [0, 1].
     const present = (seconds: number): number =>
@@ -359,13 +364,7 @@ export namespace StrikingBlade {
         decisive,
         stroke.support,
       );
-      const goal: IHumanPosture.IGoal = StrikingHeld.goal(
-        context,
-        tool,
-        decisive,
-        stroke.back,
-        { x: 0, y: 0, z: 0 },
-      );
+      const goal: IHumanPosture.IGoal = goalFor(decisive);
       // The arm at the decisive pose, its elbow left to the body
       // (`StrikingHeld.goal`): the elbow it takes there is the hint carried
       // on the chest, and its solution the stroke's reference.
@@ -416,13 +415,7 @@ export namespace StrikingBlade {
         const read: () => ReturnType<typeof HumanTrunk.resolve> = (): ReturnType<typeof HumanTrunk.resolve> =>
           (trunk ??= HumanTrunk.resolve(body, posture, undefined, undefined, trunkBones));
         const at: StrikingHeld.IHandFrame = frame(posture, t, read);
-        const first: IHumanPosture.IGoal = StrikingHeld.goal(
-          context,
-          tool,
-          at,
-          stroke.back,
-          { x: 0, y: 0, z: 0 },
-        );
+        const first: IHumanPosture.IGoal = goalFor(at);
         const limbs: IHumanPosture["limbs"] = {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
