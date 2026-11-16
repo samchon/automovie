@@ -10,6 +10,7 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { operate } from "../../affordance/operate";
+import type { operateDrive } from "../../affordance/operateDrive";
 import type { IHumanBody } from "../../body/IHumanBody";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanHand } from "../../posture/HumanHand";
@@ -65,7 +66,10 @@ export function affordanceCases(
       frame: "world" as const,
       normal: towardPerformer,
     });
-    const mechanisms: [string, operate.Mechanism][] = [
+    const mechanisms: [
+      string,
+      Exclude<operate.Mechanism, { kind: "insert" }>,
+    ][] = [
       ["button", { kind: "button", at: at(-0.15, 1.1, 0.5) }],
       ["knob", { kind: "knob", at: at(-0.2, 0.95, 0.5), turn: 90 }],
       ["drawer", { kind: "slider", at: at(-0.15, 0.85, 0.5), travel: 0.25 }],
@@ -97,9 +101,9 @@ export function affordanceCases(
         point: (mechanism.at as { at: IAutoMovieVector3 }).at,
         normal: towardPerformer,
       };
-      const hinge: IAutoMovieVector3 | undefined =
+      const hinge: operateDrive.IHinge | undefined =
         mechanism.kind === "hinge"
-          ? (mechanism.hinge as { at: IAutoMovieVector3 }).at
+          ? { point: (mechanism.hinge as { at: IAutoMovieVector3 }).at }
           : undefined;
       const progress = (t: number): number =>
         t <= start ? 0 : t >= end ? 1 : (t - start) / (end - start);
