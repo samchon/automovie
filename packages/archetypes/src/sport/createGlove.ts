@@ -53,6 +53,7 @@ export function createGlove(
     createGlove.Affordance,
     createGlove.Dimension
   > = new ArchetypeBuilder({
+    material: "leather",
     id: params.id,
     name: kind === "fielder" ? "fielder's glove" : "catcher's mitt",
     draw,

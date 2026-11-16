@@ -19,7 +19,12 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
  */
 export function test_archetype_weapon_projectile_bands(): void {
-  const row = (
+  const row: (
+    name: string,
+    minimum: number,
+    maximum: number,
+    measure: (seed: number) => number,
+  ) => archetypeBandSweep.IRow = (
     name: string,
     minimum: number,
     maximum: number,
@@ -31,9 +36,13 @@ export function test_archetype_weapon_projectile_bands(): void {
     source: "the cited records",
     measure,
   });
-  const ball = (seed: number): ReturnType<typeof createProjectile> =>
+  const ball: (seed: number) => ReturnType<typeof createProjectile> = (
+    seed: number,
+  ): ReturnType<typeof createProjectile> =>
     createProjectile({ kind: "ball" }, seed);
-  const arrow = (seed: number): ReturnType<typeof createProjectile> =>
+  const arrow: (seed: number) => ReturnType<typeof createProjectile> = (
+    seed: number,
+  ): ReturnType<typeof createProjectile> =>
     createProjectile({ kind: "arrow" }, seed);
   const findings: string[] = archetypeBandSweep([
     row(
@@ -83,7 +92,8 @@ export function test_archetype_weapon_projectile_bands(): void {
     ),
     row(
       "bolt mass",
-      Math.PI * 0.0068 * 0.0068 * (0.36 - 0.077) * 680 + ((0.0136 * 0.0136 * 0.077) / 3) * 7850,
+      Math.PI * 0.0068 * 0.0068 * (0.36 - 0.077) * 680 +
+        ((0.0136 * 0.0136 * 0.077) / 3) * 7850,
       0.074,
       (s: number): number => createProjectile({ kind: "bolt" }, s).body.mass,
     ),
@@ -118,8 +128,11 @@ export function test_archetype_weapon_projectile_bands(): void {
   for (const seed of [0, 1, 2]) {
     for (const kind of ["ball", "roundShot"] as const)
       if (
-        Math.abs(archetypeExtent(createProjectile({ kind }, seed), "y").low) >
-        1e-12
+        !(
+          Math.abs(
+            archetypeExtent(createProjectile({ kind }, seed), "y").low,
+          ) <= 1e-12
+        )
       )
         findings.push(`${kind}@${seed}: off the floor`);
     for (const kind of ["arrow", "bolt"] as const) {
@@ -128,11 +141,13 @@ export function test_archetype_weapon_projectile_bands(): void {
         seed,
       );
       if (
-        Math.abs(shaft.affordance("nock").frame.translation.y) > 1e-12 ||
-        Math.abs(
-          shaft.affordance("tip").frame.translation.y -
-            archetypeExtent(shaft, "y").high,
-        ) > 1e-12
+        !(
+          Math.abs(shaft.affordance("nock").frame.translation.y) <= 1e-12 &&
+          Math.abs(
+            shaft.affordance("tip").frame.translation.y -
+              archetypeExtent(shaft, "y").high,
+          ) <= 1e-12
+        )
       )
         findings.push(`${kind}@${seed}: the nock or the tip is off its end`);
     }
@@ -141,12 +156,21 @@ export function test_archetype_weapon_projectile_bands(): void {
     ["sixPounder", 3.58, 6.1],
     ["twelvePounder", 4.52, 12.3],
   ] as const) {
-    const shot: ReturnType<typeof createProjectile> = createProjectile({ kind: "roundShot", model }, 1);
+    const shot: ReturnType<typeof createProjectile> = createProjectile(
+      { kind: "roundShot", model },
+      1,
+    );
     if (
-      Math.abs(archetypeExtent(shot, "x").size - diameter * ArchetypeUnits.INCH) > 1e-12 ||
-      Math.abs(shot.body.mass - pounds * ArchetypeUnits.POUND) > 1e-12
+      !(
+        Math.abs(
+          archetypeExtent(shot, "x").size - diameter * ArchetypeUnits.INCH,
+        ) <= 1e-12 &&
+        Math.abs(shot.body.mass - pounds * ArchetypeUnits.POUND) <= 1e-12
+      )
     )
-      findings.push(`the ${model}'s shot is not ${diameter} in and ${pounds} lb`);
+      findings.push(
+        `the ${model}'s shot is not ${diameter} in and ${pounds} lb`,
+      );
   }
   TestValidator.equals("projectiles stay in their cited bands", findings, []);
 }

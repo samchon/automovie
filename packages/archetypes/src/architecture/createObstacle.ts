@@ -65,6 +65,14 @@ export function createObstacle(
     ...length,
   };
   const builder: Builder = new ArchetypeBuilder({
+    material:
+      kind === "crosstie"
+        ? "wood"
+        : kind === "jerseyBarrier"
+          ? "concrete"
+          : kind === "crowdBarrier"
+            ? "steel"
+            : "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

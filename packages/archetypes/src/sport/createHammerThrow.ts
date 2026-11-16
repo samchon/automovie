@@ -56,6 +56,7 @@ export function createHammerThrow(
     createHammerThrow.Affordance,
     createHammerThrow.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `${kind}'s hammer`,
     draw,

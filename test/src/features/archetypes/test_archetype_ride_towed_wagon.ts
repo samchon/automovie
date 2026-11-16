@@ -216,6 +216,7 @@ export function test_archetype_ride_towed_wagon(): void {
  */
 function hitched(): Archetype<"hitch", never> {
   return new ArchetypeBuilder<"hitch", never>({
+    material: "steel",
     name: "leader",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })

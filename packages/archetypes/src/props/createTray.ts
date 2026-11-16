@@ -72,6 +72,7 @@ export function createTray(
   };
   const builder: ArchetypeBuilder<createTray.Affordance, createTray.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind,
       draw,

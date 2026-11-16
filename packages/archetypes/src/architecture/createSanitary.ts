@@ -56,6 +56,7 @@ export function createSanitary(
     createSanitary.Affordance,
     createSanitary.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

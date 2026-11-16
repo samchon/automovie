@@ -54,6 +54,7 @@ export function createExerciseBike(
     createExerciseBike.Affordance,
     createExerciseBike.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "exercise bike",
     draw,

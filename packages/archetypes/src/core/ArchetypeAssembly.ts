@@ -10,6 +10,8 @@ import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import type { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
+import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import type { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 
@@ -64,11 +66,11 @@ export class ArchetypeAssembly<
    * @throws {ArchetypeRefusal} When there is no member, a key is empty or contains `/`, or a placement is not rigid with unit scale.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's role, what a member keeps and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, its parts' transforms and affordances' frames composed under its placement and every id and reference prefixed; mass properties by `ArchetypeMass.combine`; the members' set travels become the assembly's under their prefixes. Static and kinetic friction and restitution are the members' mass-weighted means, a stand-in because the model's body carries one coefficient of each for the whole, each friction only when every member has it; each part keeps its member's declared surface under its prefixed id.
+   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, ids are prefixed and frames placed, mass properties are combined and articulation state is preserved. Static and kinetic friction retain their stated mass-weighted approximation through the shared scaled convex mean, preserving finite coefficients when a direct coefficient-times-mass product underflows. Any missing member coefficient keeps that aggregate unknown. Restitution is retained only when every member declares the same physical material and exactly the same known coefficient; otherwise the aggregate remains unknown instead of averaging unrelated impact ratios. Even a common material reference does not certify a compound object's collision response.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the members, merge them, construct.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-rigid placement is refused rather than having its scale dropped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members' parts, affordances and spans.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members' parts, affordances and spans, plus two O(M) coefficient means for M members. Coefficient/weight arrays retain O(M) temporary scalars; exceptional arithmetic belongs to the shared mean owner.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ArchetypeMassArithmetic.mean for both contact coefficients instead of independently forming potentially unrepresentable weighted products; each call still builds one independent model.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assembly holds its members and its merged rest model for as long as its caller keeps it.
    */
   public static of<
@@ -102,11 +104,11 @@ export class ArchetypeAssembly<
     const spans: ArchetypeSpan.ISpan[] = [];
     const placed: ArchetypeMass.IPlaced[] = [];
     const state: Partial<Record<ArchetypeAssembly.Ids<M>, number>> = {};
-    let friction: number | null = 0;
-    let kinetic: number | null = 0;
-    let restitution: number = 0;
+    let friction: number[] | null = [];
+    let kinetic: number[] | null = [];
+    let material: ArchetypeMaterial.Kind | null | undefined;
+    let restitution: number | null | undefined;
     const surfaces: Record<string, ArchetypeFriction.Material> = {};
-    let mass: number = 0;
     for (const key of keys) {
       const member: ArchetypeAssembly.IMember = members[key]!;
       const placement: IAutoMovieTransform = member.placement;
@@ -182,21 +184,30 @@ export class ArchetypeAssembly<
           to: end(span.to),
         });
       placed.push({ properties: rest.properties, placement });
-      const weight: number = rest.properties.mass;
-      friction =
-        friction === null || rest.body.friction === undefined
-          ? null
-          : friction + rest.body.friction * weight;
-      kinetic =
-        kinetic === null || rest.body.kineticFriction === undefined
-          ? null
-          : kinetic + rest.body.kineticFriction * weight;
-      restitution += rest.body.restitution * weight;
-      mass += weight;
+      if (rest.body.friction === undefined) friction = null;
+      else friction?.push(rest.body.friction);
+      if (rest.body.kineticFriction === undefined) kinetic = null;
+      else kinetic?.push(rest.body.kineticFriction);
+      if (material === undefined) {
+        material = rest.physicalMaterial;
+        restitution = rest.body.restitution ?? null;
+      } else {
+        if (material !== rest.physicalMaterial) material = null;
+        if (
+          material === null ||
+          restitution === null ||
+          rest.body.restitution === undefined ||
+          restitution !== rest.body.restitution
+        )
+          restitution = null;
+      }
       for (const [own, travel] of Object.entries(member.archetype.state))
         if (travel !== undefined)
           state[prefix(own) as ArchetypeAssembly.Ids<M>] = travel;
     }
+    const weights: number[] = placed.map(
+      (member: ArchetypeMass.IPlaced): number => member.properties.mass,
+    );
     return new ArchetypeAssembly<M>(
       members,
       {
@@ -207,10 +218,13 @@ export class ArchetypeAssembly<
         affordances,
         materials: [...materials.values()],
         properties: ArchetypeMass.combine(placed),
-        friction: friction === null ? null : friction / mass,
-        kineticFriction: kinetic === null ? null : kinetic / mass,
+        friction:
+          friction === null ? null : ArchetypeMassArithmetic.mean(friction, weights),
+        kineticFriction:
+          kinetic === null ? null : ArchetypeMassArithmetic.mean(kinetic, weights),
         surfaces,
-        restitution: restitution / mass,
+        material: material ?? null,
+        restitution: restitution ?? null,
         // An assembly is no launched body: no member's flight data speaks for the whole.
         drag: null,
         contact: null,

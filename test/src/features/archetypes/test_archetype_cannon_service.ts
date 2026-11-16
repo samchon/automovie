@@ -30,8 +30,11 @@ const FT: number = 12 * IN;
  */
 export function test_archetype_cannon_service(): void {
   const findings: string[] = [];
-  const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
-    Math.abs(a - b) <= tolerance;
+  const close: (a: number, b: number, tolerance?: number) => boolean = (
+    a: number,
+    b: number,
+    tolerance: number = 1e-9,
+  ): boolean => Math.abs(a - b) <= tolerance;
   const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
     createCannon({ kind: "fieldGun" }, 1);
   const d: Readonly<Partial<Record<createCannon.Dimension, number>>> =

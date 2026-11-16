@@ -87,6 +87,7 @@ export function createCareItem(
     createCareItem.Affordance,
     createCareItem.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

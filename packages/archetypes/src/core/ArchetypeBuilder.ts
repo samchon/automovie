@@ -15,11 +15,12 @@ import type {
 } from "@automovie/interface";
 
 import { Archetype } from "./Archetype";
-import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
 import type { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
+import { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 
@@ -322,15 +323,15 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, the provisional `ArchetypeBuilder.RESTITUTION` when absent. `drag` and `outcome`, a launched body's measured drag and its flight's ending (`IAutoMovieBody.drag` and `contact`), absent when no source measured them. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
+   * @param contact Resting and ground materials select their cited friction pair. An explicit restitution is admitted from 0 to 1; otherwise restitution remains unknown; a material reference never supplies a universal scalar. Drag and outcome are the launched body's optional flight data. The constructor's physical material declaration is required independently of optical colours and resting surfaces.
    * @returns The archetype at rest.
    * @throws {Error} As `ArchetypeMass.of` does when no part has mass.
-   * @throws {ArchetypeRefusal} When no source measured the resting pair.
+   * @throws {ArchetypeRefusal} When the physical material is missing or unknown, an explicit restitution is invalid, or no source measured a declared resting pair.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation Mass properties from the recorded parts under the stated total mass, the body's friction from the measured pair of what it rests on and its ground, then one `Archetype` over the recorded lists with the declared surfaces.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume; an unmeasured resting pair is refused; a producer that has not declared what it rests on leaves the body's friction absent rather than given an invented coefficient. The restitution a producer leaves unstated is the unsourced `RESTITUTION`, a violation that remains until #3557 reads it per material.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits the producer's physical material and only an explicit authored restitution through ArchetypeMaterial, selects cited resting-pair friction, and computes mass properties from the recorded parts under the stated mass. Published restitution measurements retain pair, speed and specimen conditions separately.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Material and contact admission precede one construction from the builder's recorded geometry and mass properties.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing material is refused. Unmeasured restitution and undeclared resting friction remain absent; neither becomes zero or a universal coefficient. The mass remains the producer's cited value rather than a guessed density-derived total.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `ArchetypeMass.of`.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
@@ -345,6 +346,15 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       outcome?: IAutoMovieBodyContact;
     },
   ): Archetype<Id, Dimension> {
+    const material: ArchetypeMaterial.Kind = ArchetypeMaterial.admit(
+      this.#props.material,
+      this.#props.draw.archetype,
+    );
+    const restitution: number | null = ArchetypeMaterial.restitution(
+      material,
+      contact?.restitution,
+      this.#props.draw.archetype,
+    );
     const pair: ArchetypeFriction.ICoefficients | null =
       contact?.rests === undefined
         ? null
@@ -372,7 +382,8 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
           ? null
           : ArchetypeFriction.value(pair.kinetic),
       surfaces: this.#surfaces,
-      restitution: contact?.restitution ?? ArchetypeBuilder.RESTITUTION,
+      material,
+      restitution,
       drag: contact?.drag ?? null,
       contact: contact?.outcome ?? null,
       fractures: this.#fractures,
@@ -443,50 +454,24 @@ export namespace ArchetypeBuilder {
   /** The colour of a part that states none: a mid grey. */
   export const NEUTRAL: string = "#9a9a9a";
 
-  /** The restitution of a body whose producer states none, 0 to 1: 0.2, a provisional value no source read gives. #3557 replaces it with each material's cited restitution; until then every body that does not bounce or roll by a read figure carries it. */
-  export const RESTITUTION: number = 0.2;
+  /**
+   * The producer identity and draw record, with an explicit physical material.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Preserves the public builder-input name and delegates fields and units to the shared type owner.
+   * @evidence contracts/development/design.md#principled-representation Aliases the unchanged producer identity, typed dimension provenance and physical reference material record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing constructors and producer helpers keep their established import and generic dimension parameter.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Introduces no parallel fields or broader name/coefficient representation.
+   */
+  export type IProps<Dimension extends string> =
+    ArchetypeBuilderTypes.IProps<Dimension>;
 
   /**
-   * A model's identity and its producer's draws.
+   * The primitive-part options, preserving the existing public builder name.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation The model's identity and the producer's draw session, which carries the producer's name, the values keyed by its closed union and where each came from, so the archetype's record is the session's and cannot disagree with it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the builder; every producer writes one and `build` reads every member. `id` is optional because a scene holding one such thing needs none.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No registry key: the archetype's name is text for messages only.
+   * @evidence contracts/development/common.md#meaningful-documentation Delegates optical colour, mass, rigid placement and physical surface meanings to the shared type owner.
+   * @evidence contracts/development/design.md#principled-representation Aliases the same part-option record and existing geometry/material types.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing box, rod and ball callers retain their current option type while its fields have one owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no producer-specific option or duplicate physical coefficient.
    */
-  export interface IProps<Dimension extends string> {
-    /** The model's id; the producer's name when absent. */
-    id?: string;
-
-    /** The model's readable name. */
-    name: string;
-
-    /** The producer's draws, whose values the archetype records as its dimensions and whose provenance it keeps. */
-    draw: ArchetypeDrawSession<Dimension>;
-  }
-
-  /**
-   * How one part differs from a grey solid of unit density at its unrotated place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation How one part departs from a grey solid of unit density: an sRGB swatch, a positive relative density or an absolute mass share, and a unit quaternion.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the builder; each member is read when a part is recorded and set by at least one producer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Density and share are two optional members, not a union: a looseness that remains, bounded by the rule on `share` that a producer stating one states it for every part.
-   */
-  export interface IOptions {
-    /** The part's flat colour as an sRGB swatch `#rrggbb`; a mid grey when absent. */
-    color?: string;
-
-    /** The part's density relative to the other parts, positive; 1 when absent. It only shifts the centre of mass and inertia, since the total mass is stated. */
-    density?: number;
-
-    /** The part's share of the total mass, replacing its volume times density, for a body whose segment masses are measured; a producer that states one states it for every part. */
-    share?: number;
-
-    /** The part's rotation in the model's space, a unit quaternion; unrotated when absent. */
-    rotation?: IAutoMovieQuaternion;
-
-    /** What the part's surface is made of, for a part something touches: a tyre, a grip, a seat, a sole; undeclared when absent. `Archetype.friction` reads it against another material. */
-    surface?: ArchetypeFriction.Material;
-  }
+  export type IOptions = ArchetypeBuilderTypes.IOptions;
 }

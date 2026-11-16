@@ -16,15 +16,16 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A ball dropped from 1 m with restitution 0.5 rebounds to 0.25 m within
  *    1 mm (the rebound speed is half the impact speed, so the height a
  *    quarter).
- * 2. Its bounces, each read off the previous one's contact, converge to a
- *    roll once a rebound rises less than its radius.
+ * 2. With radius 0.0365 m, the third impact becomes a roll: successive
+ *    candidate rebound heights are 0.25, 0.0625 and 0.015625 m. Each search
+ *    starts at zero and names the resolved floor, preserving later reentry.
  * 3. A ball touching down at 2 m/s along level ground with a rolling
  *    resistance of 0.1 stops `v^2 / (2 c g)` beyond where it touched down,
  *    to the float resolution of the closed form, and at rest.
  * 4. A stick rests the point `depth` on along the velocity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Bounces, rolls and sticks read back through the continuation's own reader; a wrong restitution, a roll that never stops or a stick off the line fails.
- * @evidence contracts/development/testing.md#independent-expectations The rebound height e²h and the stopping distance v²/(2cg) are written here.
+ * @evidence contracts/development/testing.md#independent-expectations The rebound height e²h, the three explicit heights straddling the radius and the stopping distance v²/(2cg) are written here. Three impacts are derived from those heights, not a production bounce cap.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a bounce, a chain of bounces into a roll, a roll and a stick.
  * @evidence contracts/development/testing.md#execution-ownership The named unit calls the engine's contact and continuation directly.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios with their inputs and bounds.
@@ -44,8 +45,9 @@ export function test_physics_projectile_bounce(): void {
     projectileFirstContact(
       p,
       [ground],
-      { from: 1e-6, to: 5 },
+      { from: 0, to: 5 },
       {
+        departing: ground.id,
         radius: 0,
         thickness: 0.05,
       },
@@ -67,13 +69,13 @@ export function test_physics_projectile_bounce(): void {
     Math.abs(rebound - 0.25) <= 1e-3,
   );
 
-  // 2. Bounces converge to a roll.
+  // 2. The first two rebound heights exceed the radius; the third does not.
   let current: IAutoMovieProjectile = {
     ...drop,
     velocity: { x: 1, y: 0, z: 0 },
   };
   let rolled: boolean = false;
-  for (let k: number = 0; k < 40 && !rolled; k++) {
+  for (let k: number = 0; k < 3; k++) {
     const next: projectileContinue.Segment = projectileContinue(
       current,
       first(current),
@@ -83,6 +85,10 @@ export function test_physics_projectile_bounce(): void {
         friction: 0,
         roll: { radius: 0.0365, resistance: 0.1 },
       },
+    );
+    TestValidator.predicate(
+      `impact ${k + 1} follows its e²h/radius comparison`,
+      k < 2 ? next.kind === "flight" : next.kind === "roll",
     );
     if (next.kind === "roll") rolled = true;
     else if (next.kind === "flight") current = next.projectile;

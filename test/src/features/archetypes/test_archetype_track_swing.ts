@@ -33,6 +33,7 @@ export function test_archetype_track_swing(): void {
   const v: typeof Vector3.create = Vector3.create;
   const pivot: IAutoMovieVector3 = v(0, 1, 0);
   const body: Archetype<"hinge", never> = new ArchetypeBuilder<"hinge", never>({
+    material: "steel",
     name: "pendulum",
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })

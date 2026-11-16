@@ -153,6 +153,7 @@ export function createHolster(
     createHolster.Affordance,
     createHolster.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

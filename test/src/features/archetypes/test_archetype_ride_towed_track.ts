@@ -24,6 +24,7 @@ const REACH: number = 2;
  */
 function hooked<Id extends string>(id: Id, z: number): Archetype<Id, never> {
   return new ArchetypeBuilder<Id, never>({
+    material: "steel",
     name: id,
     draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })

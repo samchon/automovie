@@ -72,6 +72,7 @@ export function createTool(
   const radius: number = d.gripDiameter! / 2;
   const builder: ArchetypeBuilder<createTool.Affordance, createTool.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: kind,
       draw,

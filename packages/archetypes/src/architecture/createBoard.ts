@@ -142,6 +142,7 @@ export function createBoard(
     createBoard.Affordance,
     createBoard.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: `${NAMES[kind]} ${size.name}`,
     draw,

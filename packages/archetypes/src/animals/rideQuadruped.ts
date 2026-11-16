@@ -208,13 +208,16 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       });
   }
 
-  // One stance: the duty factor at the speed the foot lands at in its stride's gait, where the body is at the landing and how far it goes before the foot lifts.
+  // Each foot's stance uses its end's measured duty when supplied; legacy
+  // tables keep their common fore duty. Travel ends at that foot's own lift.
   const stance = (
     at: number,
     which: QuadrupedGait.Gait,
+    fore: boolean,
   ): { duty: number; from: number; travel: number } => {
     const landed: ArchetypeCourse.IState = plan.at(secondsAt(at));
-    const duty: number = paced(which, landed.speed).duty;
+    const timing: QuadrupedGait.ITiming = paced(which, landed.speed);
+    const duty: number = fore ? timing.duty : (timing.hindDuty ?? timing.duty);
     return {
       duty,
       from: landed.distance,
@@ -258,6 +261,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         const current: { duty: number; from: number; travel: number } = stance(
           landed,
           strideOf(m).gait,
+          fore,
         );
         const planted: boolean = local < current.duty;
         const swing: number = planted
@@ -270,7 +274,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         const ahead: number = planted
           ? current.travel / 2 - (state.distance - current.from)
           : -current.travel / 2 +
-            ((current.travel + stance(coming, strideOf(m + 1).gait).travel) /
+            ((current.travel +
+              stance(coming, strideOf(m + 1).gait, fore).travel) /
               2) *
               path.along;
         const joints: IAutoMovieVector3[] = QuadrupedLimb.solve(

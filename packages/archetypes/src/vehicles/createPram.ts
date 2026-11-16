@@ -48,6 +48,7 @@ export function createPram(
   );
   const builder: ArchetypeBuilder<createPram.Affordance, createPram.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name: "pram",
       draw,

@@ -62,6 +62,7 @@ export function createMicrophone(
     createMicrophone.Affordance,
     createMicrophone.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "handheld" ? "microphone" : "microphone stand",
     draw,

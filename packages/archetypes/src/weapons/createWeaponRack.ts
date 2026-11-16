@@ -54,6 +54,7 @@ export function createWeaponRack(
     createWeaponRack.Affordance,
     createWeaponRack.Dimension
   > = new ArchetypeBuilder({
+    material: "wood",
     id: params.id,
     name: "weapon rack",
     draw,

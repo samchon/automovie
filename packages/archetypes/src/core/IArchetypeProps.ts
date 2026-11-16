@@ -10,6 +10,7 @@ import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import type { ArchetypeFracture } from "./ArchetypeFracture";
 import type { ArchetypeFriction } from "./ArchetypeFriction";
 import type { ArchetypeMass } from "./ArchetypeMass";
+import type { ArchetypeMaterial } from "./ArchetypeMaterial";
 import type { ArchetypeSpan } from "./ArchetypeSpan";
 
 /**
@@ -54,8 +55,11 @@ export interface IArchetypeProps<Id extends string, Dimension extends string> {
   /** What each part's surface is made of, by part id, for the parts whose producer declared it. */
   surfaces: Readonly<Record<string, ArchetypeFriction.Material>>;
 
-  /** Coefficient of restitution, 0 to 1. */
-  restitution: number;
+  /** The body's declared physical reference material; null for a heterogeneous assembly without one common material. */
+  material: ArchetypeMaterial.Kind | null;
+
+  /** Explicit authored or calibrated normal restitution, 0 to 1; null when no coefficient was declared. */
+  restitution: number | null;
 
   /** The air's drag on the body in flight; null when no source measured it. */
   drag: IAutoMovieBodyDrag | null;

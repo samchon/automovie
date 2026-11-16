@@ -68,6 +68,7 @@ export function createBox(
   const depth: number = d.depth;
   const builder: ArchetypeBuilder<createBox.Affordance, createBox.Dimension> =
     new ArchetypeBuilder({
+      material: "paper",
       id: params.id,
       name: "cardboard box",
       draw,

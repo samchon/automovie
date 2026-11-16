@@ -55,6 +55,7 @@ export function createShot(
   );
   const builder: ArchetypeBuilder<createShot.Affordance, createShot.Dimension> =
     new ArchetypeBuilder({
+      material: "iron",
       id: params.id,
       name: `${kind}'s shot`,
       draw,

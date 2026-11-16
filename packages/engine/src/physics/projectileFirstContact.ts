@@ -12,6 +12,7 @@ import type { IAutoMovieProjectileState } from "./IAutoMovieProjectileState";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
+import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
 
 /**
  * A projectile's first contact with any of several colliders over a span of
@@ -55,7 +56,13 @@ export function projectileFirstContact(
   span: { from: number; to: number },
   options: projectileFirstContact.IOptions,
 ): IAutoMovieHit | null {
-  if (!(Number.isFinite(span.from) && Number.isFinite(span.to) && span.to > span.from))
+  if (
+    !(
+      Number.isFinite(span.from) &&
+      Number.isFinite(span.to) &&
+      span.to > span.from
+    )
+  )
     throw new RangeError(
       `projectile contact span ${span.from} to ${span.to} is not finite and forward`,
     );
@@ -129,16 +136,30 @@ export function projectileFirstContact(
         },
       ],
       bodies: colliders.map(
-        (c: projectileFirstContact.ICollider): resolveAutoMovieContactEvents.IBody => ({
-          id: c.id,
-          distance: (point: IAutoMovieVector3, seconds: number): number =>
-            c.nearest(point, point, seconds).distance,
-          axis: (
-            a: IAutoMovieVector3,
-            b: IAutoMovieVector3,
-            seconds: number,
-          ): number => c.nearest(a, b, seconds).distance,
-        }),
+        (
+          c: projectileFirstContact.ICollider,
+        ): resolveAutoMovieContactEvents.IBody => {
+          const departure: projectileFirstContact.ICollider["departure"] =
+            c.departure;
+          return {
+            id: c.id,
+            distance: (point: IAutoMovieVector3, seconds: number): number =>
+              c.nearest(point, point, seconds).distance,
+            axis: (
+              a: IAutoMovieVector3,
+              b: IAutoMovieVector3,
+              seconds: number,
+            ): number => c.nearest(a, b, seconds).distance,
+            ...(departure === undefined
+              ? {}
+              : {
+                  departure: (
+                    contact: resolveAutoMovieContactEvents.IInitialContact,
+                  ): resolveAutoMovieContactEvents.Departure | undefined =>
+                    departure.call(c, projectile, options, contact),
+                }),
+          };
+        },
       ),
       from: span.from,
       to: span.to,
@@ -190,6 +211,17 @@ export namespace projectileFirstContact {
     id: string;
 
     /**
+     * Certify departure of an explicitly resolved initial episode using this
+     * collider's physical model. Unknown motion returns undefined and retains
+     * ordinary overlap reporting; a witness is checked by the shared resolver.
+     */
+    departure?(
+      projectile: IAutoMovieProjectile,
+      options: IOptions,
+      contact: resolveAutoMovieContactEvents.IInitialContact,
+    ): resolveAutoMovieContactEvents.Departure | undefined;
+
+    /**
      * Where a world segment comes nearest it at a second; a point when both
      * ends coincide.
      *
@@ -207,6 +239,13 @@ export namespace projectileFirstContact {
 
   /** The projectile's size and the thinnest collider the search must see. */
   export interface IOptions {
+    /**
+     * Collider whose initial contact was already resolved by a continuation.
+     * Only a physical departure certificate may defer this pair; absent or
+     * unknown, initial overlap/touch is still reported. Other colliders and
+     * this collider's later entry remain in the same sweep.
+     */
+    departing?: string;
     /** The projectile's radius, metres; 0 for a point. */
     radius: number;
 
@@ -233,6 +272,12 @@ export namespace projectileFirstContact {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     return {
       id,
+      departure: (
+        projectile: IAutoMovieProjectile,
+        options: IOptions,
+        contact: resolveAutoMovieContactEvents.IInitialContact,
+      ): resolveAutoMovieContactEvents.Departure | undefined =>
+        projectilePlaneDeparture(id, n, projectile, options, contact),
       nearest: (a: IAutoMovieVector3, b: IAutoMovieVector3): INearest => {
         const da: number = Vector3.dot(Vector3.subtract(a, point), n);
         const db: number = Vector3.dot(Vector3.subtract(b, point), n);
@@ -283,4 +328,3 @@ export namespace projectileFirstContact {
     };
   }
 }
-

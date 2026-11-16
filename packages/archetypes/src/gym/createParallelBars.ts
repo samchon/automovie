@@ -61,6 +61,7 @@ export function createParallelBars(
     createParallelBars.Affordance,
     createParallelBars.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: kind === "dipStation" ? "dip station" : "parallel bars",
     draw,

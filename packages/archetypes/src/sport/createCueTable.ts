@@ -53,6 +53,7 @@ export function createCueTable(
     createCueTable.Affordance,
     createCueTable.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: "pool table",
     draw,

@@ -61,6 +61,7 @@ export function createBed(
   };
   const builder: ArchetypeBuilder<createBed.Affordance, createBed.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name:
         kind === "mattress"

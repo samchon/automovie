@@ -82,6 +82,7 @@ export function createBow(
   };
   const builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension> =
     new ArchetypeBuilder({
+      material: "composite",
       id: params.id,
       name:
         kind === "longbow"

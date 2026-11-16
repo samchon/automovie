@@ -83,6 +83,7 @@ export function createLadder(
     createLadder.Affordance,
     createLadder.Dimension
   > = new ArchetypeBuilder({
+    material: "aluminium",
     id: params.id,
     name: `${kind} ladder`,
     draw,

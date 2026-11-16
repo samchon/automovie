@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
+
 /**
  * The contacts of several moving weapons with several bodies that may each
  * carry one of those weapons, resolved together and in time order: who
@@ -113,13 +115,14 @@ export function resolveAutoMovieContactEvents(
       if (stopped.has(weapon.id)) continue;
       if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
         break;
-      const hit: { against: string; seconds: number } | undefined = firstImpact(
-        weapon,
-        input,
-        stopped,
-        Math.max(input.from, after),
-        best?.seconds ?? Infinity,
-      );
+      const hit: { against: string; seconds: number } | undefined =
+        firstAutoMovieContactImpact(
+          weapon,
+          input,
+          stopped,
+          Math.max(input.from, after),
+          best?.seconds ?? Infinity,
+        );
       if (
         hit !== undefined &&
         (best === undefined ||
@@ -178,6 +181,41 @@ export namespace resolveAutoMovieContactEvents {
   /** The stops so far: each stopped weapon's id with its contact second. */
   export type IStops = ReadonlyMap<string, number>;
 
+  /** Actual initial pair state, with an ungated reader of its signed gap. */
+  export interface IInitialContact {
+    /** The sphere or capsule whose already-present contact is being classified. */
+    weapon: IWeapon;
+
+    /** Initial search second, in the weapon's clock. */
+    from: number;
+
+    /** Search end, clipped to the weapon's live end. */
+    to: number;
+
+    /** Current stops, unchanged during this first-impact search. */
+    stops: IStops;
+
+    /** Measured initial pair gap, metres; zero or negative. */
+    gap: number;
+
+    /** Actual pair gap at a second, before departure eligibility is applied. */
+    at(seconds: number): number;
+  }
+
+  /** Physical knowledge of this initial episode; absence keeps initial reporting. */
+  export type Departure =
+    | {
+        /** No new entry occurs before this genuinely separated instant. */
+        kind: "clearance";
+
+        /** Strictly later in-span second whose actual pair gap is positive. */
+        seconds: number;
+      }
+    | {
+        /** The physical model rules out a new entry over this search span. */
+        kind: "no-entry";
+      };
+
   /** One moving weapon. */
   export interface IWeapon {
     /** Unique id. */
@@ -228,6 +266,16 @@ export namespace resolveAutoMovieContactEvents {
   export interface IBody {
     /** Its id, matching the `owner` of the weapons it carries. */
     id: string;
+
+    /**
+     * Certify departure of an already-present pair only when its physical
+     * model establishes that phase. A clearance must have no new entry before
+     * it; no-entry covers only this search span. Undefined or absent keeps
+     * the original initial overlap/touch report. Opaque distance samples alone
+     * do not justify a certificate. The resolver validates clearance against
+     * at(seconds), and every other body keeps its original eligibility.
+     */
+    departure?(contact: IInitialContact): Departure | undefined;
 
     /**
      * The signed distance from a point to the body's surface at a second,
@@ -314,75 +362,5 @@ export namespace resolveAutoMovieContactEvents {
 
     /** The contact second. */
     seconds: number;
-  }
-}
-
-/** A weapon's first impact from a second on, against the bodies it does not belong to; undefined when it has none, or none before `horizon`. */
-function firstImpact(
-  weapon: resolveAutoMovieContactEvents.IWeapon,
-  input: resolveAutoMovieContactEvents.IInput,
-  stops: resolveAutoMovieContactEvents.IStops,
-  from: number,
-  horizon: number,
-): { against: string; seconds: number } | undefined {
-  const live: number = weapon.from ?? -Infinity;
-  const until: number = Math.min(input.to, weapon.to ?? Infinity);
-  const gap = (t: number): { distance: number; against: string } => {
-    // Outside its live span the weapon meets nothing, whatever its path.
-    if (t < live || t > (weapon.to ?? Infinity))
-      return { distance: Infinity, against: "" };
-    const p: IAutoMovieVector3 = weapon.position(t, stops);
-    const q: IAutoMovieVector3 | undefined = weapon.tail?.(t, stops);
-    let best: { distance: number; against: string } = {
-      distance: Infinity,
-      against: "",
-    };
-    for (const body of input.bodies) {
-      if (body.id === weapon.owner) continue;
-
-      // A capsule is measured along its whole axis; a body that cannot
-      // measure a segment would see only its ends, the tunnelling this
-      // representation exists to remove.
-      if (q !== undefined && body.axis === undefined)
-        throw new Error(
-          `Body ${body.id} measures no segment for capsule weapon ${weapon.id}`,
-        );
-      const d: number =
-        q === undefined
-          ? body.distance(p, t, stops) - weapon.radius
-          : weapon.tailRadius === undefined
-            ? body.axis!(p, q, t, stops) - weapon.radius
-            : body.axis!(p, q, t, stops, [weapon.radius, weapon.tailRadius]);
-      if (d < best.distance) best = { distance: d, against: body.id };
-    }
-    return best;
-  };
-  // Outside its live span the weapon meets nothing, so the scan starts at
-  // the last of its steps before that span and ends at the first step past
-  // it: the same steps, and so the same result, as scanning from `from`.
-  if (until < from) return undefined;
-  const first: number =
-    live > from ? Math.max(1, Math.floor((live - from) / input.step)) : 1;
-  if (first === 1) {
-    const start: { distance: number; against: string } = gap(from);
-    if (start.distance <= 0) return { against: start.against, seconds: from };
-  }
-  let previous: number = first === 1 ? from : from + (first - 1) * input.step;
-  for (let k: number = first; ; k++) {
-    // An impact found past this step would come after `horizon`.
-    if (previous >= horizon) return undefined;
-    const t: number = Math.min(input.to, from + k * input.step);
-    if (gap(t).distance <= 0) {
-      let lo: number = previous;
-      let hi: number = t;
-      for (let i: number = 0; i < 24; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (gap(mid).distance <= 0) hi = mid;
-        else lo = mid;
-      }
-      return { against: gap(hi).against, seconds: hi };
-    }
-    if (t >= until) return undefined;
-    previous = t;
   }
 }

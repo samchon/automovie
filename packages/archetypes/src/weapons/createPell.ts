@@ -43,6 +43,7 @@ export function createPell(
   );
   const builder: ArchetypeBuilder<createPell.Affordance, createPell.Dimension> =
     new ArchetypeBuilder({
+      material: "wood",
       id: params.id,
       name: "pell",
       draw,

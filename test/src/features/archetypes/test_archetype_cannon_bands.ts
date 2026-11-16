@@ -29,7 +29,7 @@ type Expected = readonly [
  * Each kind's bands as their sources give them, restated here:
  *
  * - the 6-pdr field gun, the 1862 Ordnance Manual and Gibbon: 65.6 in long, its trunnions 43.1 in up, 57 in wheels on a 60 in track, the 884 lb piece, the 540 lb carriage and two 180 lb wheels, 1439 ft/s, its 3.58 in shot and 3.67 in bore, and Gibbon's 1 1/2 to 2 yards of recoil, his observation, provisional;
- * - the naval 32-pounder of 56 cwt, Griffiths: 9 ft 6 in long, a 6.41 in bore, its 13 cwt 3 qr carriage on trucks of 1 ft 7 in and 1 ft 4 in (land-service trucks, borrowed, provisional), 1600 ft/s, and Douglas's 9 ft of recoil (borrowed, provisional);
+ * - the naval 32-pounder of 56 cwt, Griffiths: 9 ft 6 in long, a 6.41 in bore with distinct 6.14 to 6.20 in shot gauges (p. 59), its 13 cwt 3 qr carriage on trucks of 1 ft 7 in and 1 ft 4 in (land-service trucks, borrowed, provisional), 1600 ft/s, and Douglas's 9 ft of recoil (borrowed, provisional);
  * - the swivel gun, Royal Museums Greenwich KTP0053: 1000 mm overall (its length to the muzzle, provisional), a 2.25 in calibre, and 30 to 60 kg, an estimate;
  * - the mortar: no band, its figures its read models'.
  */
@@ -50,6 +50,7 @@ const EXPECTED: Readonly<
   navalGun: {
     length: [9.5 * FT, 9.5 * FT, false],
     bore: [6.41 * IN, 6.41 * IN, false],
+    ball: [6.14 * IN, 6.2 * IN, false],
     frontWheelDiameter: [19 * IN, 19 * IN, true],
     wheelDiameter: [16 * IN, 16 * IN, true],
     mass: [(56 + 13.75) * CWT, (56 + 13.75) * CWT, false],
@@ -80,8 +81,10 @@ const EXPECTED: Readonly<
  */
 export function test_archetype_cannon_bands(): void {
   const findings: string[] = [];
-  const near = (a: number, b: number): boolean =>
-    Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+  const near: (a: number, b: number) => boolean = (
+    a: number,
+    b: number,
+  ): boolean => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
   for (const kind of createCannon.KINDS) {
     const expected: Readonly<Partial<Record<string, Expected>>> =
       EXPECTED[kind];

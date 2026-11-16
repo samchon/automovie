@@ -64,6 +64,7 @@ export function createKettlebell(
     createKettlebell.Affordance,
     createKettlebell.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: "kettlebell",
     draw,

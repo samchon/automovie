@@ -55,6 +55,7 @@ export function createWall(
   const { height, length, thickness }: Record<createWall.Dimension, number> = d;
   const builder: ArchetypeBuilder<createWall.Affordance, createWall.Dimension> =
     new ArchetypeBuilder({
+      material: "concrete",
       id: params.id,
       name: kind === "full" ? "wall" : "low wall",
       draw,

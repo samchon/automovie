@@ -81,6 +81,7 @@ export function createTable(
     createTable.Affordance,
     createTable.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

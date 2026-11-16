@@ -70,6 +70,7 @@ export function createClub(
   const thick: number = d.diameter! / 2;
   const builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension> =
     new ArchetypeBuilder({
+      material: kind === "bat" ? "wood" : "plastic",
       id: params.id,
       name: kind === "bat" ? "baseball bat" : "baton",
       draw,

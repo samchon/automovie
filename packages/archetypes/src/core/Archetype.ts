@@ -10,11 +10,13 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import { ArchetypeBody } from "./ArchetypeBody";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
+import type { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
@@ -114,17 +116,7 @@ export class Archetype<
       posed.affordances,
     );
     this.#travels = posed.travels;
-    this.body = {
-      mass: props.properties.mass,
-      centerOfMass: { ...props.properties.centerOfMass },
-      ...(props.friction === null ? {} : { friction: props.friction }),
-      ...(props.kineticFriction === null
-        ? {}
-        : { kineticFriction: props.kineticFriction }),
-      restitution: props.restitution,
-      ...(props.drag === null ? {} : { drag: { ...props.drag } }),
-      ...(props.contact === null ? {} : { contact: { ...props.contact } }),
-    };
+    this.body = ArchetypeBody(props);
     this.affordances = posed.affordances;
     this.materials = props.materials;
     this.#rest = props;
@@ -149,6 +141,11 @@ export class Archetype<
   /** Mass, centre of mass and inertia about it, at rest. */
   public get properties(): ArchetypeMass.IProperties {
     return this.#rest.properties;
+  }
+
+  /** The physical reference material declared by the producer; null for a mixed assembly, independently of optical colours or per-part friction surfaces. */
+  public get physicalMaterial(): ArchetypeMaterial.Kind | null {
+    return this.#rest.material;
   }
 
   /** The travel of each articulation that was set, by id; a follower's is read through `travel`. */
@@ -444,7 +441,7 @@ export class Archetype<
    * What a hit leaves of this archetype at rest: its remainder and its fragments, each an archetype, or null when it does not break.
    *
    * @param hit The hit's energy and momentum.
-   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when the archetype declares no fracture or the hit's energy is below its body's `contact.fracture`.
+   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when no fracture sets or no calibrated `contact.fracture` threshold are declared, or the hit is below that threshold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and when nothing breaks.
    * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeFracture.split` over the rest record, each record made an archetype at rest.
@@ -467,10 +464,10 @@ export class Archetype<
           : new Archetype<Id, Dimension>(split.remainder),
       fragments: split.fragments.map(
         (
-          f: ArchetypeFracture.IFragment<Dimension>,
-        ): ArchetypeFracture.IPiece<Dimension> => ({
+          f: ArchetypeFracture.IFragment<Dimension, Id>,
+        ): ArchetypeFracture.IPiece<Dimension, Id> => ({
           id: f.id,
-          archetype: new Archetype<never, Dimension>(f.props),
+          archetype: new Archetype<Id, Dimension>(f.props),
           velocity: f.velocity,
         }),
       ),

@@ -72,6 +72,7 @@ export function createLandingMat(
     createLandingMat.Affordance,
     createLandingMat.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name:
       kind === "highJump" ? "high jump mat" : `pole vault mat ${layout.name}`,

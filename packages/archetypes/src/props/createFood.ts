@@ -88,6 +88,7 @@ export function createFood(
   };
   const builder: ArchetypeBuilder<createFood.Affordance, createFood.Dimension> =
     new ArchetypeBuilder({
+      material: "food",
       id: params.id,
       name: NAMES[kind],
       draw,

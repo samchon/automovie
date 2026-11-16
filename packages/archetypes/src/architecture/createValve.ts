@@ -61,6 +61,7 @@ export function createValve(
     createValve.Affordance,
     createValve.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: `gate valve ${model.name}`,
     draw,

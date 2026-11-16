@@ -62,6 +62,7 @@ export function createPullUpBar(
     createPullUpBar.Affordance,
     createPullUpBar.Dimension
   > = new ArchetypeBuilder({
+    material: "steel",
     id: params.id,
     name: kind === "gym" ? "pull-up bar" : "horizontal bar",
     draw,

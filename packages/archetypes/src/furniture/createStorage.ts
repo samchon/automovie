@@ -69,6 +69,7 @@ export function createStorage(
     createStorage.Affordance,
     createStorage.Dimension
   > = new ArchetypeBuilder({
+    material: "composite",
     id: params.id,
     name: NAMES[kind],
     draw,

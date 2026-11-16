@@ -68,6 +68,7 @@ export function createBar(
   const y: number = d.height! - radius;
   const builder: ArchetypeBuilder<createBar.Affordance, createBar.Dimension> =
     new ArchetypeBuilder({
+      material: "steel",
       id: params.id,
       name:
         kind === "high" ? "high bar" : kind === "grab" ? "grab bar" : "rail",
