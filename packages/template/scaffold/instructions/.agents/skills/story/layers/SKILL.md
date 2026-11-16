@@ -15,4 +15,4 @@ Each layer makes its own contribution and hands usable decisions to its next rec
 | [Scripts](scripts.md) | Partition and fully executed scenes: speech, action, reactions, performance, stage, light, sound and view | Playable scenes for the final screenplay |
 | [Screenplay](screenplay.md) | The audience's image, sound, attention, duration, juxtaposition and transitions, scene by scene | Complete production text the scenes realize |
 
-[Notation](notation.md) gives the blocks and headings scripts and the screenplay use, and the screenplay's records.
+[Notation](notation.md) gives the blocks and headings scripts and the screenplay use, and the screenplay's records. [Shots and cuts](shots.md) says how both choose the view and the edit.

@@ -1,6 +1,6 @@
 # Implementation
 
-Each exported function and class method answers every item in its doc comment with grounds a reviewer can check against its body, callees and callers, as well as the [common](common.md) item. The types it accepts and returns answer [design](design.md). Keep simple decisions brief, and invent no alternatives or history.
+Each exported function and class method answers every item, and the [common](common.md) item, in its doc comment, with grounds a reviewer can check against its body, callees and callers. The types it accepts and returns answer [design](design.md). Keep simple decisions brief, and invent no alternatives or history.
 
 ## Principled implementation
 

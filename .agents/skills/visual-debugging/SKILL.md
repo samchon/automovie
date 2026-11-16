@@ -1,11 +1,11 @@
 ---
 name: visual-debugging
-description: Owns how a picture is judged and corrected, whatever made it, namely the instrument, planned captures of matched stills, passes, comparisons and correction rounds. Use before judging a form, a motion, a guide pass, a generated image or a film on screen, before claiming a visual change works, and when changing viewer or capture behavior or finding it broken or short of a view the judgment needs.
+description: Owns how a picture is judged and corrected, whatever made it, namely the instrument, planned captures of matched stills, passes, comparisons and correction rounds. Use before judging a form, a motion, a guide channel, a generated image or a film on screen, before claiming a visual change works, and when changing viewer or capture behavior or finding it broken or short of a view the judgment needs.
 ---
 
 # Visual debugging
 
-Readiness or numerical success proves no appearance; only an observed picture does. This skill owns how a picture is captured, compared and corrected, whatever made it: a form, a motion, a guide pass, a generated image or an encoded film. The skill of each subject owns what to look for in it.
+Readiness or numerical success proves no appearance; only an observed picture does. This skill owns how a picture is captured, compared and corrected, whatever made it: a form, a motion, a guide channel, a generated image or an encoded film. The skill of each subject owns what to look for in it.
 
 An agent reads a picture only as stills, so each judgment starts from a planned capture. The instrument that plans and draws those stills is the inspection and capture core of `render`, which the inspector page of `viewer` and the capture host of `cli` both drive with one request text.
 

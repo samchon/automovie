@@ -1,16 +1,14 @@
 # Settings
 
-Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code.
+Settings record the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions of the [story contracts](../../contracts/story/SKILL.md). They belong to the long route; a short writes its [brief](brief.md) instead. Baseline states belong here, and the events that change or reveal them belong to [treatments](treatments.md).
 
-Settings belong to the long route; a short writes its [brief](brief.md) instead. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md).
-
-Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify. Complete the facts, their explanation and their organization in [construction](../workflow/long.md#each-layers-pass).
+Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, then work backward from the anticipated scenes to the facts they need. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify, and complete the facts, their explanation and their organization in the settings [pass](../workflow/long.md#each-layers-pass).
 
 ## Records
 
-Give each subject one file in its domain under the [document layout](../document-layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, which stays stable under [identities](notation.md#identities).
+Give each subject one file in its domain under the [document layout](../document-layout.md#documents): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor, such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, which stays stable under [identities](notation.md#identities).
 
-Write only the facets the planned scenes and arcs use; an unused facet is left out rather than marked `N/A`, and a dimension the commission excludes is excluded once in the work's scope record, which also states the adopted representation and what it cannot show.
+Write only the facets the planned scenes and arcs use, leaving an unused facet out rather than marking it `N/A`:
 
 | Domain | Facets the scenes may need |
 | --- | --- |
@@ -22,16 +20,14 @@ Write only the facets the planned scenes and arcs use; an unused facet is left o
 | `cinematography` | Framing grammar and camera movement style, and the film's look: medium or rendering style, lighting style, lens character and grade |
 | `sound` | Ambience and music palettes; voices belong to the cast |
 
-Measurements such as dimensions, light positions and timings go to [research](../planning/research.md) for their sources and to code for their values, unless the value is itself a story decision.
+The work's scope record links the adopted representation in `PROJECT.md` and states what it cannot show. Measurements such as dimensions, light positions and timings stay out of records except as the [usable-facts statements](../../contracts/story/shared/statements/principles/settings.md#usable-facts) allow.
 
-User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing canon.
-
-Where a commission uses them, embed a subject's canon references, made under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
+User-fixed interpretations are canon: report a conflict between an instruction and its source instead of changing canon. Where a commission uses canon references, made under [canon references](../../image/canon-references.md), embed a subject's from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`, and when an image and the text disagree, repair whichever is wrong.
 
 ## Outline and changes
 
 Keep `outline/index.md` as a finding guide: domain H2s and file H3s in reading order, each file entry anchored by its settings-relative path without `.md` and with `/` replaced by `--`, and each record citing its entry.
 
-Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [reorganization](../../production/reorganization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
+Keep settings current as a continuity record. When a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it in the same repair as a new anchored fact in its subject's state facet, citing the establishing unit. A new fact follows [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
 
-Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact follows [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
+Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [reorganization](../../production/reorganization.md), keeping address migration separate from content changes; moved records also follow [closed passes](../correction/repair.md#closed-passes).

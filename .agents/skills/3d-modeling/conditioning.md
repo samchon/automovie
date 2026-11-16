@@ -1,22 +1,21 @@
 # Conditioning
 
-Conditioning turns a found or generated mesh into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. It applies alike to a mesh from [Sources](sources.md) and from [Diffusion](diffusion/SKILL.md).
+Conditioning turns a found or generated mesh, from [Sources](sources.md) or [Diffusion](diffusion/SKILL.md), into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. Do only what the asset's use needs, because each step makes a derivative to keep and verify, and work no view shows buys nothing.
 
-Do only what the asset's use needs. Each step makes a derivative to keep and verify, and work no view shows buys nothing.
+## Frozen source
 
-## Freeze the source
+Keep the source and every derivative reproducible in this order:
 
-1. Freeze the selected file and its sidecars with their hashes before anything reads them.
+1. Freeze the selected file and its sidecars, with their hashes, before anything reads them.
+2. Record its origin and usage terms beside it; for a generated mesh, also the model, version, seed, prompt, inputs by digest, settings, job identifier and the plan whose terms cover the output.
+3. Keep the original apart from every converted, reduced or rigged derivative, and record which source each one consumes.
+4. Make each derivative with a saved script and its settings, never by hand in an interactive tool.
 
-   The frozen file is the reproducible source. A URL, a model name or a seed does not identify it, and a service's download link can expire within minutes.
-
-2. Record its origin and usage terms beside it, and for a generated mesh the model, version, seed, prompt, inputs by digest, settings, job identifier and the plan whose terms cover the output.
-3. Keep the original apart from every converted, reduced or rigged derivative, and record which source each derivative consumes.
-4. Make each derivative by a saved script with its settings, never by hand in an interactive tool, so it can be made again from the frozen source.
+The frozen file is the source, because a URL, a model name or a seed does not identify it and a service's download link can expire within minutes. The saved script makes each derivative again from it.
 
 ## What the use needs
 
-Every asset is [normalized](#normalize), [cleaned](#clean) and [reduced](#reduce). Its use adds:
+Every asset is [normalized](#normalization), [cleaned](#cleanup) and [reduced](#reduction). Its use adds:
 
 | The asset | Further work |
 | --- | --- |
@@ -25,15 +24,15 @@ Every asset is [normalized](#normalize), [cleaned](#clean) and [reduced](#reduce
 | Carries crafted parts, such as a generated figure holding a crafted prop | Define each [connection](modularization.md#frames-and-connections) once for both sides |
 | Varies by a parameter | [Variation](#variation) |
 
-Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close. Do them when that use or the user asks for them. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
+Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close; do them when that use or the user asks. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
 
-## Normalize
+## Normalization
 
-Finish every service step, such as a remesh, segmentation or rig, on the service's own output first, with the mesh facing as that service requires, because a service can return a wrongly oriented result that still reports success. Then convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Check the result against a known real dimension, such as a figure's height or a door's width.
+Finish every service step, such as a remesh, segmentation or rig, on the service's own output first, with the mesh facing as that service requires, because a service can return a wrongly oriented result that still reports success.
 
-Put the origin where the asset meets the ground, under its center, so placing it on a floor needs no offset.
+Then convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing, and check the result against a known real dimension, such as a figure's height or a door's width. Put the origin where the asset meets the ground, under its center, so placing it on a floor needs no offset.
 
-## Clean
+## Cleanup
 
 Remove a defect at the first of these places that can remove it, listed from least work to most:
 
@@ -44,22 +43,20 @@ Remove a defect at the first of these places that can remove it, listed from lea
 | A script over a mesh library in the project's own language | Duplicate vertices, pieces too small to see, excess triangles and unused data | [glTF Transform](https://gltf-transform.dev/functions) with [meshoptimizer](https://github.com/zeux/meshoptimizer) |
 | A mesh repair tool, or a digital content creation tool run from the command line | Holes, inner surfaces and irregular triangles | [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab), [Blender](https://docs.blender.org/manual/en/latest/advanced/command_line/index.html) |
 
-The examples are neither a complete list nor installed dependencies.
+The examples are neither a complete list nor installed dependencies. Correct a texture's baked light and shadow only where it shows wrong in the actual render.
 
-Correct a texture's baked light and shadow only where it shows wrong in the actual render.
+## Reduction
 
-## Reduce
-
-Reduce to the triangle count the asset's closest required view needs, at one of the places [Clean](#clean) lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices, and reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
+Reduce to the triangle count the asset's closest required view needs, at one of the places [Cleanup](#cleanup) lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices. Reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 
 | Measured cost | Remedy |
 | --- | --- |
-| Triangles of distant or repeated copies | Use levels of detail, a flat card for the farthest copies, and one instanced mesh for the repeats |
+| Triangles of distant or repeated copies | Levels of detail, a flat card for the farthest copies, and one instanced mesh for the repeats |
 | Draw calls | Merge meshes that share a material, and remove duplicate materials and textures |
 | Texture memory | Lower each texture to the resolution its closest view resolves, pack small ones into an atlas, and store them in a GPU-compressed format |
-| Skinning | Cut joints or influences per vertex, as a derivative [Rigging](rigging.md#binding) measures |
+| Skinning | Fewer joints or influences per vertex, as a derivative [Rigging](rigging.md#binding) measures |
 | File size and loading time | Quantize vertex attributes and compress the mesh |
 | Triangles no view reaches | Remove them |
 
@@ -75,8 +72,8 @@ What the parameter changes decides whether the mesh can stay:
 | A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting/SKILL.md) or by [mesh recovery](crafting/recovery.md) with the mesh as its source |
 | A person's build | Use the parametric figure the installed packages provide |
 
-A few fixed variants need no parameter. Generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.
+A few fixed variants need no parameter: generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.
 
-## Check
+## Final check
 
 Load the conditioned derivative through the actual consumer and judge it under [form inspection](inspection.md), beside the frozen source, at the views and motion it is used for.

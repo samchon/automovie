@@ -1,8 +1,6 @@
 # Brief
 
-A short's canon: the few decisions its screenplay cites, under the brief questions in the [story contracts](../../contracts/story/SKILL.md). It is prose for readers and never describes code.
-
-Write it after [discovery](../planning/discovery.md), studying what [when to study](../planning/research.md#when-to-study) assigns it.
+A short's canon: the few decisions its screenplay cites, under the brief questions in the [story contracts](../../contracts/story/SKILL.md). Write it after [discovery](../planning/discovery.md), studying what [when to study](../planning/research.md#when-to-study) assigns it.
 
 ## What it holds
 
@@ -12,7 +10,7 @@ Hold only what the [needed-decisions statements](../../contracts/story/shared/st
 
 Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md`, in the settings domain of its kind: `cast` for people, `sets` for places and `props` for recurring props. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, which stays stable under [identities](notation.md#identities).
 
-As in [settings records](settings.md#records), keep measurements out, treat user-fixed interpretations as canon, report a conflict between an instruction and its source instead of changing it, and embed a subject's canon references.
+As in [settings records](settings.md#records), treat user-fixed interpretations as canon, report a conflict between an instruction and its source instead of changing it, and embed a subject's canon references.
 
 ## Growth
 

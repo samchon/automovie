@@ -1,25 +1,29 @@
 # Task design
 
-A shipped task skill tells an author how to reach a commissioned result. Identify the task's recipient, needed achievement and usable handoff from the actual request and current work. Give the author choices that lead toward that result rather than a list of symptoms to avoid. An executable scene, final audiovisual plan and rendered performance serve different recipients even when they realize the same event.
+A shipped task skill tells an author how to reach a commissioned output. Start from the user's goal and the failure the change must fix, and work out who receives the result and what makes it usable at the next stage: an executable scene, a final audiovisual plan and a rendered performance serve different recipients even when they realize the same event.
 
-## Connect creation to judgment
+## The failure first
 
-Describe the achievement, the decisions that make it possible and what the next owner may choose afresh. Connect it to [contract design](contract-design.md) without restating the items.
+Decide whether the agent missed an existing rule or the rules permit the failure. When a contract item already covers it, repair how that item is applied and answered; change the design only when the needed judgment is absent or contradictory. Compliant records do not substitute for a usable film, so trace each observed failure to its repair owner.
 
-Detailed failures guide diagnosis after creation; writing only to avoid them can remove motivation, humor, rhythm or the work's promised form.
+Borrow from other crafts only what fits film production; a serial novel's prose interiority, reading rhythm and publishing steps do not.
 
-Separate content being true or preserved, expression making the intended experience, and the distribution of that experience across the whole. None proves the others. A function may justify keeping information while its actual language, performance, timing or image-sound relation still needs rewriting. Conversely, a stylistic label does not establish a failure.
+## Creation and judgment
 
-Read the complete result after detailed repairs to check whether the goal and protected achievements survive together. Let the existing authoring and review owners perform that judgment; adding a new approval layer would duplicate responsibility rather than improve the work.
+Give the author the achievement, the decisions that make it possible and what the next stage may decide afresh, not a list of symptoms to avoid, because writing to avoid failures removes motivation, humor, rhythm or the promised form. Detailed failures belong to the contracts, where they guide diagnosis after creation.
 
-## Follow the production handoff
+Judge three things apart, because none proves another: whether the content is true and preserved, whether its expression makes the intended experience, and how that experience spreads across the whole work. A passage's story function can justify keeping information whose expression still needs rewriting, but neither that function nor compliance elsewhere excuses the expression. Naming a style, such as "too literary", is not a failure.
 
-Trace a proposed instruction through the actual brief or parents, author's decision, contract respondent, repair owner and next consumer. Use the production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md) for those boundaries.
+A repair stays inside the work's route and adopted form. It never requires a new gesture, close-up, cut, narration or realism to escape a wording defect, because a silent hint, a documentary, an abstract short or an asset may keep its form.
 
-A whole hint must still reach coded performance, usable camera staging, the complete edit and observed output. Preserve identities, contacts, timing and requested controls on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets.
+## Production handoff
 
-Inspect audiovisual expression as a plan at screenplay time and the actual captured, heard and encoded result at media delivery; neither observation establishes the other.
+Trace an instruction through the actual handoff: the parent it starts from, the author's decision, the contract respondent, the repair owner and the stage that consumes the result. The production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md) set those boundaries.
 
-Keep route and fidelity constraints compatible with repair. Do not make new gestures, close-up shots, cuts, narration or realism compulsory to escape a wording defect. A silent hint, documentary, abstract short or asset can use its adopted form.
+No change may break the path from coded performance through camera staging and the complete edit to the observed output. Identities, contacts, timing and requested controls stay carried by the coarse forms, and only installed APIs and actual execution provide them; research or an instruction alone cannot.
 
-Installed APIs and actual execution determine available controls; research and an instruction alone cannot provide them.
+Audiovisual expression is judged as a plan at screenplay time and as the captured and encoded result at delivery, where the user hears its sound; neither observation establishes the other.
+
+## Revising a page
+
+Revise a page as a whole. Read it top to bottom as its reader, then rewrite it so each section makes one point in the order the task needs, instead of inserting a sentence per finding, because sentences added one at a time repeat each other, break the flow and leave the next reviewer more to find. Remove what no task uses, and move a rule that another page owns back to that owner. After detailed repairs, read the complete result to check that the goal and the achievements worth protecting survive together; the existing authors and reviewers make that judgment, and a new approval layer would only duplicate them.

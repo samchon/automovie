@@ -10,7 +10,7 @@ A construction author who finds a missing, conflicting or unrealizable parent de
 
 The entry rule of [repairing a finished round by cause](../../../../AGENTS.md#attitude) takes this form for a narrative body. Finish the inspection the [route](../workflow/SKILL.md) sets before editing. Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning.
 
-Reconcile dependent statements, quotations, values and, while their stage is enabled, [answers](../evidence/answer-writing.md) in the same repair, then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
+Reconcile dependent statements, quotations, values and, while their stage is enabled, [answers](../answers.md) in the same repair, then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
 
 ## Closed passes
 
@@ -22,9 +22,7 @@ Replacing a unit from scratch removes its obsolete answers, reviews and replaced
 
 When scene composition or a generation prompt must make a decision the screenplay left vague, the decision belongs to the screenplay, not to the code or the prompt. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the [brief holds](../layers/brief.md#what-it-holds); otherwise the screenplay alone holds it. A closed screenplay stays closed: a concretized beat keeps its answers and reviews under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
 
-An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
-
-A user's [fixed screenplay](../workflow/SKILL.md#who-writes-the-screenplay) is never edited: its concretizations go to the instructions.
+An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects). A user's [fixed screenplay](../workflow/routes.md#who-writes-the-screenplay) is never edited: its concretizations go to the instructions.
 
 ## Scope expansion
 

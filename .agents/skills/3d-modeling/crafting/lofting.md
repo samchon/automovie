@@ -1,71 +1,73 @@
 # Lofting
 
-Lofting builds a surface through one family of related sections and guides, authored from dimensions or fitted to a source. Choose it as a [representation](construction.md#representation) by the form, and organize its ownership by [Modularization](../modularization.md). For a fixed mesh or ordered line source, follow [mesh recovery](recovery.md) before fitting the section family.
+Lofting builds a surface through one family of related sections and guides, authored from dimensions or fitted to a source. Choose it by the form under [representation](construction.md#representation), and give its parts owners under [Modularization](../modularization.md). A fixed mesh or an ordered line source goes through [mesh recovery](recovery.md) before its section family is fitted.
 
 ## One section family
 
-Define one section family from independent [dimensions](construction.md#dimensions), its chosen physical course, section planes, relative frames and stations. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's actual plane/frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member. Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
+Define the family from independent [dimensions](construction.md#dimensions): its physical course, section planes, relative frames and stations. Derive its guides from the family, derive supported spans from corresponding feature parameters, and constrain the joins between spans.
 
-A family can be defined by a few view curves: front and side outline pairs, an axis and a fullness control, the value that sets how far each section bulges between its outline points. Each section is the chain of conic or rational arcs through the outline points at its station, shaped by that fullness, as in conic lofting. Measured section dimensions then check the loft instead of being authored loop by loop.
+Declare each section's plane and frame. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's own plane and frame map, and that plane need not be normal to each contributor's axis. Verify those maps, and measure each published dimension in the plane its definition requires, because a world-plane cut can be oblique to a member.
 
-A section of such a family need not be convex. A groove, crease or valley that runs along the form is one more longitudinal control curve, an inflection line drawn like the outlines. Each section turns inward where that line crosses it. Fit the sections to the surface itself and not to its [tape hull](#composition-before-lofting), because a hull leaves every concavity to cutters and reliefs, whose edges show as steps, slots and patches.
+A few view curves can define the whole family: front and side outline pairs, an axis, and a fullness control, the value that sets how far each section bulges between its outline points. Each section is then the chain of conic or rational arcs through the outline points at its station, shaped by that fullness, as in conic lofting, and measured section dimensions check the loft instead of being authored loop by loop.
 
-The method's limit is that each section is star-shaped about the family's course: every ray from the course point meets the section once. A feature that folds back over itself breaks that, so it becomes its own family, joined to its host under [Connections](#connections). Read what a method can express from the section model's own types and from the method's literature before working around a limit. A limit taken from the method's name sends every form it would have carried to workarounds.
+A section need not be convex. A groove, crease or valley along the form is one more longitudinal control curve, an inflection line drawn like the outlines, and each section turns inward where that line crosses it. Fit the sections to the surface itself, not to its [tape hull](#composition-before-lofting), because a hull leaves every concavity to cutters and reliefs, whose edges show as steps, slots and patches.
 
-Fit a section that is symmetric about a plane as one half, with its two extremes held on that plane, and reflect it. An extreme left free wanders along a flat stretch of the outline from station to station, and its track shows as a crease along the surface.
+The method's one limit is that each section is star-shaped about the course: every ray from the course point meets it once. A feature that folds back over itself becomes its own family, joined to its host under [Connections](#connections). Learn what a method can express from its section model's types and its literature before working around a limit, because a limit inferred from the method's name sends every form it could carry to workarounds.
 
-Choose each curve's representation by its span's continuity and fullness contract, never by convenience, because a weaker form silently drops a promised continuity.
+Fit a section that is symmetric about a plane as one half, with both extremes held on that plane, and reflect it. An extreme left free wanders along a flat stretch of the outline from station to station, and its track shows as a crease.
 
-Reconcile measured guide intersections before interpolation, using sections and obliques alongside front and side envelopes. Distinguish the generating operator's interpolation waypoints, control points and evaluated points.
+Choose each curve's representation by its span's continuity and fullness contract, because a weaker representation silently drops a promised continuity. Reconcile measured guide intersections before interpolating, using sections and obliques beside the front and side envelopes, and keep the operator's interpolation waypoints, control points and evaluated points distinct.
 
 ## Closed ends
 
-Mesh a closed end in rings of its own between its last section and its pole, because an end with no stations is drawn as a cone with a flat disc at the pole. Give its closing law the wall's slope and the wall's bend where the two meet, since a law that meets only the slope leaves a ring there.
-
-An end that is not visible surface, such as one buried in another part, takes the slimmest closure the law allows, so it stays inside what covers it.
+Mesh a closed end in rings of its own between its last section and its pole, because an end without stations is drawn as a cone with a flat disc at the pole. Its closing law meets both the wall's slope and the wall's bend where they join, since a law that meets only the slope leaves a ring there. An end that is not visible surface, such as one buried in another part, takes the slimmest closure the law allows, so it stays inside what covers it.
 
 ## Composition before lofting
 
-When several authored regions share a physical section, compose their defining 2D pieces in that declared plane and frame before generating the surface. Keep the source controls and coordinate maps, reconcile guide/profile correspondence and preserve actual components, concavities, holes and topology changes. A projected silhouette Boolean loses depth, and a tape hull, the outline a taut measuring tape takes around the section, bridges concavities and is a different boundary.
+When several authored regions share a physical section, compose their 2D pieces in that declared plane and frame before generating the surface. Keep the source controls and coordinate maps, reconcile guide and profile correspondence, and preserve the actual components, concavities, holes and topology changes. Neither a projected silhouette Boolean, which loses depth, nor a tape hull, the outline a taut measuring tape takes around the section, which bridges concavities, is the composed section.
 
-Choose sections, sweeps, local curve networks and retained volume operations by their geometric and editing contracts. An anatomical or logical name may identify a subdomain of one generating stream rather than another loft. Compare exact conversion and explicitly bounded approximation under their actual premises, keeping valid input meanings and independent expectations. Fewer streams or patches alone establish neither a faster nor a correct result.
+Choose among sections, sweeps, local curve networks and retained volume operations by their geometric and editing contracts. An anatomical or logical name may identify a subdomain of one generating stream rather than a loft of its own. Compare exact conversion with explicitly bounded approximation under their actual premises, keeping the inputs' valid meanings and independent expectations; fewer streams or patches alone prove neither speed nor correctness.
 
-Build a relief's height, and every target it blends between, from C2 functions: a C2 ramp and a C2 max over the roll. A hard clamp, max, min or polyline corner in the target becomes a crease in the surface, however finely it is sampled. A relief's window must contain the whole region where its height is nonzero, because a window edge that cuts through a nonzero height leaves a crease as well.
+### Reliefs
 
-A relief's cast must see the skin it carries. Leave unobserved an observation whose cast meets the skin at a grazing angle: a height along a ray that runs along the skin measures where an edge-on face begins, not how deep the skin lies, so the net builds a cliff there and draws a notch or spikes. A form that no cast sees belongs to the wall as an inflection line, or to a family of its own.
+A relief offsets the wall's skin by one height per point along its cast. Build that height, and every target it blends between, from C2 functions, such as a C2 ramp and a C2 max over the roll, because a hard clamp, max, min or polyline corner becomes a crease however finely it is sampled. The relief's window contains the whole region where its height is nonzero, since a window edge through a nonzero height leaves a crease too.
 
-A relief shows at its edge, in its fade and at its net's spacing, and its one height per point cannot overhang. When a surface reads in steps or level lines, look first at what its reliefs carry, and move the concave form the wall can hold into the wall as an inflection line. A smaller count of curves alone leaves those marks.
+A relief's cast must see the skin it carries. Leave unobserved any observation whose cast grazes the skin: a ray running along the skin measures where an edge-on face begins, not how deep the skin lies, so the net builds a cliff there and draws a notch or spikes. A form no cast sees belongs to the wall as an inflection line, or to a family of its own.
 
-A relief, a cutter and a band are each fitted to the wall they sit on, and how fine a relief's net must be depends on that wall too. When a correct change moves the wall, refit them on the new wall and measure the net's density again. Reverting the wall to keep them restores the defect the change removed.
+A relief shows at its edge, in its fade and at its net's spacing, and its one height per point cannot overhang. When a surface reads in steps or level lines, look first at what its reliefs carry, and move any concave form the wall can hold into the wall as an inflection line; fewer curves alone leave those marks.
+
+Reliefs, cutters and bands are fitted to the wall beneath them, and a relief's net density depends on that wall. When a correct change moves the wall, refit them on the new wall and measure the density again, because reverting the wall to keep them restores the defect the change removed.
 
 ## Connections
 
-Smooth joins consume one boundary and compatible transverse derivatives, accounting for parameter direction and scale. Preserve declared creases and check seams, orientation and self-intersections.
+Define a known connection before lofting: its original port curves or its join seed, its domains, correspondence, frames and available transverse data. The surface operator then consumes the ports or traces the intersection from that seed, and never searches for the connection.
 
-Define a known connection before lofting: its original port curves or its join seed, its domains, correspondence, frames and available transverse data. The surface operator then either consumes the ports or traces the intersection from that seed, so it never has to search for the connection.
+A smooth join consumes one boundary and compatible transverse derivatives, accounting for parameter direction and scale. Preserve declared creases, and check seams, orientation and self-intersections.
 
-A port band, the strip of surface that joins two parts at a declared port, needs its own topology, regularity and continuity admission; it is not automatically an end continuation. Apply C2/G2 only on the domains that promise it and retain explicit missing support.
+A port band, the strip of surface that joins two parts at a declared port, needs its own admission of topology, regularity and continuity, and is not automatically a continuation of an end. Apply C2 or G2 continuity only on the domains that promise it, and keep missing support explicit.
 
-Where a connection is traced as an intersection, seed it from shared landmarks. Near a closed end, carry the trace in the root parameter, the square root of the distance from that end, because the station chart is polar there and a linear or quadratic predictor fails in it.
+Seed a traced intersection from shared landmarks. Near a closed end, carry the trace in the root parameter, the square root of the distance from that end, because the station chart is polar there and a linear or quadratic predictor fails in it.
+
+## Sampling
+
+When a field is sampled into a spline net, place each control at its Greville abscissa, the average of its knots, because evenly spaced controls shift and stretch the features by up to a span.
+
+Space a wall's knots along its course at the scale of the form the wall carries. Closer knots make the wall follow its target's small steps, which show as level lines across the surface; form finer than the knots belongs to an inflection line or a relief.
+
+An edge with a roll is resolved only when every sampling across it, whether net, layers or rings, is at most a quarter of the roll, because a coarser sampling renders the edge jagged.
 
 ## Fitting and verification
 
-Fix registration and fit supported named coefficients under matching measurement conditions. Preserve independent dimensions, reserve validation shapes, sections or views, and reject local regressions hidden by aggregate improvement.
-
-When a field is sampled into a spline net, place each control at its Greville abscissa, the average of its knots. Evenly spaced controls shift and stretch the features by up to a span.
-
-Space a wall's knots along its course at the scale of the form the wall is meant to carry. Knots closer than that make the wall follow the small steps of its target, which show as level lines across the surface. Form finer than the knots belongs to an inflection line or a relief.
-
-An edge with a roll is resolved only when every sampling across it, whether net, layers or rings, is at most a quarter of the roll. A coarser sampling renders the edge jagged.
-
-Before converting a source's sections to conic arcs, fair each section to the scale of the form, which means removing the ripples smaller than the features the form keeps. A converter ends an arc at every inflection of its input, so a section that carries mesh noise returns dozens of arcs at any tolerance. The arcs that remain after fairing set the family's layout: its outline and inflection lines. Judge the conversion by its loft: loft the converted sections, render the result in clay beside the source at matching cameras, and adopt it when the form reads right there.
-
-A family is admissible when the surface operator accepts every one of its sections. Check that in the form the operator reads: between the fitted stations as well as at them, with every value rounded as it is stored, and with a margin from the boundary of the admissible region. A fit checked only at its stations or before rounding is refused when the surface is built.
-
-When a fit misses, find what binds it before refitting: a layout that cannot express the section, too few knots along the course, a constraint that holds the fit off the data, or a weighting that favors another region. Each has its own remedy, and a refit that changes one of them by trial repeats the miss.
+Fix the registration, then fit supported named coefficients under matching measurement conditions. Preserve independent dimensions, hold back validation shapes, sections or views, and reject a local regression that an aggregate improvement hides.
 
 Where geometry gives a value in closed form, such as an inflection's tangent from its neighboring anchors, construct it and leave the optimizer only the remaining freedoms.
 
-When one part of a fitted family changes, such as a relief, refit that part alone on the stored wall beneath it. Refitting the whole family, or starting from an earlier stored state, drops every later correction without a diagnostic.
+Before converting a source's sections to conic arcs, fair each one to the scale of the form, removing the ripples smaller than the features the form keeps, because a converter ends an arc at every inflection of its input and a noisy section returns dozens of arcs at any tolerance. The arcs that remain set the family's layout: its outlines and inflection lines. Judge the conversion by its loft, rendered in clay beside the source at matching cameras.
 
-Trace the same observations through sampling, fitting and refinement to the displayed surface. Isolate downstream loss instead of compensating with shape coefficients, and accept through [form inspection](../inspection.md).
+A family is admissible when the surface operator accepts every one of its sections. Check that as the operator reads it: between the fitted stations as well as at them, with every value rounded as stored, and with a margin from the boundary of the admissible region, because a fit checked only at its stations or before rounding is refused when the surface is built.
+
+When a fit misses, find what binds it before refitting: a layout that cannot express the section, too few knots along the course, a constraint that holds the fit off the data, or a weighting that favors another region. Each has its own remedy, and refitting by trial repeats the miss.
+
+When one part of a fitted family changes, such as a relief, refit that part alone on the stored wall beneath it, because refitting the whole family or starting from an earlier stored state drops every later correction without a diagnostic.
+
+Trace the same observations through sampling, fitting and refinement to the displayed surface, isolate any downstream loss instead of compensating with shape coefficients, and accept the result through [form inspection](../inspection.md).

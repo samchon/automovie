@@ -21,13 +21,11 @@ A statement here does not apply when the studied subject lacks what it asks for,
     - the conduct of everyone present, officials and crowds included;
     - the markers that separate the depicted level from a beginner;
     - how the genre is shot.
-6. It gives the measurable targets for what a viewer sees and hears, such as distance by phase, idle time per presence and shot-change cadence.
+6. It gives measurable targets for what a viewer sees and hears, such as distance by phase, idle time per presence and shot-change cadence.
 7. Each target is a range from the depicted discipline and level, with its method and uncertainty.
 8. An invented action names its closest real analogue and states where it departs.
-9. No value is a rank or an adjective, and none is borrowed from another discipline without a stated translation.
-10. Every value has a source.
-11. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs, or a rule or table an installed package exports, is not restudied.
-12. The level, patterns and targets of a practice built from such movements are studied here.
+9. Every value has a source, none is a rank or an adjective, and none is borrowed from another discipline without a stated translation.
+10. The study covers what the production must write or decide itself. Exception: a single movement the installed motion vocabulary performs, a rule or table an installed package exports, and the general film grammar of [shots and cuts](../../../../../story/layers/shots.md) are not restudied, though the level, patterns and targets of a practice built from such movements are.
 
 ## Traceable sources
 

@@ -27,7 +27,7 @@ Principles ask each authored H2, obligations ask one document for a complete dec
 
 A short has no settings, settings index, treatments or scripts, so those rows have no respondent there, and its studies answer no research contract under [evidence configuration](../../evidence/configuration.md#story).
 
-Its event design and scene execution are asked of the screenplay instead: [audiovisual realization](shared/principles/screenplay.md#audiovisual-realization) and [beat decisions](shared/principles/screenplay.md#beat-decisions) for each section, and [continuity](shared/obligations/narratives.md#continuity-and-progression), [promises](shared/obligations/narratives.md#promises-and-distribution) and [complete realization](shared/obligations/screenplay.md#complete-realization) for the whole, which cover setup and payoff, the ending and the established space.
+Its event design and scene execution are asked of the screenplay instead: [audiovisual realization](shared/principles/screenplay.md#audiovisual-realization), [beat decisions](shared/principles/screenplay.md#beat-decisions), [unit progression](shared/principles/narratives.md#unit-progression) and [speaker plausibility](shared/principles/realized.md#speaker-plausibility) for each section, and [continuity](shared/obligations/narratives.md#continuity-and-progression), [promises](shared/obligations/narratives.md#promises-and-distribution) and [complete realization](shared/obligations/screenplay.md#complete-realization) for the whole, which cover setup and payoff, the ending and the established space.
 
 ## Statements
 
@@ -39,4 +39,4 @@ Use [common discovery](shared/discovery/common.md), then [settings](shared/disco
 
 Scripts construction also answers the expression questions: [common](shared/naturalness/common.md), [realized speech expression](shared/naturalness/realized.md) and [scripts](shared/naturalness/scripts.md) for each unit, and the [common](shared/naturalness/obligations/common.md), [realized speech expression](shared/naturalness/obligations/realized.md) and [script](shared/naturalness/obligations/scripts.md) obligations for the whole population. The screenplay settles its speech in construction under the realized speech principles and has no expression family.
 
-Creation tests its actual parents through the [treatment](shared/upstream/treatments.md), [script](shared/upstream/scripts.md), and [screenplay](shared/upstream/screenplay.md) upstream audits; repair the earliest semantic owner and its affected descendants together.
+Creation tests its actual parents through the [treatment](shared/upstream/treatments.md), [script](shared/upstream/scripts.md), and [screenplay](shared/upstream/screenplay.md) upstream questions; repair the earliest semantic owner and its affected descendants together.

@@ -11,7 +11,7 @@ Requirements:
 3. Each finding has an observable application and failure, and names the smallest respondent population that can establish it.
 4. An adopted form states its observable choices, scope, audience effect, representative failure, semantic owner and repair boundary.
 5. Language baselines belong to their language owner, creative form to the work and world facts to settings, or on a short to the brief or screenplay as the [brief's boundary](../../../../../story/layers/brief.md#what-it-holds) divides them. A possibly universal candidate stays research until adopted into shared contracts.
-6. A requirement found only in guide prose, selectors, status notes or repeated explanations moved to its owner with its consumers updated, under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes).
+6. A requirement found only in guide prose, selectors, status notes or repeated explanations moved to its owner with its consumers updated, under [closed passes](../../../../../story/correction/repair.md#closed-passes).
 
 Language:
 
@@ -26,7 +26,7 @@ Production coverage:
 
 10. The settings, research, screenplay, source and, after delivery review, the acceptance record were inspected for:
     - an element kind no source folder owns;
-    - a behavior, camera or staging choice no research supports;
+    - a behavior, camera or staging choice that neither the installed packages, [shots and cuts](../../../../../story/layers/shots.md) nor a study supports;
     - a failure no contract asks about;
     - a skill, folder or instruction the work needed but lacked.
 11. Each gap found was answered in one of three ways:
@@ -37,7 +37,6 @@ Production coverage:
 
 Accounting:
 
-13. Findings, already covered choices and the remaining inspected scope are accounted together.
+13. Findings, already covered choices and the remaining inspected scope are accounted together. One finding establishes no absence elsewhere, and unread or unresolved scope stays open.
 14. A negative names the concrete risks inspected and their adequate existing owners.
-15. One finding establishes no absence elsewhere, and unread or unresolved scope stays open.
-16. Every story element the user must decide under [asking the user](../../../../../story/planning/requirements.md#asking-the-user) is accounted as fixed or delegated at its owner, or as open in project context.
+15. Every story element the user must decide under [asking the user](../../../../../story/planning/requirements.md#asking-the-user) is accounted as fixed or delegated at its owner, or as open in project context.

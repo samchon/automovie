@@ -6,4 +6,4 @@ Statements: [statements/naturalness/obligations/scripts.md](../../statements/nat
 
 ## Execution distribution
 
-Compared across the whole, does the arrangement of entry, action, speech, silence and exit change as the pressure changes? Changing people or objects can leave the audience experiencing the same scene.
+Compared across the whole, does the arrangement of entry, action, speech, silence and exit change as the pressure changes? Scenes that change only their people or objects leave the audience experiencing the same scene.

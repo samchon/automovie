@@ -1,39 +1,11 @@
 ---
 name: production
-description: Keeps what belongs to the production as a whole and to no single task, namely its commissioned output, project context, sustained runs, stage caches, media records, reorganization and final assembly and handoff. Use when starting, resuming, restructuring or handing off a production; story, development, motion, image, video, audio and review own their own work.
+description: Keeps what belongs to the production as a whole and to no single task, namely its commissioned output, project context, sustained runs, stage caches, media records, reorganization, captions and final assembly and handoff. Use when starting, resuming, restructuring or handing off a production; story, development, motion, image, video, audio and review own their own work.
 ---
 
 # Production
 
 Carry the commission from its adopted scope to the handed-off output. Read the request and [project context](project-context.md) first, because the commissioned output decides which skills run and what completes the work.
-
-## Commissioned outputs
-
-| Output | Complete when |
-| --- | --- |
-| Screenplay | Its text passes the [writing workflow](../story/workflow/SKILL.md#completion); no source or media is owed |
-| Standalone asset | Its views and controls pass the asset part of [delivery review](../review/delivery-review.md); no narrative is owed |
-| Whole motion hint | Every main scene is programmed and the whole timeline is assembled; no generator is owed, and stills or pilot clips do not complete it |
-| Direct 3D film | The programmed film is rendered at its commissioned detail; no diffusion is owed |
-| Generated film | Finished takes of the chosen video model are assembled; the motion hint behind them is a separate output |
-
-[Delivery review](../review/delivery-review.md) accepts each one and discloses what was not produced.
-
-## Route the work
-
-Each task has one owner, in the [writing order](../story/workflow/SKILL.md):
-
-| Work | Owner |
-| --- | --- |
-| Canon, the screenplay and their research | [Story](../story/SKILL.md) |
-| Entities, source, integrations and tests | [Development](../development/SKILL.md) |
-| Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
-| Generated images | [Image](../image/SKILL.md) |
-| The video model, its prompts and its takes | [Video](../video/SKILL.md) |
-| Sound | [Audio](../audio/SKILL.md) |
-| Judgment of the work | [Review](../review/SKILL.md) |
-
-This skill keeps what spans them:
 
 | Task | Read |
 | --- | --- |
@@ -43,3 +15,31 @@ This skill keeps what spans them:
 | Save generated, acquired and pipeline media with their records | [Media records](media-records.md) |
 | Reorganize the production | [Reorganization](reorganization.md) |
 | Assemble the film, render it once and hand it off | [Assembly and handoff](assembly.md) |
+| Write and time a film's caption tracks | [Captions](captions.md) |
+
+## Commissioned outputs
+
+| Output | Complete when |
+| --- | --- |
+| Screenplay | Its text passes the [writing workflow](../story/workflow/routes.md#completion); no source or media is owed |
+| Standalone asset | Its views and controls pass the asset part of [delivery review](../review/delivery-review.md); no narrative is owed |
+| Whole motion hint | Every main scene is programmed and the whole timeline is assembled; no generator is owed, and stills or pilot clips do not complete it |
+| Direct 3D film | The programmed film is rendered at its commissioned detail; no diffusion is owed |
+| Generated film | Finished takes of the chosen video model are assembled; the motion hint behind them is a separate output |
+
+[Delivery review](../review/delivery-review.md) accepts each one and discloses what was not produced.
+
+## Routing
+
+Every other task has one owner, taken in the order of [one chain](../story/workflow/routes.md#one-chain):
+
+| Work | Owner |
+| --- | --- |
+| Canon, the screenplay and their research | [Story](../story/SKILL.md) |
+| Entities, source, integrations and tests | [Development](../development/SKILL.md) |
+| Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
+| Generated images | [Image](../image/SKILL.md) |
+| The video model, its prompts and its takes | [Video](../video/SKILL.md) |
+| A direct 3D film's detail, look, faces and render | [Direct film](../direct-film/SKILL.md) |
+| Sound | [Audio](../audio/SKILL.md) |
+| Judgment of the work | [Review](../review/SKILL.md) |

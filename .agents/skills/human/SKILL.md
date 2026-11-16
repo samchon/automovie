@@ -29,7 +29,7 @@ A measurement order, or another value of a parameter, is not research.
 3. **Repair.** A defect is fixed at the curve that makes it, in the order [Repair](construction.md#repair) gives.
 4. **Seeing.** Nothing is true until it is seen. Every shape claim rests on renders opened beside the reference, as [Verification](verification.md) requires.
 
-## Three Steps
+## Three steps
 
 Conquer one person before generalizing. Pass each step's [gates](verification.md#steps-one-and-two) before the next, because a formula fitted to an unmatched shape generalizes the error.
 
@@ -38,7 +38,7 @@ Conquer one person before generalizing. Pass each step's [gates](verification.md
    - Correct only the knots that follow a reference artifact, such as hatching, holes or saw-toothed slices. Name each one in a comment.
    - Conic-loft those lines in absolute world coordinates.
 2. **Re-base.** Rewrite each part's traced coordinates about its own origin at its joint, with axes from its own landmarks. Chain the parts' relative frames so the round trip back to the reference pose is exact.
-3. **Generalize.** Derive, by reverse analysis of the re-based coordinates, the universal laws that produce them from parameters, under [Generate From Parameters](curves.md#generate-from-parameters), [Numbers](construction.md#numbers) and [Inputs](construction.md#inputs).
+3. **Generalize.** Derive, by reverse analysis of the re-based coordinates, the universal laws that produce them from parameters, under [Generate from parameters](curves.md#generate-from-parameters), [Numbers](construction.md#numbers) and [Inputs](construction.md#inputs).
 
 Know the method's classical limits before a step begins and plan their standard remedies: a level section cannot hold a horizontal floor, a pole cannot host ports, and a branch needs its connection. A limit discovered through a refusal costs a fix-and-revert cycle.
 
@@ -59,11 +59,11 @@ In step 3, derive every fix and expectation from the person's inputs, published 
 
 Finish the anatomical neutral and the bind before any other pose, because every motion starts from them.
 
-## Polygon Man
+## Polygon man
 
 The polygon man that `render` draws is a deliberately simple stand-in of a few rigid primitives on Human's skeleton, for motion verification and diffusion hints. Keep its primitives, segment count and style. A fix corrects a wrong value, such as a radius, a length or a frame. A change that would need more geometry, segments, smoothing, anatomy, a face or realism goes to the user as a report instead, because the stand-in's value is a cheap, readable and deterministic silhouette.
 
-## Done When
+## Done when
 
 - Every public parameter changes the figure through the one construction, answered at its published site.
 - Every supported person comes from that construction with no person selector, and finite, connected, normal anatomy holds across the parameter domain, at rest and in every supported pose.
@@ -72,7 +72,7 @@ The polygon man that `render` draws is a deliberately simple stand-in of a few r
 ## Files
 
 - [Construction](construction.md): the tree, the connection operators, the repair order, identity and binding, form, numbers and inputs.
-- [Original 2D Curves](curves.md): sketches, view curves, representation choices and generation from parameters.
+- [Original 2D curves](curves.md): sketches, view curves, representation choices and generation from parameters.
 - [Verification](verification.md): seeing before believing, the reference overlay, the step gates, the inspection round and verdicts.
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Screenshots](screenshot.md): the shared instrument's selections and passes for the Human figure.

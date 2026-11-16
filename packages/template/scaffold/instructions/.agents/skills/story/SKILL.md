@@ -5,15 +5,16 @@ description: Authors a video's research, requirements, direction, settings or a 
 
 # Story
 
-Make the commissioned audience experience and a usable handoff to the next layer, keeping user-fixed choices and making each layer's own contribution within delegation. Read the request, [project context](../production/project-context.md) and current work to find the task, route, layer and pass, then enter only the part it needs.
+Make the commissioned audience experience and a usable handoff to the next layer, keeping what the user fixed and deciding what was delegated. Read the request, [project context](../production/project-context.md) and the current work to find the task, route, layer and pass, then open only the page it needs.
 
-| Part | Covers |
+| Task | Read |
 | --- | --- |
-| [Workflow](workflow/SKILL.md) | Choosing the route and who writes the screenplay, each route's steps, and completion |
-| [Planning](planning/SKILL.md) | Requirements, direction, research and discovery |
-| [Layers](layers/SKILL.md) | Settings or brief, treatments, scripts, screenplay and notation |
-| [Correction](correction/SKILL.md) | Inspection and repair by cause |
-| [Evidence](evidence/SKILL.md) | Answers to the story contracts and where they go |
-| [Layout](document-layout.md) | Where documents, evidence and reviews live, and intake of supplied work |
+| Choose the route and who writes the screenplay, run a route, complete the work | [Workflow](workflow/SKILL.md) |
+| Ask for and record requirements, choose a direction, study a practice, discover uncovered requirements | [Planning](planning/SKILL.md) |
+| Write settings or a brief, treatments, scripts or the screenplay, and choose shots and cuts | [Layers](layers/SKILL.md) |
+| Classify a body's sentences and verify repairs | [Inspection](correction/inspection.md) |
+| Repair by cause, keep closed work closed, concretize a vague beat, expand a pilot | [Repair](correction/repair.md) |
+| Write and place the answers to the story contracts | [Answers](answers.md) |
+| Find where a document, answer or review lives, or take in supplied work | [Document layout](document-layout.md) |
 
-The [story contracts](../contracts/story/SKILL.md) hold the quality questions, and independent [review](../review/SKILL.md) judges the result.
+The [story contracts](../contracts/story/SKILL.md) hold the quality questions, and independent [review](../review/SKILL.md) judges the result. A creative body follows the production's adopted language, voice and form under those contracts instead of the documentation rules, so fixed quotations, purposeful repetition, nonstandard speech and punctuation stay as written.

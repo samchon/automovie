@@ -2,7 +2,10 @@
 
 Each exported declaration under `src/entities/` answers these items in its doc comment, beside [common](common.md), [design](design.md) and [implementation](implementation.md). An entity is one cast member, crowd, prop, set, camera or light.
 
-Its [settings realization](#settings-realization) answer names each settings or brief fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>` with how it is realized, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses. On a short, a decision the [brief leaves to the screenplay](../../story/layers/brief.md#what-it-holds) is named by its screenplay scene file and anchor instead. When [no narrative pass runs](../../story/workflow/SKILL.md#who-writes-the-screenplay), it names the screenplay or instruction section instead of a settings or brief fact, and cites each instruction section it realizes as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
+Its [settings realization](#settings-realization) answer names each fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>`, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses. Two cases name another source:
+
+- on a short, a decision the [brief leaves to the screenplay](../../story/layers/brief.md#what-it-holds) is named by its screenplay scene file and anchor;
+- when [no narrative pass runs](../../story/workflow/routes.md#who-writes-the-screenplay), the answer names the screenplay or instruction section, and cites each instruction section as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
 
 Statements: [statements/entities.md](statements/entities.md).
 

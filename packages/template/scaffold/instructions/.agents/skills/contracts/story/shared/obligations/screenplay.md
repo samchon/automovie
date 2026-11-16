@@ -1,6 +1,6 @@
 # Final screenplay population obligations
 
-The complete population answers once per question at its current stage: construction judges the plan and provisional material and timing; delivery also judges actual realization. A draft, partial animatic or local shot cannot establish completed delivery.
+The complete population answers each question once at its current stage: construction judges the plan and its provisional material and timing; delivery also judges the actual realization. A draft, a partial animatic or a local shot cannot establish completed delivery.
 
 Statements: [statements/obligations/screenplay.md](../statements/obligations/screenplay.md).
 
@@ -10,4 +10,4 @@ Does every parent decision reach a final unit, and does the whole match its decl
 
 ## Published version
 
-Is every change to an existing public release identified and handled across the release population? Changed goals, relationships or results need accountable handling, not unnoticed replacement.
+Is every change to an existing public release identified and handled across the release population? A changed goal, relationship or result needs accountable handling, not unnoticed replacement.

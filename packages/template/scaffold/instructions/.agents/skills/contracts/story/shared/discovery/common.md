@@ -6,4 +6,4 @@ Statements: [statements/discovery/common.md](../statements/discovery/common.md).
 
 ## Requirement ownership
 
-Was everything the work must keep, in its instructions, its language and its production, found and given one owner that can be held to it? A requirement left only in guide prose, selectors, status notes or repeated explanations binds nobody, and a selector or a discovery answer cannot supply a missing creative decision.
+Was everything the work must keep, in its instructions, its language and its production, found and given one owner that can be held to it? A requirement left only in guide prose, selectors, status notes or repeated explanations binds nobody, and neither a selector nor a discovery answer can supply a missing creative decision.

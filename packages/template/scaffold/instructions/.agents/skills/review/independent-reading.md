@@ -1,10 +1,10 @@
 # Independent reading
 
-An independent reader is a fresh context of the author's model, without the author's working memory. If no such context is available, report the review as unperformed.
+An independent reader is an [isolated context](../story/correction/inspection.md#isolated-context) that reads a narrative body as its recipient before any author record.
 
-## Read as the recipient
+## Reading as the recipient
 
-Give the reviewer the task, recipient and annotation-free body before parents, contracts or earlier verdicts. The reviewer never reads the evidence answers. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
+Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts; the reviewer never reads the evidence answers. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
 
 Read each layer as its recipient:
 
@@ -16,15 +16,13 @@ Read each layer as its recipient:
 | Scripts | Screenplay writer and performer |
 | Screenplay | Audience, then filmmaker |
 
-A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream repair](../story/correction/repair.md#upstream-defects).
+A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream defects](../story/correction/repair.md#upstream-defects).
 
-## Compare with parents and contracts
+## Comparison with parents and contracts
 
-Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions; matching quotations cannot replace this comparison. Fiction's own derived quantities belong to research and code, so do not recompute them.
+Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, the actual parents and the requirements, looking for contradictions; matching quotations do not replace this comparison. Do not recompute fiction's own quantities, as [factual basis](../story/planning/requirements.md#factual-basis) sets.
 
-Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in an isolated worker before reading author defenses.
-
-Apply the contract's decision rule to named failures and the [retention test](../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate) to other candidates. Intent or a function label cannot overturn the locked judgment.
+Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in an isolated worker before reading author defenses. Apply the contract's decision rule to named failures and the [retention test](../story/answers.md#grounds-for-retaining-a-candidate) to other candidates; intent or a function label cannot overturn the locked judgment.
 
 ## Expression
 

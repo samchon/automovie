@@ -4,19 +4,19 @@ An AutoMovie workspace: several productions share one set of skills and contract
 
 ## Layout
 
-| Path | Owner |
+| Path | Holds |
 | --- | --- |
-| `AGENTS.md`, `CLAUDE.md`, `.agents/skills` | Skills and bundled contracts every production follows |
+| `AGENTS.md`, `CLAUDE.md`, `.agents/skills` | The skills and bundled contracts every production follows |
 | `movies/shorts/<name>` | A short production, written brief → screenplay |
 | `movies/series/<name>` | A long production, written settings → treatments → scripts → screenplay |
 | `packages/<name>` | The workspace's own libraries that several productions import |
 | `pnpm-workspace.yaml` | Workspace members and the named `catalogs` of versions every production uses through `catalog:<name>` |
 
-A production is the directory holding its `PROJECT.md`, `README.md`, `src`, `test`, `docs` and configuration; its commands run there. A production's own work and language contracts live in its `docs/contracts`.
+A production is the directory holding its `PROJECT.md`, `README.md`, `src`, `test`, `docs` and configuration, and its commands run there. Its own work and language contracts live in its `docs/contracts`.
 
 ## First run
 
-Use Node.js 22.23.2 or later with pnpm.
+Use Node.js 22.23.2 or later with pnpm, and run these at the workspace root:
 
 ```bash
 pnpm install
@@ -24,7 +24,7 @@ pnpm automovie add shorts/<name>
 pnpm install
 ```
 
-`pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` creates `movies/shorts/<name>` or `movies/series/<name>` from the installed AutoMovie scaffold, naming its package after `<name>`, lowercased and npm-safe, unless `--name <package>` is given; run it here, at the workspace root. The second `pnpm install` links the new production. Then follow that production's README.
+`pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` creates the production from the installed AutoMovie scaffold, naming its package after `<name>`, lowercased and npm-safe, unless `--name <package>` is given. The second `pnpm install` links it. Then follow that production's README.
 
 ## Packages
 

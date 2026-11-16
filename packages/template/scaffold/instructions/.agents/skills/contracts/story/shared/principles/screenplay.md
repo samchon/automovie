@@ -1,12 +1,12 @@
 # Final screenplay principles
 
-Each final screenplay H2, a section of one scene file, answers for the finished audiovisual experience specified by that unit. In a long work it follows already executable scripts; a short realizes its brief and research, owning necessary events and executable scene decisions directly. Neither route replaces finished audiovisual realization with planning or polished wording.
+Each final screenplay H2, a section of one scene file, answers for the finished audiovisual experience that unit specifies. A long work realizes already executable scripts; a short realizes its brief and research and owns its events and scene execution directly. Neither route replaces finished realization with planning or polished wording.
 
 Statements: [statements/principles/screenplay.md](../statements/principles/screenplay.md).
 
 ## Audiovisual realization
 
-Does the unit realize its established action, performance, staging, view, speech, silence and result through deliberate images, sound, attention, duration, juxtaposition and transitions, giving each moment the attention and time its importance and pressure need, so that the audience can follow and feel it? Transcribed directions, a shot inventory, commentary, decorative expansion or a mood label cannot establish this, a named technique leaves the next recipient to invent the performance, and dialogue density, cuts or a word count cannot prove pace.
+Does the unit realize its established action, performance, staging, view, speech, silence and result through deliberate image, sound, attention, duration, juxtaposition and transitions, giving each moment the time its importance and pressure need, so the audience can follow and feel it? Transcribed directions, a shot inventory, commentary, decorative expansion or a mood label cannot establish this; a named technique leaves the next recipient to invent the performance; and dialogue density, cuts or a word count cannot prove pace.
 
 ## Beat decisions
 

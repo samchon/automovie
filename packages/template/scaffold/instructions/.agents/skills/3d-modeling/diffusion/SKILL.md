@@ -5,7 +5,7 @@ description: Generates the form of a commissioned detail option with a text- or 
 
 # Diffusion
 
-A generated form serves only a commissioned [detail option](../../development/entities.md#detail); the coarse form stays the default and the hint every scene uses. Steer the model from what the production has already decided, because the coarse form holds the subject's size and parts and the canon references hold its look:
+A generated form serves only a commissioned [detail option](../../development/entities.md#detail); the coarse form stays the default and the hint every scene uses. Steer the model with what the production has already decided, because the coarse form holds the subject's size and parts and the canon references hold its look:
 
 | The subject has | Steer it with | Read |
 | --- | --- | --- |
@@ -15,6 +15,6 @@ A generated form serves only a commissioned [detail option](../../development/en
 | Canon references, and no model that takes a shape | Views rendered from the coarse form and restyled under [turnaround views](../../image/turnaround-views.md) | [Views rendered from the shape](shape-hints.md#views-rendered-from-the-shape), with [image hints](image-hints.md) |
 | Only its record | A text prompt in the record's wording | [Text prompts](prompts.md) |
 
-Choose the model with the user from [3D models](models.md) or another, and record it in [project context](../../production/project-context.md); whatever steers it, [request](request.md) sets what to ask for.
+Choose the model with the user, from [3D models](models.md) or beyond, and record it in [project context](../../production/project-context.md); [request](request.md) sets what to ask for, whatever steers it.
 
 Freeze each accepted result and take it into the entity's detail option under [Conditioning](../conditioning.md), keep it where [media records](../../production/media-records.md#files) sets, and check that it keeps the coarse form's size, pivots and contacts.

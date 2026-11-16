@@ -2,9 +2,9 @@
 
 Read the whole requested change with its callers, inputs, consumers, error paths and tests, then check it against the [development contracts](../contracts/development/SKILL.md) its declarations answer.
 
-## Answers are true
+## Truth of answers
 
-Each answer states what the code actually does and claims no behavior, measurement or limit the code does not have. It cites what the code actually follows:
+Each answer states what the code actually does and claims no behavior, measurement or limit the code lacks. It cites what the code actually follows:
 
 | Declaration | Cites |
 | --- | --- |
@@ -14,18 +14,6 @@ Each answer states what the code actually does and claims no behavior, measureme
 
 Check each answer against its item's [statements](../contracts/SKILL.md#items-and-statements), because a passing graph shows only that answers exist.
 
-## Behavior is principled
+## The actual consumer
 
-Values come from a requirement, study, measurement or named parameter. No constant is tuned to one case, no result is baked or fitted, no tolerance hides a gap, and no consumer is special-cased.
-
-## Tests verify behavior
-
-Each test exercises the behavior with independent expectations and distinguishing cases, and no test only checks repository arrangement.
-
-## The consumer works
-
-Run the checks that reach the actual consumer, including behavior that must stay unchanged. Visual and performance results come from stills under [visual debugging](../visual-debugging/SKILL.md) and [motion](../motion/SKILL.md), and listening results from the user under [audio](../audio/SKILL.md).
-
-## Report
-
-Report host or platform checks that could not run, and keep self-review labeled as self-review. Repairs go to [development](../development/SKILL.md).
+Run the checks that reach the actual consumer, including behavior that must stay unchanged. Visual and performance results come from stills under [visual debugging](../visual-debugging/SKILL.md) and [motion](../motion/SKILL.md), and listening results from the user under [audio](../audio/SKILL.md). Report the host or platform checks that could not run, and send repairs to [development](../development/SKILL.md).

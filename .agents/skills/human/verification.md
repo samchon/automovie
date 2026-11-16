@@ -1,6 +1,6 @@
 # Verification
 
-## Seeing Before Believing
+## Seeing before believing
 
 A shape claim is accepted only from renders opened by the person making the claim, beside the reference, under matching camera, light and shade. Numbers, passing tests and a worker's report are pointers to where to look, not acceptance: a figure has passed every check while its armpit read wrong, and a defect that no test lists yet shows only in a still.
 
@@ -11,7 +11,7 @@ A shape claim is accepted only from renders opened by the person making the clai
 
 The [shared instrument](screenshot.md) finds defects and accepts a candidate; the [tests](testing.md) confirm it.
 
-## Curves Against The Reference
+## Curves against the reference
 
 A surface is only as right as its original 2D definitions, so inspect them before correcting a shape. A comparison the instrument cannot draw yet, because the reference is not handed to it, is [unavailable evidence](screenshot.md#reference-comparison), recorded as such and never passed.
 
@@ -25,7 +25,7 @@ When a published law misses the person's reference, the law is the wrong one, or
 
 A changed host or frame reopens the comparison of every affected neighbour. As soon as a part's originals hold, take it to its [inspection round](#inspection-round) with its neighbours.
 
-## Steps One And Two
+## Steps one and two
 
 These are the gates of the first two [steps](SKILL.md#three-steps).
 
@@ -37,7 +37,7 @@ The reference mesh has hatching, holes and saw-toothed slices, so an extracted k
 
 Before each batch, inventory every visible defect of the whole figure in every view and close-up, and give each a cause and an owner. A defect left out of the inventory is an incomplete investigation.
 
-## Published Values
+## Published values
 
 In step 3 a published value enters in one of two ways:
 
@@ -46,7 +46,7 @@ In step 3 a published value enters in one of two ways:
 
 A sample's plain mean describes the average subject, not this person. Read the parameters the reference was authored with before using a source, and state in the comment which covariate values select the relation.
 
-## Shared Connections
+## Shared connections
 
 Trace each [connection](construction.md#connections) into both production source inputs before lofting, then into their raw and realized consumers. Verify the whole boundary and its jets under the declared maps, the open-end or footprint domains, and the preservation of neighbouring intervals. Equal names, centres or four supports do not establish that geometry.
 
@@ -54,7 +54,7 @@ For a port, overlay both sides' 2D lines at the joint in every view, then inspec
 
 Before a connection or a family is realized, pre-check every premise the engine admits it on, not one of them: the sections' star-shape and their conic layout's admissibility at every station, the rings and loops the bands start and land on, every band column's direction, and the correspondence's own condition, such as a monotone angle. A premise left out of the pre-check surfaces as a refusal after the build, when a fit and a figure have already been spent on it.
 
-## Inspection Round
+## Inspection round
 
 Inspect the candidate following [visual debugging](../visual-debugging/SKILL.md) and [form inspection](../3d-modeling/inspection.md), for every affected part and join, against the existing figure and the reference under matching camera, light, shade, size and backend.
 
@@ -72,7 +72,7 @@ A verdict names the exact source version, part, interval and the views personall
 
 Build one baseline of every original, its reference views, its neighbour groups and the whole figure. Later rounds regenerate changed originals and affected neighbours, and add angles or close-ups for open questions. Record each round's findings together by cause.
 
-## Render Audit
+## Render audit
 
 - Capture after the generated output changes, and read the new stills. When nothing new was rendered, open the latest stills not yet read.
 - After a figure changes, the minimum is the three passes from the front, left and top, with underwear and hair hidden. Add back, oblique, close-up and neighbour views as the affected geometry requires.

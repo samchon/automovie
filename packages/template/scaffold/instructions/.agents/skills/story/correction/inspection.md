@@ -18,10 +18,8 @@ Record the revision and covered ranges, list the tested failures once, and give 
 
 Lock the whole initial table before author defenses. The author repairs or raises a factual objection, and the classifier resolves it without substituting intent for the recipient's judgment. Record every member of each recurring cause, and send uncovered recurring losses to discovery.
 
-## Verify changed work
+## Changed work
 
-The body's author makes every repair until the cycle closes. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons. Do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence. A repaired passage receives another yes only for a clear applicable failure.
-
-Read the changed passages together for a new common pattern or fidelity loss under [cause rounds](repair.md#cause-rounds).
+The body's author makes every repair until the cycle closes. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons. Do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence. A repaired passage receives another yes only for a clear applicable failure. Read the changed passages together for a new common pattern or fidelity loss under [cause rounds](repair.md#cause-rounds).
 
 The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked. A clean table is neither independent approval nor whole-work completion; independent review closes the pass.

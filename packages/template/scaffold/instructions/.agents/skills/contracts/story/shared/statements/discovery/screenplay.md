@@ -10,6 +10,5 @@ Contract: [discovery/screenplay.md](../../discovery/screenplay.md).
     - motif transformation, transitions and exits;
     - captions, notation and register.
 2. Each choice shows how it functions and how it fails in this work.
-3. Adoption of a form is judged separately from its natural realization.
-4. Style is not offered as the excuse for a defect.
-5. Events alone are not taken to describe their audience experience.
+3. Adopting a form is judged separately from realizing it naturally, and style excuses no defect.
+4. Events alone are not taken to describe their audience experience.

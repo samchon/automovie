@@ -13,7 +13,7 @@ The campaign is complete when a round on the latest baseline finds nothing, no a
 
 ## Discovery
 
-1. Run a complete round under the [review law](../review/SKILL.md#review-law) over the declared scope, including real workflows, related issues and pull requests, and the [contracts](../contracts/SKILL.md) even where tests pass.
+1. Run a complete round under the [review rules](../review/SKILL.md#review-rules) over the declared scope, including real workflows, related issues and pull requests, and the [contracts](../contracts/SKILL.md) even where tests pass.
 2. Check each candidate's owner, history, and duplicates, then accept, merge, split, or reject it.
 3. Repeat complete rounds on the same baseline until one finds nothing meaningful.
 
@@ -43,8 +43,8 @@ Publish bodies as the [pull-request](../pull-request/SKILL.md#body) skill says.
 
    A revert must drop that line, and a squash still carries the reverted commit's line.
 
-4. After each pushed commit, run [Individual Self-Review](../review/SKILL.md#individual-self-review) and record it as a `COMMENT` review.
-5. On the integrated head, run [Overall Self-Review](../review/SKILL.md#overall-self-review) while CI runs.
+4. After each pushed commit, run [individual self-review](../review/SKILL.md#individual-self-review) and record it as a `COMMENT` review.
+5. On the integrated head, run [overall self-review](../review/SKILL.md#overall-self-review) while CI runs.
 
    Fix every failed check, pre-existing ones included, and repeat on the new head.
 

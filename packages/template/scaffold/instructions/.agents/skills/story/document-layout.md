@@ -1,14 +1,12 @@
 # Document layout
 
-Each creative document, its evidence and its review has a default location here, used when needed rather than created as an empty tree, and supplied work enters through intake.
-
-The evidence and review locations below are the installed evidence package's, and its documentation owns supported layouts and selectors. This table is the one place the skills show them; [evidence configuration](../evidence/configuration.md) owns their use.
+Where each creative document, its evidence and its review lives, and how supplied work enters.
 
 ## Documents
 
-Commit instructions, creative bodies and evidence answers. Review records stay local.
+Each location below is a default, used when needed rather than created as an empty tree. The evidence and review locations are the installed evidence package's, whose documentation owns the supported layouts and selectors; this table is the one place the skills show them, and [evidence configuration](../evidence/configuration.md) owns their use.
 
-Keep one current record per purpose, identified by its actual inputs; Git preserves earlier tracked editions. Raw logs, classification tables, performance plans, run records and temporary comparisons belong in ignored `.cache/`, with their relevant conclusions in the current record.
+Commit instructions, creative bodies and evidence answers, and keep review records local. Keep one current record per purpose, identified by its actual inputs, since Git preserves earlier tracked editions. Raw logs, classification tables, performance plans, run records and temporary comparisons belong in ignored `.cache/`, with their relevant conclusions in the current record.
 
 | Location, when used | Owns |
 | --- | --- |
@@ -34,4 +32,4 @@ A part can be an act, release block, or another division suited to the format. A
 
 ## Intake of existing work
 
-Identify supplied settings, scripts or completed works by their original source revision or retained reference. Through [instructions](planning/requirements.md#requirements), record their identity, adopted requirements, fixed quotations, and reinterpretation boundaries. Existing finished work supplies material and choices to assess; it does not approve this production's layers. A user's [fixed screenplay](workflow/SKILL.md#who-writes-the-screenplay) is the exception: it is the screenplay, kept unchanged in the screenplay location.
+Identify supplied settings, scripts or completed works by their original source revision or retained reference, and record their identity, adopted requirements, fixed quotations and reinterpretation boundaries as [instructions](planning/requirements.md#requirements). Existing finished work supplies material and choices to assess; it approves none of this production's layers. A user's [fixed screenplay](workflow/routes.md#who-writes-the-screenplay) is the exception: it is the screenplay, kept unchanged in the screenplay location.
