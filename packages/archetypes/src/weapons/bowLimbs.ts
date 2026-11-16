@@ -1,52 +1,129 @@
-import { ArchetypeUnits } from "../core";
+import { ArchetypeRefusal, ArchetypeUnits } from "../core";
 import { createBow } from "./createBow";
 
 /**
  * Each limb's turn against the string's travel: the table a bow's `upperLimb` and `lowerLimb` follow, and what `createBow.limbs` gives.
  *
- * @param half The limb's tip's height from the grip, half the length nock to nock, metres.
- * @param brace The braced string's distance behind the grip, metres.
- * @param travel The string's full travel, metres.
- * @returns Rows of the string's travel, metres, and the limb's turn, degrees, from brace to full draw.
+ * @param half The finite positive limb-tip height from the grip, half the length nock to nock, metres.
+ * @param brace The finite positive braced-string distance behind the grip, metres.
+ * @param travel Finite nonnegative full string travel, metres, admitting the fixed limb/string triangle.
+ * @returns Rows of string travel, metres, and limb turn, degrees, from brace to full draw; a zero stroke has just the neutral row.
+ * @throws {ArchetypeRefusal} For invalid or impossible geometry, unrepresentable intermediate geometry or insufficient binary64 travel resolution.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the rows and their units.
- * @evidence contracts/development/implementation.md#principled-implementation A tip at `R` from the grip, `R` fixed, and the string's half `S` fixed: with the nock at `n` behind the grip, the tip's reach toward it is `c = (R^2 + n^2 - S^2) / (2 n)`, so the turn is `asin(c / R) - alpha`, `alpha` the braced tip's angle; rows are bisected until the half read between them stays within the string's radius `createBow.STRING` of its length.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact turn, then a recursive bisection.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limb is stiff about the grip; its bending is not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms A handful of rows: the bisection stops where linear reading is already inside the string's radius.
+ * @evidence contracts/development/common.md#meaningful-documentation States positive geometry, nonnegative triangle-limited travel, the rows' units, zero stroke and explicit numerical refusals.
+ * @evidence contracts/development/implementation.md#principled-implementation A tip at `R` from the grip, `R` fixed, and the string's half `S` fixed: with the nock at `n` behind the grip, the tip's reach toward it is `c = (R^2 + n^2 - S^2) / (2 n)`, so the turn is `asin(c / R) - alpha`, `alpha` the braced tip's angle. The triangle requires n-R<=S. Rows bisect until the midpoint's linearly read string half differs from S by at most createBow.STRING; this midpoint criterion is the existing approximation, not a proof of the maximum between rows. Substituting R squared minus S squared equals brace squared gives the dimensionless ratio `(n/R + (brace/n)*(brace/R))/2`, avoiding every raw square and their cancellation without changing the geometric law.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit geometry, then evaluate turns and recursively bisect the interpolation table.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Impossible inputs and non-finite geometry are refused rather than clamped into asin or emitted as NaN rows. Stiff limbs and midpoint interpolation remain the declared prototype approximation; no material elasticity is invented.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each accepted interval contributes one row and constant geometric work. Storage is linear in row count plus recursive subdivision depth; the actual producer's bounded bow dimensions yield a small table. No global finite-input row bound is claimed.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned table escapes; no input or external resource is retained.
  */
 export function bowLimbs(
   half: number,
   brace: number,
   travel: number,
 ): [number, number][] {
+  for (const [axis, value] of [
+    ["half", half],
+    ["brace", brace],
+  ] as const)
+    if (!(Number.isFinite(value) && value > 0))
+      refuse(
+        axis,
+        value,
+        "a bow's limb and brace dimensions need finite positive lengths",
+      );
+  if (!(Number.isFinite(travel) && travel >= 0))
+    refuse("travel", travel, "a string draw needs finite nonnegative travel");
   const reach: number = Math.hypot(half, brace);
+  const nock: number = brace + travel;
+  if (!(Number.isFinite(reach) && Number.isFinite(nock)))
+    refuse(
+      "geometry",
+      travel,
+      "the limb reach and drawn nock must be representable",
+    );
+  if (travel > 0 && !(nock > brace))
+    refuse(
+      "geometry",
+      travel,
+      "the positive draw is below the drawn nock's representable resolution",
+    );
+  if (!(nock - reach <= half))
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "bow",
+      axis: "travel",
+      value: travel,
+      feasible: {
+        kind: "range",
+        minimum: 0,
+        maximum: Number.isFinite(reach - brace + half)
+          ? reach - brace + half
+          : null,
+        unit: "m",
+      },
+      reason:
+        "the drawn nock must form a triangle with the fixed limb and string half",
+      fix: "keep the travel nonnegative and within the limb/string triangle",
+    });
+  if (travel === 0) return [[0, 0]];
   const alpha: number = Math.atan2(brace, half);
-  const turn = (x: number): number => {
+  const turn: (x: number) => number = (x: number): number => {
     const n: number = brace + x;
-    const c: number = (reach * reach + n * n - half * half) / (2 * n);
-    return (Math.asin(c / reach) - alpha) / ArchetypeUnits.DEGREE;
+    const ratio: number = (n / reach + (brace / n) * (brace / reach)) / 2;
+    const result: number = (Math.asin(ratio) - alpha) / ArchetypeUnits.DEGREE;
+    if (!Number.isFinite(result))
+      refuse(
+        "geometry",
+        x,
+        "the limb's turn has no finite inverse-trigonometric value",
+      );
+    return result;
   };
 
-  // The string's half length read at a travel between two rows, from the linearly read turn.
-  const gap = (x: number, turned: number): number => {
+  // The string's half length read between rows from the linearly read turn.
+  const gap: (x: number, turned: number) => number = (
+    x: number,
+    turned: number,
+  ): number => {
     const phi: number = turned * ArchetypeUnits.DEGREE;
     const y: number = reach * Math.cos(alpha + phi);
     const z: number = reach * Math.sin(alpha + phi);
-    return Math.abs(Math.hypot(y, z - (brace + x)) - half);
+    const result: number = Math.abs(Math.hypot(y, z - (brace + x)) - half);
+    if (!Number.isFinite(result))
+      refuse("geometry", x, "the interpolated string length is not finite");
+    return result;
   };
   const rows: [number, number][] = [[0, 0]];
-  const fill = (a: number, b: number): void => {
-    const middle: number = (a + b) / 2;
+  const fill: (a: number, b: number) => void = (a: number, b: number): void => {
+    const middle: number = a + (b - a) / 2;
     const ta: number = turn(a);
     const tb: number = turn(b);
     if (gap(middle, (ta + tb) / 2) > createBow.STRING) {
+      if (middle === a || middle === b)
+        refuse(
+          "geometry",
+          middle,
+          "binary64 travel resolution cannot satisfy the string midpoint criterion",
+        );
       fill(a, middle);
       fill(middle, b);
     } else rows.push([b, tb]);
   };
   fill(0, travel);
   return rows;
+
+  /** Refuse unsupported geometry before a NaN table or nonterminating subdivision escapes. */
+  function refuse(axis: string, value: number, reason: string): never {
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "bow",
+      axis,
+      value,
+      reason,
+      feasible: null,
+      fix: "give positive finite limb and brace lengths with a representable feasible draw",
+    });
+  }
 }

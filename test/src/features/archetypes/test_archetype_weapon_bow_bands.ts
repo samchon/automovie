@@ -19,20 +19,28 @@ const STRING_PARTS: string[] = ["string-upper", "string-lower"];
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: the string 1.67 m to 66 in nock to nock, the grip 29.79 mm deep, 785 to 905 g, a draw of 101 to 141 lbf; a recurve's string 68 or 70 in, its grip in the power grip band, 1,133 to 1,338 g (its riser's, provisional), a draw of 49 to 54 lbf, braced 8.5 to 9.5 in over its two lengths' bands; a crossbow 10 to 12 lb, its bow 2 ft 6 in between extremes (Payne-Gallwey); a horse bow's string 48 to 53 in, its grip in the 30 to 40 mm power grip band, 315 to 330 g, a draw of 15 to 60 lbf, braced 14 to 15 cm.
  * 2. For three seeds, a longbow's string stands a twelfth of its length clear of the grip's belly, a horse bow's its drawn brace height, the `nock` lies on the string level with the grip and facing the archer's `+Z`, and the lowest point is on the floor.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the bow for 200 seeds and measures its string, grip width, mass, draw and the string's standoff from the grip; a length or a section other than the study's, a seed that does not vary it, a string at another brace height, or a bow off the floor is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces the bow for 200 seeds and measures its string, grip width, mass, draw and the string's standoff from the grip with finite-safe comparisons; a length or a section other than the study's, a seed that does not vary it, a string at another brace height, or a bow off the floor is caught.
  * @evidence contracts/development/testing.md#independent-expectations The Mary Rose bow X1-3 and its approximations in Aston and Spencer's study; the brace rule of one twelfth of the length; the Freddie KTB horse bows' dealer figures and Kong and Lowe's power grip band.
- * @evidence contracts/development/testing.md#distinguishing-cases Both built kinds, a brace by rule against a read one; the bows that wait for sources have no rows.
+ * @evidence contracts/development/testing.md#distinguishing-cases All four built kinds contribute measured dimension rows; the longbow's brace rule is checked against its geometry, with longbow and horse-bow floor checks. No launch speed is inferred for the crossbow's unread force.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
  */
 export function test_archetype_weapon_bow_bands(): void {
-  const bow = (seed: number): ReturnType<typeof createBow> =>
-    createBow({ kind: "longbow" }, seed);
-  const horse = (seed: number): ReturnType<typeof createBow> =>
-    createBow({ kind: "horseBow" }, seed);
-  const recurve = (seed: number): ReturnType<typeof createBow> =>
-    createBow({ kind: "recurve" }, seed);
-  const row = (
+  const bow: (seed: number) => ReturnType<typeof createBow> = (
+    seed: number,
+  ): ReturnType<typeof createBow> => createBow({ kind: "longbow" }, seed);
+  const horse: (seed: number) => ReturnType<typeof createBow> = (
+    seed: number,
+  ): ReturnType<typeof createBow> => createBow({ kind: "horseBow" }, seed);
+  const recurve: (seed: number) => ReturnType<typeof createBow> = (
+    seed: number,
+  ): ReturnType<typeof createBow> => createBow({ kind: "recurve" }, seed);
+  const row: (
+    name: string,
+    minimum: number,
+    maximum: number,
+    measure: (seed: number) => number,
+  ) => archetypeBandSweep.IRow = (
     name: string,
     minimum: number,
     maximum: number,
@@ -157,21 +165,25 @@ export function test_archetype_weapon_bow_bands(): void {
       longbow.affordance("grip");
     const nock: ReturnType<typeof longbow.affordance> =
       longbow.affordance("nock");
-    if (Math.abs(string + createBow.STRING - belly - length / 12) > 1e-9)
+    if (!(Math.abs(string + createBow.STRING - belly - length / 12) <= 1e-9))
       findings.push(`longbow@${seed}: the brace is not a twelfth`);
     if (
-      Math.abs(nock.frame.translation.y - grip.frame.translation.y) > 1e-9 ||
-      Math.abs(nock.frame.translation.z - (string + createBow.STRING)) > 1e-9 ||
-      Math.abs(ArchetypeFrame.axis(nock.frame, "y").z - 1) > 1e-12
+      !(
+        Math.abs(nock.frame.translation.y - grip.frame.translation.y) <= 1e-9
+      ) ||
+      !(
+        Math.abs(nock.frame.translation.z - (string + createBow.STRING)) <= 1e-9
+      ) ||
+      !(Math.abs(ArchetypeFrame.axis(nock.frame, "y").z - 1) <= 1e-12)
     )
       findings.push(`longbow@${seed}: the nock is off the string at the grip`);
-    if (Math.abs(archetypeExtent(longbow, "y").low) > 1e-9)
+    if (!(Math.abs(archetypeExtent(longbow, "y").low) <= 1e-9))
       findings.push(
         `longbow@${seed}: off the floor by ${archetypeExtent(longbow, "y").low} m`,
       );
   }
   for (const seed of [0, 1, 2])
-    if (Math.abs(archetypeExtent(horse(seed), "y").low) > 1e-9)
+    if (!(Math.abs(archetypeExtent(horse(seed), "y").low) <= 1e-9))
       findings.push(`horse bow@${seed}: off the floor`);
   TestValidator.equals("the bows stay in their cited bands", findings, []);
 }

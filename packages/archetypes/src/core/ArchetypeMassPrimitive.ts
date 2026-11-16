@@ -20,15 +20,15 @@ interface ILocal {
 /**
  * A primitive's volume, centre and central moments per unit mass in its own axes.
  * Local volume must be finite and positive, and local principal moments finite
- * and nonnegative; geometries outside that representable domain are refused.
+ * and positive; geometries outside that local representable domain are refused.
  *
  * @param shape The primitive.
  * @returns Its volume, centroid and central inertia per unit mass.
  * @throws {Error} For invalid dimensions or unrepresentable local properties.
  * @evidence contracts/development/common.md#meaningful-documentation States SI dimensions, local frame, planar null result and finite representability premises.
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form uniform box, sphere, cylinder, cone and cylinder-plus-two-hemisphere capsule properties, the same solids used by rendering. Capsule moments use component volume fractions before multiplication; scaled products preserve finite volume and principal-moment results across intermediate overflow.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit dimensions, dispatch one closed form, then admit finite positive volume and finite nonnegative principal moments.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses unrepresentable local properties rather than substituting a density, size cap, zero volume or approximate tensor; a plane still contributes no solid.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit dimensions, dispatch one closed form, then admit finite positive volume and finite positive principal moments for nondegenerate solids.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses unrepresentable local properties rather than substituting a density, size cap, zero volume, zero local moment from underflow or approximate tensor; a plane still contributes no solid.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of scalar operations per primitive, with fixed-width exceptional arithmetic through ArchetypeMassArithmetic.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One local record supplies volume, centroid and all principal moments to of and parts.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned scalar record retains no input, resource or cache.
@@ -54,11 +54,11 @@ export function ArchetypeMassPrimitive(
       Number.isFinite(result.centroid.y) &&
       Number.isFinite(result.centroid.z) &&
       Number.isFinite(result.unit.x) &&
-      result.unit.x >= 0 &&
+      result.unit.x > 0 &&
       Number.isFinite(result.unit.y) &&
-      result.unit.y >= 0 &&
+      result.unit.y > 0 &&
       Number.isFinite(result.unit.z) &&
-      result.unit.z >= 0
+      result.unit.z > 0
     )
   )
     throw new Error(

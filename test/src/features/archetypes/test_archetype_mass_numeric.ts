@@ -30,11 +30,15 @@ import { TestValidator } from "@nestia/e2e";
  *    complete aggregate sums reject the true overflow rounding boundary.
  * 6. Nonpositive/non-finite mass, density or dimensions, zero total share,
  *    impossible volume/tensor, zero direction and overflowing body total refuse.
+ * 7. A positive-volume thin box with sides 1e-200,1e-200,1e100 has local
+ *    Izz=(x squared+y squared)/12 below representability. Although mass1e100
+ *    could restore a finite final moment, this API admits local properties
+ *    first and must refuse instead of fabricating zero local/final inertia.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Derives authored solid and aggregate expectations, SI units, representability boundaries and malformed inputs; no empirical density or anatomy is invented.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises public builder, properties, parts, moment, broken and combine consumers without expanding a public helper barrel; catches NaN/Infinity records, lost proportional mass, overflowing weighted means, wrong parallel-axis distance and unrefused invalid inputs.
  * @evidence contracts/development/testing.md#independent-expectations A unit cube has each central moment m/6; equal 4 kg cubes at x=0 and x=2 add 8 kg m² about Y/Z. Equal coincident placed bodies retain their centre and add their own moments. Relative weights MIN_VALUE and 2*MIN_VALUE split 2 kg as 2/3 and 4/3. A point mass MIN_VALUE at 1.5 m has moment 2.25*MIN_VALUE, which rounds once to 2*MIN_VALUE. Three 2^969 additions exceed MAX_VALUE's overflow midpoint although each isolated addition rounds away.
- * @evidence contracts/development/testing.md#distinguishing-cases Ordinary and extreme equal weights, large finite mass, actual fracture reconstruction, large coincident placements, tiny/large/zero direction, parallel and perpendicular distant axes, subnormal rescue, cancellation, exact overflow and invalid physical inputs. Existing contract_mass owns ordinary primitive and measured bat comparisons.
+ * @evidence contracts/development/testing.md#distinguishing-cases Ordinary and extreme equal weights, large finite mass, actual fracture reconstruction, large coincident placements, tiny/large/zero direction, parallel and perpendicular distant axes, subnormal rescue, cancellation, exact overflow, explicitly unsupported local-moment underflow and invalid physical inputs. Existing contract_mass owns ordinary primitive and measured bat comparisons.
  * @evidence contracts/development/testing.md#execution-ownership One discovered portable in-memory unit owns authored numeric fixtures and uses real public consumers; it starts no compiler, process, renderer or host and mutates no implementation.
  */
 export function test_archetype_mass_numeric(): void {
@@ -293,6 +297,15 @@ export function test_archetype_mass_numeric(): void {
       findings.push(
         `the complete combined ${axis} sum lost the true overflow midpoint`,
       );
+  // Nondegenerate local moments must remain representable before later mass scaling.
+  let localRefusal: boolean = false;
+  try {
+    builder().box("a", { x: 1e-200, y: 1e-200, z: 1e100 }, { x: 0, y: 0, z: 0 }).build(1e100);
+  } catch (error) {
+    localRefusal = error instanceof Error && error.message.includes("principal moments");
+  }
+  if (!localRefusal)
+    findings.push("a nondegenerate local principal moment underflowed to a fabricated zero");
   TestValidator.equals(
     "mass properties retain finite representable results",
     findings,

@@ -187,13 +187,13 @@ export namespace ArchetypeMass {
    * @param mass The total mass, kilograms.
    * @param density Relative densities by part id; 1 for a part not listed.
    * @param shares Finite nonnegative weights replacing volume times density, as `of` takes them.
-   * @returns Each part's mass by id, kilograms; a part without volume or share weighs nothing.
-   * @throws {Error} For invalid mass/weights/dimensions, no positive solid weight or unrepresentable local properties.
+   * @returns Each part's mass by id, kilograms; a part without solid volume weighs nothing, including an inventory with no solids.
+   * @throws {Error} For invalid mass/weights/dimensions, solids with no positive weight or unrepresentable local properties.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the zero.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses of's same primitive and weight owners. Weights normalize by their maximum, and allocation evaluates mass*weight/(scale*normalizedTotal) with exact exceptional quotient fallback, retaining finite results when raw products overflow.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses of's same primitive and weight owners. An inventory with no solid primitives has only zero part masses; it does not construct a positive-mass body's properties, which of still refuses without solids. When solids exist, weights normalize by their maximum, and allocation evaluates mass*weight/(scale*normalizedTotal) with exact exceptional quotient fallback, retaining finite results when raw products overflow.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the weights, one for the masses.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid mass, density or share is refused before allocation; there is no zero-mass fallback for an unsupported all-zero weight record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid total mass is refused even for a no-solid inventory. Solid-bearing inputs still refuse invalid density/share and all-zero solid weights; only the geometry's actual absence of solid support yields zero part masses, never a failed-normalization fallback.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`'s volume rule.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -205,18 +205,24 @@ export namespace ArchetypeMass {
     shares: Readonly<Record<string, number>> = {},
   ): Record<string, number> {
     ArchetypeMassRecord.mass(mass);
+    let solids: number = 0;
     const weights: [string, number][] = parts.map(
       (part: IAutoMovieModelPart): [string, number] => {
         const solid: ILocal | null =
           part.geometry.type === "primitive"
             ? ArchetypeMassPrimitive(part.geometry.shape)
             : null;
+        if (solid !== null) solids++;
         return [
           part.id,
           solid === null ? 0 : weightOf(part.id, solid.volume, density, shares),
         ];
       },
     );
+    if (solids === 0)
+      return Object.fromEntries(
+        weights.map(([id]: [string, number]): [string, number] => [id, 0]),
+      );
     const normalized: { scale: number; total: number } =
       ArchetypeMassArithmetic.normalization(
         weights.map(([, value]: [string, number]): number => value),

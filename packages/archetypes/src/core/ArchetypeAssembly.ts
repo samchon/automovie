@@ -66,10 +66,10 @@ export class ArchetypeAssembly<
    * @throws {ArchetypeRefusal} When there is no member, a key is empty or contains `/`, or a placement is not rigid with unit scale.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's role, what a member keeps and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, ids are prefixed and frames placed, mass properties are combined and articulation state is preserved. Static and kinetic friction retain their stated mass-weighted approximation through the shared scaled convex mean, preserving finite coefficients when a direct coefficient-times-mass product underflows. Any missing member coefficient keeps that aggregate unknown. Restitution is retained only when every member declares the same physical material and exactly the same known coefficient; otherwise the aggregate remains unknown instead of averaging unrelated impact ratios. Even a common material reference does not certify a compound object's collision response.
+   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, ids are prefixed and frames placed, mass properties are combined and articulation state is preserved. Static and kinetic friction retain their stated mass-weighted approximation through the shared scaled convex mean, preserving finite coefficients when a direct coefficient-times-mass product underflows. If separate coordinate scaling reverses kinetic<=static by rounding, both means use the same exact dyadic reduction and final rounding law rather than clamping either value. Any missing member coefficient keeps that aggregate unknown. Restitution is retained only when every member declares the same physical material and exactly the same known coefficient; otherwise the aggregate remains unknown instead of averaging unrelated impact ratios. Even a common material reference does not certify a compound object's collision response.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the members, merge them, construct.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-rigid placement is refused rather than having its scale dropped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members' parts, affordances and spans, plus two O(M) coefficient means for M members. Coefficient/weight arrays retain O(M) temporary scalars; exceptional arithmetic belongs to the shared mean owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members' parts, affordances and spans, plus two O(M) coefficient means for M members. An observed kinetic/static order inversion adds two exact means, still linear in M; their exceptional integer cost belongs to the shared mean owner. Coefficient/weight arrays retain O(M) temporary scalars.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ArchetypeMassArithmetic.mean for both contact coefficients instead of independently forming potentially unrepresentable weighted products; each call still builds one independent model.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assembly holds its members and its merged rest model for as long as its caller keeps it.
    */
@@ -205,9 +205,16 @@ export class ArchetypeAssembly<
         if (travel !== undefined)
           state[prefix(own) as ArchetypeAssembly.Ids<M>] = travel;
     }
+    const properties: ArchetypeMass.IProperties = ArchetypeMass.combine(placed);
     const weights: number[] = placed.map(
       (member: ArchetypeMass.IPlaced): number => member.properties.mass,
     );
+    let frictionValue: number | null = friction === null ? null : ArchetypeMassArithmetic.mean(friction, weights);
+    let kineticValue: number | null = kinetic === null ? null : ArchetypeMassArithmetic.mean(kinetic, weights);
+    if (friction !== null && kinetic !== null && frictionValue !== null && kineticValue !== null && kineticValue > frictionValue) {
+      frictionValue = ArchetypeMassArithmetic.mean(friction, weights, true);
+      kineticValue = ArchetypeMassArithmetic.mean(kinetic, weights, true);
+    }
     return new ArchetypeAssembly<M>(
       members,
       {
@@ -217,11 +224,9 @@ export class ArchetypeAssembly<
         parts,
         affordances,
         materials: [...materials.values()],
-        properties: ArchetypeMass.combine(placed),
-        friction:
-          friction === null ? null : ArchetypeMassArithmetic.mean(friction, weights),
-        kineticFriction:
-          kinetic === null ? null : ArchetypeMassArithmetic.mean(kinetic, weights),
+        properties,
+        friction: frictionValue,
+        kineticFriction: kineticValue,
         surfaces,
         material: material ?? null,
         restitution: restitution ?? null,

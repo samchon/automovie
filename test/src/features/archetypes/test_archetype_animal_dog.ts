@@ -14,7 +14,8 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * 2. Seeded selection never blends height/girth between cohorts; unknown paw
  *    friction and skin restitution are absent, and a bare dog has no saddle.
  * 3. An authored collar's real straight lead owns the published contact frame.
- * 4. Invalid mass/tack is refused. An unnamed cohort's collar admission is
+ * 4. Missing or invalid mass/tack is refused even though the gallery has an
+ *    explicit reference specimen. An unnamed cohort's collar admission is
  *    seed-independent; naming a cohort admits its own neck length.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists measured, authored, provisional and refused behaviors without claiming canine anatomy or visual validation.
@@ -211,6 +212,9 @@ export function test_archetype_animal_dog(): void {
       1e-12,
     );
   const refusals: readonly (() => unknown)[] = [
+    // The public JavaScript boundary still refuses absent authored mass;
+    // reference metadata is consumed by the gallery, not by the producer.
+    (): unknown => Reflect.apply(createDog, undefined, [{}]),
     (): unknown => createDog({ mass: 0 }),
     (): unknown => createDog({ mass: NaN }),
     (): unknown => createDog({ mass: Infinity }),

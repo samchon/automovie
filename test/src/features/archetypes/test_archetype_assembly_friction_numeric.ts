@@ -1,5 +1,5 @@
 import {
-  type Archetype,
+  Archetype,
   ArchetypeAssembly,
   ArchetypeBuilder,
   ArchetypeDrawSession,
@@ -23,11 +23,14 @@ import { nclose } from "../internal/nclose";
  * 3. An undeclared pair keeps both aggregate coefficients absent. A member
  *    with only static wood-on-brick .6 keeps kinetic friction unknown while
  *    the two equally weighted static coefficients average to .55.
+ * 4. Authored ordered static/kinetic pairs with a 2^-200 relative mass keep
+ *    kinetic<=static under independent mean scaling. Their exact means both
+ *    round to .04 in either member order and at two common mass scales.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists three scenarios, cited fixture pairs, the existing mass-weighted approximation, binary64 mass scales and independent dimensionless expectations; no claim of measured compound friction is made.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists four scenarios, cited fixture pairs, explicitly authored rounding-boundary data, the existing mass-weighted approximation, binary64 mass scales and independent dimensionless expectations; no claim of measured compound friction is made.
  * @evidence contracts/development/testing.md#behavioral-verification Builds tiny real bodies and assemblies through public APIs, checks both coefficient projections and model admission, and preserves absent coefficients. Direct subnormal weighted products, unweighted averaging and unknown-as-zero all fail.
- * @evidence contracts/development/testing.md#independent-expectations Published member pairs supply literal .5/.3, 1/.7 and .6/unknown. A singleton's convex mean is its coefficient, 1:3 weights give .875/.6, and equal .5/.6 give .55 independently of the implementation's normalization or mass-property reader. The shared finite-aware nclose acceptance remains unchanged.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts least-positive, ordinary and large finite masses; singleton versus unequal weights; known static/kinetic versus missing pair or missing kinetic; and both orders of a missing member.
+ * @evidence contracts/development/testing.md#independent-expectations Published member pairs supply literal .5/.3, 1/.7 and .6/unknown. A singleton's convex mean is its coefficient, 1:3 weights give .875/.6, and equal .5/.6 give .55 independently of implementation normalization. For masses 1:2^-200 and authored static [.04,73/128], kinetic [.04,.5], each mean differs from .04 by less than 2^-200, far below half its binary64 ulp 2^-58, so both must round exactly to .04. That exact expectation catches a one-ulp inversion without relaxing the shared nclose tolerance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts least-positive, ordinary and large finite masses; singleton versus unequal weights; known static/kinetic versus missing pair or missing kinetic; both orders of a missing member; and ordered authored pairs whose independent floating scales can reverse their aggregate order.
  * @evidence contracts/development/testing.md#execution-ownership One synchronous portable entry owns all models and inputs, launches no host or compiler, and uses no method override, private helper or mutable coefficient patch.
  */
 export function test_archetype_assembly_friction_numeric(): void {
@@ -134,6 +137,32 @@ export function test_archetype_assembly_friction_numeric(): void {
     findings.push(
       "a missing kinetic measurement erased known static friction or became zero",
     );
+
+  /** Transfer one public builder's neutral solid into explicitly authored contact metadata. */
+  const authored: (mass: number, friction: number, kinetic: number) => Archetype = (
+    mass: number, friction: number, kinetic: number,
+  ): Archetype => {
+    const solid: Archetype = build(mass);
+    const name: string | null = solid.name;
+    if (name === null) throw new Error("the authored contact fixture needs its builder's named solid");
+    return new Archetype<never, never>({
+      archetype: solid.archetype, id: solid.id, name,
+      parts: solid.parts, affordances: [], materials: solid.materials,
+      properties: solid.properties, friction, kineticFriction: kinetic,
+      material: "composite", restitution: null, surfaces: {}, drag: null,
+      contact: null, fractures: [], masses: { body: mass }, dimensions: {},
+      provenance: { bands: {}, models: {}, figures: {}, units: {} }, spans: [],
+    });
+  };
+  for (const scale of [1, 2 ** 200]) {
+    const a: Archetype = authored(scale, 0.04, 0.04);
+    const b: Archetype = authored(scale * 2 ** -200, 73 / 128, 0.5);
+    for (const pair of [[a, b], [b, a]] as const) {
+      const assembled: Archetype = combine(pair[0], pair[1]);
+      if (!nclose(assembled.body.friction ?? NaN, 0.04, 0) || !nclose(assembled.body.kineticFriction ?? NaN, 0.04, 0) || !validateModel({ model: assembled }).success)
+        findings.push("independent mean rounding reversed an authored static/kinetic order");
+    }
+  }
 
   TestValidator.equals(
     "assembly friction retains its declared weighted approximation at every finite mass scale",

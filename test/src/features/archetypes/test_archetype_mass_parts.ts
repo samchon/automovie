@@ -6,6 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/nclose";
+
 /**
  * `ArchetypeMass.parts` shares a total mass over the parts by the weights `ArchetypeMass.of` uses, so a broken piece weighs what its parts weighed in the whole.
  *
@@ -15,12 +17,13 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Shares of 3 and 1 replace the volumes: 2.25 kg and 0.75 kg.
  * 4. A plane, which has no volume, weighs 0 kg and leaves the boxes' masses as they were; a model of planes only weighs 0 kg throughout.
  * 5. The centre the parts' masses place, each at its box's centre, is `of`'s centre of mass, under each of the weightings above.
+ * 6. No-solid part inventory is distinct from positive-mass body construction: of still refuses planes alone, and parts still refuses solid-bearing all-zero shares or an invalid total mass.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Shares real masses over primitive parts and compares them with worked figures and with `of`'s centre; a share computed by another rule than `of`'s, a plane given weight or a total lost is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Shares real masses over primitive parts and compares finite-aware worked figures with of's centre. No-solid inventory must retain named zeros while a body without solids, zero solid weights and invalid total mass must still refuse; no numeric acceptance is relaxed.
  * @evidence contracts/development/testing.md#independent-expectations The masses are worked here from the boxes' volumes, densities and shares.
- * @evidence contracts/development/testing.md#distinguishing-cases Volume, density and share weightings, a plane beside boxes, and planes alone.
+ * @evidence contracts/development/testing.md#distinguishing-cases Volume, density and share weightings, a plane beside boxes, planes alone, empty inventory, unsupported positive-mass body construction, zero solid shares and invalid total mass.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory parts, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists six scenarios, the zero-support inventory/body distinction and the unchanged finite-aware 1e-12 acceptance.
  */
 export function test_archetype_mass_parts(): void {
   const findings: string[] = [];
@@ -70,7 +73,7 @@ export function test_archetype_mass_parts(): void {
       shares,
     );
     for (const [id, mass] of Object.entries(expected) as [string, number][])
-      if (Math.abs((got[id] ?? Number.NaN) - mass) > EPSILON)
+      if (!nclose(got[id] ?? Number.NaN, mass, EPSILON))
         findings.push(`${label}: ${id} weighs ${got[id]} kg, not ${mass} kg`);
     if (Object.keys(got).length !== Object.keys(expected).length)
       findings.push(`${label}: masses for ${Object.keys(got).join(", ")}`);
@@ -95,9 +98,9 @@ export function test_archetype_mass_parts(): void {
       shares,
     ).centerOfMass;
     if (
-      Math.abs(of.x - centre.x) > EPSILON ||
-      Math.abs(of.y - centre.y) > EPSILON ||
-      Math.abs(of.z - centre.z) > EPSILON
+      !nclose(of.x, centre.x, EPSILON) ||
+      !nclose(of.y, centre.y, EPSILON) ||
+      !nclose(of.z, centre.z, EPSILON)
     )
       findings.push(
         `${label}: the parts place the centre at ${JSON.stringify(centre)}, of at ${JSON.stringify(of)}`,
@@ -106,7 +109,20 @@ export function test_archetype_mass_parts(): void {
 
   // 4. Planes alone weigh nothing.
   const planes: Record<string, number> = ArchetypeMass.parts([plane], 3);
-  if (planes.floor !== 0)
+  if (!nclose(planes.floor ?? Number.NaN, 0, 0) || Object.keys(planes).length !== 1)
     findings.push(`planes alone: the floor weighs ${planes.floor} kg`);
+  if (Object.keys(ArchetypeMass.parts([], 3)).length !== 0)
+    findings.push("an empty part inventory acquired a mass record");
+  const invalid: readonly [string, () => unknown, string][] = [
+    ["positive-mass body without solids", (): ArchetypeMass.IProperties => ArchetypeMass.of([plane], 3), "positive solid volume or mass share"],
+    ["solid with zero shares", (): Record<string, number> => ArchetypeMass.parts([a], 3, {}, { a: 0 }), "positive solid volume or mass share"],
+    ["no-solid inventory with invalid total mass", (): Record<string, number> => ArchetypeMass.parts([plane], 0), "finite positive total mass"],
+  ];
+  for (const [label, read, reason] of invalid) {
+    let refused: boolean = false;
+    try { read(); }
+    catch (error) { refused = error instanceof Error && error.message.includes(reason); }
+    if (!refused) findings.push(`${label}: the actual admission boundary was bypassed`);
+  }
   TestValidator.equals("parts weigh their share of the whole", findings, []);
 }

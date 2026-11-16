@@ -30,11 +30,13 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Both surviving sliders still move their actual geometry and carried grips
  *    through public articulate, and every resulting model is admitted.
  * 4. A set cannot explicitly carry an articulation bound to another set's parts.
+ * 5. Each box's declared surface transfers only to the piece owning that box;
+ *    removed part ids return null from the public surface query.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Derives the authored fixture's ownership, default coupling offset and independent travel expectations and states the neutral-coordinate limitation.
  * @evidence contracts/development/testing.md#behavioral-verification Uses public builder, broken, affordance and articulate consumers, reads unique contacts and moved solids, and admits all pieces; catches lost grips, duplicated explicit contacts, dangling references and invalid geometry bindings.
  * @evidence contracts/development/testing.md#independent-expectations Disjoint one-box sets and the declared explicit contact ownership determine a's grip, b's slider and riding grip and the two remaining contacts. A slider translates its part and riding contact by its input in metres; the authored table's first value is independently 0.5 m and detaching it restores zero input.
- * @evidence contracts/development/testing.md#distinguishing-cases Explicit ownership against automatic ride, full departing articulation, surviving follower, nonzero default, post-break operation, no double ownership, and a malformed cross-set bound contact. Partial articulated geometry is covered by the real window fracture unit.
+ * @evidence contracts/development/testing.md#distinguishing-cases Explicit ownership against automatic ride, full departing articulation, surviving follower, nonzero default, post-break operation, no double contact or surface ownership, and a malformed cross-set bound contact. Partial articulated geometry is covered by the real window fracture unit.
  * @evidence contracts/development/testing.md#execution-ownership One discovered portable in-memory unit owns its authored mechanics fixture; no process, compiler, renderer, host or foreign implementation is started or replaced.
  */
 export function test_archetype_fracture_ownership(): void {
@@ -93,6 +95,14 @@ export function test_archetype_fracture_ownership(): void {
         findings.push(
           "detached coupling did not reset to the documented authored neutral coordinates",
         );
+      for (const [piece, own, surface] of [
+        [a.archetype, "a", "steel"],
+        [b.archetype, "b", "wood"],
+        [remainder, "c", "rubber"],
+      ] as const)
+        for (const id of ["a", "b", "c"])
+          if (piece.surface(id) !== (id === own ? surface : null))
+            findings.push(`${piece.id}: surface ${id} belongs to a different piece`);
       const movedB: Archetype<Id, never> = b.archetype.articulate({
         driver: 2,
       });
@@ -177,7 +187,8 @@ export function test_archetype_fracture_ownership(): void {
       },
     );
     for (const [index, id] of ["a", "b", "c"].entries())
-      result.box(id, { x: 1, y: 1, z: 1 }, { x: 0, y: index + 0.5, z: 0 });
+      result.box(id, { x: 1, y: 1, z: 1 }, { x: 0, y: index + 0.5, z: 0 },
+        { surface: id === "a" ? "steel" : id === "b" ? "wood" : "rubber" });
     const frame: ReturnType<typeof ArchetypeFrame.upright> =
       ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
     result.affordance({

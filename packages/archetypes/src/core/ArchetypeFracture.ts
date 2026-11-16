@@ -7,7 +7,9 @@ import type {
 
 import type { Archetype } from "./Archetype";
 import { ArchetypeFractureEnergy } from "./ArchetypeFractureEnergy";
+import type { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
+import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import type { ArchetypeSpan } from "./ArchetypeSpan";
 
@@ -139,7 +141,7 @@ export namespace ArchetypeFracture {
    * @throws {ArchetypeRefusal} When hit or threshold data are invalid, departing mass or velocity is not finite and positive where required, or the supplied energy cannot carry the fragment momentum.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States hit units and finite-data admission, null cases, kinetic-energy feasibility, numerical overflow refusal and independent returned velocities.
-   * @evidence contracts/development/implementation.md#principled-implementation Admits finite nonnegative energy and finite momentum before comparing the threshold. Each set carries its parts, internal spans, mass and eligible contacts; a partial remainder articulation filters its bindings, and each piece drops external ride/follow references and the fracture threshold. Coordinates remain authored neutral inputs, not a baked displayed pose. Common velocity p/M gives minimum kinetic energy ||p||²/(2M) and the supplied momentum subject to binary64 division rounding. ArchetypeFractureEnergy checks the exact input-value necessary budget and supplies an admissible lower bound. Fracture work, striker and remainder dynamics are not modelled.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits finite nonnegative energy and finite momentum before comparing the threshold. Each set carries only its parts, their declared surfaces, internal spans, mass and eligible contacts; a partial remainder articulation filters its bindings, and each piece drops external ride/follow references and the fracture threshold. Coordinates remain authored neutral inputs, not a baked displayed pose. Common velocity p/M gives minimum kinetic energy ||p||²/(2M) and the supplied momentum subject to binary64 division rounding. The shared mass arithmetic owns both complete piece and departing mass sums, including overflow-boundary admission. ArchetypeFractureEnergy checks the exact input-value necessary budget and supplies an admissible lower bound. Fracture work, striker and remainder dynamics are not modelled.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the hit, then one record per set and one for the remainder.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A set that names a part twice or a part of another set is a producer's defect the builder refuses; no spread is drawn. Negative or non-finite hit data are refused on breakable and unbreakable objects without clamping or substituting a zero hit.
    * @evidence contracts/development/implementation.md#efficient-algorithms With F sets, P parts, S spans, C contacts and B bound-part references, records and mass reductions cost O((F+1)(P+S)); fragment contact selection costs O(F(B+C squared+F)), and remainder contact selection O(B+C). Output retains O(P+S+C+F) references, mass records and independent velocities; static geometry stays borrowed. The fixed-size exact energy guard has no scene-size dependence.
@@ -197,8 +199,8 @@ export namespace ArchetypeFracture {
       const parts: IAutoMovieModelPart[] = rest.parts.filter(
         (p: IAutoMovieModelPart): boolean => keep.has(p.id),
       );
-      const mass: number = parts.reduce(
-        (sum: number, p: IAutoMovieModelPart): number => {
+      const masses: number[] = parts.map(
+        (p: IAutoMovieModelPart): number => {
           const value: number | undefined = rest.masses[p.id];
           if (!(value !== undefined && Number.isFinite(value) && value >= 0))
             throw massRefusal(
@@ -206,10 +208,10 @@ export namespace ArchetypeFracture {
               value,
               `part ${p.id} needs its own finite nonnegative mass`,
             );
-          return sum + value;
+          return value;
         },
-        0,
       );
+      const mass: number = ArchetypeMassArithmetic.sum(masses);
       if (!(Number.isFinite(mass) && mass > 0))
         throw massRefusal(
           rest.archetype,
@@ -222,6 +224,10 @@ export namespace ArchetypeFracture {
         parts,
         affordances,
         properties: ArchetypeMass.of(parts, mass, {}, rest.masses),
+        surfaces: Object.fromEntries(
+          parts.filter((p: IAutoMovieModelPart): boolean => rest.surfaces[p.id] !== undefined)
+            .map((p: IAutoMovieModelPart): [string, ArchetypeFriction.Material] => [p.id, rest.surfaces[p.id]!]),
+        ),
         contact,
         spans: rest.spans.filter(
           (s: ArchetypeSpan.ISpan): boolean =>
@@ -256,9 +262,8 @@ export namespace ArchetypeFracture {
         ),
       }),
     );
-    const total: number = fragments.reduce(
-      (sum: number, f: FragmentRecord): number => sum + f.props.properties.mass,
-      0,
+    const total: number = ArchetypeMassArithmetic.sum(
+      fragments.map((f: FragmentRecord): number => f.props.properties.mass),
     );
     if (!(Number.isFinite(total) && total > 0))
       throw massRefusal(

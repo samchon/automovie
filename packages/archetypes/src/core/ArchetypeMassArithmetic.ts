@@ -152,19 +152,21 @@ export namespace ArchetypeMassArithmetic {
    *
    * @param coordinates One finite coordinate per weight, in a common unit.
    * @param weights Nonnegative finite weights with at least one positive member.
+   * @param exact Request the exact input-value mean rounded once, for relationships between independently computed means.
    * @returns The mean in the coordinates' unit, always finite.
    * @throws {Error} For missing/mismatched inputs or invalid weights/coordinates.
    * @evidence contracts/development/common.md#meaningful-documentation States matching input lengths, finite coordinates, nonnegative nonempty weights and finite convex output.
-   * @evidence contracts/development/implementation.md#principled-implementation Scale weights and coordinates by their maxima, sum normalized products and divide by the same ordered positive-weight sum. Every normalized coordinate is in [-1,1], bounding the quotient without a clamp. If scaling underflows a nonzero factor or term, exact dyadic weighted numerator/denominator preserves a contribution that the final coordinate scale can restore.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and find scales, accumulate normalized mean, use exact input products only when normalization lost a nonzero term.
+   * @evidence contracts/development/implementation.md#principled-implementation Scale weights and coordinates by their maxima, sum normalized products and divide by the same ordered positive-weight sum. Every normalized coordinate is in [-1,1], bounding the quotient without a clamp. If scaling underflows a nonzero factor or term, or a caller explicitly needs the same final rounding law across related means, exact dyadic weighted numerator/denominator rounds only the final quotient.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit and find scales, preserve an all-zero coordinate result, then use the normal scaled path unless exact arithmetic is requested or normalization loses precision.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No small-weight cutoff, coordinate cap or guessed mean is used; a singleton and all-zero coordinates follow the same convex law.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two linear passes and constant scalar state normally; the exceptional exact reduction retains O(N) dyadic terms with binary64-bounded exponent span plus sum carry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One coordinate/weight scale serves the entire component mean, and exact decomposition runs only after a detected scaling loss.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One coordinate/weight scale serves the entire component mean. Requested exact means and detected scaling loss share the same single dyadic reduction; existing two-argument callers keep their ordinary arithmetic.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All arrays and integer terms are call-local; no body, input history or handle is retained.
    */
   export function mean(
     coordinates: readonly number[],
     weights: readonly number[],
+    exact: boolean = false,
   ): number {
     if (coordinates.length !== weights.length || weights.length === 0)
       throw new Error(
@@ -187,21 +189,23 @@ export namespace ArchetypeMassArithmetic {
     if (!(weightScale > 0))
       throw new Error("A mass mean needs positive total weight");
     if (coordinateScale === 0) return 0;
-    let numerator: number = 0;
-    let denominator: number = 0;
-    let lost: boolean = false;
-    for (let i: number = 0; i < weights.length; i++) {
-      const weight: number = weights[i]! / weightScale;
-      const coordinate: number = coordinates[i]! / coordinateScale;
-      const term: number = weight * coordinate;
-      lost ||=
-        (weights[i] !== 0 && weight < NORMAL) ||
-        (coordinates[i] !== 0 && Math.abs(coordinate) < NORMAL) ||
-        (weight !== 0 && coordinate !== 0 && Math.abs(term) < NORMAL);
-      numerator += term;
-      denominator += weight;
+    if (!exact) {
+      let numerator: number = 0;
+      let denominator: number = 0;
+      let lost: boolean = false;
+      for (let i: number = 0; i < weights.length; i++) {
+        const weight: number = weights[i]! / weightScale;
+        const coordinate: number = coordinates[i]! / coordinateScale;
+        const term: number = weight * coordinate;
+        lost ||=
+          (weights[i] !== 0 && weight < NORMAL) ||
+          (coordinates[i] !== 0 && Math.abs(coordinate) < NORMAL) ||
+          (weight !== 0 && coordinate !== 0 && Math.abs(term) < NORMAL);
+        numerator += term;
+        denominator += weight;
+      }
+      if (!lost) return coordinateScale * (numerator / denominator);
     }
-    if (!lost) return coordinateScale * (numerator / denominator);
     const read: Reader = ArchetypeBinary64();
     const products: IDyadic[] = coordinates.map(
       (coordinate: number, i: number): IDyadic =>

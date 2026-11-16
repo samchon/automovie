@@ -142,6 +142,9 @@ export namespace createDog {
     collar?: ICollar;
   }
 
+  /** An explicitly authored 22 kg specimen for the gallery's reference view. This mass is a presentation choice; the morphometric cohort table supplies no mass. Callers still provide mass to createDog, and the seed still selects a whole cohort. */
+  export const REFERENCE: Readonly<Pick<IParams, "mass">> = { mass: 22 };
+
   /** The shared dimensions and their physical units. */
   export const UNITS: Readonly<
     Record<QuadrupedBody.Dimension, ArchetypeDrawSession.Unit>
@@ -287,8 +290,8 @@ export namespace createDog {
       grip: "power",
       frame: ArchetypeFrame.facing(
         Vector3.scale(Vector3.add(attached, end), 0.5),
-        Vector3.create(1, 0, 0),
         Vector3.create(0, 1, 0),
+        Vector3.create(1, 0, 0),
       ),
       extent: null,
       aperture: 2 * tack.leadRadius,
