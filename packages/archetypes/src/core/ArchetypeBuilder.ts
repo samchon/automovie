@@ -6,6 +6,8 @@ import {
 import type {
   AutoMoviePrimitiveShape,
   IAutoMovieAffordance,
+  IAutoMovieBodyContact,
+  IAutoMovieBodyDrag,
   IAutoMovieMaterial,
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -14,6 +16,7 @@ import type {
 
 import { Archetype } from "./Archetype";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import type { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -56,6 +59,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
 
   /** Surface materials declared so far, by part id. */
   readonly #surfaces: Record<string, ArchetypeFriction.Material> = {};
+
+  /** The fragment sets declared so far. */
+  readonly #fractures: ArchetypeFracture.ISet[] = [];
 
   /** The producer's identity and its draws. */
   readonly #props: ArchetypeBuilder.IProps<Dimension>;
@@ -245,10 +251,78 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   }
 
   /**
+   * Declare the sets of parts a hit breaks off, each a fragment; the threshold is the body's `contact.fracture`, given to `build` as `outcome`.
+   *
+   * @param sets The fragment sets, each an id, the parts it carries away and the contacts on them that move none; declared after those contacts.
+   * @returns This builder.
+   * @throws {Error} When a set's id is declared twice, a set carries no part, a set names a part not yet recorded or one a set already names (its own included), or a contact not yet declared or one a set already carries, a producer's defect.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold goes and the failures.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's id is unique and its parts exist, at least one, each named once across the sets, so every part is in at most one fragment and the remainder is the rest; each contact a set carries is declared and carried by one set only.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check per part, then the record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id, an empty set, or an unknown or shared part or contact throws rather than being dropped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts per named part, tens at most.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records once per producer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps the sets until `build` hands them to the archetype.
+   */
+  public fracture(sets: readonly ArchetypeFracture.ISet[]): this {
+    const named: Set<string> = new Set(
+      this.#fractures.flatMap(
+        (s: ArchetypeFracture.ISet): readonly string[] => s.parts,
+      ),
+    );
+    const ids: Set<string> = new Set(
+      this.#fractures.map((s: ArchetypeFracture.ISet): string => s.id),
+    );
+    const carried: Set<string> = new Set(
+      this.#fractures.flatMap(
+        (s: ArchetypeFracture.ISet): readonly string[] => s.affordances ?? [],
+      ),
+    );
+    for (const set of sets) {
+      if (ids.has(set.id))
+        throw new Error(`fracture set ${set.id} is declared twice`);
+      if (set.parts.length === 0)
+        throw new Error(`fracture set ${set.id} carries no part`);
+      ids.add(set.id);
+      for (const part of set.parts) {
+        if (
+          !this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part)
+        )
+          throw new Error(
+            `fracture set ${set.id} names the unrecorded part ${part}`,
+          );
+        if (named.has(part))
+          throw new Error(
+            `fracture set ${set.id} names ${part}, which a set already carries`,
+          );
+        named.add(part);
+      }
+      for (const contact of set.affordances ?? []) {
+        if (
+          !this.#affordances.some(
+            (a: IAutoMovieAffordance): boolean => a.id === contact,
+          )
+        )
+          throw new Error(
+            `fracture set ${set.id} carries the undeclared affordance ${contact}`,
+          );
+        if (carried.has(contact))
+          throw new Error(
+            `fracture set ${set.id} carries ${contact}, which a set already carries`,
+          );
+        carried.add(contact);
+      }
+    }
+    this.#fractures.push(...sets);
+    return this;
+  }
+
+  /**
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
+   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, the provisional `ArchetypeBuilder.RESTITUTION` when absent. `drag` and `outcome`, a launched body's measured drag and its flight's ending (`IAutoMovieBody.drag` and `contact`), absent when no source measured them. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
    * @returns The archetype at rest.
    * @throws {Error} As `ArchetypeMass.of` does when no part has mass.
    * @throws {ArchetypeRefusal} When no source measured the resting pair.
@@ -256,7 +330,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
    * @evidence contracts/development/implementation.md#principled-implementation Mass properties from the recorded parts under the stated total mass, the body's friction from the measured pair of what it rests on and its ground, then one `Archetype` over the recorded lists with the declared surfaces.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume; an unmeasured resting pair is refused; a producer that has not declared what it rests on leaves the body's friction absent rather than given an invented coefficient.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume; an unmeasured resting pair is refused; a producer that has not declared what it rests on leaves the body's friction absent rather than given an invented coefficient. The restitution a producer leaves unstated is the unsourced `RESTITUTION`, a violation that remains until #3557 reads it per material.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `ArchetypeMass.of`.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
@@ -267,6 +341,8 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       rests?: ArchetypeFriction.Material;
       ground?: ArchetypeFriction.Material;
       restitution?: number;
+      drag?: IAutoMovieBodyDrag;
+      outcome?: IAutoMovieBodyContact;
     },
   ): Archetype<Id, Dimension> {
     const pair: ArchetypeFriction.ICoefficients | null =
@@ -296,7 +372,16 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
           ? null
           : ArchetypeFriction.value(pair.kinetic),
       surfaces: this.#surfaces,
-      restitution: contact?.restitution ?? 0.2,
+      restitution: contact?.restitution ?? ArchetypeBuilder.RESTITUTION,
+      drag: contact?.drag ?? null,
+      contact: contact?.outcome ?? null,
+      fractures: this.#fractures,
+      masses: ArchetypeMass.parts(
+        this.#parts,
+        mass,
+        this.#density,
+        this.#shares,
+      ),
       dimensions: this.#props.draw.values,
       provenance: this.#props.draw.provenance,
       spans: this.#spans,
@@ -357,6 +442,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
 export namespace ArchetypeBuilder {
   /** The colour of a part that states none: a mid grey. */
   export const NEUTRAL: string = "#9a9a9a";
+
+  /** The restitution of a body whose producer states none, 0 to 1: 0.2, a provisional value no source read gives. #3557 replaces it with each material's cited restitution; until then every body that does not bounce or roll by a read figure carries it. */
+  export const RESTITUTION: number = 0.2;
 
   /**
    * A model's identity and its producer's draws.

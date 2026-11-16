@@ -7,7 +7,7 @@ import { archetypeCatalog } from "../internal/archetypeCatalog";
 /**
  * Every working affordance of every archetype states what its frame's `+Y` is (`IAutoMovieAffordance.direction`): `along` the object toward that point, or the `normal` of a working face, so a grasp chooser reads it instead of guessing from an angle.
  *
- * The expected table is each archetype's own documentation of its working points: a muzzle, a blade's or a spear's point, a pole's, a javelin's or a baton's end, a racket's sweet spot, a golf club's or a hammer throw's head, a torch's lens, a pen's, a screwdriver's, a fork's, a tube's or a lipstick's tip, a sponge's end, a worm's and a priming wire's point, a vessel's lip and mouth, a cigarette's ends, a lighter's and a light's flame, and a loaf's bitten end run `along`; an apple's bitten side, a bat's or a baton's strike, a racket's, a club's, a hammer's, a spoon's, a saw's, a cloth's, a broom's, a rammer's, a handspike's, a comb's, a toothbrush's, a razor's, a tissue's, a sheet's, a book's, a watch's and a shield's faces, a shield's boss and rim, a blade's edges and flat, a glove's pocket and a device's lens and screen are `normal`.
+ * The expected table is each archetype's own documentation of its working points: a muzzle, a blade's or a spear's point, a pole's, a javelin's or a baton's end, a racket's sweet spot, a golf club's or a hammer throw's head, a torch's lens, a pen's, a screwdriver's, a fork's, a tube's or a lipstick's tip, a sponge's end, a worm's and a priming wire's point, a cannon's vent and its primer's eye, an atlatl's spur, a vessel's lip and mouth, a cigarette's ends, a musket cartridge's torn end, a lighter's and a light's flame, and a loaf's and a drumstick's bitten end run `along`; an apple's bitten side, a bat's or a baton's strike, a racket's, a club's, a hammer's, a spoon's, a saw's, a cloth's, a broom's, a rammer's, a handspike's, a comb's, a toothbrush's, a razor's, a tissue's, a sheet's, a book's, a watch's and a shield's faces, a shield's boss and rim, a blade's edges and flat, a glove's pocket and a device's lens and screen are `normal`.
  *
  * Scenarios, for every row of the archetype catalog at the middle of its bands:
  * 1. Each working affordance the table names for the row's producer (or for the row's own kind where kinds differ) that the row declares states the table's direction.
@@ -33,7 +33,7 @@ export function test_archetype_contract_direction(): void {
     longTool: { face: normal },
     handgun: { muzzle: along },
     longGun: { muzzle: along },
-    cannon: { muzzle: along, vent: along },
+    cannon: { muzzle: along, vent: along, primer: along },
     club: { strike: normal },
     sword: { edge: normal, falseEdge: normal, flat: normal, point: along },
     shield: { face: normal, boss: normal, rim: normal },
@@ -77,13 +77,18 @@ export function test_archetype_contract_direction(): void {
     "tool-primingWire": { face: along },
     "projectile-arrow": { tip: along },
     "projectile-bolt": { tip: along },
+    "projectile-cartridge": { end: along },
     "tool-ladle": { face: normal },
     "tool-knife": { face: normal },
     "food-bread": { bite: along },
     "food-apple": { bite: normal },
+    "food-drumstick": { bite: along },
+    "longTool-sling": {},
+    "longTool-atlatl": { spur: along },
   };
-  // Rows of those producers that have no working point: a remote, a hat and spectacles.
+  // Rows of those producers that have no working point: a remote, a hat, spectacles and a sling, whose pouch holds a stone it throws from the hand.
   const OPTIONAL: ReadonlySet<string> = new Set([
+    "longTool-sling",
     "device-remote",
     "wearable-hat",
     "wearable-spectacles",

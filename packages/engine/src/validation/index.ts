@@ -1,3 +1,4 @@
+export * from "./AffordanceArticulation";
 export * from "./AutoMovieTextureMediaType";
 export * from "./IAutoMovieBalanceSupportWindow";
 export * from "./IAutoMovieBodyCollisionResult";
@@ -18,6 +19,7 @@ export * from "./IAutoMovieTextureImageFacts";
 export * from "./IAutoMovieToppling";
 export * from "./ViolationCollector";
 export * from "./affordanceFollowedTravel";
+export * from "./affordanceLeadingTravel";
 export * from "./affordanceTravelRange";
 export * from "./appendCameraClearanceArtifact";
 export * from "./appendCameraIntentArtifact";

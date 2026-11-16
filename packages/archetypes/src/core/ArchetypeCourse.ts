@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { ArchetypeCourseLegs } from "./ArchetypeCourseLegs";
@@ -88,7 +88,7 @@ export namespace ArchetypeCourse {
    * A course of legs: where it starts, its legs and its speeds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit, default or meaning.
-   * @evidence contracts/development/design.md#principled-representation A start pose on the floor in metres and degrees, legs in order, three positive rates in metres per second and metres per second squared, and the optional marks: a speed at each leg's end, start and end speeds and a start second. Every optional member's absence plans as a course without it did; ranges, the marks' count and their reachability are left to `plan`, which refuses.
+   * @evidence contracts/development/design.md#principled-representation A start pose on the floor in metres and degrees, legs in order, a positive cruising speed in metres per second and two positive rates in metres per second squared, each absent when the course never reads it, and the optional marks: a speed at each leg's end, start and end speeds and a start second. Every optional member's absence plans as a course without it did; ranges, the marks' count and their reachability are left to `plan`, which refuses.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; authored by a scene and read by `plan` and by each ride.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts `endSpeed` and `speeds` both name the speed at the course's end, so `plan` refuses the two together rather than choosing one.
    */
@@ -105,11 +105,11 @@ export namespace ArchetypeCourse {
     /** The cruising speed, metres per second, positive: the top speed of a course without speed marks, and of a leg between two stops. */
     cruise: number;
 
-    /** The acceleration, metres per second squared, positive. */
-    acceleration: number;
+    /** The acceleration, metres per second squared, positive; absent for a course that never speeds up, such as one run at its cruising speed from start to end, and refused as missing by `plan` when the course speeds up. */
+    acceleration?: number;
 
-    /** The braking, metres per second squared, positive. */
-    deceleration: number;
+    /** The braking, metres per second squared, positive; absent for a course that never slows, and refused as missing by `plan` when the course slows. */
+    deceleration?: number;
 
     /** The speed at each leg's end, metres per second, at least 0 (0 for a stop), one per leg; the last is the end speed. Absent, the course is driven at its cruising speed from `startSpeed` to `endSpeed`. */
     speeds?: readonly number[];
@@ -296,9 +296,6 @@ export namespace ArchetypeCourse {
     at: (seconds: number) => IState;
   }
 
-  /** Standard gravity, metres per second squared. */
-  export const GRAVITY: number = 9.80665;
-
   /**
    * The lean a single-track vehicle holds on its course: the angle from upright at which gravity and the turn's centripetal pull balance.
    *
@@ -315,8 +312,10 @@ export namespace ArchetypeCourse {
    */
   export function lean(state: IState): number {
     const balance: number =
-      Math.atan((state.speed * state.speed * state.curvature) / GRAVITY) /
-      ArchetypeUnits.DEGREE;
+      Math.atan(
+        (state.speed * state.speed * state.curvature) /
+          AutoMovieGravity.STANDARD,
+      ) / ArchetypeUnits.DEGREE;
     return state.reverse ? -balance : balance;
   }
 
@@ -373,7 +372,8 @@ export namespace ArchetypeCourse {
       course.kind === "plan" ? course : plan(archetype, course);
     const tangent: number = Math.tan(limit * ArchetypeUnits.DEGREE);
     for (const bend of planned.bends) {
-      const least: number = (bend.speed * bend.speed) / (GRAVITY * tangent);
+      const least: number =
+        (bend.speed * bend.speed) / (AutoMovieGravity.STANDARD * tangent);
       if (!(bend.radius < least)) continue;
 
       // At the cruising speed the turn is what an author widens; at a mark or a timed sample, the speed is what they lower.
@@ -395,7 +395,7 @@ export namespace ArchetypeCourse {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: Math.sqrt(GRAVITY * tangent * bend.radius),
+          maximum: Math.sqrt(AutoMovieGravity.STANDARD * tangent * bend.radius),
           unit: "m/s",
         },
         reason: `a ${bend.radius} m bend at ${bend.speed} m/s at ${bend.seconds} s leans the ${archetype} past ${limit} degrees`,
@@ -446,7 +446,7 @@ export namespace ArchetypeCourse {
    * @param archetype The name a refusal carries.
    * @param course The course.
    * @returns The plan; a course using none of the optional members plans to the same instants and states, bit for bit, as before they existed.
-   * @throws {ArchetypeRefusal} When the course has no leg, its start is not finite, a length, radius, cruising speed or rate is not positive, a turn's angle is zero, a grade or start second is not finite, a speed is negative, the speed marks do not give one per leg, `endSpeed` is given beside them, a mark or the end speed lies outside what its leg reaches from the speed before it (naming the reachable range), the start speed of a course without marks is above its cruising speed, or a pause is not positive or falls where the support does not stop.
+   * @throws {ArchetypeRefusal} When the course has no leg, its start is not finite, a length, radius, cruising speed or given rate is not positive, a rate is missing where the course speeds up or slows, a turn's angle is zero, a grade or start second is not finite, a speed is negative, the speed marks do not give one per leg, `endSpeed` is given beside them, a mark or the end speed lies outside what its leg reaches from the speed before it (naming the reachable range), the start speed of a course without marks is above its cruising speed, or a pause is not positive or falls where the support does not stop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the bit-for-bit promise and every refusal.
    * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeCourseLegs.plan`: the legs measured on the ground and along their grade, the engine's speed profile over them, and each sample advanced along its leg's line or arc.

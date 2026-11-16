@@ -1,4 +1,5 @@
-import { ArchetypeCourse } from "../core";
+import { AutoMovieGravity } from "@automovie/engine";
+
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedGait } from "./QuadrupedGait";
 import type { createQuadruped } from "./createQuadruped";
@@ -53,7 +54,7 @@ export namespace QuadrupedChange {
     // Every gait but the slowest states how it is changed into.
     const rule: Rule = QuadrupedGait.of(species, high).change!;
     if (rule.kind === "froude")
-      return Math.sqrt(rule.froude * ArchetypeCourse.GRAVITY * hip);
+      return Math.sqrt(rule.froude * AutoMovieGravity.STANDARD * hip);
     if (rule.kind === "mass")
       return rule.speed * (dimensions.mass! / rule.mass) ** rule.exponent;
     const a: { minimum: number; maximum: number } = QuadrupedGait.range(
@@ -66,7 +67,9 @@ export namespace QuadrupedChange {
       high,
       dimensions.withersHeight!,
     );
-    return (Math.max(a.minimum, b.minimum) + Math.min(a.maximum, b.maximum)) / 2;
+    return (
+      (Math.max(a.minimum, b.minimum) + Math.min(a.maximum, b.maximum)) / 2
+    );
   }
 
   /**

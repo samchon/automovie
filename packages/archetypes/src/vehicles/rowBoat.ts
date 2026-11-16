@@ -142,7 +142,7 @@ export function rowBoat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace rowBoat {
-  /** The distance the boat covers each stroke, metres, a provisional value: no source read gives a fixed-seat rowboat's; the source to read is a measured distance per stroke of one. */
+  /** The distance the boat covers each stroke, metres, a provisional value: no source read gives a fixed-seat rowboat's; the source to read is a measured distance per stroke of one, or one boat's speed and stroke rate measured together. Searched for #3497 without a figure: fixed-seat distance per stroke for skiffs, gigs and whalers; Cornish pilot gig stroke rate and speed; Whitehall strokes a minute and knots (only guesses and marketing); Navy whaleboat and cutter pulling drill; Agius et al. 2023, The Kinematics of Fixed-Seat Rowing (Bioengineering 10(7):774), which measures the body only; USNI Proceedings June 1890, Navy Boats, which gives no speed under oars. */
   export const STROKE: number = 3;
 
   /** The stroke rate's range inside which Kleshnev measured the drive's share, strokes a minute (ISBS 1996, p. 321). */

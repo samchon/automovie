@@ -2,28 +2,18 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
-  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** A carbine's published data, from its maker. */
-const CARBINE: string =
-  "Colt M4 Carbine specification sheet 2020, R0977HB, R0979 and CR6921 (https://media.shootingsportsmedia.com/downloads/colt-2020-m4-specsheet-rnd7-web.pdf)";
-
-/** A pump shotgun's published data. */
-const SHOTGUN: string =
-  "Mossberg 590A1 7-shot, product page (https://www.mossberg.com/590a1-m-lok-50765.html)";
-
-/** Positions along the gun no maker publishes. */
-const UNPUBLISHED: string = "not published by the maker; an estimate";
+import { LONG_GUN_BANDS } from "./LONG_GUN_BANDS";
+import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
+import { LongGunLock } from "./LongGunLock";
 
 /**
- * A long gun as a film prop: a carbine with a sliding stock, or a pump shotgun. It models no mechanism and no effect.
+ * A long gun as a film prop: a carbine with a sliding stock, a pump shotgun, a flintlock musket, a bolt-action rifle or a lever action. It models no effect; the period and repeating kinds' mechanisms are `LongGunLock`'s.
  *
  * The gun lies along `+Z` from its butt plate at the origin to its muzzle, the barrel's line at `y = 0`. The firing hand takes the `grip` behind the trigger and the other hand the `foreEnd` from below; the `butt` goes to the shoulder. The trigger's face is the length of pull ahead of the butt, as gunmakers measure it. The stock ends behind the grip and a round neck joins it to the receiver: a carbine's fixed buffer tube, a shotgun's wrist. A carbine's `stock` slides back along its tube to lengthen the pull, carrying the butt; a shotgun's `pump` slides back, carrying the fore-end.
  *
@@ -74,7 +64,7 @@ export function createLongGun(
     createLongGun.Dimension
   > = new ArchetypeBuilder({
     id: params.id,
-    name: kind === "carbine" ? "carbine" : "pump shotgun",
+    name: createLongGun.NAMES[kind],
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -82,7 +72,9 @@ export function createLongGun(
   const pull: number = d.lengthOfPull!;
   const breech: number = d.length! - d.barrel!;
   const hand: number = createLongGun.FORE_END / 2;
-  const fore: number = breech + d.barrel! * 0.45;
+  // The supporting hand: a musket's at the swell, as the 1764 drill holds it (`LongGunLock.swell`); a modern gun's under the middle of its barrel.
+  const fore: number =
+    kind === "musket" ? LongGunLock.swell(d) : breech + d.barrel! * 0.45;
 
   // Where the stock ends, behind the grip by the room a hand and its mark take: picture only.
   const neck: number = pull - 0.175;
@@ -167,9 +159,10 @@ export function createLongGun(
     depth: 0.11,
     ...(kind === "carbine" ? { rides: "stock" } : {}),
   });
+  // A muzzle-loader's muzzle is a socket the cartridge and the rod go into; the others' a surface along the bore.
   builder.affordance({
     id: "muzzle",
-    kind: "surface",
+    kind: kind === "musket" ? "socket" : "surface",
     direction: "along",
     frame: ArchetypeFrame.facing(v(0, 0, d.length!), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
@@ -180,7 +173,10 @@ export function createLongGun(
     frame: ArchetypeFrame.upright(v(0, d.sightHeight!, breech)),
     extent: null,
   });
-  if (kind === "carbine")
+  if (kind === "musket") LongGunLock.musket(builder, d);
+  else if (kind === "rifle") LongGunLock.bolt(builder, d);
+  else if (kind === "leverAction") LongGunLock.lever(builder, d);
+  else if (kind === "carbine")
     builder.affordance({
       id: "stock",
       kind: "slider",
@@ -207,14 +203,29 @@ export function createLongGun(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and of a carbine's read models, each weighed whole, and one cited band per dimension a model leaves.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The length of pull, the two hands' places and the butt a shouldering act reads (#3374).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `travel` is the one slider each kind has: the carbine's stock or the shotgun's pump. No mass between two carbines is drawn, and the army manual's lengths stay out of the maker's carbines.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `travel` is the carbine's stock's or the shotgun's pump's slide; the period and repeating kinds' sliders are `LongGunLock`'s, their travels its derivations and estimates. No mass between two carbines is drawn, and the army manual's lengths stay out of the maker's carbines.
  */
 export namespace createLongGun {
   /** The kinds of long gun. */
-  export type Kind = "carbine" | "shotgun";
+  export type Kind = "carbine" | "shotgun" | "musket" | "rifle" | "leverAction";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["carbine", "shotgun"];
+  export const KINDS: readonly Kind[] = [
+    "carbine",
+    "shotgun",
+    "musket",
+    "rifle",
+    "leverAction",
+  ];
+
+  /** Each kind's model name. */
+  export const NAMES: Readonly<Record<Kind, string>> = {
+    carbine: "carbine",
+    shotgun: "pump shotgun",
+    musket: "flintlock musket",
+    rifle: "bolt-action rifle",
+    leverAction: "lever-action rifle",
+  };
 
   /** The fore-end's diameter where the hand holds it, metres: an estimate inside the 30 to 50 mm power grip range of CCOHS (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
   export const FORE_END: number = 0.05;
@@ -233,6 +244,9 @@ export namespace createLongGun {
    * - `sight`: the rear of the sight line, above the barrel's line.
    * - `stock`: a carbine's stock, a slider drawn back to lengthen the pull.
    * - `pump`: a shotgun's fore-end slide, drawn back.
+   * - `cock`, `spur`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, the cock's thumb piece riding it, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket.
+   * - `bolt`, `boltSlide`, `magazine`: a bolt action's lift, its draw and its magazine (`LongGunLock.bolt`).
+   * - `lever`, `hammer`: a lever action's lever and the hammer that follows it (`LongGunLock.lever`).
    */
   export type Affordance =
     | "grip"
@@ -242,7 +256,19 @@ export namespace createLongGun {
     | "muzzle"
     | "sight"
     | "stock"
-    | "pump";
+    | "pump"
+    | "cock"
+    | "spur"
+    | "frizzen"
+    | "pan"
+    | "ramrod"
+    | "pipe"
+    | "bayonet"
+    | "bolt"
+    | "boltSlide"
+    | "magazine"
+    | "lever"
+    | "hammer";
 
   /**
    * The free dimensions, metres unless stated:
@@ -252,6 +278,9 @@ export namespace createLongGun {
    * - `lengthOfPull`: from the butt plate to the trigger's face, a carbine's with its stock in.
    * - `travel`: how far the carbine's stock or the shotgun's pump slides.
    * - `sightHeight`: the sight line above the barrel's line.
+   * - `muzzleVelocity`: the shot's speed leaving the muzzle, metres per second.
+   * - `lockTime`: seconds from the trigger's break to the discharge.
+   * - `ball`: a musket's ball's diameter, the calibre of the projectile it fires.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -260,6 +289,9 @@ export namespace createLongGun {
     | "lengthOfPull"
     | "travel"
     | "sightHeight"
+    | "muzzleVelocity"
+    | "lockTime"
+    | "ball"
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
@@ -269,27 +301,34 @@ export namespace createLongGun {
     lengthOfPull: "m",
     travel: "m",
     sightHeight: "m",
+    muzzleVelocity: "m/s",
+    lockTime: "s",
+    ball: "m",
     mass: "kg",
   };
 
-  /** The read carbines: Colt's R0977HB heavy barrel, R0979 and CR6921. */
-  export type Model = "r0977hb" | "r0979" | "cr6921";
+  /** The read models: Colt's carbines R0977HB heavy barrel, R0979 and CR6921; the Short Land musket; the M1903 and the Kar 98k. */
+  export type Model =
+    | "r0977hb"
+    | "r0979"
+    | "cr6921"
+    | "shortLand"
+    | "m1903"
+    | "kar98k";
 
-  /** Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb (3.13 kg), 6.5 lb (2.95 kg) and 6.4 lb (2.90 kg); a shotgun has none. */
+  /**
+   * Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb (3.13 kg), 6.5 lb (2.95 kg) and 6.4 lb (2.90 kg); the Short Land musket's length and barrel (Museums Victoria ST 21813); the M1903's 43.46 in, 8.69 lb and 2,647 ft/s with M1 ball (TM 9-1270, 1944, par. 4, pp. 18-19, https://archive.org/download/1944TM9-1270/1944TM9-1270_djvu.txt), and the Kar 98k's 43.5 in, 23.4 in barrel, about 9 lb and about 2,800 ft/s (War Department, German Infantry Weapons, 1943, p. 23, https://archive.org/download/GermanInfantryWeapons1943/GermanInfantryWeapons1943_djvu.txt, a US assessment, not the maker's). A shotgun and a lever action have one read gun each, their bands.
+   */
   export const MODELS: Readonly<
     Partial<
       Record<
         Kind,
-        Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        Readonly<
+          Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        >
       >
     >
-  > = {
-    carbine: {
-      r0977hb: { mass: 3.13 },
-      r0979: { mass: 2.95 },
-      cr6921: { mass: 2.9 },
-    },
-  };
+  > = LONG_GUN_MODELS;
 
   /** The parameters: the kind, a carbine's model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -306,71 +345,5 @@ export namespace createLongGun {
   /** The band of each free dimension a model leaves, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    carbine: {
-      length: ArchetypeBand.metres(
-        30.5 * ArchetypeUnits.INCH,
-        30.5 * ArchetypeUnits.INCH,
-        `${CARBINE}: 30.5 in with the stock retracted, all three`,
-      ),
-      barrel: ArchetypeBand.metres(
-        14.5 * ArchetypeUnits.INCH,
-        14.5 * ArchetypeUnits.INCH,
-        `${CARBINE}: 14.5 in`,
-      ),
-      lengthOfPull: ArchetypeBand.metres(
-        10.75 * ArchetypeUnits.INCH,
-        0.29,
-        `a collapsed adjustable stock's 10.75 in pull, seen only in retailer listings; ${UNPUBLISHED} for this carbine`,
-        true,
-      ),
-      travel: ArchetypeBand.metres(
-        (33.75 - 30.5) * ArchetypeUnits.INCH,
-        (33.75 - 30.5) * ArchetypeUnits.INCH,
-        `${CARBINE}: 33.75 in extended less 30.5 in retracted`,
-      ),
-      sightHeight: ArchetypeBand.metres(
-        2.6 * ArchetypeUnits.INCH,
-        2.6 * ArchetypeUnits.INCH,
-        "a 2.6 in sight plane above the bore, seen only in search results",
-        true,
-      ),
-    },
-    shotgun: {
-      length: ArchetypeBand.metres(
-        39.5 * ArchetypeUnits.INCH,
-        39.5 * ArchetypeUnits.INCH,
-        `${SHOTGUN}: 39.5 in`,
-      ),
-      barrel: ArchetypeBand.metres(
-        18.5 * ArchetypeUnits.INCH,
-        18.5 * ArchetypeUnits.INCH,
-        `${SHOTGUN}: 18.5 in`,
-      ),
-      lengthOfPull: ArchetypeBand.metres(
-        13.87 * ArchetypeUnits.INCH,
-        13.87 * ArchetypeUnits.INCH,
-        `${SHOTGUN}: 13.87 in`,
-      ),
-      travel: ArchetypeBand.metres(
-        0.08,
-        0.1,
-        `pump stroke, ${UNPUBLISHED}`,
-        true,
-      ),
-      sightHeight: ArchetypeBand.metres(
-        0.015,
-        0.025,
-        `bead sight height, ${UNPUBLISHED}`,
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        3.18,
-        3.18,
-        `${SHOTGUN}: 7, the unit not stated on the page and taken as pounds`,
-        true,
-      ),
-    },
-  };
+  > = LONG_GUN_BANDS;
 }

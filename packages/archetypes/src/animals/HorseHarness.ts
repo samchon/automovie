@@ -76,7 +76,10 @@ export namespace HorseHarness {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the collar's round, read by `lay` for its segments and by `passes` for the neck strap's foot.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chest(rig: createHorse.IRig, angle: number): IAutoMovieVector3 {
+  export function chest(
+    rig: createHorse.IRig,
+    angle: number,
+  ): IAutoMovieVector3 {
     return Vector3.create(
       rig.draft.x * Math.cos(angle),
       rig.draft.y,
@@ -107,13 +110,20 @@ export namespace HorseHarness {
   }> {
     const r: number = ESTIMATES.strap;
     const foot: IAutoMovieVector3 = chest(rig, Math.PI / 3);
-    const crest: IAutoMovieVector3 = Vector3.add(rig.crest, Vector3.create(0, r, 0));
+    const crest: IAutoMovieVector3 = Vector3.add(
+      rig.crest,
+      Vector3.create(0, r, 0),
+    );
     return {
       bit: Vector3.create(rig.headRadius + r, rig.mouth.y, rig.mouth.z),
       foot,
       crest,
       ring: Vector3.scale(Vector3.add(foot, crest), 0.5),
-      terret: Vector3.create(ESTIMATES.terret.x, rig.back + ESTIMATES.terret.rise, rig.hitch.z),
+      terret: Vector3.create(
+        ESTIMATES.terret.x,
+        rig.back + ESTIMATES.terret.rise,
+        rig.hitch.z,
+      ),
     };
   }
 
@@ -127,7 +137,7 @@ export namespace HorseHarness {
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
    * @evidence contracts/development/implementation.md#principled-implementation Each strap is placed on the body the rig describes: the collar on the barrel's surface at the point of shoulder's height, the saddle at the rig's `hitch`, the breeching on the hindquarters' rounded end at the drop below the point of buttock, the bridle along the head from the poll to the mouth.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collar, saddle, backstrap and breeching, bridle, then the hitch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The harness adds a few kilograms the horse's measured mass does not include; each strap's share is a nominal hundredth of a percent, the pad's half a percent, so the body's measured distribution is kept.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No maker's weight was read for a single horse's harness, so every part is massless, a share of 0, and the horse keeps its drawn mass and measured distribution exactly.
    * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one harness.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -143,8 +153,8 @@ export namespace HorseHarness {
     const barrel: number = rig.barrel;
     const half: number = rig.trunk / 2;
     const axis: number = rig.back - barrel;
-    const strap = { color: LEATHER, share: 0.01 };
-    const metal = { color: METAL, share: 0.01 };
+    const strap = { color: LEATHER, share: 0 };
+    const metal = { color: METAL, share: 0 };
     const pass: ReturnType<typeof passes> = passes(rig);
     const mirror = (p: IAutoMovieVector3, sign: number): IAutoMovieVector3 =>
       v(sign * p.x, p.y, p.z);
@@ -176,11 +186,20 @@ export namespace HorseHarness {
       );
       builder.ball(ENDS.draft[side], e.ring, mirror(draft, sign), metal);
     }
-    rods("collar", arc((angle: number): IAutoMovieVector3 => chest(rig, angle), 0, Math.PI));
+    rods(
+      "collar",
+      arc((angle: number): IAutoMovieVector3 => chest(rig, angle), 0, Math.PI),
+    );
 
     // The neck strap: from the collar's front up over the neck just ahead of the withers, a ring on each side carrying a driving line.
     for (const [side, sign] of SIDES) {
-      builder.rod(`neck-strap-${side}`, r, mirror(pass.foot, sign), pass.crest, strap);
+      builder.rod(
+        `neck-strap-${side}`,
+        r,
+        mirror(pass.foot, sign),
+        pass.crest,
+        strap,
+      );
       builder.ball(ENDS.ring[side], e.ring, mirror(pass.ring, sign), metal);
     }
 
@@ -190,14 +209,19 @@ export namespace HorseHarness {
       "pad",
       v(e.pad.width, e.pad.thickness, e.pad.length),
       v(0, rig.back + e.pad.thickness / 2, saddle),
-      { color: LEATHER, share: 0.5 },
+      { color: LEATHER, share: 0 },
     );
     for (const [side, sign] of SIDES) {
       builder.ball(ENDS.terret[side], e.ring, mirror(pass.terret, sign), metal);
-      builder.ball(`tug-${side}`, 2 * e.ring, v(sign * (barrel + r), axis, saddle), {
-        color: LEATHER,
-        share: 0.01,
-      });
+      builder.ball(
+        `tug-${side}`,
+        2 * e.ring,
+        v(sign * (barrel + r), axis, saddle),
+        {
+          color: LEATHER,
+          share: 0,
+        },
+      );
     }
     const girth = (angle: number): IAutoMovieVector3 =>
       v(
@@ -223,7 +247,10 @@ export namespace HorseHarness {
       croup,
       Vector3.add(
         quarters,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(rig.dock, quarters)), barrel + r),
+        Vector3.scale(
+          Vector3.normalize(Vector3.subtract(rig.dock, quarters)),
+          barrel + r,
+        ),
       ),
       strap,
     );
@@ -263,7 +290,11 @@ export namespace HorseHarness {
     const head: number = rig.headRadius;
     const crown: IAutoMovieVector3 = v(0, rig.poll.y + head + r, rig.poll.z);
     for (const [side, sign] of SIDES) {
-      const top: IAutoMovieVector3 = v(sign * (head + r), rig.poll.y, rig.poll.z);
+      const top: IAutoMovieVector3 = v(
+        sign * (head + r),
+        rig.poll.y,
+        rig.poll.z,
+      );
       const ring: IAutoMovieVector3 = mirror(pass.bit, sign);
       builder.rod(`crown-${side}`, r, crown, top, strap);
       builder.rod(`cheek-${side}`, r, top, ring, strap);
@@ -272,10 +303,13 @@ export namespace HorseHarness {
         `blinker-${side}`,
         v(0.01, e.blinker.height, e.blinker.length),
         Vector3.add(
-          Vector3.add(top, Vector3.scale(Vector3.subtract(ring, top), e.blinker.along)),
+          Vector3.add(
+            top,
+            Vector3.scale(Vector3.subtract(ring, top), e.blinker.along),
+          ),
           v(sign * r, 0, 0),
         ),
-        { color: LEATHER, share: 0.01 },
+        { color: LEATHER, share: 0 },
       );
     }
     builder.rod(

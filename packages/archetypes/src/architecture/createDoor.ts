@@ -305,6 +305,13 @@ export function createDoor(
       travel: d.swing!,
       parts: moving,
     });
+  // A hinged leaf leaves its frame whole, with its hardware, at the energy a ram breaks an unreinforced softwood frame (`createDoor.BREAKING`); the frame stays.
+  if (kind === "hinged") {
+    builder.fracture([{ id: "leaf", parts: [...moving, ...latched] }]);
+    return builder.build(d.mass!, {
+      outcome: { fracture: createDoor.BREAKING },
+    });
+  }
   return builder.build(d.mass!);
 }
 
@@ -317,6 +324,9 @@ export function createDoor(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Hardware a door does not have has no band: a plate door has no latch turn.
  */
 export namespace createDoor {
+  /** A hinged leaf's breaking energy, joules: 80 J, the lowest impact level of ASTM F476-14's ram test, at which "a typical softwood door frame without reinforcement will break and allow the door to be forced open", as US patent 11280110 B1 states it (https://patents.google.com/patent/US11280110B1/en); a ram's blow, provisional for a kick, which no source read measures. */
+  export const BREAKING: number = 80;
+
   /** The kinds of door. */
   export type Kind = "hinged" | "sliding";
 
@@ -440,7 +450,7 @@ export namespace createDoor {
     /** The leaf's nominal height, which sets its height; drawn from the seed when absent. */
     nominalHeight?: Height;
 
-    /** The leaf's nominal thickness, which sets its 	hickness; drawn from the seed when absent. */
+    /** The leaf's nominal thickness, which sets its `thickness`; drawn from the seed when absent. */
     nominalThickness?: Thickness;
 
     /** A lever's or knob's backset, or a sliding door's pull's, the same lock's; drawn from the seed when absent. */

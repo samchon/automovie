@@ -84,6 +84,22 @@ export class ArchetypeDrawSession<Dimension extends string> {
     };
   }
 
+  /** The value of every free dimension a variant has, when every dimension it draws has a band: a total record, as the implementation below documents. */
+  public dimensions<Drawn extends Dimension>(
+    bands: Readonly<Record<Drawn, IArchetypeBand>>,
+    family?: Readonly<
+      Record<string, Readonly<Partial<Record<string, IArchetypeBand>>>>
+    >,
+  ): Record<Drawn, number>;
+
+  /** The value of every free dimension a variant has, when some dimension may lack a band: a partial record, as the implementation below documents. */
+  public dimensions<Drawn extends Dimension>(
+    bands: Readonly<Partial<Record<Drawn, IArchetypeBand>>>,
+    family?: Readonly<
+      Record<string, Readonly<Partial<Record<string, IArchetypeBand>>>>
+    >,
+  ): Partial<Record<Drawn, number>>;
+
   /**
    * The value of every free dimension a variant has, each recorded with its band.
    *
@@ -101,18 +117,6 @@ export class ArchetypeDrawSession<Dimension extends string> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per produced archetype.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The session keeps the values and bands until the builder reads them.
    */
-  public dimensions<Drawn extends Dimension>(
-    bands: Readonly<Record<Drawn, IArchetypeBand>>,
-    family?: Readonly<
-      Record<string, Readonly<Partial<Record<string, IArchetypeBand>>>>
-    >,
-  ): Record<Drawn, number>;
-  public dimensions<Drawn extends Dimension>(
-    bands: Readonly<Partial<Record<Drawn, IArchetypeBand>>>,
-    family?: Readonly<
-      Record<string, Readonly<Partial<Record<string, IArchetypeBand>>>>
-    >,
-  ): Partial<Record<Drawn, number>>;
   public dimensions<Drawn extends Dimension>(
     bands: Readonly<Partial<Record<Drawn, IArchetypeBand>>>,
     family: Readonly<
@@ -278,8 +282,8 @@ export class ArchetypeDrawSession<Dimension extends string> {
       this.#values[dimension] = figures[dimension];
       this.#figures[dimension] = axis;
       this.#given[dimension] = unit;
-      // A band drawn before the pick no longer stands behind this value.
-      this.#bands[dimension] = undefined;
+      // A band drawn before the pick no longer stands behind this value, so the record names no band for it.
+      delete this.#bands[dimension];
     }
     this.#models[axis] = name;
     return { name, figures };

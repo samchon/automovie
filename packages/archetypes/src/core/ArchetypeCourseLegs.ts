@@ -2,12 +2,13 @@ import { Quaternion, speedProfile } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import type { ArchetypeCourse } from "./ArchetypeCourse";
+import { ArchetypeCoursePath } from "./ArchetypeCoursePath";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
- * How a course of legs is planned: its legs measured and placed end to end, its speed marks admitted and handed to the engine's speed profile, and each second's state read back from the leg that holds it.
+ * How a course of legs is planned: its legs measured and placed end to end by `ArchetypeCoursePath`, its speed marks admitted and handed to the engine's speed profile, and each second's state read back from the leg that holds it.
  *
  * `ArchetypeCourse.plan` is its one caller; the module exists so the course's types and the rides' checks stay apart from the legs' geometry.
  *
@@ -63,65 +64,32 @@ export namespace ArchetypeCourseLegs {
       ["acceleration", course.acceleration],
       ["deceleration", course.deceleration],
     ] as const)
-      if (!(Number.isFinite(value) && value > 0))
+      if (
+        (name === "cruise" || value !== undefined) &&
+        !(Number.isFinite(value) && value! > 0)
+      )
         refuse(name, value, `${name} must be positive`);
+    // A rate the course's speed changes read, refused as missing only where one is read.
+    const rate = (
+      name: "acceleration" | "deceleration",
+      from: number,
+      to: number,
+    ): number =>
+      course[name] ??
+      refuse(
+        name,
+        undefined,
+        `the course goes from ${from} to ${to} m/s, which needs its ${name}`,
+        null,
+        `give the course's ${name} in metres per second squared`,
+      );
 
     // Each leg's run, its length along the grade, and the place and heading it starts from.
-    const rows: IRow[] = [];
-    let x: number = course.start.x;
-    let y: number = 0;
-    let z: number = course.start.z;
-    let heading: number = course.start.heading;
-    let length: number = 0;
-    let progress: number = 0;
-    course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
-      const size: number = leg.kind === "straight" ? leg.length : leg.radius;
-      if (!(Number.isFinite(size) && size > 0))
-        refuse(
-          `legs[${index}]`,
-          size,
-          "a leg's length or radius must be positive",
-        );
-      if (
-        leg.kind === "turn" &&
-        !(Number.isFinite(leg.angle) && leg.angle !== 0)
-      )
-        refuse(
-          `legs[${index}].angle`,
-          leg.angle,
-          "a turn must change the heading",
-        );
-      const rise: number = leg.rise ?? 0;
-      if (!Number.isFinite(rise))
-        refuse(`legs[${index}].rise`, rise, "a leg's rise must be finite");
-      const run: number =
-        leg.kind === "straight"
-          ? leg.length
-          : leg.radius * Math.abs(leg.angle) * ArchetypeUnits.DEGREE;
-      const span: number =
-        rise === 0 ? run : run * Math.sqrt(1 + (rise / run) * (rise / run));
-      const row: IRow = {
-        leg,
-        from: length,
-        span,
-        run,
-        rise,
-        reverse: leg.reverse === true,
-        progress,
-        x,
-        y,
-        z,
-        heading,
-      };
-      rows.push(row);
-      const end: IPose = advance(row, span);
-      x = end.x;
-      y = end.y;
-      z = end.z;
-      heading = end.heading;
-      length += span;
-      progress += leg.reverse === true ? -span : span;
-    });
+    const {
+      rows,
+      length,
+    }: { rows: ArchetypeCoursePath.IRow[]; length: number } =
+      ArchetypeCoursePath.lay(course, refuse);
 
     // The speed marks, each reachable from the one before it.
     const at: number = course.at ?? 0;
@@ -144,12 +112,27 @@ export namespace ArchetypeCourseLegs {
       value: number,
       cap: number,
     ): void => {
-      const range: { minimum: number; maximum: number } = speedProfile.reach(
-        from,
-        span,
-        course.acceleration,
-        course.deceleration,
-      );
+      // A stretch entered at its cap never speeds up and one that ends at it never slows: each bound reads its rate where it is given or used, and is the entry speed where the course neither gives nor needs it.
+      const rises: boolean = from < cap;
+      const falls: boolean = value < cap;
+      // Braking all the way and accelerating all the way: v squared less or plus twice the rate times the span.
+      const range: { minimum: number; maximum: number } = {
+        minimum:
+          course.deceleration !== undefined || falls
+            ? Math.sqrt(
+                Math.max(
+                  0,
+                  from * from - 2 * rate("deceleration", from, value) * span,
+                ),
+              )
+            : from,
+        maximum:
+          course.acceleration !== undefined || rises
+            ? Math.sqrt(
+                from * from + 2 * rate("acceleration", from, value) * span,
+              )
+            : from,
+      };
       const maximum: number = Math.min(range.maximum, cap);
       if (value < range.minimum || value > maximum)
         refuse(
@@ -177,7 +160,7 @@ export namespace ArchetypeCourseLegs {
         speed: endSpeed,
         cap: course.cruise,
       });
-      rows.forEach((row: IRow, index: number): void => {
+      rows.forEach((row: ArchetypeCoursePath.IRow, index: number): void => {
         if (row.leg.pause !== undefined)
           refuse(
             `legs[${index}].pause`,
@@ -205,7 +188,7 @@ export namespace ArchetypeCourseLegs {
           "give one speed mark per leg",
         );
       let before: number = startSpeed;
-      rows.forEach((row: IRow, index: number): void => {
+      rows.forEach((row: ArchetypeCoursePath.IRow, index: number): void => {
         const mark: number = marks[index]!;
         if (!(Number.isFinite(mark) && mark >= 0))
           refuse(
@@ -217,7 +200,12 @@ export namespace ArchetypeCourseLegs {
           before === 0 && mark === 0 ? course.cruise : Math.max(before, mark);
         reach(before, row.span, `speeds[${index}]`, mark, cap);
         legStretch.push(stretches.length);
-        stretches.push({ kind: "distance", length: row.span, speed: mark, cap });
+        stretches.push({
+          kind: "distance",
+          length: row.span,
+          speed: mark,
+          cap,
+        });
         const pause: number | undefined = row.leg.pause;
         if (pause !== undefined) {
           if (!(Number.isFinite(pause) && pause > 0))
@@ -240,8 +228,12 @@ export namespace ArchetypeCourseLegs {
     const profile: speedProfile.IProfile = speedProfile({
       start: at,
       speed: startSpeed,
-      acceleration: course.acceleration,
-      deceleration: course.deceleration,
+      ...(course.acceleration === undefined
+        ? {}
+        : { acceleration: course.acceleration }),
+      ...(course.deceleration === undefined
+        ? {}
+        : { deceleration: course.deceleration }),
       stretches,
     });
 
@@ -261,7 +253,7 @@ export namespace ArchetypeCourseLegs {
 
     // Leg by leg, so instants that fall on one second read in the order they happen: a leg's start, its turn, its stop.
     const bends: ArchetypeCourse.IBend[] = [];
-    rows.forEach((row: IRow, index: number): void => {
+    rows.forEach((row: ArchetypeCoursePath.IRow, index: number): void => {
       const own: speedProfile.IStretch | null =
         marks === undefined ? null : profile.stretches[legStretch[index]!]!;
       if (own !== null && index > 0)
@@ -313,7 +305,7 @@ export namespace ArchetypeCourseLegs {
     const speedAt = (distance: number): number =>
       profile.at(profile.when(distance)).speed;
     const legSpans: ArchetypeCourse.ILegSpan[] = rows.map(
-      (row: IRow): ArchetypeCourse.ILegSpan => {
+      (row: ArchetypeCoursePath.IRow): ArchetypeCourse.ILegSpan => {
         const end: number = row.from + row.span;
         let fastest: number = Math.max(speedAt(row.from), speedAt(end));
         for (const phase of profile.phases)
@@ -339,10 +331,10 @@ export namespace ArchetypeCourseLegs {
       when: profile.when,
       at: (seconds: number): ArchetypeCourse.IState => {
         const { distance, speed }: speedProfile.IState = profile.at(seconds);
-        let row: IRow = rows[0]!;
+        let row: ArchetypeCoursePath.IRow = rows[0]!;
         for (const candidate of rows)
           if (distance >= candidate.from) row = candidate;
-        const pose: IPose = advance(
+        const pose: ArchetypeCoursePath.IPose = ArchetypeCoursePath.advance(
           row,
           Math.min(row.span, distance - row.from),
         );
@@ -385,92 +377,4 @@ export namespace ArchetypeCourseLegs {
       },
     };
   }
-}
-
-/** One leg with where it starts. */
-interface IRow {
-  /** The leg. */
-  leg: ArchetypeCourse.Leg;
-
-  /** Distance along the path at which the leg starts, metres. */
-  from: number;
-
-  /** The leg's length along the path, metres: its run on the ground, lengthened by its grade. */
-  span: number;
-
-  /** The leg's run on the ground, metres. */
-  run: number;
-
-  /** Metres the leg gains, 0 when level. */
-  rise: number;
-
-  /** Whether the support goes backward along it. */
-  reverse: boolean;
-
-  /** The signed distance rolled where the leg starts, metres: forward legs add their span, reversed legs take it away. */
-  progress: number;
-
-  /** The root's X where the leg starts, metres. */
-  x: number;
-
-  /** The root's height where the leg starts, metres. */
-  y: number;
-
-  /** The root's Z where the leg starts, metres. */
-  z: number;
-
-  /** The heading the support faces where the leg starts, degrees. */
-  heading: number;
-}
-
-/** A place on the path and the heading faced there. */
-interface IPose {
-  /** X, metres. */
-  x: number;
-
-  /** Height, metres. */
-  y: number;
-
-  /** Z, metres. */
-  z: number;
-
-  /** Heading faced, degrees. */
-  heading: number;
-}
-
-/**
- * Where a leg has taken the root after a distance along it.
- *
- * @param row The leg and its start.
- * @param along Distance along the leg's path, metres, from 0 to its span.
- * @returns The root's place and the heading it faces.
- */
-function advance(row: IRow, along: number): IPose {
-  // The ground covered and the height gained, in the grade's proportion; a level leg covers what it travels.
-  const ground: number = row.rise === 0 ? along : (along * row.run) / row.span;
-  const height: number =
-    row.rise === 0 ? row.y : row.y + (row.rise * along) / row.span;
-
-  // A reversed leg travels opposite to the heading it faces.
-  const travel: number = row.reverse ? row.heading + 180 : row.heading;
-  const h: number = travel * ArchetypeUnits.DEGREE;
-  if (row.leg.kind === "straight")
-    return {
-      x: row.x + ground * Math.sin(h),
-      y: height,
-      z: row.z + ground * Math.cos(h),
-      heading: row.heading,
-    };
-
-  // Forward is (sin h, cos h) on (X, Z) and left is (cos h, -sin h); the centre lies a radius to the turning side of the way the root travels.
-  const side: number = Math.sign(row.leg.angle);
-  const swept: number = (side * ground) / row.leg.radius;
-  const cx: number = row.x + side * row.leg.radius * Math.cos(h);
-  const cz: number = row.z - side * row.leg.radius * Math.sin(h);
-  return {
-    x: cx - side * row.leg.radius * Math.cos(h + swept),
-    y: height,
-    z: cz + side * row.leg.radius * Math.sin(h + swept),
-    heading: row.heading + swept / ArchetypeUnits.DEGREE,
-  };
 }

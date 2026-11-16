@@ -15,8 +15,8 @@ export interface IArchetypeBand {
   /** The greatest value, in `unit`; equal to `minimum` for a dimension a standard fixes. */
   maximum: number;
 
-  /** The unit of both ends: `m`, `kg`, `degrees`, `N`, or empty for a ratio or a count. */
-  unit: "m" | "kg" | "degrees" | "N" | "";
+  /** The unit of both ends: `m`, `kg`, `degrees`, `N`, `m/s` for a speed, `s` for a time, or empty for a ratio or a count. */
+  unit: "m" | "kg" | "degrees" | "N" | "m/s" | "s" | "";
 
   /** Where the band comes from: the standard's clause or the measurement, with the address it was read at. */
   source: string;

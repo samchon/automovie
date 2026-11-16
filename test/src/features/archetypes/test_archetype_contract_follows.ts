@@ -124,7 +124,7 @@ function faults(model: IAutoMovieModel): string[] {
  * 3. Two hinges that follow each other are refused when the model is built, at one of the two, listing the slider among the articulations that may lead.
  * 4. A table that leads a 60-degree hinge to 75 degrees at mid-slide is admitted at rest and refused at that travel with the hinge's range, 0 to 60 degrees.
  * 5. A follower's rule serialises as data in the model.
- * 6. The engine admits the fixture and refuses, each at its own path: a leader that does not resolve, a `follows` on a contact that does not travel, a rule with both a ratio and a table, a ratio that is not finite, a table that stops short of its leader's range, a table whose leader travels do not increase, a ratio that drives its follower past its range, a ratio on an endless crank leading a bounded hinge, and a chain through `follows` and `rides` that returns to the follower.
+ * 6. The engine admits the fixture and refuses, each at its own path: a leader that does not resolve, a `follows` on a contact that does not travel, a rule with both a ratio and a table, a ratio that is not finite, a table that stops short of its leader's range, a table whose leader travels do not increase, a ratio that drives its follower past its range, a ratio on an endless crank leading a bounded hinge, and a follows cycle.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Articulates a built archetype and reads its moved parts and travels, and runs the engine's model admission on copies broken one way each; a follower left at rest, set by the wrong rule, admitted in a state, resolved through a cycle, or driven out of its range unrefused is caught, as is an admission that lets a malformed rule through.
  * @evidence contracts/development/testing.md#independent-expectations Each leaf's place is the rest centre turned about its hinge's upright by the rule's angle, computed here: the ratio's product and the table's linear interpolation written in this test, the turn by the engine's quaternion arithmetic, not by the articulation code. The rules the engine enforces are those `IAutoMovieAffordance.Follows` states.
@@ -327,9 +327,9 @@ export function test_archetype_contract_follows(): void {
       at(1, ".ratio"),
     ],
     [
-      "a cycle through follows and rides",
+      "a cycle through follows",
       (a: IAutoMovieAffordance[]): void => {
-        a[0] = { ...a[0]!, rides: "swing" };
+        a[0] = { ...a[0]!, follows: { id: "swing", ratio: 1 / RATIO } };
       },
       at(1, ".id"),
     ],

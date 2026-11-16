@@ -1,14 +1,22 @@
-import { ArchetypeUnits, ArchetypeCourse, ArchetypeFrame, createBow } from "@automovie/archetypes";
+import {
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createBow,
+} from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
 
+/** The string's two halves, each a span from a limb tip to the nock. */
+const STRING_PARTS: string[] = ["string-upper", "string-lower"];
+
 /**
- * A longbow and a horse bow stay inside their cited sizes for every seed, measured on the produced thing, a longbow braced a twelfth of its length and a horse bow at its read brace height, each standing on the floor.
+ * A longbow, a recurve and a horse bow stay inside their cited sizes for every seed, measured on the produced thing, a longbow braced a twelfth of its length and the others at their read brace heights, each standing on the floor.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: the string 1.67 m to 66 in nock to nock, the grip 29.79 mm deep, 785 to 905 g, a draw of 101 to 141 lbf; a horse bow's string 48 to 53 in, its grip in the 30 to 40 mm power grip band, 315 to 330 g, a draw of 15 to 60 lbf, braced 14 to 15 cm.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: the string 1.67 m to 66 in nock to nock, the grip 29.79 mm deep, 785 to 905 g, a draw of 101 to 141 lbf; a recurve's string 68 or 70 in, its grip in the power grip band, 1,133 to 1,338 g (its riser's, provisional), a draw of 49 to 54 lbf, braced 8.5 to 9.5 in over its two lengths' bands; a crossbow 10 to 12 lb, its bow 2 ft 6 in between extremes (Payne-Gallwey); a horse bow's string 48 to 53 in, its grip in the 30 to 40 mm power grip band, 315 to 330 g, a draw of 15 to 60 lbf, braced 14 to 15 cm.
  * 2. For three seeds, a longbow's string stands a twelfth of its length clear of the grip's belly, a horse bow's its drawn brace height, the `nock` lies on the string level with the grip and facing the archer's `+Z`, and the lowest point is on the floor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces the bow for 200 seeds and measures its string, grip width, mass, draw and the string's standoff from the grip; a length or a section other than the study's, a seed that does not vary it, a string at another brace height, or a bow off the floor is caught.
@@ -22,6 +30,8 @@ export function test_archetype_weapon_bow_bands(): void {
     createBow({ kind: "longbow" }, seed);
   const horse = (seed: number): ReturnType<typeof createBow> =>
     createBow({ kind: "horseBow" }, seed);
+  const recurve = (seed: number): ReturnType<typeof createBow> =>
+    createBow({ kind: "recurve" }, seed);
   const row = (
     name: string,
     minimum: number,
@@ -39,7 +49,7 @@ export function test_archetype_weapon_bow_bands(): void {
       "length",
       1.67,
       66 * ArchetypeUnits.INCH,
-      (s: number): number => archetypeExtent(bow(s), "y", ["string"]).size,
+      (s: number): number => archetypeExtent(bow(s), "y", STRING_PARTS).size,
     ),
     row(
       "grip",
@@ -52,7 +62,7 @@ export function test_archetype_weapon_bow_bands(): void {
       "horse bow length",
       48 * ArchetypeUnits.INCH,
       53 * ArchetypeUnits.INCH,
-      (s: number): number => archetypeExtent(horse(s), "y", ["string"]).size,
+      (s: number): number => archetypeExtent(horse(s), "y", STRING_PARTS).size,
     ),
     row(
       "horse bow grip",
@@ -60,33 +70,89 @@ export function test_archetype_weapon_bow_bands(): void {
       0.04,
       (s: number): number => horse(s).affordance("grip").aperture!,
     ),
-    row("horse bow mass", 0.315, 0.33, (s: number): number => horse(s).body.mass),
+    row(
+      "horse bow mass",
+      0.315,
+      0.33,
+      (s: number): number => horse(s).body.mass,
+    ),
     row(
       "horse bow draw",
-      15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-      60 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      15 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      60 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => horse(s).dimensions.draw!,
     ),
     row("horse bow brace", 0.14, 0.15, (s: number): number => {
       const made: ReturnType<typeof createBow> = horse(s);
       return (
-        archetypeExtent(made, "z", ["string"]).low +
+        archetypeExtent(made, "z", STRING_PARTS).low +
         createBow.STRING -
         archetypeExtent(made, "z", ["grip"]).high
       );
     }),
     row(
+      "recurve length",
+      68 * ArchetypeUnits.INCH,
+      70 * ArchetypeUnits.INCH,
+      (s: number): number =>
+        archetypeExtent(recurve(s), "y", STRING_PARTS).size,
+    ),
+    row(
+      "recurve grip",
+      0.03,
+      0.04,
+      (s: number): number => recurve(s).affordance("grip").aperture!,
+    ),
+    row(
+      "recurve mass",
+      1.133,
+      1.338,
+      (s: number): number => recurve(s).body.mass,
+    ),
+    row(
+      "recurve draw",
+      49 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      54 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      (s: number): number => recurve(s).dimensions.draw!,
+    ),
+    row(
+      "recurve brace",
+      8.5 * ArchetypeUnits.INCH,
+      9.5 * ArchetypeUnits.INCH,
+      (s: number): number => {
+        const made: ReturnType<typeof createBow> = recurve(s);
+        return (
+          archetypeExtent(made, "z", STRING_PARTS).low +
+          createBow.STRING -
+          archetypeExtent(made, "z", ["grip"]).high
+        );
+      },
+    ),
+    row(
+      "crossbow mass",
+      10 * ArchetypeUnits.POUND,
+      12 * ArchetypeUnits.POUND,
+      (s: number): number => createBow({ kind: "crossbow" }, s).body.mass,
+    ),
+    row(
+      "crossbow bow",
+      30 * ArchetypeUnits.INCH,
+      30 * ArchetypeUnits.INCH,
+      (s: number): number =>
+        createBow({ kind: "crossbow" }, s).dimensions.length!,
+    ),
+    row(
       "draw",
-      101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-      141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      101 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      141 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => bow(s).dimensions.draw!,
     ),
   ]);
   for (const seed of [0, 1, 2]) {
     const longbow: ReturnType<typeof createBow> = bow(seed);
-    const length: number = archetypeExtent(longbow, "y", ["string"]).size;
+    const length: number = archetypeExtent(longbow, "y", STRING_PARTS).size;
     const belly: number = archetypeExtent(longbow, "z", ["grip"]).high;
-    const string: number = archetypeExtent(longbow, "z", ["string"]).low;
+    const string: number = archetypeExtent(longbow, "z", STRING_PARTS).low;
     const grip: ReturnType<typeof longbow.affordance> =
       longbow.affordance("grip");
     const nock: ReturnType<typeof longbow.affordance> =

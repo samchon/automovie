@@ -6,7 +6,6 @@ import type {
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
@@ -15,65 +14,9 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { createSword } from "./createSword";
-
-/** A scabbard maker's rule of fit, read. */
-const WULFLUND: string =
-  "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
-
-/** How much longer and wider than its blade a scabbard or a sheath is made, metres: Wulflund's 1.5 and 2 cm. */
-const FIT: Readonly<{ length: number; width: number }> = {
-  length: 0.015,
-  width: 0.02,
-};
-
-/** A scabbard's or a sheath's length and width made to one of `createSword`'s read swords, whole. */
-const madeTo = (
-  name: string,
-  sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
-): createHolster.Fitted => ({
-  length: ArchetypeBand.metres(
-    sword.bladeLength! + FIT.length,
-    sword.bladeLength! + FIT.length,
-    `${WULFLUND}, on the ${name}'s read ${sword.bladeLength} m blade`,
-  ),
-  width: ArchetypeBand.metres(
-    sword.bladeWidth! + FIT.width,
-    sword.bladeWidth! + FIT.width,
-    `${WULFLUND}, on the ${name}'s read ${sword.bladeWidth} m blade width`,
-  ),
-});
-
-/** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
-const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
-  const blade: Readonly<
-    Partial<Record<createSword.Dimension, IArchetypeBand>>
-  > = createSword.BANDS[kind];
-  const length: IArchetypeBand = blade.bladeLength!;
-  const width: IArchetypeBand = blade.bladeWidth!;
-  return {
-    length: ArchetypeBand.metres(
-      length.minimum + FIT.length,
-      length.maximum + FIT.length,
-      `${WULFLUND}, on ${length.source}`,
-      length.provisional,
-    ),
-    width: ArchetypeBand.metres(
-      width.minimum + FIT.width,
-      width.maximum + FIT.width,
-      `${WULFLUND}, on ${width.source}`,
-      width.provisional,
-    ),
-  };
-};
-
-/** What no scabbard maker read gives. */
-const UNREAD: string =
-  "no scabbard's thickness or weight was found in the makers' pages read";
-
-/** Back quivers, seen only in search results. */
-const QUIVER: string =
-  "back quivers 18 to 22.5 in deep (Bear Archery, Martin Flint, Vista Honcho) and 3.5 in across (Dark Knight Armoury), capacities to 50 arrows (TOPARCHERY), and 20 in quivers weighing 0.62 kg (MAYARMS) and 1.5 lb (CH Narchery), seen only in search results";
+import { CartridgeBox } from "./CartridgeBox";
+import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
+import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createHolster.Kind, string>> = {
@@ -81,16 +24,18 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
   scabbard: "scabbard",
   sheath: "sheath",
   quiver: "quiver",
+  pouch: "cartridge box",
 };
 
 /**
- * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, or an archer's quiver. A cartridge pouch waits for a source of its weight.
+ * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, an archer's quiver, or a soldier's cartridge box.
  *
  * Each hangs with the wearer's body on its `-X` side and its front toward `+Z`; `belt` is the loop or hanger it hangs by, facing the wearer. The item in it is a separate prop: the container declares where that item sits, and the act takes it. How each kind stands:
  *
  * - a holster hangs with the middle of its belt loop at the origin. Its `socket` is the mouth the pistol is drawn from and returned to, facing up, lowered or raised from the belt line by the `ride` dimension. It marks where the pistol's butt leaves the mouth; a holstered pistol lies muzzle down in the pouch, which the holstering act places, and no frame of `createHandgun` seats coincident on the socket to give that.
  * - a scabbard and a sheath stand on their tip (the chape) at the origin, the mouth straight up along `+Y` at the drawn length, the blade's flats toward `X`. `mouth` is the opening, facing up: a sheathed blade stands point down in it with its shoulder (`createSword`'s origin) on the mouth. `belt` is the hanger on the metal throat below the mouth. A throat held while the blade is drawn waits for a source of the throat's size. Its hanging angle is not modelled: it hangs straight, since no source read gives the angle a hanger sets.
  * - a quiver stands on its bottom at the origin, a tube open upward. `socket` is the mouth, facing up, and `slot1` to `slot<slots>` the places the arrows stand in it, each facing up on the mouth's plane; `belt` hangs it at a hip from its rim, and `strap` slings it across the back at its middle.
+ * - a cartridge box stands on its bottom at the origin, its back against the wearer at `x = 0`, its length along `Z`. Its two tins' upper parts hold the loose cartridges standing: `slot1` to `slot<slots>` are their places, facing up at the box's top, the 2 x 1.35 in part's 6 in three rows of two and the 1.35 in square part's 4 in two of two. The `lid`, its flap, turns up and outward on a hinge along the box's back top edge; `strap` is the shoulder belt's loops at its back, and `belt` the same loops on a waist belt.
  *
  * @param params The kind, a holster's ride, the blade a scabbard or a sheath is made to, the number of slots of a quiver, and any dimension the author fixes.
  * @param seed The seed that picks the ride and the blade left free and draws every dimension left free inside its band; absent, the first ride, the first blade and the middle of each band.
@@ -272,6 +217,11 @@ export function createHolster(
     return builder.build(d.mass!);
   }
 
+  if (kind === "pouch") {
+    CartridgeBox.lay(builder, d, slots, facingWearer);
+    return builder.build(d.mass!);
+  }
+
   // A quiver: a tube standing on its bottom, open at the top.
   const length: number = d.length!;
   const r: number = d.diameter! / 2;
@@ -321,7 +271,7 @@ export function createHolster(
  */
 export namespace createHolster {
   /** The kinds: a handgun's belt holster, a sword's scabbard, a knife's or a dagger's sheath, and an archer's quiver. */
-  export type Kind = "holster" | "scabbard" | "sheath" | "quiver";
+  export type Kind = "holster" | "scabbard" | "sheath" | "quiver" | "pouch";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -329,6 +279,7 @@ export namespace createHolster {
     "scabbard",
     "sheath",
     "quiver",
+    "pouch",
   ];
 
   /** A scabbard's metal throat at the mouth, its length along the scabbard, metres: an estimate. */
@@ -351,6 +302,7 @@ export namespace createHolster {
   /** The slots of the kinds that have them: a quiver at most the 50 arrows the largest capacity seen claims, a dozen when none are asked, as #3485 places. */
   export const SLOTS: Readonly<Partial<Record<Kind, ISlots>>> = {
     quiver: { capacity: 50, slots: 12 },
+    pouch: { capacity: 20, slots: 20 },
   };
 
   /**
@@ -360,13 +312,15 @@ export namespace createHolster {
    * - `mouth`: a scabbard's or a sheath's opening, facing up.
    * - `belt`: the hanger, facing the wearer on `-X`.
    * - `strap`: a quiver's sling, facing the wearer.
-   * - `slot1` to `slot<slots>`: where each arrow stands, facing up.
+   * - `slot1` to `slot<slots>`: where each arrow stands in a quiver, or each loose cartridge in a cartridge box, facing up.
+   * - `lid`: a cartridge box's flap, a hinge along its back top edge; a positive travel lifts it up and outward.
    */
   export type Affordance =
     | "socket"
     | "mouth"
     | "belt"
     | "strap"
+    | "lid"
     | `slot${number}`;
 
   /**
@@ -442,21 +396,7 @@ export namespace createHolster {
   export const BLADES: Readonly<{
     scabbard: Readonly<Record<ScabbardBlade, Fitted>>;
     sheath: Readonly<Record<SheathBlade, Fitted>>;
-  }> = {
-    scabbard: {
-      crecy: madeTo("Crecy", createSword.MODELS.longsword!.crecy!),
-      regent: madeTo("Regent", createSword.MODELS.longsword!.regent!),
-      knight: madeTo("Knight", createSword.MODELS.armingSword!.knight!),
-      poitiers: madeTo("Poitiers", createSword.MODELS.armingSword!.poitiers!),
-      sabre: madeFor("sabre"),
-      katana: madeFor("katana"),
-      rapier: madeFor("rapier"),
-    },
-    sheath: {
-      dagger: madeFor("dagger"),
-      knife: madeFor("knife"),
-    },
-  };
+  }> = HOLSTER_BLADES;
 
   /** The parameters: the kind, a holster's ride, a scabbard's or a sheath's blade, the slots, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -479,45 +419,5 @@ export namespace createHolster {
   /** The band of each free dimension a ride or a blade leaves, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    holster: {
-      depth: ArchetypeBand.of(
-        "m",
-        0.12,
-        0.16,
-        "pouch depth for a 102 to 119 mm barrel, an estimate",
-        true,
-      ),
-      mass: ArchetypeBand.of("kg", 0.15, 0.3, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    scabbard: {
-      thickness: ArchetypeBand.metres(0.015, 0.025, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
-    },
-    sheath: {
-      thickness: ArchetypeBand.metres(0.012, 0.02, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
-    },
-    quiver: {
-      length: ArchetypeBand.metres(
-        18 * ArchetypeUnits.INCH,
-        22.5 * ArchetypeUnits.INCH,
-        QUIVER,
-        true,
-      ),
-      diameter: ArchetypeBand.metres(
-        3.5 * ArchetypeUnits.INCH,
-        3.5 * ArchetypeUnits.INCH,
-        QUIVER,
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.62,
-        1.5 * ArchetypeUnits.POUND,
-        QUIVER,
-        true,
-      ),
-    },
-  };
+  > = HOLSTER_BANDS;
 }

@@ -222,8 +222,9 @@ export function test_archetype_ride_bands(): void {
         640 / 1.72 ** 3,
         640 / 1.72 ** 3,
         `${JENSEN}, by Carroll and Huntington's girth-squared-times-length form`,
+        // The horse alone: its whole less the riding saddle's 5.4 kg, Wintec's stated weight for its 500 All Purpose.
         (seed: number): number =>
-          horse(seed).body.mass /
+          (horse(seed).body.mass - 5.4) /
           archetypeExtent(horse(seed), "y", ["withers"]).high ** 3,
         true,
       ),
