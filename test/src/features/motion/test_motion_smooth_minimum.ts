@@ -1,6 +1,8 @@
 import { smoothMinimum } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The smooth minimum is the plain one away from the crossing and rounds the
  * corner with a continuous slope.
@@ -63,8 +65,12 @@ export function test_motion_smooth_minimum(): void {
     over &&= -smoothMinimum(-a, -0.2, 0.3) >= Math.max(a, 0.2) - 1e-15;
   TestValidator.predicate("negated, never below the plain maximum", over);
 
-  TestValidator.error("non-finite value", (): unknown =>
-    smoothMinimum(Infinity, 0, 1),
+  TestValidator.predicate(
+    "non-finite value",
+    throwsError((): unknown => smoothMinimum(Infinity, 0, 1)),
   );
-  TestValidator.error("zero width", (): unknown => smoothMinimum(0, 1, 0));
+  TestValidator.predicate(
+    "zero width",
+    throwsError((): unknown => smoothMinimum(0, 1, 0)),
+  );
 }

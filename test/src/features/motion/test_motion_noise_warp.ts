@@ -7,6 +7,8 @@ import {
 import type { IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Windowed noise vanishes smoothly at its window's ends and repeats from its
  * seed; a root warp reaches its displacement at its event without a jump.
@@ -83,7 +85,8 @@ export function test_motion_noise_warp(): void {
     Math.abs(at(0.5 + h).translation.x - at(0.5).translation.x) / h < 1e-6 &&
       Math.abs(at(1.5).translation.x - at(1.5 - h).translation.x) / h < 1e-6,
   );
-  TestValidator.error("backward window", (): unknown =>
-    warpRoot(root, { ...warp, end: 0.5 }, 1),
+  TestValidator.predicate(
+    "backward window",
+    throwsError((): unknown => warpRoot(root, { ...warp, end: 0.5 }, 1)),
   );
 }

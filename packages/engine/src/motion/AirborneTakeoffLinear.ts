@@ -3,6 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
@@ -67,4 +68,45 @@ export function AirborneTakeoffLinear(
     }
   }
   return { turning, lagging };
+}
+
+/**
+ * The three-variable linear solve shared by the shooting start and Newton step.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The member reads matrix rows and a right-hand side and returns a fresh solution or null.
+ * @evidence contracts/development/design.md#principled-representation A three-row numeric matrix and three-component right-hand side are adapted to the engine's existing column-vector solver.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only the takeoff solver's linearized start and Newton correction read this adapter.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares AutoMovieSolidVector.solve3 rather than introducing another determinant formula or regularization.
+ */
+export namespace AirborneTakeoffLinear {
+  /**
+   * Adapt matrix rows to the engine's three-column linear solver without mutation.
+   *
+   * @param a Three matrix rows, read only.
+   * @param b Three right-hand-side components, read only.
+   * @returns A fresh solution, or null for non-finite inputs or a matrix the engine's singularity test rejects.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States row orientation, the right-hand side, input ownership and the nullable result.
+   * @evidence contracts/development/implementation.md#principled-implementation Admits finite entries, then delegates the unchanged Cramer solve and determinant-to-column-norm rejection to AutoMovieSolidVector.solve3; this is not a conditioning or error certificate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Check finiteness, copy three columns and the right-hand side, then delegate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the shooting solver's prior finite and singular behavior without a clamp, damping term or alternate numeric policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and storage for the fixed three-by-three system.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One adapter serves both the linearized takeoff start and every Newton correction; the determinant algebra remains engine-owned.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Input rows and right-hand side are never mutated or retained; only fresh triples reach the engine solver, and only its fresh result escapes.
+   */
+  export function solve(
+    a: readonly number[][],
+    b: readonly number[],
+  ): number[] | null {
+    if (!a.flat().every(Number.isFinite) || !b.every(Number.isFinite))
+      return null;
+    const column: (c: number) => AutoMovieSolidVector.Vec3 = (
+      c: number,
+    ): AutoMovieSolidVector.Vec3 => [a[0]![c]!, a[1]![c]!, a[2]![c]!];
+    return AutoMovieSolidVector.solve3(column(0), column(1), column(2), [
+      b[0]!,
+      b[1]!,
+      b[2]!,
+    ]);
+  }
 }

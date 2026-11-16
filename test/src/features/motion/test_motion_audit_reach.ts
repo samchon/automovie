@@ -9,6 +9,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The reach audit complains about a hand that never arrives, a hand that
  * leaves its place during a hold, and an axis that points away from its
@@ -203,37 +205,49 @@ export function test_motion_audit_reach(): void {
     (): IAutoMovieVector3 => place,
     (): number => 0,
   );
-  TestValidator.error("a bone not displayed is refused", (): void => {
-    AutoMovieMotionHumanAuditReach.tilt(
-      still,
-      "a",
-      "leftHand",
-      up,
-      (): IAutoMovieVector3 => up,
-      span,
-    );
-  });
-  TestValidator.error("a direction of no length is refused", (): void => {
-    tilt((): number => 0, up, { x: 0, y: 0, z: 0 });
-  });
-  TestValidator.error("a reversed span is refused", (): void => {
-    AutoMovieMotionHumanAuditReach.gap(
-      still,
-      "a",
-      centre,
-      (): IAutoMovieVector3 => place,
-      { from: 1, to: 0 },
-      "right palm",
-    );
-  });
-  TestValidator.error("a rate of 0 is refused", (): void => {
-    AutoMovieMotionHumanAuditReach.gap(
-      still,
-      "a",
-      centre,
-      (): IAutoMovieVector3 => place,
-      { from: 0, to: 1, rate: 0 },
-      "right palm",
-    );
-  });
+  TestValidator.predicate(
+    "a bone not displayed is refused",
+    throwsError((): void => {
+      AutoMovieMotionHumanAuditReach.tilt(
+        still,
+        "a",
+        "leftHand",
+        up,
+        (): IAutoMovieVector3 => up,
+        span,
+      );
+    }),
+  );
+  TestValidator.predicate(
+    "a direction of no length is refused",
+    throwsError((): void => {
+      tilt((): number => 0, up, { x: 0, y: 0, z: 0 });
+    }),
+  );
+  TestValidator.predicate(
+    "a reversed span is refused",
+    throwsError((): void => {
+      AutoMovieMotionHumanAuditReach.gap(
+        still,
+        "a",
+        centre,
+        (): IAutoMovieVector3 => place,
+        { from: 1, to: 0 },
+        "right palm",
+      );
+    }),
+  );
+  TestValidator.predicate(
+    "a rate of 0 is refused",
+    throwsError((): void => {
+      AutoMovieMotionHumanAuditReach.gap(
+        still,
+        "a",
+        centre,
+        (): IAutoMovieVector3 => place,
+        { from: 0, to: 1, rate: 0 },
+        "right palm",
+      );
+    }),
+  );
 }

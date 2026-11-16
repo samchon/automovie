@@ -7,6 +7,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The meeting: the one record two roles of a mutual action read.
  *
@@ -230,7 +232,8 @@ export function test_motion_compose_meeting(): void {
       close(aligned.at("strokeEnd"), 1) &&
       close(aligned.duration, 1.375),
   );
-  TestValidator.error("an alignment on no time", (): unknown =>
-    AutoMovieMotionClock.align(free, "stroke", 0),
+  TestValidator.predicate(
+    "an alignment on no time",
+    throwsError((): unknown => AutoMovieMotionClock.align(free, "stroke", 0)),
   );
 }

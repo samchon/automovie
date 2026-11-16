@@ -10,6 +10,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * The difference of two motions, the measure behind determinism, seed
@@ -138,19 +139,22 @@ export function test_motion_audit_difference(): void {
     longer.distance.value === 0 && Math.abs(longer.duration - 0.5) <= 1e-12,
   );
 
-  TestValidator.error("a missing bone is refused", (): void => {
-    measure(
-      a,
-      film(
-        1,
-        (t: number): Points => ({
-          hips: first(t).hips!,
-          leftHand: first(t).leftHand!,
-        }),
-      ),
-      "a",
-    );
-  });
+  TestValidator.predicate(
+    "a missing bone is refused",
+    throwsError((): void => {
+      measure(
+        a,
+        film(
+          1,
+          (t: number): Points => ({
+            hips: first(t).hips!,
+            leftHand: first(t).leftHand!,
+          }),
+        ),
+        "a",
+      );
+    }),
+  );
 
   const two: IAutoMovieMotionHumanAuditMotion = {
     duration: 1,

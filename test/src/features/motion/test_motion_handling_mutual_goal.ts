@@ -2,6 +2,8 @@ import { resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Two people's hands meet at the one point where both arms are at their
  * comfortable reach, below the line between their shoulders, or refused with
@@ -196,11 +198,17 @@ export function test_motion_handling_mutual_goal(): void {
   );
 
   // 7. Invalid reaches.
-  TestValidator.error("reach above limit", (): unknown =>
-    resolveAutoMovieMutualGoal({ a: side(0, 0, 1.4, 0.7, 0.65), b }),
+  TestValidator.predicate(
+    "reach above limit",
+    throwsError((): unknown =>
+      resolveAutoMovieMutualGoal({ a: side(0, 0, 1.4, 0.7, 0.65), b }),
+    ),
   );
-  TestValidator.error("zero reach", (): unknown =>
-    resolveAutoMovieMutualGoal({ a: side(0, 0, 1.4, 0, 0.65), b }),
+  TestValidator.predicate(
+    "zero reach",
+    throwsError((): unknown =>
+      resolveAutoMovieMutualGoal({ a: side(0, 0, 1.4, 0, 0.65), b }),
+    ),
   );
 
   // 8. A preferred height.

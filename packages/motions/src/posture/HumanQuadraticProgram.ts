@@ -1,4 +1,5 @@
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
+import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 
 /**
  * A convex quadratic program with banded curvature and sparse rows, solved
@@ -30,52 +31,108 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
  * other, so every linear system is the banded reduced form `P + σI + Aᵀ
  * diag(ρ) A` (the paper's indirect form), factored by a banded Cholesky
  * factorisation (`HumanQuadraticBand`). A warm start carries the iterates of
- * a solve of the same rows with other bounds.
+ * a solve of the same rows with other bounds. `HumanQuadraticPreparation`
+ * shares copied numeric preparation and its initial factor only after exact
+ * P, q and ordered nonzero A comparisons; each solve owns its bounds,
+ * iterates and adaptive step sizes.
+ * Costs use w=band+1, S supplied curvature entries, Z stored row entries
+ * and m rows, including diagonal systems and supplied curvature padding.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the convex objective, hard and soft rows, OSQP stages, band representation, warm iterates and exact numeric preparation sharing.
+ * @evidence contracts/development/design.md#principled-representation Groups the convex program, ordered sparse rows and unscaled primal-dual state; their interfaces state numeric and dimensional premises while runtime admission checks finite structure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the existing solver, objective and keyed multipliers used by motion planners; preparation and banded algebra remain internal modules.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the generic numeric program independent of bodies and action names; positive semidefinite curvature remains an explicit caller premise rather than a validated type guarantee.
  */
 export namespace HumanQuadraticProgram {
-  /** The relative accuracy a solve's iterates and multipliers are known to: the residual tests' relative tolerance (OSQP's eps_rel). */
+  /**
+   * Relative residual tolerance, OSQP's eps_rel; it does not bound each
+   * variable's error independently of conditioning.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the inherited relative residual tolerance and distinguishes residual convergence from a componentwise solution-error guarantee.
+   */
   export const TOLERANCE: number = 1e-3;
 
-  /** One row: `l <= Σ coef·x[index] <= u`. */
+  /**
+   * One ordered row `l <= Σ coef·x[index] <= u`, in its own consistent
+   * linear units. A soft weight has objective units per row unit.
+   *
+   * @evidence contracts/development/design.md#principled-representation Models a closed linear interval or its nonnegative l1 penalty; parallel indices and coefficients preserve duplicates, and solve validates lengths, finite values, indices and bound order.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The quadratic solver consumes the coefficients, interval and optional penalty; current SQP callers also use key to carry multipliers between convexifications.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the same row for every numeric constraint without body-specific cases; absence of weight means hard and zero weight remains a genuine soft row.
+   * @evidence contracts/development/common.md#meaningful-documentation States the linear form, row and penalty units, original ordering, zero compression and the meanings of optional key and weight.
+   */
   export interface IRow {
     /** The constraint the row linearises, so a later solve of the next convexification starts from its multiplier. */
     key?: string;
-    /** The variables the row reads. */
+
+    /** Integer variable indices in [0, n); order and duplicate indices are preserved. */
     index: readonly number[];
-    /** Each variable's coefficient, in `index`'s order. */
+
+    /** Finite coefficients, one per index; exact positive and negative zeros are omitted internally. */
     coef: readonly number[];
+
     /** The interval's lower end; `-Infinity` for none. */
     l: number;
+
     /** The interval's upper end; `Infinity` for none. */
     u: number;
-    /** The l1 penalty weight; absent for a hard row. */
+
+    /** Finite nonnegative l1 penalty weight; absent for a hard row. */
     weight?: number;
   }
 
-  /** The problem. */
+  /**
+   * A convex quadratic program. Curvature P must be positive semidefinite;
+   * admission validates finite storage, not convexity. P and q use objective
+   * units per variable squared and per variable respectively. Each P row
+   * supplies at least its in-range band entries; supplied trailing entries
+   * are finite but do not contribute beyond the last variable.
+   *
+   * @evidence contracts/development/design.md#principled-representation Stores the upper band of symmetric P, q and ordered sparse rows; solve checks nonnegative integer dimensions and finite compatible storage, while positive semidefiniteness remains a caller premise.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only data consumed by the common quadratic solver and objective reader; each motion planner owns constructing its numeric convexification.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains arbitrary supported band widths, sparse rows and soft penalties without fixture or action categories; mutable arrays are compared numerically before reuse.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines convexity, units, upper-band indexing, finite storage and trailing-entry behavior.
+   */
   export interface IProblem {
     /** The number of variables. */
     n: number;
+
     /** Half-bandwidth of the curvature and of every row's coupling. */
     band: number;
+
     /** The curvature's band, `p[i][j]` the entry `(i, i + j)`. */
     p: Float64Array[];
+
     /** The linear term. */
     q: Float64Array;
+
     /** The rows, hard or soft. */
     rows: readonly IRow[];
   }
 
-  /** A solve's iterates, to warm-start another solve of the same rows, and how the solve ended. */
+  /**
+   * Unscaled primal-dual iterates for a solve of the same ordered rows.
+   * Each returned array is newly owned by the caller. Status and residual
+   * remain optional so callers may also supply manual warm iterates.
+   *
+   * @evidence contracts/development/design.md#principled-representation Carries variable values, split row values and row multipliers in original units; solve validates warm dimensions and finiteness, and solved status reports residual convergence rather than exact arithmetic.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Provides only the current warm-start arrays and termination diagnostics consumed by planners; no preparation cache, iterations counter or body data enters the public state.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves the existing optional diagnostics for manually supplied warm starts and uses a closed termination union; unfinished and infeasible states do not claim a minimiser.
+   * @evidence contracts/development/common.md#meaningful-documentation States unscaled units, ordered-row compatibility, array ownership, optional manual-warm diagnostics and the meaning of each termination status.
+   */
   export interface IState {
     /** The variables. */
     x: Float64Array;
+
     /** Each row's value as the splitting holds it, inside or penalised toward its interval. */
     z: Float64Array;
+
     /** Each row's multiplier. */
     y: Float64Array;
+
     /** Why the solve stopped: its residuals met (`solved`, and `polished` when the active set's solve was kept), the hard rows certified infeasible, or the guard reached. */
     status?: "solved" | "polished" | "infeasible" | "unfinished";
+
     /** The unscaled primal and dual residuals the solve ended at, their infinity norms. */
     residual?: { primal: number; dual: number };
   }
@@ -87,6 +144,14 @@ export namespace HumanQuadraticProgram {
    * @param problem The problem solved.
    * @param state Its solve's iterates.
    * @returns Each keyed row's multiplier.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Transfers the unscaled Lagrange multiplier attached to each constraint key, the existing SQP warm-start correspondence; callers supply the state of this ordered problem.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass extracts keyed rows from the solved state, leaving numeric preparation and later convexification with their owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads actual solved multipliers; a repeated key keeps its last row by Map semantics and no action-specific mapping is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(m) time and at most one Map entry per distinct key, where m is the row count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Supplies the current multipliers for matching constraints in another convexification; it rebuilds the map because the latest solve may change every multiplier.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one caller-owned map per extraction and retains no state in the module.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the keyed SQP transfer, compatible-state premise, result ownership and repeated-key behavior.
    */
   export function multipliers(
     problem: IProblem,
@@ -105,21 +170,30 @@ export namespace HumanQuadraticProgram {
    * @param problem The problem.
    * @param warm The iterates of a solve of the same rows; zero when absent.
    * @param duals Multipliers by row key from a solve of other rows that linearise the same constraints, read when `warm` is absent.
-   * @returns The iterates, unscaled; `x` is the minimiser.
+   * @returns The unscaled iterates and termination status; `x` is a minimiser only when solved or polished.
+   * @throws {RangeError} For malformed or nonfinite input, noninvertible scaling, or nonfinite numerical results.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the cited OSQP scaled ADMM equations, unscaled residual and infeasibility tests, adaptive rho and active-set polishing for caller-supplied convex P; termination status distinguishes a residual solution from an unfinished iterate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns admitted numeric equivalence, Band owns linear algebra, and this function owns fresh iterates, prox steps, termination and unscaling.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves existing rho, sigma, relaxation, iteration and residual parameters; no motion-specific branch or relaxed physical requirement is introduced, and the existing Cholesky diagonal guard remains documented by Band.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each ADMM iteration takes O(n*w+Z+m), with at most 4000 iterations; preparation additionally scans original storage, while reused initial factors, adaptive refactors and polishing have their separately documented S-aware costs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares preparation only after exact P/q/ordered-A comparisons and the initial factor only for identical rho/sigma; each solve resets adaptive rho and owns its bounds, iterates and active-set polish.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Work arrays live for the call and returned x/z/y are fresh caller-owned arrays; the preparation owner separately retains one numeric core and initial factor per live curvature array.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes all OSQP stages, warm and keyed-dual inputs, convergence limits, rejection conditions, mutable output ownership and the preparation lifetime.
    */
   export function solve(
     problem: IProblem,
     warm?: IState,
     duals?: ReadonlyMap<string, number>,
   ): IState {
-    const s: B.IScaled = B.scaled(problem);
-    const { n, m, start, cols, vals, lo, hi, weight, d, e } = s;
+    const s: B.IScaled = Preparation.scaled(problem);
+    const { n, m, start, cols, vals, lo, hi, weight, d, e }: B.IScaled = s;
     const c: number = s.c;
     // Each row's step size: an equality row's a thousand times the step, a
     // row bounded on neither side the least (section 5.2).
     let base: number = RHO0;
     const rho: Float64Array = new Float64Array(m);
-    const steps = (): void => {
+    const steps: () => void = (): void => {
       for (let r: number = 0; r < m; ++r)
         rho[r] =
           lo[r] === -Infinity && hi[r] === Infinity
@@ -129,13 +203,22 @@ export namespace HumanQuadraticProgram {
               : base;
     };
     steps();
-    let factor: Float64Array[] = B.factor(s, rho, SIGMA);
+    let factor: Float64Array[] = Preparation.factor(problem, s, rho, SIGMA);
 
     // The iterates in the scaled problem: x̄ = D⁻¹x, z̄ = E z, ȳ = c E⁻¹ y.
     const x: Float64Array = new Float64Array(n);
     const z: Float64Array = new Float64Array(m);
     const y: Float64Array = new Float64Array(m);
     if (warm !== undefined) {
+      if (
+        warm.x.length !== n ||
+        warm.z.length !== m ||
+        warm.y.length !== m ||
+        warm.x.some((v: number): boolean => !Number.isFinite(v)) ||
+        warm.z.some((v: number): boolean => !Number.isFinite(v)) ||
+        warm.y.some((v: number): boolean => !Number.isFinite(v))
+      )
+        throw new RangeError("Malformed quadratic warm start");
       for (let i: number = 0; i < n; ++i) x[i] = warm.x[i]! / d[i]!;
       for (let r: number = 0; r < m; ++r) {
         z[r] = warm.z[r]! * e[r]!;
@@ -149,7 +232,13 @@ export namespace HumanQuadraticProgram {
           row.key === undefined || duals === undefined
             ? undefined
             : duals.get(row.key);
-        if (known !== undefined) y[r] = (c * known) / e[r]!;
+        if (known !== undefined) {
+          if (!Number.isFinite(known))
+            throw new RangeError(
+              `Quadratic row ${r} multiplier must be finite`,
+            );
+          y[r] = (c * known) / e[r]!;
+        }
         z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
       });
 
@@ -199,6 +288,10 @@ export namespace HumanQuadraticProgram {
 
       // Termination on the unscaled residuals (section 3.4).
       const at: B.IResiduals = B.residuals(s, x, z, y);
+      if (Object.values(at).some((v: number): boolean => !Number.isFinite(v)))
+        throw new RangeError(
+          "Quadratic iteration produced a nonfinite residual",
+        );
       residual = { primal: at.primal, dual: at.dual };
       if (
         at.primal <= ABSOLUTE + RELATIVE * at.primalScale &&
@@ -239,11 +332,15 @@ export namespace HumanQuadraticProgram {
           polished.y,
         );
         const primalOk: boolean =
-          at.primal <= residual.primal ||
-          at.primal <= ABSOLUTE + RELATIVE * at.primalScale;
+          Number.isFinite(at.primal) &&
+          Number.isFinite(at.primalScale) &&
+          (at.primal <= residual.primal ||
+            at.primal <= ABSOLUTE + RELATIVE * at.primalScale);
         const dualOk: boolean =
-          at.dual <= residual.dual ||
-          at.dual <= ABSOLUTE + RELATIVE * at.dualScale;
+          Number.isFinite(at.dual) &&
+          Number.isFinite(at.dualScale) &&
+          (at.dual <= residual.dual ||
+            at.dual <= ABSOLUTE + RELATIVE * at.dualScale);
         if (primalOk && dualOk) {
           x.set(polished.x);
           z.set(polished.z);
@@ -267,6 +364,12 @@ export namespace HumanQuadraticProgram {
       out.z[r] = z[r]! / e[r]!;
       out.y[r] = (e[r]! * y[r]!) / c;
     }
+    if (
+      out.x.some((v: number): boolean => !Number.isFinite(v)) ||
+      out.z.some((v: number): boolean => !Number.isFinite(v)) ||
+      out.y.some((v: number): boolean => !Number.isFinite(v))
+    )
+      throw new RangeError("Quadratic unscaling produced a nonfinite iterate");
     return out;
   }
 
@@ -277,6 +380,14 @@ export namespace HumanQuadraticProgram {
    * @param problem The problem.
    * @param x The variables.
    * @returns The value.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the symmetric banded quadratic objective and each soft interval's exact l1 distance; callers supply compatible admitted problem data and a finite variable vector.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads curvature, linear cost and soft rows directly, so the trust-region model uses the same problem representation as solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves ordered duplicate row contributions and all coefficients; hard rows add no objective penalty by definition, and this reader performs no admission or overflow certification.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(n*w plus the supplied entries of soft rows) time and O(1) auxiliary storage; padding outside the in-range curvature band is not read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Evaluates the caller's current x and mutable problem data directly; values are not reused across different trial steps.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses scalar accumulators and retains no data after returning the objective value.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the quadratic and soft-penalty expression, its role in trust-region merit and the compatible-input premise.
    */
   export function value(problem: IProblem, x: Float64Array): number {
     let v: number = 0;

@@ -2,6 +2,8 @@ import { Vector3, resolveAutoMovieContactEvents } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A capsule weapon, a limb segment swept by its radius, meets what crosses it
  * anywhere along its length, where spheres at a few stations would let the
@@ -157,9 +159,9 @@ export function test_motion_contact_events_capsule(): void {
       ),
   );
 
-  TestValidator.error(
+  TestValidator.predicate(
     "a capsule against a body without segment distance",
-    (): unknown =>
+    throwsError((): unknown =>
       resolveAutoMovieContactEvents({
         weapons: [
           {
@@ -181,5 +183,6 @@ export function test_motion_contact_events_capsule(): void {
         to: 1,
         step: 1 / 120,
       }),
+    ),
   );
 }

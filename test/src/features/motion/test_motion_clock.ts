@@ -1,6 +1,8 @@
 import { AutoMovieMotionClock } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * An action's clock places named instants and is the one owner of progress
  * between two of them.
@@ -99,23 +101,39 @@ export function test_motion_clock(): void {
       close(unordered.events()[1]!.share, 0.75),
   );
 
-  TestValidator.error("zero duration", (): unknown =>
-    AutoMovieMotionClock.of(0, []),
+  TestValidator.predicate(
+    "zero duration",
+    throwsError((): unknown => AutoMovieMotionClock.of(0, [])),
   );
-  TestValidator.error("repeated name", (): unknown =>
-    AutoMovieMotionClock.of(1, [
-      { name: "a", seconds: 0.1 },
-      { name: "a", seconds: 0.2 },
-    ]),
+  TestValidator.predicate(
+    "repeated name",
+    throwsError((): unknown =>
+      AutoMovieMotionClock.of(1, [
+        { name: "a", seconds: 0.1 },
+        { name: "a", seconds: 0.2 },
+      ]),
+    ),
   );
-  TestValidator.error("reserved name", (): unknown =>
-    AutoMovieMotionClock.of(1, [{ name: "start", seconds: 0.1 }]),
+  TestValidator.predicate(
+    "reserved name",
+    throwsError((): unknown =>
+      AutoMovieMotionClock.of(1, [{ name: "start", seconds: 0.1 }]),
+    ),
   );
-  TestValidator.error("instant past the duration", (): unknown =>
-    AutoMovieMotionClock.of(1, [{ name: "a", seconds: 1.1 }]),
+  TestValidator.predicate(
+    "instant past the duration",
+    throwsError((): unknown =>
+      AutoMovieMotionClock.of(1, [{ name: "a", seconds: 1.1 }]),
+    ),
   );
-  TestValidator.error("unknown name", (): unknown => clock.at("landing"));
-  TestValidator.error("negative phase", (): unknown =>
-    AutoMovieMotionClock.sequence([{ name: "a", seconds: -0.1 }]),
+  TestValidator.predicate(
+    "unknown name",
+    throwsError((): unknown => clock.at("landing")),
+  );
+  TestValidator.predicate(
+    "negative phase",
+    throwsError((): unknown =>
+      AutoMovieMotionClock.sequence([{ name: "a", seconds: -0.1 }]),
+    ),
   );
 }

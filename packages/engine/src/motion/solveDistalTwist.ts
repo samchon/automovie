@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
@@ -13,8 +14,10 @@ import { Vector3 } from "../math/Vector3";
 import { swingTwist } from "../math/swingTwist";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
+import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
+import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 
 /**
  * The twist a distally twisting mid bone (a forearm, which pronates and
@@ -40,25 +43,28 @@ import { toRigAngle } from "../rom/toRigAngle";
  * start: the current twist plus the swing-twist share (`swingTwist`) of the
  * change from the effector's current rotation to the requested one. So only
  * the residual beyond the current pose moves, a request near the current
- * hand rotation moves the forearm little, and a rotation the two joints can
- * reach together is reached exactly.
+ * hand rotation prefers a nearby forearm twist. The bounded candidate law is
+ * retained; it does not globally minimize over both joints. Every candidate
+ * is ranked through the same effector projection that final orientation uses.
  *
  * @param props The mid joint's and the effector's current clinical angles;
  *   `above`, the world rotation the mid joint's articulation composes after
  *   (its parent's world rotation and its rest); the mid and effector bases
- *   (normalized) and rest frames; the effector's rest rotation; the requested
+ *   (normalized) and rest frames; the fixed lower-to-effector rotation,
+ *   including unchanged intermediate bones and the effector rest; the requested
  *   effector world rotation; the skeleton whose ranges clamp; and, from a
  *   caller that solves many candidates, the two joints' clamps resolved once
- *   on that skeleton (`clampJointToSkeleton.of`).
+ *   on that skeleton (`clampJointToSkeleton.of`) and optional shared effector
+ *   projection prepared for those same axes, frame, domain and clamp.
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the effector cannot take, the equation its twist makes, how it is solved, which solution is taken and the start that breaks a tie.
- * @evidence contracts/development/implementation.md#principled-implementation The effector's twist is read exactly as its decomposition reads it, so the solution leaves it nothing to drop; a vector turned about an axis is Rodrigues' formula, linear in the cosine and sine of the turn, so the condition is a first-order trigonometric equation with a closed-form solution; every solution is weighed by the rotation the clamped effector then shows.
+ * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One equation, its two solutions and one choice among a handful of candidates.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every twist is clamped to the rig's range, so none past pronation or supination is returned; with no solution the range's nearer end or the start is taken by the same measure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: a few compositions and at most five decompositions, cheap enough for every swivel the limb fit ranks; each distinct clamped twist is read once (the start not again, a candidate clamped onto a twist already read not at all), and a start the effector shows within `TIE` ends the search, since nothing can beat or tie it nearer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Composes and decomposes on the caller's normalized bases and reads the rig's own angle maps (`toRigAngle`, `toClinicalAngle`).
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Without caller-shared clamps/projector, setup performs O(B) rig lookups for B bones. At most five distinct clamped twists query the same prepared projector once each; an eligible query scores the reference plus at most eighteen pairs, at most nineteen actual joint recompositions or 95 across five queries. Unsupported queries retain the factory's four-sweep, forty-step-per-axis fallback, at most 528 recompositions each. The twist law's quaternion work remains additional constant work, and the existing TIE policy can stop after the start; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares normalized bases, clinical maps, resolved clamps and optionally a per-fit effector projection whose rig/frame/domain/clamp must match. Each distinct clamped lower twist is read once.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local candidate sets and any locally prepared projection end with the solve; a borrowed projection remains owned by its caller and no growing cache, external handle or task is acquired.
  */
 export function solveDistalTwist(props: {
   joint: IAutoMovieJointPose;
@@ -75,6 +81,7 @@ export function solveDistalTwist(props: {
     lower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
     effector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
   };
+  projectEffector?: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose;
 }): IAutoMovieJointPose {
   // Each joint's clamp, resolved once for the call or handed in by a sweep
   // that resolved it once for all its candidates.
@@ -84,9 +91,29 @@ export function solveDistalTwist(props: {
   const clampEffector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
     props.clamps?.effector ??
     clampJointToSkeleton.of(props.effector.bone, props.skeleton);
-  const at = (twist: number): IAutoMovieJointPose =>
-    clampLower({ ...props.joint, twist });
-  const effectorOf = (joint: IAutoMovieJointPose): IAutoMovieQuaternion =>
+  const project: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose =
+    props.projectEffector ??
+    prepareJointRotationProjection({
+      domain: {
+        bone: props.effector.bone,
+        constraint: getConstraint(
+          props.effector.bone,
+          props.skeleton.bones.find(
+            (bone: IAutoMovieBone): boolean =>
+              bone.bone === props.effector.bone,
+          )?.constraint ?? null,
+        ),
+      },
+      basis: props.effectorBasis,
+      frame: props.effectorFrame,
+      clamp: clampEffector,
+    });
+  const at: (twist: number) => IAutoMovieJointPose = (
+    twist: number,
+  ): IAutoMovieJointPose => clampLower({ ...props.joint, twist });
+  const effectorOf: (joint: IAutoMovieJointPose) => IAutoMovieQuaternion = (
+    joint: IAutoMovieJointPose,
+  ): IAutoMovieQuaternion =>
     Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.inverse(props.effectorRest),
@@ -107,20 +134,10 @@ export function solveDistalTwist(props: {
     );
 
   // How far the effector, clamped to its range, shows its asked rotation.
-  const missed = (twist: number): number => {
+  const missed: (twist: number) => number = (twist: number): number => {
     const local: IAutoMovieQuaternion = effectorOf(at(twist));
-    const a = decomposeJointRotationOnBasis(
-      local,
-      props.effectorBasis,
-      props.effectorFrame,
-    );
     const shown: IAutoMovieQuaternion = jointToQuaternionOnBasis(
-      clampEffector({
-        bone: props.effector.bone,
-        flexion: a.flexion,
-        abduction: a.abduction,
-        twist: a.twist,
-      }),
+      project(local),
       props.effectorBasis,
       props.effectorFrame,
     );
@@ -146,7 +163,7 @@ export function solveDistalTwist(props: {
       props.effectorFrame,
     ),
   );
-  const { twist } = swingTwist(
+  const { twist }: ReturnType<typeof swingTwist> = swingTwist(
     Quaternion.normalize(Quaternion.multiply(needed, Quaternion.inverse(held))),
     props.lowerBasis.twist,
   );
@@ -180,7 +197,10 @@ export function solveDistalTwist(props: {
     e.abduction,
   );
   // n . T(u, -r) x = alpha + beta cos r + gamma sin r (Rodrigues).
-  const harmonic = (
+  const harmonic: (
+    n: IAutoMovieVector3,
+    x: IAutoMovieVector3,
+  ) => [number, number, number] = (
     n: IAutoMovieVector3,
     x: IAutoMovieVector3,
   ): [number, number, number] => {
@@ -246,11 +266,11 @@ export function solveDistalTwist(props: {
           Math.abs((at(chosen).twist ?? 0) - start))
     ) {
       chosen = t;
-      least = Math.min(least, m);
+      least = m;
     }
   }
   return at(chosen);
 }
 
-/** The difference, radians, under which two misses are equal: a few hundred times the rounding of the quaternion products a miss is read through, so a solution does not displace an exact start over rounding. */
+/** Existing distal-candidate angular tie policy, radians; this is not a numerical-roundoff bound or a reached-target threshold. */
 const TIE: number = 1e-6;

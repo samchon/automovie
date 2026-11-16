@@ -14,6 +14,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The phrases: each part's movement over the standard instants of a phrase
  * clock, with and without something solid to bear on.
@@ -104,8 +106,11 @@ export function test_motion_compose_phrase(): void {
       close(wave(0.5625), -1) &&
       close(wave(0.875), 0),
   );
-  TestValidator.error("a wave of no cycles", (): unknown =>
-    AutoMovieMotionClock.wave(free, ["strokeStart", "strokeEnd"], 0, 0.4),
+  TestValidator.predicate(
+    "a wave of no cycles",
+    throwsError((): unknown =>
+      AutoMovieMotionClock.wave(free, ["strokeStart", "strokeEnd"], 0, 0.4),
+    ),
   );
 
   const body: IHumanBody = {

@@ -8,6 +8,8 @@ import type {
 import { AutoMovieMotionHumanBend, type IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The elbow a hand goal takes when no bend is stated: the place of least
  * strain among the places the arm's ranges allow.
@@ -176,8 +178,9 @@ export function test_motion_compose_swivel(): void {
     ...props,
     point: { x: 0.8, y: 1.4, z: 0 },
   };
-  TestValidator.error("a wrist past the arm's length", (): unknown =>
-    AutoMovieMotionHumanBend.solve(far),
+  TestValidator.predicate(
+    "a wrist past the arm's length",
+    throwsError((): unknown => AutoMovieMotionHumanBend.solve(far)),
   );
   TestValidator.predicate(
     "a fallback preset answers the refusal",

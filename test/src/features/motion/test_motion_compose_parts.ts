@@ -8,6 +8,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The part primitives' body-free rules: joint angles added on their own
  * channels, a hand's fingers on the way to a shape, and an origin carried by
@@ -65,8 +67,9 @@ export function test_motion_compose_parts(): void {
     nod.write(posture, 0.5).joints,
     { head: [20, 2, 1], spine: [7, 0, 0], neck: [4, 0, 0] },
   );
-  TestValidator.error("a bone outside the channels", (): unknown =>
-    nod.write(posture, 0.95),
+  TestValidator.predicate(
+    "a bone outside the channels",
+    throwsError((): unknown => nod.write(posture, 0.95)),
   );
 
   const relaxed = HumanHand.shape("left", "relaxed");

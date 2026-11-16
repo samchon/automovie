@@ -1,0 +1,228 @@
+import {
+  AutoMovieMotionClock,
+  type IAutoMovieMotionHumanPrimitive,
+  type IHumanActionPlan,
+  type IHumanPosture,
+  composeAutoMovieMotionHumanAction,
+} from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../internal/nclose";
+
+/**
+ * Public composer callbacks share completed prefixes only inside their
+ * current synchronous evaluation, including preparation and reentrant reads.
+ *
+ * The analytic base has root.x=t and pitch=10t. A trunk write adds one to
+ * pitch, and a head write reads that prefix twice and writes 20t+2 to its
+ * head flexion. Counters observe these owned callbacks without changing
+ * their arithmetic. The two primitive inputs are deliberately reversed.
+ *
+ * Scenarios:
+ * 1. Preparation shares a base at the same exact t across prefix readers,
+ *    while t and t+epsilon remain different. Prefix values stay 10t and 10t+1.
+ * 2. Each public query owns fresh work. A retained prefix reader called
+ *    outside evaluation opens fresh work for every call.
+ * 3. A reentrant public posture at another time restores the outer scope,
+ *    after both normal return and an inner owned exception.
+ * 4. A failed outer write publishes no partial result to the next query.
+ *    A reader retained by a throwing prepare also leaves no active scope.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the declared arithmetic, observational counters and all evaluation lifetime boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls only public composition, prepare/write callbacks and returned posture readers; duplicate exact-prefix work, cross-call retention, lost enclosing scope or swallowed/retained failure fails counts or numeric outputs.
+ * @evidence contracts/development/testing.md#independent-expectations The base defines 10t, the trunk adds one, and two equal prefix reads give 20t+2. Exact counters follow the number of distinct input times and required prefix stages, without consulting a cache or source layout.
+ * @evidence contracts/development/testing.md#distinguishing-cases Shared/different exact times and prefixes, reverse primitive order, prepared/retained readers, normal and throwing nested public queries, outer-write failure and prepare failure.
+ * @evidence contracts/development/testing.md#execution-ownership One synchronous mechanism unit owns deterministic public extension callbacks and counters, as compose_action does; no body producer, foreign function, global or runtime is replaced.
+ */
+export function test_motion_compose_evaluation_scope(): void {
+  type Reader = (seconds: number) => IHumanPosture;
+  const failures: string[] = [];
+  const reads: Map<number, number> = new Map();
+  const writes: Map<number, number> = new Map();
+  const retained: { base?: Reader; trunk?: Reader; failed?: Reader } = {};
+  const sentinel: Error = new Error("owned composer failure");
+  const t: number = 0.25;
+  const nearby: number = t + Number.EPSILON;
+  let mode: "plain" | "nested" | "inner-failure" | "outer-failure" = "plain";
+  let depth: number = 0;
+  const check: (label: string, condition: boolean) => void = (
+    label: string,
+    condition: boolean,
+  ): void => {
+    if (!condition) failures.push(label);
+  };
+  const count: (map: Map<number, number>, seconds: number) => void = (
+    map: Map<number, number>,
+    seconds: number,
+  ): void => {
+    map.set(seconds, (map.get(seconds) ?? 0) + 1);
+  };
+  const reset: () => void = (): void => {
+    reads.clear();
+    writes.clear();
+  };
+  const base: IHumanActionPlan = {
+    duration: 1,
+    contacts: [],
+    events: [],
+    posture: (seconds: number): IHumanPosture => {
+      count(reads, seconds);
+      return {
+        root: { x: seconds, y: 0, z: 0 },
+        yaw: 0,
+        pitch: 10 * seconds,
+        roll: 0,
+        joints: {},
+        limbs: {},
+      };
+    },
+  };
+  const trunk: IAutoMovieMotionHumanPrimitive = {
+    channels: ["trunk"],
+    from: 0,
+    to: 1,
+    prepare: (before: Reader): void => {
+      retained.base = before;
+      check("base prefix during prepare", nclose(before(t).pitch, 2.5, 0));
+      before(t);
+      before(nearby);
+    },
+    write: (under: IHumanPosture, seconds: number): IHumanPosture => {
+      count(writes, seconds);
+      return { ...under, pitch: under.pitch + 1 };
+    },
+  };
+  const head: IAutoMovieMotionHumanPrimitive = {
+    channels: ["head"],
+    from: 0,
+    to: 1,
+    prepare: (before: Reader): void => {
+      retained.trunk = before;
+      check("trunk prefix during prepare", nclose(before(t).pitch, 3.5, 0));
+      before(t);
+    },
+    write: (
+      under: IHumanPosture,
+      seconds: number,
+      before?: Reader,
+    ): IHumanPosture => {
+      const first: IHumanPosture = before!(seconds);
+      if (depth === 1 && mode === "inner-failure") throw sentinel;
+      if (depth === 0 && (mode === "nested" || mode === "inner-failure")) {
+        depth++;
+        try {
+          const nested: IHumanPosture = plan!.posture(0.75);
+          check("nested numeric result", nclose(nested.joints.head![0], 17, 0));
+        } catch (error) {
+          if (mode !== "inner-failure" || error !== sentinel) throw error;
+        } finally {
+          depth--;
+        }
+      }
+      const second: IHumanPosture = retained.trunk!(seconds);
+      if (mode === "outer-failure" && depth === 0) throw sentinel;
+      return {
+        ...under,
+        joints: { ...under.joints, head: [first.pitch + second.pitch, 0, 0] },
+      };
+    },
+  };
+  const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    base,
+    clock: AutoMovieMotionClock.of(1, []),
+    primitives: [head, trunk],
+  });
+  check("prepare shared exact-time base", reads.get(t) === 1);
+  check(
+    "prepare preserves adjacent exact time",
+    reads.get(nearby) === 1 && reads.size === 2,
+  );
+  check(
+    "prepare shares only the required trunk prefix",
+    writes.get(t) === 1 && !writes.has(nearby),
+  );
+  for (const scenario of ["plain", "nested", "inner-failure"] as const) {
+    mode = scenario;
+    reset();
+    const shown: IHumanPosture = plan.posture(t);
+    check(`${scenario}: root arithmetic`, nclose(shown.root.x, t, 0));
+    check(`${scenario}: head arithmetic`, nclose(shown.joints.head![0], 7, 0));
+    check(
+      `${scenario}: outer scope restored`,
+      reads.get(t) === 1 && writes.get(t) === 1,
+    );
+    check(
+      `${scenario}: inner work scope`,
+      scenario === "plain"
+        ? reads.size === 1
+        : reads.get(0.75) === 1 && writes.get(0.75) === 1,
+    );
+  }
+  mode = "plain";
+  reset();
+  plan.posture(t);
+  plan.posture(t);
+  check(
+    "two public queries own fresh scopes",
+    reads.get(t) === 2 && writes.get(t) === 2,
+  );
+  reset();
+  retained.trunk!(t);
+  retained.trunk!(t);
+  check(
+    "retained reader outside evaluation owns fresh scopes",
+    reads.get(t) === 2 && writes.get(t) === 2,
+  );
+
+  mode = "outer-failure";
+  reset();
+  let caught: unknown;
+  try {
+    plan.posture(t);
+  } catch (error) {
+    caught = error;
+  }
+  check("outer write preserves its actual exception", caught === sentinel);
+  mode = "plain";
+  const recovered: IHumanPosture = plan.posture(t);
+  check(
+    "outer throw releases partial prefixes",
+    reads.get(t) === 2 && writes.get(t) === 2,
+  );
+  check(
+    "outer throw leaves correct next value",
+    nclose(recovered.joints.head![0], 7, 0),
+  );
+
+  reset();
+  caught = undefined;
+  try {
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock: AutoMovieMotionClock.of(1, []),
+      primitives: [
+        {
+          channels: ["head"],
+          from: 0,
+          to: 1,
+          write: (under: IHumanPosture): IHumanPosture => under,
+          prepare: (before: Reader): void => {
+            retained.failed = before;
+            before(t);
+            throw sentinel;
+          },
+        },
+      ],
+    });
+  } catch (error) {
+    caught = error;
+  }
+  check("prepare preserves its actual exception", caught === sentinel);
+  retained.failed!(t);
+  retained.failed!(t);
+  check(
+    "throwing prepare releases its retained reader scope",
+    reads.get(t) === 3,
+  );
+  TestValidator.equals("composer evaluation scopes", failures, []);
+}

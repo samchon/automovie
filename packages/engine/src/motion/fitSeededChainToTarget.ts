@@ -1,10 +1,19 @@
+import type {
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { fitChainBend } from "./fitChainBend";
 import { orientChainEffector } from "./orientChainEffector";
+import { prepareChainFit } from "./prepareChainFit";
+import { resolveBoneMap } from "./resolveBoneMap";
+import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
 
 /**
- * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
+ * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the source bend-stage pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
  *
  * For a hinged mid joint (an elbow or a knee, whose abduction is immobile) the swivel parameterisation of Tolani, Goswami and Badler (2000) comes first and wins whenever it reaches: the hinge angle follows from the span and the swivel about the root-to-target axis is swept for the least range-of-motion overshoot and then the least continuous cost of effector-rotation error, swing from the hint's side and turn from the `referencePose` (`fitHingedChainCandidate`), because a free-swing candidate turns the hinge about the plane normal and the clamp of its abduction moves the effector. Otherwise, and for other chains, the bend hint's plane and then the 32-plane sweep follow, the first exact one winning. When nothing reaches, the least clamped residual is returned, so an unreachable target leaves the effector on the reachable shell, not a pretended reach.
  *
@@ -12,23 +21,126 @@ import { orientChainEffector } from "./orientChainEffector";
  *
  * With `effectorRotation`, a mid bone that declares a distal twist (a forearm) first takes the twist share of the requested rotation about its own length (swing-twist decomposition), clamped to its range, and the effector the remaining swing, so pronation and supination are the forearm's and the wrist keeps its place.
  *
+ * Failed bend preparation or analytic admission keeps the source pose at that stage. A requested rotation still runs the orientation pass and may change the lower twist and effector articulation.
+ *
  * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves analytic two-bone candidates, clamps upper/lower joints to rig ROM and measures their actual effector; residual buckets rank first, then squared sign-insensitive quaternion geodesic distance to the prior pose and finally exact residual.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The bend search (`fitChainBend`) and the effector's orientation (`orientChainEffector`), composed here, while preparation, analytic candidate solve and fast candidate FK have single owners; this split exposes the geometry shared by all bend candidates.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing/invalid/degenerate preparation and analytic solve preserve the original pose; no ideal target measurement replaces post-clamp FK. A 32-angle sweep and ten local halvings bound the heuristic, with 1e-12 continuity and 1e-6 normal-degeneracy thresholds.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Failed bend admission preserves only the bend-stage source pose; requested orientation still applies afterward. No ideal target measurement replaces post-clamp FK. A 32-angle sweep and ten local halvings bound the heuristic, with 1e-12 continuity and 1e-6 normal-degeneracy thresholds.
  * @evidence contracts/development/common.md#meaningful-documentation States model-metre target, unchanged joints, residual-bucket ranking, prior-pose tie meaning and the bounded-search limitation without claiming every unreachable pin can be solved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; at most34 initial candidates plus at most32minima times20 refinement candidates use constant-size fast FK, though candidate pose copies scale with authored joints. Early exact-bucket/continuity satisfaction stops the search. A hinged chain adds up to two swivel sweeps of 720 decomposed candidates (360 one-degree swivels per bend branch), each with constant-size quaternion work and, with an effector rotation, two more decompositions; they run only when the hint plane misses or a rotation is requested.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All bend candidates share prepared frames/domains and reference-angle maps; only candidate joints and scores vary, while per-frame parent pose changes force new preparation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; fitChainBend owns the unchanged bounded bend/swivel search and its constant-size candidate FK, while candidate pose copies scale with authored joints. The prepared companion permits several targets of one source to share the invariant work; no speedup has been measured here.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The one-shot fit uses the same prepared companion as repeated targets, with one owner for search and ranking; changed parent/source/reference/callback dependencies require new preparation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays are bounded by32 entries and all temporary poses/maps are released after completion; the caller owns the selected pose, which may be the original, and no handles or background tasks exist.
  */
-export const fitSeededChainToTarget: (
-  props: IFitChainToTargetProps,
-) => IAutoMovieSeededChainFit = (
+export function fitSeededChainToTarget(
   input: IFitChainToTargetProps,
-): IAutoMovieSeededChainFit => {
-  const bend: IAutoMovieSeededChainFit = fitChainBend(input);
-  return {
-    pose: orientChainEffector(input, bend.pose),
-    seed: bend.seed,
-    ...(bend.value === undefined ? {} : { value: bend.value }),
-  };
-};
+): IAutoMovieSeededChainFit {
+  const { target, ...source }: IFitChainToTargetProps = input;
+  return fitSeededChainToTarget.prepare(source).fit(target);
+}
+
+/**
+ * Scoped preparation for repeated targets of one unchanged source request.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the companion's shared-input scope.
+ * @evidence contracts/development/design.md#principled-representation One workspace separates unchanged rig/pose semantics from model-metre target positions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanLimbFit's contact re-aim reads fit and actual effector rotation from the same preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization, alternate search or remembered solution is exposed.
+ */
+export namespace fitSeededChainToTarget {
+  /**
+   * A fit operation's borrowed source dependencies and exact chain-frame reader.
+   * Keep the rig, topology, source/reference poses, mappings and callback
+   * dependencies unchanged for this workspace's lifetime. Results borrow the
+   * source root and unrelated joints, which must also remain unchanged while
+   * the workspace is in use. Release the workspace when that operation ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States input stability, borrowed result members, caller-owned lifetime and the two operations' frames.
+   * @evidence contracts/development/design.md#principled-representation Fixed source dependencies admit several independent model-metre targets without making the previous answer a new source or continuation seed.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The contact re-aim consumer needs only another fit and its actual reached rotation; internal preparation and lazy caches stay private.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Cold or near is fixed by the source request; target order does not change it and no prior result replaces a global sweep.
+   */
+  export interface IWorkspace {
+    /**
+     * Fit one target using the original source pose and unchanged search policy.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States model-metre input and fixed source/search meaning.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare owns the fit composition.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature performs no solve.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents shared preparation and unchanged candidate work.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns invariant sharing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     */
+    fit(target: IAutoMovieVector3): IAutoMovieSeededChainFit;
+
+    /**
+     * Read a fit result's actual effector rotation in the same resolved model frame.
+     * The pose must be this workspace's result, with its root, ancestors and
+     * intermediate joints unchanged; a result with null preparation uses full FK.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States actual rotation, fit-result admission and unchanged non-chain dependencies.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare delegates to the chain-frame reader.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no frame.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer documents the joint scan and constant-size FK.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns prepared-frame reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires nothing.
+     */
+    rotation(pose: IAutoMoviePose): IAutoMovieQuaternion;
+  }
+
+  /**
+   * Prepare one source request for a synchronous operation that varies only
+   * its target, such as contact re-aim. The source owns its cold/near mode;
+   * neither the previous target nor its answer becomes a new seed.
+   * A supplied authored reader must use the exact source rig, pose and
+   * clinical mappings; it shares already completed full FK at first use.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed dependencies, synchronous ownership and target-independent cold/near policy.
+   * @evidence contracts/development/implementation.md#principled-implementation Shares exactly the prepared rigid frames, domains, source/reference FK and angle maps whose inputs remain fixed, then invokes the same bend search and final orientation for each target.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainFit owns invariant data; fitChainBend owns candidate search and orientChainEffector owns final articulation; the rotation reader uses the same prepared frames.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No callback result, target-dependent candidate score, seed, target or final pose is memoized across targets; only fixed preparation, FK, prior conversion and source continuity are shared. Invalid preparation retains the one-shot fallback and full FK rotation read.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Rig preparation and at most two lazy full FK reads occur once per workspace; an authored reader can reuse one full FK the caller already needs. Each target retains its search, sharing candidate FK/continuity conversions and lazy fixed-prior conversions; reached rotation uses a joint scan and constant chain FK.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed input scope proves equivalence; an optional exact authored-FK reader stays at the original lazy admission site, returned fit poses preserve prepared non-chain dependencies, and every target still invokes callbacks at the original candidate sites.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The two returned closures own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
+   */
+  export function prepare(
+    source: Omit<IFitChainToTargetProps, "target">,
+    readAuthored?: Parameters<typeof prepareChainFit>[1],
+  ): IWorkspace {
+    const workspace: prepareChainFit.IWorkspace = prepareChainFit(
+      source,
+      readAuthored,
+    );
+    return {
+      fit: (target: IAutoMovieVector3): IAutoMovieSeededChainFit => {
+        const props: IFitChainToTargetProps = { ...workspace.props, target };
+        const bend: IAutoMovieSeededChainFit = fitChainBend(target, workspace);
+        return {
+          pose: orientChainEffector(
+            props,
+            bend.pose,
+            workspace.prepared ?? undefined,
+          ),
+          seed: bend.seed,
+          ...(bend.value === undefined ? {} : { value: bend.value }),
+        };
+      },
+      rotation: (pose: IAutoMoviePose): IAutoMovieQuaternion =>
+        workspace.prepared === null
+          ? resolveBoneMap(
+              workspace.props.skeleton,
+              pose,
+              workspace.props.topology,
+              workspace.props.jointAxes,
+              workspace.props.restFrames,
+            ).get(workspace.props.chain.effector)!.worldRotation
+          : resolvePreparedChainFrames({
+              prepared: workspace.prepared,
+              joints: pose.joints,
+              jointAxes: workspace.props.jointAxes,
+              restFrames: workspace.props.restFrames,
+            }).effector.worldRotation,
+    };
+  }
+}

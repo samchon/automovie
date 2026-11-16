@@ -39,6 +39,8 @@ export namespace HumanPerformanceAhead {
    * from the posture the grip leaves the body in, read at the earlier
    * action's start. An action whose parameters its schema refuses asks
    * nothing here; it is refused where it is placed.
+   * The caller keeps the body and candidate posture unchanged during this
+   * synchronous demand call; retained aiming callbacks may read later changes.
    *
    * @param self The performance being placed.
    * @param context The earlier action's context.
@@ -46,12 +48,12 @@ export namespace HumanPerformanceAhead {
    * @returns The reader.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each grip is asked with and the refused case.
-   * @evidence contracts/development/implementation.md#principled-implementation The action asked reads its own resolved parameters, and aims from the posture the grip leaves, so a target placed by the performer's frame is placed where they will stand.
+   * @evidence contracts/development/implementation.md#principled-implementation The action asked reads its own resolved parameters, and aims from the posture the grip leaves, so a target placed by the performer's frame is placed where they will stand. Sharing successful FK requires the body and candidate posture to remain unchanged during the synchronous demand call; their types do not enforce that premise.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The action found once per prop, then asked per grip.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a `HumanRefusal` of the parameters is taken as asking nothing; any other error propagates.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the performer's later actions, once per prop.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prop's action is kept for every grip of it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the performer's later actions, once per prop; each demands query shares one successful candidate resolve and FK when own bones are requested. Failed attempts are not memoized. Query-local closures add constant allocation even when no own-body target is read; speed improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prop's action is kept for every grip of it; repeated own-body frame reads within one candidate query share the same resolved bones.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The kept actions, one per prop asked, live as long as the context. A finally block releases candidate bones on return or throw; an aim callback retained by a law reads fresh bones after that invocation, so the memo never persists on the reader, grip or performance.
    */
   export function reader(
     self: HumanPerformanceState,
@@ -62,7 +64,9 @@ export namespace HumanPerformanceAhead {
     ordinal: number,
   ): (grip: IHumanActionLaw.IGrip) => readonly IHumanActionLaw.IDemand[] {
     const found: Map<string, INext | null> = new Map();
-    const next = (prop: string): INext | null => {
+    const next: (prop: string) => INext | null = (
+      prop: string,
+    ): INext | null => {
       if (!found.has(prop))
         found.set(prop, find(self, context.subject, ordinal, prop));
       return found.get(prop)!;
@@ -72,31 +76,52 @@ export namespace HumanPerformanceAhead {
     ): readonly IHumanActionLaw.IDemand[] => {
       const asked: INext | null = next(grip.prop);
       if (asked === null || asked.law.demands === undefined) return [];
-      return asked.law.demands({
-        subject: context.subject,
-        body: context.body,
-        params: asked.params as never,
-        skill: context.skill,
-        prop: context.prop,
-        aim: (target, seconds) =>
-          HumanPerformanceAim.aim(
-            self,
-            target,
-            seconds,
-            HumanPerformanceAim.frame(
-              context.body,
-              grip.posture,
-              () =>
-                poseBones(
-                  context.body,
-                  resolveHumanPosture(context.body, grip.posture),
-                ),
-              context.subject,
+
+      // Every aim in this demand reads the same candidate posture. Resolve
+      // its bones lazily here, so another grip question starts independently.
+      let querying: boolean = true;
+      let bones: ReturnType<typeof poseBones> | undefined;
+      const freshBones: () => ReturnType<typeof poseBones> = (): ReturnType<
+        typeof poseBones
+      > =>
+        poseBones(
+          context.body,
+          resolveHumanPosture(context.body, grip.posture),
+        );
+      const ownBones: HumanPerformanceAim.IFrame["bones"] = (): ReturnType<
+        typeof poseBones
+      > => (querying ? (bones ??= freshBones()) : freshBones());
+      try {
+        return asked.law.demands({
+          subject: context.subject,
+          body: context.body,
+          params: asked.params as never,
+          skill: context.skill,
+          prop: context.prop,
+          aim: (
+            target: Parameters<IHumanActionContext["aim"]>[0],
+            seconds: number,
+          ): ReturnType<IHumanActionContext["aim"]> =>
+            HumanPerformanceAim.aim(
+              self,
+              target,
+              seconds,
+              HumanPerformanceAim.frame(
+                context.body,
+                grip.posture,
+                ownBones,
+                context.subject,
+              ),
             ),
-          ),
-        start: context.start,
-        grip,
-      });
+          start: context.start,
+          grip,
+        });
+      } finally {
+        // A law may retain its existing aim callback. Outside this query
+        // it must keep the original fresh-read behavior and retain no FK.
+        querying = false;
+        bones = undefined;
+      }
     };
   }
 

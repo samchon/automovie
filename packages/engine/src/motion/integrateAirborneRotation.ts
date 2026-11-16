@@ -9,6 +9,7 @@ import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovi
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AirborneRotationFlight } from "./AirborneRotationFlight";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
@@ -40,6 +41,13 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * Requested momentum variations are integrated alongside it as body-frame
  * rotation tangents: the forward sensitivity equations `s' = f_y s + f_p`
  * (SUNDIALS CVODES, https://sundials.readthedocs.io/en/latest/cvodes/Mathematics_link.html).
+ * Their 3-by-k same-unit matrix uses a Frobenius error block, independently
+ * of the orientation's original three-component RMS. Taking the larger
+ * normalized error keeps the physical orientation budget unchanged. For
+ * zero absolute tolerance this block is invariant under orthogonal body or
+ * parameter-basis changes and a common parameter-unit rescaling. Independent
+ * rescaling of different columns has no such guarantee. The embedded local
+ * estimate does not certify a global Jacobian error or Newton convergence.
  *
  * @param props The shape's history, the flight and the momentum.
  * @returns The flight's orientation, read by time.
@@ -51,23 +59,23 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per fixed step or six new stages per adaptive attempt, each one history read and linear work in the requested variation directions; no separate flight is integrated for a derivative.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's inertia and relative momentum, which depend on the shape alone. Repeated times reuse them across stages and shooting trials; different adaptive meshes generally require new instants.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned trajectory retains accepted-step states and their dense-output coefficients for its lifetime, linear in accepted steps and requested variations. Adaptive step count has no fixed bound. The caller owns the history, whose caches also grow with distinct evaluated times, including rejected attempts.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the right-hand side's scope from numeric trajectory records and a tangent count only. Accepted-step count remains unbounded under adaptation. The caller owns the history; its exact-query cache retains inertia and relative momentum, while each reduction releases its temporary bones.
  */
 export function integrateAirborneRotation(
   props: integrateAirborneRotation.IProps,
 ): integrateAirborneRotation.IFlight {
   const { history, momentum } = props;
   const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
-  // The integrator averages squared error over all components. Dividing
-  // both tolerances by sqrt(1 + directions) keeps the orientation's old
-  // three-component RMS contribution unchanged when tangent states are added.
-  const errorScale: number = Math.sqrt(1 + variations.length);
+
+  // Sensitivities guide Newton but do not feed the physical orientation.
+  // A same-unit matrix block controls their Frobenius error independently;
+  // the maximum with q's original RMS can never dilute its physical budget.
   const tolerance: integrateMotionTrajectory.ITolerance | undefined =
     props.tolerance === undefined
       ? undefined
       : {
-          relative: props.tolerance.relative / errorScale,
-          absolute: props.tolerance.absolute / errorScale,
+          ...props.tolerance,
+          blocks: variations.length === 0 ? [] : [3 * variations.length],
         };
   const trajectory: integrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
@@ -119,24 +127,7 @@ export function integrateAirborneRotation(
       h: props.h,
       tolerance,
     });
-  return {
-    t0: trajectory.t0,
-    t1: trajectory.t1,
-    h: trajectory.h,
-    knots: trajectory.knots,
-    orientation: (seconds: number): IAutoMovieQuaternion =>
-      trajectory.at(seconds).q!,
-    variations: (seconds: number): IAutoMovieVector3[] => {
-      const x: number[] = trajectory.at(seconds).x;
-      return variations.map(
-        (_: IAutoMovieVector3, i: number): IAutoMovieVector3 => ({
-          x: x[3 * i]!,
-          y: x[3 * i + 1]!,
-          z: x[3 * i + 2]!,
-        }),
-      );
-    },
-  };
+  return AirborneRotationFlight(trajectory, variations.length);
 }
 
 /**
@@ -157,7 +148,14 @@ export namespace integrateAirborneRotation {
    */
   export const DELTA: number = 1e-3;
 
-  /** What a flight is integrated from. */
+  /**
+   * What a torque-free flight and its optional momentum tangents are integrated from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state seconds, root/world frames, momentum units, integration budgets and body-frame tangent outputs.
+   * @evidence contracts/development/design.md#principled-representation The history supplies root-frame inertia and relative momentum; world momentum is constant and q0 is the takeoff attitude. Interval and state dimensions are admitted by the trajectory integrator; positive principal moments and a pure history remain caller premises.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The flight pass supplies physical inputs and the shooting solver additionally supplies same-unit momentum directions; this wrapper owns the internal tangent partition and accepts only relative/absolute budgets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional matrix contains the requested directions without a second body model; its Frobenius budget does not promise invariance under independently rescaled parameter columns.
+   */
   export interface IProps {
     /** The shape's history (`history`). */
     history: IHistory;
@@ -177,8 +175,11 @@ export namespace integrateAirborneRotation {
     /** The integrator's step, seconds; its default when absent. Under a `tolerance`, the first step tried. */
     h?: number;
 
-    /** The integrator's error control (`integrateMotionTrajectory.ITolerance`); the fixed step when absent. */
-    tolerance?: integrateMotionTrajectory.ITolerance;
+    /** Relative and absolute integration error budgets; fixed-step when absent. The physical orientation and the same-unit tangent matrix use independent norms. A nonzero absolute number acts in each block's own units, not a shared physical unit. */
+    tolerance?: Pick<
+      integrateMotionTrajectory.ITolerance,
+      "relative" | "absolute"
+    >;
 
     /** Momentum directions whose forward sensitivities are integrated with the orientation. Each returned tangent is in the instantaneous body's frame, radians per unit change of the corresponding direction. Absent, none are integrated. */
     variations?: readonly IAutoMovieVector3[];
@@ -190,6 +191,19 @@ export namespace integrateAirborneRotation {
    * its segments' motion with respect to the root.
    */
   export type IHistory = (seconds: number) => IInstant;
+
+  /**
+   * A shape history with an explicitly owned numeric memo.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation It is the same seconds-to-root-frame-instant reader, with a clear operation for its numeric memo.
+   * @evidence contracts/development/design.md#principled-representation Extends the history callback with cache lifetime ownership; clear forgets computed values without changing the pure shape or the values a new read computes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The history factory produces it and HumanPerformanceFlight clears it in finally after solving or refusal; general uncached IHistory callbacks remain unchanged.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares IHistory instead of duplicating the callback contract; no cache cap, time grid or approximate sample is introduced.
+   */
+  export type ICachedHistory = IHistory & {
+    /** Release cached instants and boundary moments; the next query recomputes them, while already completed flights remain valid. */
+    clear(): void;
+  };
 
   /** The shape's mass distribution at one instant, root frame. */
   export interface IInstant {
@@ -227,8 +241,11 @@ export namespace integrateAirborneRotation {
   /**
    * A shape's history: at each second, the composite inertia of the posed
    * bones and the relative momentum from the bones `DELTA` either side,
-   * second order in `DELTA`, each instant computed once and kept by its exact
-   * second for the history's lifetime.
+   * second order in `DELTA`. Each query instant's inertia and relative
+   * momentum are computed once and kept by its exact second for the
+   * history's lifetime. Posed bones belong only to that reduction: at most
+   * the query and three stencil nodes are held, then released. The two
+   * fixed boundary stencils share their numeric moments across queries.
    *
    * Given the flight's span, the three-point stencil slides up to its
    * boundary and then stays inside it. At a requested instant `t` away
@@ -243,6 +260,14 @@ export namespace integrateAirborneRotation {
    * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned): the composed shape without the flight's rotation. Pure, and read up to `DELTA` outside the flight, or up to `2 DELTA` inside it at its ends when `span` is given.
    * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
    * @returns The history.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the root-frame shape, finite-difference stencil, exact query identity, sufficient statistics and temporary bone lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation The same inertia tensor and three-point momentum formula are reduced to I and h, the only shape quantities the flight ODE reads; no shape interpolation, grid or precision change is introduced.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure An exact-time numeric memo surrounds one scoped shape-to-momentum reduction; the two fixed boundary stencils have their own numeric memo.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new query reads its actual shape and preserves the existing stencil weights; no raw-bone cache cap replaces an evaluation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A new query resolves at most four distinct posed instants and performs linear work in mass segments after shape evaluation. The shape owner may independently reuse its displayed poses; repeated query times read the numeric instant directly.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equivalence is the same exact query time in this history's unchanged model, pure shape function and span. Boundary moments additionally share the identical fixed stencil nodes. A changed evaluation epoch requires a new history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The callable owns O(N) numeric instants for N distinct queries and at most two numeric boundary records, with no fixed N bound. Each evaluate call owns at most four bone maps; none escapes in its numeric result. clear explicitly releases both numeric memos, and the caller drops the shape callback's history when its solve scope ends.
    */
   export function history(
     model: resolveAutoMovieCenterOfMass.IModel,
@@ -250,21 +275,43 @@ export namespace integrateAirborneRotation {
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     span?: { from: number; to: number },
-  ): IHistory {
+  ): ICachedHistory {
     type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    const bones: Map<number, Bones> = new Map();
-    const read = (seconds: number): Bones => {
-      const known: Bones | undefined = bones.get(seconds);
-      if (known !== undefined) return known;
-      const posed: Bones = shape(seconds);
-      bones.set(seconds, posed);
-      return posed;
-    };
     const instants: Map<number, IInstant> = new Map();
-    const momentum = (from: number, to: number): IAutoMovieVector3 =>
-      resolveAutoMovieMomentum(model, read(from), read(to), to - from).angular;
-    const relative = (seconds: number): IAutoMovieVector3 => {
-      if (span === undefined) return momentum(seconds - DELTA, seconds + DELTA);
+
+    // Only the two boundary stencils recur at different query times.
+    // Their numeric moments are sufficient; their bones need not survive.
+    const boundaries: Map<
+      number,
+      { central: IAutoMovieVector3; change: IAutoMovieVector3 }
+    > = new Map();
+    const evaluate: (seconds: number) => IInstant = (
+      seconds: number,
+    ): IInstant => {
+      // At most the query and three stencil nodes live for this reduction.
+      // No returned value or closure refers to these bone maps.
+      const bones: Map<number, Bones> = new Map();
+      const read: (at: number) => Bones = (at: number): Bones => {
+        const known: Bones | undefined = bones.get(at);
+        if (known !== undefined) return known;
+        const posed: Bones = shape(at);
+        bones.set(at, posed);
+        return posed;
+      };
+      const momentum: (from: number, to: number) => IAutoMovieVector3 = (
+        from: number,
+        to: number,
+      ): IAutoMovieVector3 =>
+        resolveAutoMovieMomentum(model, read(from), read(to), to - from)
+          .angular;
+      const inertia: IInstant["inertia"] = resolveAutoMovieMomentum.principal(
+        resolveAutoMovieMomentum.inertia(model, read(seconds)),
+      );
+      if (span === undefined)
+        return {
+          inertia,
+          relative: momentum(seconds - DELTA, seconds + DELTA),
+        };
       const delta: number = Math.min(DELTA, (span.to - span.from) / 2);
       const centre: number = Math.max(
         span.from + delta,
@@ -272,28 +319,38 @@ export namespace integrateAirborneRotation {
       );
       const a: number = Math.max(span.from, centre - delta);
       const b: number = Math.min(span.to, centre + delta);
-      const central: IAutoMovieVector3 = momentum(a, b);
-      if (centre === seconds) return central;
-      return Vector3.add(
-        central,
-        Vector3.scale(
-          Vector3.subtract(momentum(centre, b), momentum(a, centre)),
-          (2 * (seconds - centre)) / (b - a),
+      if (centre === seconds) return { inertia, relative: momentum(a, b) };
+      let boundary:
+        | { central: IAutoMovieVector3; change: IAutoMovieVector3 }
+        | undefined = boundaries.get(centre);
+      if (boundary === undefined) {
+        boundary = {
+          central: momentum(a, b),
+          change: Vector3.subtract(momentum(centre, b), momentum(a, centre)),
+        };
+        boundaries.set(centre, boundary);
+      }
+      return {
+        inertia,
+        relative: Vector3.add(
+          boundary.central,
+          Vector3.scale(boundary.change, (2 * (seconds - centre)) / (b - a)),
         ),
-      );
+      };
     };
-    return (seconds: number): IInstant => {
+    const query: IHistory = (seconds: number): IInstant => {
       const known: IInstant | undefined = instants.get(seconds);
       if (known !== undefined) return known;
-      const instant: IInstant = {
-        inertia: resolveAutoMovieMomentum.principal(
-          resolveAutoMovieMomentum.inertia(model, read(seconds)),
-        ),
-        relative: relative(seconds),
-      };
+      const instant: IInstant = evaluate(seconds);
       instants.set(seconds, instant);
       return instant;
     };
+    return Object.assign(query, {
+      clear: (): void => {
+        instants.clear();
+        boundaries.clear();
+      },
+    });
   }
 
   /**

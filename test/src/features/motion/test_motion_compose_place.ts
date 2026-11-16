@@ -5,6 +5,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A hand's place on its three rungs: three names, names with a nudge or a
  * share between two places, and an explicit record with its source.
@@ -109,22 +111,31 @@ export function test_motion_compose_place(): void {
     explicit,
   );
 
-  TestValidator.error("a nudge past its bound", (): unknown =>
-    AutoMovieMotionHumanTargetGrid.place(body, "left", {
-      at: grid,
-      nudge: { forward: 0.3 },
-    }),
+  TestValidator.predicate(
+    "a nudge past its bound",
+    throwsError((): unknown =>
+      AutoMovieMotionHumanTargetGrid.place(body, "left", {
+        at: grid,
+        nudge: { forward: 0.3 },
+      }),
+    ),
   );
-  TestValidator.error("a between share past 1", (): unknown =>
-    AutoMovieMotionHumanTargetGrid.place(body, "left", {
-      between: [{ ...grid, distance: "close" }, grid],
-      share: 1.5,
-    }),
+  TestValidator.predicate(
+    "a between share past 1",
+    throwsError((): unknown =>
+      AutoMovieMotionHumanTargetGrid.place(body, "left", {
+        between: [{ ...grid, distance: "close" }, grid],
+        share: 1.5,
+      }),
+    ),
   );
-  TestValidator.error("an explicit record without a source", (): unknown =>
-    AutoMovieMotionHumanTargetGrid.place(body, "left", {
-      explicit,
-      source: " ",
-    }),
+  TestValidator.predicate(
+    "an explicit record without a source",
+    throwsError((): unknown =>
+      AutoMovieMotionHumanTargetGrid.place(body, "left", {
+        explicit,
+        source: " ",
+      }),
+    ),
   );
 }

@@ -1,5 +1,4 @@
 import {
-  AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -10,18 +9,14 @@ import {
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
-import { prepareChainPlant } from "./prepareChainPlant";
-import { resolveBoneMap } from "./resolveBoneMap";
+import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
+import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
 /**
@@ -33,30 +28,27 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * (`PLANT_RESIDUAL_EPSILON`), then their turn from the reference pose, then
  * the exact residual.
  *
- * @param input The fit request.
- * @returns The fitted pose and its seed, or null for none.
+ * @param target The current model-metre target.
+ * @param workspace The unchanged source request and its scoped invariant data.
+ * @returns The fitted pose and its hinged seed; failed preparation or analytic admission keeps the source pose with no seed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order of the candidates, the ranking and the result.
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 for a hinged mid joint (`fitHingedChainCandidate`), and a pole vector's bend plane as game-engine two-bone IK takes it, every candidate judged by its clamped forward kinematics.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The search alone: preparation, the analytic solve, the swivel candidate and the candidate's forward kinematics have their own owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A degenerate preparation or solve keeps the given pose; no ideal measurement replaces the clamped forward kinematics.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most 34 initial candidates plus 32 minima times 20 refinement candidates, each a constant-size forward kinematics, and the search stops at the first exact one.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Every candidate shares the prepared frames, domains and reference angles.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every target shares prepared frames/domains, lazy authored/reference reads and resolved chain clamps; each candidate's raw quaternions serve FK and continuity, while fixed prior conversions and authored continuity are lazy once. Target-specific scores, callback evaluations, ranking and cold/near mode are unchanged.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sweep's arrays hold at most 32 entries and every temporary pose is released with the call.
  */
 export const fitChainBend: (
-  input: IFitChainToTargetProps,
+  target: IAutoMovieVector3,
+  workspace: prepareChainFit.IWorkspace,
 ) => IAutoMovieSeededChainFit = (
-  input: IFitChainToTargetProps,
+  target: IAutoMovieVector3,
+  workspace: prepareChainFit.IWorkspace,
 ): IAutoMovieSeededChainFit => {
-  // Declared bone axes take precedence over the host table, once, so the
-  // preparation, the analytic solve and the candidate FK read one basis.
-  const props: IFitChainToTargetProps = {
-    ...input,
-    jointAxes: skeletonJointAxes(input.skeleton, input.jointAxes),
-  };
-  const prepared: ReturnType<typeof prepareChainPlant> =
-    prepareChainPlant(props);
+  const props: IFitChainToTargetProps = { ...workspace.props, target };
+  const prepared: prepareChainFit.IWorkspace["prepared"] = workspace.prepared;
   if (prepared === null) return { pose: props.pose, seed: null };
   const solve: (
     bendNormal?: IAutoMovieVector3,
@@ -82,81 +74,23 @@ export const fitChainBend: (
       : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
   );
   if (pole === null) return { pose: props.pose, seed: null };
-  const authored: IAutoMovieVector3 = resolveBoneMap(
-    props.skeleton,
-    props.pose,
-    props.topology,
-    props.jointAxes,
-    props.restFrames,
-  ).get(props.chain.effector)!.worldPosition;
+  const { authored }: prepareChainFit.IReading = workspace.read();
   const distance: (position: IAutoMovieVector3) => number = (
     position: IAutoMovieVector3,
   ): number => Vector3.length(Vector3.subtract(position, props.target));
-  const reference: IAutoMoviePose = props.referencePose ?? props.pose;
-  const referenceAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
-    new Map(
-      reference.joints.map(
-        (
-          joint: IAutoMovieJointPose,
-        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] =>
-          [joint.bone, joint] as const,
-      ),
-    );
-  const authoredAngles: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> =
-    new Map(
-      props.pose.joints.map(
-        (
-          joint: IAutoMovieJointPose,
-        ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] =>
-          [joint.bone, joint] as const,
-      ),
-    );
-  const rotationDistance: (
-    bone: AutoMovieHumanoidBone,
-    candidate: IAutoMovieJointPose | undefined,
-  ) => number = (
-    bone: AutoMovieHumanoidBone,
-    candidate: IAutoMovieJointPose | undefined,
-  ): number =>
-    jointRotationDistance(
-      candidate ?? {
-        bone,
-        flexion: null,
-        abduction: null,
-        twist: null,
-      },
-      referenceAngles.get(bone),
-      props.jointAxes?.[bone],
-      props.restFrames?.[bone],
-    );
   let best: IPlantCandidate = {
     pose: props.pose,
     residual: distance(authored),
     continuity:
-      props.referencePose === undefined
-        ? 0
-        : rotationDistance(
-            props.chain.upper,
-            authoredAngles.get(props.chain.upper),
-          ) +
-          rotationDistance(
-            props.chain.lower,
-            authoredAngles.get(props.chain.lower),
-          ),
+      props.referencePose === undefined ? 0 : workspace.authoredContinuity(),
   };
   const consider: (
     solved: NonNullable<ReturnType<typeof solve>>,
   ) => IPlantCandidateScore = (
     solved: NonNullable<ReturnType<typeof solve>>,
   ): IPlantCandidateScore => {
-    const upper: IAutoMovieJointPose = clampJointToSkeleton(
-      solved.upper,
-      props.skeleton,
-    );
-    const lower: IAutoMovieJointPose = clampJointToSkeleton(
-      solved.lower,
-      props.skeleton,
-    );
+    const upper: IAutoMovieJointPose = workspace.clamp(solved.upper);
+    const lower: IAutoMovieJointPose = workspace.clamp(solved.lower);
     const candidate: IAutoMoviePose = {
       ...props.pose,
       joints: [
@@ -169,28 +103,35 @@ export const fitChainBend: (
         lower,
       ],
     };
+    const upperRotation: IAutoMovieQuaternion = jointToQuaternion(
+      upper,
+      props.jointAxes?.[upper.bone],
+      props.restFrames?.[upper.bone],
+    );
+    const lowerRotation: IAutoMovieQuaternion = jointToQuaternion(
+      lower,
+      props.jointAxes?.[lower.bone],
+      props.restFrames?.[lower.bone],
+    );
     const candidateResidual: number = distance(
-      resolvePreparedChainEffector({
-        prepared,
-        upper,
-        lower,
-        jointAxes: props.jointAxes,
-        restFrames: props.restFrames,
-      }),
+      resolvePreparedChainEffector(
+        {
+          prepared,
+          upper,
+          lower,
+          jointAxes: props.jointAxes,
+          restFrames: props.restFrames,
+        },
+        resolvePreparedChainLower.fromRotations(
+          prepared,
+          upperRotation,
+          lowerRotation,
+        ),
+      ),
     );
     const continuity: number =
-      jointRotationDistance(
-        upper,
-        referenceAngles.get(upper.bone),
-        props.jointAxes?.[upper.bone],
-        props.restFrames?.[upper.bone],
-      ) +
-      jointRotationDistance(
-        lower,
-        referenceAngles.get(lower.bone),
-        props.jointAxes?.[lower.bone],
-        props.restFrames?.[lower.bone],
-      );
+      workspace.continuity(upper.bone, upperRotation) +
+      workspace.continuity(lower.bone, lowerRotation);
     const score: IPlantCandidateScore = {
       residual: candidateResidual,
       continuity,
@@ -239,14 +180,8 @@ export const fitChainBend: (
         props.effectorRotation,
       );
     if (hinged !== null) {
-      const upper: IAutoMovieJointPose = clampJointToSkeleton(
-        hinged.upper,
-        props.skeleton,
-      );
-      const lower: IAutoMovieJointPose = clampJointToSkeleton(
-        hinged.lower,
-        props.skeleton,
-      );
+      const upper: IAutoMovieJointPose = workspace.clamp(hinged.upper);
+      const lower: IAutoMovieJointPose = workspace.clamp(hinged.lower);
       const residual: number = distance(
         resolvePreparedChainEffector({
           prepared,
@@ -312,35 +247,7 @@ export const fitChainBend: (
     );
 
   if (props.referencePose !== undefined) {
-    const referenceJoints: IAutoMovieJointPose[] = [
-      props.chain.upper,
-      props.chain.lower,
-    ].map(
-      (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
-        referenceAngles.get(bone) ?? {
-          bone,
-          flexion: null,
-          abduction: null,
-          twist: null,
-        },
-    );
-    const referenceLower: IAutoMovieResolvedBone = resolveBoneMap(
-      props.skeleton,
-      {
-        ...props.pose,
-        joints: [
-          ...props.pose.joints.filter(
-            (joint: IAutoMovieJointPose): boolean =>
-              joint.bone !== props.chain.upper &&
-              joint.bone !== props.chain.lower,
-          ),
-          ...referenceJoints,
-        ],
-      },
-      props.topology,
-      props.jointAxes,
-      props.restFrames,
-    ).get(props.chain.lower)!;
+    const referenceLower: IAutoMovieResolvedBone = workspace.referenceLower();
     const referenceNormal: IAutoMovieVector3 = Vector3.cross(
       reachAxis,
       Vector3.subtract(referenceLower.worldPosition, upper.worldPosition),
@@ -390,26 +297,31 @@ export const fitChainBend: (
   return { pose: best.pose, seed: null };
 };
 
+/** Existing squared-radian equality threshold for stopping an exact-pin search. */
 const PLANT_CONTINUITY_EPSILON: number = 1e-12;
 
+/** Residual and continuity keys under the solver's existing lexicographic order. */
 interface IPlantCandidateScore {
   /** Actual target distance after rig-ROM clamping, model metres. */
   residual: number;
 
-  /** Squared joint-rotation distance to the reference pose. */
+  /** Sum of squared upper/mid rotation distances to the reference, radians squared. */
   continuity: number;
 }
 
 /** Best actual pose and its unchanged contact/continuity scores. */
 interface IPlantCandidate extends IPlantCandidateScore {
+  /** Actual clamped pose, retaining the source root and unrelated authored joints. */
   pose: IAutoMoviePose;
 }
 
 /** Bend-plane parameter beside the contact/continuity scores it produced. */
 interface IPlantBendCandidate extends IPlantCandidateScore {
+  /** Bend-plane angle around the current reach axis, radians. */
   angle: number;
 }
 
+/** Place actual model-metre residual in the existing pin-accuracy bucket. */
 const plantResidualBucket: (residual: number) => number = (
   residual: number,
 ): number => Math.floor(residual / PLANT_RESIDUAL_EPSILON);
@@ -429,37 +341,6 @@ const comparePlantCandidate: (
   return continuityOrder === 0
     ? left.residual - right.residual
     : continuityOrder;
-};
-
-/** Sign-insensitive geodesic distance between two joint rotations. */
-const jointRotationDistance: (
-  joint: IAutoMovieJointPose,
-  reference: IAutoMovieJointPose | undefined,
-  axes: IAutoMovieJointAxes | undefined,
-  restFrame: IAutoMovieRestFrame | undefined,
-) => number = (
-  joint: IAutoMovieJointPose,
-  reference: IAutoMovieJointPose | undefined,
-  axes: IAutoMovieJointAxes | undefined,
-  restFrame: IAutoMovieRestFrame | undefined,
-): number => {
-  const candidate: IAutoMovieQuaternion = Quaternion.normalize(
-    jointToQuaternion(joint, axes, restFrame),
-  );
-  const prior: IAutoMovieQuaternion = Quaternion.normalize(
-    jointToQuaternion(
-      reference ?? {
-        bone: joint.bone,
-        flexion: null,
-        abduction: null,
-        twist: null,
-      },
-      axes,
-      restFrame,
-    ),
-  );
-  const angle: number = Quaternion.angle(candidate, prior);
-  return angle * angle;
 };
 
 /**

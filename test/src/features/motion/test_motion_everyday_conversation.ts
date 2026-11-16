@@ -2,6 +2,8 @@ import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import { HumanConversation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Conversation gaze looks at the partner more while listening than while
  * speaking, at the shares Kendon and Argyle and Cook measured, and starts
@@ -91,13 +93,16 @@ export function test_motion_everyday_conversation(): void {
     `speaking share ${speaking.toFixed(3)} near 0.40`,
     Math.abs(speaking / 0.4 - 1) < 0.2,
   );
-  TestValidator.error("a backward turn is refused", (): unknown =>
-    HumanConversation.gaze(
-      "a",
-      "b",
-      [{ speaker: "a", from: 2, to: 1 }],
-      createAutoMovieRandom(deriveAutoMovieSeed("x")),
-      1.6,
+  TestValidator.predicate(
+    "a backward turn is refused",
+    throwsError((): unknown =>
+      HumanConversation.gaze(
+        "a",
+        "b",
+        [{ speaker: "a", from: 2, to: 1 }],
+        createAutoMovieRandom(deriveAutoMovieSeed("x")),
+        1.6,
+      ),
     ),
   );
 }

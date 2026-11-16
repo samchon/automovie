@@ -2,6 +2,8 @@ import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A pose's velocity is read from the side of the instant its motion exists
  * on: a motion that begins at the instant is not averaged with the stillness
@@ -99,7 +101,8 @@ export function test_motion_pose_velocity_side(): void {
       `a running motion read ${side}`,
       Math.abs(read(running, 0.4, side)[0] - -34) < 1e-6,
     );
-  TestValidator.error("non-positive step", (): unknown =>
-    samplePoseVelocity(running, 0, 0, "after"),
+  TestValidator.predicate(
+    "non-positive step",
+    throwsError((): unknown => samplePoseVelocity(running, 0, 0, "after")),
   );
 }

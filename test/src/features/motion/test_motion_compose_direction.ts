@@ -2,6 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanHand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A hand's direction on its three rungs: an axis, a share between two axes,
  * and explicit components with their source.
@@ -28,7 +30,12 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation States the axes and lists the 5 scenarios with their vectors.
  */
 export function test_motion_compose_direction(): void {
-  const at = (got: IAutoMovieVector3, x: number, y: number, z: number): boolean =>
+  const at = (
+    got: IAutoMovieVector3,
+    x: number,
+    y: number,
+    z: number,
+  ): boolean =>
     Math.abs(got.x - x) <= 1e-9 &&
     Math.abs(got.y - y) <= 1e-9 &&
     Math.abs(got.z - z) <= 1e-9;
@@ -71,22 +78,37 @@ export function test_motion_compose_direction(): void {
     ),
   );
 
-  TestValidator.error("between opposite axes", (): unknown =>
-    HumanHand.direction("left", 0, { between: ["up", "down"], share: 0.5 }),
+  TestValidator.predicate(
+    "between opposite axes",
+    throwsError((): unknown =>
+      HumanHand.direction("left", 0, { between: ["up", "down"], share: 0.5 }),
+    ),
   );
-  TestValidator.error("a between share past 1", (): unknown =>
-    HumanHand.direction("left", 0, { between: ["up", "forward"], share: 1.5 }),
+  TestValidator.predicate(
+    "a between share past 1",
+    throwsError((): unknown =>
+      HumanHand.direction("left", 0, {
+        between: ["up", "forward"],
+        share: 1.5,
+      }),
+    ),
   );
-  TestValidator.error("explicit components of zero", (): unknown =>
-    HumanHand.direction("left", 0, {
-      explicit: { out: 0, up: 0, forward: 0 },
-      source: "provisional: test",
-    }),
+  TestValidator.predicate(
+    "explicit components of zero",
+    throwsError((): unknown =>
+      HumanHand.direction("left", 0, {
+        explicit: { out: 0, up: 0, forward: 0 },
+        source: "provisional: test",
+      }),
+    ),
   );
-  TestValidator.error("an explicit direction without a source", (): unknown =>
-    HumanHand.direction("left", 0, {
-      explicit: { out: 1, up: 0, forward: 0 },
-      source: "",
-    }),
+  TestValidator.predicate(
+    "an explicit direction without a source",
+    throwsError((): unknown =>
+      HumanHand.direction("left", 0, {
+        explicit: { out: 1, up: 0, forward: 0 },
+        source: "",
+      }),
+    ),
   );
 }

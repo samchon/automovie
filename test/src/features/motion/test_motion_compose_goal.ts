@@ -11,6 +11,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The body-free rules of the limb-goal, held-base and trunk-tilt primitives:
  * a limb goal a share of the way between two goals, a limb driven on the
@@ -85,8 +87,11 @@ export function test_motion_compose_goal(): void {
     [mixed.contact, mixed.planted],
     [{ x: 0, y: -0.05, z: 0.1 }, undefined],
   );
-  TestValidator.error("goals on different frames", (): unknown =>
-    AutoMovieMotionHumanGoal.mix({ ...from, on: "head" }, to, 0.5),
+  TestValidator.predicate(
+    "goals on different frames",
+    throwsError((): unknown =>
+      AutoMovieMotionHumanGoal.mix({ ...from, on: "head" }, to, 0.5),
+    ),
   );
 
   const posture: IHumanPosture = {
@@ -124,8 +129,9 @@ export function test_motion_compose_goal(): void {
       drive((): IHumanPosture.IGoal => to).write(posture, 0.5).limbs.rightArm!,
     ),
   );
-  TestValidator.error("a drive with nothing to leave", (): unknown =>
-    drive().write({ ...posture, limbs: {} }, 0.5),
+  TestValidator.predicate(
+    "a drive with nothing to leave",
+    throwsError((): unknown => drive().write({ ...posture, limbs: {} }, 0.5)),
   );
 
   const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(1, [

@@ -23,6 +23,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanRefusal } from "../internal/motionHumanRefusal";
 
 /**
  * One perturbation law whose response follows from the impulse (#3430):
@@ -281,11 +282,14 @@ export function test_human_motion_perturb(): void {
       [5, "absorb"],
       [0.05, "fall"],
     ] as const)
-      TestValidator.error(
+      TestValidator.predicate(
         `${name}: a ${asked} of a ${speed} m/s push is refused`,
-        (): void => {
-          perform(body, pushed(speed), asked);
-        },
+        motionHumanRefusal(
+          (): void => {
+            perform(body, pushed(speed), asked);
+          },
+          { kind: "parameter", axis: "outcome", act: "perturb" },
+        ),
       );
     try {
       perform(body, pushed(0.05), "absorb");

@@ -1,6 +1,8 @@
 import { carriedAcceleration } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The carried-acceleration term leaves a cut at rest with a unit
  * acceleration and is gone, at rest, when its duration ends.
@@ -89,10 +91,12 @@ export function test_motion_carried_acceleration(): void {
       ),
   );
 
-  TestValidator.error("zero duration", (): unknown =>
-    carriedAcceleration(0, 0.1),
+  TestValidator.predicate(
+    "zero duration",
+    throwsError((): unknown => carriedAcceleration(0, 0.1)),
   );
-  TestValidator.error("non-finite elapsed", (): unknown =>
-    carriedAcceleration(0.4, NaN),
+  TestValidator.predicate(
+    "non-finite elapsed",
+    throwsError((): unknown => carriedAcceleration(0.4, NaN)),
   );
 }

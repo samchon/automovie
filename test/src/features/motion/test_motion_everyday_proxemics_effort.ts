@@ -1,6 +1,8 @@
 import { HumanEffort, HumanProxemics } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Interpersonal gaps sit in Hall's zones and an approach stops on the line
  * to its target, and Effort factors change their quantities monotonically.
@@ -43,8 +45,9 @@ export function test_motion_everyday_proxemics_effort(): void {
     "social gap in the social zone",
     G.social > Z.social[0] && G.social < Z.social[1],
   );
-  TestValidator.error("non-positive metres refused", (): unknown =>
-    HumanProxemics.gap(0, undefined as never),
+  TestValidator.predicate(
+    "non-positive metres refused",
+    throwsError((): unknown => HumanProxemics.gap(0, undefined as never)),
   );
 
   const from = { x: 0.3, y: 0, z: -1 };
@@ -83,8 +86,11 @@ export function test_motion_everyday_proxemics_effort(): void {
       Math.abs(mirrored.at.z - stop.at.z) < 1e-12 &&
       Math.abs(mirrored.yaw + stop.yaw) < 1e-12,
   );
-  TestValidator.error("target at the start refused", (): unknown =>
-    HumanProxemics.stop(from, { ...from, y: 1 }, 1, 0.1),
+  TestValidator.predicate(
+    "target at the start refused",
+    throwsError((): unknown =>
+      HumanProxemics.stop(from, { ...from, y: 1 }, 1, 0.1),
+    ),
   );
 
   const neutral = HumanEffort.modifiers();
@@ -153,7 +159,8 @@ export function test_motion_everyday_proxemics_effort(): void {
           v !== undefined && v >= -1 && v <= 1,
       ),
     );
-  TestValidator.error("factor out of range refused", (): unknown =>
-    HumanEffort.modifiers({ flow: 1.5 }),
+  TestValidator.predicate(
+    "factor out of range refused",
+    throwsError((): unknown => HumanEffort.modifiers({ flow: 1.5 })),
   );
 }

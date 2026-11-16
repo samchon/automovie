@@ -5,13 +5,13 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
+import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
 /**
- * The steppers of {@link integrateMotionTrajectory} on the exponential map:
- * the orientation's turn by a rotation vector, the inverse differential of
- * the exponential, and the error-controlled Dormand-Prince 5(4) path with
- * its dense output.
+ * The adaptive Dormand-Prince 5(4) builder of integrateMotionTrajectory.
+ * Shared rotation algebra and completed numeric readers have separate owners.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each member states its formula, its order and its source.
  * @evidence contracts/development/design.md#principled-representation The orientation advanced in the Lie algebra of rotations, a rotation vector relative to a step's start, by Runge-Kutta-Munthe-Kaas; the vector state and that vector share one tableau, one error norm and one continuous extension.
@@ -19,94 +19,8 @@ import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The adaptive path is opt-in, so the fixed grid's every number stays as it was for every caller that does not ask for it.
  */
 export namespace MotionTrajectoryStepper {
-  /**
-   * An orientation turned in its own frame by a rotation vector: `q * exp(v / 2)`, the rotation by `|v|` radians about `v` in the body's frame.
-   *
-   * @param q The orientation, or null for a state without one.
-   * @param v The rotation vector, radians, body frame; absent for none.
-   * @returns The turned orientation, or null.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the quaternion composition, body frame, radian input and missing-orientation result.
-   * @evidence contracts/development/implementation.md#principled-implementation Converts the rotation-vector length to the degree unit Quaternion.fromAxisAngle accepts, then right-multiplies its exponential into the current orientation; integrator callers supply normalized orientations and finite vectors.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Missing and zero turns preserve the input; the remaining path delegates axis-angle construction and quaternion composition to their owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the supplied rotation vector without a fixture-specific axis or minimum angle.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed number of scalar and quaternion operations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure scalar-sized calculation with no cross-request work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; a zero or absent turn returns the borrowed input.
-   */
-  export function turn(
-    q: IAutoMovieQuaternion | null,
-    v: IAutoMovieVector3 | undefined,
-  ): IAutoMovieQuaternion | null {
-    if (q === null || v === undefined) return q;
-    const angle: number = Math.hypot(v.x, v.y, v.z);
-    if (angle === 0) return q;
-    return Quaternion.multiply(
-      q,
-      Quaternion.fromAxisAngle(v, (angle * 180) / Math.PI),
-    );
-  }
-
-  /**
-   * A vector scaled, or absent when absent.
-   *
-   * @param v The vector, or undefined.
-   * @param s The scale.
-   * @returns `s v`, or undefined.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States component scaling and preservation of an absent vector.
-   * @evidence contracts/development/implementation.md#principled-implementation Multiplies all three components by the supplied scale; the caller owns its units and the finite-input premise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One absence branch and one vector literal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No replacement value is invented for an absent orientation rate.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three multiplications with no input-sized traversal.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No repeated request or retained calculation is coordinated.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned vector is caller-owned; no state or resource is retained.
-   */
-  export function scaled(
-    v: IAutoMovieVector3 | undefined,
-    s: number,
-  ): IAutoMovieVector3 | undefined {
-    return v === undefined ? undefined : { x: s * v.x, y: s * v.y, z: s * v.z };
-  }
-
-  /**
-   * The derivative of a rotation vector `r` that turns the body at a body-frame
-   * rate `w`, for an orientation `q exp(r)`: the inverse differential of the
-   * exponential map, `w + r × w / 2 + r × (r × w) / 12`, its Bernoulli series
-   * truncated after the second bracket, which keeps a Runge-Kutta-Munthe-Kaas
-   * step of order 4, and of order 5 too, since the third Bernoulli number
-   * that would enter next is zero (Munthe-Kaas 1999, "High order Runge-Kutta
-   * methods on manifolds", Appl Numer Math 29:115-127; Iserles, Munthe-Kaas,
-   * Nørsett and Zanna 2000, "Lie-group methods", Acta Numerica 9; the
-   * truncation's order is checked here by the trajectory's own tests). The
-   * signs are the body frame's: for `q̇ = q ŵ / 2`, the rate of `q exp(r)` is
-   * `ṙ - r × ṙ / 2 + ...`, whose inverse this is.
-   *
-   * @param r The rotation vector, radians; absent for a state without orientation.
-   * @param w The body-frame rate, radians per second.
-   * @returns The vector's derivative, radians per second, or undefined.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the body-frame inverse differential, angular units, truncated terms and absent-orientation behavior.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the cited Bernoulli expansion through the double cross product with coefficients one half and one twelfth; this is the local RKMK series, not an exact inverse differential at arbitrary rotation-vector magnitude.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two shared cross products followed by componentwise accumulation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The coefficients are the stated series coefficients; missing orientation leaves the supplied rate unchanged rather than choosing a body axis.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size vector arithmetic.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the first cross product in the double bracket and the shared Vector3.cross implementation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function retaining no input or intermediate between calls.
-   */
-  export function dexpinv(
-    r: IAutoMovieVector3 | undefined,
-    w: IAutoMovieVector3 | undefined,
-  ): IAutoMovieVector3 | undefined {
-    if (r === undefined || w === undefined) return w;
-    const a: IAutoMovieVector3 = Vector3.cross(r, w);
-    const b: IAutoMovieVector3 = Vector3.cross(r, a);
-    return {
-      x: w.x + a.x / 2 + b.x / 12,
-      y: w.y + a.y / 2 + b.y / 12,
-      z: w.z + a.z / 2 + b.z / 12,
-    };
-  }
+  const { turn, dexpinv }: typeof MotionTrajectoryRotation =
+    MotionTrajectoryRotation;
 
   /**
    * The Dormand-Prince 5(4) pair's nodes, its stages' coefficients (the last
@@ -185,21 +99,6 @@ export namespace MotionTrajectoryStepper {
     stretch: 1.01,
   };
 
-  /** One accepted step's dense output. */
-  interface IStep {
-    /** Its start and length, seconds. */
-    t: number;
-    h: number;
-
-    /** The vector state at its start and the five continuous-extension terms. */
-    x: number[];
-    terms: number[][];
-
-    /** The orientation at its start and the rotation vector's five terms. */
-    q: IAutoMovieQuaternion | null;
-    turns: IAutoMovieVector3[];
-  }
-
   /**
    * A trajectory by the Dormand-Prince 5(4) pair under error control: each
    * step's error estimate, the difference of its two orders, is weighed
@@ -211,18 +110,22 @@ export namespace MotionTrajectoryStepper {
    * and the next step follows DOPCOR's controller (`CONTROL`); a read between
    * knots is the pair's continuous extension of order four, the orientation
    * the step's start turned by its rotation vector's extension.
+   * With an explicit vector partition, each same-unit block uses its
+   * Euclidean error and endpoint norms; the maximum of those errors and
+   * the orientation's original RMS controls admission. Zero error at zero
+   * scale is zero; nonzero error there rejects without an absolute floor.
    *
    * @param props The integrator's props, with a tolerance.
-   * @param rate The admitted right-hand side.
+   * @param rate The callback with the wrapper's vector-length and required-angular-rate presence checks; finite numeric components remain a caller premise.
    * @param step The first step tried, seconds, positive.
    * @returns The trajectory, its knots the accepted steps' ends.
    * @throws {Error} When a step shrinks below the resolution of its time: a right-hand side the tolerance cannot follow.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the accepted-error norm, dense interpolation, time units, admitted callback and time-resolution failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the cited Dormand-Prince tableau and controller with the RKMK rotation-vector differential; integrateMotionTrajectory admits the finite interval, initial state, tolerance and callback results. The embedded estimate controls local step admission and does not certify a global physical error bound.
+   * @evidence contracts/development/common.md#meaningful-documentation States the accepted-error norm, dense interpolation, time units, callback-shape checks, finite-data caller premise and time-resolution failure.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the cited Dormand-Prince tableau and controller with the RKMK rotation-vector differential. The wrapper checks the finite forward interval, positive finite step, tolerance, partition, nonempty state shape, rate length and required angular-rate presence; x0, dx and w components are not checked for finiteness. Finite data and valid input orientation remain caller premises. The embedded estimate controls local step admission and does not certify a global physical error bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Form trial stages, measure their error, reject or retain the continuous extension, then expose binary-search sampling over accepted steps.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tableau and controller constants retain their cited provenance; no fixture-specific time grid, cached answer or tolerance relaxation is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For n scalar components, A accepted and R rejected trials, integration adds O((A+R)n) vector work and six right-hand-side calls per trial after the initial call; retained dense output is O(An), and each read costs O(log A+n). The tolerance can require arbitrarily many steps before the time-resolution failure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For n vector components, A accepted and R rejected trials, integration adds O((A+R)(n+1)) vector and optional rotation work and six right-hand-side calls per trial after the initial call; retained dense output is O(A(n+1)), and each read costs O(log A+n+1). The tolerance can require arbitrarily many steps before the time-resolution failure.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the accepted last stage as the next first stage and stores dense coefficients once so repeated reads do not reintegrate.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Trial arrays die after rejection or acceptance; the returned reader retains accepted steps and endpoint state for its lifetime. Retention grows with accepted-step count and has no fixed byte bound; the operation acquires no external handle or task.
    */
@@ -237,10 +140,11 @@ export namespace MotionTrajectoryStepper {
   ): integrateMotionTrajectory.ITrajectory {
     const { t0, t1 } = props;
     const { relative, absolute } = props.tolerance!;
+    const controlled: number = props.x0.length;
+    const blocks: readonly number[] | undefined = props.tolerance!.blocks;
     const oriented: boolean = props.q0 !== undefined;
-    const n: number = props.x0.length;
     const first: number = Math.min(step, t1 - t0);
-    const steps: IStep[] = [];
+    const steps: MotionTrajectoryRead.IDenseStep[] = [];
     let t: number = t0;
     let x: number[] = [...props.x0];
     let q: IAutoMovieQuaternion | null = oriented
@@ -298,26 +202,60 @@ export namespace MotionTrajectoryStepper {
       );
       const r: IAutoMovieVector3 | undefined = vs[6];
 
-      // The error norm, root mean square over the components.
+      // Block norms cannot dilute the orientation's existing three-component
+      // RMS. Without blocks, preserve the original componentwise arithmetic.
       let squares: number = 0;
-      for (let c: number = 0; c < n; c++) {
-        const e: number =
-          h *
-          E.reduce(
-            (s: number, w: number, j: number): number => s + w * ks[j]!.dx[c]!,
-            0,
+      let blockError: number = 0;
+      if (blocks === undefined) {
+        for (let c: number = 0; c < controlled; c++) {
+          const e: number =
+            h *
+            E.reduce(
+              (s: number, w: number, j: number): number =>
+                s + w * ks[j]!.dx[c]!,
+              0,
+            );
+          squares += ratio(
+            e,
+            absolute + relative * Math.max(Math.abs(x[c]!), Math.abs(xn[c]!)),
           );
-        squares += ratio(
-          e,
-          absolute + relative * Math.max(Math.abs(x[c]!), Math.abs(xn[c]!)),
-        );
+        }
+      } else {
+        let c: number = 0;
+        for (const width of blocks) {
+          let error: number = 0;
+          let from: number = 0;
+          let to: number = 0;
+          for (let i: number = 0; i < width; i++, c++) {
+            const e: number =
+              h *
+              E.reduce(
+                (s: number, w: number, j: number): number =>
+                  s + w * ks[j]!.dx[c]!,
+                0,
+              );
+            error = Math.hypot(error, e);
+            from = Math.hypot(from, x[c]!);
+            to = Math.hypot(to, xn[c]!);
+          }
+          const scale: number =
+            Math.sqrt(width) * absolute + relative * Math.max(from, to);
+          blockError = Math.max(blockError, Math.sqrt(ratio(error, scale)));
+        }
       }
+      let rotationSquares: number = 0;
       if (oriented) {
         const e: IAutoMovieVector3 = sum(E, us, h)!;
         const scale: number = absolute + relative * Vector3.length(r!);
-        squares += ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
+        rotationSquares =
+          ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
       }
-      const norm: number = Math.sqrt(squares / (n + (oriented ? 3 : 0)));
+      const norm: number =
+        blocks === undefined
+          ? Math.sqrt(
+              (squares + rotationSquares) / (controlled + (oriented ? 3 : 0)),
+            )
+          : Math.max(blockError, oriented ? Math.sqrt(rotationSquares / 3) : 0);
       const stretched: number = norm ** exponent;
       if (!(norm <= 1)) {
         h /= Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
@@ -377,66 +315,7 @@ export namespace MotionTrajectoryStepper {
       h = next;
     }
 
-    const times: number[] = [...steps.map((s: IStep): number => s.t), t1];
-    const end: integrateMotionTrajectory.IState = { x, q };
-    return {
-      t0,
-      t1,
-      h: first,
-      knots: times.length,
-      times,
-      at: (time: number): integrateMotionTrajectory.IState => {
-        if (!(time < t1)) return { x: [...end.x], q: end.q };
-        const at: number = Math.max(t0, time);
-        let lo: number = 0;
-        let hi: number = steps.length - 1;
-        while (lo < hi) {
-          const mid: number = (lo + hi + 1) >> 1;
-          if (steps[mid]!.t <= at) lo = mid;
-          else hi = mid - 1;
-        }
-        const s: IStep = steps[lo]!;
-        const u: number = (at - s.t) / s.h;
-        const w: number = 1 - u;
-        const along = (a: number, b: number, c: number, d: number): number =>
-          u * (a + w * (b + u * (c + w * d)));
-        return {
-          x: s.x.map(
-            (v: number, c: number): number =>
-              v +
-              along(
-                s.terms[c]![0]!,
-                s.terms[c]![1]!,
-                s.terms[c]![2]!,
-                s.terms[c]![3]!,
-              ),
-          ),
-          q:
-            s.q === null
-              ? null
-              : turn(s.q, {
-                  x: along(
-                    s.turns[0]!.x,
-                    s.turns[1]!.x,
-                    s.turns[2]!.x,
-                    s.turns[3]!.x,
-                  ),
-                  y: along(
-                    s.turns[0]!.y,
-                    s.turns[1]!.y,
-                    s.turns[2]!.y,
-                    s.turns[3]!.y,
-                  ),
-                  z: along(
-                    s.turns[0]!.z,
-                    s.turns[1]!.z,
-                    s.turns[2]!.z,
-                    s.turns[3]!.z,
-                  ),
-                }),
-        };
-      },
-    };
+    return MotionTrajectoryRead.dense(t0, t1, first, steps, { x, q });
   }
 
   /**

@@ -1,6 +1,8 @@
 import { carriedRate } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The carried-rate term leaves a cut at a unit rate without a step in
  * acceleration and is gone, at rest, when its duration ends.
@@ -80,8 +82,12 @@ export function test_motion_carried_rate(): void {
       close(joined(0.5), 0.3, 1e-12),
   );
 
-  TestValidator.error("zero duration", (): unknown => carriedRate(0, 0.1));
-  TestValidator.error("non-finite elapsed", (): unknown =>
-    carriedRate(0.4, NaN),
+  TestValidator.predicate(
+    "zero duration",
+    throwsError((): unknown => carriedRate(0, 0.1)),
+  );
+  TestValidator.predicate(
+    "non-finite elapsed",
+    throwsError((): unknown => carriedRate(0.4, NaN)),
   );
 }

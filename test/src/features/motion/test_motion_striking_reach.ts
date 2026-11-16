@@ -3,6 +3,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { StrikingReach } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The strike reach solve places the middle and end joints so a point of the
  * distal segment meets a target, and applies the declared rule when the
@@ -154,7 +156,8 @@ export function test_motion_striking_reach(): void {
       StrikingReach.advance(0, 0.5, 0.4) === -0.4 &&
       Math.abs(StrikingReach.advance(0.7, 0.5, 0.4) - 0.2) < 1e-12,
   );
-  TestValidator.error("target at the root", (): unknown =>
-    StrikingReach.chain({ ...base, point: root }),
+  TestValidator.predicate(
+    "target at the root",
+    throwsError((): unknown => StrikingReach.chain({ ...base, point: root })),
   );
 }

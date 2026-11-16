@@ -18,6 +18,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Closing a finger until contact stops each phalanx at the object's surface,
  * never inside it, and never past the joint's range of motion.
@@ -195,22 +197,28 @@ export function test_motion_handling_curl(): void {
     JSON.stringify(again.chains) ===
       JSON.stringify(curl([cases[0]!.collider]).chains),
   );
-  TestValidator.error("zero radius", (): unknown =>
-    curlChainUntilContact({
-      skeleton,
-      pose,
-      chains: [{ ...chain, radius: 0 }],
-      colliders: [far],
-    }),
+  TestValidator.predicate(
+    "zero radius",
+    throwsError((): unknown =>
+      curlChainUntilContact({
+        skeleton,
+        pose,
+        chains: [{ ...chain, radius: 0 }],
+        colliders: [far],
+      }),
+    ),
   );
-  TestValidator.error("zero step", (): unknown =>
-    curlChainUntilContact({
-      skeleton,
-      pose,
-      chains: [chain],
-      colliders: [far],
-      step: 0,
-    }),
+  TestValidator.predicate(
+    "zero step",
+    throwsError((): unknown =>
+      curlChainUntilContact({
+        skeleton,
+        pose,
+        chains: [chain],
+        colliders: [far],
+        step: 0,
+      }),
+    ),
   );
 }
 

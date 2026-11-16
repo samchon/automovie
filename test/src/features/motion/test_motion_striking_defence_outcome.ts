@@ -2,6 +2,8 @@ import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import { DefenceOutcome, HumanSkill, StrikingSkill } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The defence outcome law classifies by margin, realises forced outcomes
  * with plausible timing, stretches the attack before it warns, and makes a
@@ -182,16 +184,22 @@ export function test_motion_striking_defence_outcome(): void {
     "deterministic",
     a.start === b.start && a.reaction === b.reaction && a.lead === b.lead,
   );
-  TestValidator.error("contact before launch", (): unknown =>
-    DefenceOutcome.decide(
-      { launch: 1, hit: 0.5, telegraph: 0, movement: 0.2, skill: elite },
-      random(0),
+  TestValidator.predicate(
+    "contact before launch",
+    throwsError((): unknown =>
+      DefenceOutcome.decide(
+        { launch: 1, hit: 0.5, telegraph: 0, movement: 0.2, skill: elite },
+        random(0),
+      ),
     ),
   );
-  TestValidator.error("telegraph out of range", (): unknown =>
-    DefenceOutcome.decide(
-      { launch: 0, hit: 0.5, telegraph: 2, movement: 0.2, skill: elite },
-      random(0),
+  TestValidator.predicate(
+    "telegraph out of range",
+    throwsError((): unknown =>
+      DefenceOutcome.decide(
+        { launch: 0, hit: 0.5, telegraph: 2, movement: 0.2, skill: elite },
+        random(0),
+      ),
     ),
   );
 }

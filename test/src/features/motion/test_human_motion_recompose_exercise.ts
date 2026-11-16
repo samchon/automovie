@@ -4,7 +4,6 @@ import {
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
-  HumanRefusal,
   type HumanSegment,
   type IHumanActionParams,
   type IHumanBody,
@@ -12,6 +11,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanRefusal } from "../internal/motionHumanRefusal";
 
 /**
  * Exercise, stretch and dance on the grammar (#3378): the dance's beats
@@ -152,22 +152,19 @@ export function test_human_motion_recompose_exercise(): void {
     }
 
     // 3. A lock to nothing.
-    TestValidator.error(
+    TestValidator.predicate(
       `${name}: a lock to a track without beats is refused`,
-      (): void => {
-        try {
+      motionHumanRefusal(
+        (): void => {
           perform(
             body,
             (c: HumanChain): HumanChain =>
               c.dance({ kind: "bounce", lock: { of: "music" } }),
             { music: [{ name: "beat", seconds: 0.1 }] },
           );
-        } catch (error) {
-          if (error instanceof HumanRefusal && error.message.includes("lock"))
-            throw error;
-          throw new Error(`not a lock refusal: ${String(error)}`);
-        }
-      },
+        },
+        { kind: "parameter", axis: "lock", act: "dance" },
+      ),
     );
 
     // 4. The manner matrix.

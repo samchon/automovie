@@ -1,13 +1,25 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-const files: string[] = ["src/compose/**/*.ts"];
+const files: string[] = [
+  "src/compose/**/*.ts",
+  "src/perform/HumanPerformanceAhead.ts",
+  "src/perform/HumanPerformanceFlight.ts",
+  "src/perform/HumanPerformanceFlightRotation.ts",
+  "src/perform/HumanSegmentOverlay.ts",
+  "src/posture/HumanLimbFit.ts",
+  "src/posture/HumanQuadraticBand.ts",
+  "src/posture/HumanQuadraticCholesky.ts",
+  "src/posture/HumanQuadraticPreparation.ts",
+  "src/posture/HumanQuadraticProgram.ts",
+  "src/posture/prepareHumanLimbFit.ts",
+];
 
-/** The part primitives and the layers built on them answer the checklists: every exported declaration the shared documentation checklist, types the design checklist and functions the implementation checklist. */
+/** Composition primitives and the maintained motion-evaluation helpers answer the documentation, design and implementation checklists on their own declarations. */
 export default {
   severity: "error",
   claims: [
     {
-      name: "motions compose documentation",
+      name: "motions documentation",
       type: "typescript",
       files,
       symbol: ["type", "function"],
@@ -20,7 +32,7 @@ export default {
       },
     },
     {
-      name: "motions compose types",
+      name: "motions types",
       type: "typescript",
       files,
       symbol: "type",
@@ -33,7 +45,7 @@ export default {
       },
     },
     {
-      name: "motions compose functions",
+      name: "motions functions",
       type: "typescript",
       files,
       symbol: "function",

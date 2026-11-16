@@ -3,6 +3,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { StrikingAim } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A strike's tracking predicts its target at contact, corrects online with
  * the visuomotor latency, follows predictable motion exactly and misses
@@ -115,7 +117,10 @@ export function test_motion_striking_aim(): void {
     );
   }
 
-  TestValidator.error("contact before launch", (): unknown =>
-    StrikingAim.observations({ ...timing, impact: 0.5 }),
+  TestValidator.predicate(
+    "contact before launch",
+    throwsError((): unknown =>
+      StrikingAim.observations({ ...timing, impact: 0.5 }),
+    ),
   );
 }

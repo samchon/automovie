@@ -6,6 +6,8 @@ import {
 import type { IAutoMoviePose } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Inertialized offsets are continuous at the cut, end exactly and never
  * overshoot; the pose form applies them per channel deterministically.
@@ -96,7 +98,8 @@ export function test_motion_inertialize(): void {
     JSON.stringify(blend(0.1, knee(8))),
     JSON.stringify(inertializePose(source, target, t1)(0.1, knee(8))),
   );
-  TestValidator.error("non-positive duration", (): unknown =>
-    inertializeOffset(1, 0, 0, 0),
+  TestValidator.predicate(
+    "non-positive duration",
+    throwsError((): unknown => inertializeOffset(1, 0, 0, 0)),
   );
 }

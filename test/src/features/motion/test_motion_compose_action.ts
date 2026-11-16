@@ -7,6 +7,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A composed action is its base with each primitive's channels written over
  * it inside the primitive's window, in the channel order.
@@ -159,39 +161,54 @@ export function test_motion_compose_action(): void {
     }).posture(0.75).pitch,
     30,
   );
-  TestValidator.error("overlapping claims", (): unknown =>
-    composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives: [trunk(0, 0.6), trunk(0.5, 1)],
-    }),
+  TestValidator.predicate(
+    "overlapping claims",
+    throwsError((): unknown =>
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives: [trunk(0, 0.6), trunk(0.5, 1)],
+      }),
+    ),
   );
-  TestValidator.error("a base of another duration", (): unknown =>
-    composeAutoMovieMotionHumanAction({
-      base: { ...base, duration: 2 },
-      clock,
-      primitives: [],
-    }),
+  TestValidator.predicate(
+    "a base of another duration",
+    throwsError((): unknown =>
+      composeAutoMovieMotionHumanAction({
+        base: { ...base, duration: 2 },
+        clock,
+        primitives: [],
+      }),
+    ),
   );
-  TestValidator.error("a primitive without a channel", (): unknown =>
-    composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives: [{ ...head, channels: [] }],
-    }),
+  TestValidator.predicate(
+    "a primitive without a channel",
+    throwsError((): unknown =>
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives: [{ ...head, channels: [] }],
+      }),
+    ),
   );
-  TestValidator.error("a reversed window", (): unknown =>
-    composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives: [trunk(0.8, 0.2)],
-    }),
+  TestValidator.predicate(
+    "a reversed window",
+    throwsError((): unknown =>
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives: [trunk(0.8, 0.2)],
+      }),
+    ),
   );
-  TestValidator.error("a window past the clock", (): unknown =>
-    composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      primitives: [trunk(0.5, 1.5)],
-    }),
+  TestValidator.predicate(
+    "a window past the clock",
+    throwsError((): unknown =>
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives: [trunk(0.5, 1.5)],
+      }),
+    ),
   );
 }

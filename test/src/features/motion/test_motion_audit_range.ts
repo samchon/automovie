@@ -2,6 +2,8 @@ import type { IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditRange } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The range audit complains about a joint bent past what a body can do,
  * and only about that.
@@ -178,7 +180,10 @@ export function test_motion_audit_range(): void {
     read((): IAutoMovieJointPose[] => [joint("hips", 400, 400, 400)]),
     clean,
   );
-  TestValidator.error("a rate of zero is refused", (): void => {
-    read((): IAutoMovieJointPose[] => [], 0);
-  });
+  TestValidator.predicate(
+    "a rate of zero is refused",
+    throwsError((): void => {
+      read((): IAutoMovieJointPose[] => [], 0);
+    }),
+  );
 }

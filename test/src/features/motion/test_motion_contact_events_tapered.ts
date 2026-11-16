@@ -2,6 +2,8 @@ import { resolveAutoMovieContactEvents } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A tapered capsule weapon, a limb that narrows from one joint to the next,
  * meets a body where its own radius there reaches it, not where its widest
@@ -117,9 +119,9 @@ export function test_motion_contact_events_tapered(): void {
       tail: end(0.2),
     },
   ])
-    TestValidator.error(
+    TestValidator.predicate(
       `an invalid tail radius (${weapon.tailRadius})`,
-      (): unknown =>
+      throwsError((): unknown =>
         resolveAutoMovieContactEvents({
           weapons: [weapon],
           bodies: [forearm],
@@ -127,5 +129,6 @@ export function test_motion_contact_events_tapered(): void {
           to: 1,
           step: 1 / 120,
         }),
+      ),
     );
 }

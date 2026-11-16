@@ -2,6 +2,8 @@ import { Vector3, resolveAutoMovieContactEvents } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Simultaneous contacts resolve in time order, each stop changing what the
  * others meet, independently of the order the weapons are listed in.
@@ -180,31 +182,40 @@ export function test_motion_striking_contact_events(): void {
       close(open[0]!.seconds, 0.65),
   );
 
-  TestValidator.error("empty span", (): unknown =>
-    resolveAutoMovieContactEvents({
-      weapons: [],
-      bodies: [],
-      from: 1,
-      to: 1,
-      step: 0.1,
-    }),
+  TestValidator.predicate(
+    "empty span",
+    throwsError((): unknown =>
+      resolveAutoMovieContactEvents({
+        weapons: [],
+        bodies: [],
+        from: 1,
+        to: 1,
+        step: 0.1,
+      }),
+    ),
   );
-  TestValidator.error("zero step", (): unknown =>
-    resolveAutoMovieContactEvents({
-      weapons: [],
-      bodies: [],
-      from: 0,
-      to: 1,
-      step: 0,
-    }),
+  TestValidator.predicate(
+    "zero step",
+    throwsError((): unknown =>
+      resolveAutoMovieContactEvents({
+        weapons: [],
+        bodies: [],
+        from: 0,
+        to: 1,
+        step: 0,
+      }),
+    ),
   );
-  TestValidator.error("repeated id", (): unknown =>
-    resolveAutoMovieContactEvents({
-      weapons: [weapon("a", "A", a), weapon("a", "B", b)],
-      bodies: [],
-      from: 0,
-      to: 1,
-      step: 0.1,
-    }),
+  TestValidator.predicate(
+    "repeated id",
+    throwsError((): unknown =>
+      resolveAutoMovieContactEvents({
+        weapons: [weapon("a", "A", a), weapon("a", "B", b)],
+        bodies: [],
+        from: 0,
+        to: 1,
+        step: 0.1,
+      }),
+    ),
   );
 }

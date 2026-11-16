@@ -8,7 +8,9 @@ import {
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
+  IAutoMovieJointPose,
   IAutoMovieMotionEvent,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,7 +19,6 @@ import {
   HumanAirborneShape,
   HumanChain,
   HumanPerformance,
-  HumanRefusal,
   type HumanSegment,
   type IHumanBody,
   type IHumanLayer,
@@ -26,7 +27,11 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanFrame } from "../internal/motionHumanFrame";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionHumanRefusal } from "../internal/motionHumanRefusal";
+import { nclose } from "../internal/nclose";
+import { qunit } from "../internal/qunit";
 
 /**
  * A flight window and the performance pass over the composed shape (#3427):
@@ -53,6 +58,13 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  *    twist, so the solved momentum leaves the somersault axis. The planar
  *    relation `L = 2π / ∫ dt / I` holds exactly only for a planar shape and
  *    is pinned on one in `test_engine_airborne_rotation`.
+ *    The actual displayed root's long axis also winds once in the take-off
+ *    frame, sampled at the existing seek grid's 60 Hz. This sampled relation
+ *    does not certify winding or angular speed between samples. The YZ projection must stay
+ *    numerically observable: its radius exceeds sqrt(machine epsilon), the
+ *    square-root precision guard for atan2's 1/r conditioning on a unit
+ *    direction. A singular projection is reported as an observer failure,
+ *    rather than inventing an angle or rejecting that physical orientation.
  * 2. The momentum read back from the displayed bones (#3422) holds within
  *    1 % of its take-off value at every twentieth of the flight
  *    (#3416's acceptance), for a layout and a tuck.
@@ -61,16 +73,16 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  *    film in order, bit for bit.
  * 4. A flight asked for more turns than its take-off can give (twenty
  *    somersaults) is refused with a `HumanRefusal` on the axis `turns`.
- * 5. The landing reads no bone turning more than 5 turns a second between
- *    frames (`AutoMovieMotionHumanAuditSpin`).
+ * 5. No bone retains a snap above 5 degrees after the spin audit's adaptive
+ *    interval refinement (`AutoMovieMotionHumanAuditSpin.turn`).
  * 6. The centre of mass read from the displayed poses stays within 5 mm of
  *    the same jump's centre without turns at every flight instant (a turn
  *    about the centre leaves it where the composed shape puts it).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns through the public performance and reads displayed bones; a landing off its request, a momentum over the take-off's ceiling, a rotation not about the centre, a momentum that drifts, a pass that reads the frame grid, an impossible request accepted or a landing snap fails.
- * @evidence contracts/development/testing.md#independent-expectations The solver's tolerance and the take-off's ceiling as contracts read from the displayed bones, conservation of angular momentum in flight, the composed tensor of #3422, the spin audit's 5 turns a second, and the campaign's 1 % and 5 mm bounds.
+ * @evidence contracts/development/testing.md#independent-expectations The solver's tolerance and the take-off's ceiling as contracts read from the displayed bones, conservation of angular momentum in flight, the composed tensor of #3422, the spin audit's 5-degree residual snap bound, and the campaign's 1 % and 5 mm bounds. Sampled take-off-frame long-axis winding distinguishes a one-turn request from an unchanged root without claiming a continuous winding certificate.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a tuck and a layout, ordered and cold reads, a feasible and an infeasible request, with and without turns; the shapes' own rows belong to the airborne rows' tests.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and short performances in memory, discovered by its exported name; it starts no host.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two canonical polygon bodies and short performances in memory, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and their bounds.
  */
 export function test_human_motion_core_flight(): void {
@@ -164,9 +176,71 @@ export function test_human_motion_core_flight(): void {
         Math.abs(off.tilt),
         Math.abs(off.twist),
       );
-      if (worst > solveAirborneTakeoff.TOLERANCE + last)
+      if (
+        !Number.isFinite(worst) ||
+        !Number.isFinite(last) ||
+        !(worst <= solveAirborneTakeoff.TOLERANCE + last)
+      )
         findings.push(
           `${name} ${label}: lands ${(worst / (2 * Math.PI)).toFixed(4)} revolution off the request`,
+        );
+      const takeoff: IAutoMovieQuaternion = root(a);
+      let observable: boolean = qunit(takeoff);
+      if (!observable)
+        findings.push(
+          `${name} ${label}: the displayed take-off root is not a finite unit rotation`,
+        );
+      const frame: IAutoMovieQuaternion = observable
+        ? Quaternion.inverse(takeoff)
+        : Quaternion.identity();
+      const end: number = b - 1e-6;
+      const samples: number = Math.max(1, Math.ceil((end - a) * 60));
+      let previous: number = 0;
+      let winding: number = 0;
+      for (let k: number = 0; observable && k <= samples; k++) {
+        const seconds: number =
+          k === samples ? end : a + ((end - a) * k) / samples;
+        const shown: IAutoMovieQuaternion = root(seconds);
+        if (!qunit(shown)) {
+          findings.push(
+            `${name} ${label}: the displayed root is not a finite unit rotation at ${seconds} s`,
+          );
+          observable = false;
+          break;
+        }
+        const relative: IAutoMovieQuaternion = Quaternion.normalize(
+          Quaternion.multiply(frame, shown),
+        );
+        const direction: IAutoMovieVector3 = Quaternion.rotateVector(relative, {
+          x: 0,
+          y: 1,
+          z: 0,
+        });
+        const radius: number = Math.hypot(direction.y, direction.z);
+        if (!(Number.isFinite(radius) && radius > Math.sqrt(Number.EPSILON))) {
+          findings.push(
+            `${name} ${label}: long-axis winding is unobservable at ${seconds} s; YZ radius ${radius}`,
+          );
+          observable = false;
+          break;
+        }
+        const angle: number = Math.atan2(direction.z, direction.y);
+        if (k > 0)
+          winding += Math.atan2(
+            Math.sin(angle - previous),
+            Math.cos(angle - previous),
+          );
+        previous = angle;
+      }
+      if (
+        observable &&
+        !(
+          Math.abs(winding - 2 * Math.PI) <=
+          solveAirborneTakeoff.TOLERANCE + last
+        )
+      )
+        findings.push(
+          `${name} ${label}: the actual displayed root winds ${winding / (2 * Math.PI)} turns, one requested`,
         );
       const delta: number = integrateAirborneRotation.DELTA;
       const one: IAutoMovieVector3 = centre(p, a + delta);
@@ -181,7 +255,11 @@ export function test_human_motion_core_flight(): void {
         v0 *
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight);
       const held: number = Vector3.length(momentum(p, (a + b) / 2));
-      if (!(held <= ceiling))
+      if (
+        !Number.isFinite(held) ||
+        !Number.isFinite(ceiling) ||
+        !(held <= ceiling)
+      )
         findings.push(
           `${name} ${label}: ${held.toFixed(1)} kg m²/s over the take-off's ceiling ${ceiling.toFixed(1)}`,
         );
@@ -194,14 +272,22 @@ export function test_human_motion_core_flight(): void {
     ] as const) {
       const [a, b] = span(p);
       const L0: IAutoMovieVector3 = momentum(p, a + 0.05 * (b - a));
+      const magnitude: number = Vector3.length(L0);
       for (let k: number = 1; k < 20; k++) {
         const t: number = a + ((b - a) * k) / 20;
-        const drift: number =
-          Vector3.length(Vector3.subtract(momentum(p, t), L0)) /
-          Vector3.length(L0);
-        if (drift > 0.01) {
+        const difference: number = Vector3.length(
+          Vector3.subtract(momentum(p, t), L0),
+        );
+
+        // The same one-percent inequality in absolute units also handles
+        // a zero reference: its allowed difference is zero, never 0/0.
+        if (
+          !Number.isFinite(magnitude) ||
+          !Number.isFinite(difference) ||
+          !(difference <= 0.01 * magnitude)
+        ) {
           findings.push(
-            `${name} ${label}: momentum drifts ${(100 * drift).toFixed(2)} % at ${k}/20 of the flight`,
+            `${name} ${label}: momentum changes ${difference} kg m²/s from magnitude ${magnitude} at ${k}/20 of the flight (one percent allowed)`,
           );
           break;
         }
@@ -209,41 +295,111 @@ export function test_human_motion_core_flight(): void {
     }
 
     // 3. Seek invariance.
-    const ordered: Map<number, string> = new Map();
-    for (let t: number = 0; t <= layout.duration; t += 1 / 60)
-      ordered.set(Math.round(t * 600), JSON.stringify(layout.pose("a", t)));
-    const cold: HumanPerformance = perform(body, { somersault: 1 }, false);
     const instants: number[] = Array.from(
       { length: 30 },
       (_: unknown, k: number): number => t0 + ((t1 - t0) * ((k * 7) % 30)) / 29,
     );
-    for (const t of instants)
+    const rootValues: (pose: IAutoMoviePose) => readonly number[] = (
+      pose: IAutoMoviePose,
+    ): readonly number[] =>
+      pose.root === null
+        ? []
+        : [
+            pose.root.translation.x,
+            pose.root.translation.y,
+            pose.root.translation.z,
+            pose.root.rotation.x,
+            pose.root.rotation.y,
+            pose.root.rotation.z,
+            pose.root.rotation.w,
+            pose.root.scale.x,
+            pose.root.scale.y,
+            pose.root.scale.z,
+          ];
+    const ordered: Map<number, IAutoMoviePose> = new Map();
+    const chronological: Set<number> = new Set(instants);
+    for (let t: number = 0; t <= layout.duration; t += 1 / 60)
+      chronological.add(t);
+    for (const t of [...chronological].sort(
+      (a: number, b: number): number => a - b,
+    )) {
+      motionHumanFrame(layout.bones("a", t), `${name} ordered at ${t} s`);
+      const pose: IAutoMoviePose = layout.pose("a", t);
+      ordered.set(t, {
+        ...pose,
+        joints: pose.joints.map(
+          (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
+        ),
+        root:
+          pose.root === null
+            ? null
+            : {
+                ...pose.root,
+                translation: { ...pose.root.translation },
+                rotation: { ...pose.root.rotation },
+                scale: { ...pose.root.scale },
+              },
+      });
+    }
+    const cold: HumanPerformance = perform(
+      { ...body },
+      { somersault: 1 },
+      false,
+    );
+    for (const t of instants) {
+      motionHumanFrame(cold.bones("a", t), `${name} cold at ${t} s`);
+      const actual: IAutoMoviePose = cold.pose("a", t);
+      const expected: IAutoMoviePose = ordered.get(t)!;
+      const actualRoot: readonly number[] = rootValues(actual);
+      const expectedRoot: readonly number[] = rootValues(expected);
       if (
-        JSON.stringify(cold.pose("a", t)) !==
-        JSON.stringify(layout.pose("a", t))
+        actual.skeleton !== expected.skeleton ||
+        actualRoot.length !== expectedRoot.length ||
+        actualRoot.some(
+          (value: number, k: number): boolean =>
+            !nclose(value, expectedRoot[k]!, 0),
+        ) ||
+        actual.joints.length !== expected.joints.length ||
+        actual.joints.some((joint: IAutoMovieJointPose, k: number): boolean => {
+          const other: IAutoMoviePose["joints"][number] = expected.joints[k]!;
+          return (
+            joint.bone !== other.bone ||
+            (["flexion", "abduction", "twist"] as const).some(
+              (axis: "flexion" | "abduction" | "twist"): boolean => {
+                const observed: number | null = joint[axis];
+                const reference: number | null = other[axis];
+                return observed === null || reference === null
+                  ? observed !== reference
+                  : !nclose(observed, reference, 0);
+              },
+            )
+          );
+        })
       ) {
         findings.push(
           `${name}: a cold read at ${t.toFixed(3)} s differs from the ordered film`,
         );
         break;
       }
+    }
 
     // 4. An impossible request is refused.
-    TestValidator.error(`${name}: twenty somersaults are refused`, (): void => {
-      try {
-        perform(body, { somersault: 20 }, false);
-      } catch (error) {
-        if (error instanceof HumanRefusal) throw error;
-        throw new Error(`refused without a HumanRefusal: ${String(error)}`);
-      }
-    });
+    TestValidator.predicate(
+      `${name}: twenty somersaults are refused`,
+      motionHumanRefusal(
+        (): void => {
+          perform(body, { somersault: 20 }, false);
+        },
+        { kind: "parameter", axis: "turns", act: "jump" },
+      ),
+    );
 
     // 5. No snap at the landing.
     const spin: AutoMovieMotionHumanAuditSpin.IResult =
       AutoMovieMotionHumanAuditSpin.measure(motionHumanLaw.film(layout), "a");
-    if (spin.turn.value > 5)
+    if (!(spin.turn.value <= 5))
       findings.push(
-        `${name}: a bone turns ${spin.turn.value.toFixed(2)} turns a second at ${spin.turn.seconds.toFixed(3)} s (${spin.turn.where})`,
+        `${name}: a bone retains ${spin.turn.value.toFixed(2)} degrees of snap at ${spin.turn.seconds.toFixed(3)} s (${spin.turn.where})`,
       );
 
     // 6. The centre stays where the unturned jump puts it.
@@ -256,7 +412,7 @@ export function test_human_motion_core_flight(): void {
           resolveAutoMovieCenterOfMass.place(model, plain.bones("a", t)),
         ),
       );
-      if (gap > 0.005) {
+      if (!(gap <= 0.005)) {
         findings.push(
           `${name}: the turned centre lies ${(1000 * gap).toFixed(1)} mm off the unturned one at ${k}/20 of the flight`,
         );

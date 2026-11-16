@@ -7,6 +7,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The spin audit reads a bone that snaps to another orientation where no
  * joint centre moves, and reads nothing on a bone that turns smoothly.
@@ -177,7 +179,10 @@ export function test_motion_audit_spin(): void {
   );
 
   // 8. A bad rate.
-  TestValidator.error("a rate of zero is refused", (): void => {
-    read((): Angles => ({ head: 0 }), 5, 0);
-  });
+  TestValidator.predicate(
+    "a rate of zero is refused",
+    throwsError((): void => {
+      read((): Angles => ({ head: 0 }), 5, 0);
+    }),
+  );
 }

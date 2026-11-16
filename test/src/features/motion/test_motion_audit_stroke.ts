@@ -1,6 +1,8 @@
 import { AutoMovieMotionHumanAuditStroke } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The stroke audit counts the swings a movement really shows and reads how
  * far each goes, so a motion that repeats fewer or more times than it was
@@ -144,13 +146,22 @@ export function test_motion_audit_stroke(): void {
   );
 
   // 8. Bad inputs.
-  TestValidator.error("a prominence of zero is refused", (): void => {
-    read(sine, 0, 3, 0);
-  });
-  TestValidator.error("a rate of zero is refused", (): void => {
-    read(sine, 0, 3, 0.01, 0);
-  });
-  TestValidator.error("a reversed span is refused", (): void => {
-    read(sine, 3, 0);
-  });
+  TestValidator.predicate(
+    "a prominence of zero is refused",
+    throwsError((): void => {
+      read(sine, 0, 3, 0);
+    }),
+  );
+  TestValidator.predicate(
+    "a rate of zero is refused",
+    throwsError((): void => {
+      read(sine, 0, 3, 0.01, 0);
+    }),
+  );
+  TestValidator.predicate(
+    "a reversed span is refused",
+    throwsError((): void => {
+      read(sine, 3, 0);
+    }),
+  );
 }

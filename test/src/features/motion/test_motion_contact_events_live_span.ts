@@ -2,6 +2,8 @@ import { resolveAutoMovieContactEvents } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A weapon that states the span it is live in is scanned over that span
  * alone, with the same result: a performance of strikes in sequence costs
@@ -153,21 +155,24 @@ export function test_motion_contact_events_live_span(): void {
     ["a NaN end", { from: 0, to: Number.NaN }],
     ["a span ending before it begins", { from: 2, to: 1 }],
   ] as const)
-    TestValidator.error(label, (): unknown =>
-      resolveAutoMovieContactEvents({
-        weapons: [
-          {
-            id: "w",
-            owner: "S",
-            radius: 0.05,
-            ...span,
-            position: (): IAutoMovieVector3 => far,
-          },
-        ],
-        bodies: [plate],
-        from: 0,
-        to: 3,
-        step: 1 / 120,
-      }),
+    TestValidator.predicate(
+      label,
+      throwsError((): unknown =>
+        resolveAutoMovieContactEvents({
+          weapons: [
+            {
+              id: "w",
+              owner: "S",
+              radius: 0.05,
+              ...span,
+              position: (): IAutoMovieVector3 => far,
+            },
+          ],
+          bodies: [plate],
+          from: 0,
+          to: 3,
+          step: 1 / 120,
+        }),
+      ),
     );
 }

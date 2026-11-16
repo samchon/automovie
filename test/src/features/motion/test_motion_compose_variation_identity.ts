@@ -8,6 +8,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_VARIATION_BODIES } from "../internal/MOTION_VARIATION_BODIES";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * No variation changes nothing and reads no draw.
@@ -89,11 +90,20 @@ export function test_motion_compose_variation_identity(): void {
   );
 
   for (const variation of [-0.1, 1.5, Number.NaN])
-    TestValidator.error(`a variation of ${variation}`, (): unknown =>
-      AutoMovieMotionHumanVariation.of(context, { variation }),
+    TestValidator.predicate(
+      `a variation of ${variation}`,
+      throwsError((): unknown =>
+        AutoMovieMotionHumanVariation.of(context, { variation }),
+      ),
     );
-  TestValidator.error("a proficiency of 2", (): unknown =>
-    AutoMovieMotionHumanVariation.of(context, { variation: 1, proficiency: 2 }),
+  TestValidator.predicate(
+    "a proficiency of 2",
+    throwsError((): unknown =>
+      AutoMovieMotionHumanVariation.of(context, {
+        variation: 1,
+        proficiency: 2,
+      }),
+    ),
   );
 
   const own = AutoMovieMotionHumanVariation.of(context, { variation: 0.5 })!;

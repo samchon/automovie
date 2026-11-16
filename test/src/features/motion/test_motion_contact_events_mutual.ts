@@ -2,6 +2,8 @@ import { resolveAutoMovieContactEvents } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A contact is mutual: when the part a weapon meets carries a weapon of its
  * own that is still moving, both stop at the same second, so neither limb is
@@ -166,13 +168,19 @@ export function test_motion_contact_events_mutual(): void {
       close(three[2]!.seconds, 0.85),
   );
 
-  TestValidator.error("a carried weapon of another body", (): unknown =>
-    resolveAutoMovieContactEvents({
-      weapons: [shin("a", "A", left), shin("b", "B", right)],
-      bodies: [leg("A", "a", left, 0.1, "b"), leg("B", "b", right, 0.06, "b")],
-      from: 0,
-      to: 1,
-      step: 1 / 120,
-    }),
+  TestValidator.predicate(
+    "a carried weapon of another body",
+    throwsError((): unknown =>
+      resolveAutoMovieContactEvents({
+        weapons: [shin("a", "A", left), shin("b", "B", right)],
+        bodies: [
+          leg("A", "a", left, 0.1, "b"),
+          leg("B", "b", right, 0.06, "b"),
+        ],
+        from: 0,
+        to: 1,
+        step: 1 / 120,
+      }),
+    ),
   );
 }

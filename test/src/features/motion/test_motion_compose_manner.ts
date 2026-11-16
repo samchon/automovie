@@ -10,6 +10,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The manner: how effort, intensity, pace, proficiency and variation become
  * modifiers, and what those modifiers change in a clock and in a phrase.
@@ -127,15 +129,21 @@ export function test_motion_compose_manner(): void {
     instants(AutoMovieMotionClock.scale(free, 0.5, ["stroke"])),
     [0.125, 0.1875, 0.3125, 0.5625, 0.625, 0.75],
   );
-  TestValidator.error("a hold the clock lacks", (): unknown =>
-    AutoMovieMotionManner.time(
-      free,
-      { tempo: 0.5, hold: 1 },
-      { holds: ["pause"] },
+  TestValidator.predicate(
+    "a hold the clock lacks",
+    throwsError((): unknown =>
+      AutoMovieMotionManner.time(
+        free,
+        { tempo: 0.5, hold: 1 },
+        { holds: ["pause"] },
+      ),
     ),
   );
-  TestValidator.error("a fixed instant the clock lacks", (): unknown =>
-    AutoMovieMotionClock.scale(free, 0.5, ["flight"]),
+  TestValidator.predicate(
+    "a fixed instant the clock lacks",
+    throwsError((): unknown =>
+      AutoMovieMotionClock.scale(free, 0.5, ["flight"]),
+    ),
   );
 
   // 4. Variation.
@@ -179,16 +187,25 @@ export function test_motion_compose_manner(): void {
   );
 
   // 5. Ranges.
-  TestValidator.error("no intensity", (): unknown => resolve({ intensity: 0 }));
-  TestValidator.error("an intensity over 1", (): unknown =>
-    resolve({ intensity: 1.5 }),
+  TestValidator.predicate(
+    "no intensity",
+    throwsError((): unknown => resolve({ intensity: 0 })),
   );
-  TestValidator.error("no pace", (): unknown => resolve({ pace: 0 }));
-  TestValidator.error("a proficiency over 1", (): unknown =>
-    resolve({ proficiency: 2 }),
+  TestValidator.predicate(
+    "an intensity over 1",
+    throwsError((): unknown => resolve({ intensity: 1.5 })),
   );
-  TestValidator.error("a negative variation", (): unknown =>
-    resolve({ variation: -1 }),
+  TestValidator.predicate(
+    "no pace",
+    throwsError((): unknown => resolve({ pace: 0 })),
+  );
+  TestValidator.predicate(
+    "a proficiency over 1",
+    throwsError((): unknown => resolve({ proficiency: 2 })),
+  );
+  TestValidator.predicate(
+    "a negative variation",
+    throwsError((): unknown => resolve({ variation: -1 })),
   );
 
   // 6. The phrases.

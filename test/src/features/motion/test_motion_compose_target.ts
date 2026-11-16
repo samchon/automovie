@@ -9,6 +9,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A target resolved to a place: the default place of an action without a
  * target, and which targets are solid.
@@ -146,7 +148,8 @@ export function test_motion_compose_target(): void {
       prop.solid === true &&
       calls === 5,
   );
-  TestValidator.error("a self region on a limb", (): unknown =>
-    resolve({ kind: "self", region: "palmLeft" }),
+  TestValidator.predicate(
+    "a self region on a limb",
+    throwsError((): unknown => resolve({ kind: "self", region: "palmLeft" })),
   );
 }

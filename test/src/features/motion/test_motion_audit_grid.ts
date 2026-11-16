@@ -1,6 +1,8 @@
 import { IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The instants an audit check samples between two film seconds: the start,
  * every `1 / rate` after it, and the end itself when the grid does not land
@@ -50,16 +52,28 @@ export function test_motion_audit_grid(): void {
     Math.abs(film[48]! - 2) <= 1e-9,
   );
 
-  TestValidator.error("a rate of zero", (): void => {
-    grid(0, 1, 0);
-  });
-  TestValidator.error("a negative rate", (): void => {
-    grid(0, 1, -24);
-  });
-  TestValidator.error("a rate that is not a number", (): void => {
-    grid(0, 1, Number.NaN);
-  });
-  TestValidator.error("a reversed span", (): void => {
-    grid(1, 0.5, 24);
-  });
+  TestValidator.predicate(
+    "a rate of zero",
+    throwsError((): void => {
+      grid(0, 1, 0);
+    }),
+  );
+  TestValidator.predicate(
+    "a negative rate",
+    throwsError((): void => {
+      grid(0, 1, -24);
+    }),
+  );
+  TestValidator.predicate(
+    "a rate that is not a number",
+    throwsError((): void => {
+      grid(0, 1, Number.NaN);
+    }),
+  );
+  TestValidator.predicate(
+    "a reversed span",
+    throwsError((): void => {
+      grid(1, 0.5, 24);
+    }),
+  );
 }

@@ -7,6 +7,8 @@ import type {
 import { AutoMovieMotionHumanAuditReturn } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The return audit tells a body that is back at its entry from one that is
  * not, and a body that kept its form but stands elsewhere from one whose
@@ -171,14 +173,20 @@ export function test_motion_audit_return(): void {
   );
 
   // 5. Malformed films.
-  TestValidator.error("a later instant lacking a bone is refused", (): void => {
-    const short: Bones = new Map(entry);
-    short.delete("rightHand");
-    read(entry, short);
-  });
-  TestValidator.error("an instant without hips is refused", (): void => {
-    const headless: Bones = new Map(entry);
-    headless.delete("hips");
-    read(headless, entry);
-  });
+  TestValidator.predicate(
+    "a later instant lacking a bone is refused",
+    throwsError((): void => {
+      const short: Bones = new Map(entry);
+      short.delete("rightHand");
+      read(entry, short);
+    }),
+  );
+  TestValidator.predicate(
+    "an instant without hips is refused",
+    throwsError((): void => {
+      const headless: Bones = new Map(entry);
+      headless.delete("hips");
+      read(headless, entry);
+    }),
+  );
 }

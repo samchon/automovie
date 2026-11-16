@@ -2,6 +2,8 @@ import { minimumJerk, superposeMinimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Minimum-jerk units and their superposition reach their goals at rest and
  * redirect without a seam.
@@ -111,8 +113,14 @@ export function test_motion_minimum_jerk(): void {
         Math.abs(l.acceleration.y - r.acceleration.y) <= 2 * h * 2000,
     );
   }
-  TestValidator.error("non-finite time", (): unknown => minimumJerk(NaN));
-  TestValidator.error("zero duration", (): unknown =>
-    superposeMinimumJerk(origin, [{ ...first, duration: 0 }], 0),
+  TestValidator.predicate(
+    "non-finite time",
+    throwsError((): unknown => minimumJerk(NaN)),
+  );
+  TestValidator.predicate(
+    "zero duration",
+    throwsError((): unknown =>
+      superposeMinimumJerk(origin, [{ ...first, duration: 0 }], 0),
+    ),
   );
 }

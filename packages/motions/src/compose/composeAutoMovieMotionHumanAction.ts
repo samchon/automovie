@@ -23,6 +23,10 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * is a constant of the action. That plan is made here, when the action is
  * composed (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so
  * no posture read plans and a plan that cannot be made refuses the action.
+ * Completed posture prefixes are shared at each exact clamped second within
+ * the preparation pass or one posture evaluation. A reader retained by a
+ * primitive uses the scope active when it is called, never the scope in
+ * which it was given to that primitive.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
@@ -30,11 +34,11 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from, which channels the plan reports and every refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed; the posture so far before a primitive is the same composition stopped at it, at any second, so it is a pure function of time.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort once, validate once, collect contacts and weapons once, then one loop per posture.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort and validate once, collect contacts and weapons once, and give each prefix one stable reader over the current synchronous evaluation scope.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two primitives on one channel at one time throw instead of the later one winning; windows that only touch at an instant are allowed, and the sort is stable by the given order.
- * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitives once per plan, and an action has tens of them; each posture is linear in the primitives, and the posture so far is composed only when a primitive reads it (a planned movement, once per action).
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.merge` and `ORDER` and the clock's events; the sorted list is computed once and shared by every posture.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the clock and the sorted primitives, and holds no per-second state.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitive count P once per plan; an evaluation computes each requested prefix at a distinct clamped second once, with constant-time reads thereafter and at most (P + 1) times T posture references for T requested seconds.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A prefix is the same base and ordered pure writes at the same exact clamped second within one synchronous preparation pass or posture evaluation; only completed prefixes are shared, and another evaluation starts afresh.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the base, clock, sorted primitives and stable readers. Temporary prefix maps live only through their synchronous evaluation; finally restores the previous scope on success or failure, including a nested evaluation, and retained readers capture no map.
  */
 export function composeAutoMovieMotionHumanAction(
   props: composeAutoMovieMotionHumanAction.IProps,
@@ -110,11 +114,33 @@ export function composeAutoMovieMotionHumanAction(
     ),
   ];
   const base: IHumanActionPlan = props.base;
-  // What is planned once over a span is planned now, in the order the
-  // primitives write, each on the posture so far before it.
-  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
-    p.prepare?.(so(i)),
+
+  /** Completed posture prefixes at each exact clamped second of one evaluation. */
+  type Evaluation = Map<number, IHumanPosture[]>;
+
+  // A retained reader selects its scope when called: a follower may keep
+  // it after the evaluation in which it first received it has ended.
+  let scope: Evaluation | undefined;
+  const readers: ((seconds: number) => IHumanPosture)[] = Array.from(
+    { length: primitives.length + 1 },
+    (_: unknown, index: number): ((seconds: number) => IHumanPosture) =>
+      (seconds: number): IHumanPosture =>
+        scope === undefined
+          ? evaluate(
+              (current: Evaluation): IHumanPosture =>
+                so(index, seconds, current),
+            )
+          : so(index, seconds, scope),
   );
+
+  // What is planned once over a span is planned now, in the order the
+  // primitives write, each on the posture so far before it. Their common
+  // prefixes are shared only through this preparation pass.
+  evaluate((): void => {
+    primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
+      p.prepare?.(readers[i]!),
+    );
+  });
   return {
     duration,
     events: props.clock.events(),
@@ -137,26 +163,55 @@ export function composeAutoMovieMotionHumanAction(
           stop: (events: readonly IHumanActionPlan.IContactEvent[]): void =>
             base.stop!(events),
         }),
-    posture: (seconds: number): IHumanPosture => so(primitives.length)(seconds),
+    posture: (seconds: number): IHumanPosture =>
+      evaluate(
+        (current: Evaluation): IHumanPosture =>
+          so(primitives.length, seconds, current),
+      ),
   };
-  // The posture so far before the primitive at `index`, at any second: the
-  // base and every primitive before it that is active then, each given its
-  // own posture so far in turn.
-  function so(index: number): (seconds: number) => IHumanPosture {
-    return (seconds: number): IHumanPosture => {
-      const t: number = Math.min(duration, Math.max(0, seconds));
-      let posture: IHumanPosture = base.posture(t);
-      for (let i: number = 0; i < index; ++i) {
-        const p: IAutoMovieMotionHumanPrimitive = primitives[i]!;
-        if (t >= p.from - 1e-9 && t <= p.to + 1e-9)
-          posture = AutoMovieMotionHumanChannel.merge(
-            posture,
-            p.write(posture, Math.min(p.to, Math.max(p.from, t)), so(i)),
-            p.channels,
-          );
-      }
-      return posture;
-    };
+
+  /** Run with a fresh scope, restoring an enclosing evaluation even if this one throws. */
+  function evaluate<T>(run: (current: Evaluation) => T): T {
+    const previous: Evaluation | undefined = scope;
+    const current: Evaluation = new Map();
+    scope = current;
+    try {
+      return run(current);
+    } finally {
+      scope = previous;
+    }
+  }
+
+  /** Complete only the missing part of a prefix; a failed write publishes no posture for it. */
+  function so(
+    index: number,
+    seconds: number,
+    current: Evaluation,
+  ): IHumanPosture {
+    const t: number = Math.min(duration, Math.max(0, seconds));
+    let postures: IHumanPosture[] | undefined = current.get(t);
+    if (postures === undefined) {
+      postures = [];
+      current.set(t, postures);
+    }
+    let completed: number = Math.min(index, postures.length - 1);
+    let posture: IHumanPosture;
+    if (completed < 0) {
+      posture = base.posture(t);
+      postures.push(posture);
+      completed = 0;
+    } else posture = postures[completed]!;
+    for (let i: number = completed; i < index; ++i) {
+      const p: IAutoMovieMotionHumanPrimitive = primitives[i]!;
+      if (t >= p.from - 1e-9 && t <= p.to + 1e-9)
+        posture = AutoMovieMotionHumanChannel.merge(
+          posture,
+          p.write(posture, Math.min(p.to, Math.max(p.from, t)), readers[i]!),
+          p.channels,
+        );
+      postures[i + 1] = posture;
+    }
+    return posture;
   }
 }
 /**

@@ -14,6 +14,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The whole-body centre of mass is the mass-weighted mean of the segments'
  * centres riding their bones, the extrapolated centre is Hof's `x + v / ω0`,
@@ -190,22 +192,33 @@ export function test_motion_center_of_mass(): void {
   );
 
   // 5. Refusals.
-  TestValidator.error("empty support", () =>
-    resolveAutoMovieCenterOfMass.margin({ x: 0, y: 0, z: 0 }, []),
-  );
-  TestValidator.error("non-positive length", () =>
-    resolveAutoMovieCenterOfMass.extrapolate(
-      { x: 0, y: 1, z: 0 },
-      { x: 1, y: 0, z: 0 },
-      0,
+  TestValidator.predicate(
+    "empty support",
+    throwsError((): number =>
+      resolveAutoMovieCenterOfMass.margin({ x: 0, y: 0, z: 0 }, []),
     ),
   );
-  TestValidator.error("segment on a missing bone", () =>
-    resolveAutoMovieCenterOfMass(
-      skeleton,
-      profile([
-        segment("chest", { x: 0, y: 1, z: 0 }, 1, { x: 0, y: 0, z: 0 }),
-      ]),
+  TestValidator.predicate(
+    "non-positive length",
+    throwsError(
+      (): IAutoMovieVector3 =>
+        resolveAutoMovieCenterOfMass.extrapolate(
+          { x: 0, y: 1, z: 0 },
+          { x: 1, y: 0, z: 0 },
+          0,
+        ),
+    ),
+  );
+  TestValidator.predicate(
+    "segment on a missing bone",
+    throwsError(
+      (): ReturnType<typeof resolveAutoMovieCenterOfMass> =>
+        resolveAutoMovieCenterOfMass(
+          skeleton,
+          profile([
+            segment("chest", { x: 0, y: 1, z: 0 }, 1, { x: 0, y: 0, z: 0 }),
+          ]),
+        ),
     ),
   );
 }

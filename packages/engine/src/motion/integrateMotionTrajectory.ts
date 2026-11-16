@@ -4,10 +4,12 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
+import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
-import { samplePoseVelocity } from "./samplePoseVelocity";
 
-const { turn, scaled, dexpinv } = MotionTrajectoryStepper;
+const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
+  MotionTrajectoryRotation;
 
 /**
  * A trajectory planned once and read by time: the solution of `dx/dt = f(t, x)` from `t0` to `t1` by classical fourth-order Runge-Kutta at a fixed step, its knots kept with their derivatives and read between them by cubic Hermite interpolation.
@@ -17,18 +19,19 @@ const { turn, scaled, dexpinv } = MotionTrajectoryStepper;
  * Given a `tolerance`, the trajectory is integrated instead by the Dormand-Prince 5(4) pair under error control, each step as long as its error estimate allows, and read between its knots by the pair's continuous extension (`MotionTrajectoryStepper.dormandPrince`): a right-hand side that changes fast in places, such as a body's shape folding in flight, is followed there without a fine step everywhere. Without one, every number is the fixed step's as it always was.
  *
  * The output depends only on `f`, `x0`, `q0`, `t0`, `t1`, `h` and `tolerance`, never on which times are read or in which order, so a plan caches it as a value and playback and seeking read the same motion. `f` must be pure: no draw and no clock. The default step, a sixtieth of a second, keeps the classical method's error far under a millimetre for the motions planned here (#3424); a stiff `f`, such as a contact spring or a large drag, needs a smaller one.
+ * The caller supplies finite numeric state and rate components. This wrapper checks vector lengths and the presence of an angular rate for an oriented state; it does not validate the components of x0, dx or w for finiteness.
  *
  * @param props The right-hand side, the start state, the interval and the step.
  * @returns The trajectory.
- * @throws {Error} When the interval or the step is not finite and positive, the tolerance is not finite, non-negative and non-zero, the state is empty when no orientation is given, or `f` returns a rate of another length or without an angular velocity for the orientation: a caller's defect; or when an error-controlled step shrinks below its time's resolution.
+ * @throws {Error} When interval, step, tolerance or error-block partition is invalid, the vector state is empty without an orientation, f returns the wrong number of vector rates or no required angular rate, or an adaptive step shrinks below its time's resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, the step count, the orientation block, the read between knots, the held ends, the determinism contract, the default step and the stiff-case caveat.
  * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 (Butcher's tableau 1/2, 1/2, 1 with weights 1/6, 1/3, 1/3, 1/6), whose global error is fourth order in the step; cubic Hermite interpolation with the knots' exact derivatives; the orientation by Runge-Kutta-Munthe-Kaas (Munthe-Kaas 1999, Appl Numer Math 29:115-127), the classical tableau applied in the Lie algebra with the inverse differential of the exponential truncated after its second bracket, which keeps the fourth order on the unit sphere; its read between knots is the cubic Hermite of the rotation vector in the same algebra.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand an error-controlled request to the stepper, else step to `t1` keeping knots, then a reader that finds the knot interval by index.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters the integration; reads are pure functions of the knots.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four evaluations of `f` per step and one at the last knot; a read finds its interval by division in constant time.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new f calls per step after one initial call, with constant-time interval lookup. Adaptive integration uses six new f calls per accepted or rejected trial after one initial call, with O(log A) interval lookup over A accepted steps. Both readers then perform O(n+1) interpolation for n vector components and an optional orientation.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's derivative is the next step's first stage, evaluated once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trajectory holds one state and derivative per knot, `ceil((t1 - t0) / h) + 1` of them, for as long as its caller keeps it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed output holds ceil((t1-t0)/h)+1 numeric states and rates; adaptive output holds accepted numeric steps with no fixed count bound. MotionTrajectoryRead constructs both readers outside the callback's scope, so only completed numeric data escapes.
  */
 export function integrateMotionTrajectory(
   props: integrateMotionTrajectory.IProps,
@@ -70,6 +73,22 @@ export function integrateMotionTrajectory(
       throw new Error(
         `integrateMotionTrajectory: the tolerance ${relative} relative and ${absolute} absolute is not finite, non-negative and non-zero`,
       );
+    const blocks: readonly number[] | undefined = props.tolerance.blocks;
+    if (blocks !== undefined) {
+      let dimensions: number = 0;
+      let valid: boolean = true;
+      for (const width of blocks) {
+        if (!Number.isSafeInteger(width) || width <= 0) {
+          valid = false;
+          break;
+        }
+        dimensions += width;
+      }
+      if (!valid || dimensions !== n)
+        throw new Error(
+          "integrateMotionTrajectory: error blocks must be positive integers partitioning the vector state",
+        );
+    }
     return MotionTrajectoryStepper.dormandPrince(props, rate, h);
   }
   const add = (
@@ -139,55 +158,7 @@ export function integrateMotionTrajectory(
     ks.push(rate(next, xn, qn));
   }
 
-  return {
-    t0,
-    t1,
-    h,
-    knots: times.length,
-    times,
-    at: (time: number): integrateMotionTrajectory.IState => {
-      const t: number = Math.max(t0, Math.min(t1, time));
-      const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
-      const a: number = times[i]!;
-      const span: number = times[i + 1]! - a;
-      const u: number = (t - a) / span;
-      const u2: number = u * u;
-      const u3: number = u2 * u;
-      const h00: number = 2 * u3 - 3 * u2 + 1;
-      const h10: number = u3 - 2 * u2 + u;
-      const h01: number = -2 * u3 + 3 * u2;
-      const h11: number = u3 - u2;
-      const x0: number[] = xs[i]!;
-      const x1: number[] = xs[i + 1]!;
-      const d0: readonly number[] = ks[i]!.dx;
-      const d1: readonly number[] = ks[i + 1]!.dx;
-
-      // The orientation: the start knot turned by the cubic Hermite of the
-      // rotation vector, which meets the end knot with both knots' body
-      // rates, the end's carried into the vector's derivative.
-      let q: IAutoMovieQuaternion | null = null;
-      if (oriented && u >= 1) q = qs[i + 1]!;
-      else if (oriented) {
-        const r1: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
-          Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
-        );
-        const w0: IAutoMovieVector3 = ks[i]!.w!;
-        const w1: IAutoMovieVector3 = dexpinv(r1, ks[i + 1]!.w)!;
-        q = turn(qs[i]!, {
-          x: h10 * span * w0.x + h01 * r1.x + h11 * span * w1.x,
-          y: h10 * span * w0.y + h01 * r1.y + h11 * span * w1.y,
-          z: h10 * span * w0.z + h01 * r1.z + h11 * span * w1.z,
-        });
-      }
-      return {
-        x: x0.map(
-          (v: number, k: number): number =>
-            h00 * v + h10 * span * d0[k]! + h01 * x1[k]! + h11 * span * d1[k]!,
-        ),
-        q,
-      };
-    },
-  };
+  return MotionTrajectoryRead.fixed({ t0, t1, h, times, xs, qs, ks, oriented });
 }
 
 /**
@@ -247,6 +218,13 @@ export namespace integrateMotionTrajectory {
    * the vector state's value the larger of the step's two ends, the
    * orientation's the length of its rotation vector over the step, the
    * error norm the root mean square of the components' error over that.
+   * An explicit same-unit vector partition instead controls each block
+   * independently and takes the maximum with the orientation's original RMS.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Relative error is dimensionless, absolute error is in each state's own unit, and blocks specify a Euclidean partition.
+   * @evidence contracts/development/design.md#principled-representation Nonnegative finite budgets with a nonzero sum are runtime-admitted; optional positive integer block lengths must partition the vector, with [] only for an empty vector.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The integrator owns local error admission. Existing callers keep componentwise RMS; airborne's same-unit sensitivity matrix uses one Euclidean block without changing its orientation budget.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No absolute floor or action-specific precision is added. Each block uses its declared units; a local embedded estimate is not a global physical-error or Newton-convergence certificate.
    */
   export interface ITolerance {
     /** The share of a component's value, non-negative. */
@@ -254,6 +232,9 @@ export namespace integrateMotionTrajectory {
 
     /** The component's own unit, non-negative; not both zero. */
     absolute: number;
+
+    /** Optional partition into same-unit Euclidean vector blocks. Positive integer lengths must sum to x0.length; [] is valid only for an empty vector. Each block controls ||error||/(sqrt(length)*absolute + relative*max(||start||,||end||)); the maximum of these errors and the orientation's existing RMS controls acceptance. Without blocks the existing componentwise RMS is unchanged. Equal numeric absolute tolerances act in each block's own units, not equal physical units across blocks. */
+    blocks?: readonly number[];
   }
 
   /**

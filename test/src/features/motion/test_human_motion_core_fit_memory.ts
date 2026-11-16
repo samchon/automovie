@@ -11,6 +11,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanFrame } from "../internal/motionHumanFrame";
+import { nclose } from "../internal/nclose";
 
 /**
  * A limb fit read from memory is the fit the solver gives: a film shows
@@ -23,7 +25,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the last bit.
  *
  * Scenarios, the average man, each film built twice and read at five
- * instants spread over it:
+ * instants spread over it, on distinct body wrappers of the same prepared
+ * geometry so neither the resolved performance nor per-body limb memory is shared:
  * 1. A brief kneel, whose hands rest on the thighs under the arm's
  *    clearance search.
  * 2. Sitting down into an armchair, whose hands reach for the armrests.
@@ -45,8 +48,12 @@ export function test_human_motion_core_fit_memory(): void {
   const body: IHumanBody = motionHumanBody("m-average");
   const height: number = seated.popliteal(body);
   const aside: number = body.measure.chestBreadth / 2 + 0.08;
-  const perform = (
+  const perform: (
     composition: HumanPerformance.IInput["composition"],
+    who: IHumanBody,
+  ) => HumanPerformance = (
+    composition: HumanPerformance.IInput["composition"],
+    who: IHumanBody,
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "fit-memory",
@@ -54,7 +61,7 @@ export function test_human_motion_core_fit_memory(): void {
       performers: [
         {
           subject: "a",
-          body,
+          body: who,
           at: { x: 0, y: 0, z: 0 },
           yaw: 0,
           proficiency: { level: "trained" },
@@ -99,35 +106,82 @@ export function test_human_motion_core_fit_memory(): void {
     ],
   ];
 
-  // Every bone's world position and rotation, as text that differs when any number does.
-  const shown = (performance: HumanPerformance, t: number): string =>
-    JSON.stringify(
-      [...performance.bones("a", t).entries()].map(
+  // Copy scalars now so later workspace writes cannot change the solved oracle.
+  const shown: (
+    performance: HumanPerformance,
+    t: number,
+  ) => Map<AutoMovieHumanoidBone, readonly number[]> = (
+    performance: HumanPerformance,
+    t: number,
+  ): Map<AutoMovieHumanoidBone, readonly number[]> => {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones("a", t);
+    motionHumanFrame(bones, `fit memory at ${t} s`);
+    return new Map(
+      [...bones.entries()].map(
         ([bone, at]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): [
-          string,
-          unknown,
-          unknown,
-        ] => [bone, at.worldPosition, at.worldRotation],
+          AutoMovieHumanoidBone,
+          readonly number[],
+        ] => [
+          bone,
+          [
+            at.worldPosition.x,
+            at.worldPosition.y,
+            at.worldPosition.z,
+            at.worldRotation.x,
+            at.worldRotation.y,
+            at.worldRotation.z,
+            at.worldRotation.w,
+          ],
+        ],
       ),
     );
+  };
   for (const [label, compose] of films)
     try {
       resolveHumanPosture.memory(false);
-      const solved: HumanPerformance = perform(compose());
+      const solved: HumanPerformance = perform(compose(), { ...body });
       const end: number = solved.segments("a").at(-1)!.end;
       const instants: number[] = [0.1, 0.3, 0.5, 0.7, 0.9].map(
         (share: number): number => share * end,
       );
-      const afresh: string[] = instants.map((t: number): string =>
-        shown(solved, t),
-      );
+      const afresh: Map<AutoMovieHumanoidBone, readonly number[]>[] =
+        instants.map(
+          (t: number): Map<AutoMovieHumanoidBone, readonly number[]> =>
+            shown(solved, t),
+        );
       resolveHumanPosture.memory(true);
-      const remembered: HumanPerformance = perform(compose());
-      for (let i: number = instants.length - 1; i >= 0; --i)
-        if (shown(remembered, instants[i]!) !== afresh[i])
+      const remembered: HumanPerformance = perform(compose(), { ...body });
+      for (let i: number = instants.length - 1; i >= 0; --i) {
+        const actual: Map<AutoMovieHumanoidBone, readonly number[]> = shown(
+          remembered,
+          instants[i]!,
+        );
+        const expected: Map<AutoMovieHumanoidBone, readonly number[]> =
+          afresh[i]!;
+        if (
+          actual.size !== expected.size ||
+          [...expected].some(
+            ([bone, values]: [
+              AutoMovieHumanoidBone,
+              readonly number[],
+            ]): boolean => {
+              const observed: readonly number[] | undefined = actual.get(bone);
+              return (
+                observed === undefined ||
+                values.length !== observed.length ||
+                values.some(
+                  (value: number, k: number): boolean =>
+                    !nclose(observed[k]!, value, 0),
+                )
+              );
+            },
+          )
+        )
           complaints.push(
             `${label}: the pose at ${instants[i]!.toFixed(2)} s read from memory differs from the pose solved afresh`,
           );
+      }
     } catch (error) {
       complaints.push(
         `${label}: ${error instanceof Error ? error.message : String(error)}`,

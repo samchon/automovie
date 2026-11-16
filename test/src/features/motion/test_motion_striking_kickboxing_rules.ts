@@ -14,6 +14,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The kickboxing ruleset flags fouls and attacks on a downed opponent, and
  * the ring and the count place and time the knockdown procedure.
@@ -165,12 +167,15 @@ export function test_motion_striking_kickboxing_rules(): void {
       Math.abs(ring.size - size) < 1e-9 &&
       Math.abs(ring.yaw - 30) < 1e-9,
   );
-  TestValidator.error("no ring", (): unknown =>
-    KickboxingRing.of(
-      HumanObject.prop("mat", createExerciseMat({ kind: "yoga" }), {
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-      }),
+  TestValidator.predicate(
+    "no ring",
+    throwsError((): unknown =>
+      KickboxingRing.of(
+        HumanObject.prop("mat", createExerciseMat({ kind: "yoga" }), {
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+        }),
+      ),
     ),
   );
   const blue: IAutoMovieVector3 = KickboxingRing.corner(ring, "blue", 0.5);
@@ -208,9 +213,13 @@ export function test_motion_striking_kickboxing_rules(): void {
     KnockdownCount.number(157, 3) === 160 &&
       KnockdownCount.number(157, KnockdownCount.TEN) === 167,
   );
-  TestValidator.error("count zero", (): unknown => KnockdownCount.number(0, 0));
-  TestValidator.error("count eleven", (): unknown =>
-    KnockdownCount.number(0, 11),
+  TestValidator.predicate(
+    "count zero",
+    throwsError((): unknown => KnockdownCount.number(0, 0)),
+  );
+  TestValidator.predicate(
+    "count eleven",
+    throwsError((): unknown => KnockdownCount.number(0, 11)),
   );
   const fallen: IAutoMovieVector3 = KickboxingRing.corner(ring, "neutralA", 1);
   TestValidator.predicate(

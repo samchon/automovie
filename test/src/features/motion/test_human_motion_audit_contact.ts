@@ -14,6 +14,7 @@ import { TestValidator } from "@nestia/e2e";
 import { motionAuditMoved } from "../internal/motionAuditMoved";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanStance } from "../internal/motionHumanStance";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * The contact audit on a real body: a foot that skates along the floor
@@ -250,12 +251,15 @@ export function test_human_motion_audit_contact(): void {
   }
 
   // 9. A bad rate.
-  TestValidator.error("a rate of zero is refused", (): void => {
-    AutoMovieMotionHumanAuditContact.measure(
-      motionAuditMoved(stance, 1, carried(0, 0), []),
-      "a",
-      body,
-      0,
-    );
-  });
+  TestValidator.predicate(
+    "a rate of zero is refused",
+    throwsError((): void => {
+      AutoMovieMotionHumanAuditContact.measure(
+        motionAuditMoved(stance, 1, carried(0, 0), []),
+        "a",
+        body,
+        0,
+      );
+    }),
+  );
 }

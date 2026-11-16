@@ -65,6 +65,9 @@ export namespace HumanSegmentOverlay {
    * and middle joint instead. Contacting fingers keep their planned shape
    * until the window closes. The goals travel to the final transition
    * resolver too, so a later offset or clamp cannot move the contact.
+   * Every branch reads one overlay's raw posture at the same local second,
+   * so that posture is read once per call. Branches still resolve their
+   * own under-postures and named limb fits independently.
    *
    * @param person The person.
    * @param posture The carrier's posture at the second, layers applied.
@@ -72,6 +75,14 @@ export namespace HumanSegmentOverlay {
    * @param carried The holds the carrier carries at the second.
    * @param near The fits of a nearby second to continue, if any.
    * @returns The pose, the seeds of its fits and its open contact goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fade, carry, contact and seed behavior and which raw posture reads are shared.
+   * @evidence contracts/development/implementation.md#principled-implementation Each branch merges the same overlay's pure posture at the same local second onto its own under-posture; the fade and final contact fits retain their original order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lazy posture slot per active overlay, the recursive branch builder, then the final contact refit.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Shares only raw plan postures; different under-postures, overlay sets and nearby fit seeds still resolve separately.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads each active overlay's plan posture at most once per call; the existing fade branches still require up to two to the power of N leaf resolutions for N fading overlays, plus their contact fits.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same overlay and exact local second within one synchronous call share a completed raw posture, independent of the branch's under-posture and fit seeds.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one temporary posture slot per active overlay, released when the call returns or throws; no result survives into another call or seed context.
    */
   export function overlaid(
     person: HumanSegment.IPerson,
@@ -83,6 +94,10 @@ export namespace HumanSegmentOverlay {
     const body = person.performer.body;
     const active: HumanSegment.IOverlay[] = running(person, seconds);
     const seeds: HumanSegmentPose.IFits = new Map();
+
+    // Fade branches have different under-postures and fit seeds, but read
+    // each overlay's raw plan at the same local second.
+    const postures: (IHumanPosture | undefined)[] = [];
     const build = (
       k: number,
       under: IHumanPosture,
@@ -141,9 +156,9 @@ export namespace HumanSegmentOverlay {
       }
       const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
         under,
-        overlay.plan.posture(
+        (postures[k] ??= overlay.plan.posture(
           Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
-        ),
+        )),
         overlay.channels,
       );
       const weight: number = Math.min(
@@ -283,6 +298,14 @@ export namespace HumanSegmentOverlay {
    * @param person The person.
    * @param seconds Film seconds.
    * @returns The overlays, in placement order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States film-second input, placement-order output and inclusive comparisons with the existing endpoint allowance.
+   * @evidence contracts/development/implementation.md#principled-implementation Filters the person's placed overlays by their active entry and end instants, retaining the existing 1e-12-second comparison allowance at both endpoints.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered filter owns active-overlay selection; posture composition remains with the overlay evaluator.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads every overlay's actual interval without changing contact windows, ordering or physical tolerances.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans N placed overlays in O(N) time and allocates an array of the K active references, O(K) space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each query reads current overlay intervals and seconds; no persistent selection cache assumes unchanged placement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a caller-owned array of borrowed overlays and retains no query, person or external handle.
    */
   export function running(
     person: HumanSegment.IPerson,

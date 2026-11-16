@@ -1,6 +1,8 @@
 import { AutoMovieMotionHumanRange, type IHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A joint amount on its three rungs: a level, a level with a scale, and
  * explicit degrees with their source.
@@ -70,17 +72,27 @@ export function test_motion_compose_range(): void {
       ),
   );
 
-  TestValidator.error("a scale past its bound", (): unknown =>
-    AutoMovieMotionHumanRange.share({ level: "light", scale: 2 }),
+  TestValidator.predicate(
+    "a scale past its bound",
+    throwsError((): unknown =>
+      AutoMovieMotionHumanRange.share({ level: "light", scale: 2 }),
+    ),
   );
-  TestValidator.error("explicit degrees past the limit", (): unknown =>
-    degrees("leftLowerLeg", "flexion", { degrees: 160, source }),
+  TestValidator.predicate(
+    "explicit degrees past the limit",
+    throwsError((): unknown =>
+      degrees("leftLowerLeg", "flexion", { degrees: 160, source }),
+    ),
   );
-  TestValidator.error("explicit degrees without a source", (): unknown =>
-    degrees("neck", "flexion", { degrees: 12, source: "" }),
+  TestValidator.predicate(
+    "explicit degrees without a source",
+    throwsError((): unknown =>
+      degrees("neck", "flexion", { degrees: 12, source: "" }),
+    ),
   );
-  TestValidator.error("a motion with no range", (): unknown =>
-    degrees("leftLowerLeg", "abduction", "light"),
+  TestValidator.predicate(
+    "a motion with no range",
+    throwsError((): unknown => degrees("leftLowerLeg", "abduction", "light")),
   );
   TestValidator.predicate(
     "the limit of a motion",

@@ -1,6 +1,8 @@
 import { AutoMovieMotionHumanAuditTiming } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * The timing audit complains about each incoherent declaration of an
  * action's time, about named instants out of their stated order, and about
@@ -220,9 +222,12 @@ export function test_motion_audit_timing(): void {
     AutoMovieMotionHumanAuditTiming.instant(sound(), "touch"),
     4,
   );
-  TestValidator.error("an undeclared event is refused", (): void => {
-    AutoMovieMotionHumanAuditTiming.instant(sound(), "clasp");
-  });
+  TestValidator.predicate(
+    "an undeclared event is refused",
+    throwsError((): void => {
+      AutoMovieMotionHumanAuditTiming.instant(sound(), "clasp");
+    }),
+  );
 
   // 4. A stated order.
   TestValidator.equals(

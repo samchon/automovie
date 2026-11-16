@@ -1,6 +1,8 @@
 import { AutoMovieMotionHumanTiming } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A phase length on its rungs: a pause name, a pause with a scale, and
  * explicit seconds with their source; and a phrase built from them by role.
@@ -61,13 +63,16 @@ export function test_motion_compose_roles(): void {
     { prepare: 0, attack: 0.2, hold: 0.15, retract: 0.4 },
   );
 
-  TestValidator.error("a scale past its bound", (): unknown =>
-    seconds({ pause: "beat", scale: 2 }),
+  TestValidator.predicate(
+    "a scale past its bound",
+    throwsError((): unknown => seconds({ pause: "beat", scale: 2 })),
   );
-  TestValidator.error("negative explicit seconds", (): unknown =>
-    seconds({ seconds: -0.1, source }),
+  TestValidator.predicate(
+    "negative explicit seconds",
+    throwsError((): unknown => seconds({ seconds: -0.1, source })),
   );
-  TestValidator.error("explicit seconds without a source", (): unknown =>
-    seconds({ seconds: 0.2, source: "" }),
+  TestValidator.predicate(
+    "explicit seconds without a source",
+    throwsError((): unknown => seconds({ seconds: 0.2, source: "" })),
   );
 }

@@ -2,6 +2,8 @@ import { inertializeOffset, samplePoseVelocity } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * A velocity read from continued samples (`near`) reads the motion, not the
  * resolution of the fits that pose it, and the tolerance those fits are
@@ -107,10 +109,12 @@ export function test_motion_pose_velocity_near(): void {
     Math.abs(peak - 0.01) <= 1e-12,
   );
 
-  TestValidator.error("a zero step", (): unknown =>
-    samplePoseVelocity.tolerance(0, 0.4),
+  TestValidator.predicate(
+    "a zero step",
+    throwsError((): unknown => samplePoseVelocity.tolerance(0, 0.4)),
   );
-  TestValidator.error("a zero decay", (): unknown =>
-    samplePoseVelocity.tolerance(1e-3, 0),
+  TestValidator.predicate(
+    "a zero decay",
+    throwsError((): unknown => samplePoseVelocity.tolerance(1e-3, 0)),
   );
 }

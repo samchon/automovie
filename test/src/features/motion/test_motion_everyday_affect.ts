@@ -1,6 +1,8 @@
 import { HumanAffect, type IHumanPosture } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/throwsError";
+
 /**
  * Affect displays start and end at rest, move smoothly, leave limb goals
  * alone and keep their cited rhythms.
@@ -140,7 +142,8 @@ export function test_motion_everyday_affect(): void {
     "overlapping displays add",
     Math.abs(both.joints.chest![0] - (5 + cough + laugh)) < 1e-12,
   );
-  TestValidator.error("non-positive length refused", (): unknown =>
-    HumanAffect.angles("sigh", 0.1, 0),
+  TestValidator.predicate(
+    "non-positive length refused",
+    throwsError((): unknown => HumanAffect.angles("sigh", 0.1, 0)),
   );
 }
