@@ -24,6 +24,7 @@ import type { HumanColliders } from "./HumanColliders";
 import { HumanLimbFit } from "./HumanLimbFit";
 import type { IHumanPosture } from "./IHumanPosture";
 import { compareHumanLimbPair } from "./compareHumanLimbPair";
+import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
@@ -171,7 +172,7 @@ function solved(
       readAuthored,
     );
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
-    left: HumanLimbFit.remembered(
+    left: applyHumanLimbFit(
       body,
       pose,
       "leftArm",
@@ -181,7 +182,7 @@ function solved(
       near.left,
       resolution,
     ),
-    right: HumanLimbFit.remembered(
+    right: applyHumanLimbFit(
       body,
       pose,
       "rightArm",

@@ -6,6 +6,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -76,12 +77,12 @@ export namespace HumanGraspReach {
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States candidate, stroke, reference, required-judgement and admission semantics, including the original mixed-unit cost and tie preference.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the existing exact lower-bound candidate ordering and all coupled posture fits; unjudged keys demand only the three arm frames their error and bend departure read, while arbitrary judges still receive every bone.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps exact lower-bound candidate ordering and all coupled posture fits. Unjudged selection costs read only the actual hand; report-only departure reads the full arm only when a candidate becomes the retained best. Arbitrary judges still receive every bone after original eager departure.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidate admission and grasp fitting precede the original ordered stroke search; one local fit owns the common goal construction and displayed-pose judgement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No key, legal fit, error, bound, candidate or preference changes; the original required-first and least-miss fallback choices remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each of C turn/tilt pairs constructs its wrist once; the fixed input posture prepares its canonical root/direct-joint clamp once, while every candidate still runs its original full coupled fit. Unjudged keys demand only observed arm FK and original lower-bound stroke pruning remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each C turn/tilt wrist is constructed once and fixed source assembly prepares once; all full coupled fits and original pruning remain. Losing unjudged keys omit elbow-frame output/radial report work; each retained-best report adds one actual three-arm FK read per key. Solver-provided rotation error omits unused fallback quaternion work. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only keys on the exact fixed input posture borrow its explicitly prepared unchanged base; other key postures take ordinary seeded resolution. One synchronous search shares exact FK dependencies across actual fits/readbacks, never a fitted answer across goals.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate records and one FK reader are local to this search; only the chosen original pose, wrist, reference and scalar reports escape, with no reader or search map retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate poses/report closures, fixed name readers and one exact FK workspace are local to the search; report hints are scalar snapshots and no report closure escapes. Only the chosen original pose, wrist, reference and scalar reports are returned without a reader or search map.
    */
   export function reachable(
     body: IHumanBody,
@@ -112,6 +113,9 @@ export namespace HumanGraspReach {
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
     ]);
+    const readArm: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
     // One key pose fitted, its elbow left to the body (`elbow`): the pose and
     // the error the arm leaves there, the rotation in degrees plus the
     // position in millimetres. The rotation is the fit's own optimal value
@@ -145,59 +149,25 @@ export namespace HumanGraspReach {
         : resolveHumanPosture.seeded(body, { ...key.posture, limbs }, undefined, {}, resolution);
       const pose: IAutoMoviePose = resolved.pose;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, pose, resolution(), key.judge === undefined ? requested : undefined);
+        key.judge === undefined ? readHand(pose, resolution()) : poseBones(body, pose, resolution());
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      // How far the elbow sits from its hint about the shoulder-to-wrist
-      // line, the one freedom the wrist's place leaves it.
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const line: IAutoMovieVector3 = Vector3.subtract(
-        hand.worldPosition,
-        shoulder,
-      );
-      const span: number = Vector3.dot(line, line);
-      const radial: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
-        const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-        return span > 0
-          ? Vector3.subtract(
-              from,
-              Vector3.scale(line, Vector3.dot(from, line) / span),
-            )
-          : from;
-      };
-      const shownSide: IAutoMovieVector3 = radial(
-        bones.get(`${side}LowerArm`)!.worldPosition,
-      );
-      const hintSide: IAutoMovieVector3 = radial(key.bend);
-      const sides: number =
-        Vector3.length(shownSide) * Vector3.length(hintSide);
-      const departure: number =
-        sides > 1e-12
-          ? (Math.acos(
-              Math.max(
-                -1,
-                Math.min(1, Vector3.dot(shownSide, hintSide) / sides),
-              ),
-            ) *
-              180) /
-            Math.PI
-          : 0;
-      const dot: number = Math.min(
-        1,
-        Math.abs(
-          hand.worldRotation.x * key.wrist.rotation.x +
-            hand.worldRotation.y * key.wrist.rotation.y +
-            hand.worldRotation.z * key.wrist.rotation.z +
-            hand.worldRotation.w * key.wrist.rotation.w,
-        ),
-      );
+
+      // Departure is report-only. A supplied judge still observes the same
+      // full map after eager departure; other losing keys need no elbow FK.
+      let departure: () => number;
+      if (key.judge === undefined) {
+        const hint: IAutoMovieVector3 = { ...key.bend };
+        departure = (): number => departureOf(readArm(pose, resolution()), side, hint);
+      } else {
+        const measured: number = departureOf(bones, side, key.bend);
+        departure = (): number => measured;
+      }
       return {
         pose,
         shown: { point: hand.worldPosition, rotation: hand.worldRotation },
         miss:
           (resolved.values[limb]?.error ??
-            (2 * Math.acos(dot) * 180) / Math.PI) +
+            rotationError(hand.worldRotation, key.wrist.rotation)) +
           1000 *
             Vector3.length(
               Vector3.subtract(hand.worldPosition, key.wrist.point),
@@ -262,7 +232,7 @@ export namespace HumanGraspReach {
         limb,
       );
       let miss: number = grasp.miss;
-      let departure: number = grasp.departure;
+      const reports: IFitted[] = [grasp];
       let beaten: boolean = false;
       const keys: number[] = [grasp.miss];
       const judged: number[] = [Number.NaN];
@@ -275,7 +245,7 @@ export namespace HumanGraspReach {
         judged.push(fitted.judged);
         bounds.push(key.bound ?? Number.NaN);
         miss = Math.max(miss, fitted.miss);
-        departure = Math.max(departure, fitted.departure);
+        reports.push(fitted);
         if (held && miss + preference >= least) {
           beaten = true;
           break;
@@ -295,6 +265,9 @@ export namespace HumanGraspReach {
         held = holds;
         nearest = measured;
         least = cost;
+        let departure: number = grasp.departure();
+        for (let index: number = 1; index < reports.length; ++index)
+          departure = Math.max(departure, reports[index]!.departure());
         best = {
           turn,
           tilt,
@@ -397,9 +370,33 @@ interface IFitted {
   /** The original hand-degree plus wrist-millimetre error cost. */
   miss: number;
 
-  /** Elbow departure from the key's hint about the reach line, degrees. */
-  departure: number;
+  /** Original degree departure; unjudged keys evaluate it only when retained for the reported best. */
+  departure: () => number;
 
   /** The key's own judgement, or NaN when it declares none. */
   judged: number;
+}
+
+/** Original elbow-side report, independent of every selection cost and bound. */
+function departureOf(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  side: HumanHand.Side, hint: IAutoMovieVector3): number {
+  const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+  const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
+  const line: IAutoMovieVector3 = Vector3.subtract(hand.worldPosition, shoulder);
+  const span: number = Vector3.dot(line, line);
+  const radial: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+    const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
+    return span > 0 ? Vector3.subtract(from, Vector3.scale(line, Vector3.dot(from, line) / span)) : from;
+  };
+  const shownSide: IAutoMovieVector3 = radial(bones.get(`${side}LowerArm`)!.worldPosition);
+  const hintSide: IAutoMovieVector3 = radial(hint);
+  const sides: number = Vector3.length(shownSide) * Vector3.length(hintSide);
+  return sides > 1e-12 ? (Math.acos(Math.max(-1,
+    Math.min(1, Vector3.dot(shownSide, hintSide) / sides))) * 180) / Math.PI : 0;
+}
+
+/** Preserve the original fallback attitude cost only when the fit supplies none. */
+function rotationError(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
+  const dot: number = Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w));
+  return (2 * Math.acos(dot) * 180) / Math.PI;
 }

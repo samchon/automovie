@@ -12,6 +12,7 @@ import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
 import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
+import { staggerNearest } from "./staggerNearest";
 
 /**
  * A pushed body's centre of mass over the floor as Hof's inverted pendulum
@@ -158,7 +159,7 @@ export class StaggerPendulum {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States convex floor-outline projection and the unchanged inside-point result.
    * @evidence contracts/development/implementation.md#principled-implementation Retains the original inside test and complete closed-edge projection search, including collapsed edges and first strict-distance winner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One containment branch precedes the nearest-edge scan.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to staggerNearest's single original containment/projection kernel, also consumed by fixed-outline settling preparation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original three-coordinate projection arithmetic, span>0 decision and distance ties; callers provide a nonempty floor outline.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(v) edge work for v corners and constant live best-point storage; distance reads avoid one temporary subtraction vector per edge.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each point is searched against current outline coordinates; no nearest answer is reused across points.
@@ -168,25 +169,7 @@ export class StaggerPendulum {
     outline: readonly IAutoMovieVector3[],
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    if (outline.length >= 3 && pointInHull(point, outline)) return point;
-    let best: IAutoMovieVector3 = outline[0]!;
-    let gap: number = Infinity;
-    for (let i: number = 0; i < outline.length; i++) {
-      const a: IAutoMovieVector3 = outline[i]!;
-      const b: IAutoMovieVector3 = outline[(i + 1) % outline.length]!;
-      const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
-      const span: number = Vector3.dot(ab, ab);
-      const u: number = span > 0
-        ? Math.min(1, Math.max(0, Vector3.dot(Vector3.subtract(point, a), ab) / span))
-        : 0;
-      const q: IAutoMovieVector3 = Vector3.add(a, Vector3.scale(ab, u));
-      const d: number = Vector3.distance(point, q);
-      if (d < gap) {
-        gap = d;
-        best = q;
-      }
-    }
-    return best;
+    return staggerNearest(outline, point);
   }
 
   /** The state back to the push.

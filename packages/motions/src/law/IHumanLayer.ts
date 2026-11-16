@@ -9,6 +9,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { HumanAttribute } from "../ensemble/HumanAttribute";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 
@@ -166,6 +167,9 @@ export namespace IHumanLayer {
      * creates an independent fresh reader rather than retaining the source.
      */
     resolution?: () => ReturnType<typeof preparePoseResolution>;
+
+    /** Genuine same-body direct ROM projection, borrowed only during apply; the host revokes this getter's source on return/throw and later reads create independent cold metadata. Never retain the returned projector. */
+    projection?: () => ReturnType<typeof prepareHumanPostureProjection>;
 
     /**
      * A target's world point and outward normal at a film second.

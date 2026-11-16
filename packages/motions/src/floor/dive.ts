@@ -148,8 +148,8 @@ export namespace dive {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the landed root, the three phases, the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms Prepare target start/difference triples and actual ankle/hip name demand once. Crouch observations retain complete direct admission but resolve only supported goals that can affect requested ankle ancestry; start-hip observation omits independent leg fits. The landing still scans every joint centre and displayed goals still receive full resolution; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Two immutable articulation sources prepare their own exact target differences: entered joints for crouch and actually solved launch joints for flight. Body-owned fixed-demand FK and an explicitly scoped source share only unchanged dependencies; original digit/unsupported constraints retain the resolver's conservative full fallback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original entry, two bounded interpolation-track readers, fixed ankle/hip demands and landed geometry. Query getters/maps release on return or throw; a borrowed workspace stays with its synchronous parent and never enters returned raw postures or retained callbacks. No previous-query results, handles or tasks are retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entered crouch and actual solved launch joints prepare separate fixed target differences. Genuine bone demands and optional synchronous FK/projector loans share only equal FK prerequisites/static ROM metadata; every current joint is projected and original digit/unsupported constraints keep conservative full fallback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original entry, two bounded track readers, fixed ankle/hip demands and landed geometry. Query getters/maps release on return/throw; optional FK/projector loans stay with their synchronous parent and never enter raw output or retained callbacks. No previous-query result, handle or task is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -240,10 +240,10 @@ export namespace dive {
     };
     const shape: ShapeReader = prepareShape(entry.joints);
     const readAnkles: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, FEET);
-    const ankleMid: (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieVector3 = (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieVector3 => {
+    const ankleMid: (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieVector3 = (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieVector3 => {
       const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
       const bones: ReturnType<typeof poseBones> = readAnkles(
-        resolveHumanPosture.seeded(body, posture, undefined, undefined, read, FEET).pose,
+        resolveHumanPosture.seeded(body, posture, undefined, undefined, read, FEET, projection).pose,
         read(),
       );
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
@@ -254,9 +254,9 @@ export namespace dive {
     // Take-off: crouched on the feet, a third of the way into the shape. The
     // root goes down with the legs planted on the entry's feet, so the knees
     // bend under it instead of the straight legs sinking into the floor.
-    const crouched: (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+    const crouched: (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IHumanPosture = (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IHumanPosture => {
       const posture: IHumanPosture = shape(share / 3, 0);
-      const local: IAutoMovieVector3 = ankleMid(posture, resolution);
+      const local: IAutoMovieVector3 = ankleMid(posture, resolution, projection);
       return AutoMovieMotionHumanTrunk.planted(
         body,
         {
@@ -349,9 +349,9 @@ export namespace dive {
         { name: "landed", share: share(crouch + travel) },
       ],
       contacts,
-      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= crouch) return crouched(minimumJerk.share(t / crouch), resolution);
+        if (t <= crouch) return crouched(minimumJerk.share(t / crouch), resolution, projection);
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
         const s: number = kind === "dive" ? u : minimumJerk.share(u);

@@ -20,6 +20,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { StrikingContact } from "./StrikingContact";
 
@@ -38,7 +39,7 @@ import type { StrikingContact } from "./StrikingContact";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each fact is for and the identity-rest premise the socket convention rests on.
  * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over the body, its resolved bones and world rotations, in world metres and clinical degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The trunk, region, socket, fist, foot, curl and collider readings the striking laws, the reactions and the captures use.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The actual trunk and fixed-demand trunk producer, region/socket/hand/foot geometry and collider readings serve striking, reactions and captures; canonical pose/FK preparation remains with its existing owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's surface resolver and the interface's region and socket unions; the collider list overlaps the posture package's HumanColliders, which owns the signed distances, and is kept only as the shape list the floor rest reads.
  */
 export namespace StrikingBody {
@@ -51,13 +52,14 @@ export namespace StrikingBody {
    * @param posture The posture.
    * @param resolution Optional exact reader or lazy supplier borrowed only within this synchronous evaluation.
    * @param requested Optional output bones whose ancestry is needed; every authored joint is still admitted and clamped.
+   * @param projection Optional genuine same-body ROM projector borrowed from this synchronous operation; the posture owner checks provenance and still projects every current joint.
    * @returns Resolved bones by rig bone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States dropped limb goals, the result's role as limb-solve input, unchanged-skeleton topology and the optional synchronous borrowed FK workspace.
    * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then complete forward kinematics with the canonical axes, rest frames and the body's parent-first topology.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolution and the canonical poseBones adapter keep mapping, topology and direct Map insertion with their existing owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual posture clamp, digit solve and full FK remains; the optional reader shares only completed equal scalar prerequisites, without caching a posed result or changing goal policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Posture assembly/clamping still scans rig/joints and retains actual digit searches. Requested final FK admits all joints but computes only demanded ancestry and allocates only requested transforms; omitted demand returns the full map. A parent reader shares only equal scalar prerequisites, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual posture clamp, digit solve and needed FK ancestor remains; requested output names omit only unused transforms, and the optional reader shares exact scalar prerequisites without a posed-result cache or changed goal policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Posture assembly/clamping still scans rig/joints and retains actual digit searches. Requested final FK admits all joints but computes only demanded ancestry and allocates only requested transforms; omitted demand returns the full map. A parent reader shares only equal scalar prerequisites, and a genuine same-operation projector reuses only fixed ROM metadata while every joint is projected; no measured speedup is claimed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses body topology and, only when supplied, one parent-owned exact FK workspace across actual posture and displayed-frame reads; every posture and authored record still executes normally with fresh output transforms.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map/transforms. An optional local getter borrows at most one parent reader only until return or throw; no reader, supplier or posed result enters body memory, a returned plan or persistent state.
    */
@@ -66,10 +68,11 @@ export namespace StrikingBody {
     posture: IHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       resolution === undefined ? undefined : prepareHumanPoseResolution(resolution);
-    const pose: IAutoMoviePose = trunkPose(body, posture, read);
+    const pose: IAutoMoviePose = trunkPose(body, posture, read, projection);
     return poseBones(body, pose, read?.(), requested);
   }
 
@@ -79,32 +82,32 @@ export namespace StrikingBody {
    *
    * @param body The unchanged canonical body and its existing rig producer.
    * @param requested Optional real output demand, snapshotted once; all outputs when absent.
-   * @returns A reader of each actual posture and optional synchronous borrowed FK source.
+   * @returns A reader of each actual posture, optional synchronous FK source and optional genuine same-body ROM projector, neither retained by the producer.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines fixed canonical body/name demand, snapshot behavior, changing posture/source and independent output ownership.
    * @evidence contracts/development/implementation.md#principled-implementation The same trunkPose owner clears only limb goals and executes original seeded assembly/clamping/digit semantics. poseBones.prepare binds the body's genuine requested-name producer once; each current admitted pose still supplies its actual FK.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One demand preparation returns one reader; the original one-shot trunk and this repeated-demand path share the exact posture owner, and canonical poseBones retains name/topology/FK ownership.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint, root rotation, digit demand and clamp remains. No fabricated indices, caller resolved flag, pose answer, target, seed or query history enters the factory; omitting demand preserves complete FK output.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed K-name sorting/reachable-demand preparation runs once for N queries. Each query retains full authored admission and actual digit work, followed by its original requested FK ancestry and fresh maps/frames; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body and snapshotted real bone set establish demand equivalence. Every changing posture and borrowed reader is used only by its current synchronous invocation, with exact scalar dependencies checked by the FK owner.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body and snapshotted real bone set establish demand equivalence. Every changing posture, borrowed FK source and genuine ROM projection loan is used only by its current synchronous invocation. Canonical owners check exact dependencies/provenance and every authored joint is still projected.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one bounded body/demand producer until its action or search ends; it retains neither source set, pose, reader nor answers. Each invocation creates or borrows one local exact workspace released on return or throw, and only its fresh bone map escapes.
    */
   export function prepareTrunk(
     body: IHumanBody,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const frames: ReturnType<typeof poseBones.prepare> | undefined =
       requested === undefined ? undefined : poseBones.prepare(body, requested);
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-      const pose: IAutoMoviePose = trunkPose(body, posture, read);
+      const pose: IAutoMoviePose = trunkPose(body, posture, read, projection);
       return frames === undefined ? poseBones(body, pose, read()) : frames(pose, read());
     };
   }
 
   /** The exact original complete admission/digit path with only limb goals cleared. */
-  function trunkPose(body: IHumanBody, posture: IHumanPosture, read?: ReturnType<typeof prepareHumanPoseResolution>): IAutoMoviePose {
-    return resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined, read).pose;
+  function trunkPose(body: IHumanBody, posture: IHumanPosture, read?: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IAutoMoviePose {
+    return resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined, read, undefined, projection).pose;
   }
   /**
    * A region of a body at its resolved bones.

@@ -11,6 +11,7 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerSequential } from "./staggerSequential";
+import { staggerNearest } from "./staggerNearest";
 
 /**
  * A caught stagger's close (`staggerRecover`): the other foot closes to
@@ -41,7 +42,7 @@ export namespace staggerClose {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The closing step, the settling loop, the courses, the judged course.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A course that misses the ranges is null.
    * @evidence contracts/development/implementation.md#efficient-algorithms The settling in millisecond steps once; the course solved from the last catching landing on.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the catching steps' course; a paired knot reading forwards to the pendulum's one phase lookup before settling and uses the unchanged individual tail formulas afterward.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the catching steps' course. Fixed support prepares ordered edge differences/spans once, and fixed righting/frequency/STEP prepare the same rate and growth/decay coefficients; each millisecond retains its actual reference, pressure projection and state update. Paired knot reads share phase selection before settling and preserve tail formulas afterward.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain the original settling arrays, pendulum course readers and their recovery record; each paired result is fresh, and no time-keyed samples or external handles are retained.
    */
   export function of(
@@ -52,10 +53,10 @@ export namespace staggerClose {
     judging: walkStanceCourse.ICourse | undefined,
     righting: number,
   ): staggerRecover.IRecovery | null {
-    const { STEP, STEP_TIME, TRANSFER, SETTLED, TRACKING, KNOTS } =
+    const { STEP, STEP_TIME, TRANSFER, SETTLED, TRACKING, KNOTS }: typeof staggerBounds =
       staggerBounds;
     const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
-    const { body, entry, centre, across, forward, entered, w } = pendulum;
+    const { body, entry, centre, across, forward, entered, w }: StaggerPendulum = pendulum;
     const feet: StaggerPendulum["feet"] = pendulum.feet;
     const steps: StaggerPendulum["steps"] = pendulum.steps;
 
@@ -124,6 +125,7 @@ export namespace staggerClose {
     const begin: IAutoMovieVector3 = pendulum.xi();
     const last: number = pendulum.t;
     const base: IAutoMovieVector3[] = pendulum.bearing(["left", "right"]);
+    const nearest: ReturnType<typeof staggerNearest.prepare> = staggerNearest.prepare(base);
     const settle: IAutoMovieVector3[] = [pendulum.s];
     const drifting: IAutoMovieVector3[] = [begin];
     const pressing: IAutoMovieVector3[] = [];
@@ -131,20 +133,22 @@ export namespace staggerClose {
     let e: IAutoMovieVector3 = begin;
     const longest: number = righting + 20 / w;
     const grow: number = Math.exp(w * STEP);
+    const halfGrowth: number = grow / 2;
+    const decay: number = 1 / grow;
+    const rate: number = righting * w;
     const travel: IAutoMovieVector3 = Vector3.subtract(rest, begin);
     for (let i: number = 1; i * STEP <= longest; i++) {
       const reference: minimumJerk.IProfile = minimumJerk(
         ((i - 1) * STEP) / righting,
       );
       const towards: IAutoMovieVector3 = Vector3.lerp(begin, rest, reference.s);
-      const p: IAutoMovieVector3 = StaggerPendulum.nearest(
-        base,
+      const p: IAutoMovieVector3 = nearest(
         Vector3.add(
           Vector3.subtract(
             e,
             Vector3.scale(
               travel,
-              reference.ds / (righting * w),
+              reference.ds / rate,
             ),
           ),
           Vector3.scale(Vector3.subtract(e, towards), TRACKING),
@@ -158,8 +162,8 @@ export namespace staggerClose {
       x = Vector3.add(
         p,
         Vector3.add(
-          Vector3.scale(z, grow / 2),
-          Vector3.scale(Vector3.subtract(y, Vector3.scale(z, 0.5)), 1 / grow),
+          Vector3.scale(z, halfGrowth),
+          Vector3.scale(Vector3.subtract(y, Vector3.scale(z, 0.5)), decay),
         ),
       );
       e = Vector3.add(p, Vector3.scale(z, grow));

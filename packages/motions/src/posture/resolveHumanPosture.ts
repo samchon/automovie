@@ -22,6 +22,7 @@ import { lowerHumanPosture } from "./lowerHumanPosture";
 import { orderHumanLimbs } from "./orderHumanLimbs";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureBase } from "./prepareHumanPostureBase";
+import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
 import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
 
@@ -80,7 +81,7 @@ export function resolveHumanPosture(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Companion members state heading order, lowering/leg units, reference angles, attachment rules and pose/seed/value meanings.
  * @evidence contracts/development/design.md#principled-representation Raw authoring demands remain separate from canonical pose/per-limb continuation metadata. IPrepared aliases an independently owned pose observation whose private issued source records exact translation proof; unsupported states remain ordinary postures rather than public resolved flags.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Resolution/refit/reference/heading helpers serve the grammar; prepare/translated/carried/rebased serve actual COM/display and composition consumers, while prepareBase serves complete-goal candidate searches. Their specialized owners hold proof, fixed snapshots and original solvers once.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Resolution/refit/reference/heading helpers serve the grammar; prepare/translated/carried/rebased serve COM/display and composition, prepareBase serves complete-goal searches, and prepareShort delegates fixed body/knee geometry for ground-root trials. Specialized owners hold the proof, fixed snapshots and original solvers once.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A forged/copied preparation has no private issued source; changed solver dependencies cannot self-certify. No production name, altered target, approximate new key or parallel solver is introduced, and every retained solve preserves its original constraints and memory policy.
  */
 export namespace resolveHumanPosture {
@@ -118,6 +119,7 @@ export namespace resolveHumanPosture {
    * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
    * @param resolution Optional exact reader or lazy supplier borrowed from this same synchronous person evaluation; never retained by the result.
    * @param requested Optional observational bone demand: only these frames equal full resolution; unneeded world limb goals may remain at clamped authored joints. Foot contacts retain re-aim/toe correction; continued, unsupported or arm-dependent context keeps full resolution.
+   * @param projection Genuine same-body operation projection; unknown functions fall back to ordinary ROM preparation.
    * @returns The canonical pose and each actually fitted limb's seed; omission of requested preserves complete resolution.
    */
   export function seeded(
@@ -127,13 +129,14 @@ export namespace resolveHumanPosture {
     near: INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): ISeeded {
     const cold: boolean = base === undefined && Object.keys(near).length === 0;
     if (cold) {
       const prepared: ISeeded | undefined = HumanPosturePreparation.read(body, posture);
       if (prepared !== undefined) return prepared;
     }
-    const assembled: ReturnType<typeof assembleHumanPosture> = assembleHumanPosture(body, posture, base);
+    const assembled: ReturnType<typeof assembleHumanPosture> = assembleHumanPosture(body, posture, base, projection);
     const reused: ReturnType<typeof HumanPosturePreparation.reuseLegs> = cold
       ? HumanPosturePreparation.reuseLegs(body, posture, assembled.pose)
       : undefined;
@@ -179,9 +182,12 @@ export namespace resolveHumanPosture {
    * The issued wrapper and weakly associated carried postures own bounded private source/result data until release; no FK reader, time history or external resource is retained.
    */
   export function prepare(body: IHumanBody, posture: IHumanPosture,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IPrepared {
-    return HumanPosturePreparation.prepare(body, posture, resolution);
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IPrepared {
+    return HumanPosturePreparation.prepare(body, posture, resolution, projection);
   }
+
+  /** Observe an issued source through fresh FK only; no private pose escapes or unused public pose is copied. */
+  export const preparedBones: typeof HumanPosturePreparation.bones = HumanPosturePreparation.bones;
 
   /**
    * Prepare fixed direct coordinates for one complete-goal candidate search.
@@ -370,6 +376,11 @@ export namespace resolveHumanPosture {
     return lowerHumanPosture.short(body, hip, ankle, knee);
   }
 
+  /** Prepare fixed body/knee reach geometry; every hip/ankle query retains the original lowering and refusal arithmetic. */
+  export function prepareShort(body: IHumanBody, knee: number): ReturnType<typeof lowerHumanPosture.prepareShort> {
+    return lowerHumanPosture.prepareShort(body, knee);
+  }
+
   /**
    * Re-solve one limb of a pose onto a goal, keeping everything else; an arm
    * keeps clear of the other arm where the pose already places it.
@@ -476,7 +487,8 @@ export namespace resolveHumanPosture {
     pose: IAutoMoviePose,
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
+    read?: Parameters<typeof HumanLimbFit.world>[4],
   ): IHumanPosture.IGoal {
-    return HumanLimbFit.world(body, pose, limb, goal);
+    return HumanLimbFit.world(body, pose, limb, goal, read);
   }
 }

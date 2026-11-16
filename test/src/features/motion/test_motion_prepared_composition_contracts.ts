@@ -1,3 +1,5 @@
+import { clampPose } from "@automovie/engine";
+import type { IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
   type AutoMovieMotionHumanChannel,
@@ -8,6 +10,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { makePose } from "../internal/makePose";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -27,11 +32,15 @@ import { nclose } from "../internal/nclose";
  * 4. A nested public query, including one that throws an owned exception,
  *    cannot replace its enclosing prefix scope. Failed outer writes publish
  *    no result into the next public evaluation.
+ * 5. Actual prepared ROM projectors clamp a15-degree joint to5 or10. A
+ *    nested10-degree query, including a throwing one, cannot replace its
+ *    outer5-degree source. A reader retained after both calls sees the
+ *    ordinary15-degree input without either expired projection loan.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the analytic channel arithmetic, backward dependency and active-window semantics, optional reads default, dynamic reads and failure-scope lifetime in four scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States analytic channel arithmetic, dependency/active-window semantics, dynamic reads, genuine ROM-source forwarding and success/throw/retained-reader scope lifetimes in five scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Composes actual public primitives and requests selected channels. Owned callback counters distinguish inactive from transitively required writers while hand-derived fields detect false skipped answers; nested and throwing public evaluations check restoration and subsequent recovery.
  * @evidence contracts/development/testing.md#independent-expectations The test's own pure writers define root=100+t, pitch=2root and head=pitch+1, while inactive trunk uses 10t. The declared dependency graph requires exactly root/trunk/head for head demand and no hand. Counter expectations derive from this graph and each window, not the implementation's cache or a fitted operation count.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers full/root/head/empty requests, transitive and absent dependencies, exact/adjacent window endpoints, backward and repeated seeks, dynamic dependencies on both sides, normal/throwing nested reads and outer failure recovery. Existing evaluation-scope tests own retained preparation-reader lifetimes; physical overlay/cut behavior remains separately covered.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers full/root/head/empty requests, transitive and absent dependencies, window boundaries, backward/repeated seeks, dynamic dependencies, normal/throwing nested reads, outer failure recovery, distinct genuine projector loans and an expired-loan retained prefix reader. Physical overlay/cut behavior remains separately covered.
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable unit owns its analytic extension callbacks, counters and exceptions. It replaces no foreign function or global and starts no body producer, host, viewer or compiler; borrowed partial postures are read only on requested channels.
  */
 export function test_motion_prepared_composition_contracts(): void {
@@ -197,4 +206,62 @@ export function test_motion_prepared_composition_contracts(): void {
   TestValidator.equals("failure leaves no successful prefix in a later scope", calls,
     { root: 1, trunk: 1, head: 1 },
   );
+
+  /** Bind actual engine projection metadata to an owned finite kernel rig. */
+  function limited(maximum: number): ReturnType<typeof clampPose.prepare> {
+    const skeleton: IAutoMovieSkeleton = createSkeleton();
+    const bone: IAutoMovieBone = skeleton.bones.find(
+      (value: IAutoMovieBone): boolean => value.bone === "head")!;
+    bone.constraint = { flexion: { min: 0, max: maximum }, abduction: null, twist: null };
+    return clampPose.prepare(skeleton);
+  }
+  const five: ReturnType<typeof clampPose.prepare> = limited(5);
+  const ten: ReturnType<typeof clampPose.prepare> = limited(10);
+  let retained: IAutoMovieMotionHumanPrimitive.Reader | undefined;
+  let level: number = 0;
+  let innerThrows: boolean = false;
+  let innerAngle: number | undefined;
+  const projectedBase: IHumanActionPlan = {
+    duration: 1, events: [], contacts: [],
+    posture: (_seconds: number, _channels?: readonly AutoMovieMotionHumanChannel[],
+      _resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      projector?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+      const source: IAutoMoviePose = makePose([joint("head", { flexion: 15 })]);
+      const pose: IAutoMoviePose = projector === undefined ? source : projector(source);
+      return { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, limbs: {},
+        joints: { head: [pose.joints[0]!.flexion ?? 0, 0, 0] } };
+    },
+  };
+  const projectedPrimitive: IAutoMovieMotionHumanPrimitive = {
+    channels: ["head"], reads: ["head"], from: 0, to: 1,
+    write: (under: IHumanPosture, _seconds: number,
+      before?: IAutoMovieMotionHumanPrimitive.Reader): IHumanPosture => {
+      if (level === 0) {
+        level++;
+        try { innerAngle = projected.posture(0.75, ["head"], undefined, ten).joints.head![0]; }
+        catch (failure) { if (!innerThrows || failure !== sentinel) throw failure; }
+        finally { level--; }
+      } else if (innerThrows) throw sentinel;
+      retained = before;
+      const prefix: IHumanPosture = before!(0.25, ["head"]);
+      return { ...under, joints: { ...under.joints,
+        head: [under.joints.head![0] + prefix.joints.head![0], 0, 0] } };
+    },
+  };
+  const projected: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+    base: projectedBase, clock: AutoMovieMotionClock.of(1, []), primitives: [projectedPrimitive],
+  });
+  for (const throwing of [false, true]) {
+    innerThrows = throwing;
+    TestValidator.predicate("nested success or failure restores the enclosing genuine ROM source",
+      nclose(projected.posture(0.5, ["head"], undefined, five).joints.head![0], 10, 0),
+    );
+    if (!throwing)
+      TestValidator.predicate("the inner query uses its own actual10-degree projector",
+        innerAngle !== undefined && nclose(innerAngle, 20, 0),
+      );
+    TestValidator.predicate("retained prefix reader does not retain either ended projector loan",
+      retained !== undefined && nclose(retained(0.125, ["head"]).joints.head![0], 15, 0),
+    );
+  }
 }

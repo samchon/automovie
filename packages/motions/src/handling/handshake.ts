@@ -142,6 +142,14 @@ export namespace handshake {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law states actual partner/hand, shared meeting, peak/pump timing and refusal; this method returns the original grasp/pump/release contacts and pose course.
+   * @evidence contracts/development/implementation.md#principled-implementation Both hands use the same meeting and actual constrained clasp choice; original minimum-jerk transports and cited sinusoidal pump carry the hand, fingers and grasp reference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry observations and meeting precede original shared timing, clasp selection, transports and the complete posture request.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original pumps, amplitudes, grip windows, actual paired candidate fits/clearance, references, seated/standing behavior and all refusals remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each entry observation requests only hips/feet/acting shoulder/hand; the same unchanged partner/start observation serves shoulder and standing prediction. Every original meeting/clasp solve remains, while runtime shape schedules reuse fixed phase geometry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous plan fixes the partner and entry film second for both direct observations; shared meeting-role computation remains with its original owner and no pose/time result history is added.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Entry bone maps and clasp workspaces are local to planning; the returned plan retains its original base, transport/shape geometry, chosen wrist/reference and scalar timing without a partner bone reader/history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -150,20 +158,22 @@ export namespace handshake {
     const pumps: number = context.params.pumps ?? 2;
     HumanBound.whole("pumps", pumps);
     const body: IHumanBody = context.body;
-    const partner: IHumanBody = context.performer(context.params.partner).body;
+    const other: IHumanActionContext.IPerformer = context.performer(context.params.partner);
+    const partner: IHumanBody = other.body;
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
 
     // The meeting point from both acting shoulders at the start, read from
     // the one record both partners share (`handshakeMeeting`).
+    const observed: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      "hips", "leftFoot", "rightFoot", `${side}UpperArm`, `${side}Hand`,
+    ]);
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+      poseBones(body, context.entry.pose, undefined, observed);
     const mine: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const theirs: IAutoMovieVector3 = context
-      .performer(context.params.partner)
-      .bones(context.start)
-      .get(`${side}UpperArm`)!.worldPosition;
+    const otherBones: ReturnType<IHumanActionContext.IPerformer["bones"]> = other.bones(context.start, observed);
+    const theirs: IAutoMovieVector3 = otherBones.get(`${side}UpperArm`)!.worldPosition;
     const shake: number = pumps / FREQUENCY;
     const { meeting, lean }: handshakeMeeting.IRead = handshakeMeeting.read(
       context,
@@ -219,10 +229,7 @@ export namespace handshake {
       {
         subject: context.params.partner,
         body: partner,
-        posture: HumanGrasp.standing(
-          partner,
-          context.performer(context.params.partner).bones(context.start),
-        ),
+        posture: HumanGrasp.standing(partner, otherBones),
         palm: Vector3.scale(palm, -1),
         fingers: Vector3.scale(meeting.fingers, -1),
       },
@@ -241,7 +248,8 @@ export namespace handshake {
     const entry: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
     const rest: IAutoMovieResolvedBone = poseBones(
       body,
-      resolveHumanPosture(body, base.posture(duration)),
+      resolveHumanPosture(body, base.posture(duration)), undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
     const out: HumanPrehension.ITransport = HumanPrehension.transport(
       entry.worldPosition,

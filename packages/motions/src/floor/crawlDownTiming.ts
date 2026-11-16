@@ -5,6 +5,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -21,8 +22,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous key-resolution pass and one ordered travel reduction produce the times.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every key's actual limb fits, canonical clamp/digits and all twelve original travel measurements remain; no timing coefficient or motion sample changes.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each of K keys demands only the twelve measured joint outputs and their ancestry; O(K) key maps and the existing ordered displacement reduction remain.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact dependency reader serves actual resolution and final FK throughout this synchronous body operation; maps are not reused for different keys.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and K fresh maps end with this helper; only K scalar key times enter the returned crawl plan.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact dependency reader and one genuine same-body ROM metadata projector serve this synchronous key pass; all current joints/limbs still resolve and no map is reused for another key.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader, bounded ROM metadata and K fresh maps end with this helper; only K scalar key times enter the returned crawl plan.
  */
 export function crawlDownTiming(
   body: IHumanBody,
@@ -31,12 +32,21 @@ export function crawlDownTiming(
 ): number[] {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
+  const projection: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
   const bones: ReturnType<typeof poseBones>[] = keys.map(
     (key: IHumanPosture): ReturnType<typeof poseBones> =>
       poseBones(
         body,
-        resolveHumanPosture.seeded(body, key, undefined, undefined, resolution)
-          .pose,
+        resolveHumanPosture.seeded(
+          body,
+          key,
+          undefined,
+          undefined,
+          resolution,
+          undefined,
+          projection,
+        ).pose,
         resolution(),
         DEMAND,
       ),

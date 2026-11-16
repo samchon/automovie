@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieGravity, preparePoseResolution } from "@automovie/engine";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -171,7 +171,7 @@ export namespace walk {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No footprint, event, authored parameter, solver bound or sampling schedule changes; omitted demand still evaluates the complete posture.
    * @evidence contracts/development/implementation.md#efficient-algorithms Step lookup is logarithmic in footfalls; each query retains the original bounded pelvis/foot work for its demanded channels, while fixed swing endpoints and body terms are prepared once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Side and toe-off identify one immutable scheduled interval; scheduled and reached endpoint readers keep separate preparation because their stance sources differ. Root-only pacing queries skip unread carriage and swing-goal work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/step references, one carriage and bounded endpoint/descent/swing entries per footfall, released with the plan; arbitrary query times are not cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/step references, one carriage and bounded endpoint/descent/swing entries per footfall, released with the plan. Synchronous descent/flight-endpoint construction borrows one exact FK reader until return or throw; only numeric results enter the retained maps, and arbitrary query times are not cached.
    */
   export function locomote(
     given: IHumanActionContext<Omit<IParams, "pace">>,
@@ -233,6 +233,7 @@ export namespace walk {
       ...walkStation.cadenced(context, gait, speed * share * weary),
     });
     const duration: number = steps.duration;
+    const claim: ReturnType<typeof walkReach.prepareShort> = walkReach.prepareShort(body);
 
     const pelvis: (t: number, phase?: number, amount?: number) => readonly [number, number, number] = (
       t: number,
@@ -266,14 +267,14 @@ export namespace walk {
       side: "left" | "right",
       swing: { off: number; on: number },
       u: number,
+      resolution?: ReturnType<typeof preparePoseResolution>,
     ): number {
       const t: number = swing.off + u * (swing.on - swing.off);
-      return walkReach.short(
-        body,
+      return claim(
         walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
           left: steps.foot("left", t),
           right: steps.foot("right", t),
-        }).hips[side],
+        }, resolution).hips[side],
         scheduledSwing(side, swing, u).placement.ankle,
       );
     }
@@ -295,11 +296,12 @@ export namespace walk {
         // when it left and what the next claims when it lands, blended.
         if (gait.swing > 1) {
           const key: string = `${side}:${swing.off}`;
-          const held: [number, number] = flights.get(key) ?? [
-            reaching(side, swing, 0),
-            reaching(side, swing, 1),
-          ];
-          flights.set(key, held);
+          let held: [number, number] | undefined = flights.get(key);
+          if (held === undefined) {
+            const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+            held = [reaching(side, swing, 0, resolution), reaching(side, swing, 1, resolution)];
+            flights.set(key, held);
+          }
           claims[side] = runStance.airborne(held, swing.u);
           continue;
         }
@@ -307,8 +309,9 @@ export namespace walk {
         const key: string = `${side}:${swing.off}`;
         let descent: walkDescent.IPlan | undefined = descents.get(key);
         if (descent === undefined) {
+          const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
           descent = walkDescent.plan((u: number): number =>
-            reaching(side, swing, u),
+            reaching(side, swing, u, resolution),
           );
           descents.set(key, descent);
         }
@@ -346,9 +349,7 @@ export namespace walk {
       return out;
     };
     const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end);
-    const ranged: Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>> = {
-      left: walkReach.prepareSwing(body, "left"), right: walkReach.prepareSwing(body, "right"),
-    };
+    const ranged: Partial<Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>> = {};
     function solve(
       t: number,
       legs: readonly ("left" | "right")[],
@@ -377,7 +378,7 @@ export namespace walk {
           reached[side] = settled.feet[side];
           continue;
         }
-        reached[side] = ranged[side](
+        reached[side] = (ranged[side] ??= walkReach.prepareSwing(body, side))(
           settled,
           reachedSwing(side, swing, swing.u),
         );

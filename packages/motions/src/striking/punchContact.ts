@@ -115,7 +115,7 @@ export namespace punchContact {
     /** The online tracker of the target. */
     tracker: StrikingAim.ITracker;
 
-    /** The displayed entry's six arm-joint outputs, sufficient for the launch wrist/elbow and both complete arm sweeps. */
+    /** The displayed entry bone map: complete by default, or the explicit requested outputs. The punch geometry requests all six arm joints for its launch wrist/elbow and both complete arm sweeps. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** The lead foot's step along the line, metres. */
@@ -141,12 +141,12 @@ export namespace punchContact {
      * the step, the wrist at contact and the elbow's hint.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument and what each returned correction carries.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature has no numerical body; punchContact.solve produces the actual correction law and documents its method.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature delegates structure to solve's owned tracker/reach/correction closure rather than a caller-supplied implementation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration introduces no numerical policy; solve documents the actual reach/refusal rules used by its produced function.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature runs no algorithm; solve's implementation answer owns tracker-unit, reach, room and returned-correction costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature stores no work; solve owns its launch reach, per-arrival reach reuse and actual correction formation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This type holds no runtime state; solve documents its produced closure's context, tracker, bone map, room and reach lifetime.
+     * @evidence contracts/development/implementation.md#principled-implementation solve's producer accumulates the tracker's actual ordered displacement units onto its planned goal, solves each newly arrived reach with the original launch advance, then returns adjacent reach differences on those units' original start/duration clocks.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered tracker-unit loop fills missing per-arrival reaches and emits fresh advance/end/hint/reach/moved records; punchGeometry consumes those same corrections for wrist, trunk step and arm reference.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original reach band, launch stepping decision, room bound, strict punchReach.same predicate and tracker clocks; no correction, physical target or authored limit is fabricated or relaxed.
+     * @evidence contracts/development/implementation.md#efficient-algorithms A query pays the actual tracker-unit read and O(K) fresh correction/vector work for K arrived units. Only previously unseen arrivals pay their original analytic reach and any first lazy room scan; source geometry costs remain with solve.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer's fixed launch plan and stable ordered tracker arrivals justify one retained reach per arrival index; each query still reads current units and forms fresh differences. Another geometry/plan gets independent state, with no new pose/time cache.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The solve-owned closure retains its context, tracker, entry map, lazy room and launch plus at most one reach per tracker correction; that population follows the original tracker's action window and is released with the geometry. Returned arrays/records are fresh and retain no FK workspace.
      */
     corrected(seconds: number): readonly punchReach.ICorrection[];
   }
@@ -157,6 +157,7 @@ export namespace punchContact {
    * @param context The action's context, whose body keeps its topology and skeleton unchanged.
    * @param timing The punch's timing.
    * @param tangent The varied point within a person's region, when the punch varies.
+   * @param requested Optional actual entry-bone output demand; omitting it preserves the complete original entry map and every joint is still admitted.
    * @returns The contact's solution.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its inputs, result and the body's unchanged-skeleton topology premise; the namespace states the contact method.
@@ -171,6 +172,7 @@ export namespace punchContact {
     context: IHumanActionContext<punch.IParams>,
     timing: punchGeometry.ITiming,
     tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IContact {
     const p: punch.IParams = context.params;
     const { side, lead, which, delivery }: punchGeometry.ITiming = timing;
@@ -311,7 +313,7 @@ export namespace punchContact {
 
     // The arms at the launch, read from the displayed entry pose.
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand"]));
+      poseBones(body, context.entry.pose, undefined, requested);
 
     // The punch returns to the guard where the step ends, so the step never
     // closes past the room in front of the arms ({@link StrikingRoom}). A

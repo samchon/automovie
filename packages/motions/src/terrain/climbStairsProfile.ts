@@ -21,6 +21,7 @@ export function climbStairsProfile(
   near: number,
   clearance: number,
 ): (z: number) => number {
+  const surface: ReturnType<typeof climbStairsFlight.prepareSurface> = climbStairsFlight.prepareSurface(stairs);
   const edges: { z: number; height: number }[] = Array.from(
     { length: stairs.count },
     (_: unknown, i: number): { z: number; height: number } => {
@@ -28,14 +29,14 @@ export function climbStairsProfile(
       return {
         z,
         height: Math.max(
-          climbStairsFlight.surface(stairs, z - 0.001),
-          climbStairsFlight.surface(stairs, z + 0.001),
+          surface(z - 0.001),
+          surface(z + 0.001),
         ) + clearance,
       };
     },
   );
   return (z: number): number => {
-    let height: number = climbStairsFlight.surface(stairs, z);
+    let height: number = surface(z);
     let low: number = 0;
     let high: number = edges.length;
     while (low < high) {

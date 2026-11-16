@@ -253,9 +253,9 @@ export namespace squatVault {
         to: touchdown / duration,
         momentum: { kind: "turns", somersault: 0, twist: 0 },
       },
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= push) return held.posture(t, channels, resolution);
+        if (t <= push) return held.posture(t, channels, resolution, projection);
         if (t >= touchdown) return landing;
         const u: number = t - push;
         const shaped: IHumanPosture = flyingShape(minimumJerk.share(u / flight));

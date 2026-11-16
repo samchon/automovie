@@ -3,13 +3,14 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 /**
  * Pure vector math over {@link IAutoMovieVector3} (`{ x, y, z }`).
  *
- * Every function leaves its inputs unchanged and returns a new value. The
- * engine keeps this small math layer instead of depending on `three.js`, so it
- * stays independent of the renderer and runs headless.
+ * Operations return fresh values unless their name explicitly ends in Into;
+ * those write only the supplied target after reading every source component.
+ * The engine keeps this small math layer independent of the renderer so it
+ * runs headless without depending on `three.js`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the record shape, that inputs are never changed, and why the engine keeps its own math instead of `three.js`.
+ * @evidence contracts/development/common.md#meaningful-documentation States the record shape, fresh-value and explicit write-target ownership, and why the engine keeps its own math instead of `three.js`.
  * @evidence contracts/development/design.md#principled-representation Three scalar components describe a vector or point in the caller's frame and unit; addition, subtraction, products, norm, distance and interpolation preserve those ordinary Euclidean meanings without another coordinate representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The engine's shared vector operations serve geometry, FK and physical computation. distance serves actual bend residuals and two-bone lengths without exposing an unused displacement record; vector-producing callers retain subtract and length.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The engine's shared vector operations serve geometry, FK and physical computation. distance serves actual bend residuals and two-bone lengths without an unused displacement record; crossDifferenceInto writes the raw hull candidate perpendicular into its private scratch without two edge records and a cross-product record.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace Vector3 {
@@ -139,6 +140,44 @@ export namespace Vector3 {
     y: a.z * b.x - a.x * b.z,
     z: a.x * b.y - a.y * b.x,
   });
+
+  /**
+   * Write `(a - origin) × (b - origin)` into a caller-owned target.
+   * The two differences and right-handed cross product retain subtract/cross
+   * arithmetic, including nonfinite values and signed zeros. Every source is
+   * read before any write, so target may alias origin, a or b.
+   *
+   * @param target Mutable output; its previous components are not read.
+   * @param origin Common edge origin in the same frame and unit as a and b.
+   * @param a First edge endpoint, read before the second endpoint.
+   * @param b Second edge endpoint; reversing endpoints reverses orientation.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the oriented differences, explicit mutable output, source read order, alias safety and unaltered raw arithmetic.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes the six differences in subtract(a, origin), subtract(b, origin) order, then the same three determinant expansions as cross before publishing X, Y and Z.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One write-target operation owns the compound cross of two point differences used by physical hull face candidates; ordinary cross and subtract remain the fresh-value operations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normalization, finite gate, zero shortcut, reassociation or geometric tolerance changes the six subtractions and three cross-product expressions.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work replaces the raw hull candidate's two displacement records and cross record, with exactly the same arithmetic and no temporary vector allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull scan reuses its own private output record across candidate triples; every invocation recomputes the current point differences and determinant with no point or result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only nine local scalars live during the call; the caller owns the target lifetime and no source or target is retained by the math layer.
+   */
+  export const crossDifferenceInto = (
+    target: IAutoMovieVector3,
+    origin: IAutoMovieVector3,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): void => {
+    const ax: number = a.x - origin.x;
+    const ay: number = a.y - origin.y;
+    const az: number = a.z - origin.z;
+    const bx: number = b.x - origin.x;
+    const by: number = b.y - origin.y;
+    const bz: number = b.z - origin.z;
+    const x: number = ay * bz - az * by;
+    const y: number = az * bx - ax * bz;
+    const z: number = ax * by - ay * bx;
+    target.x = x;
+    target.y = y;
+    target.z = z;
+  };
 
   /**
    * The Euclidean length of `a`.

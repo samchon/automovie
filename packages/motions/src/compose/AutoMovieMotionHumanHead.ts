@@ -55,14 +55,18 @@ export namespace AutoMovieMotionHumanHead {
   ): IAutoMovieMotionHumanPrimitive {
     const from: number = clock.at(window[0]);
     const to: number = clock.at(window[1]);
-    let wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> | undefined;
+    let wave: { from: string; to: string; read: ReturnType<typeof AutoMovieMotionClock.prepareWave> } | undefined;
     return AutoMovieMotionHumanJoints.add({
       channels: ["head"],
       from,
       to,
       delta: (seconds: number): AutoMovieMotionHumanJoints.Angles => {
-        if (wave === undefined) wave = AutoMovieMotionClock.prepareWave(clock, window, cycles);
-        return share(axis, degrees * wave(seconds));
+        const opening: string = window[0];
+        const closing: string = window[1];
+        if (wave === undefined || wave.from !== opening || wave.to !== closing)
+          wave = { from: opening, to: closing,
+            read: AutoMovieMotionClock.prepareWave(clock, [opening, closing], cycles) };
+        return share(axis, degrees * wave.read(seconds));
       },
     });
   }
@@ -80,7 +84,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#principled-implementation A nod is a repeated flexion about the held pose, so the angle is the amplitude times `AutoMovieMotionClock.wave`, which leaves and rejoins the pose at rest.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the shared oscillation with the flexion axis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and the count are the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the oscillation with shake; its first actual sample admits the fixed count and prepares the same Clock wave constants, while every sample still calls the current clock.linear implementation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares shake's oscillation; the first actual sample admits the fixed count through the Clock owner, and exact current window names guard one last preparation. Changed names rebuild it, while every sample still invokes the current clock.linear implementation.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its arguments and at most one fixed wave reader until released, without retaining samples or postures.
    */
@@ -106,7 +110,7 @@ export namespace AutoMovieMotionHumanHead {
    * @evidence contracts/development/implementation.md#principled-implementation A shake is a repeated twist about the held pose, so the angle is the amplitude times `AutoMovieMotionClock.wave`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the shared oscillation with the twist axis.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the amplitude and the count are the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nod's first-sample fixed-count preparation through the Clock owner; actual custom clock.linear callbacks and current sample evaluation remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nod's first-sample count preparation and exact current window-name guard through the Clock owner; changed names, actual custom clock.linear callbacks and current sample evaluation remain live.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its fixed arguments and one lazy wave reader, without per-second samples or posture results.
    */

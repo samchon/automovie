@@ -311,6 +311,7 @@ export namespace KickGeometry {
     parts: Omit<IKickGeometry, "posture">,
   ): IKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead: timing.lead });
     const chain = (t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>): IHeld => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
@@ -358,7 +359,7 @@ export namespace KickGeometry {
           ...held.body,
           limbs: {
             ...held.body.limbs,
-            ...(arms ? StrikingStance.guard(body, held.body, { lead: timing.lead }, {}, undefined, resolution) : {}),
+            ...(arms ? guardAt(held.body, resolution) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
               point: held.leg.ankle,
               bend: held.leg.hint,

@@ -19,12 +19,16 @@ import { nclose } from "../internal/nclose";
  * 4. The scalar world-Y observation of (2,3,5) retains the actual cardinal
  *    and noncommuting rotations: X90 gives-5, Y90 gives3, X90Y90 gives2
  *    and Y90X90 gives-5. Opposite quaternion signs retain each ordinate.
+ * 5. The explicit normalize-then-angle scalar entry retains the same20-degree
+ *    cardinal arc under nonunit signed scales and1e300 finite components.
+ *    A zero first quaternion uses the documented identity before reading
+ *    the60-degree target; a nonfinite component remains nonfinite.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States radians/degree expectations, shorter-arc sign equivalence, noncommuting geometry, small-angle resolution and independent scalar-Y expectations in four scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls actual public Quaternion.angle on literal unit endpoints and their products, checking known geodesic distances, pair/sign symmetry, preserved tiny corrections and true zero. Actual rotateVectorY observations independently distinguish cardinal and noncommuting composition order.
+ * @evidence contracts/development/common.md#meaningful-documentation States radians/degree expectations, shorter-arc sign equivalence, noncommuting geometry, small-angle resolution, independent scalar-Y values and explicit pre-normalization semantics in five scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public Quaternion.angle/angleAfterNormalize on literal unit/nonunit endpoints and products, checks known geodesics, pair/sign symmetry, tiny corrections and zero, and supplements physical values with exact parity to the explicit normalize-then-angle expression. Actual rotateVectorY independently distinguishes cardinal and noncommuting order.
  * @evidence contracts/development/testing.md#independent-expectations The wrapped cardinal difference is20 degrees. X90/Y90 and their written products have absolute dot1/2, giving2acos(1/2)=120 degrees. Ordinary Rx90 maps(x,y,z) to(x,-z,y), and Ry90 maps it to(z,y,-x); applying these matrices in the stated order fixes all scalar-Y values. A cardinal half-angle directly encodes each tiny input. Identity allows1e-14 radians for normalization/Hamilton product roundoff; tiny nonzero angles retain relative1e-12 agreement, so that zero bound is no deadzone.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers shortest versus long arc, either quaternion sign, reversed arguments, noncommuting axes/products, scalar-Y cardinal/composed observations, two small scales and identical rotations. Nonunit/zero/extreme normalization remains covered by existing normalization and inverse entries.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable portable math unit owns all finite unit endpoints and calls the real angle function without a host, compiler, foreign replacement or new public helper.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers shortest versus long arc, either quaternion sign, reversed arguments, noncommuting axes/products, scalar-Y observations, tiny angles, identical rotations and the actual pre-normalization entry with signed/nonunit/large/zero/nonfinite inputs. The broader normalization matrix remains with existing normalization/inverse entries.
+ * @evidence contracts/development/testing.md#execution-ownership One discoverable portable math unit owns literal unit/nonunit endpoints and calls existing public Quaternion entries without a host, compiler, foreign replacement or test-only helper export.
  */
 export function test_math_quaternion_geodesic_semantics(): void {
   const a: IAutoMovieQuaternion = zturn(170 * Math.PI / 180);
@@ -57,6 +61,23 @@ export function test_math_quaternion_geodesic_semantics(): void {
       TestValidator.predicate("scalar world-Y observes the independently composed physical turn",
         nclose(Quaternion.rotateVectorY(turn, { x: 2, y: 3, z: 5 }), ordinate, 1e-12),
       );
+  for (const factor of [0.25, -8, 1e300]) {
+    const scaled: IAutoMovieQuaternion = { x: a.x * factor, y: a.y * factor, z: a.z * factor, w: a.w * factor };
+    const actual: number = Quaternion.angleAfterNormalize(scaled, b);
+    TestValidator.predicate("explicit normalization preserves the known cardinal arc at each finite scale",
+      nclose(actual, Math.PI / 9, 1e-12),
+    );
+    TestValidator.predicate("the scalar entry preserves both original normalization boundaries exactly",
+      nclose(actual, Quaternion.angle(Quaternion.normalize(scaled), b), 0),
+    );
+  }
+  TestValidator.predicate("normalize-then-angle retains the known nonunit quarter turn and zero identity",
+    nclose(Quaternion.angleAfterNormalize({ x: 0, y: 0, z: 2, w: 2 }, identity), Math.PI / 2, 1e-12) &&
+    nclose(Quaternion.angleAfterNormalize({ x: 0, y: 0, z: 0, w: 0 }, zturn(Math.PI / 3)), Math.PI / 3, 1e-12),
+  );
+  TestValidator.predicate("explicit normalization does not repair a nonfinite component",
+    Number.isNaN(Quaternion.angleAfterNormalize({ x: 0, y: 0, z: NaN, w: 1 }, identity)),
+  );
 }
 
 /** Encode a cardinal rotation directly in radians using its half-angle. */

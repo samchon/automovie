@@ -321,6 +321,7 @@ export namespace IHumanActionContext {
       seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3],
     ): IHumanPosture;
 
     /**

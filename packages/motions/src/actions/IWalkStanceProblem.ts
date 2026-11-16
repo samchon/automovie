@@ -41,15 +41,15 @@ export interface IWalkStanceProblem {
 
   /** Hard step rows around x inside radius units of the existing TRUST table.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States step-relative hard intervals, fixed layout and the dimensionless trust-radius scale.
+   * @evidence contracts/development/common.md#meaningful-documentation States step-relative hard intervals, fixed layout and dimensionless trust-radius scale. borrowedTopology=true permits a prepared numeric consumer to borrow fixed index/coefficient arrays read-only; default calls keep independent array storage.
    * @evidence contracts/development/implementation.md#principled-implementation Substitutes current coordinates into original held/fixed/range/join rows and intersects free-coordinate intervals with their original scaled trust limits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepared row topology owns invariant schedule/contact decisions; this reader applies only coordinates and radius.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all held coordinates, foot/trunk claims and continuing-stance equalities in original order without a relaxed interval.
    * @evidence contracts/development/implementation.md#efficient-algorithms Reads O(m) prepared rows with no repeated placement or side search for m hard rows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Row topology belongs to fixed geometry/holds, independent of swivel changes; each query returns fresh row/index/coefficient arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Row topology belongs to fixed geometry/holds, independent of swivel changes; default queries copy every array, while an explicit prepared-solver loan shares only read-only index/coefficient arrays and always returns fresh rows/bounds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains O(m) immutable descriptions until release; current returned rows belong to their solve and no radius history grows.
    */
-  region: (x: Float64Array, radius: number) => Q.IRow[];
+  region: (x: Float64Array, radius: number, borrowedTopology?: boolean) => Q.IRow[];
 
   /** Largest step coordinate normalized by its original trust-region unit.
    *

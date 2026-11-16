@@ -11,6 +11,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuard } from "./StrikingGuard";
+import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingReach } from "./StrikingReach";
 
 /**
@@ -254,6 +255,33 @@ export namespace StrikingStance {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
     return StrikingGuard(body, posture, stance, drop, posed, resolution);
+  }
+
+  /**
+   * Prepare the fixed guard's actual head/shoulder demand for an action.
+   * Each posture still computes both original glove goals from its own trunk.
+   *
+   * @param body The unchanged canonical body.
+   * @param stance The captured leading-side reader inputs.
+   * @param drop The captured per-side glove sag inputs, metres; empty by default.
+   * @returns The guard at an actual posture and optional operation-local FK source.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines body-owned fixed FK demand, captured guard inputs, actual changing posture and optional synchronous source.
+   * @evidence contracts/development/implementation.md#principled-implementation The canonical guard metadata supplies every actual chin/face/jaw/shoulder output to prepareTrunk once; each query retains the original seeded admission/digit path and StrikingGuard's coached geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-demand trunk producer feeds the same guard owner used by the one-shot guard entry; no second glove formula or physical fit exists.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both glove goals, shoulder withdrawal, canonical wrist offsets, authored joint admission and digit solves remain. Each query uses its actual posture; no pose, goal, time or contact outcome is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Head/shoulder name sorting and reachable-demand preparation run once per action. Each actual guard still pays original admission/digit work, required FK ancestry and two side computations; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body's canonical guard-name metadata is prepared. Captured stance/drop feed each actual glove calculation, while a borrowed FK supplier shares only exact dependencies inside that current synchronous evaluation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns fixed body/demand and guard inputs until release. Each query owns fresh frames/goals and a local or borrowed exact reader only until return or throw; the producer retains no reader or posture history.
+   */
+  export function prepareGuard(
+    body: IHumanBody,
+    stance: Pick<IStance, "lead">,
+    drop: Partial<Record<"left" | "right", number>> = {},
+  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> =>
+      StrikingGuard(body, posture, stance, drop, trunk(posture, resolution));
   }
 
   /**

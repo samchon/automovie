@@ -27,7 +27,7 @@ import { StrikingStance } from "./StrikingStance";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every coached coefficient and vector operation is unchanged. Demand selects the actual region-carrying bones plus both shoulders, while authored joint/clamp admission and output freshness remain with their owners.
  * @evidence contracts/development/implementation.md#efficient-algorithms Without supplied frames, FK admits all joints but returns only four region owners and two shoulders plus their ancestry. One supplied operation reader shares equal scalar prerequisites with lowering/other reads; two side computations remain constant work and speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied map must describe this exact body/posture, and a supplied reader belongs to the same synchronous person evaluation. Both gloves share the actual completed trunk read; no pose/time answer is retained.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Requested metadata, a fresh trunk map and optional borrowed reader end on return or throw; returned goals own their new vectors and retain no map, getter or query history.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The unchanged body's weak metadata owner retains at most six requested names; each fresh trunk map and optional borrowed reader end on return or throw. Returned goals own their new vectors and retain no map, getter or query history.
  */
 export function StrikingGuard(
   body: IHumanBody,

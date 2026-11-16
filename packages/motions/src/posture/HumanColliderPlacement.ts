@@ -17,7 +17,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * Posed frames are always current values, distinct from that neutral data.
  *
  * @evidence contracts/development/design.md#principled-representation Applies each bone's world transform to the profile segment's neutral offset from the canonical rest joint, preserving the existing median-plane left/right reflection.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanColliders.placed and prepare delegate to this single placement owner; distances and floor readers retain their existing facade and ordered posed records.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanColliders delegates full placement, explicit geometry preparation, canonical bone names and fixed-demand preparePlaced to this owner; distance/floor consumers retain their facade and actual ordered posed records.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Moves the existing neutral SIDED weak cache without adding a posed-body or distance-result cache; current bones are read on every placement and the body definition must remain unchanged for its identity.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes neutral metadata from current posed frames, their transform convention and cache ownership.
  */
@@ -67,12 +67,14 @@ export namespace HumanColliderPlacement {
    * Bind the actual neutral entries needed by repeated current-bone queries.
    * Request names are snapshotted once; later edits require another reader.
    * Body geometry stays unchanged, while each map supplies fresh posed inputs.
+   * Extra map frames outside the request are ignored; missing requested
+   * frames are omitted and selected duplicates keep their profile order.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed name/body scope, current-map inputs, fresh placements, ordering and request invalidation.
    * @evidence contracts/development/implementation.md#principled-implementation A profile entry whose name is outside the actual requested frame set cannot be placed by a map containing only those frames. Snapshot those entries in original order and delegate all actual position/rotation arithmetic to the same place owner as of.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One producer binds this body's genuine neutral metadata to copied names; its callback accepts only current bones, so no unrelated body/prepared-list pair can be injected.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every selected profile duplicate, original order, absent-bone skip and transform expression. No shape search, posed answer, contact verdict or tolerance is precomputed, and ordinary of retains its complete profile traversal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(K+S) factory pass copies K requested names and selects R entries from S neutral segments; each later map traverses R entries instead of S and constructs only actual fresh placements. No speedup is measured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(K+S) binding pass copies K names and selects R of S neutral entries; first neutral preparation additionally pays its existing O(B+S+V) rig/segment/mirrored-vertex work without topology search. Each query then traverses R instead of S and constructs only fresh actual placements. No speedup is measured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work This body's unchanged rest/profile metadata and copied request names fix the selected list. Every query still reads its actual bone position/quaternion, and changing a frame or its presence recomputes or omits the placement normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one callback and R borrowed immutable neutral entries until its fixed-demand operation ends. Temporary name indexing releases after binding; no bone map, placed frame or query history is retained, and the established neutral-body cache keeps its weak lifetime.
    */

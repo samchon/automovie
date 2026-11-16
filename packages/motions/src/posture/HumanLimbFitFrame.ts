@@ -32,7 +32,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  * point moves together. A world-fixed ground goal remains different when
  * only the root moves vertically, because its relative target Y changes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world. The original GRID constant remains1e-12; its local documentation explains normalization rounding and the existing1e-9 moved-fit comparison.
  * @evidence contracts/development/design.md#principled-representation A rigid reference frame removes all three root translation components and only its world-up heading; pitch/roll, joint coordinates, local contacts and seed branch/swivel remain unchanged. Optional y defaults to zero for existing explicitly constructed floor frames.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The frame, moving a pose, a goal and a point into it, the key's grid (`grid`, `GRID`), and the memory's hit counts; `HumanLimbFit.remembered` is the one caller.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is moved that names a world collider: it is keyed in the world, not approximated.
@@ -232,7 +232,8 @@ export namespace HumanLimbFitFrame {
    * finer than the 1e-9 m to which #3463 holds a moved fit to its original,
    * so two inputs read as one differ by less than that acceptance reads.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unchanged1e-12 key resolution, normalization-rounding basis and original1e-9 moved-fit acceptance comparison.
+   * The key resolution remains1e-12; this constant does not change a physical
+   * contact, range-of-motion, target or success tolerance.
    */
   export const GRID: number = 1e-12;
 

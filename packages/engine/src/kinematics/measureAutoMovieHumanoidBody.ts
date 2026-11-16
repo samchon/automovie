@@ -9,7 +9,9 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
-import { physicalShapeBounds } from "../physics/physicalShapeBounds";
+import type { physicalShapeBounds } from "../physics/physicalShapeBounds";
+import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
+import { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
 /**
  * Read the anthropometric measure of a canonical humanoid from its rig and
@@ -32,20 +34,22 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile, segments keyed by rig bones.
+ * @param neutral Optional genuine internal bounds epoch for this unchanged profile; withSurfaces owns its preparation and release.
  * @returns The measure, metres and kilograms.
  * @throws {Error} When a bone or segment the measure needs is missing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame premise, where each family of measures is read and the fallbacks.
  * @evidence contracts/development/implementation.md#principled-implementation Joint-centre anthropometry on the rest rig and exact collider bounds, the segment definitions of Winter ch. 4.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-position pass and a first-name segment index feed direct anthropometric reads. The existing stature traversal also supplies each segment's complete axis bounds to every later measure.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-position pass and a first-name segment index feed direct anthropometric reads. The stature traversal supplies every later measure's bounds. WithSurfaces then calls the existing surface resolver in original order with one internal, genuine neutral-bounds epoch.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or segment throws rather than being guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(B+S) indexing for B bones and S segments precedes one bounds computation per profile shape, including O(V) hull rotations. Head/chest/hand/repeated foot measures reuse extents. Hull topology remains physicalHullFaces-owned; each requested least width scans F faces against V vertices in O(F V) time and constant scratch, without per-face projection arrays.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The rig/profile are unchanged through this pure synchronous call. Exact segment identity in that epoch shares its actual neutral bounds; the first-name index preserves the old first matching segment when names repeat. No value crosses calls or substitutes for changed geometry.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns O(B+S) rest, name and numeric-bounds data until return or throw. Only the fresh numeric measure escapes, without a source, callback, geometry cache or handle.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(B+S) indexing precedes one bounds computation per profile shape, including O(V) hull rotations. Head/chest/hand/foot reuse extents. WithSurfaces shares those six numeric coordinates with subsequent surface bounds instead of repeating hull rotations. Requested hull least width still scans F faces against V vertices in O(F V) time and constant scratch.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact segment identities share actual neutral bounds in the unchanged synchronous epoch, preserving first duplicate-name precedence. The optional internal handle must match the live profile/segment; withSurfaces issues and releases it itself, accepting no caller-derived bounds. Standalone calls retain only local extents.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns O(B+S) local rest/names/bounds until return or throw. WithSurfaces releases all internal epoch entries in finally on either derivation's success or failure; only fresh numeric measure and surface records escape, with no profile reader or geometry handle.
  */
 export function measureAutoMovieHumanoidBody(
   skeleton: IAutoMovieSkeleton,
   profile: P,
+  neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
 ): IAutoMovieBodyMeasure {
   const segments: Map<string, P.ISegment> = new Map();
   for (const part of profile.segments)
@@ -83,18 +87,7 @@ export function measureAutoMovieHumanoidBody(
   ): ReturnType<typeof physicalShapeBounds> => {
     const known: ReturnType<typeof physicalShapeBounds> | undefined = extents.get(s);
     if (known !== undefined) return known;
-    const out: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = {
-      min: { x: Infinity, y: Infinity, z: Infinity },
-      max: { x: -Infinity, y: -Infinity, z: -Infinity },
-    };
-    for (const shape of s.shapes) {
-      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
-        physicalShapeBounds(s.neutral, shape);
-      for (const k of ["x", "y", "z"] as const) {
-        out.min[k] = Math.min(out.min[k], b.min[k]);
-        out.max[k] = Math.max(out.max[k], b.max[k]);
-      }
-    }
+    const out: ReturnType<typeof physicalShapeBounds> = AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
     extents.set(s, out);
     return out;
   };
@@ -262,4 +255,34 @@ export function measureAutoMovieHumanoidBody(
       radius(bone(s, "LowerLeg")),
     ),
   };
+}
+
+/**
+ * Sequential measure and surface derivation share only exact neutral bounds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation WithSurfaces derives the same fresh measure then surfaces for one unchanged canonical rig/profile, retaining existing refusal order and releasing its internal bounds epoch in finally.
+ * @evidence contracts/development/design.md#principled-representation The ordinary numeric measure and anatomical surfaces remain separate results; only their common exact neutral segment-bound prerequisite has operation ownership.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface CreateHumanBody consumes withSurfaces for the two consecutive derivations; standalone measurement and surface resolution remain available with their existing behavior.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Callers supply only original rig/profile inputs, never a ready flag, bounds, foreign prepared body or solver answer. Both existing owners still perform every actual derivation and refusal.
+ */
+export namespace measureAutoMovieHumanoidBody {
+  /**
+   * Derive measure then surfaces with one synchronous unchanged-profile scope.
+   * Bound preparation performs no shape work before its original observation;
+   * source geometry must remain unchanged for the duration of this call.
+   * Both returned records retain their ordinary independent ownership.
+   */
+  export function withSurfaces(
+    skeleton: IAutoMovieSkeleton,
+    profile: P,
+  ): { measure: IAutoMovieBodyMeasure; surfaces: resolveAutoMovieHumanoidSurfaces.ISurfaces } {
+    const neutral: AutoMovieHumanoidNeutralBounds.IPrepared = AutoMovieHumanoidNeutralBounds.prepare(profile);
+    try {
+      const measure: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody(skeleton, profile, neutral);
+      const surfaces: resolveAutoMovieHumanoidSurfaces.ISurfaces = resolveAutoMovieHumanoidSurfaces(skeleton, profile, neutral);
+      return { measure, surfaces };
+    } finally {
+      AutoMovieHumanoidNeutralBounds.release(neutral);
+    }
+  }
 }

@@ -46,10 +46,10 @@ export namespace AutoMovieMotionHumanArmMove {
       weight: number) => IHumanPosture["joints"] =
       (side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
         weight: number): IHumanPosture["joints"] => {
-      if (shaped === undefined || shaped.side !== side || shaped.shape !== shape)
-        shaped = { side, shape, read: AutoMovieMotionHumanHand.prepareFingers(side, shape) };
-      return shaped.read(curl, weight);
-    };
+        if (shaped === undefined || shaped.side !== side || shaped.shape !== shape)
+          shaped = { side, shape, read: AutoMovieMotionHumanHand.prepareFingers(side, shape) };
+        return shaped.read(curl, weight);
+      };
     return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
@@ -161,9 +161,9 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A point-to-point hand movement follows the minimum-jerk profile (Flash and Hogan 1985), which the clock's progress is.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with the clock's progress as the weight.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is two named instants of the clock, so no time is written twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move` and the clock.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move and lazily prepares current window names at first progress demand or a changed name; native numeric endpoints share metadata while live window edits and custom/current progress callbacks retain actual receiver-bound reads.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Native intervals avoid repeated name-map queries across written seconds; every target/path/finger/goal evaluation and original scalar progress remains actual. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments and at most one constant-size fixed-window reader until release, with no progress/time/result history.
    */
   export function reach(
     body: IHumanBody,
@@ -173,6 +173,7 @@ export namespace AutoMovieMotionHumanArmMove {
     from: AutoMovieMotionHumanArmTarget.IOrigin,
     target: AutoMovieMotionHumanArmTarget.Frame,
   ): IAutoMovieMotionHumanPrimitive {
+    const progress: (seconds: number) => number = progressOn(clock, window);
     return move({
       body,
       side,
@@ -180,8 +181,7 @@ export namespace AutoMovieMotionHumanArmMove {
       to: clock.at(window[1]),
       origin: from,
       target,
-      weight: (seconds: number): number =>
-        clock.progress(window[0], window[1], seconds),
+      weight: progress,
     });
   }
 
@@ -200,9 +200,9 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A hand on its target is the movement at weight 1 throughout, so the target frame alone decides where the hand is.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with a constant weight.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The origin `move` requires is never read at weight 1, so the identity origin passed is inert and stated here.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move` and the clock.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move; the weight is the original constant one and every actual target stays current.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant hold setup with no interpolation algorithm to choose; move owns each actual target/finger/goal cost.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its original arguments and move's fixed shape metadata, with no sampled target or time history.
    */
   export function hold(
     body: IHumanBody,
@@ -238,9 +238,9 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A reach run backwards: the same minimum-jerk profile with the weight going from 1 to 0.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with one minus the clock's progress.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The target stays a frame, so a hand leaving a moving thing starts from where the thing is.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move` and the clock.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move and lazily prepares current window names, rebuilding for a changed name; native endpoint metadata is shared while live window edits and custom/current callbacks retain every actual progress read and the same one-minus grouping.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Native intervals avoid repeated name-map queries; all actual target/path/finger/goal and scalar easing work remains. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments and one lazy constant-size interval reader until release, with no progress, target or time history.
    */
   export function retract(
     body: IHumanBody,
@@ -250,6 +250,7 @@ export namespace AutoMovieMotionHumanArmMove {
     target: AutoMovieMotionHumanArmTarget.Frame,
     to: AutoMovieMotionHumanArmTarget.IOrigin,
   ): IAutoMovieMotionHumanPrimitive {
+    const progress: (seconds: number) => number = progressOn(clock, window);
     return move({
       body,
       side,
@@ -258,7 +259,20 @@ export namespace AutoMovieMotionHumanArmMove {
       origin: to,
       target,
       weight: (seconds: number): number =>
-        1 - clock.progress(window[0], window[1], seconds),
+        1 - progress(seconds),
     });
   }
+}
+
+/** Share numeric metadata only for current names; legacy borrowed windows stay live. */
+function progressOn(clock: AutoMovieMotionClock.IClock, window: readonly [string, string]):
+  (seconds: number) => number {
+  let current: { from: string; to: string; read: ReturnType<typeof AutoMovieMotionClock.prepare> } | undefined;
+  return (seconds: number): number => {
+    const from: string = window[0];
+    const to: string = window[1];
+    if (current === undefined || current.from !== from || current.to !== to)
+      current = { from, to, read: AutoMovieMotionClock.prepare(clock, from, to) };
+    return current.read.progress(seconds);
+  };
 }

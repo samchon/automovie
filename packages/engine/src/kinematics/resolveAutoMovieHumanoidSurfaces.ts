@@ -10,6 +10,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
+import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
@@ -62,6 +63,7 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile, segments keyed by rig bones.
+ * @param neutral Optional genuine internal unchanged-profile bounds epoch, owned and released by measureAutoMovieHumanoidBody.withSurfaces.
  * @returns Every region and socket.
  * @throws {Error} When a bone or segment a definition needs is missing, or a ray misses its colliders.
  *
@@ -69,16 +71,17 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * @evidence contracts/development/implementation.md#principled-implementation Exact ray exits through convex colliders from anatomical stations and directions, each region's normal the exited collider's outward normal there (smoothed across a box's or a hull's edges), and exact collider bounds for the sole, seat and back.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two definition tables, one ray routine and one bounds routine.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone, segment or hit throws rather than inventing a point.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in definitions times colliders per bone.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; callers resolve once per body.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in definitions times colliders per bone. An optional genuine same-profile bounds epoch reuses each segment's six exact neutral extrema from the preceding measurement, omitting duplicate hull-vertex rotations while all rays, normals and local frames are still resolved.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work SurfaceRays owns one unchanged rest-pose bundle; when withSurfaces lends a genuine live profile-bound epoch, only exact segment identities share neutral bounds. Direct calls keep ordinary local preparation and never reuse another invocation's geometry.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh surface records escape; ray/rest readers remain local. WithSurfaces owns the optional neutral epoch and releases it in finally on success or either derivation's failure, without retaining queries, poses or source through returned frames.
  */
 export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
   profile: P,
+  neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
 ): resolveAutoMovieHumanoidSurfaces.ISurfaces {
   const { at, bounds, local, station, exit, surface } =
-    AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
+    AutoMovieHumanoidSurfaceRays.tools(skeleton, profile, neutral);
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,

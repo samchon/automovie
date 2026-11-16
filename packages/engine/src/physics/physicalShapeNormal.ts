@@ -29,8 +29,8 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One private normal calculation serves direct calls and the prepared callback, with one branch per kind and one plane-list rule. The prepared reader only lends fixed centre/rotation, capsule axis, inverse and planes; the stateless radial helper preserves the same query threshold/fallback without a per-call closure.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weights are taken relative to the highest plane, so none overflows; a degenerate normal falls back instead of normalising a zero vector.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work PhysicalHullFaces, quaternion/vector owners and six fixed box normals remain shared. Direct calls read current transforms/extents anew. An explicit prepare caller holds its frame/shape unchanged, allowing exact centre/rotation/axis/inverse/planes to serve actual changing points without caching a normal, fallback, height or weight.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each polytope query retains one height and exponential per plane in original order, scalar weighted sums and one final vector; two indexed passes omit per-query mapping/iteration callbacks. Prepared geometry pays frame/axis/inverse and box-plane construction once per reader. Direct calls add no retained state and omit the former radial closure; SurfaceRays consumes the actual prepared normals.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct per-query metadata releases on return. A prepared callback owns at most one numeric frame, optional axis/inverse and O(F) planes until its operation ends, borrowing unchanged geometry but retaining no query point, fallback or normal result. The only module-lifetime values are six unit normals; outputs remain fresh except the original borrowed degenerate fallback.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each polytope query computes every current height and exponential in original order, scalar weighted sums and one final vector; two indexed passes omit per-query callbacks. Prepared geometry pays frame/axis/inverse/box-plane construction once and overwrites one reader-owned height workspace rather than allocating another F-element array per point. Direct calls retain no state; SurfaceRays consumes the prepared normals.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct temporaries release on return. A prepared callback owns one numeric frame, optional axis/inverse, O(F) planes and one O(F) height workspace until its operation ends. Every present plane height is overwritten at each point; no point, fallback, normal result or query population is retained. Only six unit normals live for the module; outputs remain fresh except the original borrowed fallback.
  */
 export function physicalShapeNormal(
   frame: P.ITransform,
@@ -56,8 +56,8 @@ export namespace physicalShapeNormal {
    * axis/inverse/planes. Every later point retains original radial checks,
    * plane heights, exponential weights, summation order and normalization.
    * Release the callback after surface resolution; geometry edits require
-   * another reader. It owns O(F) fixed plane metadata for F faces, while all
-   * query points/results remain temporary and no normal answer is cached.
+   * another reader. It owns O(F) fixed planes and overwritten height scratch
+   * for F faces; every current height is computed, without a normal cache.
    */
   export function prepare(
     frame: P.ITransform,
@@ -94,7 +94,7 @@ const SMOOTH: number = 0.005;
 /** Metres under which a radius or a normal has no direction. */
 const BOUNDARY: number = 1e-9;
 
-/** One reader's fixed shape metadata; no query point, fallback or answer is retained. */
+/** Fixed metadata and overwritten scalar scratch; no query point or output is retained. */
 interface IPrepared {
   /** Actual parent/local centre and principal rotation, prepared on first normal demand. */
   frame?: { centre: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
@@ -107,6 +107,9 @@ interface IPrepared {
 
   /** Hull owner planes or six original-order box planes. */
   planes?: readonly { normal: IAutoMovieVector3; offset: number }[];
+
+  /** Every present plane's height is overwritten before this query's maximum/weights. */
+  heights?: number[];
 }
 
 /** The same current-point normal equations serve direct and fixed-geometry readers. */
@@ -162,7 +165,7 @@ function normal(
           }),
         ));
   if (prepared !== undefined && prepared.planes === undefined) prepared.planes = planes;
-  const heights: number[] = [];
+  const heights: number[] = prepared === undefined ? [] : (prepared.heights ??= []);
   heights.length = planes.length;
   for (let k: number = 0; k < planes.length; k++) {
     if (!(k in planes)) continue;

@@ -18,10 +18,10 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @throws {RangeError} For incompatible warm data or nonfinite numerical results.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Runs Stellato et al. 2020 OSQP scaled ADMM, original-unit residual/certificate checks, adaptive rho and active-set polish on the admitted convex program.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns one iteration shared by public solve and fixed-matrix models; Preparation owns admission and scaling while Band owns the same linear algebra.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every rho, sigma, relaxation, iteration, residual, certificate and polishing parameter and restores original zero terms for exceptional products; numerical status never substitutes a stored result.
- * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1 and Z compressed row entries, each finite ADMM iteration takes O(n*w+Z+m), at most 4000 iterations; factorization and polishing retain their documented band costs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses admitted preparation, exact factors and disposable scratch; warm admission shares its scaling loop, and backward solve emits finite status/relaxation. Each prox emits its next unchanged rho*z-y; initial state and rho changes rebuild that vector. Discarded candidates reset before use, rho restarts and current residuals recompute; previous y copies only at certificate checks.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns one iteration shared by public solve and fixed-matrix models; Preparation owns admission/scaling/topology, while finite rhs products gather by column in original contribution order and exceptional products retain the original row owner.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every rho, sigma, relaxation, iteration, residual, certificate and polishing parameter. Column gathers retain each variable's original row/duplicate product sequence and scalar association; nonfinite row multipliers restore the original raw zero terms rather than using the compressed fast path.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With w=band+1 and Z compressed row entries, each finite ADMM iteration takes O(n*w+Z+m), at most 4000 iterations; its rhs writes each variable once instead of once per contributing coefficient. Factorization and polishing retain their documented band costs, and runtime speed is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses admitted preparation, exact factors and disposable scratch; initial row-state scaling emits rho*z-y/finite status directly, and backward solve emits finite status/relaxation. Each prox emits its next row vector/proof, while rho adaptation rebuilds both in its step/threshold pass. Topology-only positions serve current products, discarded candidates reset, rho restarts, residuals recompute and previous y copies only at certificate checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One-shot scratch releases on return or throw; optional memory belongs to one fixed model, retaining at most one discarded candidate triple. Selected unscaled x/z/y and diagnostics transfer independently, never remaining in scratch or mutating warm input.
  * @evidence contracts/development/common.md#meaningful-documentation States the admitted data premise, shared numeric ownership, optional scratch lifetime and independently owned outputs.
  */
@@ -42,16 +42,30 @@ export function HumanQuadraticSolve(
   const rho: Float64Array = memory?.rho ?? new Float64Array(m);
   const thresholds: Float64Array = memory?.thresholds ?? new Float64Array(m);
   const rowRhs: Float64Array = memory?.rowRhs ?? new Float64Array(m);
-  const steps: () => void = (): void => {
+
+  // Adaptation supplies both current vectors so its changed rho also emits
+  // the next rhs product; initial row-state production emits that later.
+  const steps: (currentZ?: Float64Array, currentY?: Float64Array) => boolean = (
+    currentZ?: Float64Array,
+    currentY?: Float64Array,
+  ): boolean => {
+    let finite: boolean = true;
     for (let r: number = 0; r < m; ++r) {
-      rho[r] =
+      const step: number =
         lo[r] === -Infinity && hi[r] === Infinity
           ? RHO_MIN
           : lo[r] === hi[r]
             ? EQUALITY * base
             : base;
-      thresholds[r] = weight[r]! < 0 ? 0 : weight[r]! / rho[r]!;
+      rho[r] = step;
+      thresholds[r] = weight[r]! < 0 ? 0 : weight[r]! / step;
+      if (currentZ !== undefined) {
+        const value: number = step * currentZ[r]! - currentY![r]!;
+        rowRhs[r] = value;
+        if (!Number.isFinite(value)) finite = false;
+      }
     }
+    return finite;
   };
   steps();
   let factor: Workspace.IFactor = Preparation.factor(s, rho, SIGMA);
@@ -62,6 +76,7 @@ export function HumanQuadraticSolve(
   let x: Float64Array = spare?.x ?? new Float64Array(n);
   let z: Float64Array = spare?.z ?? new Float64Array(m);
   let y: Float64Array = spare?.y ?? new Float64Array(m);
+  let finiteRows: boolean = true;
   if (spare !== undefined && warm === undefined) {
     x.fill(0);
     y.fill(0);
@@ -84,8 +99,13 @@ export function HumanQuadraticSolve(
       const multiplier: number = warm.y[r]!;
       if (!Number.isFinite(value) || !Number.isFinite(multiplier))
         throw new RangeError("Malformed quadratic warm start");
-      z[r] = value * e[r]!;
-      y[r] = (c * multiplier) / e[r]!;
+      const scaledZ: number = value * e[r]!;
+      const scaledY: number = (c * multiplier) / e[r]!;
+      z[r] = scaledZ;
+      y[r] = scaledY;
+      const product: number = rho[r]! * scaledZ - scaledY;
+      rowRhs[r] = product;
+      if (!Number.isFinite(product)) finiteRows = false;
     }
   } else
     for (let r: number = 0; r < m; ++r) {
@@ -104,11 +124,12 @@ export function HumanQuadraticSolve(
           );
         y[r] = (c * known) / e[r]!;
       }
-      z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
+      const value: number = Math.min(hi[r]!, Math.max(lo[r]!, 0));
+      z[r] = value;
+      const product: number = rho[r]! * value - y[r]!;
+      rowRhs[r] = product;
+      if (!Number.isFinite(product)) finiteRows = false;
     }
-
-  for (let r: number = 0; r < m; ++r)
-    rowRhs[r] = rho[r]! * z[r]! - y[r]!;
   const rhs: Float64Array = memory?.work.transpose ?? new Float64Array(n);
   const xt: Float64Array = memory?.work.curvature ?? new Float64Array(n);
   const before: Float64Array = memory?.work.rows ?? new Float64Array(m);
@@ -121,23 +142,36 @@ export function HumanQuadraticSolve(
   for (let it: number = 0; it < ITERATIONS; ++it) {
     const check: boolean = (it + 1) % CHECK === 0 || it + 1 === ITERATIONS;
 
-    // The ADMM step (algorithm 1), in the reduced form.
-    for (let i: number = 0; i < n; ++i) rhs[i] = SIGMA * x[i]! - s.q[i]!;
-    for (let r: number = 0; r < m; ++r) {
-      const w: number = rowRhs[r]!;
-      if (Number.isFinite(w)) {
-        const single: number = singleton[r]!;
-        if (single >= 0)
-          rhs[cols[single]!]! += vals[single]! * w;
-        else {
-          const end: number = start[r + 1]!;
-          for (let a: number = start[r]!; a < end; ++a)
-            rhs[cols[a]!]! += vals[a]! * w;
+    // Column gathers preserve each rhs component's original row/duplicate
+    // sequence, including its initial SIGMA*x-q. A producer-proved finite
+    // row vector permits compression; exceptional products stay original.
+    if (finiteRows) {
+      const order: B.IScaled["transpose"] = s.transpose;
+      for (let i: number = 0; i < n; ++i) {
+        let value: number = SIGMA * x[i]! - s.q[i]!;
+        const end: number = order.start[i + 1]!;
+        for (let a: number = order.start[i]!; a < end; ++a)
+          value += vals[order.entries[a]!]! * rowRhs[order.rows[a]!]!;
+        rhs[i] = value;
+      }
+    } else {
+      for (let i: number = 0; i < n; ++i) rhs[i] = SIGMA * x[i]! - s.q[i]!;
+      for (let r: number = 0; r < m; ++r) {
+        const w: number = rowRhs[r]!;
+        if (Number.isFinite(w)) {
+          const single: number = singleton[r]!;
+          if (single >= 0)
+            rhs[cols[single]!]! += vals[single]! * w;
+          else {
+            const end: number = start[r + 1]!;
+            for (let a: number = start[r]!; a < end; ++a)
+              rhs[cols[a]!]! += vals[a]! * w;
+          }
+        } else {
+          const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+          for (let a: number = 0; a < row.index.length; ++a)
+            rhs[row.index[a]!]! += row.coef[a]! * w;
         }
-      } else {
-        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
-        for (let a: number = 0; a < row.index.length; ++a)
-          rhs[row.index[a]!]! += row.coef[a]! * w;
       }
     }
     const finiteXt: boolean = B.substitute(factor, rhs, xt, x, ALPHA);
@@ -148,6 +182,7 @@ export function HumanQuadraticSolve(
 
     // x does not enter these row products or prox steps; consume each
     // unchanged xt product directly instead of storing a separate vector.
+    finiteRows = true;
     for (let r: number = 0; r < m; ++r) {
       let product: number = 0;
       if (finiteXt) {
@@ -180,7 +215,9 @@ export function HumanQuadraticSolve(
       const nextY: number = multiplier + step * (relaxed - next);
       y[r] = nextY;
       z[r] = next;
-      rowRhs[r] = step * next - nextY;
+      const nextRhs: number = step * next - nextY;
+      rowRhs[r] = nextRhs;
+      if (!Number.isFinite(nextRhs)) finiteRows = false;
     }
     if (!check) continue;
 
@@ -224,9 +261,7 @@ export function HumanQuadraticSolve(
     const next: number = Math.min(RHO_MAX, Math.max(RHO_MIN, base * ratio));
     if (next > ADAPT * base || next < base / ADAPT) {
       base = next;
-      steps();
-      for (let r: number = 0; r < m; ++r)
-        rowRhs[r] = rho[r]! * z[r]! - y[r]!;
+      finiteRows = steps(z, y);
       factor = B.factor(s, rho, SIGMA, work);
     }
   }

@@ -17,7 +17,7 @@ import type { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/implementation.md#principled-implementation The original prop/affordance rigid composition places the grip point, inward approach and wrapped axis. An authored aperture needs no collider extent; otherwise the original nearest-centre rule and exact one-shape projected span determine width at each actual frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission/lookup precedes a shared frame reader; the complete reader alone wraps the current world colliders required by digit closure.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing handle/shapes keep their original refusals, nearest-centre strict ties and span arithmetic remain, and frame-only readers never fabricate a collider list or contact verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms Handle admission occurs once per prepared tool; authored-aperture frame reads are O(1) without collider allocation/scans, while inferred widths retain O(S) exact centre comparisons and complete targets retain O(S) required collider wrappers.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Handle admission occurs once per prepared tool; authored-aperture frame reads are O(1) without collider allocation/scans. Inferred width retains the exact S-1 ordered comparisons but reuses the current winner's same-frame centre distance rather than recomputing it; complete targets retain O(S) required collider wrappers.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes the same prop, handle, affordances and shapes for its plan; every changed world frame computes its own actual target, with no target-result or time cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder borrows one unchanged affordance and shape list until its plan is released; each complete call returns fresh collider wrappers and no FK reader, prior frame or query result is retained.
  */
@@ -54,11 +54,17 @@ export function HumanGraspTarget(prop: IHumanProp, id: string): {
     if (width === undefined) {
       const centre: (shape: IAutoMoviePhysicalProfile.IShape) => IAutoMovieVector3 = (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieVector3 =>
         Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, shape.transform.position));
-      const nearest: IAutoMoviePhysicalProfile.IShape = shapes.reduce(
-        (best: IAutoMoviePhysicalProfile.IShape, shape: IAutoMoviePhysicalProfile.IShape): IAutoMoviePhysicalProfile.IShape =>
-          Vector3.length(Vector3.subtract(centre(shape), point)) <
-          Vector3.length(Vector3.subtract(centre(best), point)) ? shape : best,
-      );
+      let nearest: IAutoMoviePhysicalProfile.IShape = shapes[0]!;
+      let nearestDistance: number | undefined;
+      for (let index: number = 1; index < shapes.length; ++index) {
+        const shape: IAutoMoviePhysicalProfile.IShape = shapes[index]!;
+        const candidate: number = Vector3.length(Vector3.subtract(centre(shape), point));
+        nearestDistance ??= Vector3.length(Vector3.subtract(centre(nearest), point));
+        if (candidate < nearestDistance) {
+          nearest = shape;
+          nearestDistance = candidate;
+        }
+      }
       const [low, high]: readonly [number, number] = physicalShapeSpan(frame, nearest, approach);
       width = high - low;
     }

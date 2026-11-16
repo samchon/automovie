@@ -1,5 +1,6 @@
 import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -104,6 +105,14 @@ export namespace handOver {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law documents partner/hand/prop, shared meeting/transfer timing, carried attitude, opening/retraction, contacts and the physical refusal owners; this method returns that complete giver course.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and HumanHandover grasp/transfer plan, original wrist transports, joint-reference blend and actual constrained upright-turn fits before release.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Meeting/shared plan precede fixed shape schedules and a per-second body/task frame whose actual yaw alone varies during the upright offer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original grip/release timing, endpoint turns, nine-yaw candidates, full coupled solves, reference weights, contacts and all refusal paths remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Given the explicit shared meet, entry reads request only giver hand and receiver hips/feet/hand. Each upright sample prepares body/path/digits once for its nine actual fits; runtime shape keys/endpoint tuples are also prepared once. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual fixed-time frames separate the sole yaw freedom from unchanged geometry; shared owners retain all movement/fit equations and arbitrary callback compatibility without a fitted-answer cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains fixed base/transports/shapes, chosen references and scalar yaw course; sample base/FK/rank workspaces and entry bone maps end with synchronous planning, without a time-result history or handle.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -136,12 +145,15 @@ export namespace handOver {
       giver: {
         body,
         side,
-        bones: context.performer(context.subject).bones(context.start),
+        bones: context.performer(context.subject).bones(context.start,
+          new Set<AutoMovieHumanoidBone>([`${side}Hand`])),
       },
       receiver: {
         body: receiver.body,
         side: receiverSide,
-        bones: receiver.bones(context.start),
+        bones: receiver.bones(context.start, new Set<AutoMovieHumanoidBone>([
+          "hips", "leftFoot", "rightFoot", `${receiverSide}Hand`,
+        ])),
       },
       prop,
       frame,
@@ -303,17 +315,17 @@ export namespace handOver {
       return {
         posture: { ...base, joints: { ...base.joints, ...digits } },
         goal: {
-            point: wrist,
-            bend,
-            // Each named instant's solution counts in full at its instant.
-            // Between them the blend is no arm's solution of the goal
-            // there, so it only keeps the arm on its side and gives way to
-            // the hand's rotation, which holds the prop upright.
-            reference: {
-              ...between(share),
-              weight: (2 * share - 1) ** 2,
-            },
-            ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
+          point: wrist,
+          bend,
+          // Each named instant's solution counts in full at its instant.
+          // Between them the blend is no arm's solution of the goal
+          // there, so it only keeps the arm on its side and gives way to
+          // the hand's rotation, which holds the prop upright.
+          reference: {
+            ...between(share),
+            weight: (2 * share - 1) ** 2,
+          },
+          ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
         },
         rotation: (yaw: number): IAutoMovieQuaternion => t <= shared.offer
           ? Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), rotation)

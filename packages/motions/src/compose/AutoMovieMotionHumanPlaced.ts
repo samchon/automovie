@@ -7,6 +7,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
@@ -110,6 +111,9 @@ export namespace AutoMovieMotionHumanPlaced {
 
   /**
    * The arm and the fingers laid at a place.
+   * The canonical body and configured surface/shape/bend remain unchanged
+   * for the primitive's lifetime; the actual place, facing, forward and
+   * current posture are read independently at every requested second.
    *
    * @param props The arm.
    * @returns The arm's and the hand's primitives.
@@ -118,13 +122,16 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#principled-implementation The surface laid against the place's reversed facing by `AutoMovieMotionHumanTarget.hand`, carried in joint space (Soechting and Lacquaniti 1981).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One carried arm and one hand shape.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped by the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per written second, plus the bend solve when no preset is given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the arm carry, the target's hand goal and the hand form.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed hand surface/options prepare once per arm; each actual goal shares one wrist placement with its default bend and final assembly, while every original bend/carry trajectory/full-posture solve remains. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanHandTarget.prepareGoal owns fixed geometry and dynamic orientation/preset policy; ArmTarget's shared assembly retains exact contact admission and the original hand/carry primitives retain composition.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Primitives retain props and constant prepared surface/options until the action is released; each target's lazy wrist is local and no pose/time result history or solver reader enters the plan.
    */
   export function arm(props: IArm): IAutoMovieMotionHumanPrimitive[] {
     const surface: HumanHand.Surface = props.surface ?? "palm";
     const shape: HumanHand.Shape = props.shape ?? "flat";
+    const target: ReturnType<typeof HumanHandTarget.prepareGoal> = HumanHandTarget.prepareGoal(
+      props.body, props.side, { surface, shape, ...(props.bend === undefined ? {} : { bend: props.bend }) },
+    );
     return [
       AutoMovieMotionHumanArm.carried({
         body: props.body,
@@ -138,23 +145,8 @@ export namespace AutoMovieMotionHumanPlaced {
           posture: IHumanPosture,
           seconds: number,
         ): IHumanPosture.IGoal => {
-          const at = props.place(posture, seconds);
-          return AutoMovieMotionHumanArm.goal(
-            props.body,
-            props.side,
-            AutoMovieMotionHumanTarget.hand(
-              props.body,
-              posture,
-              props.side,
-              { point: at.point, normal: Vector3.scale(at.facing, -1) },
-              {
-                surface,
-                shape,
-                ...(at.forward === undefined ? {} : { forward: at.forward }),
-                ...(props.bend === undefined ? {} : { bend: props.bend }),
-              },
-            ),
-          );
+          const at: ReturnType<IArm["place"]> = props.place(posture, seconds);
+          return target(posture, { point: at.point, normal: Vector3.scale(at.facing, -1) }, at.forward);
         },
       }),
       AutoMovieMotionHumanHand.shape({

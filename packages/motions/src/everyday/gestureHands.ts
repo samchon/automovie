@@ -123,8 +123,9 @@ export namespace gestureHands {
         shapes.set(goal.shape, entries);
       }
       const joints: IHumanPosture["joints"] = {};
+      const askedCurl: number = emblem === undefined ? (goal.curl ?? 0) : 0;
       for (const entry of entries) {
-        const curl: number = entry.curls ? (goal.curl ?? 0) : 0;
+        const curl: number = entry.curls ? askedCurl : 0;
         joints[entry.bone] = [
           entry.relaxed[0] + (entry.at[0] + curl - entry.relaxed[0]) * envelope,
           entry.at[1] * envelope,

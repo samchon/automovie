@@ -112,11 +112,11 @@ export namespace HumanPerformanceContacts {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States clipped live spans, stop application, plan settling and mutual-contact selection.
    * @evidence contracts/development/implementation.md#principled-implementation Delegates unchanged signed-distance scan and event ordering to the engine; current performance bones define actual colliders and the nearest carried capsule determines the mutual stop.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects original weapons and owners, adapts actual frame/body readers, applies stop changes, then commits events and hit records.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects original weapons and owners, then snapshots the constructor-fixed ordered cast only when a live weapon exists; actual frame/body readers keep those mutable person records live, apply stop changes and commit events/hits.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps STEP, live clipping, every engine scan/bisection, taper, nearest-body decision and whole-performance invalidation on changed stops; no pose is cached by time.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains engine weapon/body/sample search cost. Each actual sampled capsule computes both ends once, and one carried-limb candidate operation computes each demanded chain once; owner metadata removes the final per-event weapon scan. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Constructor-proven chain endpoints share only one explicit synchronous query at an exact seconds/current stop state. Every changed stop forgets existing person memos, and no endpoint result crosses a scan or stop application.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adapter/owner/event maps last only this synchronous resolution; each grouped axis map ends before its callback returns. Only existing person stops, plan stops and hit records persist with the performance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains engine weapon/body/sample search cost. The actual append-only stop producer permits O(1) unchanged-installation checks per query; sorted O(S log S) signatures for S stops run only when that Map grows or the explicit final Map arrives. Each sampled capsule reads both ends once, grouped carried chains run once, and owner metadata removes the final event weapon scan. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sole live stops source is the event resolver's private native Map: both writes add an id only after absence checks, so identical Map identity and size prove no entry changed during this call. A new Map or increased size still takes the original full content comparison and every changed stop forgets person memos. Chain endpoints share only one explicit query, and every actual body/pose/gap read still executes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The one ordered cast-reference array, adapter/owner/event maps, installed-stop Map/size reference and existing signature last only this synchronous resolution; their stop population is bounded by input weapons. Each grouped axis map ends before its callback returns. Only existing person stops, plan stops and hit records persist, without any new pose/time history.
    */
   export function contacts(self: HumanPerformanceState): void {
     const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
@@ -178,6 +178,9 @@ export namespace HumanPerformanceContacts {
           to = Math.max(to, b);
         }
     if (weapons.length === 0) return;
+    // HumanPerformanceState fixes this ordered cast in its constructor; mutable
+    // person records remain live and every current pose is still queried.
+    const people: readonly HumanSegment.IPerson[] = [...self.people.values()];
     const paths: Map<
       string,
       (t: number) => [IAutoMovieVector3, IAutoMovieVector3]
@@ -194,14 +197,21 @@ export namespace HumanPerformanceContacts {
     const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
       new Map();
     let applied: string = "";
+    let installed: { stops: resolveAutoMovieContactEvents.IStops; size: number } | undefined;
     const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
+      // The sole live producer below owns a native Map and only adds fresh
+      // weapon ids; neither existing times nor keys change or disappear.
+      // The explicit final Map has another identity and still gets the full
+      // content comparison. This shares stop installation, never pose reads.
+      if (installed?.stops === stops && installed.size === stops.size) return;
+      installed = { stops, size: stops.size };
       const signature: string = [...stops]
         .map(([k, s]) => `${k}@${s}`)
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
         .join(";");
       if (signature === applied) return;
       applied = signature;
-      for (const person of self.people.values()) person.stops.clear();
+      for (const person of people) person.stops.clear();
       const changed: Set<HumanSegment.ISegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
@@ -240,7 +250,7 @@ export namespace HumanPerformanceContacts {
       // A stop changes what its owner shows, and whoever reads the owner (a
       // strike aimed at it, a guard watching it) planned against the earlier
       // showing, so everyone's memos go, not the owner's alone.
-      for (const person of self.people.values()) HumanSegment.forget(person);
+      for (const person of people) HumanSegment.forget(person);
     };
     const nearest = (
       owner: HumanSegment.IPerson,
@@ -251,7 +261,7 @@ export namespace HumanPerformanceContacts {
         subject: "",
         distance: Infinity,
       };
-      for (const person of self.people.values()) {
+      for (const person of people) {
         if (person === owner) continue;
         const d: number = HumanColliders.distanceToSegment(
           person.performer.body,
@@ -268,7 +278,7 @@ export namespace HumanPerformanceContacts {
     const events: resolveAutoMovieContactEvents.IEvent[] =
       resolveAutoMovieContactEvents({
         weapons,
-        bodies: [...self.people.values()].map(
+        bodies: people.map(
           (person: HumanSegment.IPerson) => ({
             id: person.performer.subject,
             distance: (

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -11,7 +11,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 import type { IHumanPosture } from "./IHumanPosture";
-import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { poseBones } from "./poseBones";
+import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -47,14 +49,15 @@ export namespace HumanPosturePreparation {
    * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary resolver once before recording its exact solution; finite free world-leg demands with no extra context admit translation equivalence, while an empty limb set admits rigid placement of the same direct-joint projection.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns numerical admission/solving; this owner records raw/rig evidence and transfers fresh output observations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No prior time, quantized key, fitted target or manually asserted resolved state supplies the solution; unsupported source contexts remain ineligible and resolve normally after translation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds linear source/result copying and one typed rig/table snapshot to the cold solve; consumption directly compares current scalar fields without rebuilding nested signature strings, and an eligible consumer removes duplicate IK without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private source is copied after its ordinary solve; the same body, static FK snapshot, topology and every live rig/table scalar must match its owned snapshot at consumption, with no cached comparison verdict.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each issued preparation owns one raw snapshot, one private seeded result and one bounded typed rig snapshot/checker; weak ownership releases them with its wrapper/transported postures, without a global time/result population or retained FK state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The cold result transfers into private ownership after its possibly borrowed root is detached; raw authoring is copied once and public pose copying occurs only on first actual pose access. Current typed rig metadata is shared only after a fresh full comparison. preparedBones avoids the unused public pose copy, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold seeded resolution owns all joint records because assembly creates them from clinical triples and memory issues independent results; detaching its root makes the private result independent of raw input. Public pose access copies that result once; bones consumes it only after current rig checks and returns fresh FK output, with no cached verdict.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each issued preparation owns raw data, one private seeded result and a rig checker. A separate public observation is allocated only when requested and remains replaceable without touching private evidence; synchronous reader/projector loans are never retained. Weak source/candidate ownership releases these without result history.
    */
   export function prepare(
     body: IHumanBody,
     posture: IHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IPrepared {
     const solved: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
       body,
@@ -62,19 +65,50 @@ export namespace HumanPosturePreparation {
       undefined,
       undefined,
       resolution,
+      undefined,
+      projection,
     );
     const raw: IHumanPosture = structuredClone(posture);
-    const prepared: IPrepared = { pose: structuredClone(solved.pose) };
+    // The cold solve owns its joints; isolate only a possibly borrowed raw root.
+    solved.pose = { ...solved.pose, root: structuredClone(solved.pose.root) };
+    let shown: IAutoMoviePose | undefined;
+    const prepared: IPrepared = {
+      get pose(): IAutoMoviePose { return (shown ??= structuredClone(solved.pose)); },
+      set pose(value: IAutoMoviePose) { shown = value; },
+    };
     SOURCES.set(prepared, {
       body,
       rig: body.poseResolution,
       topology: body.topology,
       rigUnchanged: eligible(raw) ? prepareHumanPostureRigCheck(body) : undefined,
       raw,
-      solved: structuredClone(solved),
+      solved,
       legs: legInputs(body, raw),
     });
     return prepared;
+  }
+
+  /**
+   * Observe an issued cold source through actual FK without exposing its pose.
+   * Changed/unsupported rig context takes ordinary current cold resolution.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines issued-source membership, requested frames, current-rig fallback, fresh map ownership and synchronous FK lending.
+   * @evidence contracts/development/implementation.md#principled-implementation A genuine cold source already owns its solved articulation; identical current body/rig/topology and every live rig/table scalar permit direct FK of that snapshot. A mismatch or unsupported source resolves the private original demands normally before FK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private membership lookup and checked source selection feed the existing poseBones owner; no private pose or raw data is returned or passed to a caller callback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unissued wrappers are refused, public pose edits cannot affect the private source, changed context retains native solving, and all actual ordered joint admission and requested-ancestor FK still execute with original raw goals and ranges.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Current rig comparison and requested FK remain, while the public full-pose clone and private duplicate solved copy are unnecessary for COM-only consumers. Changed/unsupported sources retain full cold solving; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The issued source/body and freshly checked scalar prerequisites establish exact articulation reuse. The explicit FK reader is borrowed only by the current observation; it shares exact same-valued dependencies while poseBones produces fresh output records.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The method retains no reader, requested set or returned bones. Private source ownership remains with its weak preparation/candidates, and only fresh public FK output escapes; no borrowed cache pose or callback result can escape this seam.
+   */
+  export function bones(prepared: IPrepared, requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    source?: Parameters<typeof prepareHumanPoseResolution>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const fixed: ISource | undefined = SOURCES.get(prepared);
+    if (fixed === undefined) throw new Error("Unissued canonical posture preparation");
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    const pose: IAutoMoviePose = fixed.rig === fixed.body.poseResolution && fixed.topology === fixed.body.topology &&
+      fixed.rigUnchanged !== undefined && fixed.rigUnchanged() ? fixed.solved.pose :
+      resolveHumanPosture.seeded(fixed.body, fixed.raw, undefined, undefined, resolution).pose;
+    return poseBones(fixed.body, pose, resolution(), requested);
   }
 
   /**

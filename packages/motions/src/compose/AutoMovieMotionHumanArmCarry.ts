@@ -69,9 +69,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the transport blends the joints of the two ends and solves the goal only to read its joints; `blendHumanJoint` blends a ball joint as a rotation, which does not depend on the chart its triple is written in, and a joint with fewer freedoms angle by angle.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve (two with a planned arrival), then three blended joints and one clearing course per arm (`HumanArmClearing.course`, solved at fixed shares of the carry so the turn does not step between two instants), each arm cleared in the pose the arms before it were written into.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder takes the shorter arc between its two rotations, so neither a twist near 180 degrees nor a solution in its other chart swings the arm; the share is clamped so the arm cannot pass either end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms and a second for the planned arrival when one is given, none at either end; per arm a course reads at most two keys, each one clearing (`HumanArmClearing.of`) in a pose read once per key.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveHumanPosture`, `angles`, `blendHumanJoint` and `HumanArmClearance`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms and a second for planned arrival when given, none at either end. Fixed joint pairs prepare endpoint rotation/chart only at first interior use; every course key still runs the actual blend/clearing. Two paired endpoint baseline observations replace four duplicate full FK/clearance reads; their original scalar projection/interpolation remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual native current/planned posture solves and baseline room observations share one operation-local exact FK getter. Body and each endpoint triple stay unchanged during this carry, so between shares endpoint preparation across original course shares; different poses, goals, clearing candidates and numerical blends remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous carry owns its lazy exact FK metadata, existing per-key arm/pose maps and local course callbacks until return/throw. No returned posture or goal retains those readers, maps or callbacks.
    */
   export function carry(
     body: IHumanBody,
@@ -87,15 +87,18 @@ export namespace AutoMovieMotionHumanArmCarry {
       (side: HumanHand.Side): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const solved: IAutoMoviePose | null =
-      s <= 0 ? null : resolveHumanPosture(body, posture);
+      s <= 0 ? null : resolveHumanPosture.seeded(body, posture,
+        undefined, undefined, resolution).pose;
     // The pose the clearing course is planned in: the arrival's, when the
     // caller names it, so the course is a plan constant and not re-solved
     // against the goal of each second.
     const planning: IAutoMoviePose | null =
       solved === null || planned === undefined
         ? solved
-        : resolveHumanPosture(body, planned);
+        : resolveHumanPosture.seeded(body, planned,
+          undefined, undefined, resolution).pose;
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     // Each carried arm at a share of the carry: the plain blend of its two
@@ -113,51 +116,25 @@ export namespace AutoMovieMotionHumanArmCarry {
         solved === null
           ? held
           : AutoMovieMotionHumanArmAngles.angles(solved, side);
-      const plain: Arm = (share: number): HumanArmClearance.IArm => ({
-        upper: blendHumanJoint(
-          body,
-          `${side}UpperArm`,
-          held.upper,
-          goal.upper,
-          share,
-        ),
-        lower: blendHumanJoint(
-          body,
-          `${side}LowerArm`,
-          held.lower,
-          goal.lower,
-          share,
-        ),
-        hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
-      });
+      const blended: (to: AutoMovieMotionHumanArmAngles.IAngles) => Arm =
+        (to: AutoMovieMotionHumanArmAngles.IAngles): Arm => {
+          const upper: ReturnType<typeof blendHumanJoint.between> =
+            blendHumanJoint.between(body, `${side}UpperArm`, held.upper, to.upper);
+          const lower: ReturnType<typeof blendHumanJoint.between> =
+            blendHumanJoint.between(body, `${side}LowerArm`, held.lower, to.lower);
+          const hand: ReturnType<typeof blendHumanJoint.between> =
+            blendHumanJoint.between(body, `${side}Hand`, held.hand, to.hand);
+          return (share: number): HumanArmClearance.IArm => ({
+            upper: upper(share), lower: lower(share), hand: hand(share),
+          });
+        };
+      const plain: Arm = blended(goal);
       plains[side] = plain;
       const aimed: AutoMovieMotionHumanArmAngles.IAngles =
-        planning === null
+        planning === solved ? goal : planning === null
           ? held
           : AutoMovieMotionHumanArmAngles.angles(planning, side);
-      const plan: Arm = (share: number): HumanArmClearance.IArm => ({
-        upper: blendHumanJoint(
-          body,
-          `${side}UpperArm`,
-          held.upper,
-          aimed.upper,
-          share,
-        ),
-        lower: blendHumanJoint(
-          body,
-          `${side}LowerArm`,
-          held.lower,
-          aimed.lower,
-          share,
-        ),
-        hand: blendHumanJoint(
-          body,
-          `${side}Hand`,
-          held.hand,
-          aimed.hand,
-          share,
-        ),
-      });
+      const plan: Arm = planning === solved ? plain : blended(aimed);
       if (solved === null || planning === null) {
         courses[side] = plain;
         continue;
@@ -191,10 +168,9 @@ export namespace AutoMovieMotionHumanArmCarry {
       const reading = (
         of: HumanArmClearance.IArm,
         share: number,
-        which: keyof HumanArmClearance.IBaseline,
         fingers?: AutoMovieMotionHumanArmAngles.IAngles["fingers"],
-      ): number =>
-        HumanArmClearance.room(
+      ): HumanArmClearance.IBaseline =>
+        HumanArmClearance.baseline(
           body,
           fingers === undefined
             ? pose(share)
@@ -202,13 +178,10 @@ export namespace AutoMovieMotionHumanArmCarry {
           side,
           of,
           others,
-          {
-            forearm: which === "forearm" ? 0 : Infinity,
-            segments: which === "segments" ? 0 : Infinity,
-          },
+          resolution(),
         );
       let ends:
-        | Record<keyof HumanArmClearance.IBaseline, readonly [number, number]>
+        | readonly [HumanArmClearance.IBaseline, HumanArmClearance.IBaseline]
         | undefined;
       const known: Map<number, HumanArmClearance.IArm> = new Map();
       // Between two arms that clear the body the blended one may not, so its
@@ -227,16 +200,7 @@ export namespace AutoMovieMotionHumanArmCarry {
               of: HumanArmClearance.IArm,
               key: number,
             ): HumanArmClearance.IArm => {
-              ends ??= {
-                forearm: [
-                  reading(held, 0, "forearm", held.fingers),
-                  reading(aimed, 1, "forearm"),
-                ],
-                segments: [
-                  reading(held, 0, "segments", held.fingers),
-                  reading(aimed, 1, "segments"),
-                ],
-              };
+              ends ??= [reading(held, 0, held.fingers), reading(aimed, 1)];
               return HumanArmClearance.cleared(
                 body,
                 pose(key),
@@ -245,10 +209,11 @@ export namespace AutoMovieMotionHumanArmCarry {
                 0,
                 others,
                 {
-                  forearm: ends.forearm[0] * (1 - key) + ends.forearm[1] * key,
+                  forearm: ends[0].forearm * (1 - key) + ends[1].forearm * key,
                   segments:
-                    ends.segments[0] * (1 - key) + ends.segments[1] * key,
+                    ends[0].segments * (1 - key) + ends[1].segments * key,
                 },
+                resolution,
               );
             },
           });
@@ -411,7 +376,8 @@ export namespace AutoMovieMotionHumanArmCarry {
           new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution();
-        const hand = (at: IHumanPosture): IAutoMovieQuaternion =>
+        const hand: (at: IHumanPosture) => IAutoMovieQuaternion =
+          (at: IHumanPosture): IAutoMovieQuaternion =>
           poseBones(
             props.body,
             resolveHumanPosture.seeded(props.body, at, undefined, undefined,

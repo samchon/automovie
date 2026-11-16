@@ -1,6 +1,8 @@
 import { HumanQuadraticAdmission } from "./HumanQuadraticAdmission";
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
+import { HumanQuadraticFactorOrder } from "./HumanQuadraticFactorOrder";
 import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
+import { HumanQuadraticTranspose } from "./HumanQuadraticTranspose";
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
 /**
@@ -185,9 +187,9 @@ const INITIALS: WeakMap<Float64Array[], IInitial> = new WeakMap();
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
  *
  * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
- * Builds or reuses proved ordered CSR/raw snapshots, then scales fresh canonical numeric buffers; exact-zero curvature positions avoid unchanged zero work, and P/q norms accumulate at their producer in the original nonzero reduction order.
- * Omits only coefficients equal to zero, retaining all nonzeros, duplicate indices and empty-row offsets; no cutoff, sorting, merged cancellation or changed scaling constants is used.
- * Compression and snapshots take O(S+R+n*w) before ten O(K+Z+m) scaling passes, with K=n for diagonal P, stored positions for sparse P and the full band for dense P; space remains O(S+n*w+Z+n+m), including exact position metadata and full input/final finite admission.
+ * Builds or reuses proved original CSR/raw snapshots and stable factor/transpose positions, then scales fresh canonical numeric buffers; exact-zero curvature positions avoid unchanged zero work, and P/q norms accumulate at their producer in the original nonzero reduction order.
+ * Omits only coefficients equal to zero, retaining original CSR nonzero/duplicate order and empty-row offsets; factor-only positions may sort by column without changing any K-cell accumulation sequence, while transpose positions retain each rhs column's original sequence. No cutoff, merged cancellation or changed scaling constants is used.
+ * Compression/snapshots take O(S+R+n*w), transpose positions O(n+Z+m), and unordered factor positions their helper's sorting cost, before ten O(K+Z+m) scaling passes, with K=n for diagonal P, stored positions for sparse P and full band for dense P. Space remains O(S+n*w+Z+n+m), including exact positions and input/final finite admission.
  * Runs on any changed P/q/A dependency; exact groups may share raw data or topology while all current scaling passes run. Final finite scans may share only an exactly equal finished P/A pair and its factor identity; q, D/E/c, inverses and q norms stay current and preserve their original exceptional behavior.
  * Retains two n-entry scaling buffers per live source owner and reuses them only at the same n, fully resetting them even after failure; m-entry row-scale scratch stays unretained and becomes lo only after all scaling reads finish.
  * States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
@@ -229,6 +231,10 @@ function create(
     });
     if (!admitted.topology) start[m] = at;
   }
+  const factorOrder: B.IScaled["factorOrder"] = admitted.topology
+    ? previous!.core.factorOrder : HumanQuadraticFactorOrder(start, cols, ordered);
+  const transpose: B.IScaled["transpose"] = admitted.topology
+    ? previous!.core.transpose : HumanQuadraticTranspose(n, start, cols);
   const originalP: Float64Array[] = admitted.curvature
     ? previous!.p
     : problem.p.map((row: Float64Array): Float64Array => Float64Array.from(row));
@@ -410,7 +416,7 @@ function create(
     scaling,
     core: {
       n, m, band, p, diagonal, pPattern, q, qNorm, unscaledQNorm,
-      start, cols, vals, ordered, singleton, d, e, c, unscale,
+      start, cols, vals, ordered, singleton, factorOrder, transpose, d, e, c, unscale,
     },
   };
 }

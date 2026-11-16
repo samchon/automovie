@@ -113,8 +113,8 @@ export namespace HumanAirborneShape {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the fixed shape table/chain demand once; each application collects held goals, resolves their source frames through the original canonical owner, then writes the same achieved-point/pole requests while retaining every other original goal field.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Claims only the table's limbs and preserves held goal rotation, reference, contact, planting and external constraints. An achieved point alone never certifies the later complete IK objective, and no fade, authored angle, sample or acceptance bound changes.
    * @evidence contracts/development/implementation.md#efficient-algorithms Held-goal calls keep complete direct-joint admission and request only the six claimed chain frames/ancestry. The resolver's dependency selector omits only unobserved supported goal work; digit, attachment, reference or other unsupported dependencies retain its conservative full fit. No held goal means no source solve/FK; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The layer shares only its immutable shape table and canonical chain-name demand. One explicitly scoped lazy reader borrows its synchronous evaluation's source when supplied and shares exact FK prerequisites between real source resolution, requested frame reads and parent consumers; every changed pose and retained dependency still resolves normally. Each chain frame is read once for its point/pole construction.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains one table entry, two claimed limb names and at most six demanded bones. Each application's local getter, source pose and fresh frame map release on return or throw; a borrowed reader remains owned by its synchronous parent and no source/getter, prior fit or history enters returned output.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed shape/chain demand is shared. Explicitly borrowed parent FK/projector sources share exact FK prerequisites and static ROM metadata across actual source resolution, requested frames and parent consumers; every changed joint is projected and each retained dependency still resolves normally. Each chain frame supplies its point/pole construction once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains one table entry, two claimed limbs and at most six demanded bones. Local getter, source pose and fresh frames release on return/throw; FK/projector loans stay with their synchronous parent and no loan, prior fit or history enters output. No held goals means neither lazy loan is demanded.
    */
   export function layer(shape: Shape): IHumanLayer {
     const joints: Partial<
@@ -164,6 +164,7 @@ export namespace HumanAirborneShape {
           context.body,
           resolveHumanPosture.seeded(
             context.body, still, undefined, undefined, resolution, requested,
+            context.projection?.(),
           ).pose,
           resolution(),
           requested,

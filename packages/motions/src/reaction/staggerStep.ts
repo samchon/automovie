@@ -90,8 +90,8 @@ export namespace staggerStep {
    * @evidence contracts/development/implementation.md#principled-implementation Step adaptation (Khadiv et al. 2016; Griffin et al. 2017): the stance course up to the landing and through the weight's shift onto both feet after it places the landing itself, pulled toward the ankle that puts its landing point on the extrapolated centre of mass and held inside the region, the legs' ranges and their clearance of each other.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shift, the swing, the aim, the region, then the course from each start, the better kept.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A landing the legs cannot hold in the region is null, never a shortened bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One course per start, at most three, each solved only from the last step's landing on.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the course of the steps before it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The pendulum-only bound reads its actual capture support once and builds no unused kinematic landing hull/crossover starts. Kinematic mode keeps one course per start, at most three, each solved only from the last step's landing on.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Continues the course of the steps before it. Ball, heel and sole positions are each read once from this step's unchanged departing placement, then shared by its toe direction, aim and original landing-point interpolation; no fit or candidate result is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the chosen course in its result only.
    */
   export function take(
@@ -110,8 +110,8 @@ export namespace staggerStep {
       STEP_TIME,
       STEP_LENGTH,
       KNOTS,
-    } = staggerBounds;
-    const { centre, forward, across, entered, width, length } = pendulum;
+    }: typeof staggerBounds = staggerBounds;
+    const { centre, forward, across, entered, width, length }: StaggerPendulum = pendulum;
     const stance: "left" | "right" = side === "left" ? "right" : "left";
     if (reaction > 0) pendulum.bear(["left", "right"], reaction);
     // The leg a sideways push unloads leaves the floor sooner and swings
@@ -135,14 +135,14 @@ export namespace staggerStep {
     const start: number = pendulum.t;
     pendulum.bear([stance], swing);
     const goal: IAutoMovieVector3 = Vector3.add(centre, pendulum.xi());
+    const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", from);
+    const heel: IAutoMovieVector3 = HumanFoot.point(body, side, "heel", from);
     const toes: IAutoMovieVector3 = flat(
-      Vector3.subtract(
-        HumanFoot.point(body, side, "ball", from),
-        HumanFoot.point(body, side, "heel", from),
-      ),
+      Vector3.subtract(ball, heel),
     );
+    const sole: IAutoMovieVector3 = HumanFoot.point(body, side, "sole", from);
     const aim: IAutoMovieVector3 = flat(
-      Vector3.subtract(goal, HumanFoot.point(body, side, "sole", from)),
+      Vector3.subtract(goal, sole),
     );
     const aimed: number = Vector3.length(aim);
     const toeLength: number = Vector3.length(toes);
@@ -151,8 +151,8 @@ export namespace staggerStep {
         ? Vector3.dot(aim, toes) / (aimed * toeLength)
         : 0;
     const lands: IAutoMovieVector3 = Vector3.lerp(
-      HumanFoot.point(body, side, "sole", from),
-      HumanFoot.point(body, side, share >= 0 ? "heel" : "ball", from),
+      sole,
+      share >= 0 ? heel : ball,
       Math.abs(share),
     );
     const wanted: IAutoMovieVector3 = Vector3.add(
@@ -178,6 +178,17 @@ export namespace staggerStep {
         : ankle;
     };
     const ankle0: IAutoMovieVector3 = reached(wanted);
+    const placed: HumanFoot.IPlacement = {
+      ankle: { ...ankle0, y: from.ankle.y },
+      rotation: from.rotation,
+    };
+    // The pendulum-only bound uses captured's actual placed-foot support;
+    // no crossover start or separate kinematic landing hull is consumed.
+    if (!props.kinematic) {
+      pendulum.steps.push({ side, from, to: placed, start, land: pendulum.t });
+      pendulum.feet[side] = placed;
+      return { done: pendulum.captured(), checking: props.checking };
+    }
     // Then the legs' own reachable set, in one solve: the stance course up
     // to the landing and through the weight's shift onto both feet after
     // it (`staggerKnots.of`, `walkStanceCourse`) places the landing itself,
@@ -193,10 +204,6 @@ export namespace staggerStep {
         Vector3.length(travel) -
           pendulum.bound(travel, STEP_LENGTH) * body.measure.stature,
       ];
-    };
-    const placed: HumanFoot.IPlacement = {
-      ankle: { ...ankle0, y: from.ankle.y },
-      rotation: from.rotation,
     };
     // A landing on the stance foot's far side, or nearer it than the feet
     // stand side by side, crosses it: it lands in front of it or behind
@@ -234,12 +241,6 @@ export namespace staggerStep {
           flat(Vector3.subtract(q, centre)),
       ),
     );
-    // The pendulum alone (`staggerLimit`'s bound) lands where the region puts it.
-    if (!props.kinematic) {
-      pendulum.steps.push({ side, from, to: placed, start, land: pendulum.t });
-      pendulum.feet[side] = placed;
-      return { done: pendulum.captured(), checking: props.checking };
-    }
     const pressure: IAutoMovieVector3 = StaggerPendulum.nearest(both, pendulum.xi());
     pendulum.phases.push({
       from: pendulum.t,

@@ -135,6 +135,7 @@ export namespace punchGeometry {
   ): IGeometry {
     const p: punch.IParams = context.params;
     const { side, lead, shown, recoil, drop, duration } = timing;
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(context.body, { lead });
     const body = context.body;
     const t0: number = context.start;
     const arm: "leftArm" | "rightArm" =
@@ -143,6 +144,7 @@ export namespace punchGeometry {
       context,
       timing,
       tangent,
+      ARM_BONES,
     );
     const { line, rotation, socket, tracker, bones, solved } = contact;
 
@@ -216,9 +218,7 @@ export namespace punchGeometry {
     // correction that moves the feet has arrived.
     let ended: IHumanPosture.IGoal | undefined;
     const guardEnd = (): IHumanPosture.IGoal =>
-      (ended ??= StrikingStance.guard(body, footwork.base(duration), {
-        lead,
-      })[arm]!);
+      (ended ??= guardAt(footwork.base(duration))[arm]!);
     const rotationAt = (t: number): IAutoMovieQuaternion =>
       Quaternion.slerp(
         Quaternion.slerp(startRotation, rotation, out(t)),
@@ -367,7 +367,7 @@ export namespace punchGeometry {
       const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const posture: IHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
-      const guard: ReturnType<typeof StrikingStance.guard> = StrikingStance.guard(body, posture, { lead }, {}, undefined, resolution);
+      const guard: ReturnType<typeof StrikingStance.guard> = guardAt(posture, resolution);
       const elbow: IAutoMovieVector3 = Vector3.lerp(
         Vector3.lerp(
           startElbow,
@@ -464,3 +464,8 @@ export namespace punchGeometry {
     };
   }
 }
+
+/** Both complete arm sweeps and the launch hand/elbow need these actual entry outputs. */
+const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+  "leftUpperArm", "leftLowerArm", "leftHand", "rightUpperArm", "rightLowerArm", "rightHand",
+]);

@@ -262,7 +262,9 @@ export namespace crawl {
     );
 
     // Only the contact point changes as each tucked foot follows its knee.
-    const placing = (
+    const placing: (
+      side: "left" | "right",
+    ) => ReturnType<typeof HumanFoot.prepareAt> = (
       side: "left" | "right",
     ): ReturnType<typeof HumanFoot.prepareAt> =>
       HumanFoot.prepareAt(

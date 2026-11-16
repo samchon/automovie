@@ -219,8 +219,33 @@ export namespace supportContact {
     posture: IHumanPosture,
     part: HumanSupport.Part,
   ): IAutoMovieVector3 {
-    const p: IAutoMovieVector3 = pinned(body, posture, part);
-    return { x: p.x, y: 0, z: p.z };
+    return onFloors(body, posture, [part])[0]!;
+  }
+
+  /**
+   * Read several support parts on the same unchanged posture, dropping their
+   * existing bone-origin datums to the floor in the original part order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States unchanged posture/body, ordered part datums and world-metre floor projection.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses pinned's identical part-to-bone mapping and actual canonical bone positions, then retains each point's x/z with y zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private batch owns the bone observation, followed by one ordered floor projection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sole offset, declared target, guessed height or fitted-pose reuse replaces the original bone-origin datum; scalar onFloor delegates this same owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms N parts share one canonical observational solve and one FK of their named bones/ancestry instead of N solves; empty input performs no solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All parts observe the same unchanged input in one synchronous invocation; canonical ordered admission and unsupported-context full fallback remain in the resolver.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary bone names, current map and workspace end with the call; N fresh world-metre floor points return with no retained current pose or history.
+   */
+  export function onFloors(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    parts: readonly HumanSupport.Part[],
+  ): IAutoMovieVector3[] {
+    return pinnedMany(body, posture, parts).map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: point.x,
+        y: 0,
+        z: point.z,
+      }),
+    );
   }
 
   /**
@@ -258,7 +283,7 @@ export namespace supportContact {
    * @evidence contracts/development/implementation.md#principled-implementation Builds each original contact form and transforms its exact local offset through the actual resolved target bone, with the resolver's existing observational-demand guards.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms determine one demanded-bone set, one canonical solve/FK supplies those frames, then one ordered transform pass emits the points.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All target offsets, authored admission, relevant limb/digit fits and unsupported-context full fallbacks remain canonical; no declared target substitutes for an achieved bone point.
-   * @evidence contracts/development/implementation.md#efficient-algorithms N contacts share one candidate pose/FK and one fixed quiet-foot datum instead of N repeated solves; only their target frames and ancestry are requested, and an empty request performs no solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms N contacts share one candidate pose/FK instead of N repeated solves; point-only forms demand no unused quiet-foot-normal solve, only target frames and ancestry are requested, and an empty request performs no solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work All contacts observe exactly this same unchanged candidate/body in one synchronous operation. The current map, metadata reader and prepared form do not escape or serve a different posture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources N target records, one bounded name set and current bone map end with this call or throw; only N fresh world points return and no workspace, posed result or history is retained.
    */
@@ -269,7 +294,7 @@ export namespace supportContact {
   ): IAutoMovieVector3[] {
     if (contacts.length === 0) return [];
     const form: ReturnType<typeof prepareSupportContactForm> =
-      prepareSupportContactForm(body);
+      prepareSupportContactForm(body, false);
     const targets: HumanBodyFit.ITarget[] = contacts.map(
       (item: IPoint): HumanBodyFit.ITarget =>
         form(item.contact, item.at).target,
@@ -320,18 +345,49 @@ export namespace supportContact {
     posture: IHumanPosture,
     part: HumanSupport.Part,
   ): IAutoMovieVector3 {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
+    return pinnedMany(body, posture, [part])[0]!;
+  }
+
+  /** Observe one immutable candidate's exact part-origin frames without a goal or offset substitution. */
+  function pinnedMany(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    parts: readonly HumanSupport.Part[],
+  ): IAutoMovieVector3[] {
+    if (parts.length === 0) return [];
+    const names: AutoMovieHumanoidBone[] = parts.map(
+      (part: HumanSupport.Part): AutoMovieHumanoidBone => {
+        const side: "left" | "right" = part.startsWith("left")
+          ? "left"
+          : "right";
+        return part.endsWith("Foot")
+          ? `${side}Toes`
+          : part.endsWith("Hand")
+            ? `${side}Hand`
+            : part.endsWith("Knee")
+              ? `${side}LowerLeg`
+              : "hips";
+      },
     );
-    const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
-    const bone: AutoMovieHumanoidBone = part.endsWith("Foot")
-      ? `${side}Toes`
-      : part.endsWith("Hand")
-        ? `${side}Hand`
-        : part.endsWith("Knee")
-          ? `${side}LowerLeg`
-          : "hips";
-    return bones.get(bone)!.worldPosition;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(names);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        resolution,
+        requested,
+      ).pose,
+      resolution(),
+      requested,
+    );
+    return names.map(
+      (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        bones.get(bone)!.worldPosition,
+    );
   }
 }

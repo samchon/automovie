@@ -89,7 +89,8 @@ export namespace AutoMovieMotionHumanBase {
         seconds: number,
         channels?: readonly AutoMovieMotionHumanChannel[],
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      ): IHumanPosture => carrier.posture(seconds, channels, resolution),
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => carrier.posture(seconds, channels, resolution, projection),
     };
   }
 

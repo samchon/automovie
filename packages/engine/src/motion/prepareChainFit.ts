@@ -38,13 +38,17 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * A supplied poseResolution must be the immutable snapshot of this exact rig,
  * topology and clinical tables. It computes only the chain's demanded frames;
  * omission retains the raw full-FK admission path.
+ * The internal fixed workspace is produced only by prepareSource from the
+ * same immutable six source fields and no goal fields. It shares source
+ * geometry, axes, authored readings, articulation and non-bend pose prefix;
+ * each new workspace still owns its reference, continuity and goal policy.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the borrowed inputs, caller-owned lifetime and laziness that preserves degenerate-target admission order.
  * @evidence contracts/development/implementation.md#principled-implementation Separates target-independent FK/domains and last-record joint maps from target-specific analytic solving, using the same skeleton axis precedence and resolveBoneMap as the one-shot fit.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainFitRig owns lazy rig/source preparation, while this workspace owns FK and continuity readers; fitChainBend remains the sole owner of target search and ranking.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search, tolerance, seed, callback result or constraint is approximated; lazy authored/reference reads retain the original order in which a degenerate analytic solve returns without reading them.
- * @evidence contracts/development/implementation.md#efficient-algorithms One geometry/domain preparation and at most one authored/reference-mid FK serve every target. Explicit preparation reuses the immutable merged raw-axis table without another B-bone scan and reads only zeroed chain ancestry, authored effector and reference lower. Raw omission preserves full scans; both retain ordered joint admission and every search/projection. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed source dependencies are shared. An explicit immutable poseResolution must match this exact rig/topology/mappings; otherwise raw full FK remains. Rig getters retain original diagnostic sites and hinged first-reference versus free-bend last-reference semantics. Changed rig, pose, frame, callback or reference inputs require another workspace.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One geometry/domain preparation and lazy source/reference FK serve a target workspace. A genuine fixed source additionally shares merged axes, zeroed geometry, source FK/joint maps, source articulation and non-bend prefix across goal bindings; only each binding's reference/continuity remains fresh. Explicit immutable rig reads demanded ancestry, raw omission keeps full scans, and every target search/projection remains. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The internal fixed workspace must come from prepareSource's identical immutable skeleton/pose/chain/topology/mappings, without any goal fields. It shares only exact source data, including source last-record maps; every binding still owns its first-record hinged reference, last-record free-bend reference, weight and continuity. Explicit poseResolution must match the same rig; raw calls without fixed data retain original full-FK admission. Lazy getters keep their original first-use sites.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One workspace owns O(J+B) local maps/FK dependency snapshots and constant-size data for three chain bones, projector and fixed hinge/reference reads. It borrows fixed inputs and an optional same-operation reader until caller release and retains no target history, global cache, handle or task.
  */
 export function prepareChainFit(
@@ -55,18 +59,16 @@ export function prepareChainFit(
   >,
   resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
   poseResolution?: prepareSkeletonPoseResolution.IRig,
+  fixed?: prepareChainFit.IWorkspace,
 ): prepareChainFit.IWorkspace {
   const props: Omit<IFitChainToTargetProps, "target"> = {
     ...source,
-    jointAxes: poseResolution?.jointAxes ??
+    jointAxes: fixed?.props.jointAxes ?? poseResolution?.jointAxes ??
       skeletonJointAxes(source.skeleton, source.jointAxes),
   };
-  const prepared: IPreparedChainPlant | null = prepareChainPlant(
-    props,
-    resolution,
-    poseResolution,
-  );
-  const rig: prepareChainFit.IRig = prepareChainFitRig(props, prepared);
+  const prepared: IPreparedChainPlant | null = fixed === undefined
+    ? prepareChainPlant(props, resolution, poseResolution) : fixed.prepared;
+  const rig: prepareChainFit.IRig = prepareChainFitRig(props, prepared, fixed?.rig);
   let reading: prepareChainFit.IReading | undefined;
   let referenceLower: IAutoMovieResolvedBone | undefined;
   let articulation:
@@ -79,7 +81,7 @@ export function prepareChainFit(
     props,
     prepared,
     rig,
-    articulation: (): ReturnType<typeof twoBoneChainArticulation.prepare> => {
+    articulation: fixed?.articulation ?? ((): ReturnType<typeof twoBoneChainArticulation.prepare> => {
       if (articulation === undefined)
         articulation =
           prepared === null
@@ -90,8 +92,8 @@ export function prepareChainFit(
                 end: prepared.end,
               });
       return articulation;
-    },
-    pose: (
+    }),
+    pose: fixed?.pose ?? ((
       upper: IAutoMovieJointPose,
       lower: IAutoMovieJointPose,
     ): IAutoMoviePose => {
@@ -100,7 +102,7 @@ export function prepareChainFit(
           joint.bone !== props.chain.upper && joint.bone !== props.chain.lower,
       );
       return { ...props.pose, joints: [...retainedJoints, upper, lower] };
-    },
+    }),
     clamp: (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
       rig.clamp(joint.bone)(joint),
     continuity: (
@@ -153,18 +155,20 @@ export function prepareChainFit(
     },
     read: (): prepareChainFit.IReading => {
       if (reading !== undefined) return reading;
-      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      const known: prepareChainFit.IReading | undefined = fixed?.read();
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
+        known !== undefined ? undefined :
         readAuthored === undefined
           ? readBones(props.pose, new Set([props.chain.effector]))
           : readAuthored();
       const authoredAngles: ReadonlyMap<
         AutoMovieHumanoidBone,
         IAutoMovieJointPose
-      > = indexJoints(props.pose.joints);
+      > = known?.authoredAngles ?? indexJoints(props.pose.joints);
       const referencePose: typeof props.pose =
         props.referencePose ?? props.pose;
       reading = {
-        authored: bones.get(props.chain.effector)!.worldPosition,
+        authored: known?.authored ?? bones!.get(props.chain.effector)!.worldPosition,
         authoredAngles,
         referenceAngles:
           referencePose === props.pose

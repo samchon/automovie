@@ -109,7 +109,7 @@ export namespace relayPass {
    * @evidence contracts/development/implementation.md#principled-implementation The outgoing hand is a place of the runner's own frame, carried with the run; the incoming wrist is the outgoing palm less the baton's end as the hand holds it; both arms are carried from the run's own arm angles at each second by the pass's envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The clock, the role's goal, the envelope, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An instant too early is refused with the earliest one; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two posture resolves and a trunk resolve per frame.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Inactive pass windows return the carrier directly; partial blends retain their original solves, and full share skips the unused carrier-angle solve. Incoming contact requests only the partner hand frame read by the actual palm, preserving its complete display pipeline.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the carrier, the hand goals, the arm carry and the worn prop.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the baton's offset.
    */
@@ -130,6 +130,7 @@ export namespace relayPass {
     );
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
+    const palmBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
 
     // The baton's end in the incoming hand's frame.
     let end: IAutoMovieVector3 | undefined;
@@ -220,7 +221,7 @@ export namespace relayPass {
       );
       const palm: IAutoMovieVector3 = HumanHand.frame(
         partner.body,
-        partner.bones(context.start + t),
+        partner.bones(context.start + t, palmBones),
         side,
         "palm",
         "flat",

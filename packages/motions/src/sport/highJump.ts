@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -18,7 +18,10 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanColliders } from "../posture/HumanColliders";
+import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
@@ -219,9 +222,9 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#principled-implementation The vertical launch is sqrt(2 g (bar - centre)), the fall time to the lying centre's height closes the horizontal launch, the turns are constant rates over their phases, and the touchdown is the bisected instant the lowest shape meets the surface.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The lying height, the take-off, the flight posture, the touchdown, the landing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and the original touchdown bisection stations remain. Each flight query resolves one canonical bone map for COM and, only when touchdown needs it, collider floor bounds; no second floor FK is required. Playback does not evaluate unused collision bounds; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses take-off, flight, mat and lying-posture owners; two fixed key pairs prepare their ordered blend unions once. Each actual dynamic shape shares its own canonical map between COM placement and floor bounds, with no memoization across times/articulations. Its raw callback explicitly forwards a synchronous parent's FK source through take-off, dynamic flight and landing consumers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its take-off, body mass model and two fixed key-pair readers. Each query releases its frame, bone map and optional floor reader at return or throw; a borrowed FK source remains owned by its synchronous caller, never entering the plan or previous-query state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and all touchdown bisection stations remain. One actual take-off canonical solve supplies both COM and frozen joints. Each changing flight query shares its actual COM/floor map; playback omits unused bounds, and synchronous ROM/FK metadata share only prerequisites. No sample changes and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing take-off/flight/mat owners share two fixed key-pair preparations. Each changing shape shares its own actual COM/floor map without a time memo. The raw callback forwards only synchronous parent FK/projector loans through take-off, dynamic flight and landing, retaining full current joint projection.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains take-off, mass model and two fixed key-pair readers. Query frame, bones and floor reader release on return/throw; borrowed FK/projector loans stay with their synchronous caller and never enter the plan, floor closure or previous-query state.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -300,21 +303,21 @@ export namespace highJump {
     // does not step at the take-off where the push-off's flight, which the
     // launch is read from, does not meet its take-off pose; its vertical
     // speed is the one that peaks that centre at the bar.
-    const c0: IAutoMovieVector3 = GymnasticsFlight.centre(
-      body,
-      model,
-      takeoff.plan.posture(off),
-    );
+    const launchFrame: { posture: IHumanPosture; centre: IAutoMovieVector3 } = ((): { posture: IHumanPosture; centre: IAutoMovieVector3 } => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+      const frozen: ReturnType<typeof GymnasticsFlight.freeze> = GymnasticsFlight.freeze(body, takeoff.plan.posture(off, undefined, read, projection), read, projection);
+      return { posture: frozen.posture, centre: resolveAutoMovieCenterOfMass.place(model,
+        poseBones(body, frozen.pose, read(), HumanColliders.bones(body))) };
+    })();
+    const from: IHumanPosture = launchFrame.posture;
+    const c0: IAutoMovieVector3 = launchFrame.centre;
     HumanBound.above("bar", bar, c0.y, "m");
     const v: IAutoMovieVector3 = {
       ...takeoff.velocity,
       y: Math.sqrt(2 * AutoMovieGravity.STANDARD * (bar - c0.y)),
     };
     const rising: number = v.y / AutoMovieGravity.STANDARD;
-    const from: IHumanPosture = GymnasticsFlight.frozen(
-      body,
-      takeoff.plan.posture(off),
-    );
 
     // The flight posture at seconds since the take-off: the joints keyed,
     // the half turn over the rise and the somersault through the flight
@@ -341,8 +344,8 @@ export namespace highJump {
     const pike: ExerciseKey.IKey = piked(body);
     const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(start, arch);
     const piking: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(arch, pike);
-    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IPreparedGymnasticsFrame =
-      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IPreparedGymnasticsFrame => {
+    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IHumanActionPlan["posture"]>[3]) => IPreparedGymnasticsFrame =
+      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IPreparedGymnasticsFrame => {
       const key: ExerciseKey.IKey =
         t <= rising
           ? arching(ease(t / rising))
@@ -356,15 +359,17 @@ export namespace highJump {
         },
         GymnasticsFlight.at(c0, v, t),
         resolution,
+        projection,
       );
     };
-    const flying: (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IHumanPosture = (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => frameAt(t, resolution).posture;
+    const flying: (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]) => IHumanPosture = (t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => frameAt(t, resolution, projection).posture;
 
     // The touchdown: the lowest shape meets the surface on the way down.
     const down: number = ((): number => {
       const floorResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const floorProjection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
       const lowest: (t: number) => number = (t: number): number => {
-        const frame: IPreparedGymnasticsFrame = frameAt(t, floorResolution);
+        const frame: IPreparedGymnasticsFrame = frameAt(t, floorResolution, floorProjection);
         return frame.posture.root.y - frame.floor();
       };
       if (!(lowest(rising) > surface))
@@ -420,11 +425,11 @@ export namespace highJump {
       contacts,
       contact: off + rising,
       base: { kind: "lying" },
-      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IHumanPosture => {
+      posture: (seconds: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= off) return takeoff.plan.posture(t, channels, resolution);
-        if (t < touchdown) return flying(t - off, resolution);
-        return landing(t - touchdown, resolution);
+        if (t <= off) return takeoff.plan.posture(t, channels, resolution, projection);
+        if (t < touchdown) return flying(t - off, resolution, projection);
+        return landing(t - touchdown, resolution, projection);
       },
     };
   }

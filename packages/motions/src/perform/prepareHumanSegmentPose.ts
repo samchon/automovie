@@ -1,7 +1,8 @@
-import { clampPose, preparePoseResolution } from "@automovie/engine";
+import { preparePoseResolution } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 
 /**
  * Share rig preparation and exact FK prerequisites across one person's
@@ -12,11 +13,11 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @returns Metadata and a lazy FK reader; no displayed pose or fit is retained.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the one-person operation lifetime, unchanged rig premise and lazy reader ownership.
- * @evidence contracts/development/implementation.md#principled-implementation clampPose.prepare indexes unchanged rig constraints while preparePoseResolution shares only exact clinical/rest/ancestor scalars; numerical projections, target fits and fresh output records still run.
+ * @evidence contracts/development/implementation.md#principled-implementation The genuine posture projection factory wraps ordinary clampPose.prepare and records its same-body provenance, allowing direct assembly and final clamps to share metadata; preparePoseResolution shares exact clinical/rest/ancestor scalars. Every numerical projection, target fit and output allocation still runs.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One record owns the clamp and one lazy FK getter; each physical stage receives the same explicit operation source without a global active context.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, goal, near seed, fit, time sample or callback result is memoized; changed FK dependencies reach the ordinary numerical owner.
  * @evidence contracts/development/implementation.md#efficient-algorithms Clamp metadata costs O(B+D) for B rig bones and D requested joint names once; the first actual FK demand creates one exact reader and subsequent demands return it in constant time. Every clamp still projects all its joints and every fit keeps its search; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicitly lent record identifies one unchanged-body evaluation and shares only rig metadata and exact FK prerequisites across its overlays, carries, stops, transitions and final plants.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicitly lent record identifies one unchanged-body evaluation. Its genuine projection reaches direct posture assembly and final clamps, while exact FK prerequisites serve overlays, carries, stops, transitions and final plants; an unissued projection cannot bypass admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The outer seeded evaluation owns this record until synchronous return or throw. Clamp metadata and one last successful FK tuple per visited name release with it; no plan, transition offset, returned pose or result seed stores the record or reader.
  */
 export function prepareHumanSegmentPose(
@@ -25,7 +26,7 @@ export function prepareHumanSegmentPose(
   let resolution: ReturnType<typeof preparePoseResolution> | undefined;
   return {
     body,
-    clamp: clampPose.prepare(body.skeleton),
+    clamp: prepareHumanPostureProjection(body),
     resolution: (): ReturnType<typeof preparePoseResolution> =>
       (resolution ??= preparePoseResolution()),
   };

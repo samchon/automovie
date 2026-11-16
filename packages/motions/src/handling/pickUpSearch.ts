@@ -11,6 +11,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspDemand } from "./HumanGraspDemand";
+import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspUse } from "./HumanGraspUse";
 import type { pickUp } from "./pickUp";
 import { pickUpPosture } from "./pickUpPosture";
@@ -87,9 +88,7 @@ export namespace pickUpSearch {
       side,
     );
 
-    const hand: ReturnType<typeof HumanGrasp.prepareHand> = HumanGrasp.prepareHand(body, side);
-    const goal: (turn: number, tilt: number) => HumanHand.IWrist = (turn: number, tilt: number): HumanHand.IWrist =>
-      hand(HumanGrasp.around(authored, turn), tilt);
+    const goal: ReturnType<typeof HumanGraspHand.turns> = HumanGraspHand.turns(body, side, authored);
     // Without a use, the hand takes the grip as the archetype declares it:
     // never tilted, and turned about the wrapped axis only as far as the
     // grip is the same turned (`IAutoMovieAffordance.symmetry`).

@@ -10,6 +10,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -117,8 +118,8 @@ export namespace GymnasticsWheel {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Bind the body's actual fixed spoke-bone demand once, then resolve the original trunk, read every spoke's mean once and choose the bearing/root for each row.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A spoke takes the weight only when lower by `LEVEL`, so a pair level with its single feet keeps bearing as the pair and the choice does not flicker on rounding.
    * @evidence contracts/development/implementation.md#efficient-algorithms R rows retain ordinary canonical joint admission; demanded FK visits spoke ancestry instead of unrelated descendants, with fixed name lookup/sorting paid once by the body's producer. Each row reduces each spoke once in O(P) named incidences using three scalars and one result vector per spoke, avoiding repeated means and per-bone sum vectors. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each row's spoke means supply every comparison and support handover. One explicitly scoped exact FK reader shares unchanged joint/ancestor arithmetic across real rows, while changed shapes and root headings still compute normally; no shape or time is rounded into a key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains one record per row. The spoke set, operation-scoped lazy FK reader and row maps/means release at construction return or throw; no reader or temporal cache enters the table.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each row's spoke means supply every comparison/support handover. One scoped exact FK reader and genuine same-body projector share equal FK prerequisites/static ROM metadata across real stations; every current joint is projected and changed shape/root dependencies compute normally, without a rounded time/shape key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table retains one record per original row. Fixed demand, scoped FK getter/projector and temporary row maps/means release at construction return/throw; neither workspace nor a temporal cache enters the root reader or rows.
    */
   export function roll(props: {
     body: IHumanBody;
@@ -131,6 +132,7 @@ export namespace GymnasticsWheel {
     const count: number = Math.max(1, Math.ceil(props.until / props.step));
     const rows: IRow[] = [];
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
     const requested: Set<AutoMovieHumanoidBone> = new Set();
     for (const spoke of props.spokes)
       for (const bone of spoke.bones) requested.add(bone);
@@ -140,7 +142,7 @@ export namespace GymnasticsWheel {
       const angle: number = (props.until * i) / count;
       const shaped: IHumanPosture = props.shaped(angle);
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        readBones(resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution).pose, resolution());
+        readBones(resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution, undefined, projection).pose, resolution());
       const middles: IAutoMovieVector3[] = props.spokes.map((spoke: ISpoke): IAutoMovieVector3 => {
         let x: number = 0;
         let y: number = 0;

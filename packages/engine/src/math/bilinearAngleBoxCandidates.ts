@@ -29,12 +29,12 @@ import { nearestAngleAlias } from "./nearestAngleAlias";
  * The general two-by-two SVD and limiting-family projections are derived below.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines matrix order, half-angle objective, full-angle degree boxes, reference handling, the candidate populations, null/refusal meanings and the caller's actual-rotation scoring responsibility.
- * @evidence contracts/development/implementation.md#principled-implementation On a positive-width box an interior maximum is a top singular pair; a boundary fixes one variable and leaves one sinusoid. Rotation/reflection limiting families include the equal-SVD continuum, whose reference-nearest point is a line projection clipped to the box. Whole-turn lifting uses nearestAngleAlias.
+ * @evidence contracts/development/implementation.md#principled-implementation On a positive-width box an interior maximum is a top singular pair; a boundary fixes one variable and leaves one sinusoid. Rotation/reflection limiting families include the equal-SVD continuum, whose reference-nearest point is a line projection clipped to the box. Whole-turn lifting uses nearestAngleAlias. When both interval endpoints have magnitude at most MAX_SAFE_INTEGER and the actual angle is inside, every first/last/nearest index numerator is at most twice that bound; division by 360 proves their rounded integers safe without evaluating unused first/last values. If its actual rounded turn is zero, the original angle+360*turn stays inside, so nearestAngleAlias's first branch and the final membership test are already proved; that original multiply/add still determines the zero sign.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct, prepared tuple and prepared scalar calls validate inputs then share one finite candidate construction separating alias admission, boundaries, the top singular pair and the two reference families. A private boundary reader owns each original cosine/sine expression; physical joint conversion remains with the caller.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No grid, iterative search, rank cutoff, physical tolerance or fitted answer chooses a candidate. Both singular-vector and all boundary candidates remain present, including beside the reference-family candidates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen pairs and constant-size arithmetic are produced regardless of interval width. An unchanged prepared box admits its two ranges once and prepares each family's two range-only bounds once. The actual projector uses fromScalars to omit two argument tuples per query. At most twenty full lift computations remain: per axis, three fixed coordinates, one SVD coordinate, two opposite-edge stationary coordinates and four limiting-family coordinates; repeated fixed inputs reuse their original result and prepared endpoint bounds share their two safe-integer checks. Numeric row heads and links replace per-row Sets; searching a row has O(K²) worst-case total work for K<=18 retained pairs. Only two scalar phase indices bracketing the reference are needed per family. Exact-duplicate endpoints reduce append attempts without losing a returned pair; runtime speedup remains unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One matrix rescaling serves every candidate and each boundary reuses fixed sine/cosine. Exact-equal endpoints are enumerated once; prepare shares the unchanged range-admission result, endpoint arrays, at most four lazy boundary readings, four range-only first/last whole-turn prefixes with their exact safety result and each limiting family's range-only interval. A prefix or family interval is read only at its original use site. Matrix/reference admission, reference-dependent turn and safety, representability and nearestAngleAlias still run per query; a cached unsafe endpoint prefix still refuses that query and no alias answer crosses queries. Each query also reuses its min/max/reference alias locally. Row links preserve SameValueZero and first pair signs, family scalar indices preserve former Set order/positive-zero behavior, and the existing alias owner decides admission.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A direct call owns at most eighteen pair tuples, one row-head map/link array, two endpoint arrays and two three-slot alias records; only its pair list escapes. Family choices are scalars. Prepared callers retain their borrowed box, one range-admission flag, endpoint arrays and at most four lazy boundary readings plus four raw first/last prefix records with safety flags and two family intervals. Unsafe raw prefix numbers keep this query's refusal. Direct lifts allocate no prefix wrapper. No target, alias/candidate history, global cache or handle is retained.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No grid, iterative search, rank cutoff, physical tolerance or fitted answer chooses a candidate. Both singular-vector and all boundary candidates remain present, including beside the reference-family candidates. The bounded in-range lift omits only proved index admission and, for an actual zero turn, proved unchanged alias membership. It retains the exact reference-dependent round and whole-turn product/addition, including signed-zero behavior; a nonzero turn still uses nearestAlias/final range checks, preserving cancellation. Larger intervals and out-of-range angles retain all original index calculations/refusals.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen pairs and constant-size arithmetic are produced regardless of interval width. An unchanged prepared box admits its two ranges once and prepares each family's two range-only bounds once. The actual projector uses fromScalars to omit two argument tuples per query. At most twenty full lift computations remain: per axis, three fixed coordinates, one SVD coordinate, two opposite-edge stationary coordinates and four limiting-family coordinates; repeated fixed inputs reuse their original result and prepared endpoint bounds share their two safe-integer checks. A successful bounded in-range lift omits unused first/last admission work and the nearest-turn safety check; an uncached lift also omits two first/last subtractions/divisions/roundings and their two safe checks. An actual zero turn also omits one alias call and its four already-proved membership comparisons; nonzero turns retain alias/range work. Numeric row heads and links replace per-row Sets; searching a row has O(K²) worst-case total work for K<=18 retained pairs. Only two scalar phase indices bracketing the reference are needed per family. Exact-duplicate endpoints reduce append attempts without losing a returned pair; runtime speedup remains unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One matrix rescaling serves every candidate and each boundary reuses fixed sine/cosine. Exact-equal endpoints are enumerated once; prepare shares the unchanged range-admission result, two interval-bound facts, endpoint arrays, at most four lazy boundary readings, four range-only first/last whole-turn prefixes with their exact safety result and each limiting family's range-only interval. A prefix or family interval is read only at its original use site. Matrix/reference admission, reference-dependent turn and representability remain query-local; safety follows the explicit bounded in-range proof or original index checks, and zero turns use the alias owner's proved first branch while other turns still call it. A cached unsafe endpoint prefix still refuses that query and no alias answer crosses queries. Each query also reuses its min/max/reference alias locally. Row links preserve SameValueZero and first pair signs, and family scalar indices preserve former Set order/positive-zero behavior.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A direct call owns at most eighteen pair tuples, one row-head map/link array, two endpoint arrays, two bounded-interval flags and two three-slot alias records; only its pair list escapes. Family choices are scalars. Prepared callers retain their borrowed box, one range-admission flag, two interval-bound flags, endpoint arrays and at most four lazy boundary readings plus four raw first/last prefix records with safety flags and two family intervals. Unsafe raw prefix numbers keep this query's refusal. Direct lifts allocate no prefix wrapper. No target, alias/candidate history, global cache or handle is retained.
  */
 export function bilinearAngleBoxCandidates(
   matrix: readonly [number, number, number, number],
@@ -89,6 +89,14 @@ function enumerateBox(
     Partial<Record<0 | 1 | 2, number | null>>,
     Partial<Record<0 | 1 | 2, number | null>>,
   ] = [{}, {}];
+  const bounded: readonly [boolean, boolean] = prepared?.bounded ?? [
+    Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
+      Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
+    Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
+      Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
+  ];
+  if (prepared !== undefined && prepared.bounded === undefined)
+    prepared.bounded = bounded;
   let representable: boolean = true;
 
   /** Select the admitted full-turn alias nearest this coordinate's reference. */
@@ -109,6 +117,22 @@ function enumerateBox(
     const known: number | null | undefined =
       slot === null ? undefined : aliases[axis][slot];
     if (known !== undefined) return known;
+    // For an angle inside these bounded intervals, all three index numerators
+    // have magnitude at most 2*MAX_SAFE_INTEGER. Division by 360 keeps ceil,
+    // floor and round strictly inside the safe-integer range. Their admission
+    // cannot refuse; retain the original turn/add/nearestAlias arithmetic.
+    if (bounded[axis] &&
+      (slot !== null || (angle >= range.min && angle <= range.max))) {
+      const turn: number = Math.round((anchor[axis] - angle) / 360);
+      const shifted: number = angle + 360 * turn;
+      // A zero turn keeps this admitted angle inside, including either zero
+      // sign produced by the original multiplication and addition above.
+      const value: number = turn === 0 ? shifted : nearestAngleAlias(shifted, range);
+      const result: number | null = turn === 0 || (value >= range.min && value <= range.max)
+        ? value : null;
+      if (slot !== null) aliases[axis][slot] = result;
+      return result;
+    }
     const bounds: IAliasBounds | undefined = slot === 0 || slot === 1
       ? prepared?.aliasBounds[axis][slot] : undefined;
     const first: number = bounds?.first ?? Math.ceil((range.min - angle) / 360);
@@ -263,6 +287,9 @@ interface IBoxState {
   /** Lazy finite/ordered admission, read after this query's matrix and reference. */
   admitted?: boolean;
 
+  /** Whether each finite interval fits the exact bounded-index proof. */
+  bounded?: readonly [boolean, boolean];
+
   /** Exact endpoint order; signed-zero endpoints remain distinct. */
   ends?: [number[], number[]];
 
@@ -347,7 +374,7 @@ function boundary(
  * Fixed-box preparation with query-local matrices, references and candidates.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the unchanged box, lazy range admission/endpoints/trigonometry/min-max lift and family bounds, per-query matrix/reference and safe-index refusal, query-local aliases/candidates and release boundary.
- * @evidence contracts/development/design.md#principled-representation Finite/ordered range admission, endpoints, half-angle sine/cosine, first/last turn indices with their exact safety and feasible family intercept intervals depend only on the fixed box. Reference-nearest turn, final aliases, matrix phases and family projections remain query-local in the one enumeration owner.
+ * @evidence contracts/development/design.md#principled-representation Finite/ordered range admission, bounded-index interval facts, endpoints, half-angle sine/cosine, first/last turn indices with their exact safety and feasible family intercept intervals depend only on the fixed box. Actual in-range membership and reference-nearest turn, final aliases, matrix phases and family projections remain query-local in the one enumeration owner.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared callable retains tuple queries; its fromScalars method serves the actual projector without manufacturing a matrix and reference tuple. The direct function retains independent-call behavior. No candidate getter, target key, global cache or second enumeration algorithm is exposed.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Construction reads no boundary. Matrix/reference checks precede the lazy unchanged range-admission result; raw lift prefixes and family intervals are first read at their original sites, constant safety is shared and reference-dependent unsafe indices still refuse each query. Trigonometry stays at its old edge site, absent on a zero matrix. No reference, turn or alias result is shared across queries. The caller keeps ranges unchanged and releases preparation with its operation.
  */
@@ -373,7 +400,7 @@ export namespace bilinearAngleBoxCandidates {
 
   /**
    * Borrow an unchanged rig-angle box for one operation's repeated queries.
-   * Retains one range-admission flag, two endpoint arrays, four lazy half-angle
+   * Retains one range-admission flag, two bounded-index facts, two endpoint arrays, four lazy half-angle
    * readings, four raw endpoint lift bounds and two family intercept intervals;
    * every target owns matrix/reference and turn/alias admission and pairs.
    * Standalone direct calls retain no preparation. A one-query preparation

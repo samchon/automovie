@@ -20,21 +20,21 @@ export namespace walkStanceRows {
    * @param knots The knots.
    * @param hold How many first knots are held.
    * @param geometry The problem's geometry (`walkStanceGeometry.of`).
-   * @returns The rows at a course inside a trust region.
+   * @returns The rows at a course inside a trust region. Its optional third flag lends fixed index/coefficient arrays read-only to a prepared solver; rows and bounds stay fresh, and ordinary calls copy all arrays.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the knot/hold inputs and course-local trust-region row reader.
    * @evidence contracts/development/implementation.md#principled-implementation Compiles the original held, fixed, range and continuing-stance equality rows; each read substitutes the current course and intersects each free range with the unchanged trust bounds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Schedule and placement decisions build one private row description; a single read pass applies only course values and the requested radius.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves row order, every held coordinate, pitch limits, trunk claims and across-knot turn/slide equalities with their original arithmetic.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scans the knots and their at-most-two stances once; every radius reads O(m) prepared rows without repeated side searches or placement comparisons.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Row topology depends only on the fixed placement/schedule/hold problem, never a held swivel; each query returns fresh rows and coefficient/index arrays so caller mutation cannot alter later reads.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem closure retains O(m) private row descriptions until it is released; each returned O(m) row set belongs to its caller and no query history is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scans the knots and their at-most-two stances once; every radius reads O(m) prepared rows without repeated side searches or placement comparisons. Explicit topology loans omit two short arrays per row on prepared-solver retries.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Row topology depends only on the fixed placement/schedule/hold problem, never a held swivel. Ordinary calls copy index/coefficient arrays; the explicit prepared-solver path borrows them read-only while always receiving fresh row/bound records, so bound mutation cannot alter later reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem closure retains O(m) private row descriptions and numeric topology until release. Ordinary returned arrays belong to callers; explicit read-only topology loans last only as long as the owning problem/solver, fresh bounds belong to each query, and no radius history is retained.
    */
   export function of(
     knots: readonly walkStanceCourse.IKnot[],
     hold: number,
     geometry: ReturnType<typeof walkStanceGeometry.of>,
-  ): (x: Float64Array, trust: number) => Q.IRow[] {
+  ): (x: Float64Array, trust: number, borrowedTopology?: boolean) => Q.IRow[] {
     const { n, pitchOf, slideOf, turnOf, scheduled }: ReturnType<typeof walkStanceGeometry.of> = geometry;
 
     /** A row's invariant support and the bound formula its course substitutes. */
@@ -126,23 +126,31 @@ export namespace walkStanceRows {
             prepared.push({ kind: "join", index: i, next: i + walkStanceTerms.WIDTH });
       }
     }
-    return (x: Float64Array, trust: number): Q.IRow[] =>
-      prepared.map((row: IBound): Q.IRow => {
+    const topology: Pick<Q.IRow, "index" | "coef">[] = prepared.map(
+      (row: IBound): Pick<Q.IRow, "index" | "coef"> => row.kind === "join"
+        ? { index: [row.index, row.next], coef: [1, -1] }
+        : { index: [row.index], coef: [1] },
+    );
+    return (x: Float64Array, trust: number, borrowedTopology: boolean = false): Q.IRow[] =>
+      prepared.map((row: IBound, r: number): Q.IRow => {
+        const fixed: Pick<Q.IRow, "index" | "coef"> = topology[r]!;
+        const index: readonly number[] = borrowedTopology ? fixed.index : fixed.index.slice();
+        const coef: readonly number[] = borrowedTopology ? fixed.coef : fixed.coef.slice();
         if (row.kind === "join") {
           const bound: number = x[row.next]! - x[row.index]!;
-          return { index: [row.index, row.next], coef: [1, -1], l: bound, u: bound };
+          return { index, coef, l: bound, u: bound };
         }
         if (row.kind === "range")
           return {
-            index: [row.index],
-            coef: [1],
+            index,
+            coef,
             l: Math.max(row.low - x[row.index]!, -row.wide * trust),
             u: Math.min(row.high - x[row.index]!, row.wide * trust),
           };
         const bound: number = row.kind === "held"
           ? x[row.index]! - x[row.index]!
           : row.value - x[row.index]!;
-        return { index: [row.index], coef: [1], l: bound, u: bound };
+        return { index, coef, l: bound, u: bound };
       });
   }
 }

@@ -17,6 +17,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 
@@ -36,8 +37,8 @@ import { stand } from "./stand";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Shape, signed-depth predicate, range bracket, bisection, cached answer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the existing hand shape, shoulder range, quiet stance, digit depth and angle resolution; no body-specific angle is chosen.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each bisection step retains one full posture resolve and one shaped FK traversal, with one placed-collider query for both hands. The fixed authored standing root, leg-goal geometry, alignment and hand shapes are built once; all original leg fits, bracket tests, precision and steps remain.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares fixed authored stance geometry and hand-angle tuples, plus one exact-scalar FK reader through actual candidate resolution and shaped observation. It retains no solved candidate; the existing weak body cache still owns only the final relaxed record.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader and one fixed authored two-foot stance end with the synchronous search and never enter HUNG; hand-angle tuples retained by the final relaxed record have that same weak body ownership, and solved candidate records do not escape.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares fixed authored stance geometry and hand-angle tuples, one exact-scalar FK reader and one genuine same-body ROM metadata projector. Every actual candidate is still projected/resolved and observed; the weak body cache owns only the final relaxed record.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local FK reader, bounded ROM metadata projector and one fixed authored two-foot stance end with this synchronous search and never enter HUNG; hand-angle tuples retained by the final relaxed record keep its weak body ownership, and solved candidates do not escape.
  */
 export function standRelaxed(
   body: IHumanBody,
@@ -52,6 +53,8 @@ export function standRelaxed(
   };
   const prepared: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
+  const projection: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
   let standing: IHumanPosture | undefined;
   const hanging: (
     abduction: number,
@@ -91,6 +94,8 @@ export function standRelaxed(
       undefined,
       undefined,
       prepared,
+      undefined,
+      projection,
     ).pose;
     const shaped: IAutoMoviePose = {
       ...resolved,

@@ -56,9 +56,9 @@ export namespace standUpright {
    * @evidence contracts/development/implementation.md#principled-implementation The existing plumb-line, level-head and centre-of-mass searches keep every candidate and stopping rule, with FK requested only for each residual's measured bones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak body cache delegates cold alignment to a synchronous search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle, body scale, candidate ordering or tolerance is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cold residuals visit requested ancestry instead of every bone; the final reading demands precisely its mass-model bones and the two ankles. Golden search keeps its original candidate arithmetic and reuses only an exactly repeated preceding candidate's scalar cost; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cold residuals visit requested ancestry instead of every bone and prepare each of the four fixed name demands once; the final reading demands precisely its mass-model bones and the two ankles. Golden search keeps its original candidate arithmetic and reuses only an exactly repeated preceding candidate's scalar cost; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A cold search shares the engine's exact dependency reader across candidates. Its pure golden cost has unchanged body inputs, so identical candidate numbers can share their completed cost; the body cache retains only the final alignment.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and golden search's four scalar slots end with cold search return or throw; one alignment remains weakly owned per live body.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader, four bounded name readers and golden search's four scalar slots end with cold search return or throw; one alignment remains weakly owned per live body.
    */
   export function of(body: IHumanBody): IAlignment {
     const known: IAlignment | undefined = CACHE.get(body);
@@ -73,6 +73,10 @@ export namespace standUpright {
   function solve(body: IHumanBody): IAlignment {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
+    const readers: Map<
+      ReadonlySet<AutoMovieHumanoidBone>,
+      ReturnType<typeof poseBones.prepare>
+    > = new Map();
     const bones = (
       joints: Partial<Record<AutoMovieHumanoidBone, number>>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -87,7 +91,14 @@ export namespace standUpright {
           twist: 0,
         })),
       };
-      return poseBones(body, pose, prepared(), requested);
+      if (requested === undefined) return poseBones(body, pose, prepared());
+      let read: ReturnType<typeof poseBones.prepare> | undefined =
+        readers.get(requested);
+      if (read === undefined) {
+        read = poseBones.prepare(body, requested);
+        readers.set(requested, read);
+      }
+      return read(pose, prepared());
     };
     const mid = (
       map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -203,7 +214,7 @@ export namespace standUpright {
     let lastD: number | undefined;
     let costC: number = 0;
     let costD: number = 0;
-    const at = (angle: number): number =>
+    const at: (angle: number) => number = (angle: number): number =>
       Object.is(angle, lastC)
         ? costC
         : Object.is(angle, lastD)

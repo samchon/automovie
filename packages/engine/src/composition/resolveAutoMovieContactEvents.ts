@@ -189,7 +189,12 @@ export function resolveAutoMovieContactEvents(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector. A combined frame contains actual endpoints from one exact time/stop context, with no pose, approximation, result cache or domain-specific limb fields.
  */
 export namespace resolveAutoMovieContactEvents {
-  /** The stops so far: each stopped weapon's id with its contact second. */
+  /**
+   * The stops so far: each stopped weapon's id with its contact second.
+   * Callbacks borrow this map and must not mutate it. The event resolver's
+   * private instance only adds fresh weapon ids; an existing entry is never
+   * changed or deleted before resolution returns.
+   */
   export type IStops = ReadonlyMap<string, number>;
 
   /**

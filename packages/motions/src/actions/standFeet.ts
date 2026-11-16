@@ -223,7 +223,7 @@ export namespace standFeet {
       body,
       yaw,
     );
-    const sample = (share: number): ISample => {
+    const sample: ICourse["sample"] = (share: number): ISample => {
       const placed: HumanFoot.IPlacement[] = plans.map(
         (p: IPlan, i: number): HumanFoot.IPlacement =>
           share === 1

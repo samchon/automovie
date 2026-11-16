@@ -14,6 +14,7 @@ import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -79,9 +80,9 @@ export namespace staggerKnots {
    * @evidence contracts/development/implementation.md#principled-implementation Measures the original whole-body centre on the entry's standing legs, tilts about the hips on each trunk axis, applies original leg lowering and divides each centre displacement by sin(REFERENCE).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing reference and one shared axis-trial reader produce the two actual bending vectors.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original body, entry, pivot, lowering and reference angle; no fitted body proxy or sampled trajectory replaces the mass reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three original centre readings and two lowered trial postures per preparation; callers explicitly share this invariant within their unchanged-entry operation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous operation lends its exact FK workspace to the three actual full centre solves and both lowerings; only unchanged scalar FK prerequisites are shared while every changed posture/goal still solves normally. A parent may borrow the actual completed bending only under the same unchanged body and entry, with no global result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local lazy FK getter ends on return or throw; only two fresh shift vectors escape, without a reader, posture, sampled history or handle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three original centre readings and two lowered trial postures per preparation; one fixed body/profile demand preparation serves all three actual full fits/FK reads, and callers explicitly share the completed bending within their unchanged-entry operation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous operation lends its exact FK workspace to three actual full centre solves and both lowerings. One fixed profile demand and genuine static ROM projector serve the centres, while every current joint is still projected and every changed posture/goal solves normally. A parent may borrow completed bending only under the same unchanged body/entry, with no global result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local fixed FK demand, genuine ROM metadata and lazy FK getter end on return or throw; only two fresh shift vectors escape, without either dynamic reader, posture, sampled history or handle.
    */
   export function bending(
     body: IHumanActionContext["body"],
@@ -89,6 +90,10 @@ export namespace staggerKnots {
   ): Record<"pitch" | "roll", IAutoMovieVector3> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const centreOf: ReturnType<typeof HumanBalance.prepareCentre> =
+      HumanBalance.prepareCentre(body);
     const standing: IHumanPosture = {
       ...entry.posture,
       limbs: {
@@ -96,10 +101,10 @@ export namespace staggerKnots {
         ...StrikingStance.legs(body, StrikingTarget.feet(entry)),
       },
     };
-    const upright: IAutoMovieVector3 = HumanBalance.centre(
-      body,
+    const upright: IAutoMovieVector3 = centreOf(
       standing,
       resolution,
+      projection,
     );
     const sine: number = Math.sin((staggerBounds.REFERENCE * Math.PI) / 180);
     const shift: (more: walkStanceCourse.ITrunk) => IAutoMovieVector3 = (more: {
@@ -111,13 +116,13 @@ export namespace staggerKnots {
         standing,
         more,
       );
-      const centre: IAutoMovieVector3 = HumanBalance.centre(
-        body,
+      const centre: IAutoMovieVector3 = centreOf(
         {
           ...tilted,
           root: resolveHumanPosture.lower(body, tilted, resolveHumanPosture.KNEE, resolution).root,
         },
         resolution,
+        projection,
       );
       return {
         x: (centre.x - upright.x) / sine,

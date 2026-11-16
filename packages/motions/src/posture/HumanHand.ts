@@ -85,8 +85,8 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets, alignment, placement and read-back as separate small functions over one frame type.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forward parallel to the normal throws instead of picking an arbitrary twist.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call; a digit surface's FK runs once per body, side, surface, shape and curl.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Digit surface frames are memoized per body object, side, surface, shape and curl, which fully determine them.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a WeakMap on the body, bounded by the sides, the ten digit surfaces, the shapes and the curls asked of it, released with the body.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Digit surface frames retain their body/side/surface/shape/curl keys. Anatomical rotation shares only the two immutable canonical rest-frame inverses through the alignment owner; every actual world basis, admission and quaternion composition still runs.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing digit memo weakly follows each body and grows with its requested sides/surfaces/shapes/curls. Two module-owned fixed canonical direction readers retain at most two successful inverse quaternions and no body, world input, aligned output or query history.
  */
 export namespace HumanHand {
   /** A hand, or the side of any paired part. */
@@ -307,13 +307,8 @@ export namespace HumanHand {
     side: Side,
     orientation: IOrientation,
   ): IAutoMovieQuaternion {
-    return align(
-      {
-        normal: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-        forward: { x: 0, y: -1, z: 0 },
-      },
-      { normal: orientation.fingers, forward: orientation.palm },
-    );
+    return (side === "left" ? LEFT_ROTATION : RIGHT_ROTATION)(
+      { normal: orientation.fingers, forward: orientation.palm });
   }
 
   /**
@@ -474,3 +469,13 @@ export namespace HumanHand {
     return readHumanHandFrame.bones(body, side, surface, digital(surface));
   }
 }
+
+/** Canonical left rest directions; inverse admission remains lazy and world-first. */
+const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> = alignHumanHandSurface.prepare({
+  normal: { x: 1, y: 0, z: 0 }, forward: { x: 0, y: -1, z: 0 },
+});
+
+/** Canonical right rest directions; no world frame or result is retained. */
+const RIGHT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> = alignHumanHandSurface.prepare({
+  normal: { x: -1, y: 0, z: 0 }, forward: { x: 0, y: -1, z: 0 },
+});

@@ -22,13 +22,13 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @param resolution Optional exact FK reader or lazy supplier borrowed from this synchronous person evaluation; never requested without an actual planted-leg read.
  * @returns The posture, its root lowered when needed.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States gravity-axis lowering, minimum knee degrees, original targets and synchronous FK borrowing; short below documents metre/degree inputs, negative slack and the horizontally-unreachable -Infinity result.
- * @evidence contracts/development/implementation.md#principled-implementation Actual pelvis-to-hip FK supplies origins; short applies the cosine law a*a+b*b+2*a*b*cos(knee) to measured thigh/shank lengths, then Pythagoras removes horizontal span to determine each maximum vertical reach. Taking the greatest required drop preserves the existing footskate-cleanup rule and exact arithmetic.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects actual world-anchored planted goals, reads both hip origins once, and delegates each scalar lowering to short.
+ * @evidence contracts/development/common.md#meaningful-documentation States gravity-axis lowering, minimum knee degrees, original targets and synchronous FK borrowing; short/prepareShort document metre/degree inputs, live versus fixed dimensions, negative slack and the horizontally-unreachable -Infinity result.
+ * @evidence contracts/development/implementation.md#principled-implementation Actual pelvis-to-hip FK supplies origins. The common reachLimit applies a*a+b*b+2*a*b*cos(knee) and its square root to actual thigh/shank lengths; reachDrop removes horizontal span through the original Pythagoras/comparison/subtraction grouping. Raw short reads live dimensions each time; prepareShort genuinely computes that fixed-body/knee prerequisite once. Taking the greatest required drop keeps the original cleanup rule.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects actual world plants, reads both hip origins once and delegates scalar lowering to short. Raw short and the fixed-dimension prepareShort producer share reachLimit/reachDrop, separating fixed segment geometry from every current hip/ankle query.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Attached goals stay outside the world-root solve. short retains -Infinity at or beyond horizontal reach and negative slack when the leg reaches; no target, knee threshold, tolerance or replacement contact is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two goals and one two-hip ancestor-demand FK precede short's constant scalar cosine/Pythagoras work per leg. No FK reader is allocated/invoked without a world plant, and short itself traverses no rig or retained state.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied same-person reader shares only exact FK prerequisites with later pose/guard reads; absent supply uses the ordinary call-local FK path. Changed root/pelvis inputs remain actual dependencies and no reader is created for absent supply.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local goals, hip frames and a lazy getter release on return or throw; only the original or lowered posture escapes, with no reader, pose history, handle or task retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most two goals and one two-hip demand FK precede constant scalar work per leg. No FK reader is allocated/invoked without a world plant. prepareShort pays cosine/reach square root once for fixed body/knee; each actual query still computes its horizontal hypot, reach comparison and remaining vertical square root. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied same-person reader shares exact FK prerequisites; changed root/pelvis remain visible. Raw short rereads body dimensions, while explicit prepareShort snapshots only their computed fixed-knee reach; dimension/knee changes require a new producer. Every hip/ankle is read anew and no lowering answer is memoized.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lowering's local goals/hip frames/getter end on return or throw. A prepareShort reader retains one reach number until caller release, without body, raw points, query results, pose history, handle or task.
  */
 export function lowerHumanPosture(
   body: IHumanBody,
@@ -68,10 +68,30 @@ export function lowerHumanPosture(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the metre-valued knee-reach helper and its unsupported horizontal-reach result.
  * @evidence contracts/development/design.md#principled-representation The body's measured two-segment leg and clinical knee flexion determine a spherical hip-to-ankle reach.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The short helper is consumed by lowering and existing reach readers; no alternative solver state is represented.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Lowering and existing reach readers use short; repeated travel ground trials use prepareShort to bind actual fixed dimensions/knee. Both retain the same scalar geometry and no alternative solver state.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses each actual body's thigh/shank lengths rather than a fixed person or replacement contact target.
  */
 export namespace lowerHumanPosture {
+  /**
+   * Prepare actual fixed thigh/shank lengths and minimum knee degrees once.
+   * The cosine-law reach and its square root are computed by the same owner
+   * as raw short. Each returned read still evaluates its current world-metre
+   * hip/ankle hypot, strict reach comparison and vertical subtraction/square
+   * root in the original order, including negative slack and -Infinity.
+   * Keep dimensions and knee unchanged or prepare again; no input validation,
+   * threshold, clamp or target substitution is added. Preparation and reads
+   * are constant-time; only one reach scalar survives until caller release,
+   * without retaining the body, points or any query-result history.
+   */
+  export function prepareShort(
+    body: IHumanBody,
+    knee: number,
+  ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
+    const limit: number = reachLimit(body, knee);
+    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
+      reachDrop(limit, hip, ankle);
+  }
+
   /**
    * How far a hip joint stands above the height from which its leg reaches an
    * ankle with `knee` degrees of knee flexion: the lowering that leg asks of
@@ -98,14 +118,19 @@ export namespace lowerHumanPosture {
     ankle: IAutoMovieVector3,
     knee: number,
   ): number {
-    const a: number = body.measure.thigh;
-    const b: number = body.measure.shank;
-    const limit: number = Math.sqrt(
-      a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180),
-    );
-    const dh: number = Math.hypot(hip.x - ankle.x, hip.z - ankle.z);
-    return dh < limit
-      ? hip.y - ankle.y - Math.sqrt(limit * limit - dh * dh)
-      : -Infinity;
+    return reachDrop(reachLimit(body, knee), hip, ankle);
   }
+}
+
+/** Compute the original fixed two-segment cosine-law reach in metres. */
+function reachLimit(body: IHumanBody, knee: number): number {
+  const a: number = body.measure.thigh;
+  const b: number = body.measure.shank;
+  return Math.sqrt(a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180));
+}
+
+/** Read current points under the original strict horizontal reach and subtraction law. */
+function reachDrop(limit: number, hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number {
+  const dh: number = Math.hypot(hip.x - ankle.x, hip.z - ankle.z);
+  return dh < limit ? hip.y - ankle.y - Math.sqrt(limit * limit - dh * dh) : -Infinity;
 }

@@ -4,6 +4,7 @@ import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
+import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import type { IHumanPosture } from "./IHumanPosture";
 import { orderHumanLimbs } from "./orderHumanLimbs";
 import { poseBones } from "./poseBones";
@@ -19,11 +20,11 @@ import type { resolveHumanPosture } from "./resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States person/pose frame, attachment order, pair policy, lazy owned-or-borrowed reader scope and nonescaping result boundary.
  * @evidence contracts/development/implementation.md#principled-implementation Retains the existing placed-arm order, world attachment transforms and independent-or-coupled arm law. Exact scalar FK dependencies permit unchanged articulation/ancestor math to be reused while changed limbs and descendant frames are recomputed normally.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the original refit loop extracted from resolveHumanPosture; HumanLimbFit, its memory and HumanLimbPair receive one operation reader, while target solving and pair optimization remain with their existing owners.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the original refit loop; applyHumanLimbFit reconstructs actual owned chain edits, memory owns lookup and HumanLimbPair owns coupling. Nonempty public refits copy once on return, while the original no-goal borrowed-pose result remains a no-work path.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal, rival, near seed, actual fit and ordering rule remains unchanged. Mirror/root-frame transformations still select actual solve inputs and invalidate changed FK scalar dependencies; no target, body-memory key, approximation or result cache is added.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most four goal entries invoke the same bounded limb searches or one coupled arm solve. Their full FK still scans every authored record and reachable bone, but identical completed math shares one reader instead of restarting per limb. Pair/solver numerical work and output copies remain, and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms No-goal inputs return before graph/placed-arm construction or copying. At most four goal entries retain actual bounded searches; owned edit recipes copy only chain/toe records between limbs and one final complete copy isolates the nonempty public result. Exact FK metadata is shared, and speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only same-valued FK prerequisites are shared. A standalone refit owns its lazy reader; an explicit parent can lend one across leaf calls in the same synchronous person evaluation. Each limb retains its actual source/target/callback/cold-near policy, and body-memory keys and hits remain unchanged.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The standalone reader's last scalar joint/world snapshots end with return or throw; a borrowed reader belongs to its parent evaluation. No-goal paths create no refit-local getter and memory hits never invoke one. Only pose/seeds/values escape; no stored body fit, plan, callback or handle captures getter or reader.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Private cached poses never enter the refit: each edit owns replacement/seed/value data and borrows only the current caller-owned untouched records. Nonempty return deep-copies all output metadata once; no-goal input retains its original borrowed pose contract. Readers end with the operation and never enter outputs or body memory.
  */
 export function refitHumanPosture(
   body: IHumanBody,
@@ -32,6 +33,8 @@ export function refitHumanPosture(
   near: resolveHumanPosture.INear,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): resolveHumanPosture.ISeeded {
+  if (limbs.leftLeg === undefined && limbs.rightLeg === undefined &&
+    limbs.leftArm === undefined && limbs.rightArm === undefined) return { pose, seeds: {}, values: {} };
   let readResolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
   const seeds: resolveHumanPosture.ISeeded["seeds"] = {};
   const values: resolveHumanPosture.ISeeded["values"] = {};
@@ -102,7 +105,7 @@ export function refitHumanPosture(
             (): ReturnType<typeof poseBones> => poseBones(body, pose, read(),
               coming.on === undefined ? undefined : new Set([coming.on])),
           ).point;
-    const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
+    const fitted: IAutoMovieSeededChainFit = applyHumanLimbFit(
       body,
       pose,
       limb,
@@ -118,5 +121,5 @@ export function refitHumanPosture(
     if (limb === "leftArm") placed.push("left");
     if (limb === "rightArm") placed.push("right");
   }
-  return { pose, seeds, values };
+  return structuredClone({ pose, seeds, values });
 }

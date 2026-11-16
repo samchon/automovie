@@ -26,11 +26,15 @@ import { throwsError } from "../internal/throwsError";
  * 6. Reusing the same scalar curvature10 and free row while q changes from
  *    -1 to-2 moves the optimum from0.1 to0.2. An earlier explicitly prepared
  *    snapshot still returns0.1, independently of any shared matrix factors.
+ * 7. An unsorted sparse row lists each variable twice with coefficients
+ *    (0.75,0.25,0.25,0.75) at indices(1,0,1,0). It is still x+y, so
+ *    equality5/equality1/free bounds retain(2,3)/(0,1)/(1,2). Source row
+ *    order and coefficients remain unchanged by factor-only preparation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the fixed-model snapshot contract, independent coupled/scalar KKT and objective derivations, mutable bounds/penalties/linear objective, precision, observer order and ownership checks in six scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives fixed-model snapshots, independent coupled/scalar KKT and objective derivations, mutable bounds/penalties/linear objective, unsorted duplicate-row algebra, precision, observer order and ownership checks in seven scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Uses actual prepare/solve/value entries, checking successful statuses, analytic primal values, original-unit stationarity and active-row residuals, changed bounds, source isolation, fresh x/z/y, unchanged warm arrays, admission/recovery and actual ordered soft-row excesses at origin and a step.
  * @evidence contracts/development/testing.md#independent-expectations Two stationarity equations give free (1,2), and their subtraction gives y=x+1 at fixed sum. Scalar l1 solves 2x=weight until its kink. Unconstrained10x+q=0 gives0.1 and0.2 for q=-1/-2. Literal interval distances give origin cost3*2+4*1=10 and step cost12+4*3=24. Primal bounds retain 1e-6 and active rows1e-9 from existing specifications; no solver output supplies an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers free/equality/upper rows, changed source versus new preparation, q-only same-matrix reuse versus a fixed earlier snapshot, soft/hard/zero weight, rekeyed multipliers, output/warm ownership, invalid refreshed bounds and recovery, plus origin/actual-step soft observers with an ignored hard row and zero-weight row. General infeasibility and original sparse admission have separate entries.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers free/equality/upper rows, changed source versus new preparation, q-only same-matrix reuse versus an earlier snapshot, unsorted duplicate sparse rows without source reordering, soft/hard/zero weight, rekeyed multipliers, output/warm ownership, invalid bounds/recovery and soft objective observers. General infeasibility and original sparse admission have separate entries.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit directly imports the solver. All models, bounds, maps and arrays belong to this test; it starts no native artifact, process, browser or renderer and installs no replacement function.
  */
 export function test_geometry_quadratic_prepared_contracts(): void {
@@ -190,6 +194,25 @@ export function test_geometry_quadratic_prepared_contracts(): void {
   );
   linear.q[0] = -1;
   minimum("replaying the earlier linear objective solves it again", Q.solve(linear), [0.1]);
+
+  const repeated: Q.IProblem = {
+    n: 2, band: 1, p: [Float64Array.of(2, 1), Float64Array.of(2)], q: Float64Array.of(-4, -5),
+    rows: [{ index: [1, 0, 1, 0], coef: [0.75, 0.25, 0.25, 0.75], l: 5, u: 5 }],
+  };
+  const repeatedModel: ReturnType<typeof Q.prepare> = Q.prepare(repeated);
+  for (const [l, u, expected] of [[5, 5, [2, 3]], [1, 1, [0, 1]], [-Infinity, Infinity, [1, 2]]] as const) {
+    const result: Q.IState = repeatedModel.solve([{ l, u }]);
+    minimum("unsorted duplicate terms retain their original sum-row equation", result, expected);
+    TestValidator.predicate("duplicate sparse rows retain the actual coupled stationarity equations",
+      nclose(2 * result.x[0]! + result.x[1]! - 4 + result.y[0]!, 0, 1e-7) &&
+      nclose(result.x[0]! + 2 * result.x[1]! - 5 + result.y[0]!, 0, 1e-7),
+    );
+  }
+  TestValidator.equals("factor preparation leaves source row index order unchanged", repeated.rows[0]!.index, [1, 0, 1, 0]);
+  TestValidator.predicate("factor preparation leaves source row coefficients unchanged",
+    repeated.rows[0]!.coef.every((coefficient: number, index: number): boolean =>
+      nclose(coefficient, [0.75, 0.25, 0.25, 0.75][index]!, 0)),
+  );
 }
 
 /** Keep the existing solver's componentwise tolerance and successful statuses. */

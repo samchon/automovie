@@ -45,6 +45,12 @@ interface ILookup {
   frame(body: IHumanBody, bone: AutoMovieHumanoidBone): IFrame;
 }
 
+/** One unchanged endpoint pair's lazy numerical preparation, never a share result. */
+interface IBetween {
+  /** Installed only after actual interior metadata/endpoint admission. */
+  read?: (share: number) => readonly [number, number, number];
+}
+
 /** Stateless standalone dispatch preserves targeted lookup without a per-call full index. */
 const COLD: ILookup = {
   constraint: (
@@ -139,11 +145,11 @@ function frameOf(
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is blended, why a ball joint is blended as a rotation, how a swing-twist range is kept with the measured case, why a joint with fewer freedoms is not, each argument with its unit, and what an end returns.
  * @evidence contracts/development/implementation.md#principled-implementation Spherical linear interpolation of the two joint rotations is the constant-speed shortest turn between them and depends on neither end's reading; a swing-twist joint is blended on its range's chart, a convex set on which the line between two ends stays, so the blend stays in the range and is continuous in its share and in both ends. A joint with fewer than three freedoms moves only about its own axes, so its angles are its coordinates and are interpolated as such.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation owner keeps endpoint and hinge ordering while standalone and prepared callers choose only metadata lookup; forward/inverse OnBasis primitives share one lazily admitted basis and swing frames use explicit operation preparation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is named: the joint's own range says whether it is a ball joint and whether it is gated by swing and twist. The share is clamped so the joint cannot pass either end, and an end keeps its own triple instead of a re-read one.
- * @evidence contracts/development/implementation.md#efficient-algorithms Standalone constraint lookup and a ball joint's axis merge are O(B) for B bones, followed by existing rotation/chart mathematics; one basis serves both endpoint conversions and decomposition, and one prepared swing frame serves its chart reads. A prepared multi-joint operation shares O(B+D) metadata across D requested names; no runtime speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the actual interpolation owner and canonical mappings plus the inverse's existing box-preparation owner, with invariant basis/frame metadata reused inside this call; prepare additionally shares first-bone and axes metadata within one unchanged operation, never its from/to/share results.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh interior triple or borrows the unchanged endpoint. Local frame/basis preparation ends with this call; the inverse's existing weak per-constraint cache owns its optional box copy, and a prepared blender's caller releases its own metadata with the synchronous operation. No input triple or blended result is retained.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation owner keeps endpoint/hinge ordering across standalone, operation-metadata and fixed-pair readers. Private rotation/readback helpers preserve existing forward/inverse argument order; fixed pairs share endpoint slerp or the engine's prepared chart blender, without copying chart mathematics into motions.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is named: actual ROM determines hinge/ball and chart gating. Every read clamps share with the original Math.min/max; endpoint shares return original tuples before any rig/numerical preparation, and NaN still follows the original interior arithmetic/refusal path. between requires unchanged body/canonical mappings/from/to until release, performs first-interior admission in original order and retains both the slerp's and caller's existing normalizations. No new tolerance, range, endpoint repair or sampled result is introduced.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Standalone lookup/axis merge is O(B) for B bones; prepare shares O(B+D) metadata across D actual names while keeping variable endpoints numerical. Each between reader performs one lazy O(B) lookup/merge plus original endpoint conversions/charts on first interior use, then each share needs only original linear/arc/chart interpolation and readback. Fixed hinges also share six affine operands. J independent fixed pairs may therefore cost O(B*J) initial metadata work; repeated queries omit endpoint preparation. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All reads share this interpolation owner, canonical mappings, engine chart/slerp owners and inverse box preparation. prepare shares only operation metadata for changing tuples. between instead holds one caller-declared unchanged pair: lazy hinge operands, two normalized endpoint rotations plus arc invariants, or two endpoint chart coordinates; every current share and blended readback still runs normally. No share-dependent output or target result is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Callers own fresh interior triples or borrow their original endpoint. Standalone locals end with the call; prepare owns O(B+D) metadata until operation release. Each between closure borrows body/bone/two tuples and owns at most one branch reader, one rig frame and either six hinge scalars, two private normalized quaternions/one arc record or two private chart records. The inverse retains only its existing weak metadata; fixed-pair state releases with the law plan and never retains a queried share, blended result, population, handle or task.
  */
 export function blendHumanJoint(
   body: IHumanBody,
@@ -158,12 +164,29 @@ export function blendHumanJoint(
 /**
  * Metadata preparation for a body's single synchronous multi-joint blend.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the unchanged-body scope, endpoint/hinge admission order, actual per-input blending and caller-owned preparation lifetime on prepare.
- * @evidence contracts/development/design.md#principled-representation A local blender shares only first-bone constraints and canonical axis/basis/frame metadata, while the existing interpolation still evaluates every incoming endpoint pair and share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One prepare entry serves an overlay's actual multi-joint pass, while the standalone function retains its existing signature and targeted lookup path.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No mutable-body identity cache, blended-result table or alternate ROM representation is added; a new blend operation creates new preparation and the body stays unchanged until release.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines operation-only prepare versus unchanged-pair between, endpoint/hinge admission order, tuple identity, actual share evaluation and caller-owned lifetimes.
+ * @evidence contracts/development/design.md#principled-representation Operation preparation shares only first-bone/canonical rig metadata for changing inputs; fixed-pair preparation additionally shares endpoint-derived affine, quaternion or chart constants whose equivalence follows from caller-declared unchanged tuples/body. Neither representation includes a queried share/result.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves actual overlays with changing endpoint pairs; between serves actual fixed support/carry pairs. Standalone behavior stays independent, with no result getter, global body cache or second ROM representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller-controlled freeze inference, mutable-body identity cache or blended-result table establishes equivalence. Both factories require unchanged rig dependencies; between also requires its fixed tuple values unchanged and retains original endpoint identity before any preparation.
  */
 export namespace blendHumanJoint {
+  /**
+   * Blend one unchanged endpoint pair while body, canonical rig and tuple values
+   * stay unchanged. Construction reads no numerical endpoint or rig metadata.
+   * Each share keeps original clipping; endpoints return the supplied tuples
+   * before preparation. First actual interior use prepares only this pair's
+   * original numerical branch, and every later share returns a fresh reading.
+   */
+  export function between(
+    body: IHumanBody, bone: AutoMovieHumanoidBone,
+    from: readonly [number, number, number],
+    to: readonly [number, number, number],
+  ): (share: number) => readonly [number, number, number] {
+    const fixed: IBetween = {};
+    return (share: number): readonly [number, number, number] =>
+      blend(body, bone, from, to, share, COLD, fixed);
+  }
+
   /**
    * Prepare one body's metadata for a synchronous joint-blend pass; the body
    * and canonical ROM, axes and rest-frame mappings stay unchanged until release.
@@ -248,10 +271,12 @@ function blend(
   to: readonly [number, number, number],
   share: number,
   lookup: ILookup,
+  fixed?: IBetween,
 ): readonly [number, number, number] {
   const s: number = Math.min(1, Math.max(0, share));
   if (s <= 0) return from;
   if (s >= 1) return to;
+  if (fixed?.read !== undefined) return fixed.read(s);
   const constraint: IAutoMovieJointConstraint | null = lookup.constraint(
     body,
     bone,
@@ -261,41 +286,67 @@ function blend(
     (constraint.flexion === null ||
       constraint.abduction === null ||
       constraint.twist === null)
-  )
+  ) {
+    if (fixed !== undefined) {
+      const f: number = from[0];
+      const df: number = to[0] - from[0];
+      const a: number = from[1];
+      const da: number = to[1] - from[1];
+      const t: number = from[2];
+      const dt: number = to[2] - from[2];
+      fixed.read = (at: number): readonly [number, number, number] =>
+        [f + df * at, a + da * at, t + dt * at];
+      return fixed.read(s);
+    }
     return [
       from[0] + (to[0] - from[0]) * s,
       from[1] + (to[1] - from[1]) * s,
       from[2] + (to[2] - from[2]) * s,
     ];
+  }
   const rig: IFrame = lookup.frame(body, bone);
   const axes: IAutoMovieJointAxes | undefined = rig.axes;
-  const rotation: (
-    of: readonly [number, number, number],
-  ) => IAutoMovieQuaternion = (
-    of: readonly [number, number, number],
-  ): IAutoMovieQuaternion =>
-    Quaternion.normalize(
-      jointToQuaternionOnBasis(
-        { flexion: of[0], abduction: of[1], twist: of[2] },
-        rig.basis,
-        HUMANOID_REST_FRAME[bone],
-      ),
-    );
+  const gated: boolean = constraint !== null &&
+    constraint.swingTwist !== undefined && constraint.swingTwist !== null && axes !== undefined;
+  const a: IAutoMovieQuaternion = rotationOf(from, rig, bone);
+  const b: IAutoMovieQuaternion = rotationOf(to, rig, bone);
+  if (fixed !== undefined) {
+    const turn: (share: number) => IAutoMovieQuaternion = gated
+      ? swingTwistRange.prepareBlend(a, b, constraint!, rig.joint)
+      : Quaternion.prepareSlerp(a, b);
+    fixed.read = (at: number): readonly [number, number, number] =>
+      readRotation(gated ? turn(at) : Quaternion.normalize(turn(at)), rig, bone, constraint);
+    return fixed.read(s);
+  }
   // A joint ranged by swing and twist is blended inside its range
   // (`swingTwistRange.blend`); another ball joint on the shorter arc.
   const blended: IAutoMovieQuaternion =
-    constraint !== null &&
-    constraint.swingTwist !== undefined &&
-    constraint.swingTwist !== null &&
-    axes !== undefined
+    gated
       ? swingTwistRange.blend(
-          rotation(from),
-          rotation(to),
+          a,
+          b,
           s,
-          constraint,
+          constraint!,
           rig.joint,
         )
-      : Quaternion.normalize(Quaternion.slerp(rotation(from), rotation(to), s));
+      : Quaternion.normalize(Quaternion.slerp(a, b, s));
+  return readRotation(blended, rig, bone, constraint);
+}
+
+/** Original endpoint literal/axis/frame argument ordering without a per-read closure. */
+function rotationOf(
+  of: readonly [number, number, number], rig: IFrame, bone: AutoMovieHumanoidBone,
+): IAutoMovieQuaternion {
+  return Quaternion.normalize(jointToQuaternionOnBasis(
+    { flexion: of[0], abduction: of[1], twist: of[2] }, rig.basis, HUMANOID_REST_FRAME[bone],
+  ));
+}
+
+/** Original chart-choice domain construction and clinical readback ordering. */
+function readRotation(
+  blended: IAutoMovieQuaternion, rig: IFrame, bone: AutoMovieHumanoidBone,
+  constraint: IAutoMovieJointConstraint | null,
+): readonly [number, number, number] {
   const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
     blended,
     rig.basis,

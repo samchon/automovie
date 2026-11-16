@@ -15,6 +15,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -288,7 +289,7 @@ export namespace roll {
   ]);
 }
 
-/** Build the unchanged roll table in one synchronous exact-FK workspace. */
+/** Build the unchanged roll table with synchronous exact FK and genuine ROM metadata, projecting every actual sample. */
 function heightsOf(
   body: IHumanBody,
   posed: (turn: number) => IHumanPosture,
@@ -296,6 +297,8 @@ function heightsOf(
 ): number[] {
   const prepared: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
+  const projection: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
   const heights: number[] = [];
   for (let k: number = 0; k <= samples; k++) {
     const bones: ReturnType<typeof poseBones> = poseBones(
@@ -306,6 +309,8 @@ function heightsOf(
         undefined,
         undefined,
         prepared,
+        undefined,
+        projection,
       ).pose,
       prepared(),
     );

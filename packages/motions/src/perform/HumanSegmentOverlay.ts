@@ -86,6 +86,7 @@ export namespace HumanSegmentOverlay {
    * @param near The fits of a nearby second to continue, if any.
    * @param source Optional same-body synchronous parent FK source; never retained by a result.
    * @param requested Optional bone observation, forwarded only with no holds/near/current contact window and no base or leaf plant, so no later IK consumes omitted digit geometry.
+   * @param projection Optional genuine same-body ROM projection borrowed by each actual leaf's direct-joint assembly.
    * @returns The pose, the seeds of its fits and its open contact goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fade, carry, contact and seed behavior and which raw posture and weight evaluations are shared.
@@ -104,6 +105,7 @@ export namespace HumanSegmentOverlay {
     near?: HumanSegmentPose.INear,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): IOverlaid {
     const body: IHumanBody = person.performer.body;
     const active: HumanSegment.IOverlay[] | undefined =
@@ -165,6 +167,7 @@ export namespace HumanSegmentOverlay {
           continuations(under.limbs, near, tag),
           resolution,
           unplantedHumanObservation(under.limbs, observed),
+          projection,
         );
         for (const [limb, seed] of Object.entries(fitted.seeds))
           seeds.set(`leaf:${tag}:${limb}`, seed ?? null);
@@ -202,6 +205,7 @@ export namespace HumanSegmentOverlay {
           Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
           undefined,
           resolution,
+          projection,
         )),
       ));
       const weight: number = ((weights ??= [])[k] ??= Math.min(

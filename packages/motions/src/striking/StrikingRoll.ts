@@ -10,6 +10,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingRollHand } from "./StrikingRollHand";
@@ -56,6 +57,7 @@ export namespace StrikingRoll {
    * @param resolution Optional exact FK workspace borrowed from this synchronous tool-pose search.
    * @param prepared Optional lazy direct-pose preparation owned by a search whose body, root, joints and digits stay fixed; every complete candidate goal still resolves.
    * @param goalFor Optional producer prepared from this exact unchanged body/tool/back, returning fresh original task geometry for each actual frame/bend.
+   * @param projection Optional genuine same-body ROM projector borrowed only from this synchronous candidate operation; unknown provenance keeps ordinary cold projection.
    * @returns The greater of the kept point's and the working point's displacement, metres; a pose that keeps the working point itself reads the line at the tool's own length in place of the kept point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, on which body and what is measured.
@@ -63,7 +65,7 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal, one resolution, one read-back.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted; when the kept point is the working point, the line is read at the tool's length, so the count holds there too.
    * @evidence contracts/development/implementation.md#efficient-algorithms One original elbow search and whole-posture fit followed by demanded hand FK. Fixed-posture search preparation admits/clamps direct joints once across K actual candidates, retaining fresh pose copies, all limb/digit fits and scalar FK dependencies; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit parent FK supplier shares exact prerequisites only within this synchronous search. One fixed body/tool/back goal producer prepares local contact/limit offsets and returns fresh task geometry for every actual frame. A prepared base is admitted only for one unchanged body/root/direct-joint/digit source; each complete varying limb-goal set, rival clearance and physical fit still executes, while callback-varying postures use ordinary seeded resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit parent FK supplier shares exact prerequisites only within this synchronous search. One fixed body/tool/back goal producer prepares local contact/limit offsets and returns fresh task geometry for every actual frame. A prepared base is admitted only for one unchanged body/root/direct-joint/digit source; each complete varying limb-goal set, rival clearance and physical fit still executes, while callback-varying postures still use ordinary seeded resolution with a genuine same-body ROM metadata loan. Every actual joint projection remains and the posture owner checks provenance, falling back cold for unknown/changed domains.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows optional reader/direct-pose preparation only until return or throw; the enclosing synchronous search releases fixed snapshots and each independent pose/map, while only the scalar miss escapes.
    */
   export function miss(
@@ -75,6 +77,7 @@ export namespace StrikingRoll {
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
     prepared?: () => ReturnType<typeof resolveHumanPosture.prepareBase>,
     goalFor?: ReturnType<typeof StrikingHeld.prepareGoal>,
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): number {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       resolution ?? prepareHumanPoseResolution();
@@ -91,7 +94,7 @@ export namespace StrikingRoll {
       },
     };
     const fittedPose: ReturnType<typeof resolveHumanPosture.seeded> = prepared === undefined
-      ? resolveHumanPosture.seeded(context.body, { ...posture, limbs }, undefined, {}, read)
+      ? resolveHumanPosture.seeded(context.body, { ...posture, limbs }, undefined, {}, read, undefined, projection)
       : prepared().seeded(limbs, {}, read);
     const bones: ReturnType<typeof poseBones> = poseBones(
       context.body, fittedPose.pose, read(), HANDS[tool.side],
@@ -195,7 +198,7 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freedoms are the law's; the result is still judged by `reachable`.
    * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's original lazy fits/refinement budget remain; fixed-posture trials share one direct assembly/clamp, while callback-varying trials keep their own admission and all candidates retain actual fits.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact FK reader belongs to this synchronous search. Only an explicitly fixed posture object lends its direct-pose preparation across complete candidate goals; a candidate posture callback stays ordinary seeded, and every actual fit remains.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader, fixed-tool goal producer and optional fixed direct-pose snapshots end on search return or failure; the chosen hand frame retains no reader, prepared workspace or candidate history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader, fixed-tool goal producer, optional genuine ROM projector and fixed direct-pose snapshots end on search return or failure; the chosen hand frame retains no reader, prepared workspace or candidate history.
    */
   export function chosen(
     context: Pick<IHumanActionContext, "body">,
@@ -203,6 +206,7 @@ export namespace StrikingRoll {
     props: IChoice,
   ): StrikingHeld.IHandFrame {
     const { frame, tried, freedoms, back, posture } = props;
+    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const goalFor: ReturnType<typeof StrikingHeld.prepareGoal> = goals(context, tool, back);
     let fixed: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
@@ -216,16 +220,20 @@ export namespace StrikingRoll {
         judge: (values: readonly number[]): number[] => {
           const posed: StrikingHeld.IHandFrame = frame(values);
           try {
+            const current: IHumanPosture = typeof posture === "function" ? posture(posed) : posture;
+            if (typeof posture === "function" && projection === undefined)
+              projection = prepareHumanPostureProjection(context.body);
             return [
               miss(
                 context,
                 tool,
                 posed,
                 back,
-                typeof posture === "function" ? posture(posed) : posture,
+                current,
                 resolution,
                 prepared,
                 goalFor,
+                projection,
               ),
             ];
           } catch (error) {

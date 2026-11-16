@@ -58,13 +58,30 @@ export namespace climbStairsFlight {
    * @returns The height of the floor, tread or landing there, metres.
    */
   export function surface(flight: IFlight, z: number): number {
+    return surfaceAt(flight.direction === "up" ? 1 : -1, flight.first, flight.count, flight.tread, flight.riser, z);
+  }
+
+  /**
+   * Prepare one unchanged flight's surface for clearance-path probes.
+   *
+   * @param flight The fixed resolved stair geometry in its own floor frame.
+   * @returns The same height in metres at each forward local z in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed flight, local forward coordinate, metre height and unchanged-flight lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Shares surface's original first-nosing test, floor-derived tread index, count cap and signed riser multiplication through surfaceAt.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A scalar snapshot of resolved architecture precedes one query reader; raw surface and repeated clearance probes share one stepped-height owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps exact nosing equality, floor/index arithmetic and landing cap, without blending, sampling, rounding or modifying the flight.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and height evaluation avoid repeated direction selection and flight-field lookup across the clearance path's original probe population.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The climb fixes its resolved flight throughout path construction and playback; a changed flight requires another preparation, and raw surface still reads current fields each call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One path-owned closure retains five fixed scalar geometry values until released, without query coordinates, heights, poses or external handles.
+   */
+  export function prepareSurface(flight: IFlight): (z: number) => number {
     const sign: number = flight.direction === "up" ? 1 : -1;
-    if (z < flight.first) return 0;
-    const index: number = Math.min(
-      flight.count,
-      Math.floor((z - flight.first) / flight.tread) + 1,
-    );
-    return sign * index * flight.riser;
+    const first: number = flight.first;
+    const count: number = flight.count;
+    const tread: number = flight.tread;
+    const riser: number = flight.riser;
+    return (z: number): number => surfaceAt(sign, first, count, tread, riser, z);
   }
 
   /**
@@ -110,14 +127,14 @@ export namespace climbStairsFlight {
     posture: IHumanPosture,
     params: IStairs,
   ): IFlight {
-    const m = body.measure;
+    const m: IHumanBody["measure"] = body.measure;
     const riser: number = params.riser ?? 0.17;
     const tread: number = params.tread ?? 0.28;
     HumanBound.whole("count", params.count);
     HumanBound.within("riser", riser, 0, 0.35 * m.hipHeight, "m", "minimum");
     HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
-    const feet = (["left", "right"] as const).map((side) => {
+    const feet: { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 }[] = (["left", "right"] as const).map((side: "left" | "right"): { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 } => {
       const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
@@ -134,7 +151,7 @@ export namespace climbStairsFlight {
     };
     const frame: HumanFrame.IFrame = { origin, yaw };
     const toe: number = Math.max(
-      ...feet.map((f) => HumanFrame.local(frame, f.toe).z),
+      ...feet.map((f: { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 }): number => HumanFrame.local(frame, f.toe).z),
     );
     return {
       frame,
@@ -145,4 +162,11 @@ export namespace climbStairsFlight {
       direction: params.direction ?? "up",
     };
   }
+}
+
+/** The original architectural stepped surface, shared by raw and prepared reads. */
+function surfaceAt(sign: number, first: number, count: number, tread: number, riser: number, z: number): number {
+  if (z < first) return 0;
+  const index: number = Math.min(count, Math.floor((z - first) / tread) + 1);
+  return sign * index * riser;
 }

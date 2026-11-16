@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -9,15 +10,48 @@ import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**
  * Own-data copies and exact numerical comparisons used by prepared FK.
- * Non-record malformed values remain unchanged for their original lazy
+ * Primitive/null malformed values remain unchanged for their original lazy
  * admission owner; these copies do not certify valid axes or clinical maps.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines immutable own-data copying, exact component comparison and their separation from numerical admission.
  * @evidence contracts/development/design.md#principled-representation Copies the exact vector/quaternion scalars, axis placement and optional clinical affine maps that determine prepared FK, preserving absence and malformed non-record values for lazy admission. Exact vector/quaternion comparisons preserve signed-zero distinctions for actual dependency invalidation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Prepared rig/state/change owners use four copy forms and two exact comparisons for static inputs, private root snapshots and actual articulation changes; existing interface/ROM types own their represented quantities.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No input is normalized, repaired, branded admitted or specialized to a body. Own-data reads preserve inherited numerical properties instead of assuming enumerable record layout.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Prepared rig/state/change owners use four numerical copy forms, effective mapping entries and two exact comparisons for static inputs, private root snapshots and actual articulation changes; existing interface/ROM types own their quantities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No input is normalized, repaired, branded admitted or specialized to a body. Actual own-data reads preserve inherited numerical properties and callable structural records instead of assuming enumerable plain-object layout.
  */
 export namespace PoseResolutionSnapshot {
+  /**
+   * Read effective string-keyed mappings, including non-enumerable own fields
+   * and custom-prototype fields. The built-in Object prototype declares no
+   * humanoid bone key. First occurrence marks a shadow even when undefined,
+   * matching direct lookup rather than reviving a hidden ancestor entry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States own/custom-prototype lookup, non-enumerable support, undefined shadowing and string bone-key scope; numerical copying/admission remains with the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Enumerates each own string property through the actual custom prototype chain and reads its effective value from the original table once. A seen-name set preserves direct property lookup shadowing; symbols and built-in Object members cannot name an AutoMovieHumanoidBone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One effective-entry reader serves the final skeletonJointAxes result and rest-frame table. The existing merge remains authoritative, so discarded inherited host axes are never reconstructed before its result.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No enumerable-only assumption, bone whitelist, default mapping or admission flag substitutes for actual values. Undefined shadowing stays absent and malformed used values still reach their original numerical owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads P own/custom-prototype property occurrences and K effective values in O(P+K) work, using O(P) shadow names and O(K) returned pairs once per static preparation; it adds no per-pose scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit static producer captures these actual effective values before copying their numerical inputs. Source/prototype edits require a new preparation; no lookup answer is reused for a changing source table.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns K local entry pairs borrowing values only until the caller snapshots them. The seen set/current prototype release on return or throw, without retaining a table, pose, query history, task or handle.
+   */
+  export function entries<T>(
+    table: Partial<Record<AutoMovieHumanoidBone, T>> | undefined,
+  ): [string, T][] {
+    const result: [string, T][] = [];
+    const seen: Set<string> = new Set();
+    const values: Readonly<Record<string, T | undefined>> = table ?? {};
+    let current: object | null = table ?? null;
+    while (current !== null && current !== Object.prototype) {
+      for (const name of Object.getOwnPropertyNames(current)) {
+        if (seen.has(name)) continue;
+        seen.add(name);
+        const value: T | undefined = values[name];
+        if (value !== undefined) result.push([name, value]);
+      }
+      current = Object.getPrototypeOf(current);
+    }
+    return result;
+  }
+
   /**
    * Compare actual quaternion components, including signed zero, without arithmetic.
    *
@@ -64,7 +98,7 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one frozen axes record with three frozen direction records and retains no source object, history or handle.
    */
   export function axes(input: IAutoMovieJointAxes): IAutoMovieJointAxes {
-    if (typeof input !== "object" || input === null) return input;
+    if (!hasProperties(input)) return input;
     return Object.freeze({
       flexion: vector(input.flexion),
       abduction: vector(input.abduction),
@@ -85,7 +119,7 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only three copied scalars, without retaining a source record or external handle.
    */
   export function vector(input: IAutoMovieVector3): IAutoMovieVector3 {
-    return typeof input !== "object" || input === null ? input
+    return !hasProperties(input) ? input
       : Object.freeze({ x: input.x, y: input.y, z: input.z });
   }
 
@@ -101,7 +135,7 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns four owned scalars and retains no input, history or handle.
    */
   export function quaternion(input: IAutoMovieQuaternion): IAutoMovieQuaternion {
-    return typeof input !== "object" || input === null ? input
+    return !hasProperties(input) ? input
       : Object.freeze({ x: input.x, y: input.y, z: input.z, w: input.w });
   }
 
@@ -117,7 +151,7 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns at most four frozen records, retaining no source object, pose or handle.
    */
   export function frame(input: IAutoMovieRestFrame): IAutoMovieRestFrame {
-    if (typeof input !== "object" || input === null) return input;
+    if (!hasProperties(input)) return input;
     const snapshot: IAutoMovieRestFrame = {};
     if (input.flexion !== undefined) snapshot.flexion = axisFrame(input.flexion);
     if (input.abduction !== undefined) snapshot.abduction = axisFrame(input.abduction);
@@ -128,6 +162,11 @@ export namespace PoseResolutionSnapshot {
 
 /** Preserve malformed scalar/non-record entries for their ordinary toRigAngle refusal. */
 function axisFrame(input: IAutoMovieAxisFrame): IAutoMovieAxisFrame {
-  return typeof input !== "object" || input === null ? input
+  return !hasProperties(input) ? input
     : Object.freeze({ sign: input.sign, neutral: input.neutral });
+}
+
+/** Structural numerical records can be ordinary objects or callables with properties. */
+function hasProperties(input: unknown): boolean {
+  return (typeof input === "object" && input !== null) || typeof input === "function";
 }

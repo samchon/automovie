@@ -160,10 +160,11 @@ export namespace HumanSegmentPose {
         person,
         segment.plan.posture(
           Math.min(segment.plan.duration, Math.max(0, t - segment.start)),
-          undefined, prepared.resolution,
+          undefined, prepared.resolution, prepared.clamp,
         ),
         t,
         prepared.resolution,
+        prepared.clamp,
       );
 
       // A hold rides an action entered before its takeover even past that
@@ -198,7 +199,7 @@ export namespace HumanSegmentPose {
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
         HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-          unplantedHumanObservation(written.limbs, observed));
+          unplantedHumanObservation(written.limbs, observed), prepared.clamp);
       return {
         posture: {
           ...written,
@@ -465,8 +466,9 @@ export namespace HumanSegmentPose {
     posture: IHumanPosture,
     seconds: number,
     resolution?: prepareHumanSegmentPose.IPrepared["resolution"],
+    projection?: prepareHumanSegmentPose.IPrepared["clamp"],
   ): IHumanPosture {
-    return HumanSegmentLayer.apply(person, posture, seconds, resolution);
+    return HumanSegmentLayer.apply(person, posture, seconds, resolution, projection);
   }
 
   /**
@@ -486,7 +488,7 @@ export namespace HumanSegmentPose {
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
     return resolveHumanPosture.seeded(person.performer.body, person.initial,
-      undefined, undefined, prepared?.resolution, requested).pose;
+      undefined, undefined, prepared?.resolution, requested, prepared?.clamp).pose;
   }
 }
 

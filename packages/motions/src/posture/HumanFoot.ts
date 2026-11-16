@@ -14,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFootOutline } from "./HumanFootOutline";
 import { HumanFootRotation } from "./HumanFootRotation";
 import { prepareHumanFootAt } from "./prepareHumanFootAt";
+import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
 import { readHumanFoot } from "./readHumanFoot";
 
@@ -174,7 +175,7 @@ export namespace HumanFoot {
       ankle: foot.ankle,
       rotation: Quaternion.normalize(
         Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
+          YAW(degrees),
           foot.rotation,
         ),
       ),
@@ -190,6 +191,9 @@ export namespace HumanFoot {
    * @returns The rotation.
    */
   export const rotation: (heading: number, pitch: number, roll?: number) => IAutoMovieQuaternion = HumanFootRotation;
+
+  /** Prepare the exact height component of one fixed articulated socket for actual clearance-only queries. */
+  export const prepareHeight: typeof prepareHumanFootHeight = prepareHumanFootHeight;
 
   /**
    * The roll of a foot's rotation about its forward axis, degrees, as
@@ -300,7 +304,7 @@ export namespace HumanFoot {
     return Vector3.add(
       joint,
       Quaternion.rotateVector(
-        Quaternion.fromAxisAngle({ x: -1, y: 0, z: 0 }, toes),
+        TOE_FLEXION(toes),
         socket.point,
       ),
     );
@@ -345,8 +349,9 @@ export namespace HumanFoot {
   }
 
   /**
-   * Prepare a rigid sole pivot whose pitch alone varies, for repeated rocker
-   * trials under one fixed heading, contact, toe flexion and roll.
+   * Prepare rigid sole geometry for repeated pitch trials under one fixed
+   * heading, toe flexion, roll and default contact. An explicit contact changes
+   * only the translation under that same prepared geometry.
    *
    * @param body The body owning the sole socket.
    * @param side The foot.
@@ -355,15 +360,15 @@ export namespace HumanFoot {
    * @param heading The fixed foot heading, degrees about +Y.
    * @param toes The fixed toe flexion, degrees; zero when absent.
    * @param roll The fixed foot roll, degrees; zero when absent.
-   * @returns A reader of pitch in degrees, positive toes up, with `pivot`'s placement.
+   * @returns A reader of pitch in degrees, positive toes up, with pivot's placement; an explicit world contact replaces only the default at under the same fixed rotation/socket preparation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, frames, units, defaults and the reader's equivalence to pivot.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses exactly rotation's yaw-times-roll prefix, normalization and varying pitch multiplication, then the fixed contact minus its rotated socket offset.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses exactly rotation's yaw-times-roll prefix, normalization and varying pitch multiplication, then the actual default or explicitly supplied contact minus its rotated socket offset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rotation prefix and socket offset precede one pitch reader of the same rigid transform as pivot.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Calls offset for toe articulation and preserves quaternion multiplication order; no pitch or angle bound changes.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; socket lookup and fixed yaw and roll quaternion construction run once per rocker.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller holds body, side, socket, contact, heading, toes and roll fixed for this reader; no result is shared across unlike inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains its contact, socket offset and rotation prefix until the owning synchronous solve releases it, without a sample cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes body, side, socket, heading, toes and roll. Default at remains fixed; an explicitly supplied current contact changes translation alone and is actually subtracted each time, without sharing a placed result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains its default contact, socket offset and rotation prefix until its solve/action releases it; explicit current contacts and queried results are not retained.
    */
   export function preparePivot(
     body: IHumanBody,
@@ -373,14 +378,14 @@ export namespace HumanFoot {
     heading: number,
     toes: number = 0,
     roll: number = 0,
-  ): (pitch: number) => IPlacement {
+  ): (pitch: number, contact?: IAutoMovieVector3) => IPlacement {
     const turned: ReturnType<typeof HumanFootRotation.prepare> =
       HumanFootRotation.prepare(heading, roll);
     const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
-    return (pitch: number): IPlacement => {
+    return (pitch: number, contact: IAutoMovieVector3 = at): IPlacement => {
       const r: IAutoMovieQuaternion = turned(pitch);
       return {
-        ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
+        ankle: Vector3.subtract(contact, Quaternion.rotateVector(r, local)),
         rotation: r,
       };
     };
@@ -471,3 +476,9 @@ export namespace HumanFoot {
     );
   }
 }
+
+/** The unchanged world-up axis shared only as axis-angle scalar preparation. */
+const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+
+/** The unchanged negative lateral toe-flexion axis; no toe angle or rotation result is retained. */
+const TOE_FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });

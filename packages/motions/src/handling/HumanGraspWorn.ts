@@ -67,6 +67,7 @@ export namespace HumanGraspWorn {
     prepared?: {
       world: IHumanProp.IFrame;
       tipWorld?: IAutoMovieVector3;
+      readHand?: ReturnType<typeof poseBones.prepare>;
       worn: ReturnType<typeof HumanWorn.prepare>;
       base: ReturnType<typeof resolveHumanPosture.prepareBase>;
     };
@@ -127,7 +128,8 @@ export namespace HumanGraspWorn {
     const fitted: Map<number, number> = new Map();
     let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       prepareHumanPoseResolution();
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+    const readHand: ReturnType<typeof poseBones.prepare> = props.prepared?.readHand ?? poseBones.prepare(context.body,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
     const missed: (degrees: number) => number = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
       if (known !== undefined) return known;
@@ -140,11 +142,9 @@ export namespace HumanGraspWorn {
         bend: hang,
         elbow: "strain",
       };
-      const hand: IAutoMovieResolvedBone = poseBones(
-        context.body,
+      const hand: IAutoMovieResolvedBone = readHand(
         base!.seeded(limbs, {}, resolution).pose,
         resolution!(),
-        requested,
       ).get(`${side}Hand`)!;
       const kept: number =
         clear === undefined ? 0 : Math.min(0, clear(wrist));
@@ -190,20 +190,16 @@ export namespace HumanGraspWorn {
       bend: hang,
       // Judged as dress judges it: the fitted hand's wear socket off the
       // region it is worn on.
-      judge: (
-        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      ): number => {
-        const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-        return Vector3.length(
-          Vector3.subtract(
-            Vector3.add(
-              hand.worldPosition,
-              Quaternion.rotateVector(hand.worldRotation, socket),
-            ),
-            site,
-          ),
-        );
-      },
+      judge: wornJudge(side, socket, site),
     };
   }
+}
+
+/** Isolate returned judgement from the synchronous worn-turn search's context. */
+function wornJudge(side: HumanHand.Side, socket: IAutoMovieVector3, site: IAutoMovieVector3): NonNullable<HumanGrasp.IKey["judge"]> {
+  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number => {
+    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+    return Vector3.length(Vector3.subtract(Vector3.add(hand.worldPosition,
+      Quaternion.rotateVector(hand.worldRotation, socket)), site));
+  };
 }

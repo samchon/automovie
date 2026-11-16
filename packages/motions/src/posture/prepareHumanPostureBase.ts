@@ -7,6 +7,7 @@ import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
 import type { IHumanPosture } from "./IHumanPosture";
 import { assembleHumanPosture } from "./assembleHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 import { refitHumanPosture } from "./refitHumanPosture";
 import type { resolveHumanPosture } from "./resolveHumanPosture";
 import { turnHumanPosture } from "./turnHumanPosture";
@@ -43,7 +44,7 @@ export function prepareHumanPostureBase(
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): resolveHumanPosture.ISeeded => {
       const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...fixed, limbs });
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanLimbSource(body, source);
       const limb: Leg | undefined = turned.limbs.leftLeg !== undefined ? "leftLeg" :
         turned.limbs.rightLeg !== undefined ? "rightLeg" : undefined;
       let prefix: IAutoMovieSeededChainFit | undefined;
@@ -59,7 +60,7 @@ export function prepareHumanPostureBase(
           if ((mask & 2) !== 0) placed.push("right");
           first = { limb, mask, read: HumanLimbFitMemory.prepare(body, pose, limb, goals[limb]!, placed) };
         }
-        prefix = structuredClone(first.read(resolution));
+        prefix = first.read(resolution);
         pending = { ...turned.limbs };
         delete pending[limb];
       }

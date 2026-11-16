@@ -242,10 +242,68 @@ export namespace crawlFrame {
     toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
     share: number,
   ): IHumanPosture {
+    return writeArms(body, posture, held, toward, share);
+  }
+
+  /**
+   * Prepare the descent's fixed arm-angle endpoints. Body/angles remain
+   * unchanged while the current trunk, finger fallbacks and share vary.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/arm endpoints and changing current posture, finger fallback and progress.
+   * @evidence contracts/development/implementation.md#principled-implementation The same writeArms owner applies each joint's blendHumanJoint.between rule and the original flat-finger interpolation, then removes the two arm goals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Six fixed joint readers precede one current-posture writer shared with armed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Between retains original endpoint tuples, clipping, NaN and ROM rules; each current finger fallback is read from the supplied posture and no elbow solution or evaluated pose is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each joint's fixed quaternion/chart prerequisites are prepared lazily once instead of per query; every read retains six current interpolations/readbacks plus the existing ordered finger maps.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning descent keeps body and the held/target clinical tuples unchanged. Only their six bounded numerical preparations persist; current posture fields, fallback fingers and outputs remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns six bounded between readers until release, with no retained queried share, blended posture, current FK map or solver workspace.
+   */
+  export function prepareArmed(
+    body: IHumanBody,
+    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+  ): (posture: IHumanPosture, share: number) => IHumanPosture {
+    const arm: (side: "left" | "right") => IArmReaders["left"] = (
+      side: "left" | "right",
+    ): IArmReaders["left"] => ({
+      upper: blendHumanJoint.between(
+        body,
+        `${side}UpperArm`,
+        held[side].upper,
+        toward[side].upper,
+      ),
+      lower: blendHumanJoint.between(
+        body,
+        `${side}LowerArm`,
+        held[side].lower,
+        toward[side].lower,
+      ),
+      hand: blendHumanJoint.between(
+        body,
+        `${side}Hand`,
+        held[side].hand,
+        toward[side].hand,
+      ),
+    });
+    const readers: IArmReaders = { left: arm("left"), right: arm("right") };
+    return (posture: IHumanPosture, share: number): IHumanPosture =>
+      writeArms(body, posture, held, toward, share, readers);
+  }
+
+  /** Fixed clinical pairs use their numerical owner; changing pairs share one synchronous metadata pass. */
+  function writeArms(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    share: number,
+    prepared?: IArmReaders,
+  ): IHumanPosture {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
-      share <= 0 || share >= 1 ? undefined : blendHumanJoint.prepare(body);
+      prepared !== undefined || share <= 0 || share >= 1
+        ? undefined
+        : blendHumanJoint.prepare(body);
     for (const side of ["left", "right"] as const) {
       const from: AutoMovieMotionHumanArm.IAngles = held[side];
       const to: AutoMovieMotionHumanArm.IAngles = toward[side];
@@ -253,13 +311,18 @@ export namespace crawlFrame {
         [`${side}UpperArm`, "upper"],
         [`${side}LowerArm`, "lower"],
         [`${side}Hand`, "hand"],
-      ] as const)
+      ] as const) {
+        if (prepared !== undefined) {
+          joints[bone] = prepared[side][key](share);
+          continue;
+        }
         joints[bone] =
           share <= 0
             ? from[key]
             : share >= 1
               ? to[key]
               : blend!(bone, from[key], to[key], share);
+      }
       const flat: IHumanPosture["joints"] = FLAT[side];
       const was: IHumanPosture["joints"] = {};
       for (const bone of FLAT_BONES[side]) {
@@ -413,4 +476,13 @@ export namespace crawlFrame {
     left: Object.keys(FLAT.left) as AutoMovieHumanoidBone[],
     right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[],
   };
+
+  /** Six arm-joint fixed-endpoint readers owned by one descent plan. */
+  type IArmReaders = Record<
+    "left" | "right",
+    Record<
+      "upper" | "lower" | "hand",
+      ReturnType<typeof blendHumanJoint.between>
+    >
+  >;
 }

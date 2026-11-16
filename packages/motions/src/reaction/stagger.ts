@@ -182,7 +182,7 @@ export namespace stagger {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION } =
+    const { RIGHTING, STEPS, VERIFIED, RESOLUTION, ONSET, ABDUCTION }: typeof staggerBounds =
       staggerBounds;
     const p: IParams = context.params;
     if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
@@ -265,7 +265,7 @@ export namespace stagger {
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const { feet: scheduled, settled, reached, reading } = feet.solve(seconds);
+        const { feet: scheduled, settled, reached, reading }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           // The knee points over the foot's own heading.

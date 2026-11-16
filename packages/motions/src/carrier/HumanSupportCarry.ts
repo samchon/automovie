@@ -152,10 +152,11 @@ export namespace HumanSupportCarry {
         seconds: number,
         channels?: readonly AutoMovieMotionHumanChannel[],
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
       ): IHumanPosture =>
         posture(
           of(frame, context.start, context.start + seconds),
-          plan.posture(seconds, channels, resolution),
+          plan.posture(seconds, channels, resolution, projection),
         ),
     };
   }
@@ -201,11 +202,12 @@ export namespace HumanSupportCarry {
       seconds: number,
       requested?: readonly AutoMovieMotionHumanChannel[],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3],
     ): IHumanPosture => {
       const carry: ICarry = of(frame, context.start, context.start + seconds);
       // The root and the heading are the carrier's, which its own plan has
       // already carried; only the goals this plan made at its start ride on.
-      const own: IHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined, resolution);
+      const own: IHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined, resolution, projection);
       const made: IHumanPosture = {
         ...posture(carry, own),
         root: own.root,

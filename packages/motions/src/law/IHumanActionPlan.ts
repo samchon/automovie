@@ -13,6 +13,7 @@ import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHuma
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import type { HumanBase } from "./HumanBase";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 
@@ -85,12 +86,14 @@ export interface IHumanActionPlan {
    * @param seconds Seconds since the action's start, in [0, duration]; outside, the nearest end.
    * @param channels Optional demand for these channels only. A reader using it inspects only these channels; implementations may still compute the whole posture. Omission requests every channel.
    * @param resolution Optional exact FK source borrowed only for this synchronous unchanged-body evaluation; never retained in the plan, posture, preparation evidence or a returned callback.
+   * @param projection Optional genuine same-body ROM projector borrowed for this call only; every actual direct joint is still projected, and unknown functions fall back to ordinary admission.
    * @returns The borrowed posture; when a demand is supplied, only requested channels are guaranteed current.
    */
   posture(
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture;
 
   /**

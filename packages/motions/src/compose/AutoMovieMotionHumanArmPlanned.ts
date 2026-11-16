@@ -389,6 +389,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
             pose,
             c,
             aimed(a, t),
+            resolution,
           );
           if (rider < 0) return own;
           const lead: IPlanned = carries[rider]!;
@@ -402,6 +403,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
               pose,
               lead,
               aimed(rider, t),
+              resolution,
             );
             if (held.rotation !== undefined)
               return {

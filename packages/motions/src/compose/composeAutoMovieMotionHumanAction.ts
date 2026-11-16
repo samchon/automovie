@@ -42,8 +42,8 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort and validate once, encode fixed channel masks once, collect contacts/weapons once and give each prefix one stable reader. One recursive dependency evaluator owns both complete and restricted posture reads.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overlapping channel windows still refuse and endpoint allowances and stable order are unchanged. Only explicitly demanded channels may be read from a restricted result; declared-independent writes remain pure. Every primitive still prepares once, even when a later partial read needs none of its output.
  * @evidence contracts/development/implementation.md#efficient-algorithms Sorting is O(P log P) and overlap admission O(P squared) once. Each actual prefix/demand/time key costs one lookup plus its not-yet-completed contributors and posture merges. There are nine channels, at most 512 masks per prefix and exact second; normal full-only reads visit at most P prefixes per second. Preparation queries release each separate refinement history. Runtime and peak-byte changes are unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed claims and dependencies reuse plan-owned masks; equal exact-time/prefix/demand keys reuse completed pure writes inside one query. An explicit unchanged-body FK source is forwarded to the base only while that synchronous query owns it. Nested readers use the current scope; separate top-level preparation and posture queries own separate maps and source slots.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only base/clock/primitives, fixed masks/mergers and stable readers. Each query owns up to 512*(P+1)*T posture references for its actual T seconds, without global time history or arbitrary eviction. Finally restores both enclosing map and borrowed FK source on success/throw; failed writes publish no result and retained readers capture no completed map or borrowed source.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed claims/dependencies reuse plan-owned masks; equal exact-time/prefix/demand keys reuse completed pure writes inside one query. Explicit unchanged-body FK and genuine ROM sources reach the base only while that synchronous query owns them. Nested readers use the current scope; separate top-level preparation/posture queries own separate maps and source slots.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only base/clock/primitives, fixed masks/mergers and stable readers. Each query owns up to 512*(P+1)*T posture references for its actual T seconds, without global history or arbitrary eviction. Finally restores the enclosing map, FK source and projector on success/throw; failed writes publish no result and retained readers capture no completed map or loan.
  */
 export function composeAutoMovieMotionHumanAction(
   props: composeAutoMovieMotionHumanAction.IProps,
@@ -130,6 +130,9 @@ export function composeAutoMovieMotionHumanAction(
   /** Exact FK metadata borrowed only by the currently active synchronous query. */
   type Resolution = Parameters<typeof prepareHumanPoseResolution>[0];
 
+  /** Genuine direct ROM metadata borrowed with the same synchronous query. */
+  type Projection = Parameters<IHumanActionPlan["posture"]>[3];
+
   // Nine owned channels fit in one integer. A write may replace a channel
   // without reading it; only its declared prerequisites propagate backward.
   const width: number = 1 << AutoMovieMotionHumanChannel.ORDER.length;
@@ -155,6 +158,7 @@ export function composeAutoMovieMotionHumanAction(
   // it after the evaluation in which it first received it has ended.
   let scope: Evaluation | undefined;
   let resolution: Resolution = undefined;
+  let projection: Projection = undefined;
   const readers: IAutoMovieMotionHumanPrimitive.Reader[] = Array.from(
     { length: primitives.length },
     (_: unknown, index: number): IAutoMovieMotionHumanPrimitive.Reader =>
@@ -203,26 +207,32 @@ export function composeAutoMovieMotionHumanAction(
       seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],
       source?: Resolution,
+      projector?: Projection,
     ): IHumanPosture =>
       evaluate(
         (current: Evaluation): IHumanPosture =>
           so(primitives.length, seconds, current, channels === undefined ? all : mask(channels)),
         source,
+        projector,
       ),
   };
 
   /** Run with a fresh scope, restoring an enclosing evaluation even if this one throws. */
-  function evaluate<T>(run: (current: Evaluation) => T, source?: Resolution): T {
+  function evaluate<T>(run: (current: Evaluation) => T, source?: Resolution,
+    projector?: Projection): T {
     const previous: Evaluation | undefined = scope;
     const previousResolution: Resolution = resolution;
+    const previousProjection: Projection = projection;
     const current: Evaluation = new Map();
     scope = current;
     resolution = source;
+    projection = projector;
     try {
       return run(current);
     } finally {
       scope = previous;
       resolution = previousResolution;
+      projection = previousProjection;
     }
   }
 
@@ -261,6 +271,7 @@ export function composeAutoMovieMotionHumanAction(
                 (demand & (1 << index)) !== 0,
             ),
         resolution,
+        projection,
       );
       postures.set(key, initial);
       return initial;

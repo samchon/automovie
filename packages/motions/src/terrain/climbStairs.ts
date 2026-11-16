@@ -360,6 +360,8 @@ export namespace climbStairs {
     ): (s: number) => HumanFoot.IPlacement {
       const from: IAutoMovieVector3 = framed.local(a.ankle);
       const to: IAutoMovieVector3 = framed.local(b.ankle);
+      const across: number = to.x - from.x;
+      const forward: number = Math.max(1e-9, to.z - from.z);
       const path: ReturnType<typeof AutoMovieMotionHumanClearance.path> = AutoMovieMotionHumanClearance.path(
         { z: from.z, y: a.ankle.y },
         { z: to.z, y: b.ankle.y },
@@ -371,8 +373,7 @@ export namespace climbStairs {
           ankle: framed.point({
             x:
               from.x +
-              ((to.x - from.x) * (at.z - from.z)) /
-                Math.max(1e-9, to.z - from.z),
+              (across * (at.z - from.z)) / forward,
             y: at.y,
             z: at.z,
           }),

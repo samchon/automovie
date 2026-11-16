@@ -51,7 +51,7 @@ export function prepareWalkReachSwing(
   );
   const extensionAt: number = (bounds.extension * Math.PI) / 180;
   const sideAt: number = Math.tan((bounds.side * Math.PI) / 180);
-  const heel: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, "heel");
+  const heel: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "heel");
   return (settled: walkReach.IGround, foot: walkFoot.IFoot, share?: number): walkFoot.IEnd => {
     const h: IAutoMovieVector3 = settled.hips[side];
 
@@ -95,9 +95,9 @@ export function prepareWalkReachSwing(
 
     // Toe articulation is fixed across this foot's ankle/clearance passes;
     // every pass still fits the ankle again after any clearance lift.
-    const toe: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, "toe", foot.toes);
+    const toe: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "toe", foot.toes);
     const lowest: (placement: HumanFoot.IPlacement) => number = (placement: HumanFoot.IPlacement): number =>
-      Math.min(toe(placement).y, heel(placement).y);
+      Math.min(toe(placement), heel(placement));
     const clear: number = Math.max(0, lowest(foot.placement));
     for (let k: number = 0; k < 8; k++) {
       rotation = walkLeg.ankleRange(body, h, ankle, rotation);

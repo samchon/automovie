@@ -27,12 +27,14 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidence contracts/development/implementation.md#principled-implementation Free-leg resolution reads skeleton/rest data, supplied topology and canonical range/basis/frame tables. Owned typed snapshots plus ordered Object.is scalar comparisons prove those same dependencies unchanged without serializing them; profile/measure data is unused by this restricted solve.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner separates one-time typed snapshot creation from repeated live comparison; existing math/admission owners still perform the actual cold solve and token consumption only asks whether its prerequisites remain equal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Checks every original projected field, topology entry/order, table entry/order and default basis without tolerance, numeric coercion, mutable identity trust or a result cache; any changed or unreadable field falls back.
- * @evidence contracts/development/implementation.md#efficient-algorithms Snapshot and each comparison take O(B+T) for live/topology bone records B and canonical table entries T. Consumption creates only ordered table-entry arrays, replacing nested projection strings and full JSON text; no speedup is claimed without measurement.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The source owns copied scalar data, not raw mutable records. Every call rereads actual bound body and canonical tables, so in-place field edits, replacements and order changes invalidate even when identities remain equal; no previous comparison verdict is retained.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The explicit preparation owns one body reference, one bounded typed snapshot and one checker until its weak source/candidates are released; each call's entry arrays end on return/throw and no FK reader, target, callback result, query history or handle is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Snapshot and each comparison take O(B+T) for B live/topology records and T table entries. A later producer first compares the current typed snapshot and copies only after a mismatch, removing repeated whole-rig structuredClone calls. Consumption still directly compares every current scalar; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One weak body's current immutable scalar snapshot may serve multiple actual cold producers only after a fresh complete comparison. Every producer/consumer rereads bound body and canonical tables, so in-place edits, replacements and order changes invalidate; no previous comparison verdict, pose or fit answer is retained.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body owns at most one current typed metadata snapshot/checker; issued sources may retain their original checker until release. Replacing current metadata adds no linked history, and per-read entry arrays end on return/throw. No FK reader, target, fitted result, callback result or handle enters this metadata pool.
  */
 export function prepareHumanPostureRigCheck(body: IHumanBody): (() => boolean) | undefined {
   try {
+    const current: (() => boolean) | undefined = CURRENT.get(body);
+    if (current !== undefined && current()) return current;
     const saved: ISnapshot = structuredClone({
       skeleton: body.skeleton,
       children: [...body.topology.childrenByParent],
@@ -42,7 +44,7 @@ export function prepareHumanPostureRigCheck(body: IHumanBody): (() => boolean) |
       fallback: DEFAULT_JOINT_AXES,
       frames: Object.entries(HUMANOID_REST_FRAME),
     });
-    return (): boolean => {
+    const check: () => boolean = (): boolean => {
       try {
         return body.skeleton.id === saved.skeleton.id &&
           sequence(body.skeleton.bones, saved.skeleton.bones, bone) &&
@@ -58,10 +60,15 @@ export function prepareHumanPostureRigCheck(body: IHumanBody): (() => boolean) |
         return false;
       }
     };
+    CURRENT.set(body, check);
+    return check;
   } catch {
     return undefined;
   }
 }
+
+/** Only current immutable metadata is shared; every reuse performs a fresh live comparison. */
+const CURRENT: WeakMap<IHumanBody, () => boolean> = new WeakMap();
 
 /** One topology entry, including ordered child records rather than names alone. */
 type IChildren = readonly [string, readonly IAutoMovieBone[]];

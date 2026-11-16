@@ -170,7 +170,7 @@ export namespace HumanQuadraticProgram {
   /**
    * The minimiser.
    *
-   * @param problem The problem.
+   * @param problem The problem; its numeric storage remains unchanged during this synchronous solve.
    * @param warm The iterates of a solve of the same rows; zero when absent.
    * @param duals Multipliers by row key from a solve of other rows that linearise the same constraints, read when `warm` is absent.
    * @returns The unscaled iterates and termination status; `x` is a minimiser only when solved or polished.
@@ -203,7 +203,7 @@ export namespace HumanQuadraticProgram {
    * The model snapshots P, q and all ordered row coefficients; changing them
    * requires a new model, while each solve receives its current row bounds.
    *
-   * @param problem Finite convex banded data to snapshot and equilibrate.
+   * @param problem Finite convex banded data, unchanged while preparation admits and snapshots it.
    * @returns A model owning preparation, exact factors and reusable scratch.
    * @throws {RangeError} For the same malformed data or scaling failures as solve.
    *

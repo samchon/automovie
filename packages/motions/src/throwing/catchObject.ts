@@ -268,6 +268,7 @@ export namespace catchObject {
       meet,
       Vector3.scale(along, GIVE),
     );
+    let sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
     const object: (seconds: number, posture: IHumanPosture) => IAutoMovieVector3 = (
       seconds: number,
       posture: IHumanPosture,
@@ -280,7 +281,8 @@ export namespace catchObject {
           given,
           clock.progress("contact", "secured", seconds),
         );
-      const sternum: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(body, posture, "sternum");
+      sternumAt ??= HumanTrunk.prepareRegion(body, "sternum");
+      const sternum: ReturnType<typeof HumanTrunk.region> = sternumAt(posture);
       const before: IAutoMovieVector3 = Vector3.add(
         sternum.point,
         Vector3.scale(sternum.normal, radius + 0.15 * arm),

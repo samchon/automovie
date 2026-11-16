@@ -45,7 +45,7 @@ export namespace walkStanceGeometry {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Goal construction is shared by planted and read; prepared sole/load data serve support, while walkStanceOutline owns polygon mathematics.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original heading, twist, support clipping, load interpolation and reach-shell behavior with unchanged thresholds and body measures.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is linear in knots and their fixed foot outlines. A planted read performs only its requested goal geometry; a full read additionally poses one leg, and support forms the original two-sole hull.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot shares three exact pitch/roll pelvis readings; each stance shares five exact pitch/turn/slide pivot readings, their identical nonpitch rigid-pivot preparation, and six clipped support regions. Four fixed pelvis/hip sources share hinge invariants, pelvis inverse and heading; Object.is compares every quaternion/hip scalar while every changed target/branch/swivel is posed anew. Public planted rotations/placements and posed source hips are copied so output mutation cannot alter private preparation, and full readings always read current held swivels.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot shares three exact pitch/roll pelvis readings; each stance shares five exact pivot readings, identical nonpitch rocker preparation, exact-heading lean/forward prerequisites and six support regions. Trailing uses one fixed pelvis-local axis. Four fixed pelvis/hip sources share hinge invariants, inverse and heading; Object.is compares every source scalar while every changed target/branch/swivel is posed anew. Public rotations/placements/source hips are copied, and full readings always read current held swivels.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains fixed per-knot geometry, three pelvis records per knot and at most five pivot, six clipped-region and four fixed leg-source records per stance, O(k) for bounded sole size, released with its closure; no posed-leg answer, query history or global cache grows.
    */
   export function of(
@@ -132,6 +132,8 @@ export namespace walkStanceGeometry {
       foot: HumanFoot.IPlacement;
       heading: number;
       at: ReturnType<typeof HumanFoot.preparePivot>;
+      lean?: ReturnType<typeof walkLeg.prepareLean>;
+      forward?: IAutoMovieVector3;
     };
     const pivots: IPivot[][][] = knots.map(
       (knot: walkStanceCourse.IKnot): IPivot[][] => knot.stances.map((): IPivot[] => []),
@@ -167,13 +169,19 @@ export namespace walkStanceGeometry {
           body, s.side, "mtp", HumanFoot.point(body, s.side, "mtp", placement), heading,
         );
       }
+      const axis: IPivot | undefined = entries.find(
+        (entry: IPivot): boolean => Object.is(entry.heading, heading),
+      );
       const made: IPivot = {
         pitch, turn, dx, dz, heading, at, foot: at(pitch),
+        lean: axis?.lean, forward: axis?.forward,
       };
       if (entries.length === 5) entries.shift();
       entries.push(made);
       return made;
     };
+    const trailing: ReturnType<typeof walkLeg.prepareTrailing> = walkLeg.prepareTrailing(body, 0);
+    const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
     // Fitting a planted leg needs its goals alone, without posing its knee
     // or evaluating the stance's constraints first.
@@ -181,10 +189,12 @@ export namespace walkStanceGeometry {
       x: Float64Array,
       k: number,
       j: number,
+      pivot?: IPivot,
     ) => walkStanceCourse.IPlanted = (
       x: Float64Array,
       k: number,
       j: number,
+      pivot?: IPivot,
     ): walkStanceCourse.IPlanted => {
       const o: number = walkStanceTerms.WIDTH * k;
       const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
@@ -193,7 +203,7 @@ export namespace walkStanceGeometry {
         ...pelvis.hips[s.side],
         y: pelvis.hips[s.side].y - x[o]!,
       };
-      const pivoted: IPivot = footAt(x, k, j);
+      const pivoted: IPivot = pivot ?? footAt(x, k, j);
       return {
         side: s.side,
         pelvis: { ...pelvis.rotation },
@@ -248,7 +258,8 @@ export namespace walkStanceGeometry {
     ): ReturnType<ReturnType<typeof of>["read"]> => {
       const o: number = walkStanceTerms.WIDTH * k;
       const s: walkStanceCourse.IStance = knots[k]!.stances[j]!;
-      const plant: walkStanceCourse.IPlanted = planted(x, k, j);
+      const pivot: IPivot = footAt(x, k, j);
+      const plant: walkStanceCourse.IPlanted = planted(x, k, j, pivot);
       const { hip, ankle, heading }: walkStanceCourse.IPlanted = plant;
       const pitch: number = x[o + pitchOf(s.side)]!;
       const reach: number = Vector3.distance(ankle, hip);
@@ -280,27 +291,25 @@ export namespace walkStanceGeometry {
         ? null
         : source.pose(ankle, swivel!);
       const held: IAutoMovieVector3 = posed?.ankle ?? ankle;
-      const forward: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
-        { x: 0, y: 0, z: 1 },
-      );
       const shin: IAutoMovieVector3 | null =
         posed === null ? null : Vector3.subtract(posed.knee, held);
+      const forward: IAutoMovieVector3 | undefined = shin === null ? undefined :
+        (pivot.forward ??= HumanFrame.point(
+          { origin: zero, yaw: heading }, { x: 0, y: 0, z: 1 },
+        ));
       return {
         reach,
         dorsi:
           (shin === null
-            ? walkLeg.lean(body, hip, held, heading)
-            : (Math.atan2(Vector3.dot(shin, forward), shin.y) * 180) / Math.PI) +
+            ? (pivot.lean ??= walkLeg.prepareLean(body, heading))(hip, held)
+            : (Math.atan2(Vector3.dot(shin, forward!), shin.y) * 180) / Math.PI) +
           pitch,
-        trail: walkLeg.trailing(
-          body,
-          { x: 0, y: 0, z: 0 },
+        trail: trailing(
+          zero,
           Quaternion.rotateVector(
             source?.inverse ?? Quaternion.inverse(plant.pelvis),
             Vector3.subtract(held, hip),
           ),
-          0,
         ),
         twist: wrapDegrees(heading - (source?.heading ?? HumanFoot.heading(plant.pelvis))),
         leg:

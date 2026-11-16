@@ -159,7 +159,7 @@ export function fitHingedChainCandidate(
   const apart = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
-  ): number => (b === null ? 0 : (Quaternion.angle(Quaternion.normalize(a), b) * 180) / Math.PI);
+  ): number => (b === null ? 0 : (Quaternion.angleAfterNormalize(a, b) * 180) / Math.PI);
 
   // The gate reads canonical scoring frames when no rig is supplied. Their
   // axes, clinical frame and constraint are fixed for every swivel here.

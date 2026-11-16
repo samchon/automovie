@@ -7,6 +7,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
@@ -24,9 +25,9 @@ import { crawlFrame } from "./crawlFrame";
  * @evidence contracts/development/implementation.md#principled-implementation Uses crawlFrame's unchanged pitch bracket and halving count; each predicate compares the same two shoulder heights after placing the root under the fixed hip midpoint.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous exact-FK workspace owns the predicate and the final bone reading, apart from the retained time evaluator.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every trial still resolves the complete authored posture with canonical clamp/digit policies; neither the bracket, predicate nor required height changes.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each original trial demands only four measured shoulder/hip outputs and their ancestry, sharing exact unchanged dependency work across this one search; no speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed hip placement and one exact dependency reader are shared across pitch trials; every changed authored posture still reaches canonical resolution.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader ends when this synchronous helper returns or throws; only the final fresh map and scalar pitch escape into the crawl plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The four measured shoulder/hip names are prepared once; each original trial resolves only their demanded output/ancestry while sharing exact unchanged dependency work across this search, with no speedup claim.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed hip placement, one exact dependency reader and one genuine same-body ROM metadata projector serve this search; every changed authored posture still projects all current joints and reaches canonical resolution.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The FK/name readers and bounded ROM metadata projector end when this synchronous helper returns or throws; only the final fresh map and scalar pitch escape into the crawl plan.
  */
 export function crawlPitch(
   body: IHumanBody,
@@ -36,23 +37,31 @@ export function crawlPitch(
 ): { pitch: number; bones: ReturnType<typeof poseBones> } {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
-  const at = (degrees: number): ReturnType<typeof poseBones> => {
+  const projection: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
+  const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    MEASURED,
+  );
+  const at: (degrees: number) => ReturnType<typeof poseBones> = (
+    degrees: number,
+  ): ReturnType<typeof poseBones> => {
     const tilted: IHumanPosture = posed(degrees);
     const posture: IHumanPosture = {
       ...tilted,
       root: crawlFrame.rootFor(body, tilted, hips),
     };
-    return poseBones(
-      body,
+    return read(
       resolveHumanPosture.seeded(
         body,
         posture,
         undefined,
         undefined,
         resolution,
+        undefined,
+        projection,
       ).pose,
       resolution(),
-      MEASURED,
     );
   };
   const pitch: number = crawlFrame.pitched((degrees: number): boolean => {

@@ -19,6 +19,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionSource } from "./ReactionSource";
@@ -95,6 +96,7 @@ export namespace knockdown {
    * @param body The body.
    * @param posture The posture, its root height ignored.
    * @param resolution Optional exact FK reader/supplier borrowed from the current synchronous body's planning operation.
+   * @param projection Optional genuine same-body ROM metadata preparation borrowed from that operation; every current joint remains projected.
    * @returns The root height, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule, the ignored input and the unit.
@@ -102,11 +104,16 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one pass over the shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the height follows from the body's own shapes.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and shapes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the unchanged floor measurement and optional exact FK reader to KnockdownFloor.rest; its scalar dependency checks permit reuse across actual floor queries without sharing their verdicts.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither geometry nor the optional reader/supplier, which stays with its synchronous planning caller.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the unchanged floor measurement and optional exact FK/projector loans to KnockdownFloor.rest; scalar FK checks and genuine projector provenance share only transform prerequisites/static ROM metadata while each actual posture and joint is still read normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither geometry nor optional FK/projector loans, which stay with their synchronous planning caller through return or throw.
    */
-  export function rest(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): number {
-    return KnockdownFloor.rest(body, posture, resolution);
+  export function rest(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): number {
+    return KnockdownFloor.rest(body, posture, resolution, projection);
   }
 
   /**
@@ -121,8 +128,8 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fits the body and reads the blow's heading once, then evaluates each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
    * @evidence contracts/development/implementation.md#efficient-algorithms One phase/fold evaluation, one demanded trunk resolution and one collider pass per posture; the original three 16-step fit bisections remain. Fixed named phase intervals and entry-frame transforms prepare once, and the two planning-only measures share exact FK preparation without a runtime speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The writer shares one actual fold across floor/trunk/joints, while a planning IIFE lends one exact FK workspace to standing then seated measures. Fixed entry yaw/initial ankle establish frame equivalence; clock preparation verifies native method identities and otherwise preserves live callbacks. Floor/root/joint owners and settle's heading reset remain unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed frame/phase coefficients and one heading cleared on settle. Fit's reader and the planning IIFE's borrowed workspace release before plan return; every time evaluation creates its actual measure locally, without retaining an FK reader, sampled pose or query history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The writer shares one actual fold across floor/trunk/joints; a planning IIFE lends one exact FK workspace and genuine static ROM projector to standing then seated measures, retaining every actual joint projection. Fixed entry yaw/initial ankle establish frame equivalence; clock preparation guards native methods and otherwise preserves live callbacks. Floor/root/joint owners and settle's heading reset remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed frame/phase coefficients and one heading cleared on settle. Fit's reader and the planning IIFE's FK/projector loans release before plan return; every time evaluation creates its actual measure locally, without retaining either loan, a sampled pose or query history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -156,11 +163,13 @@ export namespace knockdown {
     const [standing, seated]: readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] =
       ((): readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+        const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
         const at: (seconds: number) => KnockdownFloor.IMeasure = (seconds: number): KnockdownFloor.IMeasure =>
           KnockdownFloor.measure(
             body,
             KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
             resolution,
+            projection,
           );
         return [at(0), at(SEATED)];
       })();

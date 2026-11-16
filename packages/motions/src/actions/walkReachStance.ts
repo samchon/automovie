@@ -6,6 +6,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanFootRotation } from "../posture/HumanFootRotation";
 import type { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 
@@ -84,7 +85,7 @@ export namespace walkReachStance {
    * @evidence contracts/development/implementation.md#principled-implementation Resolves only the foot's heading, initial pitch, sole pivot and rigid pivot reader once; each hip still runs every original rocker, trail, pivot and edge-range rule.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed stance geometry precedes one hip reader, keeping the constraint rules and their ordering in one owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all search calls, iterations, range bounds, sole probes and contact formulas; no trial hip or fit result is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance and the original bounded constraint work per hip; repeated root trials skip fixed quaternion decompositions and socket/pivot preparation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance and the original bounded constraint work per hip; repeated root trials skip fixed quaternion decompositions, socket/pivot setup and heading-axis preparation for lean/trail. A toe-pad turn prepares its fixed yaw/roll prefix only on first use.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn, rocker width and course pitch determine the shared geometry; each returned reader is local to that fixed stance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one fixed foot and rigid-pivot reader until its root solve and deferred endpoint result release it, with no hip/query history.
    */
@@ -115,8 +116,11 @@ export namespace walkReachStance {
       HumanFoot.point(body, side, about === "heel" ? "heel" : "toe", initial, foot.toes).y < 0.01;
     let rockerRise: ReturnType<typeof walkLeg.prepareHeelRise> | undefined;
     let sole: ReturnType<typeof HumanFoot.prepareSole> | undefined;
-    const lean: ReturnType<typeof walkLeg.prepareLean> = walkLeg.prepareLean(body, heading);
-    const trailing: ReturnType<typeof walkLeg.prepareTrailing> = walkLeg.prepareTrailing(body, yaw);
+    let turning: ReturnType<typeof HumanFootRotation.prepare> | undefined;
+    const lean: ReturnType<typeof walkLeg.prepareLean> | undefined =
+      (about === "heel" && bears) || (about === "mtp" && course === undefined)
+        ? walkLeg.prepareLean(body, heading) : undefined;
+    let trailing: ReturnType<typeof walkLeg.prepareTrailing> | undefined;
     return (h: IAutoMovieVector3): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
       let placement: HumanFoot.IPlacement = initial;
       let pitch: number = starting;
@@ -133,7 +137,7 @@ export namespace walkReachStance {
         if (about === "heel")
           for (let k: number = 0; k < 4; k++) {
             const top: number =
-              -lean(h, placement.ankle) +
+              -lean!(h, placement.ankle) +
               20 -
               walkLeg.ANKLE;
             if (pitch <= top + 1e-6) break;
@@ -164,9 +168,9 @@ export namespace walkReachStance {
         const risen: number = walkLeg.rise(
           (degrees: number): number => {
             const ankle: IAutoMovieVector3 = at(degrees).ankle;
-            return degrees + lean(h, ankle) + 50 >
+            return degrees + lean!(h, ankle) + 50 >
               walkLeg.ANKLE
-              ? TRAIL - trailing(h, ankle)
+              ? TRAIL - (trailing ??= walkLeg.prepareTrailing(body, yaw))(h, ankle)
               : Infinity;
           },
           pitch,
@@ -188,10 +192,7 @@ export namespace walkReachStance {
           placement,
           toes,
         );
-        const turned: IAutoMovieQuaternion = HumanFoot.rotation(
-          heading + pivoted,
-          pitch,
-        );
+        const turned: IAutoMovieQuaternion = (turning ??= HumanFootRotation.prepare(heading + pivoted, 0))(pitch);
         placement = {
           ankle: Vector3.subtract(
             pad,

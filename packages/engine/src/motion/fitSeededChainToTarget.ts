@@ -25,13 +25,13 @@ import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
  *
  * Failed bend preparation or analytic admission keeps the source pose at that stage. A requested rotation still runs the orientation pass and may change the lower twist and effector articulation.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves analytic two-bone candidates, clamps upper/lower joints to rig ROM and measures their actual effector; residual buckets rank first, then squared sign-insensitive quaternion geodesic distance to the prior pose and finally exact residual.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The bend search (`fitChainBend`) and the effector's orientation (`orientChainEffector`), composed here, while preparation, analytic candidate solve and fast candidate FK have single owners; this split exposes the geometry shared by all bend candidates.
+ * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves analytic two-bone candidates, clamps to rig ROM and measures actual FK under the original ranking. prepareSource additionally separates immutable rig/pose/chain geometry from changing goal fields: only that geometry and source preparation are shared, while each binding gets its actual reference, weight, callback and cold/near policy.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure preparedWorkspace is the single search/orientation/rotation composition for ordinary prepare and prepareSource bindings. prepareChainFit owns source geometry and query-local continuity; prepareChainFitRig separates fixed rig data from each binding's reference and weight.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Failed bend admission preserves only the bend-stage source pose; requested orientation still applies afterward. No ideal target measurement replaces post-clamp FK. A 32-angle sweep and ten local halvings bound the heuristic, with 1e-12 continuity and 1e-6 normal-degeneracy thresholds.
- * @evidence contracts/development/common.md#meaningful-documentation States model-metre target, unchanged joints, residual-bucket ranking, prior-pose tie meaning and the bounded-search limitation without claiming every unreachable pin can be solved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; fitChainBend owns the unchanged bounded bend/swivel search and its constant-size candidate FK, while candidate pose copies scale with authored joints. The prepared companion permits several targets of one source to share the invariant work; no speedup has been measured here.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The one-shot fit uses the same prepared companion as repeated targets, with one owner for search and ranking; changed parent/source/reference/callback dependencies require new preparation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays are bounded by32 entries and all temporary poses/maps are released after completion; the caller owns the selected pose, which may be the original, and no handles or background tasks exist.
+ * @evidence contracts/development/common.md#meaningful-documentation States model-metre target, unchanged joints, actual ranking and bounded-search limits. Companion documentation defines prepare's fixed complete request and prepareSource's immutable source/live goal split, lazy first admission, exact authored-reader/static-rig premises, frames, omission behavior and caller-owned lifetimes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary preparation and source/reference FK scale with rig/joints. prepareSource prepares zeroed geometry/merged axes once, shares source FK/maps/prefix and static rig coefficients lazily across goal bindings, and gives each binding fresh reference/continuity work; every actual target retains its bend search, projection and orientation. Candidate FK is constant-size and final pose copies O(J). Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit immutable skeleton, pose, chain, topology and mappings prove source equivalence; source creation performs no FK and first binding retains ordinary preparation admission. Goal options are copied as only the seven supported changing fields, so they cannot replace source geometry. Each binding owns reference/weight/callback/near scope; omitted fields restore their original absent meanings. No solved pose, point, candidate score or seed is reused across targets or bindings.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A source producer owns one lazy O(J+B) base workspace until release; it retains no goal binding. Each bound workspace owns its own reference/continuity maps and borrows source data until caller release. Bounded search records end per target, and only caller-owned results escape. There are no global caches, handles or tasks.
  */
 export function fitSeededChainToTarget(
   input: IFitChainToTargetProps,
@@ -43,10 +43,10 @@ export function fitSeededChainToTarget(
 /**
  * Scoped preparation for repeated targets of one unchanged source request.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the companion's shared-input scope.
- * @evidence contracts/development/design.md#principled-representation One workspace separates unchanged rig/pose semantics from model-metre target positions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanLimbFit's contact re-aim reads fit and actual effector rotation from the same preparation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization, alternate search or remembered solution is exposed.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ISource's six fixed source fields, IOptions' seven live goal/search fields and IWorkspace's model-metre fit/actual-rotation operations with unchanged-input lifetimes.
+ * @evidence contracts/development/design.md#principled-representation ISource and IOptions partition IFitChainToTargetProps by actual preparation dependencies. The bound workspace retains the same fit/rotation interface for ordinary target-only reuse and source-only reuse across different goals.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanLimbFit contact re-aim consumes a bound workspace; its fixed source goal search consumes prepareSource without exposing internal rig maps, projected answers or a second solver.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization, alternate search or remembered solution is exposed; every changing reference, callback, rotation, bend and near seed remains an actual binding input.
  */
 export namespace fitSeededChainToTarget {
   /**
@@ -125,7 +125,65 @@ export namespace fitSeededChainToTarget {
       resolution,
       poseResolution,
     );
-    return {
+    return preparedWorkspace(workspace, resolution, poseResolution);
+  }
+
+  /** Fixed rig, original pose, chain and clinical mappings of a synchronous goal search. */
+  export type ISource = Pick<IFitChainToTargetProps,
+    "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames">;
+
+  /** Live goal/search fields; target points remain the bound workspace's fit input. */
+  export type IOptions = Omit<IFitChainToTargetProps, keyof ISource | "target">;
+
+  /**
+   * Prepare one unchanged source for a synchronous search whose goals may
+   * change bend, rotation, reference, obstruction, strain or near mode.
+   * Source creation performs no rig/FK admission; the first actual binding
+   * prepares it at the ordinary prepare site. Keep every source dependency,
+   * source joint and supplied authored reader unchanged until release.
+   *
+   * Each options binding owns fresh reference/weight admission, continuity,
+   * cold/near and callback scope. It shares only source geometry, merged axes,
+   * admitted bases/clamps/projector coefficients, source FK/joint maps and
+   * original non-bend prefix. It retains no point, candidate or solved pose.
+   * Options stay unchanged until that bound workspace is released; later
+   * bindings never replace an earlier workspace's source or goal fields.
+   * The optional authored reader, exact operation reader and immutable rig
+   * have prepare's same admission and matching-source requirements.
+   */
+  export function prepareSource(
+    source: ISource,
+    readAuthored?: Parameters<typeof prepareChainFit>[1],
+    resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution(),
+    poseResolution?: prepareSkeletonPoseResolution.IRig,
+  ): (options: IOptions) => IWorkspace {
+    let fixed: prepareChainFit.IWorkspace | undefined;
+    return (options: IOptions): IWorkspace => {
+      const { bend, effectorRotation, referencePose, referenceWeight,
+        obstruction, strain, near }: IOptions = options;
+      if (fixed === undefined) {
+        const { skeleton, pose, chain, topology, jointAxes, restFrames }: ISource = source;
+        fixed = prepareChainFit({ skeleton, pose, chain, topology, jointAxes, restFrames },
+          readAuthored, resolution, poseResolution);
+      }
+      const props: Omit<IFitChainToTargetProps, "target"> = {
+        ...fixed.props,
+        bend, effectorRotation, referencePose, referenceWeight, obstruction, strain, near,
+      };
+      return preparedWorkspace(prepareChainFit(
+        props, readAuthored, resolution, poseResolution, fixed,
+      ), resolution, poseResolution);
+    };
+  }
+}
+
+/** One owner of actual search/orientation and result rotation for both preparation scopes. */
+function preparedWorkspace(
+  workspace: prepareChainFit.IWorkspace,
+  resolution: ReturnType<typeof preparePoseResolution>,
+  poseResolution?: prepareSkeletonPoseResolution.IRig,
+): fitSeededChainToTarget.IWorkspace {
+  return {
       fit: (target: IAutoMovieVector3): IAutoMovieSeededChainFit => {
         const props: IFitChainToTargetProps = { ...workspace.props, target };
         const bend: IAutoMovieSeededChainFit = fitChainBend(props, workspace);
@@ -159,6 +217,5 @@ export namespace fitSeededChainToTarget {
               restFrames: workspace.props.restFrames,
               rig: workspace.rig,
             }),
-    };
-  }
+  };
 }

@@ -84,9 +84,11 @@ export namespace HumanSegmentEntry {
               ),
               undefined,
               prepared.resolution,
+              prepared.clamp,
             ),
             seconds,
             prepared.resolution,
+            prepared.clamp,
           );
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,

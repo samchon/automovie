@@ -1,4 +1,4 @@
-import { Transform, clampPose } from "@automovie/engine";
+import { Transform } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -8,6 +8,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "./IHumanPosture";
+import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { turnHumanPosture } from "./turnHumanPosture";
 
 /**
@@ -20,13 +21,14 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Moves the existing seeded assembly unchanged into one owner shared by ordinary resolution and fixed-base candidate operations.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every direct joint still enters the actual engine clamp; no range, default, base precedence or goal/plant refusal is changed.
  * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(B+J) joint assembly/indexing plus the actual clamp costs for B rig bones and J base records; a fixed-base candidate operation can perform this unchanged work once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned direct pose/turned goals belong to this actual source assembly; numerical limb results are not prepared or reused here.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned direct pose/turned goals belong to this actual source assembly. A genuine same-body operation projection may share fixed ROM metadata; every actual joint is still projected, unknown loans fall back cold, and no numerical limb result is prepared or reused here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary base indexing ends on return/throw; the caller owns the clamped pose and receives borrowed or freshly turned goals, without retained source history or handles.
  */
 export function assembleHumanPosture(
   body: IHumanBody,
   posture: IHumanPosture,
   base?: IAutoMoviePose,
+  projection?: ReturnType<typeof prepareHumanPostureProjection>,
 ): { pose: IAutoMoviePose; limbs: IHumanPosture["limbs"] } {
   let kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> | undefined;
   if (base !== undefined) {
@@ -43,11 +45,11 @@ export function assembleHumanPosture(
   );
   const turned: turnHumanPosture.ITurned = turnHumanPosture(posture);
   return {
-    pose: clampPose({
+    pose: prepareHumanPostureProjection.project(body, {
       skeleton: body.skeleton.id,
-      root: Transform.of(turned.position, turned.rotation),
+      root: Transform.of(structuredClone(turned.position), turned.rotation),
       joints,
-    }, body.skeleton),
+    }, projection),
     limbs: turned.limbs,
   };
 }

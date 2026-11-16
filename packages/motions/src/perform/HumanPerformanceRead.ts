@@ -95,7 +95,7 @@ export namespace HumanPerformanceRead {
    * @returns Resolved bones by rig bone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States person and film second; an optional requested set returns only those world bones, with the ordinary full map when absent.
-   * @evidence contracts/development/implementation.md#principled-implementation The displayed evaluator may omit only independently proven free-goal fits for observational demands; contacts, overlays and transitions keep their complete evaluation. Canonical FK computes requested ancestor dependencies and still admits authored joints in order.
+   * @evidence contracts/development/implementation.md#principled-implementation The displayed evaluator omits only independently proven observational fits; contact/carry/transition dependencies keep complete evaluation, while unconstrained overlays may preserve the final digit observation. Canonical FK computes requested ancestor dependencies and still admits authored joints in order.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup feeds the private fresh-bones adapter also used by hand-frame queries.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every call still runs full FK admission and returns a fresh map and transforms; no bone-result cache is added.
    * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, the demanded displayed evaluation and ordered joint admission plus demanded FK ancestry and output. Full queries keep their existing complete costs; no speedup is claimed.
@@ -109,6 +109,31 @@ export namespace HumanPerformanceRead {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return placedBones(HumanPerformanceRead.person(self, subject), seconds, requested);
+  }
+
+  /**
+   * Prepare fixed actor/body and requested names for one synchronous contact scan.
+   * Keep this actor registry entry and body unchanged until releasing the reader;
+   * each queried second still observes current plans, stops and invalidation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed actor/body/name domain, copied demand, eager missing-person refusal and per-query displayed/fresh-FK ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A scan's actor and profile bone names stay fixed while its exact film seconds and stop-dependent displayed poses vary. Only genuine body-bound FK demand preparation is shared; every actual display and authored-joint admission still executes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person and snapshot optional names once, then delegate each second to the same placedBones owner used by ordinary bones/hand reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, time, stop signature, target fit or FK result is stored; contacts, transitions, requested-frame fallback and full-pose cache isolation retain their existing owners. Omitted demand remains full FK.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actor lookup and O(K log K) fixed-name preparation replace repetition across Q scan queries; every query retains complete authored admission, current display solving and demanded FK with fresh maps/frames. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed person/body and copied name membership establish only actor/static-demand equivalence. Each exact second creates an independent operation FK/projector and reads current placement/stop state normally; edits to the source name set cannot change this reader's demand.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scan owns one person reference, at most K copied names and genuine bound demand metadata until return/throw. Each call releases its FK/projector preparation before the next query; no returned map or prepared reader retains query poses, frames or time history.
+   */
+  export function prepareBones(self: HumanPerformanceState, subject: string,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>):
+    (seconds: number) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const names: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      requested === undefined ? undefined : new Set(requested);
+    const read: ReturnType<typeof poseBones.prepare> | undefined =
+      names === undefined ? undefined : poseBones.prepare(person.performer.body, names);
+    return (seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      placedBones(person, seconds, names, read);
   }
 
   /**
@@ -430,14 +455,16 @@ export namespace HumanPerformanceRead {
     person: HumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    read?: ReturnType<typeof poseBones.prepare>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const prepared: prepareHumanSegmentPose.IPrepared =
       prepareHumanSegmentPose(person.performer.body);
-    return poseBones(
+    const pose: IAutoMoviePose = HumanSegment.displayed(person, seconds, requested, prepared);
+    return read === undefined ? poseBones(
       person.performer.body,
-      HumanSegment.displayed(person, seconds, requested, prepared),
+      pose,
       prepared.resolution(),
       requested,
-    );
+    ) : read(pose, prepared.resolution());
   }
 }

@@ -19,7 +19,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#principled-implementation Composes the parent and shape transforms, then uses exact sphere/capsule/box axis extents or the rotated hull vertices' extrema in the existing arithmetic order.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The pose facade and lowest compose the same actual frame. FromFrame owns full bounds and optional hull-point transfer; lowest reads just the corresponding Y expression without unused coordinate/extrema records. Both remain with the geometry's one package owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every shape formula, component extremum, unknown-kind failure and lack of numeric admission here; bounds are not replaced with support-candidate minima or a new tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). Full hull bounds keep six scalar extrema instead of two replacement vectors per vertex, materializing only each rotated point needed by full coordinates/optional ownership transfer. Lowest uses the original rotateVectorY expression and omits that remaining vector plus unused coordinates/maxima. Collector outputs alone retain O(V) points; both paths share fixed unit axes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sphere/capsule/box cost O(1), hulls O(V). Full hull bounds keep scalar extrema and materialize only each rotated point needed by full coordinates/optional transfer. Lowest composes centre Y with rotateVectorY without centre/offset vectors, and uses the same scalar owner for axes/vertices without unused coordinates/maxima. A sphere needs no composed shape orientation. Collector outputs alone retain O(V) points; both paths share fixed unit axes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entries use the same fromFrame equations; current composed-frame readers may additionally adopt each fresh rotated hull point only after its extrema are consumed, avoiding a second identical rotation. Legacy calls always freshly read inputs and request no point transfer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps no pose, shape, frame or result globally; min/max are fresh and independent of adopted hull points, whose ownership transfers only after every bounds component has consumed them.
  */
@@ -50,23 +50,22 @@ export function physicalShapeBounds(
 export namespace physicalShapeBounds {
   /**
    * The exact world-axis minimum Y, metres, for a floor-only observation.
-   * Compose the same admitted parent/local frame as full bounds, then keep
-   * its original Y expression, hull vertex order and Math.min/NaN behavior.
+   * Compose the needed components of the same admitted parent/local frame,
+   * keeping its original Y expression, vertex order and Math.min/NaN behavior.
    * Every shape remains queried; only unused axes/maxima and result records
    * are omitted. Sphere/capsule/box are constant work and hulls scan V points.
    * KnockdownFloor consumes this scalar in both floor reductions. Each call
    * reads current geometry and releases its frame/vertex temporaries on return.
    */
   export function lowest(pose: P.ITransform, shape: P.IShape): number {
-    const center: IAutoMovieVector3 = Vector3.add(
-      pose.position,
-      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    const centerY: number = pose.position.y + Quaternion.rotateVectorY(
+      pose.rotation, shape.transform.position,
     );
+    if (shape.kind === "sphere") return centerY - shape.radius;
     const rotation: P.ITransform["rotation"] = Quaternion.multiply(pose.rotation, shape.transform.rotation);
-    if (shape.kind === "sphere") return center.y - shape.radius;
     if (shape.kind === "capsule") {
       const axis: number = Quaternion.rotateVectorY(rotation, AXIS_Y);
-      return center.y - (Math.abs(axis) * shape.halfLength + shape.radius);
+      return centerY - (Math.abs(axis) * shape.halfLength + shape.radius);
     }
     if (shape.kind === "box") {
       const x: number = Quaternion.rotateVectorY(rotation, AXIS_X);
@@ -74,13 +73,13 @@ export namespace physicalShapeBounds {
       const z: number = Quaternion.rotateVectorY(rotation, AXIS_Z);
       const extent: number = Math.abs(x) * shape.halfExtents.x +
         Math.abs(y) * shape.halfExtents.y + Math.abs(z) * shape.halfExtents.z;
-      return center.y - extent;
+      return centerY - extent;
     }
     if (shape.kind === "hull") {
       let minimum: number = Infinity;
       for (const point of shape.points)
         minimum = Math.min(minimum, Quaternion.rotateVectorY(rotation, point));
-      return center.y + minimum;
+      return centerY + minimum;
     }
     shape satisfies never;
     throw new Error("Unknown physical shape kind");

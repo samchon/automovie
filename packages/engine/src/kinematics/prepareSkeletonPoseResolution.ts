@@ -39,7 +39,7 @@ type IConvention = preparePoseResolutionState.IConvention;
  * pose identity, target answer or query-result history.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines static snapshot invalidation, complete-pose, individual-joint and fixed-source admission, fixed-demand membership, ignored scale, parent-first arithmetic and fresh output ownership. IRig and IBoneDemand member prose below states exact scopes, units, defaults, costs and release boundaries.
- * @evidence contracts/development/implementation.md#principled-implementation Immutable rest frames define a rooted FK graph with actual DFS subtree intervals. Final admitted articulation changes revise their affected descendants; unchanged requested frames bypass unchanged ancestry. A separate exact root tuple determines placed frames using the same Hamilton products and parent-rotated offsets as resolvePose. A basis is normalized once on its first authored use; affine frames retain the existing null-angle and per-axis admission rules.
+ * @evidence contracts/development/implementation.md#principled-implementation Existing skeletonJointAxes merging remains authoritative; its effective own/custom-prototype mappings and rest frames snapshot direct lookup, including non-enumerable fields and undefined shadowing. Immutable rest data defines actual DFS subtree intervals. Final articulation changes revise affected descendants, and exact root tuples retain ordinary Hamilton grouping. Basis/frame admission remains lazy at actual use.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns static snapshots, the merged raw-axis table and sparse dependency state. Complete-pose, individual-joint and fixed-source reads share the same actual convention/admission owner. PoseResolutionSnapshot owns copies and resolvePreparedPoseFrame owns composition reuse; no target or fit policy is owned here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose identity, timestamp, tolerance or result flag certifies equivalence. All authored records retain finite-angle admission and last-record precedence, missing articulation is identity, and unreachable requested bones remain absent. Raw resolvePose retains its live-input behavior.
  * @evidence contracts/development/implementation.md#efficient-algorithms Static preparation is linear in bones and supplied axis/frame populations. Ordinary reads admit J records, compare active membership, sort C actual final changes and revise A affected descendants once; K names sort unless bound, and only invalidated demanded ancestry is checked before K fresh copies. preparePose admits/snapshots baseline once, then only E current edits precede those same dependency updates. Runtime improvement is unmeasured.
@@ -58,13 +58,11 @@ export function prepareSkeletonPoseResolution(
   const fallback: IConvention = {
     axes: PoseResolutionSnapshot.axes(DEFAULT_JOINT_AXES),
   };
-  for (const [name, basis] of Object.entries(axes))
-    if (basis !== undefined)
-      conventions.set(name, {
-        axes: PoseResolutionSnapshot.axes(basis),
-      });
-  for (const [name, frame] of Object.entries(restFrames ?? {})) {
-    if (frame === undefined) continue;
+  for (const [name, basis] of PoseResolutionSnapshot.entries(axes))
+    conventions.set(name, {
+      axes: PoseResolutionSnapshot.axes(basis),
+    });
+  for (const [name, frame] of PoseResolutionSnapshot.entries(restFrames)) {
     const convention: IConvention | undefined = conventions.get(name);
     conventions.set(name, {
       axes: convention === undefined ? fallback.axes : convention.axes,
@@ -141,7 +139,7 @@ export function prepareSkeletonPoseResolution(
  * Explicit immutable rig snapshot and its fresh-output demand resolver.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States static snapshot lifetime, operation ownership, current complete-pose resolution and fixed-demand/source companion semantics.
- * @evidence contracts/development/design.md#principled-representation IRig couples an immutable rooted rest graph and raw clinical axis/frame snapshot to complete-pose, fixed-source and fixed-demand operations. IBoneDemand fixes reachable output membership/order, while poses retain clinical degrees and model-metre root placement. The producer/runtime owners retain axis, angle and graph admission; no type claims finiteness by itself.
+ * @evidence contracts/development/design.md#principled-representation IRig couples an immutable rooted rest graph and raw clinical snapshot to actual individual-joint admission, complete poses, fixed sources and fixed demands. IBoneDemand fixes reachable output membership/order; poses retain clinical degrees and model-metre placement. Producer/runtime owners retain axis, angle and graph admission, without type-only finiteness claims.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Body/chain consumers use resolve and jointAxes; fixed chain-frame recovery uses joint to share actual effector admission. Flight mass reads use prepareBones/IBoneDemand.resolve and digit probes preparePose/IOverlayReader.resolve. Existing interface/ROM types own quantities; indices, rows, revisions and target answers remain private.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene, fixed body subset, editable whitelist, trusted boolean or user-constructible admitted-rest record replaces actual admission. The genuine producer snapshots its inputs; every ordinary pose or overlay query retains its stated validation and every public transform is fresh.
  */

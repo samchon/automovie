@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -96,6 +97,14 @@ export namespace receive {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law defines giver/receiver hands, prop and shared timing, actual reached grip attitude, decline/transfer behavior, fingers and contacts; this method returns the complete receiver course.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and constrained grasp/transfer plan, original reaching/take-away transports and actual upright-turn fitting, with the grasp's own reference held through contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared plan and actual grip closure precede fixed shape schedules and explicit per-second body/task geometry, leaving only the original carried hand yaw variable.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original decline/withdraw/transfer branches, grip/release events, source grip attitude, reference weights, all nine actual yaw fits and bounds remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet already supplied, entry reads request giver hand and receiver hips/feet/hand only. Each taken-away sample prepares direct body/path/digits once for nine full fits; constant shape schedules omit repeated key-set construction. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed-time geometry justifies preparation while each yaw goal still receives its actual complete coupled solve; rank/display use the same request assembler and all scalar interpolation keeps its original owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned action retains base/transport/shape geometry, original selected grip/reference and scalar course; entry maps and per-sample base/FK/rank contexts are released with planning, without a pose/time history or handle.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -126,12 +135,14 @@ export namespace receive {
       giver: {
         body: giver.body,
         side: giverSide,
-        bones: giver.bones(context.start),
+        bones: giver.bones(context.start, new Set<AutoMovieHumanoidBone>([`${giverSide}Hand`])),
       },
       receiver: {
         body,
         side,
-        bones: context.performer(context.subject).bones(context.start),
+        bones: context.performer(context.subject).bones(context.start, new Set<AutoMovieHumanoidBone>([
+          "hips", "leftFoot", "rightFoot", `${side}Hand`,
+        ])),
       },
       prop: prop.prop,
       frame: prop.frame(context.start),
@@ -284,7 +295,7 @@ export namespace receive {
     const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
     const returnShape: ReturnType<typeof HumanPrehension.prepareShape> | undefined = takes
       ? undefined : HumanPrehension.prepareShape({ entry: open, open: shapes.entry, closed: shapes.entry }, 1);
- 
+
     // The body at a second with the carried hand turned by a yaw, degrees,
     // about the world's up: a hand that took the prop keeps the rotation it
     // showed at the grip, not the one it was asked there, since the prop sits
@@ -326,35 +337,35 @@ export namespace receive {
       return {
         posture: { ...base, joints: { ...base.joints, ...digits } },
         goal: {
-            point: wrist,
-            bend,
-            // The grasp's own arm solution anchors the hold, the reach
-            // more and more as it arrives, and the take-away less and
-            // less as it leaves: at the carrying place the arm is another
-            // arm, and a full reference there is paid for by the hand's
-            // rotation, which tips what it carries.
-            ...(takes && t > leave
-              ? {
-                  reference: {
-                    ...shared.receiverReference,
-                    // The share is held at 1 first: at the take-away's end it
-                    // rounds a hair past 1, and its complement below 0.
-                    weight: share,
-                  },
-                }
-              : takes && t >= shared.gripClosed
-                ? { reference: shared.receiverReference }
-                : takes && t > shared.reachStart
-                  ? {
-                      reference: {
-                        ...shared.receiverReference,
-                        weight: share,
-                      },
-                    }
-                  : {}),
-            ...(takes && t >= shared.gripClosed && t <= leave
-              ? { planted: true }
-              : {}),
+          point: wrist,
+          bend,
+          // The grasp's own arm solution anchors the hold, the reach
+          // more and more as it arrives, and the take-away less and
+          // less as it leaves: at the carrying place the arm is another
+          // arm, and a full reference there is paid for by the hand's
+          // rotation, which tips what it carries.
+          ...(takes && t > leave
+            ? {
+                reference: {
+                  ...shared.receiverReference,
+                  // The share is held at 1 first: at the take-away's end it
+                  // rounds a hair past 1, and its complement below 0.
+                  weight: share,
+                },
+              }
+            : takes && t >= shared.gripClosed
+              ? { reference: shared.receiverReference }
+              : takes && t > shared.reachStart
+                ? {
+                    reference: {
+                      ...shared.receiverReference,
+                      weight: share,
+                    },
+                  }
+                : {}),
+          ...(takes && t >= shared.gripClosed && t <= leave
+            ? { planted: true }
+            : {}),
         },
         rotation: (yaw: number): IAutoMovieQuaternion => takes && t > leave
           ? Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw), rotation)

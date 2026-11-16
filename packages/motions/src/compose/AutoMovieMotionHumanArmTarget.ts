@@ -254,12 +254,28 @@ export namespace AutoMovieMotionHumanArmTarget {
       target.surface,
       target.shape,
     ).point;
-    return {
-      point: wrist.point,
-      rotation: wrist.rotation,
-      bend: target.bend,
-      ...(Vector3.length(contact) < 1e-9 ? {} : { contact }),
-    };
+    return fromWrist(wrist, target.bend, contact);
+  }
+
+  /**
+   * Keep an already placed wrist and its actual elbow hint as a contact goal.
+   *
+   * @param wrist Actual wrist point/rotation from the owning surface placement.
+   * @param bend Actual world-metre elbow hint, including a completed default search.
+   * @param contact Original hand-local surface offset in metres.
+   * @returns A fresh goal wrapper borrowing these numerical payloads; a contact shorter than 1e-9 metres is absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual wrist/hint inputs, local contact units, original zero-contact branch and borrowed output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A surface target already computed its wrist and actual bend; goal assembly preserves those values rather than placing the same surface or solving the bend again.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One original length comparison feeds the same field assembly used by cold and fixed-geometry goals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the exact length < 1e-9 condition, including its nonfinite behavior, and keeps the achieved wrist, original hint and local pivot unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar length and wrapper assembly replace duplicate hand-offset/placement work at prepared consumers; every actual wrist/bend computation remains with its producer.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold goal and prepared Placed.arm consume the same assembly; completed wrist/hint values are shared only within their one unchanged target computation, without a result cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the fresh goal borrows its point/rotation/bend and any emitted contact exactly as the cold goal does.
+   */
+  export function fromWrist(wrist: HumanHand.IWrist, bend: IAutoMovieVector3,
+    contact: IAutoMovieVector3): IHumanPosture.IGoal {
+    return assembled(wrist, bend, contact, !(Vector3.length(contact) < 1e-9));
   }
 
   /**
@@ -274,7 +290,7 @@ export namespace AutoMovieMotionHumanArmTarget {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed geometry, varying world point, unchanged-body premise and fresh goal payload ownership.
    * @evidence contracts/development/implementation.md#principled-implementation HumanHand.offset supplies the same local surface point as cold goal; the common wrist-placement owner rotates it by the same fixed hand quaternion and subtracts it from every actual target. The original contact-length comparison decides whether contact is emitted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset lookup, one prepared wrist placement and copied bend/contact scalars feed the same goal fields without owning hand geometry or IK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset lookup, one prepared wrist placement and copied bend/contact scalars feed the same private assembly as fromWrist without owning hand geometry or IK.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same surface/shape geometry, unnormalized rotation policy, contact offset and 1e-9-metre zero-contact rule remain. No world point, goal or fit answer is sampled or cached.
    * @evidence contracts/development/implementation.md#efficient-algorithms Surface geometry and its quaternion-vector rotation run once rather than twice and once per each of Q cold goals; every actual query still constructs fresh point, rotation, bend and optional contact payloads. Runtime improvement is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The consumer explicitly fixes body/side/surface/shape/rotation/bend; numeric snapshots isolate caller and returned-output edits. A changed fixed dependency requires a new producer, while each point remains a current input.
@@ -294,8 +310,14 @@ export namespace AutoMovieMotionHumanArmTarget {
     const hasContact: boolean = !(Vector3.length(contact) < 1e-9);
     return (point: IAutoMovieVector3): IHumanPosture.IGoal => {
       const wrist: HumanHand.IWrist = place(point);
-      return { point: wrist.point, rotation: wrist.rotation, bend: { ...bend },
-        ...(hasContact ? { contact: { ...contact } } : {}) };
+      return assembled(wrist, { ...bend }, hasContact ? { ...contact } : contact, hasContact);
     };
   }
+}
+
+/** The one goal field assembly; preparation may share the fixed contact decision. */
+function assembled(wrist: HumanHand.IWrist, bend: IAutoMovieVector3,
+  contact: IAutoMovieVector3, hasContact: boolean): IHumanPosture.IGoal {
+  return { point: wrist.point, rotation: wrist.rotation, bend,
+    ...(hasContact ? { contact } : {}) };
 }

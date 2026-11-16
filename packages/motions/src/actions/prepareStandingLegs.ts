@@ -36,20 +36,18 @@ export function prepareStandingLegs(
   feet: Record<"left" | "right", IAutoMovieVector3>,
 ) => IHumanPosture["limbs"] {
   /** Fixed heading rotation and body-local contact of one side. */
-  const foot = (
-    side: "left" | "right",
-  ): {
+  function foot(side: "left" | "right"): {
     yaw: number;
     rotation: IAutoMovieQuaternion;
     contact: IAutoMovieVector3;
-  } => {
+  } {
     const heading: number = yaw + (side === "left" ? toeOut : -toeOut);
     return {
       yaw: heading,
       rotation: HumanFrame.turn(heading),
       contact: HumanFoot.offset(body, side, "mtp"),
     };
-  };
+  }
   const fixed: Record<"left" | "right", ReturnType<typeof foot>> = {
     left: foot("left"),
     right: foot("right"),

@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  clampPose,
-} from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
@@ -14,6 +11,7 @@ import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -33,6 +31,7 @@ export namespace jumpState {
  * @param body The actual unchanged body.
  * @param posture The law's already lowered raw endpoint.
  * @param resolution Optional exact FK source borrowed from this same synchronous endpoint preparation.
+ * @param projection Optional genuine same-body ROM projector borrowed only through this endpoint's canonical solve and final clamp.
  * @returns Owned canonical joint values and root-local achieved foot/knee geometry.
  * @throws {Error} When preparation is attempted after a whole-body flight rotation or without a physical canonical root.
  *
@@ -41,15 +40,16 @@ export namespace jumpState {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve and finalize once, admit its root, then copy clinical joints and the two legs' achieved root-frame geometry.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not move or certify the original planted goal, change a range, drop a contact solve or fake a plant in flight. Original push/landing targets remain authored and audited independently.
  * @evidence contracts/development/implementation.md#efficient-algorithms One existing canonical resolution, clamp and planted refit remain per endpoint, followed by full joint admission/copy and FK only for the four ankle/knee bones' ancestor closure. Endpoints prepare once per plan and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanSegmentPlant's actual policy rather than duplicating its planted filter, and each FK map supplies foot/knee geometry together. One explicitly scoped getter shares exactly unchanged FK prerequisites across the actual initial solve, final planted refit and local observations, optionally borrowing its synchronous parent's workspace.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned pose, joint table and small leg records belong to this plan; temporary bone maps and the local getter release on return/throw. An optional borrowed reader stays with its synchronous parent and no reader, callback, history or body handle enters the result.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Original HumanSegmentPlant policy remains shared, and one map supplies feet/knees together. Explicitly scoped FK/projector sources share equal FK prerequisites and fixed ROM metadata through actual initial solve, final full clamp, planted refit and local observations. Every joint is projected; unknown projectors retain ordinary admission.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned pose, joints and leg records belong to the plan. Temporary bones/getter/projector release on return/throw or stay with their synchronous lender; neither loan, callback, history nor external handle enters the state.
  */
-export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): jumpState.IState {
+export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): jumpState.IState {
   if (posture.rotation !== undefined)
     throw new Error("Jump endpoint preparation precedes whole-body flight rotation");
   const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-  const resolved: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, read).pose;
-  const clamped: IAutoMoviePose = clampPose(resolved, body.skeleton);
+  const project: ReturnType<typeof prepareHumanPostureProjection> = projection ?? prepareHumanPostureProjection(body);
+  const resolved: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, read, undefined, project).pose;
+  const clamped: IAutoMoviePose = prepareHumanPostureProjection.project(body, resolved, project);
   const pose: IAutoMoviePose = HumanSegmentPlant.fit(body, clamped, posture.limbs, undefined, read).pose;
   if (pose.root === null) throw new Error("A jump endpoint requires its physical root");
   const joints: IHumanPosture["joints"] = {};

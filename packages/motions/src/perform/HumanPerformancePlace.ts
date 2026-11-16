@@ -188,6 +188,7 @@ export namespace HumanPerformancePlace {
                 seconds: number,
                 channels?: readonly AutoMovieMotionHumanChannel[],
                 resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+                projection?: Parameters<IHumanActionPlan["posture"]>[3],
               ): IHumanPosture => {
                 // The overlay's primitives and the display each ask for the
                 // carrier at the same few instants, and a gait's posture is
@@ -198,9 +199,9 @@ export namespace HumanPerformancePlace {
                 );
                 let posture: IHumanPosture | undefined = carried.get(at);
                 if (posture === undefined && channels !== undefined)
-                  return previous.plan.posture(at, channels, resolution);
+                  return previous.plan.posture(at, channels, resolution, projection);
                 if (posture === undefined) {
-                  posture = previous.plan.posture(at, undefined, resolution);
+                  posture = previous.plan.posture(at, undefined, resolution, projection);
                   if (carried.size >= 64)
                     carried.delete(carried.keys().next().value!);
                   carried.set(at, posture);
@@ -417,9 +418,10 @@ export namespace HumanPerformancePlace {
       seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3],
     ): IHumanPosture => {
       try {
-        return posture(seconds, channels, resolution);
+        return posture(seconds, channels, resolution, projection);
       } catch (error) {
         throw error instanceof HumanRefusal ? error.locate(where) : error;
       }

@@ -15,7 +15,6 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -229,7 +228,7 @@ export namespace HumanGraspUse {
         tip: prepared.tip,
         at: prepared.at,
         site: prepared.site,
-        prepared: { world: prepared.world, tipWorld: prepared.tipWorld, worn: prepared.worn, base: prepared.base },
+        prepared: { world: prepared.world, tipWorld: prepared.tipWorld, readHand: prepared.readHand, worn: prepared.worn, base: prepared.base },
         side: props.side,
         wrist,
         ...(props.use.round === undefined ? {} : { round: props.use.round }),
@@ -301,20 +300,7 @@ export namespace HumanGraspUse {
         posture: context.entry.posture,
         wrist,
         bend: hang,
-        judge: (
-          bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-        ): number => {
-          const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-          return Vector3.length(
-            Vector3.subtract(
-              Vector3.add(
-                hand.worldPosition,
-                Quaternion.rotateVector(hand.worldRotation, offset),
-              ),
-              site!,
-            ),
-          );
-        },
+        judge: surfaceJudge(side, offset, site!),
       };
     };
 
@@ -323,7 +309,6 @@ export namespace HumanGraspUse {
     let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       prepareHumanPoseResolution();
     let base: typeof prepared.base | undefined = prepared.base;
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const missed: (roll: number) => number = (roll: number): number => {
       const known: number | undefined = fitted.get(roll);
       if (known !== undefined) return known;
@@ -338,11 +323,9 @@ export namespace HumanGraspUse {
         elbow: "strain",
       };
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(
-          context.body,
+        prepared.readHand(
           base!.seeded(limbs, {}, resolution).pose,
           resolution!(),
-          requested,
         );
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       const kept: number =
@@ -374,4 +357,13 @@ export namespace HumanGraspUse {
     clear = undefined;
     return selected;
   }
+}
+
+/** Retain only the actual scalar surface geometry in the returned key's judge. */
+function surfaceJudge(side: HumanHand.Side, offset: IAutoMovieVector3, site: IAutoMovieVector3): NonNullable<HumanGrasp.IKey["judge"]> {
+  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number => {
+    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+    return Vector3.length(Vector3.subtract(Vector3.add(hand.worldPosition,
+      Quaternion.rotateVector(hand.worldRotation, offset)), site));
+  };
 }

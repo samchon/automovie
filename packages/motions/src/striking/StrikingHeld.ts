@@ -327,7 +327,7 @@ export namespace StrikingHeld {
    * @evidence contracts/development/common.md#meaningful-documentation States what the goal holds and which point stays when the turn gives way.
    * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the grip socket and hand rotation; the kept contact lets the resolver re-aim the wrist. The same two offsets strayed judges become point limits, so a trajectory preserves the action's physical miss bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist placement and one offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is planted, as a gripping hand's is, so a transition never slides the tool.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A held-prop goal keeps the original planting and both task limits so transitions retain the tool contact; a bare-hand goal retains its original absence of prop planting and limits.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.

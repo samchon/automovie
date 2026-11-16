@@ -2,6 +2,7 @@ import {
   DEFAULT_HUMANOID_ROM,
   bracketedRoot,
   minimumJerk,
+  type preparePoseResolution,
   smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
@@ -129,6 +130,27 @@ export namespace walkReach {
   }
 
   /**
+   * Prepare the fixed body's knee-flexed reach for repeated lowering claims.
+   *
+   * @param body The unchanged body whose measured thigh/shank determine reach.
+   * @returns The same metre claim for actual world-metre hip/ankle pairs, bounded below by the original one metre of slack.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed measured-body premise, world-metre varying points, signed claim and unchanged slack floor.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared lowering owner's exact cosine-law reach at this law's KNEE, followed by its unchanged horizontal-distance comparison, Pythagorean vertical reach and this law's Math.max(-1, claim).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical reach preparation feeds a scalar claim reader, used both by ground's root trials and a walk's descent samples.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same knee threshold, outside-reach result, metre slack bound and actual point arithmetic; the ordinary short path remains unsupplied and reads the current body as before.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed cosine and reach square root prepare once rather than in every root/descent probe; every actual point pair retains its horizontal distance and remaining square root.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous ground solve or fixed-body take owns its unchanged measured lengths and knee threshold; changing that body requires a new reader, without sharing any queried claim.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owner-local closure retains the canonical scalar reach reader until its solve/take releases it; no hip, ankle, claim, time history or global pose cache is retained.
+   */
+  export function prepareShort(
+    body: IHumanBody,
+  ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
+    const read: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, KNEE);
+    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => Math.max(-1, read(hip, ankle));
+  }
+
+  /**
    * Turn the pelvis toward its stances: no further than `TWIST` from each
    * claiming foot, a foot with its heel up taking the rest as a pivot turn;
    * feet turned further apart than that, in a stepping turn, hold it between
@@ -139,6 +161,7 @@ export namespace walkReach {
    * @param planned The unconstrained heading, degrees.
    * @param hips The pelvis joint's clinical angles, degrees.
    * @param feet Each foot as scheduled.
+   * @param resolution Optional exact FK reader borrowed from this synchronous descent construction; the returned points never retain it.
    * @returns The heading, the pivots and the hip joints under that root.
    */
   export function pelvis(
@@ -147,6 +170,7 @@ export namespace walkReach {
     planned: number,
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    resolution?: ReturnType<typeof preparePoseResolution>,
   ): IPelvis {
     const { yaw, pivots }: Pick<IPelvis, "yaw" | "pivots"> = turn(planned, feet);
     return {
@@ -157,6 +181,7 @@ export namespace walkReach {
         root,
         resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
         hips,
+        resolution,
       ),
     };
   }
@@ -266,6 +291,7 @@ export namespace walkReach {
       left: weight(feet.left),
       right: weight(feet.right),
     };
+    const short: ReturnType<typeof prepareShort> = prepareShort(body);
     const bearing: Record<"left" | "right", boolean> = {
       left: claims.left === undefined && weights.left > 0,
       right: claims.right === undefined && weights.right > 0,
@@ -273,8 +299,9 @@ export namespace walkReach {
     const placed: IGround["feet"] = {} as IGround["feet"];
     const contacts: IGround["contacts"] = {} as IGround["contacts"];
     const readers: Partial<Record<"left" | "right", ReturnType<typeof walkReachStance.prepare>>> = {};
-    const place: (drop: number, inactive?: boolean) => void = (drop: number, inactive: boolean = false): void => {
+    const place: (drop: number, inactive?: boolean, requested?: "left" | "right") => void = (drop: number, inactive: boolean = false, requested?: "left" | "right"): void => {
       for (const side of SIDES) {
+        if (requested !== undefined && side !== requested) continue;
         // A named swing claim, or a foot with no stance weight, does not
         // read its stance during the root solve. Place it only at the final
         // root, where the caller may need the returned endpoint.
@@ -299,7 +326,7 @@ export namespace walkReach {
       const w: number = weights[side];
       return w <= 0
         ? -CLAIM
-        : w * short(body, joints[side], placed[side].ankle) + (w - 1) * CLAIM;
+        : w * short(joints[side], placed[side].ankle) + (w - 1) * CLAIM;
     };
     const lowering: () => number = (): number =>
       -smoothMinimum(
@@ -344,7 +371,7 @@ export namespace walkReach {
 
     if (first > 0) place(drop);
     const completed: Pick<IGround, "feet" | "contacts"> = walkReachFeet(
-      { feet: placed, contacts }, bearing, (): void => place(drop, true),
+      { feet: placed, contacts }, bearing, (side: "left" | "right"): void => place(drop, true, side),
     );
     return {
       yaw,

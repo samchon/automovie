@@ -5,9 +5,8 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
@@ -71,8 +70,8 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 10 degrees (nearly upright, the hands on something high) and 150 (the head lower than the feet, the feet on something high); a height outside what that range gives ends at the nearer end.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each of the unchanged twenty pitch trials resolves one requested shoulder/toe bone map instead of separate full maps for the two means.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read the same exact posture's completed map within that trial; trials and their clamps remain independent.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read one exact trial map; fixed shoulder/toe demand and genuine same-body ROM metadata are prepared once for this synchronous search, while every trial's actual joints still project independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed-name/exact FK readers and bounded ROM metadata end on return or throw; no trial pose/map escapes and only the final authored key returns.
    */
   export function pitched(
     body: IHumanBody,
@@ -81,13 +80,16 @@ export namespace WorkoutFloor {
   ): ExerciseKey.IKey {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const read: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, PITCHED);
     const above = (pitch: number): number => {
       const posed: IHumanPosture = ExerciseKey.posed(key(pitch), 0);
-      const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(
-        body,
+      const bones: ReturnType<typeof StrikingBody.trunk> = read(
         posed,
         prepared,
-        PITCHED,
+        projection,
       );
       return (
         ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"], bones)
@@ -128,8 +130,8 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
    * @evidence contracts/development/implementation.md#efficient-algorithms The unchanged twenty trials request only bearing and foot bones for a stateless selector, so only their colliders receive frames and bounds; stateful regular expressions retain the full original traversal.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A stateless selector's fixed demanded-bone set is prepared once, while every trial retains canonical posture resolution and fresh collider measurements.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A stateless selector's fixed bone demand and genuine same-body ROM metadata are prepared once; each ExerciseKey.posed key has no limb goals, so the shared raw trunk owner preserves its original complete projection and fresh collider readings. Stateful selectors retain full output order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed-demand/exact FK readers and bounded ROM metadata end with this synchronous search; only the final authored key returns, without a trial map or workspace.
    */
   export function rolled(
     body: IHumanBody,
@@ -147,6 +149,10 @@ export namespace WorkoutFloor {
                 on.test(bone) || /(Foot|Toes)$/.test(bone),
             ),
           );
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const read: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, requested);
     // How far the bearing bones' lowest point lies above the feet's.
     const above = (roll: number): number => {
       const posed: IHumanPosture = ExerciseKey.posed(key(roll), 0);
@@ -154,18 +160,7 @@ export namespace WorkoutFloor {
       let feet: number = Infinity;
       for (const segment of HumanColliders.placed(
         body,
-        poseBones(
-          body,
-          resolveHumanPosture.seeded(
-            body,
-            posed,
-            undefined,
-            undefined,
-            prepared,
-          ).pose,
-          prepared(),
-          requested,
-        ),
+        read(posed, prepared, projection),
       ))
         for (const shape of segment.shapes) {
           const low: number = physicalShapeBounds(segment.pose, shape).min.y;

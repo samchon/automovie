@@ -5,6 +5,10 @@
  * deviation is a certified lower bound, so an already decisive bound can
  * spare the other candidate's exact objective. Exact and second-key readers
  * retain their completed value on the same candidate record.
+ * A fixed positive excess may vary only in clinical decomposition's last
+ * digits across swivels. Ranking those digits once separated mirrored poses
+ * by fourteen degrees; the existing positive-only band prevents that while
+ * keeping every legal zero ahead of even a tiny actual violation.
  *
  * @param a Candidate proposed ahead of b, with a pure unchanged objective.
  * @param b Existing candidate under the same score and target.

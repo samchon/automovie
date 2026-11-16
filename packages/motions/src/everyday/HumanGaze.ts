@@ -117,29 +117,10 @@ export namespace HumanGaze {
     pitch: number,
     recruit: Recruit = "auto",
   ): ISplit {
-    const share: (
-      total: number,
-      first: number,
-      positive: number,
-      negative: number,
-    ) => [number, number] = (
-      total: number,
-      first: number,
-      limitPositive: number,
-      limitNegative: number,
-    ): [number, number] => {
-      const lead: number = Math.sign(total) * Math.min(Math.abs(total), first);
-      const rest: number = total - lead;
-      const next: number =
-        rest >= 0
-          ? Math.min(rest, limitPositive)
-          : Math.max(rest, -limitNegative);
-      return [lead, next];
-    };
     if (recruit === "eyes")
       return { eyes: { yaw, pitch }, head: { yaw: 0, pitch: 0 }, trunk: 0 };
-    const [eyeYaw, headYaw]: [number, number] = share(yaw, EYES, HEAD.yaw, HEAD.yaw);
-    const headPitch: number = share(pitch, EYES, HEAD.down, HEAD.up)[1];
+    const [eyeYaw, headYaw]: [number, number] = splitShare(yaw, EYES, HEAD.yaw, HEAD.yaw);
+    const headPitch: number = splitShare(pitch, EYES, HEAD.down, HEAD.up)[1];
     const beyond: number = yaw - eyeYaw - headYaw;
     const trunk: number =
       recruit === "head"
@@ -249,7 +230,7 @@ export namespace HumanGaze {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States recruitment, weight premises, unchanged limb goals and synchronous reader lifetime.
    * @evidence contracts/development/implementation.md#principled-implementation Recruited head/trunk motion keeps its direction shares, zero-head correction and range-aware cervical split; eyes-only motion leaves those joints unchanged. Every eye still uses its actual current-head direction and unchanged clinical limits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Cervical recruitment owns direction and zeroed-head preparation; all recruitment modes share the final actual-head eye solve and one lazy exact FK reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Cervical recruitment owns direction and zeroed-head preparation; all modes share the actual-head eye solve, one lazy exact FK reader and private joint-update functions without per-aim writer closures.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every necessary FK still admits all authored joints and every recruited segment keeps its original numerical solve and limit. Eyes-only avoids the unused cervical solve rather than changing an eye target; supplied directions require identical inputs and weights in [0,1] remain a caller premise.
    * @evidence contracts/development/implementation.md#efficient-algorithms Eyes-only needs one demanded head/eye FK; cervical recruitment adds a zeroed-head FK and either a supplied parent direction or one hips/eye FK. Ordered joint admission, recruited cervical solving and eye solving remain, while unused transforms and an unused cervical solve are avoided; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Owns or borrows one exact reader within this invocation and may consume the parent's already-computed direction for identical inputs; changed trunk/head scalars invalidate their frames. Head-angle radians and pitch cosine are shared across components, without retaining a target, weight, posture result or time sample.
@@ -271,33 +252,10 @@ export namespace HumanGaze {
     const parts: ISplit | undefined = facingTarget === undefined
       ? undefined : split(facingTarget.yaw, facingTarget.pitch, recruit);
     const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const blend: (
-      bone: AutoMovieHumanoidBone,
-      target: readonly [number, number, number],
-      weight: number,
-    ) => void = (
-      bone: AutoMovieHumanoidBone,
-      target: readonly [number, number, number],
-      w: number,
-    ): void => {
-      const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      joints[bone] = [
-        base[0] + (target[0] - base[0]) * w,
-        base[1] + (target[1] - base[1]) * w,
-        base[2] + (target[2] - base[2]) * w,
-      ];
-    };
-    const add: (bone: AutoMovieHumanoidBone, twist: number) => void = (
-      bone: AutoMovieHumanoidBone,
-      twist: number,
-    ): void => {
-      const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      joints[bone] = [base[0], base[1], base[2] + twist];
-    };
 
     // Trunk: twist added to whatever the action holds, chest 60 %, spine 40 %.
-    add("chest", 0.6 * (parts?.trunk ?? 0) * weights.trunk);
-    add("spine", 0.4 * (parts?.trunk ?? 0) * weights.trunk);
+    addGazeTwist(joints, "chest", 0.6 * (parts?.trunk ?? 0) * weights.trunk);
+    addGazeTwist(joints, "spine", 0.4 * (parts?.trunk ?? 0) * weights.trunk);
 
     // Head and neck: the engine's range-aware split of one aim. The split
     // turns the head from where the neck and the head hold it at zero
@@ -343,14 +301,14 @@ export namespace HumanGaze {
           (Math.atan2(-facing.y, Math.hypot(facing.x, facing.z)) * 180) / Math.PI,
         twistDeg: (Math.atan2(facing.x, facing.z) * 180) / Math.PI,
       });
-      const neck: IAutoMovieJointPose | undefined = chain.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === "neck",
-      );
-      const head: IAutoMovieJointPose = chain.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === "head",
-      )!;
-      blend("neck", [neck?.flexion ?? 0, 0, neck?.twist ?? 0], weights.head);
-      blend("head", [head.flexion ?? 0, 0, head.twist ?? 0], weights.head);
+      let neck: IAutoMovieJointPose | undefined;
+      let head: IAutoMovieJointPose | undefined;
+      for (const joint of chain) {
+        if (joint.bone === "neck" && neck === undefined) neck = joint;
+        if (joint.bone === "head" && head === undefined) head = joint;
+      }
+      blendGazeJoint(joints, "neck", [neck?.flexion ?? 0, 0, neck?.twist ?? 0], weights.head);
+      blendGazeJoint(joints, "head", [head!.flexion ?? 0, 0, head!.twist ?? 0], weights.head);
     }
 
     // Eyes: each solved exactly in its head's frame, clamped to its range.
@@ -377,7 +335,7 @@ export namespace HumanGaze {
           (Math.asin(Math.max(-1, Math.min(1, -d.y))) * 180) / Math.PI,
         ),
       );
-      blend(eye, [pitch, 0, yaw], weights.eyes);
+      blendGazeJoint(joints, eye, [pitch, 0, yaw], weights.eyes);
     }
     return { ...posture, joints };
   }
@@ -479,6 +437,40 @@ export namespace HumanGaze {
       },
     };
   }
+}
+
+/** The same signed first-share and bounded residual rule for either gaze axis. */
+function splitShare(
+  total: number,
+  first: number,
+  limitPositive: number,
+  limitNegative: number,
+): [number, number] {
+  const lead: number = Math.sign(total) * Math.min(Math.abs(total), first);
+  const rest: number = total - lead;
+  const next: number = rest >= 0 ? Math.min(rest, limitPositive) : Math.max(rest, -limitNegative);
+  return [lead, next];
+}
+
+/** Blend one current authored joint without changing the original arithmetic grouping. */
+function blendGazeJoint(
+  joints: IHumanPosture["joints"],
+  bone: AutoMovieHumanoidBone,
+  target: readonly [number, number, number],
+  weight: number,
+): void {
+  const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+  joints[bone] = [
+    base[0] + (target[0] - base[0]) * weight,
+    base[1] + (target[1] - base[1]) * weight,
+    base[2] + (target[2] - base[2]) * weight,
+  ];
+}
+
+/** Add the same axial twist while preserving the joint's other two angles. */
+function addGazeTwist(joints: IHumanPosture["joints"], bone: AutoMovieHumanoidBone, twist: number): void {
+  const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+  joints[bone] = [base[0], base[1], base[2] + twist];
 }
 
 /** Eye-midpoint direction needs the hips frame and both eye positions. */

@@ -30,19 +30,30 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * Axes must already use skeleton-declared precedence, and a nonnull geometry
  * must belong to the same source root, ancestors, intermediate pose and rig.
  * Every getter is first called at the consumer's original admission site.
+ * A supplied fixed rig belongs to the same immutable source without goal
+ * fields; only source methods are borrowed, while reference and weight get
+ * a new binding-local owner with their original first-use admission.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States merged-axis and matching-geometry premises, lazy admission, source-only reuse and the owning workspace lifetime.
  * @evidence contracts/development/implementation.md#principled-implementation Fixed rig and source data determine effective ROM, normalized bases, clamps, projector coefficients, fixed-rest inverse and reference/hinge readings independently of target; getters preserve original defaults, lookup conventions and diagnostic paths.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner holds only rig/source preparation; prepareChainFit owns FK/continuity and target consumers own analytic solving, projection queries and candidate ranking.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target score, user callback result, projected joint or continuation seed is cached. Hinged references retain first-record lookup and held source effectors retain last-record lookup; changed dependencies require another workspace.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each used chain bone's metadata/domain/basis/clamp and exact overshoot scorer is prepared once, at most three names. Swing-twist clamps share one lazy canonical-family axes merge; legality scorers separately preserve the original canonical scoring frame. Held/reference scans are O(J) once; fixed effector/projector data and hinge span/source inverse are lazy constant-size preparations. Every target query still runs; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged source/rig/mappings prove equivalence across targets. basis retains nullish defaults and jointBasis undefined-only defaults under their actual selected-axis keys. Clamps use actual skeleton-resolved canonical-family axes; scorers retain the original humanoid-only gate frame. Source hinge span coefficients and inverse root are independent of targets, whose readers own their roots/ranges/goals; held products, domains and pure hinge reads retain grouping and lazy admission.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged source/rig/mappings prove equivalence across targets and goal bindings. A supplied fixed source rig shares every source-only method, but each binding creates fresh first-record reference and weight readers using that same admitted joint basis. basis keeps nullish defaults and jointBasis undefined-only defaults; clamps use skeleton-resolved canonical axes while scorers retain the humanoid-only gate. Hinge span, held products, inverses and domains keep their original grouping/lazy sites; changing goals own every query.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's workspace owns maps for used chain identities, fixed coefficients and source/reference values until release. Inputs are borrowed, loader callbacks and target results are not retained, and no global collection, handle or task owns this context.
  */
 export function prepareChainFitRig(
   props: Omit<IFitChainToTargetProps, "target">,
   prepared: IPreparedChainPlant | null,
+  fixed?: prepareChainFit.IRig,
 ): prepareChainFit.IRig {
+  const reference: ReturnType<typeof prepareReferences> = prepareReferences(props);
+  if (fixed !== undefined) return {
+    ...fixed,
+    reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
+      reference.rotation(bone, fixed),
+    referenceWeight: reference.weight,
+  };
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone | undefined> =
     new Map();
   const domains: Map<AutoMovieHumanoidBone, IAutoMovieJointRotationDomain> =
@@ -52,8 +63,6 @@ export function prepareChainFitRig(
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => IAutoMovieJointPose
   > = new Map();
-  const references: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion | null> =
-    new Map();
   const scores: Map<
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => number
@@ -64,7 +73,6 @@ export function prepareChainFitRig(
   let heldRotation: IAutoMovieQuaternion | undefined;
   let heldInverse: IAutoMovieQuaternion | undefined;
   let distal: ReturnType<typeof solveDistalTwist.prepare> | undefined;
-  let weight: number | undefined;
   let range: { min: number; max: number } | null | undefined;
   let swing: IAutoMovieVector3 | undefined;
   let hingeGeometry: hingedArmSwivel.IPrepared | undefined;
@@ -222,40 +230,9 @@ export function prepareChainFitRig(
       });
       return distal;
     },
-    reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null => {
-      let reference: IAutoMovieQuaternion | null | undefined =
-        references.get(bone);
-      if (reference === undefined) {
-        const joint: IAutoMovieJointPose | undefined =
-          props.referencePose?.joints.find(
-            (candidate: IAutoMovieJointPose): boolean =>
-              candidate.bone === bone,
-          );
-        reference =
-          joint === undefined
-            ? null
-            : Quaternion.normalize(
-                jointToQuaternionOnBasis(
-                  joint,
-                  rig.jointBasis(bone, "jointToQuaternion axes"),
-                  props.restFrames?.[bone],
-                ),
-              );
-        references.set(bone, reference);
-      }
-      return reference;
-    },
-    referenceWeight: (): number => {
-      if (weight === undefined) {
-        const value: number = props.referenceWeight ?? 1;
-        if (!Number.isFinite(value) || value < 0)
-          throw new Error(
-            `fitChainToTarget referenceWeight must be finite and non-negative, but was ${value}`,
-          );
-        weight = value;
-      }
-      return weight;
-    },
+    reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
+      reference.rotation(bone, rig),
+    referenceWeight: reference.weight,
     hingeRange: (
       read: () => { min: number; max: number } | null,
     ): { min: number; max: number } | null => {
@@ -279,4 +256,38 @@ export function prepareChainFitRig(
     },
   };
   return rig;
+}
+
+/** Query-local first-record reference and weight; neither belongs to the fixed source rig. */
+function prepareReferences(props: Omit<IFitChainToTargetProps, "target">): {
+  rotation: (bone: AutoMovieHumanoidBone, rig: prepareChainFit.IRig) => IAutoMovieQuaternion | null;
+  weight: () => number;
+} {
+  const references: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion | null> = new Map();
+  let weight: number | undefined;
+  return {
+    rotation: (bone: AutoMovieHumanoidBone, rig: prepareChainFit.IRig): IAutoMovieQuaternion | null => {
+      let reference: IAutoMovieQuaternion | null | undefined = references.get(bone);
+      if (reference === undefined) {
+        const joint: IAutoMovieJointPose | undefined = props.referencePose?.joints.find(
+          (candidate: IAutoMovieJointPose): boolean => candidate.bone === bone,
+        );
+        reference = joint === undefined ? null : Quaternion.normalize(
+          jointToQuaternionOnBasis(joint,
+            rig.jointBasis(bone, "jointToQuaternion axes"), props.restFrames?.[bone]),
+        );
+        references.set(bone, reference);
+      }
+      return reference;
+    },
+    weight: (): number => {
+      if (weight === undefined) {
+        const value: number = props.referenceWeight ?? 1;
+        if (!Number.isFinite(value) || value < 0)
+          throw new Error(`fitChainToTarget referenceWeight must be finite and non-negative, but was ${value}`);
+        weight = value;
+      }
+      return weight;
+    },
+  };
 }

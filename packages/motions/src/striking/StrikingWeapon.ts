@@ -12,10 +12,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { KickForm } from "./KickForm";
+import { StrikingWeaponBones } from "./StrikingWeaponBones";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
 
 /**
@@ -71,7 +70,7 @@ export namespace StrikingWeapon {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States side, film time, fitted course and axis order including the fist-radius offset.
    * @evidence contracts/development/implementation.md#principled-implementation Resolves the actual authored posture before placing its canonical shoulder, elbow, wrist and fist socket.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared fitted reader owns pose/FK and posed owns arm endpoint geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure StrikingWeaponBones owns actual pose/FK and fixed genuine demand preparation; posed owns arm endpoint geometry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every limb fit, ROM clamp and canonical socket; FK computes only the three requested arm outputs and their ancestors.
    * @evidence contracts/development/implementation.md#efficient-algorithms Pays the actual whole-posture fit plus admitted-joint scan and requested-arm FK ancestry, with four returned vectors.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the pose/FK and socket owners; operation-local grouped sampling shares this actual read only within one chain/time/context.
@@ -83,7 +82,7 @@ export namespace StrikingWeapon {
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieVector3[] {
-    return posed(body, fitted(body, course, seconds, ENDS[`${side}Arm`]), side);
+    return posed(body, StrikingWeaponBones(body, course, seconds, ENDS[`${side}Arm`]), side);
   }
 
   /**
@@ -154,7 +153,7 @@ export namespace StrikingWeapon {
     side: "left" | "right",
     seconds: number,
   ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = fitted(
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = StrikingWeaponBones(
       body,
       course,
       seconds,
@@ -173,25 +172,6 @@ export namespace StrikingWeapon {
     ];
   }
 
-  /** The bones of a course's posture at a film second, its limbs fitted to their goals. */
-  function fitted(
-    body: IHumanBody,
-    course: Course,
-    seconds: number,
-    requested: ReadonlySet<AutoMovieHumanoidBone>,
-    channels?: readonly AutoMovieMotionHumanChannel[],
-  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(
-      body,
-      course(seconds, channels, resolution),
-      undefined,
-      {},
-      resolution,
-      requested,
-    ).pose;
-    return poseBones(body, pose, resolution(), requested);
-  }
 
   /**
    * A limb's capsules.

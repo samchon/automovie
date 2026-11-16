@@ -2,7 +2,7 @@ import type {
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
 } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmMirror } from "./HumanArmMirror";
@@ -99,9 +99,9 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/implementation.md#principled-implementation The key is every input of a pure function; the body owns its fits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup, one insertion in recency order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All actual numerical inputs remain keyed, using the original mirror, heading and grid policy with full relative translation. World/on/clear/rests exclusions remain; root/target/bend/rival move together, fixed world goals still change their relative key, and no tolerance, raw demand or admission path is weakened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A map read in place of a fit, the key linear in the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing normalized fit entries are read again unchanged. A synchronous miss or disabled call can borrow its parent's exact FK reader; mirror and root-frame transforms remain actual inputs checked by scalar dependencies, with no reuse of another target's solution.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY fit entries, with key/pose-dependent byte size. Only result data enters FITS; borrowed reader/supplier state is passed synchronously, not invoked on hits, and released by its caller without a retained plan, callback or context.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keys and owned result copies are O(B+G) in pose/goal data; a hit replaces the numerical fit with a map read and one complete clone. A miss additionally snapshots its actual result privately, and disabled calls still perform the full original fit before issuing an independent clone; no runtime saving is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing normalized entries supply numerical values only; every issued pose/root/joint/seed/value is independent of the private entry and caller input. Actual miss/disabled fits may synchronously borrow their parent's exact FK reader; mirror/root-frame and all actual key/solver inputs remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY independently snapshotted fit entries, preserving all result and unrelated joint metadata. Fresh issued clones belong only to their callers; reader/supplier state is synchronous and never enters an entry, result, plan or retained context.
    */
   export function remembered(
     body: IHumanBody,
@@ -113,34 +113,80 @@ export namespace HumanLimbFitMemory {
     near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
-    if (!REMEMBERING.on)
-      return HumanLimbFit.fit(
-        body,
-        pose,
-        limb,
-        goal,
-        placed,
-        rival,
-        near,
-        resolution,
-      );
-    // A left limb's fit is its mirror's, remembered under the right limb's
-    // key, so a fit and its mirror image share one entry.
-    if (limb.startsWith("left")) {
-      const image: IAutoMovieSeededChainFit = remembered(
-        body,
-        HumanLimbMirror.pose(pose),
-        HumanLimbMirror.limb(limb),
-        HumanLimbMirror.goal(goal),
-        placed.map(HumanLimbMirror.side),
-        rival === undefined ? undefined : HumanArmMirror.flip(rival),
-        near,
-        resolution,
-      );
-      return { ...image, pose: HumanLimbMirror.pose(image.pose) };
-    }
-    return query(inputs(body, pose, limb, goal, placed, rival, near), resolution);
+    return consume(body, pose, limb, goal, placed, rival, near, resolution, issue);
   }
+
+  /**
+   * An independently owned limb edit recipe; it contains no cached pose.
+   * Nonnegative order entries address joints, and -1 consumes the next
+   * current source joint whose bone is outside written.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines owned changed records, complete output ordering, current-source placeholders and independently owned continuation/score data.
+   * @evidence contracts/development/design.md#principled-representation Engine chain fitting writes only upper/lower/effector records and leg contact may additionally write toes; a full ordered recipe retains duplicate removal/append behavior without copying unrelated joint objects.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The internal applyHumanLimbFit consumer needs exactly written names, owned replacement records, ordering and existing seed/value; no cache entry or borrowed posed output is exposed.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The recipe comes from the actual selected cached or freshly solved output, never an invented endpoint or resolution flag, and retains every current untouched source record when applied.
+   */
+  export interface IPatch {
+    /** All chain/toe names this recipe removes from the current source. */
+    written: ReadonlySet<AutoMovieHumanoidBone>;
+    /** Independently cloned actual replacement records, including their metadata. */
+    joints: IAutoMovieJointPose[];
+    /** Output sequence: replacement index, or -1 for the next untouched current record. */
+    order: number[];
+    /** Independently owned selected continuation seed, or the original null. */
+    seed: IAutoMovieSeededChainFit["seed"];
+    /** Independently owned original numerical score, when present. */
+    value?: IAutoMovieSeededChainFit["value"];
+  }
+
+  /**
+   * Issue an owned edit recipe for the same actual memory read or solve.
+   * The consumer merges only untouched caller-owned records, then its public
+   * refit boundary issues an independent full result.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual lookup/disabled behavior, changed-bone proof, original sequence recipe and nonescaping private entry use.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine writes only chain upper/lower/effector, and HumanLimbFit contact re-aim may write that leg's toes. Extracting those actual output records plus the complete order preserves every duplicate removal/append, seed and score while current untouched source metadata remains current.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The private consume kernel owns the same normalized query; this selector issues only fresh replacement records and numeric layout. applyHumanLimbFit owns reconstruction and refit owns final public isolation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original full key/grid/LRU/count and actual miss/disabled solver; no result is borrowed outside this module and no target, candidate, tolerance or effort/tie changes. Unknown unrelated metadata is preserved from the current source rather than reconstructed from bone names.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans B output records and copies only W written records plus continuation/score data, for W confined to the known chain/toe set. The numeric B-entry recipe is fresh; public remembered still copies the complete result, and refit performs one final full copy rather than one per limb.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exact selected numerical chain result under the existing complete-input key. Nonwritten output records keep source order by the proven filter/append law, so they can be taken from the current caller source without exposing cached records.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private cached pose stays inside consume; only a fresh name set, numeric order, cloned changed joints and cloned seed/value escape. No callback supplied by a caller can access the entry, and the original bounded weak-body pool remains unchanged.
+   */
+  export function patch(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3,
+    near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IPatch {
+    return consume(body, pose, limb, goal, placed, rival, near, resolution, (fit: IAutoMovieSeededChainFit): IPatch => {
+      const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
+      const written: Set<AutoMovieHumanoidBone> = new Set([chain.upper, chain.lower, chain.effector]);
+      if (limb.endsWith("Leg") && goal.contact !== undefined && goal.rotation !== undefined)
+        written.add(limb.startsWith("left") ? "leftToes" : "rightToes");
+      const joints: IAutoMovieJointPose[] = [];
+      const order: number[] = fit.pose.joints.map((joint: IAutoMovieJointPose): number => {
+        if (!written.has(joint.bone)) return -1;
+        joints.push(joint);
+        return joints.length - 1;
+      });
+      const owned: Pick<IPatch, "joints" | "seed" | "value"> = structuredClone({ joints, seed: fit.seed,
+        ...(fit.value === undefined ? {} : { value: fit.value }) });
+      return { ...owned, written, order };
+    });
+  }
+
+  /** Only module-owned issuers can observe a private entry during this synchronous call. */
+  function consume<T>(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined,
+    near: IAutoMovieSwivelNear | undefined, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+    emit: (fit: IAutoMovieSeededChainFit) => T): T {
+    if (!REMEMBERING.on) return emit(HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near, resolution));
+    if (limb.startsWith("left")) return consume(body, HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb),
+      HumanLimbMirror.goal(goal), placed.map(HumanLimbMirror.side),
+      rival === undefined ? undefined : HumanArmMirror.flip(rival), near, resolution,
+      (fit: IAutoMovieSeededChainFit): T => emit({ ...fit, pose: HumanLimbMirror.pose(fit.pose) }));
+    return query(inputs(body, pose, limb, goal, placed, rival, near), resolution, emit);
+  }
+
+  /** The public remembered/prepare surface always issues an independent complete output. */
+  function issue(fit: IAutoMovieSeededChainFit): IAutoMovieSeededChainFit { return structuredClone(fit); }
 
   /**
    * Prepare only fixed mirror/root-frame/key work for one unchanged limb request.
@@ -154,7 +200,7 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stores no fitted result or target history, retains the existing grid and complete key, preserves hit counts/LRU/eviction and always bypasses reads/inserts while memory is disabled.
    * @evidence contracts/development/implementation.md#efficient-algorithms Mirror/root-frame/serialization O(J+G) work runs once at the first enabled read for J joints and G goal data; each later call retains its actual map read/recency update or full miss solve, without a measured speedup claim.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged source/body/goal metadata prove key equivalence; each invocation receives its current synchronous FK supplier independently and actual memory contents remain live.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns at most one mirrored/normalized source, goal and key until release; its closure retains no solve result or FK reader, while the existing weak-body pool remains capped at4096 entries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns at most one mirrored/normalized source, goal and key until release; its closure retains no solve result or FK reader. Issued outputs are independent complete clones, while the weak-body pool remains capped at4096 private snapshots.
    */
   export function prepare(
     body: IHumanBody,
@@ -168,7 +214,7 @@ export namespace HumanLimbFitMemory {
     let fixed: IRequest | undefined;
     let mirrored: ReturnType<typeof prepare> | undefined;
     return (resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit => {
-      if (!REMEMBERING.on) return HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near, resolution);
+      if (!REMEMBERING.on) return structuredClone(HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near, resolution));
       if (limb.startsWith("left")) {
         mirrored ??= prepare(body, HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb),
           HumanLimbMirror.goal(goal), placed.map(HumanLimbMirror.side),
@@ -176,7 +222,7 @@ export namespace HumanLimbFitMemory {
         const image: IAutoMovieSeededChainFit = mirrored(resolution);
         return { ...image, pose: HumanLimbMirror.pose(image.pose) };
       }
-      return query((fixed ??= inputs(body, pose, limb, goal, placed, rival, near)), resolution);
+      return query((fixed ??= inputs(body, pose, limb, goal, placed, rival, near)), resolution, issue);
     };
   }
 
@@ -227,10 +273,11 @@ export namespace HumanLimbFitMemory {
   }
 
   /** The unchanged live body-memory lookup, count, solve and LRU policy. */
-  function query(
+  function query<T>(
     input: IRequest,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IAutoMovieSeededChainFit {
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+    emit: (fit: IAutoMovieSeededChainFit) => T,
+  ): T {
     const { body, key }: Pick<IRequest, "body" | "key"> = input;
     let fits: Map<string, IAutoMovieSeededChainFit> | undefined =
       FITS.get(body);
@@ -241,7 +288,7 @@ export namespace HumanLimbFitMemory {
     let out: IAutoMovieSeededChainFit | undefined = fits.get(key);
     HumanLimbFitFrame.count(body, out !== undefined);
     if (out === undefined)
-      out = HumanLimbFit.fit(
+      out = structuredClone(HumanLimbFit.fit(
         body,
         input.pose,
         input.limb,
@@ -250,13 +297,11 @@ export namespace HumanLimbFitMemory {
         input.rival,
         input.near,
         resolution,
-      );
+      ));
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
-    return input.root === undefined
-      ? out
-      : { ...out, pose: { ...out.pose, root: input.root } };
+    return emit(input.root === undefined ? out : { ...out, pose: { ...out.pose, root: input.root } });
   }
 
   /** The limb fits remembered, by body. */

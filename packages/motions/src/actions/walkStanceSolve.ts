@@ -76,7 +76,7 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The course problem owns physical evaluations, HumanSequentialConvex owns acceptance and steering, and a prepared quadratic model owns each fixed P/q/A convexification's numeric solves.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original QP calls, warm/cold choices, penalties, attempts and tolerance tests; preparation shares numeric prerequisites only while changing row intervals remain explicit solve inputs.
    * @evidence contracts/development/implementation.md#efficient-algorithms One x/objective linearization shares fixed matrices/preparation across steering prices, radius retries and bound-only corrections. Corrections reuse trial merit's raw bounds instead of unused derivatives/P/q; value/violation share one row pass and discarded steering proposals defer trial-vector allocation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed layout, ordered A and P/q stay private to one x/objective linearization. Repricing changes only original nonlinear rows to the exact new mu and starts fresh model-local cold/keyed-dual state; radius retries keep their original warm state. Reading the selected step's trial selects that exact proposal's model/d/radius for the cold correction, whose raw bounds come from the same trial evaluation; discarded feasibility proposals cannot replace this context.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed layout, ordered A and P/q stay private to one x/objective linearization. Repricing sets the exact new mu and starts fresh cold/keyed-dual state; radius retries keep their original warm state. Trust rows lend fixed index/coefficient arrays only to Q.prepare's snapshot, prepared.solve's bound reads and multipliers' key reads; fresh bounds remain explicit. Reading the selected trial selects its exact model/d/radius for cold correction using that trial's raw bounds, so discarded feasibility proposals cannot replace the context.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve retains current multipliers, selected-proposal metadata and active prepared-model state, each bounded by its course dimensions. Each live step owns one fixed metadata record until release; no history/map or global cache is added, and model closures/scratch release with the solve.
    */
   export function optimise(
@@ -148,7 +148,7 @@ export namespace walkStanceSolve {
             solve: (radius: number): SCO.IStep<Float64Array> => {
               trusted = {
                 ...model,
-                rows: [...model.rows, ...shape.region(x, radius)],
+                rows: [...model.rows, ...shape.region(x, radius, true)],
               };
               // Radius changes alter the bounds alone; P, q and every row's
               // coefficients belong to this one convexification.
@@ -236,7 +236,7 @@ export namespace walkStanceSolve {
         );
         const corrected: Q.IState = last.prepared.solve([
           ...rows,
-          ...shape.region(x, last.radius),
+          ...shape.region(x, last.radius, true),
         ]);
         return shape.stepped(x, corrected.x);
       },
@@ -416,8 +416,8 @@ export namespace walkStanceSolve {
         return { objective, violation, worst, bounds };
       },
       convexify: walkStanceConvexify(tail, size, built.sweep),
-      region: (x: Float64Array, radius: number): Q.IRow[] =>
-        built.bounds(x, radius),
+      region: (x: Float64Array, radius: number, borrowedTopology: boolean = false): Q.IRow[] =>
+        built.bounds(x, radius, borrowedTopology),
       length: (step: Float64Array): number => {
         let longest: number = 0;
         for (let i: number = 0; i < step.length; i++)

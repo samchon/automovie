@@ -1,6 +1,8 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
@@ -71,11 +73,19 @@ export namespace getUp {
     any: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** How the body gets up (VanSant 1988's axial region). */
+  /**
+   * How the axial region gets up: symmetric flexion or full rotation,
+   * following VanSant 1988's two implemented route patterns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names both implemented axial patterns and their source; the namespace states the missing partial-rotation variants and plan's entry-dependent choice.
+   * @evidence contracts/development/design.md#principled-representation Derives the closed route discriminator from PATTERNS rather than duplicating its permitted string values.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The author parameter, route table and actual planner use this same two-value discriminator.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Encodes no joint angles, physical result or performer preset; the entry orientation and selected support route still determine the actual rise.
+   */
   export type Pattern = (typeof PATTERNS)[number];
 
   /** The patterns of {@link Pattern}, as data. */
-  export const PATTERNS = ["symmetric", "rotation"] as const;
+  export const PATTERNS: readonly ["symmetric", "rotation"] = ["symmetric", "rotation"];
 
   /**
    * Parameters.
@@ -96,7 +106,15 @@ export namespace getUp {
     manner?: AutoMovieMotionManner.IManner;
   }
 
-  /** A floor posture: the whole body's tilt and its joints. */
+  /**
+   * A preferred floor posture's whole-body tilt and authored joints, shared
+   * with the lying route; the support planner still solves the actual key.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines route preferences as tilt and authored joints, distinct from a solved floor stance.
+   * @evidence contracts/development/design.md#principled-representation Aliases lieDown.IPose, preserving the same degree-valued posture representation for shared floor positions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface POSES, quiet and route mirroring use this shared shape; no parallel pose or support-result hierarchy is added.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias certifies no fit or contact result and contains no cache marker; actual support keys, floor bounds and ROM remain with their original owners.
+   */
   export type IPose = lieDown.IPose;
 
   /** The share of the trained young adult's supine-to-stand time a body takes, seconds (Ulbrich et al. 2000: 2.6 s). */
@@ -260,7 +278,7 @@ export namespace getUp {
     // The leading foot steps ahead into the half kneel, and the trailing foot
     // steps up beside it to stand.
     const stances: HumanSupport.IStance[] = route.map(
-      ([key, event], i: number): HumanSupport.IStance => ({
+      ([key, event]: (typeof route)[number], i: number): HumanSupport.IStance => ({
         contacts: BEARS[key].map(
           (
             part: HumanSupport.Part | "lead" | "trail",
@@ -307,26 +325,23 @@ export namespace getUp {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the posture is and who reads it.
    * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, its leg goals resolved to joints, so a rise ends where a performer starts.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolve.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual posture resolve precedes one ordered copy into the existing typed joint record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint is typed here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stand.posture` and `resolveHumanPosture`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original resolve per plan followed by O(J) output copying for J joints, without a second tuple/map array and Object.fromEntries conversion.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses stand.posture and the actual ordinary resolver, retaining live fit-memory behavior on every call rather than introducing a body-owned quiet-pose cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns its own joint dictionary/triples and retains no pose, reader, body result or history.
    */
   export function quiet(body: IHumanBody): IPose {
-    return {
-      pitch: 0,
-      roll: 0,
-      joints: Object.fromEntries(
-        resolveHumanPosture(
-          body,
-          stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-        ).joints.map((j): [string, readonly [number, number, number]] => [
-          j.bone,
-          [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
-        ]),
-      ) as AutoMovieMotionHumanJoints.Angles,
-    };
+    const pose: IAutoMoviePose = resolveHumanPosture(
+      body,
+      stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+    );
+    const joints: AutoMovieMotionHumanJoints.Angles = {};
+    for (let i: number = 0; i < pose.joints.length; ++i) {
+      const joint: IAutoMovieJointPose = pose.joints[i]!;
+      joints[joint.bone] = [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
+    }
+    return { pitch: 0, roll: 0, joints };
   }
   /** A floor posture from its tilt and symmetric limb angles. */
   function keyed(

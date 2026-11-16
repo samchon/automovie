@@ -241,7 +241,7 @@ export namespace supportKey {
     b: IHumanPosture,
     w: number,
   ): IHumanPosture {
-    return prepareBlended(body, a, b)(w);
+    return prepareKeyBlend(body, a, b, false)(w);
   }
 
   /**
@@ -256,27 +256,48 @@ export namespace supportKey {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States immutable key/body premises, world-metre/degree frame, unclipped root progress, ROM joint interpolation and output ownership.
    * @evidence contracts/development/implementation.md#principled-implementation Keeps blended's same ordered joint union, clinical-zero missing endpoints, blendHumanJoint range rule, Vector3.lerp root and original shortest-heading expression.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed joint pairs and trunk deltas precede one current-share pass; the existing joint owner supplies one synchronous metadata reader for that pass.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private writer serves raw and fixed-key reads; fixed joint pairs/trunk deltas precede per-pair between readers and one current synchronous fallback for missing endpoints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No current joint interpolation, range admission, root arithmetic, heading wrap, endpoint tuple identity or empty-goal rule is replaced with a fitted or sampled pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) fixed preparation removes repeated key enumeration and union construction. An interior read shares one O(B+J) rig metadata pass for B bones before the original joint mathematics; endpoint reads allocate no metadata reader.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only immutable endpoint tuples, their order and trunk deltas survive across reads. Body metadata belongs to the current synchronous pass and changing shares always evaluate their actual joint blends and root.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns J fixed pair records and two authored keys until release; each query's metadata reader ends with that query, and no queried share, blended output or FK workspace is retained. Missing endpoint zeros are fresh per read as before.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) construction removes repeated joint-union work. Each complete pair pays its owner's lazy endpoint/rig preparation once, potentially O(BJ) first-read metadata for B bones, then evaluates only the current numerical blend/readback. M missing-endpoint pairs share one O(B+M) current metadata pass; endpoints allocate none.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable endpoint tuples, order, trunk deltas and between-owned fixed endpoint/chart metadata survive across reads under the unchanged body/tuple premise. Missing endpoint zeros remain per-query inputs to the synchronous generic joint owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns J fixed pairs and at most J bounded between readers until release. A missing-pair query's generic metadata ends with that query; no queried share, blended output or FK workspace is retained, and missing endpoint zeros are fresh per read.
    */
   export function prepareBlended(
     body: IHumanBody,
     a: IHumanPosture,
     b: IHumanPosture,
   ): (w: number) => IHumanPosture {
+    return prepareKeyBlend(body, a, b, true);
+  }
+
+  /** One interpolation owner for one-shot metadata and immutable fixed-pair preparation. */
+  function prepareKeyBlend(
+    body: IHumanBody,
+    a: IHumanPosture,
+    b: IHumanPosture,
+    fixed: boolean,
+  ): (w: number) => IHumanPosture {
     const bones: Set<AutoMovieHumanoidBone> = new Set([
       ...(Object.keys(a.joints) as AutoMovieHumanoidBone[]),
       ...(Object.keys(b.joints) as AutoMovieHumanoidBone[]),
     ]);
     const pairs: IBlendPair[] = [...bones].map(
-      (bone: AutoMovieHumanoidBone): IBlendPair => ({
-        bone,
-        from: a.joints[bone],
-        to: b.joints[bone],
-      }),
+      (bone: AutoMovieHumanoidBone): IBlendPair => {
+        const from: IBlendPair["from"] = a.joints[bone];
+        const to: IBlendPair["to"] = b.joints[bone];
+        return {
+          bone,
+          from,
+          to,
+          read:
+            fixed && from !== undefined && to !== undefined
+              ? blendHumanJoint.between(body, bone, from, to)
+              : undefined,
+        };
+      },
+    );
+    const generic: boolean = pairs.some(
+      (pair: IBlendPair): boolean => pair.read === undefined,
     );
     const yaw: number = ((b.yaw - a.yaw + 540) % 360) - 180;
     const pitch: number = b.pitch - a.pitch;
@@ -284,10 +305,14 @@ export namespace supportKey {
     return (w: number): IHumanPosture => {
       const joints: IHumanPosture["joints"] = {};
       const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
-        pairs.length === 0 || w <= 0 || w >= 1
+        !generic || w <= 0 || w >= 1
           ? undefined
           : blendHumanJoint.prepare(body);
       for (const pair of pairs) {
+        if (pair.read !== undefined) {
+          joints[pair.bone] = pair.read(w);
+          continue;
+        }
         const from: readonly [number, number, number] = pair.from ?? [0, 0, 0];
         const to: readonly [number, number, number] = pair.to ?? [0, 0, 0];
         joints[pair.bone] =
@@ -318,5 +343,8 @@ export namespace supportKey {
 
     /** Its authored second tuple, absent for clinical zero. */
     to: readonly [number, number, number] | undefined;
+
+    /** The joint owner's lazy fixed-endpoint reader, absent for fresh-zero fallbacks or raw passes. */
+    read: ReturnType<typeof blendHumanJoint.between> | undefined;
   }
 }

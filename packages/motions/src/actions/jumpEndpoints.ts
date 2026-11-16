@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpPushEnd } from "./jumpPushEnd";
@@ -46,8 +47,8 @@ export namespace jumpEndpoints {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the terminal push, prepare both landing goals, then return their normalized states.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never feeds the lowered root back into the raw push rule; this keeps lowering single and avoids the launch/root planning cycle. Original floor/prop footprints and support checks stay unchanged.
    * @evidence contracts/development/implementation.md#efficient-algorithms One shared heel-rule read and two existing endpoint canonical resolutions/FK preparations per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ballistic COM and airborne goals consume these same actual poses/leg records; neither reconstructs their endpoints. One synchronous lazy FK workspace explicitly supplies actual terminal hip/lowering, both canonical endpoint solves, planted refits and local frame observations; every changed dependency still computes normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two plan-owned state records; temporary authored goals and the operation reader/getter release on preparation return or throw. No reader or global query history enters the retained states.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ballistic COM and free goals consume the same actual endpoints. One synchronous FK workspace and genuine same-body projector supply terminal geometry, both canonical solves/final clamps, planted refits and local observations; only unchanged prerequisites/static ROM metadata share work while every current joint/dependency still evaluates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two plan-owned states; temporary goals, exact reader/getter and genuine projector release on preparation return/throw. Neither workspace nor global query history enters retained endpoint evidence or records.
    */
   export function of(
     props: Parameters<typeof jumpPushEnd>[0],
@@ -56,12 +57,13 @@ export namespace jumpEndpoints {
     landing: Record<"left" | "right", HumanFoot.IPlacement>,
   ): IEnds {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
     const terminal: ReturnType<typeof jumpPushEnd> = jumpPushEnd(props, rootT, read);
     const start: jumpState.IState = jumpState.of(props.body, resolveHumanPosture.lower(props.body, {
       root: rootT, yaw: props.heading, pitch: 0, roll: 0,
       joints: { ...jumpJoints(props.body, props.upright.joints, 60, 60), ...terminal.joints },
       limbs: terminal.limbs,
-    }, undefined, read), read);
+    }, undefined, read), read, projection);
     const limbs: IHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const)
       limbs[`${side}Leg`] = {
@@ -74,7 +76,7 @@ export namespace jumpEndpoints {
     const end: jumpState.IState = jumpState.of(props.body, resolveHumanPosture.lower(props.body, {
       root: rootL, yaw: props.heading, pitch: 0, roll: 0,
       joints: jumpJoints(props.body, props.upright.joints, 30, 30), limbs,
-    }, undefined, read), read);
+    }, undefined, read), read, projection);
     return { start, end };
   }
 }

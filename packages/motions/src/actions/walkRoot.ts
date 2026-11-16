@@ -59,11 +59,15 @@ export function walkRoot(props: IProps): Pick<walkSteps.IPlan, "root" | "amount"
   const rest: IAutoMovieVector3 = { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 };
   const l: number = props.body.measure.hipHeight;
   const T: number = props.period;
+  const stride: number = 2 * T;
+  const swayScale: number = 0.02 * (l / 0.93);
+  const gathers: number = props.first + T;
+  const sheds: number = props.last + 0.2 - props.stop;
   const over: number = props.firstLeft + props.front * T;
   const middle: number = props.firstLeft + (T - props.swing / 2);
   const amount: (t: number) => number = (t: number): number => {
-    const up: number = minimumJerk.share((t - props.lag) / (props.first + T));
-    const down: number = 1 - minimumJerk.share((t - props.stop) / (props.last + 0.2 - props.stop));
+    const up: number = minimumJerk.share((t - props.lag) / gathers);
+    const down: number = 1 - minimumJerk.share((t - props.stop) / sheds);
     return Math.max(0, Math.min(1, Math.min(up, down)));
   };
   const planned: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
@@ -72,9 +76,10 @@ export function walkRoot(props: IProps): Pick<walkSteps.IPlan, "root" | "amount"
       { origin: { x: 0, y: 0, z: 0 }, yaw }, rest,
     );
     const a: number = amount(t);
-    const sway: number = 0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - over)) / (2 * T));
+    const phase: number = 2 * Math.PI * (t - over);
+    const sway: number = swayScale * a * Math.cos(phase / stride);
     const bob: number = props.bob === undefined
-      ? a * (-0.015 + 0.025 * Math.cos((2 * Math.PI * (t - over)) / T))
+      ? a * (-0.015 + 0.025 * Math.cos(phase / T))
       : a * l * (props.bob.mean - props.bob.amplitude * Math.cos((2 * Math.PI * (t - middle)) / T));
     const s: number = props.progress(t);
     const along: IAutoMovieVector3 = props.at(s);

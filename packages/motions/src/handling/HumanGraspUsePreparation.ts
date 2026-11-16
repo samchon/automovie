@@ -61,6 +61,9 @@ export namespace HumanGraspUsePreparation {
     /** That actual working point at the fixed prop start frame, world metres. */
     tipWorld: IAutoMovieVector3;
 
+    /** Fixed actual hand-name demand, with complete current-pose admission at every query. */
+    readHand: ReturnType<typeof poseBones.prepare>;
+
     /** The unchanged direct-joint/root assembly; every candidate still fits its full goals. */
     base: ReturnType<typeof resolveHumanPosture.prepareBase>;
   }
@@ -68,7 +71,7 @@ export namespace HumanGraspUsePreparation {
   /**
    * World geometry shared across candidate wrists, separated by the use it serves.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Worn uses carry a region and its turn-to-frame builder; presented uses carry world target points, unit asked direction, shortest rest-relative turn and the hand's local socket.
+   * @evidence contracts/development/common.md#meaningful-documentation Both branches carry the fixed world working point, actual hand-name reader and canonical base; worn uses add region/turn-to-frame geometry, while presented uses add target points, unit direction, shortest turn and local socket.
    * @evidence contracts/development/design.md#principled-representation The worn/presented discriminant requires each branch's actual geometry; optional site in the presented branch denotes an ahead target rather than a missing region.
    * @evidence contracts/development/design.md#minimal-and-owned-surface of produces and HumanGraspUse consumes every member; each branch retains only the geometry its candidate-key construction reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry comes from the actual prop and body; no fitted candidate answer, time cache or guessed contact is represented.
@@ -101,7 +104,7 @@ export namespace HumanGraspUsePreparation {
    * @evidence contracts/development/implementation.md#principled-implementation Reads the prop at the action's start and the named region on the entry pose; the shortest turn aligns the tool line or working face with the requested direction, retaining the body's left as the existing opposite-direction axis.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Contact admission precedes the target-region reading; worn uses return their frame inputs while other uses prepare their line and hand geometry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original use lines, placement shares and refusal bounds are unchanged; no fitted candidate is reused across wrists.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One affordance search, demanded entry FK/region reading and O(B+J) canonical base assembly serve all C candidate wrists; one O(B) base snapshot and fixed geometry are retained independently of C, while actual candidate fits remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One affordance search, demanded entry FK/region, fixed hand-name binding and O(B+J) canonical base assembly serve all C candidate wrists; one O(B) base snapshot and fixed geometry are retained independently of C, while all actual candidate fits remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the fixed context, start time, prop, handle, side and use determine this result; HumanGraspUse.prepare owns it for exactly that candidate search.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one O(B) canonical base, fixed prop/target geometry and its prop reader; the consuming builder releases them with that search, without a global cache, FK reader or sampled-time history.
    */
@@ -152,8 +155,10 @@ export namespace HumanGraspUsePreparation {
       });
     const tipWorld: IAutoMovieVector3 = Vector3.add(world.position,
       Quaternion.rotateVector(world.rotation, tip.frame.translation));
+    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(context.body,
+      new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]));
     if (props.use.line === "worn")
-      return { kind: "worn", held, world, tip, tipWorld, at: at!, site: placed!.point,
+      return { kind: "worn", held, world, tip, tipWorld, readHand, at: at!, site: placed!.point,
         worn: HumanWorn.prepare(context.body, context.entry.posture, held.prop, at!),
         base: resolveHumanPosture.prepareBase(context.body, context.entry.posture) };
 
@@ -180,7 +185,7 @@ export namespace HumanGraspUsePreparation {
     const axis: IAutoMovieVector3 = Vector3.length(across) > 1e-9
       ? Vector3.normalize(across) : { x: Math.cos(yaw), y: 0, z: -Math.sin(yaw) };
     return {
-      kind: "presented", held, world, tip, tipWorld, site: placed?.point, asked,
+      kind: "presented", held, world, tip, tipWorld, readHand, site: placed?.point, asked,
       turn: Quaternion.fromAxisAngle(axis,
         (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, asked)))) * 180) / Math.PI),
       ahead: HumanGraspUse.place(bones, props.side, context.entry.posture.yaw),

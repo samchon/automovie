@@ -304,15 +304,17 @@ export namespace walkFoot {
         : Math.asin(
             Math.sqrt(AutoMovieMotionHumanAuditContact.HEIGHT / height),
           ) / Math.PI;
-    const leaving: number = HumanFoot.heading(props.from.rotation);
+    const fromAngles: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(props.from.rotation);
+    const toAngles: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(props.to.rotation);
+    const leaving: number = fromAngles.heading;
     const headingDelta: number = wrapDegrees(
-      HumanFoot.heading(props.to.rotation) - leaving,
+      toAngles.heading - leaving,
     );
-    const left: number = HumanFoot.pitch(props.from.rotation);
-    const pitchDelta: number = HumanFoot.pitch(props.to.rotation) - left;
+    const left: number = fromAngles.pitch;
+    const pitchDelta: number = toAngles.pitch - left;
     const rolled: number = HumanFoot.roll(props.from.rotation);
     const rollDelta: number = HumanFoot.roll(props.to.rotation) - rolled;
-    const heel: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, "heel");
+    const heel: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "heel");
     return (share: number): IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - settle));
@@ -361,7 +363,7 @@ export namespace walkFoot {
       };
       const low: number = Math.min(
         HumanFoot.point(body, side, "toe", placement, toes).y,
-        heel(placement).y,
+        heel(placement),
       );
       const clearance: number = CLEARANCE * bump;
       if (low < clearance) ankle.y += clearance - low;

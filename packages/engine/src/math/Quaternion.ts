@@ -5,8 +5,10 @@ import {
 } from "@automovie/interface";
 
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
+import { multiplyQuaternionInto } from "./multiplyQuaternionInto";
 import { quaternionNormalizationDivisor as normalizationDivisor } from "./quaternionNormalizationDivisor";
 import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
+import { readQuaternionAngle } from "./readQuaternionAngle";
 
 /**
  * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z, w)` in glTF order.
@@ -58,7 +60,7 @@ export namespace Quaternion {
    *   so unit inputs give a unit result up to rounding.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The Hamilton product formula, `w = aw·bw − a·b` and `v = aw·bv + bw·av + av × bv`, written out per component; composing rotations by it applies the right operand first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product for every rotation composition, joints, drivers, cameras and placements, without a normalizing variant, because unit inputs already give a unit result.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One raw product for joints, drivers, cameras and placements. The internal write-target owner also serves prepared OnBasis's private inner scratch; this public entry supplies a fresh target and adds no normalizing variant.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result is not renormalized, so rounding drift stays visible to the callers that normalize at their own boundary rather than being hidden on every product.
    * @evidence contracts/development/common.md#meaningful-documentation States the application order of the operands and how the result's length follows from the inputs'.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Sixteen multiplications and twelve additions in constant time, with no algorithm to choose.
@@ -71,12 +73,11 @@ export namespace Quaternion {
   ) => IAutoMovieQuaternion = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
-  ): IAutoMovieQuaternion => ({
-    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
-    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-  });
+  ): IAutoMovieQuaternion => {
+    const target: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 0 };
+    multiplyQuaternionInto(target, a, b);
+    return target;
+  };
 
   /**
    * A unit-length copy of `q`, or the identity when `q` has length zero.
@@ -442,7 +443,7 @@ export namespace Quaternion {
    * @returns The angle in radians.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The relative rotation of two unit quaternions is `inverse(a) * b`, whose vector part has length `sin(θ/2)` and whose scalar part is `cos(θ/2)`; reading the half angle from both through atan2 is accurate at every angle, where arccosine of the dot product loses all digits of an angle below the square root of the unit roundoff.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner for the distance between rotations that the chain fit's reference term, its effector error and its continuity order all read. The inverse's same conjugate enters the shared scalar normalization owner, then one reusable visitor keeps multiply's original expressions without allocating normalized-inverse or relative-quaternion records.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure readQuaternionAngle owns the relative angle used by the chain fit's reference, effector and continuity terms. The inverse's same conjugate enters the shared scalar normalization owner, then one reusable visitor keeps multiply's original expressions without allocating normalized-inverse or relative-quaternion records.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamp of a dot product and no threshold: the absolute scalar part is the stated identification of `q` with `-q`, and the result is exact to rounding for every pair.
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the range, the sign insensitivity, the formula and why the shorter arccosine form is not used, and the unit-length premise of both arguments.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One Hamilton product, one hypotenuse and one arctangent in constant time, with no algorithm to choose.
@@ -453,26 +454,26 @@ export namespace Quaternion {
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
-    return readNormalizedQuaternion.fromScalars(
-      -a.x, -a.y, -a.z, a.w, normalizedAngle, b,
-    );
+    return readQuaternionAngle(a, b);
   };
 
-  /** Relative Hamilton components and atan2 after the inverse normalization. */
-  function normalizedAngle(
-    ax: number, ay: number, az: number, aw: number,
+  /**
+   * Read angle(normalize(a), b), in radians, without a normalized output record.
+   * Both the initial normalize and inverse's conjugate normalization execute
+   * exactly as in that expression; zero/nonfinite behavior remains arithmetic.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States literal normalize-then-angle semantics, operand order, radians, both normalization boundaries and omitted intermediate ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A synchronous visitor transfers the first normalization's exact completed components to the same conjugate normalization and relative Hamilton/atan2 owner as angle; preserving both roundings preserves angle(normalize(a), b).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This scalar-demand entry serves actual distal/final chain errors through readQuaternionAngle, with no second normalization policy or angle formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither normalization is omitted, combined or replaced by a unit premise; original signed zeros, extreme scaling, zero identity, nonfinite propagation and Hamilton association remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work matches normalize then angle while omitting the first normalized quaternion record; the angle owner already omits its inverse/relative records. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared static visitors and normalization/relative-angle owners replace a discarded intermediate representation; all current operand values and required arithmetic still run, with no angle or target cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains neither operand; only the original first normalization's extreme scaled temporary may allocate, with no closure or normalized-output record per call.
+   */
+  export function angleAfterNormalize(
+    a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ): number {
-    const x: number = aw * b.x + ax * b.w + ay * b.z - az * b.y;
-    const y: number = aw * b.y - ax * b.z + ay * b.w + az * b.x;
-    const z: number = aw * b.z + ax * b.y - ay * b.x + az * b.w;
-    const w: number = aw * b.w - ax * b.x - ay * b.y - az * b.z;
-    return (
-      2 *
-      Math.atan2(
-        Math.hypot(x, y, z),
-        Math.abs(w),
-      )
-    );
+    return readQuaternionAngle.afterNormalization(a, b);
   }
 }

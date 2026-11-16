@@ -125,7 +125,7 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder, elbow and wrist from FK; mid-foot geometry and projection are demanded only by midfoot rows, and both original elbow solves remain.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fixed fist shape and the holding-chain demand are prepared once for the unchanged body and holding side; every changed posture and arm target is still solved.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fist shape and fixed holding-chain trunk producer are prepared once for the unchanged body/side. Its current exact FK reader ends within each apply invocation, and every changed posture and arm target is still solved.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
@@ -182,6 +182,8 @@ export namespace WorkoutLoad {
         `${side}LowerArm`,
         `${side}Hand`,
       ]);
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, requested);
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.
@@ -229,7 +231,7 @@ export namespace WorkoutLoad {
       hands: [side, other],
       apply: (posture: IHumanPosture): IHumanPosture => {
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          StrikingBody.trunk(body, posture, undefined, requested);
+          trunk(posture);
         // The bar runs level to the performer's other side from the hand,
         // and the hand is turned about it so the knuckles continue the
         // forearm: a straight wrist, the turn an arm holds. A turn taken

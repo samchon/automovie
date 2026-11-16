@@ -244,7 +244,7 @@ export function fitHingedRotationError(
       selected,
     );
     return (
-      (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI
+      (Quaternion.angleAfterNormalize(shown, wanted) * 180) / Math.PI
     );
   };
 }

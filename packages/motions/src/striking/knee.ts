@@ -2,13 +2,11 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
-  wrapDegrees,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieMotionEvent,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,6 +24,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
 import { KneeForm } from "./KneeForm";
+import { KneeGeometry } from "./KneeGeometry";
 import { KneeReach } from "./KneeReach";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingRecord } from "./StrikingRecord";
@@ -93,45 +92,20 @@ export namespace knee {
     leg?: "lead" | "rear";
   }
 
-  /** The thigh's and the shank's unit directions, world frame. */
-  interface ILeg {
-    /** From the hip to the knee. */
-    thigh: IAutoMovieVector3;
-
-    /** From the knee to the ankle. */
-    shank: IAutoMovieVector3;
-  }
-
-  /** A plan's solved knee with the course it is reached on. */
-  interface IGeometry extends KneeReach.ISolution {
-    /** The target point, world metres. */
-    target: IAutoMovieVector3;
-
-    /** The hips' turn to the thigh's heading, degrees. */
-    turn: number;
-
-    /** The leg as the stance has it. */
-    from: ILeg;
-
-    /** The leg at the contact. */
-    to: ILeg;
-
-    /**
-     * What the stance's planted ankle lies from the ankle `from` puts under
-     * the stance's hip, world metres: zero unless the stance stretches the
-     * leg past its length.
-     */
-    slack: IAutoMovieVector3;
-
-    /** The driven foot's world rotation at the contact. */
-    foot: IAutoMovieQuaternion;
-  }
 
   /**
    * Plan a knee strike.
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States knee drive, support pivot, early lift/late travel, original clinch/guard, planted windows, live capsules and stopped withdrawal; the namespace states the original physical limits.
+   * @evidence contracts/development/implementation.md#principled-implementation KneeGeometry solves the original target/hip carriage and fixed update rounds. Actual postures retain the original minimum-jerk thigh/shank interpolation, support lowering/pivot, nape goals, planted phases and one-sided stopped ride.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns clocks, contacts, free/shown courses and stop lifecycle; the synchronous geometry owner holds the original numeric key construction and is still built lazily/reset on settle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original round, authored joint/ROM admission, support contact, clinch look-back and stop/dwell/withdrawal rule. Proven leg-only observation omits only free guard/clinch goals; displayed and arm/rival paths remain complete, with no pose/time answer cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Geometry retains original solves once per settled plan. Fixed guard names are prepared once; each actual sample lends one exact workspace across lowering/hip/guard/final fitted endpoint reads, and only a demanded clinch queries its partner's neck. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan fixes body, hand joints, guard-name metadata and participant identity. Each world nape/pose is still read at its own exact film second; only same-invocation scalar FK prerequisites and the original lazy geometry key are shared, never another clock/stop context's pose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original geometry, fixed metadata, optional partner handle and stopped ride until settle/stop replacement or release. Every actual pose's exact workspace/map ends on synchronous return or throw; no returned posture retains a reader or new time history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -151,6 +125,7 @@ export namespace knee {
     const recoil: number = duration - impact;
     const entry: IHumanPosture = context.entry.posture;
     const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead });
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -199,84 +174,10 @@ export namespace knee {
     // them away from the target, and the thigh cannot point across the pelvis
     // within the hip's range), so the heading is found from the entry hip and
     // the knee solved again from the hip each solved carriage leaves.
-    let built: IGeometry | undefined;
-    const geometry = (): IGeometry => {
-      if (built !== undefined) return built;
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const target: IAutoMovieVector3 = StrikingTarget.aim(
-        context,
-        p.at,
-        t0 - StrikingTarget.LOOK,
-        (): number => 0.8 * m.thigh,
-      );
-      const line: IAutoMovieVector3 = StrikingTarget.line(
-        entry.root,
-        target,
-        entry.yaw,
-      );
-      const patella: number = Vector3.length(
-        body.surfaces.regions[side === "left" ? "kneeLeft" : "kneeRight"].point,
-      );
-      const travel: number =
-        KneeForm.TRAVEL[p.leg ?? "rear"] * StrikingStance.length(body);
-      const reach = (hip: IAutoMovieVector3): KneeReach.ISolution =>
-        KneeReach.solve(hip, target, m.thigh, patella, m.shank, travel, line);
-      const start: IAutoMovieVector3 = KickCarriage.hip(
-        body,
-        carriage({ x: 0, y: 0, z: 0 }, 0, 0, 0, resolution),
-        side, resolution,
-      );
-      let hip: IAutoMovieVector3 = start;
-      let solved: KneeReach.ISolution = reach(hip);
-      const turn: number = wrapDegrees(
-        StrikingTarget.heading(solved.heading) - entry.yaw,
-      );
-      for (let round: number = 0; round < KneeForm.ROUNDS; round++) {
-        hip = Vector3.subtract(
-          KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1, resolution), side, resolution),
-          solved.thrust,
-        );
-        solved = reach(hip);
-      }
-
-      // The stance's leg under the stance's hip, and the contact's.
-      const rest: IAutoMovieVector3 = feet[side].ankle;
-      const bent: IAutoMovieVector3 = KneeReach.bent(
-        start,
-        rest,
-        m.thigh,
-        m.shank,
-        line,
-      );
-      const from: ILeg = {
-        thigh: Vector3.normalize(Vector3.subtract(bent, start)),
-        shank: Vector3.normalize(Vector3.subtract(rest, bent)),
-      };
-      const to: ILeg = {
-        thigh: Vector3.normalize(
-          Vector3.subtract(solved.knee, Vector3.add(hip, solved.thrust)),
-        ),
-        shank: Vector3.normalize(Vector3.subtract(solved.ankle, solved.knee)),
-      };
-      const axes = KneeReach.foot(to.shank, solved.heading);
-      built = {
-        ...solved,
-        target,
-        turn,
-        from,
-        to,
-        slack: Vector3.subtract(
-          rest,
-          Vector3.add(
-            start,
-            Vector3.add(
-              Vector3.scale(from.thigh, m.thigh),
-              Vector3.scale(from.shank, m.shank),
-            ),
-          ),
-        ),
-        foot: StrikingBody.foot(axes.toes, axes.instep),
-      };
+    let built: KneeGeometry.IGeometry | undefined;
+    let partner: IHumanActionContext.IPerformer | undefined;
+    const geometry = (): KneeGeometry.IGeometry => {
+      if (built === undefined) built = KneeGeometry.solve(context, side, feet, carriage);
       return built;
     };
     const events: IAutoMovieMotionEvent[] = [
@@ -313,7 +214,7 @@ export namespace knee {
     const free = (clock: number, seconds: number, arms: boolean = true, source?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const t: number = Math.min(duration, Math.max(0, clock));
-      const g: IGeometry = geometry();
+      const g: KneeGeometry.IGeometry = geometry();
 
       // The hips square over the whole way out and back; the thigh lifts
       // early and lowers late; the pelvis drives late and withdraws early.
@@ -345,11 +246,9 @@ export namespace knee {
         ),
         Vector3.scale(g.slack, 1 - rise),
       );
-      const hands: ReturnType<typeof StrikingStance.guard> = arms ? StrikingStance.guard(body, posture, { lead }, {}, undefined, resolution) : {};
+      const hands: ReturnType<typeof StrikingStance.guard> = arms ? guardAt(posture, resolution) : {};
       if (arms && p.at.kind === "person") {
-        const other: IHumanActionContext.IPerformer = context.performer(
-          p.at.subject,
-        );
+        const other: IHumanActionContext.IPerformer = (partner ??= context.performer(p.at.subject));
         const nape: IAutoMovieVector3 = other
           .bones(seconds - StrikingTarget.LOOK, NECK)
           .get("neck")!.worldPosition;
@@ -471,7 +370,7 @@ export namespace knee {
       // The knee's front where the leg's free course puts it at the planned
       // impact, with the solve's own status; the performer's own displayed
       // bones read the entry's (`StrikingWeapon`).
-      const g: IGeometry = geometry();
+      const g: KneeGeometry.IGeometry = geometry();
       const bones = poseBones(
         body,
         resolveHumanPosture(body, free(impact, t0 + impact)),

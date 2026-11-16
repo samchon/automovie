@@ -363,6 +363,28 @@ export namespace HumanColliders {
   }
 
   /**
+   * Prepare actual profile entries for a fixed bone demand and varying poses.
+   *
+   * @param body The unchanged body owning neutral profile placement metadata.
+   * @param requested Canonical names to snapshot; unrequested map entries are ignored.
+   * @returns Fresh posed segments for the demanded names present in each current map, retaining original profile order and duplicates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed unchanged body/name demand, varying current bones, absent-frame skip, ignored extra frames and fresh ordered output.
+   * @evidence contracts/development/implementation.md#principled-implementation The actual placement owner selects its genuine neutral profile entries once, then uses the same neutral-offset/world-rotation formula as placed for every current demanded frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade returns HumanColliderPlacement's body-bound fixed-entry producer; no second neutral representation or placement loop is added here.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every selected profile entry, duplicate and original order, current absent-bone skip and all placement expressions; no posed frame, collider result or derived external geometry is accepted or cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(S) neutral-entry selection replaces the full S-entry profile traversal on each of Q reads. Each read visits only D demanded entries and performs their actual current placement, without hull search or a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body and requested-name snapshot establish fixed neutral-entry membership; changing either requires new preparation. Every supplied current bone frame is still read and placed normally, with fresh outputs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the producer's bounded selected neutral entries until its binding/action ends; the facade retains no reader, current bones, placed array or query/time history.
+   */
+  export function preparePlaced(
+    body: IHumanBody,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+  ): ReturnType<typeof HumanColliderPlacement.preparePlaced> {
+    return HumanColliderPlacement.preparePlaced(body, requested);
+  }
+
+  /**
    * Borrow the canonical profile-bearing bone demand for scoped FK. Only
    * fixed neutral metadata is shared; every posed collider query stays current.
    *

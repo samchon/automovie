@@ -1,5 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
   preparePoseResolution,
   prepareSkeletonPoseResolution,
   resolvePose,
@@ -19,6 +20,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
+import { qclose } from "../internal/qclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
@@ -46,11 +48,17 @@ import { vclose } from "../internal/vclose";
  * 7. A null clinical coordinate cannot certify its unused malformed affine
  *    frame. Its first nonnull use still refuses before a later nonfinite
  *    coordinate, and failed admission leaves null-axis recovery valid.
+ * 8. A public prepared joint read uses the same immutable clinical convention
+ *    before/after pose reads, but returns fresh quaternions and reads every
+ *    current angle. It never certifies a later pose's other authored records.
+ * 9. Typed inherited axis and non-enumerable affine mappings retain direct
+ *    lookup semantics and snapshot isolation. An own undefined shadow and
+ *    an unrelated bone override preserve the original default/spread rules.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States static-rig/fixed-pose snapshots, metre coordinates, ordered admission including null-frame first use, demanded ancestors, bound/live membership and fresh ownership in seven scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States static-rig/fixed-pose snapshots, metre coordinates, ordered admission, effective inherited/hidden mapping lookup and shadow/override rules, demanded ancestors, bound/live membership, individual/full-pose admission and fresh ownership in nine scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared and raw requested FK with changing pose/root/static inputs and demand sets. Actual returned coordinates detect stale transforms; an owned rest getter observes snapshot isolation, and an owned raw-operation reader observes ordered admission and demanded compositions without replacing a library function.
- * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps plus X to minus Z; literal rest offsets sum to left-hand (0.75,1.4,0) and right-lower-arm (-0.5,1.4,0). Requested hand ancestry follows the explicitly authored parent graph. These are geometric and dependency expectations, not cold/prepared parity or output snapshots.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers rest/rotated ancestors, root/arm edits, rig and pose snapshots, fixed-edit restoration, bound/live demand mutation, empty/single/two-branch demand, duplicate/stray admission, output mutation and independent lifetimes. Unreachable topology/general IK remain separately owned.
+ * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps plus X to minus Z; Z90 maps it to plus Y, raising the hand0.75m above its1.4m chest to2.15m. Literal rest offsets sum to left-hand(0.75,1.4,0) and right-lower-arm(-0.5,1.4,0). Requested ancestry follows the authored graph. Direct property lookup keeps inherited/non-enumerable values and own undefined shadows; the existing skeleton-axis spread discards inherited entries when a bone overrides. These are geometric/dependency expectations, not output snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rest/rotated ancestors, root/arm edits, rig/pose snapshots, fixed-edit restoration, bound/live demand mutation, empty/single/two-branch demand, duplicate/stray admission, output mutation, individual-row admission and inherited/hidden/undefined-shadow/override mapping lifetimes. Unreachable topology/general IK remain separately owned.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns all skeletons, poses, demand sets and the observational reader. It invokes no host, viewer, capture, compiler or foreign function replacement; the structural count measures requested bone composition calls rather than hidden floating-point operations.
  */
 export function test_kinematics_prepared_pose_contracts(): void {
@@ -277,6 +285,77 @@ export function test_kinematics_prepared_pose_contracts(): void {
   TestValidator.equals("failed frame admission preserves valid null-coordinate recovery",
     nullable.resolve(makePose([joint("chest", { flexion: null, abduction: 0 })]), nullOperation, new Set()), [],
   );
+
+  const currentJoint: IAutoMovieJointPose = joint("chest", { twist: 90 });
+  const local: IAutoMovieQuaternion = prepared.joint(currentJoint, operation);
+  const quarter: IAutoMovieQuaternion = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
+  TestValidator.predicate("a prepared joint uses its snapshotted clinical axis convention",
+    qclose(local, quarter, 1e-12),
+  );
+  local.y = 123;
+  currentJoint.twist = 0;
+  const restJoint: IAutoMovieQuaternion = prepared.joint(currentJoint, operation);
+  TestValidator.predicate("current joint coordinates and output ownership remain independent",
+    qclose(restJoint, { x: 0, y: 0, z: 0, w: 1 }, 1e-12) && restJoint !== local && local.y === 123,
+  );
+  check("joint admission cannot leave an old world transform behind", prepared.resolve(
+    makePose([currentJoint]), operation, new Set(["leftHand"]),
+  ), "leftHand", { x: 0.75, y: 1.4, z: 0 });
+  currentJoint.twist = 90;
+  prepared.resolve(makePose([currentJoint]), operation, new Set(["leftHand"]));
+  TestValidator.predicate("pose followed by a joint read retains the actual local rotation",
+    qclose(prepared.joint(currentJoint, operation), quarter, 1e-12),
+  );
+  currentJoint.twist = NaN;
+  TestValidator.predicate("individual prepared joint reads still admit each current coordinate",
+    throwsError((): IAutoMovieQuaternion => prepared.joint(currentJoint, operation), "finite"),
+  );
+  currentJoint.twist = 0;
+  prepared.joint(currentJoint, operation);
+  TestValidator.predicate("an admitted individual row never certifies a later full authored scan",
+    throwsError((): IAutoMovieResolvedBone[] => prepared.resolve(makePose([
+      joint("chest", { twist: NaN }), currentJoint,
+    ]), operation, new Set()), "finite"),
+  );
+
+  const mappingSkeleton: IAutoMovieSkeleton = createSkeleton();
+  const zTwist: IAutoMovieJointAxes = {
+    flexion: { x: 1, y: 0, z: 0 }, abduction: { x: 0, y: 1, z: 0 }, twist: { x: 0, y: 0, z: 1 },
+  };
+  const parentAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = { chest: zTwist };
+  const inherited: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = Object.create(parentAxes);
+  const affine: IAutoMovieRestFrame = { twist: { sign: -1, neutral: 10 } };
+  const hidden: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = {};
+  Object.defineProperty(hidden, "chest", { value: affine, enumerable: false });
+  const mapped: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(
+    mappingSkeleton, inherited, hidden,
+  );
+  const mappedPose: IAutoMoviePose = makePose([joint("chest", { twist: -80 })]);
+  check("inherited axes and hidden affine frame retain literal Z90 geometry",
+    mapped.resolve(mappedPose, undefined, new Set(["leftHand"])), "leftHand", { x: 0, y: 2.15, z: 0 });
+  parentAxes.chest = {
+    flexion: { x: 1, y: 0, z: 0 }, abduction: { x: 0, y: 0, z: 1 }, twist: { x: 0, y: 1, z: 0 },
+  };
+  affine.twist!.neutral = -80;
+  check("later prototype and hidden-frame edits cannot alter an earlier snapshot",
+    mapped.resolve(mappedPose, undefined, new Set(["leftHand"])), "leftHand", { x: 0, y: 2.15, z: 0 });
+  check("a new mapping snapshot reads the current zero rig angle",
+    prepareSkeletonPoseResolution(mappingSkeleton, inherited, hidden).resolve(
+      mappedPose, undefined, new Set(["leftHand"])), "leftHand", { x: 0.75, y: 1.4, z: 0 });
+
+  parentAxes.chest = zTwist;
+  Object.defineProperty(inherited, "chest", { value: undefined, enumerable: false });
+  check("an own undefined mapping shadows the inherited Z axis and uses default Y",
+    prepareSkeletonPoseResolution(mappingSkeleton, inherited, {}).resolve(
+      makePose([joint("chest", { twist: 90 })]), undefined, new Set(["leftHand"])),
+    "leftHand", { x: 0, y: 1.4, z: -0.75 });
+  const overriding: IAutoMovieSkeleton = createSkeleton();
+  overriding.bones.find((bone: IAutoMovieBone): boolean => bone.bone === "head")!.axes = zTwist;
+  const discarded: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = Object.create(parentAxes);
+  check("a bone override retains the ordinary host spread's discarded inherited entries",
+    prepareSkeletonPoseResolution(overriding, discarded, {}).resolve(
+      makePose([joint("chest", { twist: 90 })]), undefined, new Set(["leftHand"])),
+    "leftHand", { x: 0, y: 1.4, z: -0.75 });
 }
 
 /** Check hand-derived world positions and finite unit world rotations. */

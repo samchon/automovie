@@ -229,7 +229,7 @@ export namespace staggerRecover {
       (): Record<"pitch" | "roll", IAutoMovieVector3> => staggerKnots.bending(body, entry),
     geometry?: ReturnType<typeof prepareStaggerPendulumEntry>,
   ): IRecovery | null {
-    const { REACTION, STEPS } = staggerBounds;
+    const { REACTION, STEPS }: typeof staggerBounds = staggerBounds;
     const pendulum: StaggerPendulum = new StaggerPendulum(
       body,
       entry,
@@ -240,7 +240,7 @@ export namespace staggerRecover {
     let bend: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
     const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
       (): Record<"pitch" | "roll", IAutoMovieVector3> => (bend ??= bending());
-    const { entered, root, forward, across } = pendulum;
+    const { entered, root, forward, across }: StaggerPendulum = pendulum;
 
     // The order of the feet is chosen with the steps: every order of up to
     // `STEPS` steps is tried, the fewest steps first and, among as many, the

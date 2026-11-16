@@ -28,6 +28,7 @@ import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -141,7 +142,7 @@ export namespace pushSled {
    * @evidence contracts/development/implementation.md#principled-implementation The handles are read on the prop's frame at the start; each hand's place on its handle is taken into the leaning chest's frame where the hands arrive and carried with it after, so the load follows the trunk through the grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The handles, the lean, the chest-held places, the contacts, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds refuse; a missing handle refuses with the prop's handles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One current chest read carries both hands; settled frames skip the unused carrier baseline solve. Each fixed search sample prepares its chest and canonical base once, while original tried/refined grasps retain every actual elbow and coupled arm fit until the original cost pruning stops them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One current chest read carries both hands; settled frames skip the unused carrier baseline solve. Each fixed sample prepares its chest/base once, each hand binds its FK names and fixed fist alignment once, and original tried/refined grasps retain every actual elbow/coupled fit until original cost pruning stops them.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact turn/position pairs share their completed grasp only within one unchanged taking posture; the winning grasp is reused. Fixed sample bases share only clamp/root preparation, each candidate still fitting its own full goals, and one operation FK reader serves a hand's actual candidate evaluations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and chosen holds/arrival transform; candidate maps, fixed-sample bases and operation FK readers belong only to the synchronous grasp search and no returned posture captures them.
    */
@@ -149,7 +150,7 @@ export namespace pushSled {
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
+    const body: IHumanActionContext["body"] = context.body;
     const lean: number = p.lean ?? 0;
     HumanBound.within("lean", lean, 0, pushSledStance.RANGE, "degrees");
     if (p.incline !== undefined)
@@ -163,10 +164,11 @@ export namespace pushSled {
 
     const grips: Record<HumanHand.Side, pushSledHandles.IHandle> =
       pushSledHandles.of(context, p.sled, p.left ?? "left", p.right ?? "right");
-    const sockets: Record<HumanHand.Side, IAutoMovieVector3> = {
-      left: HumanHand.offset(body, "left", "grip", "fist").point,
-      right: HumanHand.offset(body, "right", "grip", "fist").point,
+    const hands: Record<HumanHand.Side, HumanHand.IFrame> = {
+      left: HumanHand.offset(body, "left", "grip", "fist"),
+      right: HumanHand.offset(body, "right", "grip", "fist"),
     };
+    const sockets: Record<HumanHand.Side, IAutoMovieVector3> = { left: hands.left.point, right: hands.right.point };
     const walking: IHumanActionContext<walk.IParams> = {
       ...context,
       start: context.start + SETTLE,
@@ -226,6 +228,10 @@ export namespace pushSled {
       bend: hold.bend,
     });
     const bases: Map<IHumanPosture, ReturnType<typeof resolveHumanPosture.prepareBase>> = new Map();
+    const readHand: Record<HumanHand.Side, ReturnType<typeof poseBones.prepare>> = {
+      left: poseBones.prepare(body, new Set<AutoMovieHumanoidBone>(["leftHand"])),
+      right: poseBones.prepare(body, new Set<AutoMovieHumanoidBone>(["rightHand"])),
+    };
     const fit = (
       posture: IHumanPosture,
       side: HumanHand.Side,
@@ -239,8 +245,7 @@ export namespace pushSled {
         prepared = resolveHumanPosture.prepareBase(body, posture);
         bases.set(posture, prepared);
       }
-      return poseBones(body, prepared.seeded(limbs, {}, resolution).pose,
-        resolution(), new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
+      return readHand[side](prepared.seeded(limbs, {}, resolution).pose, resolution());
     };
 
     // Where the arms take the handles when the grips close: each hand's turn
@@ -265,6 +270,7 @@ export namespace pushSled {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
         AutoMovieMotionHumanBend.prepare({ body, posture: taking, side });
+      const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(hands[side]);
       const { frame: at, symmetry, length } = grips[side];
       const grasps: Map<number, Map<number, Grasp>> = new Map();
 
@@ -279,19 +285,14 @@ export namespace pushSled {
           at.point,
           Vector3.scale(at.forward, values[1]!),
         );
-        const wrist: HumanHand.IWrist = HumanHand.reach(
-          body,
-          side,
-          "grip",
-          {
-            point,
+        const wrist: HumanHand.IWrist = placeHumanHandSurface(
+          sockets[side], point, align({
             normal: Quaternion.rotateVector(
               Quaternion.fromAxisAngle(at.forward, values[0]!),
               at.normal,
             ),
             forward: at.forward,
-          },
-          "fist",
+          }),
         );
         const bend: IAutoMovieVector3 = bends.solve({
           point: wrist.point,

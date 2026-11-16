@@ -78,19 +78,39 @@ export namespace walkLegCapsules {
     if (requested === undefined || requested.has(names.Toes!))
       out.set(...resolved(
         names.Toes!,
-        Vector3.add(
-          leg.ankle,
-          Quaternion.rotateVector(
-            leg.rotation,
-            Vector3.subtract(
-              body.rest.get(names.Toes!)!,
-              body.rest.get(names.Foot!)!,
-            ),
-          ),
-        ),
+        toes(body, leg),
         leg.rotation,
       ));
     return out;
+  }
+
+  /**
+   * Place the flat toes joint from the actual ankle and foot rotation.
+   *
+   * @param body The unchanged body owning canonical rest joints.
+   * @param leg The actual solved foot/ankle, world frame.
+   * @returns A fresh world-metre toes origin, with the same flat-toes assumption as bones.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States rest-body identity, actual varying ankle/rotation, world-metre output and the existing flat-toes convention.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the original toes-minus-foot rest offset, actual foot quaternion rotation and ankle addition used by both collider bones and broad-phase axes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One intrinsic offset lookup precedes the shared current rigid-point expression, removing duplicated toe placement from its two collision consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No toes articulation, world pose, rest frame or rotation convention is altered; every current foot is actually transformed without rounding or sampling.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work shares one private rest offset per body/side, omitting repeated rest-map reads and offset subtraction from current collision readings.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical rest joints stay unchanged for one body, as the existing capsule/reference caches already require; another body is required for geometry edits, while no posed output is shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak body entry owns at most two private rest offsets and releases with the body; only a fresh world point escapes and no leg, pose or query history is retained.
+   */
+  export function toes(body: IHumanBody, leg: walkLegClearance.ILeg): IAutoMovieVector3 {
+    let sides: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined = TOES.get(body);
+    if (sides === undefined) {
+      sides = {};
+      TOES.set(body, sides);
+    }
+    let local: IAutoMovieVector3 | undefined = sides[leg.side];
+    if (local === undefined) {
+      local = Vector3.subtract(body.rest.get(`${leg.side}Toes`)!, body.rest.get(`${leg.side}Foot`)!);
+      sides[leg.side] = local;
+    }
+    return Vector3.add(leg.ankle, Quaternion.rotateVector(leg.rotation, local));
   }
   /** A segment's bounding capsule (`capsules`). */
   export interface ICapsule {
@@ -162,14 +182,23 @@ export namespace walkLegCapsules {
         else {
           for (const p of points)
             origin = Vector3.add(origin, Vector3.scale(p, 1 / points.length));
+
           // The principal direction by power iteration on the scatter.
+          const centred: IAutoMovieVector3[] = points.map((p: IAutoMovieVector3): IAutoMovieVector3 => Vector3.subtract(p, origin));
           const scatter: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 => {
-            let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-            for (const p of points) {
-              const d: IAutoMovieVector3 = Vector3.subtract(p, origin);
-              sum = Vector3.add(sum, Vector3.scale(d, Vector3.dot(d, v)));
+            let x: number = 0;
+            let y: number = 0;
+            let z: number = 0;
+
+            // Retain each original component's ordered scaled-point sum,
+            // without two temporary vector records per probe and iteration.
+            for (const d of centred) {
+              const weight: number = Vector3.dot(d, v);
+              x += d.x * weight;
+              y += d.y * weight;
+              z += d.z * weight;
             }
-            return sum;
+            return { x, y, z };
           };
           axis = { x: 0.6, y: 0.48, z: 0.64 };
           for (let k: number = 0; k < 50; k++) {
@@ -270,6 +299,9 @@ export namespace walkLegCapsules {
   const CAPSULES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
     new WeakMap();
 
+  /** Intrinsic toes-minus-foot rest offsets only, at most two per weak body. */
+  const TOES: WeakMap<IHumanBody, Partial<Record<"left" | "right", IAutoMovieVector3>>> = new WeakMap();
+
   /** Each body's segment indices among the audit model's parts (`indices`). */
   const INDICES: WeakMap<IHumanBody, Map<AutoMovieHumanoidBone, number>> =
     new WeakMap();
@@ -308,9 +340,44 @@ export namespace walkLegCapsules {
     q2: IAutoMovieVector3,
   ): number => {
     const d1: IAutoMovieVector3 = Vector3.subtract(q1, p1);
+    return apartFrom(p1, d1, Vector3.dot(d1, d1), p2, q2);
+  };
+
+  /**
+   * Prepare one unchanged capsule axis for its ordered segment-distance tests.
+   *
+   * @param from The axis's first endpoint, world metres.
+   * @param to The axis's second endpoint, world metres.
+   * @returns The same metre gap for each actual other segment's endpoints during this synchronous broad phase.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed and varying world-metre endpoints, metre gap and same-reading lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates Ericson's original segment closest-points algorithm to apartFrom with the first segment's unchanged direction and squared length.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure First-axis preparation precedes one second-axis reader; raw apart and the prepared path share all pair-dependent decisions in apartFrom.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original degeneracy and denominator thresholds, endpoint clamps and vector arithmetic; every ordered pair still computes its actual gap.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation shares the first direction and squared length across its four opposite-leg segments, avoiding their repeated subtraction and dot product without changing the sixteen pair tests.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A leg reading holds the same actual capsule endpoints throughout its nested broad-phase traversal; moved endpoints require a new reader and no pair result is shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each outer-loop reader holds its fixed origin, direction and squared length until that loop completes or throws; no other segment, gap or pose history is retained.
+   */
+  export function prepareApart(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+  ): (otherFrom: IAutoMovieVector3, otherTo: IAutoMovieVector3) => number {
+    const direction: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const squared: number = Vector3.dot(direction, direction);
+    return (otherFrom: IAutoMovieVector3, otherTo: IAutoMovieVector3): number =>
+      apartFrom(from, direction, squared, otherFrom, otherTo);
+  }
+
+  /** Ericson's unchanged pair-dependent closest-points rule with the first axis supplied. */
+  function apartFrom(
+    p1: IAutoMovieVector3,
+    d1: IAutoMovieVector3,
+    a: number,
+    p2: IAutoMovieVector3,
+    q2: IAutoMovieVector3,
+  ): number {
     const d2: IAutoMovieVector3 = Vector3.subtract(q2, p2);
     const r: IAutoMovieVector3 = Vector3.subtract(p1, p2);
-    const a: number = Vector3.dot(d1, d1);
     const e: number = Vector3.dot(d2, d2);
     const f: number = Vector3.dot(d2, r);
     const clamp: (v: number) => number = (v: number): number => Math.min(1, Math.max(0, v));
@@ -347,5 +414,5 @@ export namespace walkLegCapsules {
         Vector3.add(p2, Vector3.scale(d2, t)),
       ),
     );
-  };
+  }
 }

@@ -40,10 +40,11 @@ export function prepareRiseFeet(props: {
   /** Fixed-yaw standing geometry with current-root knee goals. */
   legged: ReturnType<typeof stand.prepareLegs>;
 }): (root: IAutoMovieVector3, seconds: number) => IHumanPosture["limbs"] {
-  const footAt = (
+  /** Read one original foot swing together with its planted endpoint rule. */
+  function footAt(
     side: "left" | "right",
     t: number,
-  ): { ankle: IAutoMovieVector3; planted: boolean } => {
+  ): { ankle: IAutoMovieVector3; planted: boolean } {
     const swing: readonly [number, number] | undefined = props.swings[side];
     if (swing === undefined || t <= swing[0])
       return { ankle: props.feet[side], planted: true };
@@ -58,7 +59,7 @@ export function prepareRiseFeet(props: {
       ankle: { ...ankle, y: ankle.y + props.lift * Math.sin(Math.PI * u) },
       planted: false,
     };
-  };
+  }
   return (root: IAutoMovieVector3, seconds: number): IHumanPosture["limbs"] => {
     const placed: Record<"left" | "right", ReturnType<typeof footAt>> = {
       left: footAt("left", seconds),

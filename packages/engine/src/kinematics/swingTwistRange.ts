@@ -21,6 +21,7 @@ import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 import { skeletonJointAxes } from "./skeletonJointAxes";
+import { placeSwingTwistChart } from "./placeSwingTwistChart";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
 import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
@@ -344,25 +345,7 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IJoint,
   ): IAutoMovieQuaternion {
-    const basis: swingTwistBasis.IBasis = SwingTwistFramePreparation.basis(joint);
-    const k: number = Math.hypot(place.x, place.y);
-    const azimuth: number = k > 1e-12 ? Math.atan2(place.y, place.x) * DEG : 0;
-    return Quaternion.normalize(
-      Quaternion.multiply(
-        rotationBetween(
-          basis.u,
-          swingTwistBasis.direction(
-            basis,
-            k * radius(constraint, joint, azimuth),
-            azimuth,
-          ),
-        ),
-        Quaternion.fromAxisAngle(
-          basis.u,
-          toRigAngle(place.twist, joint.frame?.twist)!,
-        ),
-      ),
-    );
+    return placeSwingTwistChart(place, constraint, joint, radius);
   }
 
   /**
@@ -421,11 +404,11 @@ export namespace swingTwistRange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed rest-relative endpoints/rig lifetime, ordered eager chart admission, actual per-share inversion, fresh rotation and caller-owned release.
    * @evidence contracts/development/implementation.md#principled-implementation Endpoint chart coordinates depend only on those unchanged rotations and the same region/frame. Sharing their exact completed values leaves from+(to-from)*share and the existing placed inversion unchanged, including extrapolation/nonfinite share arithmetic.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct blend and this fixed-pair reader share one private three-coordinate interpolation owner and the same chart/placed functions; no chart algorithm is copied into a Human consumer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct blend and this fixed-pair reader share one private three-coordinate interpolation owner and the same chart/inversion owner; no chart algorithm is copied into a Human consumer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share clamp, new endpoint shortcut, projection, tolerance or normalization skip is added. First construction preserves chart(a) before chart(b); later reads assume the declared immutable endpoints/constraint/frame and evaluate every current share normally.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation performs the original two constant-size chart computations once; each share retains three coordinate expressions and actual placed/radius/rotation work, omitting repeated endpoint readings and their records. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual fixed-endpoint Human joint blender borrows this reader only under one unchanged pair/rig. Only endpoint coordinates cross reads; share-dependent coordinates/quaternions and outputs remain fresh, with no result history or global key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure holds two three-scalar chart records plus borrowed constraint/joint until pair release. Endpoint quaternions need not remain retained after construction. Every share returns its actual placed quaternion and retains no input share/output, handle or task.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation performs the original two constant-size chart computations once; each share retains three coordinate expressions and actual placed/radius/rotation work, omitting repeated endpoint readings and their records. The inversion reader additionally shares successful fixed basis/source/axis/affine work, first reached at its original numerical sites. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual fixed-endpoint Human joint blender borrows this reader only under one unchanged pair/rig. Endpoint coordinates and successful rig-only inversion preparation cross reads; share-dependent coordinates/quaternions and outputs remain fresh, with no result history or global key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller-owned reader holds two three-scalar chart records, borrowed constraint/joint and one lazy inversion reader with at most one basis, normalized source, axis preparation and affine reader until pair release. Endpoint quaternions need not remain retained after construction. Every share returns its actual placed quaternion and retains no input share/output, handle or task.
    */
   export function prepareBlend(
     a: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
@@ -433,20 +416,24 @@ export namespace swingTwistRange {
   ): (share: number) => IAutoMovieQuaternion {
     const from: IChart = chart(a, constraint, joint);
     const to: IChart = chart(b, constraint, joint);
+    const place: (coordinate: IChart) => IAutoMovieQuaternion =
+      placeSwingTwistChart.prepare(constraint, joint, radius);
     return (share: number): IAutoMovieQuaternion =>
-      blendCharts(from, to, share, constraint, joint);
+      blendCharts(from, to, share, constraint, joint, place);
   }
 
   /** Original chart expressions, shared without a second interpolation algorithm. */
   function blendCharts(
     from: IChart, to: IChart, share: number,
     constraint: IAutoMovieJointConstraint, joint: IJoint,
+    read?: (coordinate: IChart) => IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
-    return placed({
+    const coordinate: IChart = {
       x: from.x + (to.x - from.x) * share,
       y: from.y + (to.y - from.y) * share,
       twist: from.twist + (to.twist - from.twist) * share,
-    }, constraint, joint);
+    };
+    return read === undefined ? placed(coordinate, constraint, joint) : read(coordinate);
   }
   /**
    * The swing region's radius on one great circle, degrees, read off the

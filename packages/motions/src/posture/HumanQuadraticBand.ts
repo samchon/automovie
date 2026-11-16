@@ -26,8 +26,8 @@ export namespace HumanQuadraticBand {
    * Equilibrated data: `P̄ = c D P D`, `q̄ = c D q`, `Ā = E A D`,
    * `l̄ = E l`, `ū = E u`, and soft weight `c w / E`.
    *
-   * @evidence contracts/development/design.md#principled-representation Stores an upper-band symmetric P, ordered CSR rows and positive D/E/c transformations; Preparation admits finite matrices and preserves absent infinite bounds, while types alone cannot enforce dimensions or convexity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies matrices, intervals, penalties, scales and diagonal metadata to the existing readers; one-shot solves borrow original layouts while fixed models copy only zero-bearing rows, with owner-local restoration excluded from the retained numeric core.
+   * @evidence contracts/development/design.md#principled-representation Stores upper-band symmetric P, original ordered CSR rows, topology-only factor/transpose positions and positive D/E/c transformations; Preparation admits finite matrices and preserves absent infinite bounds, while types alone cannot enforce dimensions or convexity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies matrices, intervals, penalties, scales and exact structural metadata to current readers; factor-only positions preserve each K cell's sequence and transpose positions each rhs column's sequence. One-shot solves borrow original layouts while fixed models copy only zero-bearing rows, with owner-local restoration excluded from the retained numeric core.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains generic dimensions/duplicates without a body category; -1 remains the hard-row sentinel. Numeric core arrays and borrowed or copied original layouts stay unchanged, and exceptional products restore actual zeros instead of suppressing nonfinite propagation.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the scaling equations, compression offsets, hard-weight sentinel and the purpose of each numeric member.
    */
@@ -79,6 +79,27 @@ export namespace HumanQuadraticBand {
 
     /** CSR entry position of a row with exactly one stored coefficient; -1 for empty or multi-entry rows. */
     singleton: Int32Array;
+
+    /** Stable factor-only CSR positions for unordered rows; original row products keep their original order. */
+    factorOrder?: {
+      /** Prefix positions of each row's factor-only order; ordered rows own empty spans. */
+      start: Int32Array;
+
+      /** Original CSR entry positions sorted by column then original position. */
+      entries: Int32Array;
+    };
+
+    /** Column gathers preserving the original CSR contribution sequence for each variable. */
+    transpose: {
+      /** n+1 column offsets into the parallel source row and entry buffers. */
+      start: Int32Array;
+
+      /** Original row index of each contribution, in original order within its column. */
+      rows: Int32Array;
+
+      /** Original CSR entry position supplying the current scaled coefficient. */
+      entries: Int32Array;
+    };
 
     /** Original index/coef layout for exceptional zero restoration; one-shot wrappers borrow admitted rows, fixed models copy only zero-bearing rows. Absence means CSR already preserves that entire original row. */
     raw: readonly (Pick<Q.IRow, "index" | "coef"> | undefined)[];

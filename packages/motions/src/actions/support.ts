@@ -16,7 +16,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanBodyFit } from "../posture/HumanBodyFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { knockdown } from "../reaction/knockdown";
+import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 import { supportWindows } from "./supportWindows";
@@ -106,11 +106,11 @@ export namespace support {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Each key is the whole-body fit on its contacts, seeded from the key before; a transition key holds both stances' contacts at once; the course between keys is a minimum-jerk blend of each joint on its range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys solved once, then a posture read from the two keys around a second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys are solved once and each fixed interval is prepared, then a posture reads its surrounding keys and that interval's actual interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two fits per stance after the first, three for a step, solved once at plan time; each posture blends one pair of keys.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are solved once and every posture reads them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its keys only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two fits per stance after the first, three for a step, remain once at plan time; each fixed interval prepares its joint pairs/common pin and measures its fixed source point once, while every posture retains current ROM interpolation, achieved-point solve and floor reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved keys, contact order and completed entry-time contact places define immutable interval geometry; prepared intervals share only those fixed inputs and source-point measurements, with no current pose or floor-result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its keys and one finite preparation per adjacent interval until release; those intervals retain fixed endpoint metadata/source points but no queried time, current pose or FK workspace.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -173,19 +173,42 @@ export namespace support {
     // place keeps where its first key laid it, or its entry place for a part
     // the body already rests on as it enters.
     const laid: Map<string, IAutoMovieVector3> = new Map();
-
-    for (const c of stances[0]!.contacts)
-      if (
-        c.target === undefined &&
+    /** Read each newly held floor datum once on this exact key, preserving first contact identity. */
+    const recordFloors: (
+      posture: IHumanPosture,
+      contacts: readonly HumanSupport.IContact[],
+    ) => void = (
+      posture: IHumanPosture,
+      contacts: readonly HumanSupport.IContact[],
+    ): void => {
+      const pending: Set<string> = new Set();
+      const added: { id: string; part: HumanSupport.Part }[] = [];
+      for (const contact of contacts) {
+        if (contact.target !== undefined) continue;
+        const id: string = supportContact.id(contact);
+        if (laid.has(id) || pending.has(id)) continue;
+        pending.add(id);
+        added.push({ id, part: contact.part });
+      }
+      const points: IAutoMovieVector3[] = supportContact.onFloors(
+        body,
+        posture,
+        added.map(
+          (item: (typeof added)[number]): HumanSupport.Part => item.part,
+        ),
+      );
+      for (let i: number = 0; i < added.length; ++i)
+        laid.set(added[i]!.id, points[i]!);
+    };
+    recordFloors(
+      entry,
+      stances[0]!.contacts.filter((contact: HumanSupport.IContact): boolean =>
         context.entry.supports.some(
-          (s: { part: string }): boolean =>
-            s.part === supportContact.window(c.part),
-        )
-      )
-        laid.set(
-          supportContact.id(c),
-          supportContact.onFloor(body, entry, c.part),
-        );
+          (support: { part: string }): boolean =>
+            support.part === supportContact.window(contact.part),
+        ),
+      ),
+    );
     const place = (c: HumanSupport.IContact): IAutoMovieVector3 | null =>
       at(c) ?? laid.get(supportContact.id(c)) ?? null;
 
@@ -214,12 +237,7 @@ export namespace support {
     ];
     const push = (key: IKey): void => {
       keys.push(key);
-      for (const c of key.contacts)
-        if (c.target === undefined && !laid.has(supportContact.id(c)))
-          laid.set(
-            supportContact.id(c),
-            supportContact.onFloor(body, key.posture, c.part),
-          );
+      recordFloors(key.posture, key.contacts);
     };
     let seconds: number = 0;
     stances.forEach((stance: HumanSupport.IStance, i: number): void => {
@@ -351,6 +369,17 @@ export namespace support {
       });
     });
     const duration: number = seconds;
+    const intervals: ReturnType<typeof prepareSupportInterval>[] = keys
+      .slice(0, Math.max(1, keys.length - 1))
+      .map(
+        (key: IKey, i: number): ReturnType<typeof prepareSupportInterval> =>
+          prepareSupportInterval(
+            body,
+            key,
+            keys[Math.min(i + 1, keys.length - 1)]!,
+            place,
+          ),
+      );
 
     return {
       duration,
@@ -366,7 +395,8 @@ export namespace support {
         const a: IKey = keys[k]!;
         const b: IKey = keys[Math.min(k + 1, keys.length - 1)]!;
         const span: number = b.seconds - a.seconds;
-        const w: number = span > 0 ? minimumJerk((s - a.seconds) / span).s : 1;
+        const w: number =
+          span > 0 ? minimumJerk.share((s - a.seconds) / span) : 1;
         if (w === 0) return k === 0 ? entry : a.posture;
         if (w === 1) return b.posture;
 
@@ -374,56 +404,7 @@ export namespace support {
         // on their colliders; raised contacts keep their world height,
         // bounded by floor nonpenetration. This single pivot does not
         // constrain every other held contact along the course.
-        const shaped: IHumanPosture = supportKey.blended(
-          body,
-          a.posture,
-          b.posture,
-          w,
-        );
-        const pin: HumanSupport.IContact | undefined = a.contacts.find(
-          (p: HumanSupport.IContact): boolean =>
-            b.contacts.some((q: HumanSupport.IContact): boolean =>
-              supportContact.same(p, q),
-            ),
-        );
-        if (pin === undefined)
-          return {
-            ...shaped,
-            root: {
-              ...shaped.root,
-              y: Math.max(shaped.root.y, knockdown.rest(body, shaped)),
-            },
-          };
-        const held: IAutoMovieVector3 = supportContact.point(
-          body,
-          a.posture,
-          pin,
-          place(pin),
-        );
-        const now: IAutoMovieVector3 = supportContact.point(
-          body,
-          shaped,
-          pin,
-          place(pin),
-        );
-        const moved: IHumanPosture = {
-          ...shaped,
-          root: {
-            x: shaped.root.x + held.x - now.x,
-            y: shaped.root.y + held.y - now.y,
-            z: shaped.root.z + held.z - now.z,
-          },
-        };
-        return {
-          ...moved,
-          root: {
-            ...moved.root,
-            y:
-              supportContact.form(body, pin, place(pin)).bearing === undefined
-                ? Math.max(moved.root.y, knockdown.rest(body, moved))
-                : knockdown.rest(body, moved),
-          },
-        };
+        return intervals[k]!(w);
       },
     };
   }

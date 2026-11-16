@@ -1,7 +1,5 @@
 import {
   type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
   type curlChainUntilContact,
   physicalShapeSpan,
 } from "@automovie/engine";
@@ -9,16 +7,16 @@ import type {
   AutoMovieGripKind,
   AutoMovieHumanoidBone,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanProp } from "../perform/IHumanProp";
-import { HumanHand } from "../posture/HumanHand";
+import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGraspReach } from "./HumanGraspReach";
+import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 
 /**
@@ -188,26 +186,7 @@ export namespace HumanGrasp {
     body: IHumanBody,
     side: HumanHand.Side,
   ): (target: IFrame, tilt?: number) => HumanHand.IWrist {
-    const grip: HumanHand.IFrame = HumanHand.offset(body, side, "grip", "flat");
-    const palm: IAutoMovieVector3 = HumanHand.offset(body, side, "palm", "flat").point;
-    const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(grip);
-    return (target: IFrame, tilt: number = 0): HumanHand.IWrist => {
-      // The grip fixes the turn; the tilted palm stays on the actual near
-      // surface, half the grasped width back along the approach.
-      const turn: IAutoMovieQuaternion = align({ normal: target.approach, forward: target.axis });
-      const tilted: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(target.approach, tilt),
-          turn,
-        ),
-      );
-      return {
-        point: Vector3.subtract(Vector3.subtract(target.point,
-          Vector3.scale(target.approach, target.width / 2)),
-          Quaternion.rotateVector(tilted, palm)),
-        rotation: tilted,
-      };
-    };
+    return HumanGraspHand.prepare(body, side);
   }
 
   /**

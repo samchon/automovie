@@ -272,11 +272,11 @@ export namespace AutoMovieMotionHumanLeg {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the window and what the foot does in it.
    * @evidence contracts/development/implementation.md#principled-implementation A stance foot is one placement that bears throughout.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed goal reader supplies a direct limb update over the named window.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place primitive supplies the borrowed placement over the named window and declares its root/own-leg input channels.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is two named instants of the clock, so no time is written twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareGoal shares only the unchanged foot heading/contact; the actual root/yaw knee is computed every write. Explicit root/own-leg reads preserve direct leg joints during composition without evaluating unrelated channels.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed placement heading/contact prepare once; every write performs its actual knee calculation and fresh limb/goal update, while arbitrary place callbacks keep complete dependencies.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains fixed arguments and one bounded goal reader until released; it stores no per-second posture or goal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates current placement values and the actual root/yaw knee to place/goal. Explicit root/own-leg reads preserve direct leg joints while omitting unrelated prefix writers; callers owning unchanged geometry can use prepareGoal as crouch does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant goal work remains per write, with dependency-aware prefix reads. Borrowed placement values stay live; no immutable-geometry premise is added to this existing factory.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its borrowed arguments and constant callbacks until released, storing no prepared placement result or time history.
    */
   export function plant(
     body: IHumanBody,
@@ -285,19 +285,15 @@ export namespace AutoMovieMotionHumanLeg {
     window: readonly [string, string],
     at: HumanFoot.IPlacement,
   ): IAutoMovieMotionHumanPrimitive {
-    const from: number = clock.at(window[0]);
-    const to: number = clock.at(window[1]);
-    const read: ReturnType<typeof prepareGoal> = prepareGoal(body, side, at, true);
-    const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
-    return {
-      channels: [limb],
-      reads: ["root", limb],
-      from,
-      to,
-      write: (posture: IHumanPosture): IHumanPosture => ({
-        ...posture, limbs: { ...posture.limbs, [limb]: read(posture) },
-      }),
-    };
+    const primitive: IAutoMovieMotionHumanPrimitive = place({
+      body,
+      side,
+      from: clock.at(window[0]),
+      to: clock.at(window[1]),
+      placement: (): HumanFoot.IPlacement => at,
+      planted: (): boolean => true,
+    });
+    return { ...primitive, reads: ["root", `${side}Leg`] };
   }
 
   /**
@@ -318,9 +314,9 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#principled-implementation A swing foot travels its arc on the minimum-jerk profile and bears only once it has arrived, so it lands without sliding.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `place` with the arc and the landing test.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bearing is read from the clock's linear share reaching 1 and not from the eased progress, which approaches 1 before the instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates current progress and bearing to the clock, while prepareArc shares only the fixed endpoint quaternion invariants through the engine owner. Root/own-leg dependencies preserve direct leg joints and omit unrelated prefix writers; arbitrary place callbacks remain unrestricted.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates current progress/bearing to the clock and live borrowed endpoint values to arc. Root/own-leg dependencies preserve direct leg joints and omit unrelated prefix writers; explicitly fixed-pair consumers use prepareArc without changing this existing factory's borrowed-input behavior.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains fixed endpoints/clearance, clock/window and one bounded prepared arc reader until released, without time samples or placement results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its borrowed endpoints, clearance and clock/window until released, without prepared placement results or time history.
    */
   export function step(
     body: IHumanBody,
@@ -331,14 +327,13 @@ export namespace AutoMovieMotionHumanLeg {
     to: HumanFoot.IPlacement,
     clearance: number,
   ): IAutoMovieMotionHumanPrimitive {
-    const swing: ReturnType<typeof prepareArc> = prepareArc(from, to, clearance);
     const primitive: IAutoMovieMotionHumanPrimitive = place({
       body,
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
       placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
-        swing(clock.progress(window[0], window[1], seconds)),
+        arc(from, to, clearance, clock.progress(window[0], window[1], seconds)),
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,
     });

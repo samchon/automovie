@@ -26,9 +26,9 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#principled-implementation Ordinary geometry uses supporting planes through non-collinear triples with every point behind them (de Berg et al., Computational Geometry, chapter 11), then Andrew's monotone-chain loops. An issued X reflection first reconfirms every actual coordinate before applying the exact support-plane isometry and the same planar loop/summary owners.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of hull topology: the nearest-point query, bounds, mass, erosion, validation and the native mapping all read these faces instead of deriving their own.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1e-9 extent-relative tolerance and all plane/member tests remain. Extent keeps diagonal nonfinite propagation and omits only symmetric reverse distances. A candidate stops only once monotone front/back evidence proves it cannot support any hull; reflected geometry must pass exact coordinate checks before planes are derived, without a caller-supplied cached-hull flag.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary supporting triples remain cubic to quartic in V points, once per array. Extent uses diagonal plus unordered distances without displacement records; direct covered loops omit callbacks and store only sets capable of covering a future triple. Interior planes stop after both sides are proved. Validated reflection uses O(V) checks and O(F V log V) planar ordering instead of another triple search; later reads are weak lookups.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Supporting triples remain cubic to quartic in V points. Extent omits reverse distances; one cross/normal workspace omits up to four candidate vector records. Coverage checks visit only prior faces actually containing first index i; accepted memberships are linked to future first indices in O(V), and finished lists release immediately. Interior planes stop after both sides are proved. Validated reflection uses O(V) checks and O(F V log V) ordering; later reads are weak lookups.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each points array shares one completed hull through the existing weak map. Only mirrorX-issued provenance plus exact actual-coordinate checks can derive an isometric source hull; edited fresh points revert to ordinary search without trusting a caller-supplied hull.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak completed cache owns one hull per live points array. A second weak entry borrows source points until a fresh reflection's first attempted topology read, releasing provenance in finally on success, edited-output fallback or failure. No query geometry or body history is retained.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak completed cache owns one hull per live points array. Raw search owns O(F V) boolean membership/incidence data for F accepted faces and V points, releasing each completed first-index list and all remaining scratch on return/throw. Reflection provenance borrows source points only until its first attempted read, then releases in finally on success, edited-output fallback or failure. No query/body history is retained.
  */
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
@@ -61,26 +61,28 @@ export function physicalHullFaces(
   }
   const tolerance: number = 1e-9 * extent;
   const faces: physicalHullFaces.IFace[] = [];
-  const members: boolean[][] = [];
+  const membersByFirst: boolean[][][] = Array.from({ length: count }, (): boolean[][] => []);
   const used: boolean[] = points.map((): boolean => false);
-  for (let i: number = 0; i < count; i++)
+  const raw: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const normal: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  for (let i: number = 0; i < count; i++) {
     for (let j: number = i + 1; j < count; j++)
       for (let k: number = j + 1; k < count; k++) {
         let covered: boolean = false;
-        for (const member of members)
-          if (member[i]! && member[j]! && member[k]!) {
+        for (const member of membersByFirst[i]!)
+          if (member[j]! && member[k]!) {
             covered = true;
             break;
           }
         if (covered) continue;
-        const raw: IAutoMovieVector3 = Vector3.cross(
-          Vector3.subtract(points[j]!, points[i]!),
-          Vector3.subtract(points[k]!, points[i]!),
-        );
+        Vector3.crossDifferenceInto(raw, points[i]!, points[j]!, points[k]!);
         const area: number = Vector3.length(raw);
         // Collinear or coincident triples span no plane.
         if (!(area > tolerance * extent)) continue;
-        let normal: IAutoMovieVector3 = Vector3.scale(raw, 1 / area);
+        const reciprocal: number = 1 / area;
+        normal.x = raw.x * reciprocal;
+        normal.y = raw.y * reciprocal;
+        normal.z = raw.z * reciprocal;
         let offset: number = Vector3.dot(normal, points[i]!);
         let front: boolean = false;
         let back: boolean = false;
@@ -97,7 +99,9 @@ export function physicalHullFaces(
         // whole set is flat and encloses no volume.
         if (front === back) continue;
         if (front) {
-          normal = Vector3.scale(normal, -1);
+          normal.x *= -1;
+          normal.y *= -1;
+          normal.z *= -1;
           offset = -offset;
         }
         let extendsTriple: boolean = false;
@@ -116,13 +120,22 @@ export function physicalHullFaces(
         // cannot cover any later i<j<k. Keep every other set, including a
         // numeric case where the plane omitted one of its original indices.
         if (extendsTriple || !member[i] || !member[j] || !member[k])
-          members.push(member);
+          for (let first: number = i; first < count - 2; first++)
+            if (member[first]) membersByFirst[first]!.push(member);
+
+        // Candidate scratch must not enter a retained hull. Only accepted
+        // outward normals receive their own numeric record.
         faces.push({
-          normal,
+          normal: { x: normal.x, y: normal.y, z: normal.z },
           offset,
           loop: loop.map((index: number): IAutoMovieVector3 => points[index]!),
         });
       }
+
+    // Only actual memberships in i can cover its triples. Once this first
+    // index is complete, its incidence list cannot serve another candidate.
+    membersByFirst[i]!.length = 0;
+  }
   const hull: physicalHullFaces.IHull = summarize(points, faces, used, tolerance);
   HULLS.set(points, hull);
   return hull;

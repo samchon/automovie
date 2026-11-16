@@ -78,7 +78,9 @@ export function prepareStand(
   const on: stand.IParams["on"] =
     context.params.on ??
     (inherited === undefined ? undefined : { prop: inherited });
-  const carried = (seconds: number): HumanSupportCarry.ICarry | undefined =>
+  const carried: (seconds: number) => HumanSupportCarry.ICarry | undefined = (
+    seconds: number,
+  ): HumanSupportCarry.ICarry | undefined =>
     on === undefined
       ? undefined
       : HumanSupportCarry.of(

@@ -168,8 +168,8 @@ export namespace gesture {
    * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, the moving arms planned to, on and from them as one trajectory clear of the body; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. The entry's and the rest's arm angles are joint angles, so they follow the standing body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing, transport and the channels and hands it declares; the body under it is the stand law's or, over a carrier, the carrier's (`under`); gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Only moving-hand gestures resolve entry/rest arms and plan trajectories; a bow keeps its balance solve. Planned playback reads one base, direct joint/finger laws and cubic arms, without constructing discarded hand goals or their target/FK/rotation/bend geometry. Planning and endpoints retain complete goals; fixed hand metadata and padding are prepared once and the planner shares exact prior-posture geometry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Phase times, entry/rest arms, each stroke's actual fixed working shape, digit directions, palm-plane turn, self-touch padding and bow shift belong to one immutable plan. Full goals and geometry-free playback share the same beckon curl and finger writer; planner goals share the exact completed before posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Only moving hands resolve entry/rest arms and plan trajectories; a bow keeps its balance solve. Planned playback reads one base, actual direct joint/finger laws and cubic arms without discarded target/FK/rotation/bend geometry. Kinds declaring no direct joint keys skip their empty map/entry array; planning/endpoints retain complete goals and fixed hand/padding metadata prepares once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Phase times, actual closed-kind direct-joint membership, entry/rest arms, fixed working shape, digit directions, palm-plane turn, padding and bow shift belong to one immutable plan. Membership only skips kinds whose exhaustive joint writer returns no keys for every share; all time-varying angles remain actual. Full goals/playback share curl/finger owners and planner goals share the exact completed before posture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, parameters, phase times and start and rest hands, released with the performance; nothing grows per call.
    */
   export function plan(
@@ -347,12 +347,11 @@ export namespace gesture {
     // What the gesture moves, which an overlay takes from its carrier: the
     // moving arms with their hands, the parts its joint angles belong to and,
     // for a bow, the root and the trunk.
+    const direct: readonly AutoMovieHumanoidBone[] = Object.keys(
+      gestureJoints.at(p.kind, 0.25, cycles, 1, 1),
+    ) as AutoMovieHumanoidBone[];
     const claimed: Set<AutoMovieMotionHumanChannel> = new Set(
-      (
-        Object.keys(
-          gestureJoints.at(p.kind, 0.25, cycles, 1, 1),
-        ) as AutoMovieHumanoidBone[]
-      ).map(AutoMovieMotionHumanChannel.of),
+      direct.map(AutoMovieMotionHumanChannel.of),
     );
     for (const side of sides) {
       claimed.add(`${side}Arm`);
@@ -396,14 +395,15 @@ export namespace gesture {
 
       // Head, shoulder and trunk angles, added to what the stand holds.
       const joints: IHumanPosture["joints"] = { ...posture.joints };
-      for (const [bone, add] of Object.entries(
-        gestureJoints.at(p.kind, u, cycles, envelope, mods.extent),
-      ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [was[0] + add[0], was[1] + add[1], was[2] + add[2]];
-      }
+      if (direct.length !== 0)
+        for (const [bone, add] of Object.entries(
+          gestureJoints.at(p.kind, u, cycles, envelope, mods.extent),
+        ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+          const was: readonly [number, number, number] = joints[bone] ?? [
+            0, 0, 0,
+          ];
+          joints[bone] = [was[0] + add[0], was[1] + add[1], was[2] + add[2]];
+        }
 
       // Hands: on the stroke's goals, and planned to its start and back
       // to rest.
