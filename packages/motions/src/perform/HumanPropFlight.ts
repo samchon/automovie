@@ -53,13 +53,29 @@ import type { IHumanProp } from "./IHumanProp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight is the engine's, never a second closed form; the sweep is the engine's one resolver.
  */
 export namespace HumanPropFlight {
-  /** What a flight struck. */
+  /**
+   * The physical carrier of a contact: a person's canonical bone, a prop,
+   * or the world ground. Subjects are the performance's authored identities.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the three contact carriers and the subject/bone identifiers used to follow a struck frame.
+   * @evidence contracts/development/design.md#principled-representation A closed tagged union carries exactly the identity required by each carrier's world-frame reader.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Flight contacts and continuation meetings use this shared carrier representation; ground needs no invented subject.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves actual person/bone or prop identity rather than embedding a cached world frame or an outcome decision.
+   */
   export type Struck =
     | { kind: "person"; subject: string; bone: AutoMovieHumanoidBone }
     | { kind: "prop"; subject: string }
     | { kind: "ground" };
 
-  /** One flight of a prop. */
+  /**
+   * One authored launch and its physical continuation. Launch/end are film
+   * seconds; the projectile and continuation legs use launch-relative time.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines prop/source/publication provenance, film versus projectile clocks, optional first contact and later legs; member comments give units and unended meaning.
+   * @evidence contracts/development/design.md#principled-representation Keeps the original launch, engine projectile and ordered contact legs together instead of reconstructing motion from sampled display frames.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Frame playback and hit reporting consume this same flight record; absent contact and infinite end represent a genuinely unended flight.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores actual sweep/outcome results without a second ballistic formula, fabricated contact or separate flight-success flag.
+   */
   export interface IFlight {
     /** The prop. */
     prop: string;
@@ -86,7 +102,15 @@ export namespace HumanPropFlight {
     legs?: readonly HumanPropOutcome.ILeg[];
   }
 
-  /** Where and how a flight struck. */
+  /**
+   * A resolved contact's world geometry and the prop's frame relative to
+   * its actual carrier. Velocity is metres per second; offsets use metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines struck identity, world point/normal/velocity, carrier-relative offset and the selected physical outcome.
+   * @evidence contracts/development/design.md#principled-representation Separates world impact geometry from the carrier-relative rest frame so a struck bone or prop may continue moving.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Flight playback follows offset while hit reporting reads point/normal/velocity and carrier identity; outcomes use the existing closed names.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains the actual contact and outcome rather than a surrogate target or a stale posed carrier frame.
+   */
   export interface IContact {
     /** What it struck. */
     struck: Struck;
@@ -113,6 +137,14 @@ export namespace HumanPropFlight {
    * @param self The performance.
    * @param subject The prop.
    * @returns The flights.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines performance/prop input and film-ordered launch results, including an empty result for a missing prop or no admitted launches.
+   * @evidence contracts/development/implementation.md#principled-implementation Collects actual published launches inside their segment windows, sorts by film time and delegates each launch's sweep and continuation to the physical owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Cache/provisional lookup precedes launch collection and one ordered construction pass; finally removes the provisional recursion entry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the existing entry-window tolerances and all launches; resolving performances never populate the completed-flight cache, and physical refusal still propagates.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cold read scans published launches and sorts L matching launches in O(L log L), then pays each actual physical sweep/continuation cost. A completed cached read uses nested map lookups.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The weak performance owner shares completed flights only outside its resolving phase; a provisional same-prop list breaks recursive frame reads during the current construction.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Finally removes the provisional subject on success or refusal. Completed records retain their launch/physical data per live performance and prop; weak performance ownership releases both maps with that performance.
    */
   export function flights(
     self: HumanPerformanceState,
@@ -175,6 +207,14 @@ export namespace HumanPropFlight {
    * @param seconds Film seconds.
    * @param since Film second before which a launch is overtaken by a later grip.
    * @returns The frame, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States film-time selection, latest-grip cutoff, absent-flight result and the returned current world frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the engine projectile before contact, the active engine continuation leg afterward, or composes the resting offset with the actual current struck carrier.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the latest eligible launch, follows its ordered legs, then handles world rest or a moving carrier in one final branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original projectile/continuation clock and contact frames; it neither extrapolates a frozen impact frame nor invents a flight before its launch or after a later grip.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans L cached launches and at most C continuation legs, then delegates one actual state or carrier read; a cold flights lookup additionally incurs its documented construction work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the performance's physical flight records and the engine's existing state samplers; it computes the currently requested frame without a timestamp-result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only call-local launch/contact references and returns the existing world offset or a current frame; no new query history, callback or process is retained.
    */
   export function frame(
     self: HumanPerformanceState,

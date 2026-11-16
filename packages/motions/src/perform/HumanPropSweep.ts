@@ -45,6 +45,14 @@ export namespace HumanPropSweep {
    * @param horizon Seconds after its zero the film still runs.
    * @param leave A collider's id to leave out: the body a pass goes through.
    * @returns The first meeting, or null when it meets nothing before the horizon.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines film versus projectile clocks, launcher/pass exclusions, actual person/prop/floor colliders, optional tip capsule and first-meeting/null output.
+   * @evidence contracts/development/implementation.md#principled-implementation Supplies current displayed collider frames and the original least-thickness step to the engine first-contact resolver, then maps its actual hit to a ground, prop or nearest canonical person bone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds person and non-flying-prop colliders after the floor, runs one engine sweep, then resolves the hit's performance identity.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the launcher, flying-prop and pass exclusions, bounding-sphere reject and finger-thickness blind spot. It neither chooses a different scene nor relaxes contact or replaces capsule geometry with endpoints.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Collider construction scans actors, prop shapes and launch declarations; prop filtering may rescan launches for each prop. The engine's scan and refinement cost scales with its actual step count, collider count and live geometry callbacks; the final person hit adds one nearest query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses displayed performance readers, shared HumanColliders geometry and the single engine sweep; least thickness is derived from the actual participating body and prop shapes in this call, without a separate collision or time-result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collider callbacks and shape arrays live only for this synchronous sweep; the returned meeting retains hit data and ids rather than source callbacks, bodies or numerical query history.
    */
   export function sweep(
     self: HumanPerformanceState,
