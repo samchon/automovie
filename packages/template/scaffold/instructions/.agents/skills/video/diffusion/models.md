@@ -2,25 +2,44 @@
 
 These current models show how differently a model takes the motion hint, sets [adherence](../requests.md#adherence) and continues a take; the user may choose any other. Read the chosen model's values from its own documentation, as [model documentation](SKILL.md#model-documentation) sets.
 
-| Model | Takes the hint as | Sets adherence by | Continues a take by | Documentation |
-| --- | --- | --- | --- | --- |
-| Runway Aleph 2.0 | One video to edit or restyle, with timed keyframe images | No setting; it keeps what the prompt does not ask to change | A chain frame as the first keyframe | [Models](https://docs.dev.runwayml.com/guides/models.md), [prompting](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide) |
-| Kling Omni | A base video to edit, beside other videos and images as references | The wording or input type that edits the base video or references it | Not documented beside the hint | [API](https://kling.ai/document-api/api/video/4-0/video-omni), [guide](https://kling.ai/quickstart/kling-4-model-user-guide), [elements](https://kling.ai/document-api/api/video/4-0/elements.md) |
-| Kling Motion Control | The body motion of one figure, the largest person, and of none when several are alike in size | A character orientation setting: matching the video keeps its camera and facing and is required to bind an element; matching the image takes the camera from the prompt | A chain frame as the character image | [Guide](https://kling.ai/quickstart/motion-control-user-guide) |
-| Seedance | A video to edit or extend, or several reference videos | A task type, edit, extend or reference, and wording that says what a reference supplies | Extending one video while another is a reference | [Model](https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md), [prompting](https://docs.byteplus.com/docs/en/modelark/seedance-2-5-prompt-guide.md) |
-| fal H3 Max 3D to video | A 3D render of up to 15 s and 32 shots, with up to 8 reference images and no first frame | No setting; it keeps camera, paths, timing and cuts closely but not exactly, and invents references when given none, so always give the canon references | None documented; end at a cut | [3D to video](https://fal.ai/models/minimax/h3-max/3d-to-video/llms.txt) |
-| Gemini Omni | A video to edit, with reference images and a first or last frame | Wording only | Extension by further turns | [Omni](https://aistudio.google.com/docs/omni) |
-| Veo | Still frames: a first frame, or a first and last frame, with asset images for identity | None; it keeps only the frames | An extension from a prompt alone, returned joined to its input | [Model](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate), [best practices](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/best-practice), [extension](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/video/extend-a-veo-video) |
-| Luma Ray | One video to edit, with keyframes | Strength presets, and per-signal controls for pose, depth, normals, trajectory and face | A chain frame as the first keyframe | [Editing](https://docs.agents.lumalabs.ai/guides/videos/editing) |
-| LTX, open weights | The RGB hint through a gray-layout adapter with an art-directed first frame, a union control adapter for depth, edge or pose, or a motion adapter for drawn tracks | Adapter strength, masked over frames and regions | No documented extension beside a control channel | [Layout-To-Render](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md), [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md), [character LoRA](https://ltx.io/blog/how-to-train-a-character-lora) |
-| Cosmos Transfer, open weights | Segmentation, depth, edge and blur videos, alone or together | A weight per channel, varied over frames and regions in its own framework; some serving backends take the channels unweighted | The previous output's frame as an input | [Transfer 2.5](https://github.com/nvidia-cosmos/cosmos-transfer2.5), superseded by [Cosmos 3](https://github.com/NVIDIA/Cosmos) |
-| DiffusionRenderer, open weights | Base color, normal, depth, roughness and metallic channels, with an HDR environment map for light | None; it keeps the channels and computes the light | Not documented | [Repository](https://github.com/nv-tlabs/diffusion-renderer) |
-| Wan VACE, open weights | Depth, pose, scribble, flow, layout or mask channels | Each channel's strength and masks | Extension from the previous clip's first or last frames | [VACE](https://github.com/ali-vilab/VACE), [Wan2.1](https://github.com/Wan-Video/Wan2.1) |
-
-Hosted models take the hint as RGB video at most and derive any other channel from it themselves; open models with control adapters also take rendered depth, edge or pose videos.
+The selected endpoint decides which channels reach the model: some services accept only RGB video and estimate controls internally, while others accept rendered depth, edge or pose videos.
 
 Read each model's terms and usage policy before adopting it: territory limits, rejected reference content such as real faces or minors, [billing and suspension for refused jobs](https://docs.dev.runwayml.com/api-details/moderation/), revenue thresholds and labeling duties for open weights, and the price per second.
 
+## Video editing and reference generation
+
+[Runway Aleph 2.0](https://docs.dev.runwayml.com/guides/models.md) edits or restyles one video with timed keyframe images. It has no adherence setting; its [prompt](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide) names what changes. Continue from a chain frame used as the first keyframe.
+
+[Seedance](https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md) takes a video to edit or extend, or several reference videos. Its task type and [prompt](https://docs.byteplus.com/docs/en/modelark/seedance-2-5-prompt-guide.md) distinguish those roles and say what each reference supplies. It can extend one video while another remains a reference.
+
+[Kling Omni](https://kling.ai/document-api/api/video/4-0/video-omni) edits a base video beside reference videos and images. Input type and wording decide whether the base is edited or referenced; continuation beside the hint is not documented. Its [guide](https://kling.ai/quickstart/kling-4-model-user-guide) and [elements](https://kling.ai/document-api/api/video/4-0/elements.md) describe reference binding.
+
+[Gemini Omni](https://aistudio.google.com/docs/omni) edits video with reference images and a first or last frame. Wording sets adherence, and further turns extend the take.
+
+[Luma Ray](https://docs.agents.lumalabs.ai/guides/videos/editing) edits one video with keyframes, strength presets and per-signal controls for pose, depth, normals, trajectory and face. Continue from a chain frame used as the first keyframe.
+
+## Layout and structural control
+
+[LTX (open weights)](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md) takes the RGB hint through a gray-layout adapter with an art-directed first frame. Its [IC-LoRA adapters](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md) also take depth, edge, pose or drawn tracks, with strength masked over frames and regions; a [character LoRA](https://ltx.io/blog/how-to-train-a-character-lora) can steer appearance. Extension beside a control channel is not documented.
+
+[fal H3 Max 3D to video](https://fal.ai/models/minimax/h3-max/3d-to-video/llms.txt) takes a render of up to 15 seconds and 32 shots, with up to eight reference images and no first frame. Give the canon references for appearance. It keeps camera, paths, timing and cuts closely but not exactly, with no adherence setting or documented continuation; end at a cut.
+
+[Wan VACE (open weights)](https://github.com/ali-vilab/VACE) takes depth, pose, scribble, flow, layout or mask channels, with channel strengths and masks. The [Wan2.1 implementation](https://github.com/Wan-Video/Wan2.1) extends from a previous clip's first or last frames.
+
+[Cosmos Transfer 2.5 (open weights)](https://github.com/nvidia-cosmos/cosmos-transfer2.5), superseded by [Cosmos 3](https://github.com/NVIDIA/Cosmos), takes segmentation, depth, edge and blur videos alone or together. Its framework weights channels over frames and regions, though some serving backends take them unweighted. Use the previous output's frame as an input for continuation.
+
+An image checkpoint with a compatible video module, such as Pony V6 XL with [AnimateDiff SDXL](https://github.com/guoyww/AnimateDiff/blob/sdxl/README.md), offers another route for appearance control, with an optional character LoRA matched to that checkpoint. Run locally or through a [hosted ComfyUI API](https://docs.comfydeploy.com/docs/api/inputs), checking inputs under [model documentation](SKILL.md#model-documentation) and results under [first path](../generation.md#first-path).
+
+## Geometry and material channels
+
+[DiffusionRenderer (open weights)](https://github.com/nv-tlabs/diffusion-renderer) takes base color, normal, depth, roughness and metallic channels, with an HDR environment map for light. It keeps those channels and computes lighting, with no adherence setting or documented continuation.
+
+## Still-frame generation
+
+[Veo](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate) takes a first frame, or first and last frames, with asset images for identity. It keeps those frames rather than the motion hint, as its [best practices](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/best-practice) describe. Its [extension](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/video/extend-a-veo-video) uses a prompt alone and returns the input joined to the new footage.
+
 ## Other roles
+
+[Kling Motion Control](https://kling.ai/quickstart/motion-control-user-guide) transfers the largest person's body motion; it transfers none when several people are alike in size. Matching orientation to the video keeps its camera and facing and is required to bind an element; matching the image takes the camera from the prompt. Continue from a chain frame used as the character image.
 
 A few models serve one role beside the hint. [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2) generates from dialogue audio with a pose video, and Wan2.2-Animate, in the same repository, moves one character by a performer's video. Dubbing models such as [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk) re-sync a face to accepted speech, and [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) does so for several speakers, each bound to its own audio track.
