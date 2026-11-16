@@ -5,7 +5,6 @@
 - Build the whole figure as one construction tree of the interface's construction types. The engine realizes it once into chains, joins, trims and one skin. The Human package derives the nodes from the person's inputs and laws and reads what the realization publishes. Lofting, joining, trimming and tessellation belong to the engine, so every person and every form share one tested kernel.
 - Compose compatible original profiles and section pieces in one declared physical plane and frame before lofting. Their guides, extrema, fullness and measurement constraints stay explicit, so the surface traces back to them. A logical anatomical part need not be an independent loft.
 - Derive ports, join seeds, trim landmarks and regional domains from shared landmark curves, courses and the bind skeleton in relative coordinates, so each follows the person's edits.
-- A law that changes a parent writes the person's skeleton: each child's segment offset in its parent's frame, moved by the parent's change at their connection. Every descendant then follows through its frames. Moving a child's family in world coordinates leaves its own children behind, and a list of children written by hand misses the ones it forgets. Take the children from the tree.
 - Take a form the tree cannot express to the kernel as a general capability. Design it in the interface, then implement it in the engine with an operator test that fails first, before any part uses it. A part-local workaround forks the kernel and escapes its tests.
 - Publish the realized chains and body as the one source for every later stage (rig, binding, appearance, garments), because a second body drifts from the first.
 
@@ -82,7 +81,6 @@ A method grounded in the skills is not dropped for a failed run. A refusal measu
 These rules govern step 3 of the [three steps](SKILL.md#three-steps); steps 1 and 2 hold one person's traced coordinates as tables.
 
 - Reduce redundant independent numbers while keeping the curves, guides, sections and controls the anatomy needs. Fewer files or patches alone prove nothing, and a domain too sparse to carry its shape is raised.
-- Hold a part whose shape varies little across the population, such as an ear, as one template scaled and placed by its own published measures at its landmarks. People differ mostly in how the parts combine: their sizes, proportions and placement. So the laws carry the combination, and each template's form is made right once, because every person inherits it. A shape law for one part needs a measured population spread of that part's shape.
 - Hold a fact of the world as a named constant shared by every person: a definition, a unit factor, a published range, a cited ratio, or a shape prior in normalized part coordinates. Compute every value that must follow the person's inputs.
 - Give every constant and every curve a published source, a population measurement or a derivation, and state that basis in its doc comment. Turn a value repeated across features into the rule that produces it.
 - When an input or its definition changes, replace a prior fitted to it by the definition and solve the measure against the construction's own surface.

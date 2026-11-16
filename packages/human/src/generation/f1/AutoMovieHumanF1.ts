@@ -270,10 +270,9 @@ export namespace AutoMovieHumanF1 {
    * side in the median plane, as before.
    *
    * @param pose One rotation per joint by segment name; a joint it leaves undefined keeps its reference rotation.
-   * @param chain The segment chain the frames are read on (`AutoMovieHumanF1Placement.frames`); absent, f1's own.
    */
-  export function assemble(pose?: AutoMovieHumanF1Placement.IPose, chain?: Parameters<typeof AutoMovieHumanF1Placement.frames>[1]): IAssembly {
-    const frames: AutoMovieHumanF1Placement.IFrames = AutoMovieHumanF1Placement.frames(pose, chain);
+  export function assemble(pose?: AutoMovieHumanF1Placement.IPose): IAssembly {
+    const frames: AutoMovieHumanF1Placement.IFrames = AutoMovieHumanF1Placement.frames(pose);
     const maps: Map<string, ((station: number) => number) | null> = new Map();
     const place = (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => {
       const posed: { family: AutoMovieHumanConicLoft.IFamily; station: ((station: number) => number) | null } = AutoMovieHumanF1Placement.repose(family, frames);
@@ -338,85 +337,15 @@ export namespace AutoMovieHumanF1 {
    * the reference's midline lies under the ring, `808 - y`, both read off `FamilyConicScan.ts crotch` (`midline`) every 10 mm from 30 mm
    * forward to 10 mm back. The midline rises above the ring toward the front fork (809.4 mm at 40 mm forward), where the seam must leave
    * the fork down along the trunk, so the knot at 40 mm holds the ring's level. The bands turn round each fork over 0.6 rad of their clock.
-   * Another trunk lays them as shares of f1's chord (`crotchProfile`).
    */
-  export const CROTCH: { knots: [number, number][]; corner: number; fair: [number, number] } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6, fair: [0.35, 0.35] };
-
-  /**
-   * f1's crotch chord, metres: the straight line between its trunk's end ring at phases 0 and pi (`crotchChord` on f1's reference
-   * assembly), the line `CROTCH`'s knots are shares of. Written once at full double precision, the shortest form that reads back the same
-   * double; `test_human_f1_construction` checks it against the measure.
-   */
-  export const CROTCH_CHORD_M: number = 0.07065647555555553;
-
-  /**
-   * f1's fan seam chords, metres, in the seams' order (`fanSeams`): each seam's two fork phases on the limb's end ring at the fan station
-   * (`fanChords` on f1's reference assembly), the line `FANS`' webs are shares of. Written once at full double precision, the shortest
-   * form that reads back the same double; `test_human_f1_construction` checks them against the measure.
-   */
-  export const FAN_CHORDS_M: { arm: readonly number[]; leg: readonly number[] } = {
-    arm: [0.01832764301951473, 0.021797498076471262, 0.02347327039299173],
-    leg: [0.01966090552417294, 0.023426390030687153, 0.026491448765623843, 0.028780755309631232],
-  };
-
-  /**
-   * The crotch's seam on a trunk: every stored knot (`CROTCH`, read on f1) as its share of f1's end chord, laid on this trunk's chord. A
-   * seam stored in millimetres stood past the chord of a trunk shrunk at every site's 5th, and the legs were refused. The knot is placed
-   * as `knot x (chord / f1's chord)`, which is `share x chord`, so on f1's own trunk the factor is exactly 1 and the seam is the stored
-   * one bit for bit.
-   *
-   * @param trunk The trunk whose end the legs split from.
-   * @evidence contracts/development/implementation.md#principled-implementation A seam's knots scale with the chord they lie on, as shares, so they stay inside it on every trunk.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the stored seam, the chord it is a share of and why f1 is unchanged.
-   */
-  export function crotchProfile(trunk: AutoMovieHumanConicLoft.IFamily): typeof CROTCH {
-    const k: number = crotchChord(trunk) / CROTCH_CHORD_M;
-    return k === 1 ? CROTCH : { ...CROTCH, knots: CROTCH.knots.map(([along, depth]: [number, number]): [number, number] => [along * k, depth * k]) };
-  }
-
-  /**
-   * The chord of the crotch's seam on a trunk, metres: its end ring at phases 0 and pi, the forks the split declares (`construction`).
-   *
-   * @param trunk The trunk whose end the legs split from.
-   * @evidence contracts/development/implementation.md#principled-implementation The forks are the split's own seam phases on the trunk's end ring, read through the trunk's loft.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the ring, the phases and the units.
-   */
-  export function crotchChord(trunk: AutoMovieHumanConicLoft.IFamily): number {
-    const first: number = trunk.knots[0]!;
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...trunk, phase: TRUNK_PHASE }, [first, trunk.knots[1]!]);
-    if (loft.chain === null) throw new Error("crotchChord: the trunk does not loft at its end");
-    const [a, b]: number[][] = [0, Math.PI].map((phase: number): number[] => AutoMovieLoftChain.point(loft.chain!, first, phase));
-    return Math.hypot(b![0]! - a![0]!, b![1]! - a![1]!, b![2]! - a![2]!) / 1000;
-  }
-
-  /**
-   * The chords of a fanned limb's seams on an assembly, metres, in the seams' order (`fanSeams`): each seam's two forks on the limb's end
-   * ring, the line its stored knots (`FANS`) are shares of.
-   *
-   * @param which The limb.
-   * @param placed The assembly the limb stands in.
-   * @evidence contracts/development/implementation.md#principled-implementation The one reading of a seam's chord the construction and f1's reference both take, so f1's knots stand bit for bit.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the limb, the assembly, the units and the order.
-   */
-  export function fanChords(which: "arm" | "leg", placed: IAssembly): number[] {
-    const own: AutoMovieHumanConicLoft.IFamily = which === "arm" ? placed.body.hand : placed.body.leg;
-    const leaned: AutoMovieHumanConicLoft.IFamily = { ...own, tips: [which === "arm" ? null : own.tips![0], null], ...(PHASE_TURN[which] === undefined ? {} : { turn: PHASE_TURN[which] }) };
-    const fan = fanSeams(which, placed);
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(leaned, leaned.knots);
-    if (loft.chain === null) throw new Error("the " + which + " does not loft");
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    return fan.seams.map(([a, b]: [number, number]): number => {
-      const [pa, pb]: number[][] = [AutoMovieLoftChain.point(chain, fan.station, a), AutoMovieLoftChain.point(chain, fan.station, b)];
-      return Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
-    });
-  }
+  const CROTCH: { knots: [number, number][]; corner: number; fair: [number, number] } = { knots: [[0.0131, 0], [0.0231, 0.0011], [0.0331, 0.0028], [0.0431, 0.0031], [0.0531, 0.0029], [0.0631, 0.0018]], corner: 0.6, fair: [0.35, 0.35] };
 
   /** A limb whose open end is split into its knuckled digits. */
-  export interface IFan {
+  interface IFan {
     /** The digits in the seams' order, from the little finger or the little toe (`fanSeams`). */
     digits: string[];
 
-    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`), read on f1 and laid on another limb as shares of f1's chord (`fanChords`). */
+    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`). */
     webs: [number, number][][];
 
     /** The bands' turn at each fork, radians of clock. */
@@ -472,7 +401,7 @@ export namespace AutoMovieHumanF1 {
    * and a bump at the little finger's; at 0.7 everywhere the fill under the plantar forks bulged below the sole; at 0.8 on the back the toes
    * read as webbed far up.
    */
-  export const FANS: { arm: IFan; leg: IFan } = {
+  const FANS: { arm: IFan; leg: IFan } = {
     arm: {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
@@ -1194,10 +1123,9 @@ export namespace AutoMovieHumanF1 {
    *
    * @param layer Station spacing of each family's layers and derived outlines, mm.
    * @param pose The pose the families are placed at (`assemble`); absent, the reference pose.
-   * @param chain The segment chain the families are placed on (`assemble`); absent, f1's own.
    */
-  export function construction(layer: number = LAYER_MM, pose?: AutoMovieHumanF1Placement.IPose, chain?: Parameters<typeof AutoMovieHumanF1Placement.frames>[1]): IConstruction {
-    const placed: IAssembly = assemble(pose, chain);
+  export function construction(layer: number = LAYER_MM, pose?: AutoMovieHumanF1Placement.IPose): IConstruction {
+    const placed: IAssembly = assemble(pose);
     const sources: Map<string, IAutoMovieViewPart> = new Map();
     const leaf = (family: AutoMovieHumanConicLoft.IFamily, fine: number = -Infinity, close: number = WEB_LAYER_MM, pitch: number = layer, until: number = Infinity, dome: number = Infinity): AutoMovieConstructionNode => {
       const from: number = family.knots[0]!;
@@ -1350,17 +1278,15 @@ export namespace AutoMovieHumanF1 {
       // The split: the end's seams along the valleys between the knuckled digits (`fanSeams`), each curved along its web line (`IFan.webs`)
       // in the plane that holds the two digits' mean direction. The twin's phases run the other way, so a seam `[a, b]` is `[-b, -a]` there,
       // read from its other fork: its knots run back along the chord, and its heading is reflected.
-      // Each seam's stored knots are shares of f1's chord (`FAN_CHORDS_M`), laid on this assembly's: `knot x (chord / f1's chord)`, exactly
-      // the stored knot on f1.
       const fan = fanSeams(which, placed);
-      const chords: number[] = fanChords(which, placed);
+      const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(leaned, leaned.knots);
+      if (loft.chain === null) throw new Error("the " + which + " does not loft");
+      const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
         const [a, b]: [number, number] = fan.seams[j]!;
-        const chord: number = chords[j]!;
-        const reference: number | undefined = FAN_CHORDS_M[which][j];
-        if (reference === undefined) throw new Error(`the ${which}'s seam ${j} has no stored chord`);
-        const k: number = chord / reference;
-        const knots: [number, number][] = k === 1 ? fanned.webs[j]! : fanned.webs[j]!.map(([along, depth]: [number, number]): [number, number] => [along * k, depth * k]);
+        const knots: [number, number][] = fanned.webs[j]!;
+        const [pa, pb]: number[][] = [AutoMovieLoftChain.point(chain, fan.station, a), AutoMovieLoftChain.point(chain, fan.station, b)];
+        const chord: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
         const h: [number, number, number] = fan.headings[j]!;
         const tuned: Pick<IAutoMovieConstructionSplit.IProfile, "reach" | "square" | "fair"> = { ...(fanned.reach === undefined ? {} : { reach: fanned.reach }), ...(fanned.square === true ? { square: true } : {}), ...(fanned.fair === undefined ? {} : { fair: typeof fanned.fair === "number" || side > 0 ? fanned.fair : [fanned.fair[1], fanned.fair[0]] }) };
         return side > 0
@@ -1408,7 +1334,7 @@ export namespace AutoMovieHumanF1 {
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
-      profile: crotchProfile(placed.body.trunk),
+      profile: CROTCH,
       count: THIGH_COLUMNS,
       rows: BAND.rows,
       children: [
@@ -1462,14 +1388,7 @@ export namespace AutoMovieHumanF1 {
       const hollow: AutoMovieHumanConicLoft.IFamily = side > 0 ? drawn : twin(drawn);
       root = { type: "join", kind: "diff", name: "cut." + hollow.name, host: root, part: leaf(hollow, Infinity, NOSTRIL_LAYER_MM), seed: { type: "search", partFace: hollow.name, hostFace: BODY.nose.name, phase: 0, from: 0, to: 0.9 }, parameter: { type: "phase" }, partWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, hostWidth: { type: "chord", value: NOSTRIL_RIM_MM / 1000 }, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
     }
-    // The breast fan's datum is stored in the thorax's frame and the breast stands on the thorax by its own offset, which a person's chain
-    // moves: the datum follows the breast by that move, the breast origin's displacement from f1's chain at the same pose less the thorax's.
-    // On f1's chain both displacements are exactly zero, so the datum is f1's bit for bit.
-    const [own, f1s] = [AutoMovieHumanF1Placement.frames(pose, chain), AutoMovieHumanF1Placement.frames(pose)];
-    const moved = (name: string): number[] => [0, 1, 2].map((k: number): number => AutoMovieHumanF1Placement.frame(name, own).origin[k] - AutoMovieHumanF1Placement.frame(name, f1s).origin[k]);
-    const [breastMove, thoraxMove] = [moved("breast"), moved("thorax")];
-    const datum: [number, number, number] = placed.point("breastFan");
-    const breastFan: [number, number, number] = [0, 1, 2].map((k: number): number => datum[k]! + (breastMove[k]! - thoraxMove[k]!)) as [number, number, number];
+    const breastFan: [number, number, number] = placed.point("breastFan");
     const fills: IAutoMovieConstructionFill[] = [1, -1].map((side: number): IAutoMovieConstructionFill => ({ point: [breastFan[0] / 1000, breastFan[1] / 1000, (side * breastFan[2]) / 1000], radius: BREAST_FAN_FILL_MM / 1000 }));
     return { root, sources, fills };
   }

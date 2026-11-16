@@ -51,13 +51,9 @@ export namespace AutoMovieHumanF1Placement {
    * the trunk's frames and the rigid parts (`RIGID`) keep their reference rotations, since none of them is a joint's angle.
    */
   export const NEUTRAL: IPose = (name: string): F.M3 | undefined => (ARTICULATED.includes(name) ? F.IDENTITY : undefined);
-  /**
-   * The frames of a pose on a chain: absent, the reference pose on f1's own chain (`AutoMovieHumanF1Placing.CHAIN`). A person's chain
-   * keeps f1's joints and rotations and moves segment offsets, so every segment past a moved one, and every datum on them, moves with it.
-   */
-  export function frames(pose?: IPose, chain: typeof T.CHAIN = T.CHAIN): IFrames {
-    if (pose === undefined && chain === T.CHAIN) return REFERENCE;
-    return F.world(chain, pose ?? ((): undefined => undefined));
+  /** The frames of a pose; absent, the reference pose. */
+  export function frames(pose?: IPose): IFrames {
+    return pose === undefined ? REFERENCE : F.world(T.CHAIN, pose);
   }
 
   /** One segment's frame; a name the tree lacks is refused. */

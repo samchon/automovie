@@ -26,14 +26,10 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints as J,
  * 7. The twin: reflecting every posed frame (`AutoMovieHumanSegmentFrame.mirror`) and negating a stored point's local z gives the
  *    reflection of the posed point in z = 0, so a twin placed through mirrored frames is the reflection `AutoMovieHumanConicLoft.mirror`
  *    takes of the placed family, whose centres and `up` are checked against that reflection.
- * 8. A person's chain (`AutoMovieHumanF1Placement.frames` and `AutoMovieHumanF1.assemble` on a chain): with the humerus's offset moved by
- *    (3, -5, 7) mm, every stored point on the humerus or past it moves by exactly that within 1e-12 of the stature and every other point
- *    is the reference point bit for bit; the assembly's arm and hand courses past the shoulder's thorax-framed root and every finger's
- *    course move by the same vector, the root and the legs stay; f1's own chain returns the reference frames themselves.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Placement.point`, `direction`, `frames` and `place`, `AutoMovieHumanF1.assemble` and the frame law's `world` on tables and made chains.
  * @evidence contracts/development/testing.md#independent-expectations A hand-solved two-segment chain, step 1's stored world numbers, a rigid rotation about one joint centre and a reflection in z = 0 are each derived apart from the chain's composition.
- * @evidence contracts/development/testing.md#distinguishing-cases A made chain, the reference pose, a pose that turns one arm joint and one leg joint, a person's chain with one moved offset, segments on and off the turned or moved branches, and both sides of the median plane.
+ * @evidence contracts/development/testing.md#distinguishing-cases A made chain, the reference pose, a pose that turns one arm joint and one leg joint, segments on and off the turned branches, and both sides of the median plane.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit over f1's placing tables, reached by `--include human_f1_placement`; it lofts nothing and reads no reference body.
  * @evidence contracts/development/common.md#meaningful-documentation Numbers each scenario with its closed form or stored value and its tolerance.
  */
@@ -163,30 +159,6 @@ export function test_human_f1_placement(): void {
   const twin: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanConicLoft.mirror(assembled.body.arm, "arm.mirror");
   near("twin course", twin.centres.flat(), assembled.body.arm.centres.flatMap(flip), 0);
   near("twin up", twin.up, flip(assembled.body.arm.up), 0);
-
-  // 8: a person's chain carries each subtree whole: the humerus's offset moved by `shift` moves every datum on the humerus and past it by
-  //    exactly `shift` and leaves every other datum bit for bit; the assembly on that chain carries the arm's and the hand's courses past the
-  //    shoulder's thorax-framed root and every finger's course by `shift`, and keeps the shoulder's root and the legs; f1's own chain returns
-  //    the reference frames themselves.
-  const shift: F.V3 = [3, -5, 7];
-  const person: typeof T.CHAIN = T.CHAIN.map((joint: F.IJoint): F.IJoint => (joint.name === "humerus" ? { ...joint, offset: F.add(joint.offset, shift) } : joint));
-  const carried: P.IFrames = P.frames(undefined, person);
-  if (P.frames(undefined, T.CHAIN) !== P.REFERENCE) failures.push("f1's own chain does not return the reference frames");
-  for (const [name, placed] of Object.entries(T.POINTS)) {
-    const past: boolean = under(placed.frame, "humerus");
-    near((past ? "carried " : "kept ") + name, P.point(name, carried), past ? F.add(P.point(name), shift) : P.point(name), past ? 1e-12 * stature : 0);
-  }
-  const personal: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(undefined, person);
-  const moved3 = (centres: readonly F.V3[]): number[] => centres.flatMap((p: F.V3): F.V3 => F.add(p, shift));
-  near("carried arm course", personal.body.arm.centres.slice(2).flat(), moved3(reference.body.arm.centres.slice(2)), 1e-12 * stature);
-  near("carried hand course", personal.body.hand.centres.slice(2).flat(), moved3(reference.body.hand.centres.slice(2)), 1e-12 * stature);
-  near("kept shoulder root", personal.body.arm.centres.slice(0, 2).flat(), reference.body.arm.centres.slice(0, 2).flat(), 0);
-  near("kept leg course", personal.body.leg.centres.flat(), reference.body.leg.centres.flat(), 0);
-  for (const digit of personal.digits.filter((x: AutoMovieHumanF1.IDigit): boolean => x.limb === "arm")) {
-    const stored: AutoMovieHumanF1.IDigit | undefined = reference.digits.find((x: AutoMovieHumanF1.IDigit): boolean => x.family.name === digit.family.name);
-    if (stored === undefined) failures.push(`${digit.family.name}: no reference digit`);
-    else near(digit.family.name + " carried course", digit.family.centres.flat(), moved3(stored.family.centres), 1e-12 * stature);
-  }
 
   if (failures.length > 0) throw new Error(`f1 placement: ${failures.length} finding(s):\n${failures.join("\n")}`);
 }
