@@ -51,7 +51,7 @@ export namespace HumanGunCrew {
 
   /** The gun, its implements and the places the scene gives. */
   export interface IScene {
-    /** The gun's prop: its `muzzle`, `vent` and `elevatingScrew`. */
+    /** The gun's prop: its `muzzle`, `vent` and independently driven `screw`. */
     gun: string;
 
     /** The sponge and rammer: a held implement whose `sponge` and `rammer` heads go into the bore. */
@@ -175,7 +175,7 @@ export namespace HumanGunCrew {
           {
             mechanism: {
               kind: "knob",
-              at: { kind: "prop", subject: scene.gun, point: "elevatingScrew" },
+              at: { kind: "prop", subject: scene.gun, point: "screw" },
               turn: scene.lay,
             },
           },

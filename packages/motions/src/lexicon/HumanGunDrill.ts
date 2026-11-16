@@ -19,7 +19,7 @@ import { touch } from "../touch/touch";
  * | `ramCharge` | `operate` inserting the rammer head to the breech | No. 1 rams |
  * | `prickVent` | `operate` inserting the priming wire into `vent` | No. 3 pierces the cartridge |
  * | `runUp` | `operate` of a wheel's `leftSpin` or `rightSpin`, until the haul rows of #3351 land | the crew runs the gun into battery |
- * | `layGun` | `operate` of the `elevatingScrew`, a knob | the gunner points |
+ * | `layGun` | `operate` of the independent `screw`, a knob | the gunner points |
  * | `hookPrimer` | `putDown` of the primer into `vent` | No. 4 hooks the lanyard |
  * | `standClear` | `walk` to a place outside the wheel's line | Nos. 1 to 3 step clear |
  * | `pullLanyard` | `operate` of the lanyard's handle, a slider | No. 4 fires on command |

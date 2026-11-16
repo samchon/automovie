@@ -1,4 +1,6 @@
+import { createCannon } from "@automovie/archetypes";
 import type { AutoMovieComposition } from "@automovie/engine";
+import type { IAutoMovieAffordance } from "@automovie/interface";
 import { HumanGunCrew } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,12 +19,14 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Nos. 1 to 3 step clear after the primer is hooked.
  * 4. The pull waits on the command's cue instant.
  * 5. Every duty is performed by the role the drill gives it.
+ * 6. The gunner's lay intent drives the actual field gun's independent
+ *    screw, and its positive turn raises the muzzle's launch direction.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the composition the crew builds; a duty out of order, synced to the wrong instant or given to the wrong role fails.
- * @evidence contracts/development/testing.md#independent-expectations The order and the roles are the NPS drill's, written here.
- * @evidence contracts/development/testing.md#distinguishing-cases The first duty, the chained ones, the steps clear and the commanded pull.
- * @evidence contracts/development/testing.md#execution-ownership Builds the composition in memory; no performance is resolved.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the composition and drives a real field gun from the lay intent; catches wrong duty order, role, sync, a removed contact id or a follower used as the independent screw.
+ * @evidence contracts/development/testing.md#independent-expectations The order and roles are the NPS drill's. A positive turn of the independent elevating screw raises the muzzle; the cannon elevation test owns its dimensional accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases The first duty, chained duties, steps clear, commanded pull and the actual mechanical consumer of the gunner's lay.
+ * @evidence contracts/development/testing.md#execution-ownership Builds the composition and articulates its field gun in memory, reading the launch direction; no performer, host or render is resolved.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_gun_crew_order(): void {
   const roles: HumanGunCrew.IRoles = {
@@ -110,4 +114,38 @@ export function test_human_motion_gun_crew_order(): void {
       "orders:fire",
     ],
   );
+
+  // The crew and the producer must agree on a usable mechanical input,
+  // not merely on the name of the duty in the composition.
+  const lay: unknown = read[6]?.intent?.parameters?.params;
+  if (typeof lay !== "object" || lay === null || !("mechanism" in lay))
+    throw new Error("The gunner's lay has no mechanism");
+  const mechanism: unknown = lay.mechanism;
+  if (
+    typeof mechanism !== "object" || mechanism === null ||
+    !("kind" in mechanism) || mechanism.kind !== "knob" ||
+    !("turn" in mechanism) || typeof mechanism.turn !== "number" ||
+    !("at" in mechanism)
+  )
+    throw new Error("The gunner's lay does not turn a knob");
+  const target: unknown = mechanism.at;
+  if (
+    typeof target !== "object" || target === null ||
+    !("kind" in target) || target.kind !== "prop" ||
+    !("subject" in target) || target.subject !== "gun" ||
+    !("point" in target) || typeof target.point !== "string"
+  )
+    throw new Error("The gunner's lay has no point on its gun");
+  const gun: ReturnType<typeof createCannon> = createCannon({ kind: "fieldGun" });
+  const contact: IAutoMovieAffordance | undefined = gun.affordances.find(
+    (part: IAutoMovieAffordance): boolean => part.id === target.point,
+  );
+  TestValidator.predicate(
+    "the gunner drives the independent screw",
+    contact?.kind === "knob" && contact.follows === undefined,
+  );
+  const launch: createCannon.ILaunch = createCannon.launch(gun, {
+    [target.point]: mechanism.turn,
+  });
+  TestValidator.predicate("the gunner's lay raises the muzzle", launch.direction.y > 0);
 }
