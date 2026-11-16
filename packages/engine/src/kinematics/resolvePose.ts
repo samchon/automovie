@@ -16,6 +16,8 @@ import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
+import type { preparePoseResolution } from "./preparePoseResolution";
+import { resolvePoseBone } from "./resolvePoseBone";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /**
@@ -49,14 +51,15 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * @param topology Index of the same, unchanged skeleton from
  *   {@link indexSkeletonTopology}, reused across poses; omitted, one is built
  *   for this call.
+ * @param prepared Optional operation-owned exact FK dependency reader; it shares completed computation while preserving every ordered admission and fresh returned transform.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Standard forward kinematics over a rooted tree, composing quaternion rotations and rotating each rest offset by the parent's world rotation; a parent-first depth-first walk guarantees the parent frame exists when a child is reached, and it premises unit rotations, no rest scale, and a topology built from this unchanged skeleton.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Articulation is delegated to `jointToQuaternion`, axis precedence to `skeletonJointAxes` and the hierarchy to the shared topology index, so this function only composes; the root sentinel is the shared `SKELETON_ROOT_PARENT`, and the walk receives bone objects so no name lookup happens during descent.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Joint conversion, axis precedence and single-bone composition have the jointToQuaternion, skeletonJointAxes and resolvePoseBone owners. An optional preparePoseResolution reader shares those same computations; this function alone owns admission order and the parent-first walk.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unreachable bones are omitted by the stated contract instead of being attached to a root or thrown on, and no bone or rig is special-cased.
  * @evidence contracts/development/common.md#meaningful-documentation States the composition for rotation and position, the axes precedence, that rest scale is ignored, the root default, the output order, which bones are omitted and how to gate on them, how stray and repeated joints are read, and each optional parameter's default.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in joints plus bones: one scan for declared axes, one articulation per joint, then one composition per reachable bone; building the topology when none is passed is also linear in the bone count.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses a caller-supplied topology across poses of one skeleton instead of rebuilding it; equivalence is the unchanged skeleton object, which the caller owns, and omitting the topology always rebuilds.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the articulation map is local to the call and the returned bones, one per reachable bone, are owned by the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear ordered joint and reachable-bone scans remain. Ordinary calls convert every joint and compose every bone; a supplied operation reader compares constant-size actual dependency tuples, avoiding only already completed identical math while keeping fresh output allocation. Topology construction when omitted adds linear work; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller topology belongs to the same current skeleton. An optional synchronous-operation reader reuses successful joint conversion and bone computation only under exact scalar dependencies, with fresh nested output objects; authored records, missing identities and changed descendants still follow the original recurrence.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local articulation map and result array end with the call. Returned bone transforms are fresh and caller-owned; any supplied reader owns its bounded joint/bone snapshots until its operation releases it, without a global collection or handle.
  */
 export const resolvePose: (
   pose: IAutoMoviePose,
@@ -68,12 +71,14 @@ export const resolvePose: (
     | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
     | undefined,
   topology?: IAutoMovieSkeletonTopology,
+  prepared?: ReturnType<typeof preparePoseResolution>,
 ) => IAutoMovieResolvedBone[] = (
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
+  prepared?: ReturnType<typeof preparePoseResolution>,
 ): IAutoMovieResolvedBone[] => {
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
@@ -82,7 +87,9 @@ export const resolvePose: (
   for (const j of pose.joints)
     articulation.set(
       j.bone,
-      jointToQuaternion(j, axes[j.bone], restFrames?.[j.bone]),
+      prepared === undefined
+        ? jointToQuaternion(j, axes[j.bone], restFrames?.[j.bone])
+        : prepared.joint(j, axes[j.bone], restFrames?.[j.bone]),
     );
 
   const resolved: IAutoMovieResolvedBone[] = [];
@@ -100,29 +107,14 @@ export const resolvePose: (
   ): void => {
     const art: IAutoMovieQuaternion =
       articulation.get(bone.bone) ?? Quaternion.identity();
-    const localRotation: IAutoMovieQuaternion = Quaternion.multiply(
-      bone.rest.rotation,
-      art,
-    );
-
-    const worldRot: IAutoMovieQuaternion = Quaternion.multiply(
-      parentWorldRot,
-      localRotation,
-    );
-    const worldPos: IAutoMovieVector3 = Vector3.add(
-      parentWorldPos,
-      Quaternion.rotateVector(parentWorldRot, bone.rest.translation),
-    );
-
-    resolved.push({
-      bone: bone.bone,
-      localRotation,
-      worldPosition: worldPos,
-      worldRotation: worldRot,
-    });
+    const reading: IAutoMovieResolvedBone =
+      prepared === undefined
+        ? resolvePoseBone(bone, parentWorldRot, parentWorldPos, art)
+        : prepared.bone(bone, parentWorldRot, parentWorldPos, art);
+    resolved.push(reading);
 
     for (const child of topology.childrenByParent.get(bone.bone) ?? [])
-      walk(child, worldRot, worldPos);
+      walk(child, reading.worldRotation, reading.worldPosition);
   };
 
   const rootTranslation: IAutoMovieVector3 =

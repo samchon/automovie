@@ -4,12 +4,14 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanBodyFit } from "./HumanBodyFit";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
+import { HumanFitTargetSlopes } from "./HumanFitTargetSlopes";
 import { HumanJacobian } from "./HumanJacobian";
 
 /**
@@ -33,9 +35,9 @@ export namespace HumanFitTargets {
    * @evidence contracts/development/implementation.md#principled-implementation Relative point velocity is R_on^-1(v_eff-v_on_at_eff), and angular velocity is R_on^-1(omega_eff-omega_on). Rotation log rows differentiate with the inverse right SO(3) Jacobian (Sola et al. 2018, arXiv:1812.01537, eq.117); a point ball is one Euclidean-distance inequality.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One target frame and its variable twists, then each requested row family.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A physical radius is not an XYZ box and relative frames move in both reading and Jacobian; a singular antiparallel normal derivative is refused explicitly.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in targets times variables, reusing the fit's FK and Jacobian.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each target's frame and relative motions are shared by all its rows.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(t*n) time and coefficient storage for t targets and n variables with fixed axis counts; each current anchor inverse and angular derivative column is produced once rather than once per variable or selected axis.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one current target frame and its anchor inverse across relative motions; full rotation/normal derivative columns serve all selected axes, and callbacks reuse that same unchanged model reading while new trial readings are recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Model callbacks retain their target and current reading/frame until the model is released; temporary derivative columns are consumed into owned scalar coefficients, and no prior-reading or global body cache is kept.
    */
   export function rows(
     step: HumanBodyFitRows.IStep,
@@ -50,19 +52,22 @@ export namespace HumanFitTargets {
     mm: number,
   ): HumanBodyFitRows.IRead[] {
     const rows: HumanBodyFitRows.IRead[] = [];
+    const current: HumanBodyFitRows.IReading = step.at;
     step.targets.forEach((target: HumanBodyFit.ITarget, k: number): void => {
-      const at: IFrame = frame(target, step.at, k);
+      const at: IFrame = frame(target, current, k);
       const motions: HumanJacobian.ITwist[] = step.motions.map(
         (motion: HumanJacobian.IMotion): HumanJacobian.ITwist =>
-          relative(target, step.at, k, motion),
+          relative(target, current, k, motion, at),
       );
       const axes: readonly ("x" | "y" | "z")[] = target.axes ?? ["x", "y", "z"];
       const scaled: (
-        f: (motion: HumanJacobian.ITwist) => number,
-      ) => number[] = (f: (motion: HumanJacobian.ITwist) => number): number[] =>
+        f: (motion: HumanJacobian.ITwist, i: number) => number,
+      ) => number[] = (
+        f: (motion: HumanJacobian.ITwist, i: number) => number,
+      ): number[] =>
         motions.map(
           (motion: HumanJacobian.ITwist, i: number): number =>
-            f(motion) * step.units[i]! * mm,
+            f(motion, i) * step.units[i]! * mm,
         );
       const price: number = target.price ?? step.price;
       if (target.bound === undefined) {
@@ -70,7 +75,7 @@ export namespace HumanFitTargets {
           equal(
             `${axis}:${k}`,
             (r: HumanBodyFitRows.IReading): number =>
-              frame(target, r, k).point[axis],
+              (r === current ? at : frame(target, r, k)).point[axis],
             target.goal[axis],
             scaled(
               (motion: HumanJacobian.ITwist): number => motion.linear[axis],
@@ -82,7 +87,10 @@ export namespace HumanFitTargets {
         const distance: number = Vector3.length(delta);
         const f: (r: HumanBodyFitRows.IReading) => number = (
           r: HumanBodyFitRows.IReading,
-        ): number => Vector3.length(error(target, frame(target, r, k).point));
+        ): number =>
+          r === current
+            ? distance
+            : Vector3.length(error(target, frame(target, r, k).point));
         rows.push({
           row: {
             key: `point-ball:${k}`,
@@ -101,33 +109,53 @@ export namespace HumanFitTargets {
       }
       if (target.rotation !== undefined) {
         const e: IAutoMovieVector3 = turn(target.rotation, at.turn);
+        const columns: IAutoMovieVector3[] = HumanFitTargetSlopes.rotation(
+          e,
+          motions,
+        );
         for (const axis of ["x", "y", "z"] as const)
           equal(
             `r${axis}:${k}`,
             (r: HumanBodyFitRows.IReading): number =>
-              -turn(target.rotation!, frame(target, r, k).turn)[axis],
+              r === current
+                ? -e[axis]
+                : -turn(target.rotation!, frame(target, r, k).turn)[axis],
             0,
             scaled(
-              (motion: HumanJacobian.ITwist): number =>
-                logarithmSlope(e, motion.angular)[axis],
+              (_motion: HumanJacobian.ITwist, i: number): number =>
+                columns[i]![axis],
             ),
             price,
           );
       }
-      if (target.normal !== undefined)
-        across(target.normal.world).forEach(
-          (axis: IAutoMovieVector3, j: number): void =>
-            equal(
-              `n${j}:${k}`,
-              (r: HumanBodyFitRows.IReading): number =>
-                Vector3.dot(tilt(target, frame(target, r, k).turn), axis),
-              0,
-              scaled((motion: HumanJacobian.ITwist): number =>
-                Vector3.dot(normalSlope(target, at.turn, motion.angular), axis),
-              ),
-              price,
-            ),
+      if (target.normal !== undefined) {
+        const axes: [IAutoMovieVector3, IAutoMovieVector3] = across(
+          target.normal.world,
         );
+        const columns: IAutoMovieVector3[] = HumanFitTargetSlopes.normal(
+          target.normal,
+          at.turn,
+          motions,
+        );
+        let normalAt: IAutoMovieVector3 | undefined;
+        axes.forEach((axis: IAutoMovieVector3, j: number): void =>
+          equal(
+            `n${j}:${k}`,
+            (r: HumanBodyFitRows.IReading): number =>
+              Vector3.dot(
+                r === current
+                  ? (normalAt ??= tilt(target, at.turn))
+                  : tilt(target, frame(target, r, k).turn),
+                axis,
+              ),
+            0,
+            scaled((_motion: HumanJacobian.ITwist, i: number): number =>
+              Vector3.dot(columns[i]!, axis),
+            ),
+            price,
+          ),
+        );
+      }
     });
     return rows;
   }
@@ -301,12 +329,15 @@ export namespace HumanFitTargets {
 interface IFrame {
   point: IAutoMovieVector3;
   turn: IAutoMovieQuaternion;
+
+  /** Present only for a moving goal frame; its inverse also transforms this model's relative twists. */
+  anchor?: { bone: AutoMovieHumanoidBone; inverse: IAutoMovieQuaternion };
 }
 
 /** The additive identity for world or goal-frame velocities. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** Read the anchor on every evaluation; a target never freezes to its seed. */
+/** Read each new goal frame on its actual anchor, sharing that same inverse with the current model's relative twists. */
 function frame(
   target: HumanBodyFit.ITarget,
   r: HumanBodyFitRows.IReading,
@@ -326,6 +357,7 @@ function frame(
       Vector3.subtract(r.points[k]!, anchor.worldPosition),
     ),
     turn: Quaternion.multiply(inverse, r.turns[k]!),
+    anchor: { bone: target.on, inverse },
   };
 }
 
@@ -335,21 +367,20 @@ function relative(
   r: HumanBodyFitRows.IReading,
   k: number,
   motion: HumanJacobian.IMotion,
+  at: IFrame,
 ): HumanJacobian.ITwist {
   const own: HumanJacobian.ITwist = HumanJacobian.twist(
     motion,
     target.bone,
     r.points[k]!,
   );
-  if (target.on === undefined) return own;
+  if (at.anchor === undefined) return own;
   const on: HumanJacobian.ITwist = HumanJacobian.twist(
     motion,
-    target.on,
+    at.anchor.bone,
     r.points[k]!,
   );
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-    r.bones.get(target.on)!.worldRotation,
-  );
+  const inverse: IAutoMovieQuaternion = at.anchor.inverse;
   return {
     linear: Quaternion.rotateVector(
       inverse,
@@ -378,55 +409,4 @@ function error(
     y: axes.includes("y") ? point.y - target.goal.y : 0,
     z: axes.includes("z") ? point.z - target.goal.z : 0,
   };
-}
-
-/** Derivative of -Log(goal current^-1): inverse right Jacobian, not omega alone. */
-function logarithmSlope(
-  e: IAutoMovieVector3,
-  omega: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const angle: number = Vector3.length(e);
-  const factor: number =
-    angle < Number.EPSILON ** 0.25
-      ? 1 / 12 + (angle * angle) / 720
-      : 1 / (angle * angle) - 1 / (2 * angle * Math.tan(angle / 2));
-  const cross: IAutoMovieVector3 = Vector3.cross(e, omega);
-  return Vector3.add(
-    omega,
-    Vector3.add(
-      Vector3.scale(cross, 0.5),
-      Vector3.scale(Vector3.cross(e, cross), factor),
-    ),
-  );
-}
-
-/** Differentiate atan2(|w cross n|, w dot n) and its turn axis together. */
-function normalSlope(
-  target: HumanBodyFit.ITarget,
-  rotation: IAutoMovieQuaternion,
-  omega: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const w: IAutoMovieVector3 = Vector3.normalize(target.normal!.world);
-  const n: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(rotation, target.normal!.local),
-  );
-  const c: IAutoMovieVector3 = Vector3.cross(w, n);
-  const sine: number = Vector3.length(c);
-  const cosine: number = Vector3.dot(w, n);
-  if (sine < Math.sqrt(Number.EPSILON)) {
-    if (cosine < 0)
-      throw new Error(
-        "A planar-normal fit needs a non-antiparallel starting normal",
-      );
-    return Vector3.subtract(omega, Vector3.scale(w, Vector3.dot(w, omega)));
-  }
-  const dn: IAutoMovieVector3 = Vector3.cross(omega, n);
-  const dc: IAutoMovieVector3 = Vector3.cross(w, dn);
-  const ds: number = Vector3.dot(c, dc) / sine;
-  const dt: number = cosine * ds - sine * Vector3.dot(w, dn);
-  const angle: number = Math.atan2(sine, cosine);
-  return Vector3.add(
-    Vector3.scale(dc, angle / sine),
-    Vector3.scale(c, dt / sine - (angle * ds) / (sine * sine)),
-  );
 }

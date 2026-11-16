@@ -145,9 +145,9 @@ export namespace HumanBodyFit {
    * @evidence contracts/development/implementation.md#principled-implementation Sequential quadratic programming on the l1 merit: each convexification linearises the rows at the iterate (each bearing part's lowest point, the floor under every collider near it, the targets, the balance's edges, the pairs near contact), all re-selected at that iterate, and the merit prices the same rows, so the model equals the merit at no step.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one merit, one model per convexification, the shared loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal is a priced row and every collider near the floor a row; a residual is measured on the fitted posture, never taken from the model.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and one Jacobian per convexification, one forward kinematics per trial; a collider or pair far from contact is rowed only when a step brings it near.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics and one Jacobian per convexification, one forward kinematics per trial; at most two O(n squared) curvature allocations serve the fit, each new slope and allocation-free length reduction takes O(n), and distant collider or pair rows are admitted only when needed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed variables, units and weights share two lazy fit-local curvatures; the same evaluation supplies selected contacts and actual pair gaps, and each model owns fresh q plus lazy row references and zero-step objective. Every QP still admits all current raw inputs and each actual trial is evaluated anew.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit owns at most two immutable numeric curvatures, current models and warm iterates; each model owns one lazy row-reference array and scalar, all released with the call, while its temporary zero vector is released after first evaluation and no result or body cache is retained.
    */
   export function fit(props: IProps): IResult {
     const { body, posture }: Pick<IProps, "body" | "posture"> = props;
@@ -192,6 +192,11 @@ export namespace HumanBodyFit {
     // re-solves with each row shifted by the trial's miss from its linear model
     // (Nocedal and Wright 2006, (15.36), p. 443, and Algorithm 15.2).
     let last: ILast | null = null;
+
+    // Variables, solved units and the pure table weights are fixed for this
+    // fit. Neither QP admission nor SOC changes these raw curvature buffers.
+    let objectiveP: Float64Array[] | undefined;
+    let steeringP: Float64Array[] | undefined;
 
     // The last quadratic program solved and its iterates, from which the next
     // solve starts: the same model at another radius from its iterates, a new
@@ -258,7 +263,7 @@ export namespace HumanBodyFit {
           angles,
           ...(props.centre === undefined ? {} : { centre: props.centre }),
           price: mu,
-          touching: HumanBodyFitRows.lowest(at),
+          touching: e.touching,
         };
         const rowed: Set<number> = new Set();
         at.heights.forEach((h: number, c: number): void => {
@@ -272,30 +277,39 @@ export namespace HumanBodyFit {
         const rows: IRead[] = [
           ...HumanBodyFitRows.of(step),
           ...HumanBodyFitRows.floor(step, rowed),
-          ...pairs
-            .filter(
-              (pair: HumanFitPairs.IPair): boolean =>
-                HumanFitPairs.gap(at.bones, pair).distance <= NEAR,
-            )
-            .map(
-              (pair: HumanFitPairs.IPair): IRead =>
-                HumanFitPairs.row(step, pair, BAND, MM),
-            ),
         ];
+
+        // Misses holds actual negative gaps for this same ordered pair list.
+        pairs.forEach((pair: HumanFitPairs.IPair, k: number): void => {
+          if (-e.misses.pairs[k]! <= NEAR)
+            rows.push(HumanFitPairs.row(step, pair, BAND, MM));
+        });
 
         // The objective's curvature and slope in solved units; none for the
         // steering's model of the violation alone.
-        const p: Float64Array[] = Array.from(
-          { length: n },
-          (_: unknown, i: number): Float64Array => new Float64Array(n - i),
-        );
+        const retained: Float64Array[] | undefined = objective
+          ? objectiveP
+          : steeringP;
+        const p: Float64Array[] =
+          retained ??
+          Array.from(
+            { length: n },
+            (_: unknown, i: number): Float64Array => new Float64Array(n - i),
+          );
         const q: Float64Array = new Float64Array(n);
         if (objective)
           for (let i: number = 0; i < n; i++) {
             const w: number = HumanFitVariables.weight(variables[i]!);
-            p[i]![0] = w * units[i]! ** 2;
+            if (retained === undefined) p[i]![0] = w * units[i]! ** 2;
             q[i] = w * units[i]! * (x[i]! - key[i]!);
           }
+        if (objective) objectiveP = p;
+        else steeringP = p;
+
+        // Radius trials change only hard bounds, not this model's objective.
+        // Compute its zero value lazily, after the first QP admission.
+        let zero: number | undefined;
+        let fixedRows: HumanQuadraticProgram.IRow[] | undefined;
         return {
           solve: (
             radius: number,
@@ -306,7 +320,9 @@ export namespace HumanBodyFit {
               p,
               q,
               rows: [
-                ...rows.map((r: IRead): HumanQuadraticProgram.IRow => r.row),
+                ...(fixedRows ??= rows.map(
+                  (r: IRead): HumanQuadraticProgram.IRow => r.row,
+                )),
                 ...HumanFitVariables.bounds(variables, x, radius),
               ],
             };
@@ -339,16 +355,11 @@ export namespace HumanBodyFit {
             return {
               trial: moved(x, solved),
               predicted:
-                HumanQuadraticProgram.value(qp, new Float64Array(n)) -
-                HumanQuadraticProgram.value(qp, solved),
-              length: Math.max(
-                ...Array.from(
-                  solved,
-                  (s: number, i: number): number =>
-                    Math.abs(s * units[i]!) /
-                    HumanFitVariables.reach(variables[i]!),
-                ),
-              ),
+                (zero ??= HumanQuadraticProgram.value(
+                  qp,
+                  new Float64Array(n),
+                )) - HumanQuadraticProgram.value(qp, solved),
+              length: length(solved),
               full: HumanFitVariables.edge(variables, solved, radius),
               violation: linear,
               met,
@@ -365,6 +376,17 @@ export namespace HumanBodyFit {
         x,
         (v: number, i: number): number => v + s[i]! * units[i]!,
       );
+
+    /** Reduce in solved-coordinate order without a temporary vector or changed unit arithmetic. */
+    const length: (s: Float64Array) => number = (s: Float64Array): number => {
+      let out: number = -Infinity;
+      for (let i: number = 0; i < s.length; ++i)
+        out = Math.max(
+          out,
+          Math.abs(s[i]! * units[i]!) / HumanFitVariables.reach(variables[i]!),
+        );
+      return out;
+    };
 
     const solved: HumanSequentialConvex.IResult<Float64Array, IEvaluation> =
       HumanSequentialConvex.minimise(

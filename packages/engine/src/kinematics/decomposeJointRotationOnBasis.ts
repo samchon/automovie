@@ -15,8 +15,10 @@ import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 
+/** Degrees per radian for the closed-form angle extraction. */
 const RAD2DEG: number = 180 / Math.PI;
 
+/** Quaternion components in their existing finite-admission order. */
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
 
 /**
@@ -38,6 +40,7 @@ const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
  */
 const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
 
+/** Reject the first nonfinite component at the inverse's existing diagnostic path. */
 const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
   q: IAutoMovieQuaternion,
 ): void => {
@@ -77,9 +80,9 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads each angle's sine and projected cosine through atan2; a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Among the principal chart, the alternate chart and each angle's full-turn alias nearest its range, the least ROM overshoot wins, and every candidate is the same rotation. A constraint's `swingTwist` is set aside while the readings are ranked, since both readings of one rotation lie equally inside such a gate; the three-angle box ranks them, so the reading a pose reports stays the one it always was.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The extraction, the handedness correction, the clinical lift and the chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot`, the alias to `nearestAngleAlias` and frame arithmetic to `toClinicalAngle`, and `decomposeJointRotation` is this function behind one normalization.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, and no bone is special-cased.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, a few dot products and at most three overshoot scores in constant time, an alias that leaves the selected reading unchanged not scored again; taking the basis already normalized removes one validation and normalization from each of the hundreds of candidates a limb fit decomposes.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller normalizes a joint's basis once per solve and passes it to every call, which is the reason this entry exists beside `decomposeJointRotation`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the angles are a new record.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, fixed dot products and at most three overshoot scores remain constant work, with unchanged aliases not scored again. A handedness hit compares nine scalars directly without a temporary component array or comparison closure; misses retain the original cross/dot and snapshot work. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller supplies its already admitted basis. Existing weak per-basis handedness and per-constraint box preparation share only unchanged metadata; exact component comparisons still detect edited bases and every incoming quaternion is decomposed normally.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh angles. Existing weak maps retain at most one nine-scalar handedness snapshot and signed twist vector per live basis, and one borrowed-member box copy per live gated constraint; no pose, quaternion result, callback, handle or task is retained.
  */
 export const decomposeJointRotationOnBasis: (
   q: IAutoMovieQuaternion,
@@ -233,7 +236,9 @@ const HANDEDNESS: WeakMap<
 > = new WeakMap();
 
 /** A basis's nine components, flexion, abduction and twist, each x, y, z. */
-const componentsOf = (basis: IAutoMovieJointAxes): number[] => [
+const componentsOf: (basis: IAutoMovieJointAxes) => number[] = (
+  basis: IAutoMovieJointAxes,
+): number[] => [
   basis.flexion.x,
   basis.flexion.y,
   basis.flexion.z,
@@ -245,20 +250,38 @@ const componentsOf = (basis: IAutoMovieJointAxes): number[] => [
   basis.twist.z,
 ];
 
+/** Match the existing snapshot without allocating another nine-component array. */
+function sameComponents(
+  values: readonly number[],
+  basis: IAutoMovieJointAxes,
+): boolean {
+  return (
+    Object.is(values[0], basis.flexion.x) &&
+    Object.is(values[1], basis.flexion.y) &&
+    Object.is(values[2], basis.flexion.z) &&
+    Object.is(values[3], basis.abduction.x) &&
+    Object.is(values[4], basis.abduction.y) &&
+    Object.is(values[5], basis.abduction.z) &&
+    Object.is(values[6], basis.twist.x) &&
+    Object.is(values[7], basis.twist.y) &&
+    Object.is(values[8], basis.twist.z)
+  );
+}
+
 /**
  * A basis's handedness and signed twist axis, read once per basis record
  * while it holds the components it was read from (compared exactly), so the
  * hundreds of candidates a limb fit decomposes through one basis share it.
  */
-const handednessOf = (basis: IAutoMovieJointAxes): IHandedness => {
-  const now: number[] = componentsOf(basis);
+const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
+  basis: IAutoMovieJointAxes,
+): IHandedness => {
   const known: { values: readonly number[]; read: IHandedness } | undefined =
     HANDEDNESS.get(basis);
-  if (
-    known !== undefined &&
-    known.values.every((v: number, i: number): boolean => Object.is(v, now[i]))
-  )
+  if (known !== undefined && sameComponents(known.values, basis))
     return known.read;
+  const now: number[] = componentsOf(basis);
+
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
   // recovered twist (a rotation about −t by θ is one about t by −θ).
@@ -284,7 +307,9 @@ const BOXES: WeakMap<IAutoMovieJointConstraint, IAutoMovieJointConstraint> =
  * constraint and returned only while every other member is still the one it
  * was copied from.
  */
-const boxOf = (
+const boxOf: (
+  constraint: IAutoMovieJointConstraint,
+) => IAutoMovieJointConstraint = (
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieJointConstraint => {
   if (constraint.swingTwist === undefined || constraint.swingTwist === null)

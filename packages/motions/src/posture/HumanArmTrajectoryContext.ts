@@ -1,4 +1,7 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import {
+  physicalShapeSegmentDistance,
+  preparePoseResolution,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
@@ -18,33 +21,54 @@ import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
  * and each site's touched collider and normal. What a waypoint holds is
  * built once per waypoint, so a refinement of the same arms reads only the
  * waypoints it adds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fixed arm setup, per-waypoint frames, original contact allowances and continued-refinement ownership.
+ * @evidence contracts/development/design.md#principled-representation Actual frames and ordered arm coordinates retain the existing trajectory problem; one same-base FK reader shares only identical completed math across its arm frames.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One problem record and one builder serve moving and still arm trajectories and their refinements.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No candidate, range, rest, external reference or contact allowance is changed by sharing the synchronous frame-construction reader.
  */
 export namespace HumanArmTrajectoryContext {
-  /** What the context is built from: the trajectory's problem, or a still configuration of it. */
+  /** What the context is built from: the trajectory's problem, or a still configuration of it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines body, seconds, original base frames, arm contact inputs and the still flag; coordinate and contact meanings remain with the geometry/model owners.
+   * @evidence contracts/development/design.md#principled-representation Ordered per-arm sites and per-second bases describe the same deterministic trajectory whose coordinates are optimized.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every input is read by the setup, waypoint, rest or allowed-pair construction.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Borrows the original body, poses and declarations without replacing unmet contacts or widening joint ranges; parallel time/base/site lengths remain caller premises.
+   */
   export interface IProblem {
     /** The body. */
     body: IHumanBody;
+
     /** The waypoints' seconds. */
     times: readonly number[];
+
     /** What every arm is read against at each waypoint. */
     bases: readonly G.IBase[];
+
     /** The arms. */
     arms: readonly {
       /** The arm. */
       side: "left" | "right";
+
       /** The arm at the first waypoint, and the arm the allowances are read from at every waypoint but a fixed last one. */
       rest: HumanArmClearance.IArm;
+
       /** The arm at the last waypoint, which the allowances there are read from when the waypoint is fixed; `rest` when absent. */
       back?: HumanArmClearance.IArm;
+
       /** Its site at each waypoint, on the hold. */
       sites: readonly (M.ISite | undefined)[];
+
       /** Its segments' declared rests over the hold. */
       rests?: readonly M.IRest[];
+
       /** Its segments that grasp one object with the other arm over the action (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
       grasp?: readonly M.Segment[];
+
       /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
       anchor?: HumanArmClearance.IArm;
     }[];
+
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
   }
@@ -55,6 +79,14 @@ export namespace HumanArmTrajectoryContext {
    * @param problem The problem.
    * @param previous The context of the same arms on other waypoints, an earlier reading of the trajectory a refinement splits: a waypoint at a second it read, on the same base and with the same sites, keeps what was built there (its frames, the arm resting there placed, each probe's allowances, each site's touched collider and normal), so only the new waypoints are read.
    * @returns The context.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies original problem inputs, continued-waypoint reuse and returned fixed context.
+   * @evidence contracts/development/implementation.md#principled-implementation Prepares actual arm charts, hard intervals and contact geometry; exact same-base FK dependencies may share completed math across arms while every pose still receives full ordered admission and fresh outputs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps arm/time order, original reference depths, bidirectional declared rests, grasp exemptions, still/open endpoints and hard-box rounding behavior; the shared FK reader is never retained in a context or reused at another second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames, and the existing store preserves actual frame/site-identity matches across refinement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A same-base FK reader dies after its synchronous map. Existing weak context stores retain distinct queried waypoint seconds and their pair keys while a continued context lives; closures borrow the original problem and current points, with no new global result cache.
    */
   export function of(problem: IProblem, previous?: M.IContext): M.IContext {
     const n: number = problem.times.length;
@@ -104,9 +136,11 @@ export namespace HumanArmTrajectoryContext {
       (previous === undefined ? undefined : STORES.get(previous)) ?? new Map();
     const points: W.IWaypoint[] = problem.times.map(
       (t: number, k: number): W.IWaypoint => {
+        const prepared: ReturnType<typeof preparePoseResolution> | undefined =
+          setups.length > 1 ? preparePoseResolution() : undefined;
         const frames: G.IFrame[] = setups.map(
           (setup: G.ISetup): G.IFrame =>
-            HumanArmFrame.of(setup, problem.bases[k]!, alone),
+            HumanArmFrame.of(setup, problem.bases[k]!, alone, prepared),
         );
         const sites: (M.ISite | undefined)[] = problem.arms.map(
           (arm: IProblem["arms"][number]): M.ISite | undefined => arm.sites[k],
@@ -146,7 +180,7 @@ export namespace HumanArmTrajectoryContext {
     // contact is one pair whichever way it is read, so a rest an arm
     // declares on the other arm's segment admits that segment's probes in
     // the first arm too, as the audit reads the deeper of the two.
-    const declared = (
+    const declared: M.IContext["rested"] = (
       a: number,
       k: number,
       probe: number,
@@ -183,13 +217,14 @@ export namespace HumanArmTrajectoryContext {
     // that segment; an external collider has no own-body reference. An axis
     // sphere keeps the depth the arm resting at the waypoint has
     // (`HumanArmTrajectoryWaypoint.IWaypoint.placed`).
-    const give = (rested: boolean): number => (rested ? 0 : T.DEPTH);
-    const corner = (
+    const give: (rested: boolean) => number = (rested: boolean): number =>
+      rested ? 0 : T.DEPTH;
+    const corner: (
       a: number,
       k: number,
       probe: number,
       part: number,
-    ): number =>
+    ) => number = (a: number, k: number, probe: number, part: number): number =>
       AutoMovieMotionHumanAuditTangleModel.reference(
         model,
         frames[a]![k]!.segments[probe - G.SURFACE]!,
@@ -199,7 +234,7 @@ export namespace HumanArmTrajectoryContext {
     // Each memo is the waypoint's own, one map per arm keyed by the pair's
     // two indices as one number, since the pair readings ask it for every
     // probe and shape at every iterate.
-    const allowed = (
+    const allowed: M.IContext["allowed"] = (
       a: number,
       k: number,
       probe: number,
@@ -228,7 +263,7 @@ export namespace HumanArmTrajectoryContext {
     };
 
     // A probe of one arm against a collider of the other, both at rest.
-    const between = (
+    const between: M.IContext["between"] = (
       a: number,
       k: number,
       probe: number,
@@ -260,7 +295,7 @@ export namespace HumanArmTrajectoryContext {
     // every pair both ways, so own-body corners keep their reference depth
     // in the arm's segments as the arm's keep theirs in the body. External
     // frame parts lie beyond the body's model and keep no reference depth.
-    const lying = (
+    const lying: M.IContext["lying"] = (
       a: number,
       k: number,
       own: "upperArm" | "lowerArm" | "hand",
@@ -270,7 +305,11 @@ export namespace HumanArmTrajectoryContext {
       (problem.arms[a]!.rests ?? []).some(
         (r: M.IRest): boolean => r.part === own && r.on === bone,
       );
-    const collider = (
+    const collider: (
+      a: number,
+      k: number,
+      shape: number,
+    ) => G.IFrame["colliders"][number] = (
       a: number,
       k: number,
       shape: number,
@@ -286,7 +325,7 @@ export namespace HumanArmTrajectoryContext {
       }
       return list[shape]!;
     };
-    const inside = (
+    const inside: M.IContext["inside"] = (
       a: number,
       k: number,
       corner: number,
@@ -321,12 +360,18 @@ export namespace HumanArmTrajectoryContext {
       n,
       still: problem.still === true,
       open,
-      ...(problem.arms.some((arm): boolean => arm.anchor !== undefined)
+      ...(problem.arms.some(
+        (arm: IProblem["arms"][number]): boolean => arm.anchor !== undefined,
+      )
         ? {
-            anchor: problem.arms.map((arm, a: number): number[] | undefined =>
-              arm.anchor === undefined
-                ? undefined
-                : G.encode(setups[a]!, arm.anchor),
+            anchor: problem.arms.map(
+              (
+                arm: IProblem["arms"][number],
+                a: number,
+              ): number[] | undefined =>
+                arm.anchor === undefined
+                  ? undefined
+                  : G.encode(setups[a]!, arm.anchor),
             ),
           }
         : {}),

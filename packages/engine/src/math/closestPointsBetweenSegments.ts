@@ -36,9 +36,9 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner supplies both separation and contact witnesses to distance and collision consumers, including deterministic parameter ties.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absolute parallel epsilon replaces interior minima; only exact zero coefficients select degeneracies.
  * @evidence contracts/development/common.md#meaningful-documentation Documents metres, fresh witnesses, the stationary-line construction, finite-arithmetic refusals, tie ordering and noncertified binary64 precision.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate use constant-dimensional arithmetic and bounded storage.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once; changed endpoints require a new query.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate records are temporary; only two new witness points and their scalar distance escape to the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate retain constant-dimensional arithmetic. Ordered coordinate snapshots and direct scale arguments avoid admission arrays; one private residual vector serves every candidate instead of four vector intermediates per reading.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once. One residual formula writes the synchronous query's private vector, with no changed grouping; changed endpoints require a new query and final distance still comes from the rounded world witnesses.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only two fresh witness points and their scalar distance escape. The residual scratch and scalar snapshots end with this call; input records, candidates and numerical results are never cached across calls.
  */
 export const closestPointsBetweenSegments: (
   a: IAutoMovieVector3,
@@ -54,19 +54,66 @@ export const closestPointsBetweenSegments: (
   const rawU: IAutoMovieVector3 = Vector3.subtract(b, a);
   const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
   const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
-  const values: number[] = [a, b, c, d, rawU, rawV, rawR].flatMap(
-    (p: IAutoMovieVector3): number[] => [p.x, p.y, p.z],
-  );
-  if (!values.every(Number.isFinite))
+
+  // Preserve the original complete coordinate read before finite admission,
+  // with scalar snapshots instead of the flatMap's temporary arrays.
+  const ax: number = a.x,
+    ay: number = a.y,
+    az: number = a.z;
+  const bx: number = b.x,
+    by: number = b.y,
+    bz: number = b.z;
+  const cx: number = c.x,
+    cy: number = c.y,
+    cz: number = c.z;
+  const dx: number = d.x,
+    dy: number = d.y,
+    dz: number = d.z;
+  const ux: number = rawU.x,
+    uy: number = rawU.y,
+    uz: number = rawU.z;
+  const vx: number = rawV.x,
+    vy: number = rawV.y,
+    vz: number = rawV.z;
+  const rx: number = rawR.x,
+    ry: number = rawR.y,
+    rz: number = rawR.z;
+  if (
+    !Number.isFinite(ax) ||
+    !Number.isFinite(ay) ||
+    !Number.isFinite(az) ||
+    !Number.isFinite(bx) ||
+    !Number.isFinite(by) ||
+    !Number.isFinite(bz) ||
+    !Number.isFinite(cx) ||
+    !Number.isFinite(cy) ||
+    !Number.isFinite(cz) ||
+    !Number.isFinite(dx) ||
+    !Number.isFinite(dy) ||
+    !Number.isFinite(dz) ||
+    !Number.isFinite(ux) ||
+    !Number.isFinite(uy) ||
+    !Number.isFinite(uz) ||
+    !Number.isFinite(vx) ||
+    !Number.isFinite(vy) ||
+    !Number.isFinite(vz) ||
+    !Number.isFinite(rx) ||
+    !Number.isFinite(ry) ||
+    !Number.isFinite(rz)
+  )
     throw new Error(
       "Segment proximity requires finite coordinates and differences.",
     );
   const scale: number = Math.max(
-    ...[rawU, rawV, rawR].flatMap((p: IAutoMovieVector3): number[] => [
-      Math.abs(p.x),
-      Math.abs(p.y),
-      Math.abs(p.z),
-    ]),
+    Math.abs(ux),
+    Math.abs(uy),
+    Math.abs(uz),
+    Math.abs(vx),
+    Math.abs(vy),
+    Math.abs(vz),
+    Math.abs(rx),
+    Math.abs(ry),
+    Math.abs(rz),
   );
   if (scale === 0) return { pointA: { ...a }, pointB: { ...c }, distance: 0 };
   const scaled: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -94,14 +141,20 @@ export const closestPointsBetweenSegments: (
   let s: number = 0,
     t: number = 0,
     best: number = Math.hypot(r.x, r.y, r.z);
+  const residual: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const readResidual: (alongA: number, alongB: number) => void = (
+    alongA: number,
+    alongB: number,
+  ): void => {
+    residual.x = r.x + u.x * alongA - v.x * alongB;
+    residual.y = r.y + u.y * alongA - v.y * alongB;
+    residual.z = r.z + u.z * alongA - v.z * alongB;
+  };
   const offer: (alongA: number, alongB: number) => void = (
     alongA: number,
     alongB: number,
   ): void => {
-    const residual: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.add(r, Vector3.scale(u, alongA)),
-      Vector3.scale(v, alongB),
-    );
+    readResidual(alongA, alongB);
     const distance: number = Math.hypot(residual.x, residual.y, residual.z);
     if (
       distance < best ||
@@ -134,14 +187,14 @@ export const closestPointsBetweenSegments: (
       if (low <= high) {
         const s0: number = clampAutoMovieUnitInterval((B * low - C) / A);
         const s1: number = clampAutoMovieUnitInterval((B * high - C) / A);
-        const residual: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.add(r, Vector3.scale(u, s0)),
-          Vector3.scale(v, low),
-        );
-        const delta: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.scale(u, s1 - s0),
-          Vector3.scale(v, high - low),
-        );
+        readResidual(s0, low);
+        const ds: number = s1 - s0;
+        const dt: number = high - low;
+        const delta: IAutoMovieVector3 = {
+          x: u.x * ds - v.x * dt,
+          y: u.y * ds - v.y * dt,
+          z: u.z * ds - v.z * dt,
+        };
         const length: number = Math.hypot(delta.x, delta.y, delta.z);
         if (length > 0) {
           const unit: IAutoMovieVector3 = {
@@ -157,10 +210,21 @@ export const closestPointsBetweenSegments: (
       }
     }
   }
-  const pointA: IAutoMovieVector3 = Vector3.add(a, Vector3.scale(rawU, s));
-  const pointB: IAutoMovieVector3 = Vector3.add(c, Vector3.scale(rawV, t));
-  const difference: IAutoMovieVector3 = Vector3.subtract(pointA, pointB);
-  const distance: number = Math.hypot(difference.x, difference.y, difference.z);
+  const pointA: IAutoMovieVector3 = {
+    x: a.x + rawU.x * s,
+    y: a.y + rawU.y * s,
+    z: a.z + rawU.z * s,
+  };
+  const pointB: IAutoMovieVector3 = {
+    x: c.x + rawV.x * t,
+    y: c.y + rawV.y * t,
+    z: c.z + rawV.z * t,
+  };
+  const distance: number = Math.hypot(
+    pointA.x - pointB.x,
+    pointA.y - pointB.y,
+    pointA.z - pointB.z,
+  );
   if (!Number.isFinite(distance))
     throw new Error("Segment proximity cannot represent its witness distance.");
   return { pointA, pointB, distance };

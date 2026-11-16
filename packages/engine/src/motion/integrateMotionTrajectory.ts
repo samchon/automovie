@@ -29,9 +29,9 @@ const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
  * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 (Butcher's tableau 1/2, 1/2, 1 with weights 1/6, 1/3, 1/3, 1/6), whose global error is fourth order in the step; cubic Hermite interpolation with the knots' exact derivatives; the orientation by Runge-Kutta-Munthe-Kaas (Munthe-Kaas 1999, Appl Numer Math 29:115-127), the classical tableau applied in the Lie algebra with the inverse differential of the exponential truncated after its second bracket, which keeps the fourth order on the unit sphere; its read between knots is the cubic Hermite of the rotation vector in the same algebra.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand an error-controlled request to the stepper, else step to `t1` keeping knots, then a reader that finds the knot interval by index.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters the integration; reads are pure functions of the knots.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new f calls per step after one initial call, with constant-time interval lookup. Adaptive integration uses six new f calls per accepted or rejected trial after one initial call, with O(log A) interval lookup over A accepted steps. Both readers then perform O(n+1) interpolation for n vector components and an optional orientation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's derivative is the next step's first stage, evaluated once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed output holds ceil((t1-t0)/h)+1 numeric states and rates; adaptive output holds accepted numeric steps with no fixed count bound. MotionTrajectoryRead constructs both readers outside the callback's scope, so only completed numeric data escapes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed integration uses four new f calls per step after one initial call, with constant-time interval lookup and no rotation algebra for an absent orientation. Adaptive integration uses six new f calls per accepted or rejected trial after one initial call, with O(log A) interval lookup over A accepted steps. A new read interpolates O(n+1) components and copies its output; an immediately repeated exact requested time reuses interpolation but still copies O(n+1) components.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's derivative is the next step's first stage, evaluated once. Fixed retained rates are numeric snapshots; intermediate stages borrow the pure callback's results without modifying them. The zero-dimensional vector has no components to advance and shares its private empty record across stages and knots; nonempty states remain separate. Readers reuse only their immediately preceding Object.is-equal requested time and always copy public output.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed output holds ceil((t1-t0)/h)+1 owned numeric states and rate snapshots; adaptive output holds accepted numeric steps with no fixed count bound. MotionTrajectoryRead constructs both readers outside the callback's scope, retaining at most one previous read and returning fresh vector and orientation records, so only completed numeric data escapes.
  */
 export function integrateMotionTrajectory(
   props: integrateMotionTrajectory.IProps,
@@ -48,7 +48,7 @@ export function integrateMotionTrajectory(
   const oriented: boolean = props.q0 !== undefined;
   if (n === 0 && !oriented)
     throw new Error("integrateMotionTrajectory: the state is empty");
-  const rate = (
+  const rate: integrateMotionTrajectory.IProps["f"] = (
     t: number,
     x: readonly number[],
     q: IAutoMovieQuaternion | null,
@@ -91,11 +91,39 @@ export function integrateMotionTrajectory(
     }
     return MotionTrajectoryStepper.dormandPrince(props, rate, h);
   }
-  const add = (
-    x: readonly number[],
+  const add: (
+    x: number[],
     k: readonly number[],
     s: number,
-  ): number[] => x.map((v: number, i: number): number => v + s * k[i]!);
+  ) => number[] = (
+    x: number[],
+    k: readonly number[],
+    s: number,
+  ): number[] =>
+    x.length === 0
+      ? x
+      : x.map((v: number, i: number): number => v + s * k[i]!);
+
+  // Only retained knot derivatives need an owned snapshot. Copy numeric
+  // indices rather than iterating an externally supplied derivative array.
+  const retained: integrateMotionTrajectory.IProps["f"] = (
+    t: number,
+    x: readonly number[],
+    q: IAutoMovieQuaternion | null,
+  ): integrateMotionTrajectory.IRate => {
+    const r: integrateMotionTrajectory.IRate = rate(t, x, q);
+    let dx: readonly number[] = x;
+    if (n !== 0) {
+      const values: number[] = [];
+      for (let i: number = 0; i < n; i++) values.push(r.dx[i]!);
+      dx = values;
+    }
+    const w: IAutoMovieVector3 | undefined = oriented ? r.w : undefined;
+    return {
+      dx,
+      w: w === undefined ? undefined : { x: w.x, y: w.y, z: w.z },
+    };
+  };
 
   // Step to t1, the last step shortened to land on it exactly; each knot keeps its derivative.
   const steps: number = Math.ceil((t1 - t0) / h);
@@ -104,44 +132,62 @@ export function integrateMotionTrajectory(
   const qs: (IAutoMovieQuaternion | null)[] = [
     oriented ? Quaternion.normalize(props.q0!) : null,
   ];
-  const ks: integrateMotionTrajectory.IRate[] = [rate(t0, xs[0]!, qs[0]!)];
+  const ks: integrateMotionTrajectory.IRate[] = [retained(t0, xs[0]!, qs[0]!)];
   for (let s: number = 0; s < steps; s++) {
     const t: number = times[s]!;
     const next: number = s === steps - 1 ? t1 : t0 + (s + 1) * h;
     const dt: number = next - t;
     const x: number[] = xs[s]!;
     const q: IAutoMovieQuaternion | null = qs[s]!;
+
     // Runge-Kutta-Munthe-Kaas: each stage's orientation is the step's start
     // turned by a rotation vector, and the stage's body rate is carried back
     // to that vector's derivative by the inverse differential of the
     // exponential, so the orientation keeps the method's fourth order.
     const k1: integrateMotionTrajectory.IRate = ks[s]!;
     const u1: IAutoMovieVector3 | undefined = k1.w;
-    const v2: IAutoMovieVector3 | undefined = scaled(u1, dt / 2);
+    const v2: IAutoMovieVector3 | undefined = oriented
+      ? scaled(u1, dt / 2)
+      : undefined;
     const k2: integrateMotionTrajectory.IRate = rate(
       t + dt / 2,
       add(x, k1.dx, dt / 2),
-      turn(q, v2),
+      oriented ? turn(q, v2) : null,
     );
-    const u2: IAutoMovieVector3 | undefined = dexpinv(v2, k2.w);
-    const v3: IAutoMovieVector3 | undefined = scaled(u2, dt / 2);
+    const u2: IAutoMovieVector3 | undefined = oriented
+      ? dexpinv(v2, k2.w)
+      : undefined;
+    const v3: IAutoMovieVector3 | undefined = oriented
+      ? scaled(u2, dt / 2)
+      : undefined;
     const k3: integrateMotionTrajectory.IRate = rate(
       t + dt / 2,
       add(x, k2.dx, dt / 2),
-      turn(q, v3),
+      oriented ? turn(q, v3) : null,
     );
-    const u3: IAutoMovieVector3 | undefined = dexpinv(v3, k3.w);
-    const v4: IAutoMovieVector3 | undefined = scaled(u3, dt);
+    const u3: IAutoMovieVector3 | undefined = oriented
+      ? dexpinv(v3, k3.w)
+      : undefined;
+    const v4: IAutoMovieVector3 | undefined = oriented
+      ? scaled(u3, dt)
+      : undefined;
     const k4: integrateMotionTrajectory.IRate = rate(
       t + dt,
       add(x, k3.dx, dt),
-      turn(q, v4),
+      oriented ? turn(q, v4) : null,
     );
-    const u4: IAutoMovieVector3 | undefined = dexpinv(v4, k4.w);
-    const xn: number[] = x.map(
-      (v: number, i: number): number =>
-        v + (dt / 6) * (k1.dx[i]! + 2 * k2.dx[i]! + 2 * k3.dx[i]! + k4.dx[i]!),
-    );
+    const u4: IAutoMovieVector3 | undefined = oriented
+      ? dexpinv(v4, k4.w)
+      : undefined;
+    const xn: number[] =
+      n === 0
+        ? x
+        : x.map(
+            (v: number, i: number): number =>
+              v +
+              (dt / 6) *
+                (k1.dx[i]! + 2 * k2.dx[i]! + 2 * k3.dx[i]! + k4.dx[i]!),
+          );
     const step: IAutoMovieVector3 | undefined =
       q === null
         ? undefined
@@ -155,7 +201,7 @@ export function integrateMotionTrajectory(
     times.push(next);
     xs.push(xn);
     qs.push(qn);
-    ks.push(rate(next, xn, qn));
+    ks.push(retained(next, xn, qn));
   }
 
   return MotionTrajectoryRead.fixed({ t0, t1, h, times, xs, qs, ks, oriented });
@@ -282,7 +328,8 @@ export namespace integrateMotionTrajectory {
     times: readonly number[];
 
     /**
-     * The state at a time, held at the ends outside `[t0, t1]`.
+     * The state at a time, held at the ends outside `[t0, t1]`. Each call
+     * owns its mutable vector and quaternion, including repeated reads.
      *
      */
     at: (time: number) => IState;

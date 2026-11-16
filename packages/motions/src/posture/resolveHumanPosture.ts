@@ -8,6 +8,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -17,10 +18,11 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanDigitFit } from "./HumanDigitFit";
 import { HumanLimbFit } from "./HumanLimbFit";
-import { HumanLimbPair } from "./HumanLimbPair";
 import type { IHumanPosture } from "./IHumanPosture";
 import { lowerHumanPosture } from "./lowerHumanPosture";
 import { orderHumanLimbs } from "./orderHumanLimbs";
+import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { refitHumanPosture } from "./refitHumanPosture";
 import { turnHumanPosture } from "./turnHumanPosture";
 
 /**
@@ -52,9 +54,9 @@ import { turnHumanPosture } from "./turnHumanPosture";
  * @evidence contracts/development/implementation.md#principled-implementation Root, then forward joints clamped to their range, then two-bone IK per limb with a pole hint (the engine's fitChainToTarget, range-clamped itself): the standard procedural order where IK runs last, on the already posed parents.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose assembly, one clamp, one fit per goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is set past the rig's range; an unreachable goal leaves the limb extended toward it, reported by the audits.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones plus up to four limb fits, each a bounded bend search.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A limb's fit is a pure function of the body, the pose before it, the limb and its goal, so it is remembered by those and read again by the displayed pose of the instant a plan already solved and by every instant of a held pose; the body's topology is shared.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last 4,096 limb fits, least recently read dropped first, in a weak map that lets them go with the body.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Initial joint assembly/clamping and full FK scans scale with rig/joints, while each actual limb retains its bounded search and coupled arms may run their existing optimizer. One person/refit reader shares identical completed FK math across limbs; digit goals retain their own searches. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body topology and the existing mirror/floor/grid limb memory retain their current policies. refitHumanPosture shares only exact scalar FK prerequisites within this synchronous person's invocation; distinct goals, incoming poses and cold/near solves remain independent.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local FK reader ends with refit return or throw and is absent from returned poses and body memory. Existing memory retains at most 4096 fit entries per weak body, with entry bytes dependent on pose/goal size; no new plan, callback or global resource retains the reader.
  */
 export function resolveHumanPosture(
   body: IHumanBody,
@@ -68,8 +70,10 @@ export function resolveHumanPosture(
 /**
  * Companion helpers of {@link resolveHumanPosture}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each helper's convention.
- * @evidence contracts/development/implementation.md#principled-implementation Heading is yaw about +Y, then pitch about the turned +X, then roll about the turned +Z, the intrinsic order of a body turning, then leaning.
+ * @evidence contracts/development/common.md#meaningful-documentation Companion members state heading order, lowering/leg units, reference angles, attachment rules and pose/seed/value meanings.
+ * @evidence contracts/development/design.md#principled-representation A resolved canonical pose plus per-limb continuation metadata is separate from source posture authoring; shared refit and heading helpers preserve the same coordinate conventions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Existing resolution, refit, single-limb, reference and heading operations serve the motion grammar; the extracted refit owner holds operation-local FK sharing without a parallel solver.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No named production, altered target or approximate new key is introduced. A reader may be lent only by an explicit synchronous parent evaluation; independent evaluations keep separate scopes and every solve retains its existing constraints and memory policy.
  */
 export namespace resolveHumanPosture {
   /** The least knee flexion of a planted leg, degrees: the knee's greatest extension in stance, about 5 degrees at initial contact and through terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and Pathological Function, ch. 7; provisional, read through secondary summaries, the primary not read). Every planted leg's lowering (`lower`) and every stance course (`walkStanceCourse`) keeps it. */
@@ -104,6 +108,7 @@ export namespace resolveHumanPosture {
    * @param posture The posture.
    * @param base A pose whose joints replace clinical zero for unset bones.
    * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this same synchronous person evaluation; never retained by the result.
    * @returns The canonical pose and each fitted limb's seed.
    */
   export function seeded(
@@ -111,16 +116,13 @@ export namespace resolveHumanPosture {
     posture: IHumanPosture,
     base?: IAutoMoviePose,
     near: INear = {},
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): ISeeded {
-    const kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
-      (base?.joints ?? []).map(
-        (
-          j: IAutoMovieJointPose,
-        ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
-      ),
-    );
+    const kept:
+      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose>
+      | undefined = base === undefined ? undefined : indexBase(base.joints);
     const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
-      (b): IAutoMovieJointPose => {
+      (b: IAutoMovieBone): IAutoMovieJointPose => {
         const set: readonly [number, number, number] | undefined =
           posture.joints[b.bone];
         if (set !== undefined)
@@ -131,7 +133,7 @@ export namespace resolveHumanPosture {
             twist: set[2],
           };
         return (
-          kept.get(b.bone) ?? {
+          kept?.get(b.bone) ?? {
             bone: b.bone,
             flexion: 0,
             abduction: 0,
@@ -155,7 +157,7 @@ export namespace resolveHumanPosture {
       },
       body.skeleton,
     );
-    const fitted: ISeeded = refit(body, pose, posture.limbs, near);
+    const fitted: ISeeded = refit(body, pose, posture.limbs, near, resolution);
     // The digits reach from the hands the arms placed (`HumanDigitFit`).
     return {
       ...fitted,
@@ -173,101 +175,22 @@ export namespace resolveHumanPosture {
    * @param pose The pose before these limb fits.
    * @param limbs The goals, world or attached to a posed bone.
    * @param near Each limb's nearby fit to continue, if any.
+   * @param resolution Optional parent-owned exact reader or lazy supplier; cache hits do not invoke it.
    * @returns The pose, seeds and values of the same limb solver `seeded` uses.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' frames and the returned fit records.
-   * @evidence contracts/development/implementation.md#principled-implementation Fits the limbs on their already placed parents, in attachment order, with independent arms solved as one pair.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original seeded limb loop is the one shared implementation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves contact, attachment, clearance, reference, seed and value data without reconstructing a goal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most four limb fits, using the existing remembered solver.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by posture resolution and final contact restoration.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure operation that retains nothing.
+   * The source frames, goals, near records and returned fit metadata pass
+   * unchanged to refitHumanPosture, the one owner of the existing limb loop.
+   * It owns a lazy reader until return or borrows its explicit parent's
+   * synchronous reader; body memory stores fits, never either getter or reader.
    */
   export function refit(
     body: IHumanBody,
     pose: IAutoMoviePose,
     limbs: IHumanPosture["limbs"],
     near: INear = {},
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): ISeeded {
-    const seeds: ISeeded["seeds"] = {};
-    const values: ISeeded["values"] = {};
-    // An arm with no goal hangs or rests where its joints put it, so its own
-    // colliders keep its room from the first fit on.
-    const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => limbs[`${side}Arm`] === undefined,
-    );
-    // Two arms with goals, neither riding the other, are one coupled problem
-    // (`HumanLimbPair`), fitted when the first of them is reached.
-    const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
-      left: limbs.leftArm,
-      right: limbs.rightArm,
-    };
-    const riding = (
-      goal: IHumanPosture.IGoal | undefined,
-      other: "left" | "right",
-    ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
-    const paired: boolean =
-      arms.left !== undefined &&
-      arms.right !== undefined &&
-      !riding(arms.left, "right") &&
-      !riding(arms.right, "left");
-    for (const limb of resolveHumanPosture.order(limbs)) {
-      const goal: IHumanPosture.IGoal | undefined = limbs[limb];
-      if (goal === undefined) continue;
-      if (paired && (limb === "leftArm" || limb === "rightArm")) {
-        if (placed.length === 0) {
-          const pair: HumanLimbPair.IFitted = HumanLimbPair.fitted(
-            body,
-            pose,
-            { left: arms.left!, right: arms.right! },
-            {
-              ...(near.leftArm === undefined ? {} : { left: near.leftArm }),
-              ...(near.rightArm === undefined ? {} : { right: near.rightArm }),
-            },
-          );
-          pose = pair.pose;
-          seeds.leftArm = pair.seeds.left;
-          seeds.rightArm = pair.seeds.right;
-          values.leftArm = pair.values.left;
-          values.rightArm = pair.values.right;
-        }
-        placed.push(limb === "leftArm" ? "left" : "right");
-        continue;
-      }
-      // The other arm's goal, while that arm is still to be fitted: where its
-      // wrist will be, for the room the clearance keeps it.
-      const other: IHumanPosture.Limb | undefined =
-        limb === "leftArm"
-          ? "rightArm"
-          : limb === "rightArm"
-            ? "leftArm"
-            : undefined;
-      const coming: IHumanPosture.IGoal | undefined =
-        other === undefined ||
-        placed.includes(other === "leftArm" ? "left" : "right")
-          ? undefined
-          : limbs[other];
-      const rival: IAutoMovieVector3 | undefined =
-        coming === undefined || other === undefined
-          ? undefined
-          : resolveHumanPosture.world(body, pose, other, coming).point;
-      const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
-        body,
-        pose,
-        limb,
-        goal,
-        placed,
-        rival,
-        near[limb],
-      );
-      pose = fitted.pose;
-      seeds[limb] = fitted.seed;
-      values[limb] = fitted.value;
-      if (limb === "leftArm") placed.push("left");
-      if (limb === "rightArm") placed.push("right");
-    }
-
-    return { pose, seeds, values };
+    return refitHumanPosture(body, pose, limbs, near, resolution);
   }
 
   /**
@@ -391,6 +314,7 @@ export namespace resolveHumanPosture {
    * @param limb The limb.
    * @param goal Its goal.
    * @param near A nearby fit of the limb to continue; omitted, it is solved cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed only from the same synchronous person evaluation.
    * @returns The pose with the limb fitted, and its seed.
    */
   export function limbSeeded(
@@ -399,6 +323,7 @@ export namespace resolveHumanPosture {
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
     near?: IAutoMovieSwivelNear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
     return HumanLimbFit.fit(
       body,
@@ -408,6 +333,7 @@ export namespace resolveHumanPosture {
       ["left", "right"],
       undefined,
       near,
+      resolution,
     );
   }
 
@@ -426,7 +352,9 @@ export namespace resolveHumanPosture {
     limb: IHumanPosture.Limb,
   ): IHumanPosture.IReference {
     const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
-    const read = (
+    const read: (
+      bone: AutoMovieHumanoidBone,
+    ) => readonly [number, number, number] = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {
       const joint: IAutoMovieJointPose | undefined = pose.joints.find(
@@ -466,4 +394,13 @@ export namespace resolveHumanPosture {
   ): IHumanPosture.IGoal {
     return HumanLimbFit.world(body, pose, limb, goal);
   }
+}
+
+/** Preserve last base-joint precedence by direct ordered insertion; no map is needed without a base. */
+function indexBase(
+  joints: readonly IAutoMovieJointPose[],
+): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose> {
+  const indexed: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
+  for (const joint of joints) indexed.set(joint.bone, joint);
+  return indexed;
 }

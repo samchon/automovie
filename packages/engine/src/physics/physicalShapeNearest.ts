@@ -1,14 +1,9 @@
 import type {
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
-import { physicalHullNearest } from "./physicalHullNearest";
-import { physicalHullSegment } from "./physicalHullSegment";
+import { physicalShapeQuery } from "./physicalShapeQuery";
 
 /**
  * Where a world segment comes nearest an admitted sphere, Y capsule,
@@ -54,12 +49,12 @@ import { physicalHullSegment } from "./physicalHullSegment";
  *   point, all in the world frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame composition, the sign, the point case, the method for each shape kind with its precision, and the convention where no nearest direction exists.
- * @evidence contracts/development/implementation.md#principled-implementation Spheres and capsules are segments widened by a radius, so their nearest points are the engine's exact closest-segment-points query moved out by the radius; a hull segment's parameter is the exact polytope query of `physicalHullSegment`; the signed distance of a convex solid is a convex function, so golden-section search along the segment finds its minimum to 1e-9 of the parameter without missing an entry; a tapered segment subtracts an affine radius from that convex distance, which keeps it convex, so the same search reads it for every kind.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of shape proximity: one frame composition and one branch per shape kind, each named, with an exhaustive check. Distance, contact point and contact normal are one reading, so no caller derives a normal from a distance gradient or a point from samples.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is added to the distance; the 44 golden-section steps are the count that narrows a unit interval below 1e-9 (0.618^44 ≈ 6.4e-10), 1e-12 metres is the length below which an offset carries no direction in double arithmetic at body scale, and the shape's dimensions are taken as admitted by the profile.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: one closest-segment query for a sphere or capsule, one exact segment query and one local evaluation for a hull segment, 47 local evaluations for a box segment, or for any kind under a taper, and one for a point.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments; callers that query many shapes hold their own placed frames, and a hull's faces are shared by `physicalHullFaces`.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
+ * @evidence contracts/development/implementation.md#principled-implementation The common physicalShapeQuery owner runs the existing closest-segment, exact hull and fixed-search methods in full mode, so distance, point, normal and segment point are still one actual reading.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One full-mode delegation; the shared query owns shape branches and the scalar facade uses that same numerical body.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Full mode preserves every original search step, tie, threshold, normal fallback and world contact field; no distance-only approximation enters a full result.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The common query's original closest-segment/exact-hull work or 48 scalar search evaluations plus one final contact reading, with fresh full world output.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Full and scalar public facades use one numerical owner, so omitting unobserved scalar fields does not duplicate or alter the distance mathematics.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the original full contact record and fresh world vectors without retaining the pose, shape, segment or result history.
  */
 export function physicalShapeNearest(
   pose: P.ITransform,
@@ -68,205 +63,8 @@ export function physicalShapeNearest(
   b: IAutoMovieVector3,
   taper?: readonly [number, number],
 ): physicalShapeNearest.IResult {
-  const centre: IAutoMovieVector3 = Vector3.add(
-    pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
-  );
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    pose.rotation,
-    shape.transform.rotation,
-  );
-  if (
-    taper === undefined &&
-    (shape.kind === "sphere" || shape.kind === "capsule")
-  ) {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: shape.kind === "capsule" ? shape.halfLength : 0,
-      z: 0,
-    });
-    const closest: ReturnType<typeof closestPointsBetweenSegments> =
-      closestPointsBetweenSegments(
-        a,
-        b,
-        Vector3.subtract(centre, axis),
-        Vector3.add(centre, axis),
-      );
-    const normal: IAutoMovieVector3 =
-      closest.distance > 1e-12
-        ? Vector3.scale(
-            Vector3.subtract(closest.pointA, closest.pointB),
-            1 / closest.distance,
-          )
-        : Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
-    return {
-      distance: closest.distance - shape.radius,
-      point: Vector3.add(closest.pointB, Vector3.scale(normal, shape.radius)),
-      normal,
-      at: closest.pointA,
-    };
-  }
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-  const la: IAutoMovieVector3 = Quaternion.rotateVector(
-    inverse,
-    Vector3.subtract(a, centre),
-  );
-  const lb: IAutoMovieVector3 = Quaternion.rotateVector(
-    inverse,
-    Vector3.subtract(b, centre),
-  );
-  const local = (
-    p: IAutoMovieVector3,
-  ): {
-    distance: number;
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-  } => {
-    if (shape.kind === "hull") return physicalHullNearest(shape.points, p);
-    if (shape.kind === "box") return boxNearest(shape.halfExtents, p);
-    if (shape.kind === "sphere" || shape.kind === "capsule")
-      return roundNearest(
-        shape.kind === "capsule" ? shape.halfLength : 0,
-        shape.radius,
-        p,
-      );
-    shape satisfies never;
-    throw new Error("Unknown physical shape kind");
-  };
-  const along = (t: number): IAutoMovieVector3 => ({
-    x: la.x + (lb.x - la.x) * t,
-    y: la.y + (lb.y - la.y) * t,
-    z: la.z + (lb.z - la.z) * t,
-  });
-  const widened = (t: number): number =>
-    taper === undefined ? 0 : taper[0] + (taper[1] - taper[0]) * t;
-  const gap = (t: number): number => local(along(t)).distance - widened(t);
-  let parameter: number = 0;
-  const point: boolean = la.x === lb.x && la.y === lb.y && la.z === lb.z;
-  if (!point && shape.kind === "hull" && taper === undefined)
-    parameter = physicalHullSegment(shape.points, la, lb);
-  else if (!point) {
-    const ratio: number = (Math.sqrt(5) - 1) / 2;
-    let lo: number = 0;
-    let hi: number = 1;
-    let c: number = hi - ratio * (hi - lo);
-    let d: number = lo + ratio * (hi - lo);
-    let fc: number = gap(c);
-    let fd: number = gap(d);
-    for (let i: number = 0; i < 44; i++) {
-      if (fc <= fd) {
-        hi = d;
-        d = c;
-        fd = fc;
-        c = hi - ratio * (hi - lo);
-        fc = gap(c);
-      } else {
-        lo = c;
-        c = d;
-        fc = fd;
-        d = lo + ratio * (hi - lo);
-        fd = gap(d);
-      }
-    }
-    let least: number = gap(0);
-    for (const [t, value] of [
-      [1, gap(1)],
-      [c, fc],
-      [d, fd],
-    ] as const)
-      if (value < least) {
-        least = value;
-        parameter = t;
-      }
-  }
-  const found: {
-    distance: number;
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-  } = local(along(parameter));
-  return {
-    distance: found.distance - widened(parameter),
-    point: Vector3.add(centre, Quaternion.rotateVector(rotation, found.point)),
-    normal: Quaternion.rotateVector(rotation, found.normal),
-    at: Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), parameter)),
-  };
+  return physicalShapeQuery(pose, shape, a, b, taper, true);
 }
-
-/**
- * The nearest surface point, outward normal and signed distance of an
- * origin-centred box to a point in the box's frame: outside, the point
- * clamped to the box; inside, the projection onto the nearest face.
- */
-const boxNearest = (
-  h: IAutoMovieVector3,
-  p: IAutoMovieVector3,
-): {
-  distance: number;
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-} => {
-  const q: IAutoMovieVector3 = {
-    x: Math.abs(p.x) - h.x,
-    y: Math.abs(p.y) - h.y,
-    z: Math.abs(p.z) - h.z,
-  };
-  const outside: number = Math.hypot(
-    Math.max(q.x, 0),
-    Math.max(q.y, 0),
-    Math.max(q.z, 0),
-  );
-  const face: "x" | "y" | "z" =
-    q.x >= q.y && q.x >= q.z ? "x" : q.y >= q.z ? "y" : "z";
-  const outward: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  outward[face] = p[face] < 0 ? -1 : 1;
-  if (!(outside > 1e-12)) {
-    const point: IAutoMovieVector3 = { ...p };
-    point[face] = outward[face] * h[face];
-    return { distance: q[face], point, normal: outward };
-  }
-  const point: IAutoMovieVector3 = {
-    x: Math.min(h.x, Math.max(-h.x, p.x)),
-    y: Math.min(h.y, Math.max(-h.y, p.y)),
-    z: Math.min(h.z, Math.max(-h.z, p.z)),
-  };
-  return {
-    distance: outside,
-    point,
-    normal: Vector3.scale(Vector3.subtract(p, point), 1 / outside),
-  };
-};
-
-/**
- * The nearest surface point, outward normal and signed distance of an
- * origin-centred Y capsule (a sphere when its half length is 0) to a point in
- * its frame: the axis point nearest the point, moved out by the radius; the
- * local X axis when the point is on the axis.
- */
-const roundNearest = (
-  half: number,
-  radius: number,
-  p: IAutoMovieVector3,
-): {
-  distance: number;
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-} => {
-  const axis: IAutoMovieVector3 = {
-    x: 0,
-    y: Math.min(half, Math.max(-half, p.y)),
-    z: 0,
-  };
-  const away: number = Vector3.length(Vector3.subtract(p, axis));
-  const normal: IAutoMovieVector3 =
-    away > 1e-12
-      ? Vector3.scale(Vector3.subtract(p, axis), 1 / away)
-      : { x: 1, y: 0, z: 0 };
-  return {
-    distance: away - radius,
-    point: Vector3.add(axis, Vector3.scale(normal, radius)),
-    normal,
-  };
-};
 
 /**
  * The reading of one proximity query.
@@ -280,8 +78,11 @@ export namespace physicalShapeNearest {
   /** Where a segment comes nearest a shape. */
   export interface IResult {
     /** Signed distance, metres; negative when the segment enters. */ distance: number;
+
     /** The nearest point of the shape's surface, world metres. */ point: IAutoMovieVector3;
+
     /** Outward unit normal of the surface at `point`, world frame. */ normal: IAutoMovieVector3;
+
     /** The nearest point of the segment, world metres. */ at: IAutoMovieVector3;
   }
 }

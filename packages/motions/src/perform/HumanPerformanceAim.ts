@@ -33,11 +33,21 @@ import type { IHumanProp } from "./IHumanProp";
 export namespace HumanPerformanceAim {
   /**
    * A target's world point and outward normal at a film second.
+   * Another performer's region is read one reaction time earlier; a target
+   * naming the aiming performer uses their supplied own-body frame instead.
    *
    * @param target The target.
    * @param seconds Film seconds.
    * @param frame The aiming person's own frame, for `point` targets in the performer frame and `none`, their own body and bones, for `self`, and their subject, for a `person` that names them (read as `self`).
    * @returns The aim.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world-point/normal output, film seconds, own-body frame use and the person's existing reaction-time offset; target failures remain with their original branch owners.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves anatomical regions on actual world bones and prop-local points on their actual prop frame. Performer-frame points use +X left, +Y up and +Z forward from yaw in degrees; only point and virtual-opponent branches need that heading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per declared target kind, with shared heading construction only where its values are consumed and the existing self-person delegation retained.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Person, self and prop queries retain their full original frame/admission paths. Point-normal normalization and arithmetic grouping are unchanged; a world point still returns the caller's at reference, and no aim result or callback is memoized.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Person/self costs include surface placement and their bone reader; prop costs include articulation/hold resolution. Performer points, default world-point normals and none targets need one sine and cosine each; an explicit world normal needs no heading, and a world point needs no left vector or turn closure. Person/self/prop do no heading work. Overall speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each needed heading's sine and cosine supply its forward vector and, for a performer-frame turn, its left vector; different targets and seconds still invoke their own actual readers and no state is shared across queries.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The resolver retains no state or handle. Results keep their original ownership: fresh computed vectors, a borrowed world at point, or a prop provider's own returned record where supplied.
    */
   export function aim(
     self: HumanPerformanceState,
@@ -45,17 +55,6 @@ export namespace HumanPerformanceAim {
     seconds: number,
     frame: IFrame,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const yaw: number = (frame.yaw * Math.PI) / 180;
-    const forward: IAutoMovieVector3 = {
-      x: Math.sin(yaw),
-      y: 0,
-      z: Math.cos(yaw),
-    };
-    const left: IAutoMovieVector3 = {
-      x: Math.cos(yaw),
-      y: 0,
-      z: -Math.sin(yaw),
-    };
     switch (target.kind) {
       case "person": {
         // The aiming performer's own body is its own, as a `self` target's.
@@ -70,7 +69,8 @@ export namespace HumanPerformanceAim {
           self,
           target.subject,
         );
-        const region = other.performer.body.surfaces.regions[target.region];
+        const region: resolveAutoMovieHumanoidSurfaces.IFrame | undefined =
+          other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
           throw new HumanRefusal({
             kind: "parameter",
@@ -88,7 +88,9 @@ export namespace HumanPerformanceAim {
         // perceived them a reaction time earlier. Read at the same instant,
         // two performers aiming at each other would each read the posture
         // still being solved.
-        const placed = resolveAutoMovieHumanoidSurfaces.place(
+        const placed: ReturnType<
+          typeof resolveAutoMovieHumanoidSurfaces.place
+        > = resolveAutoMovieHumanoidSurfaces.place(
           region,
           HumanPerformanceRead.bones(
             self,
@@ -99,8 +101,11 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "self": {
-        const region = frame.body.surfaces.regions[target.region];
-        const placed = resolveAutoMovieHumanoidSurfaces.place(
+        const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+          frame.body.surfaces.regions[target.region];
+        const placed: ReturnType<
+          typeof resolveAutoMovieHumanoidSurfaces.place
+        > = resolveAutoMovieHumanoidSurfaces.place(
           region,
           frame.bones().get(region.bone)!,
         );
@@ -109,7 +114,7 @@ export namespace HumanPerformanceAim {
       case "prop": {
         const prop: IHumanProp | undefined = self.props.get(target.subject);
         // A part an act has moved is where the prop's state poses it.
-        const local =
+        const local: ReturnType<typeof HumanPerformanceObject.point> =
           prop === undefined
             ? undefined
             : HumanPerformanceObject.point(self, prop, target.point, seconds);
@@ -153,31 +158,42 @@ export namespace HumanPerformanceAim {
         };
       }
       case "point": {
+        if (target.frame === "world")
+          return {
+            point: target.at,
+            normal:
+              target.normal === undefined
+                ? Vector3.scale(heading(frame.yaw), -1)
+                : Vector3.normalize(target.normal),
+          };
+        const forward: IAutoMovieVector3 = heading(frame.yaw);
+        const left: IAutoMovieVector3 = {
+          x: forward.z,
+          y: 0,
+          z: -forward.x,
+        };
+
         // A performer-frame vector in the world: x left, y up, z forward.
-        const turned = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+        const turned: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+          v: IAutoMovieVector3,
+        ): IAutoMovieVector3 =>
           Vector3.add(
             Vector3.add(Vector3.scale(left, v.x), { x: 0, y: v.y, z: 0 }),
             Vector3.scale(forward, v.z),
           );
         return {
-          point:
-            target.frame === "world"
-              ? target.at
-              : Vector3.add(
-                  { x: frame.root.x, y: 0, z: frame.root.z },
-                  turned(target.at),
-                ),
+          point: Vector3.add(
+            { x: frame.root.x, y: 0, z: frame.root.z },
+            turned(target.at),
+          ),
           normal:
             target.normal === undefined
               ? Vector3.scale(forward, -1)
-              : Vector3.normalize(
-                  target.frame === "world"
-                    ? target.normal
-                    : turned(target.normal),
-                ),
+              : Vector3.normalize(turned(target.normal)),
         };
       }
-      case "none":
+      case "none": {
+        const forward: IAutoMovieVector3 = heading(frame.yaw);
         return {
           point: Vector3.add(
             {
@@ -189,20 +205,35 @@ export namespace HumanPerformanceAim {
           ),
           normal: Vector3.scale(forward, -1),
         };
+      }
     }
+  }
+
+  /** The +Z forward direction at a heading in degrees about world +Y. */
+  function heading(degrees: number): IAutoMovieVector3 {
+    const yaw: number = (degrees * Math.PI) / 180;
+    return { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
   }
 
   /**
    * The aiming frame of a performer standing in a posture: its root and
-   * heading, the heights of a `none` target's three lines from the body's
-   * measures (the hips less a third of the thigh, the chest, the head's
-   * centre) and its range, nine tenths of the leg's length.
+   * heading, and a `none` target's lines from the body's measures:
+   * hipHeight minus 0.3 thigh, chestHeight, and headHeight minus 0.5
+   * headRadius. Its range is `0.9 * (thigh + shank)`, all in metres.
    *
    * @param body The performer's body.
    * @param posture The posture they stand in.
    * @param bones Their bones in it, read only for a `self` target or a prop they carry.
    * @param subject Their subject id.
    * @returns The frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the posture root and heading, measure-derived line heights/range, lazy own-bone reader and optional subject used by self and carried-prop aims.
+   * @evidence contracts/development/implementation.md#principled-implementation Copies the posture's world root reference and degree heading, derives fixed standing line heights and range from the body's own measures, and carries the supplied own-bone callback without invoking it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record assembly keeps scalar frame construction separate from potentially expensive bone resolution.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the existing 0.3 thigh, 0.5 head-radius and 0.9 leg-length formulas; does not normalize, resolve or substitute the caller's body, posture or bone callback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic plus one frame and one heights record; construction performs no FK or limb fit.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This constructor stores no memo; callers such as Ahead own any unchanged-input evaluation scope and invalidation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the new frame/heights records; root, body and callback are borrowed. The returned frame retains those inputs until released, and a retained callback keeps its producer's existing lifetime and read semantics.
    */
   export function frame(
     body: IHumanBody,
@@ -225,7 +256,14 @@ export namespace HumanPerformanceAim {
     };
   }
 
-  /** The aiming person's own frame, body and bones (`aim`). */
+  /**
+   * The aiming person's own frame, body and lazy bones (`aim`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state world metres, degree heading, measure-derived scalars, subject identity and the supplied bone callback.
+   * @evidence contracts/development/design.md#principled-representation A world root, heading and anthropometric scalars place point/virtual targets, while the actual body and lazy canonical bones place self targets and carried props.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One existing frame record serves placement, layers, Ahead demands and public aim; no target result or evaluation cache is added to it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the canonical body and resolved-bone types; readonly map access does not imply immutable inputs or authorize caching across the supplied reader's lifetime.
+   */
   export interface IFrame {
     /** Their root, world metres. */
     root: IAutoMovieVector3;
@@ -242,7 +280,17 @@ export namespace HumanPerformanceAim {
     /** Their body. */
     body: IHumanBody;
 
-    /** Their bones. */
+    /**
+     * Their canonical world bones, read when an aim needs their own body.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the lazy own-body query; the supplying producer owns its current pose and map lifetime.
+     * @evidence contracts/development/implementation.md#principled-implementation A supplied callback reads the body's actual canonical bones; this signature imposes no independent kinematic approximation or cache.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callable field lets scalar frame construction avoid eager FK and lets the owning evaluation choose its reader.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts ReadonlyMap limits consumer writes through this surface, while actual validation, freshness and mutable dependency handling remain the producer's responsibilities.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature has no algorithm; concrete callback cost belongs to its placement, layer or demand producer.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature shares no work; producers declare their exact evaluation scope and cached dependencies.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates no state or handle; a frame borrows the supplied callback and its producer controls captured state and the returned map's ownership.
+     */
     bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** Their subject id. */

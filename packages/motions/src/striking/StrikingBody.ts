@@ -12,6 +12,7 @@ import type {
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -47,29 +48,33 @@ export namespace StrikingBody {
    * so the shoulders and hips are where the root, the heading and the trunk
    * joints put them, the points every limb solve starts from.
    *
-   * @param body The body.
+   * @param body The body with topology indexed from its same, unchanged skeleton.
    * @param posture The posture.
    * @returns Resolved bones by rig bone.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped and why the result is the limb solves' start.
-   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then forward kinematics with the canonical axes and rest frames.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped, why the result is the limb solves' start and the body's unchanged-skeleton topology premise.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then complete forward kinematics with the canonical axes, rest frames and the body's parent-first topology.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one map.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and J pose joints, posture assembly and clamp metadata lookup cost O(B+J), plus the existing per-joint numerical projection and optional HumanDigitFit search; final FK is also O(B+J) and reuses the body's topology.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work FK reuses the topology createHumanBody indexed from this same skeleton, which the caller keeps unchanged; each posture and its bone transforms are still resolved anew.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trunk(
     body: IHumanBody,
     posture: IHumanPosture,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const pose = resolveHumanPosture(body, { ...posture, limbs: {} });
+    const pose: IAutoMoviePose = resolveHumanPosture(body, {
+      ...posture,
+      limbs: {},
+    });
     return new Map(
       resolvePose(
         pose,
         body.skeleton,
         HUMANOID_JOINT_AXES,
         HUMANOID_REST_FRAME,
+        body.topology,
       ).map(
         (
           r: IAutoMovieResolvedBone,

@@ -33,8 +33,11 @@ import type { HumanSegment } from "./HumanSegment";
  *
  * The shape is the person's displayed body before the flight's rotation:
  * the carrier, its overlays and its layers, read at the integrator's knots
- * from take-off and carried into the root's own frame, so the result does
- * not depend on where or facing which way the flight happens. Its history
+ * from take-off. Forward kinematics starts at an identity root to express
+ * that already composed articulation directly in the root's own frame,
+ * so a rigid world placement is not applied and then undone for every bone.
+ * The result does not depend on where or facing which way the flight happens.
+ * Its history
  * gives the composite inertia and the segments' relative momentum
  * (`integrateAirborneRotation.history`), differenced inside the flight at
  * take-off and touchdown so the push-off and the landing are not read; the
@@ -62,8 +65,8 @@ import type { HumanSegment } from "./HumanSegment";
  * Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * A turn the take-off cannot give is refused, never clamped.
- * Each new history query reduces at most four posed instants, with linear work in the skeleton after its limb fits. Different queries may rebuild a shared difference node's bones; the displayed-pose owner can independently reuse its bounded cache. Adaptive shooting controls the query population, and real-body completion cost remains unresolved.
- * Exact query times share numeric inertia and relative momentum across the search, fixed boundary stencils share their numeric moments, and playback reuses the evaluated flight whose residual was judged. Raw geometry is temporary rather than retained for every difference node.
+ * Each new history query reduces at most four posed instants, with linear work in the skeleton after its limb fits. Root-space FK omits one per-bone inverse-root vector rotation, quaternion product and duplicate output-map construction. Different queries may rebuild a shared difference node's bones; adaptive shooting controls the query population and actual completion cost remains to be measured.
+ * Exact query times share numeric inertia and relative momentum across the search, fixed boundary stencils share their numeric moments, and playback reuses the evaluated flight whose residual was judged. Root-space FK reads the already resolved composed joints with an identity rigid root; it does not change their contact/IK solution. Raw geometry is temporary rather than retained for every difference node.
  * The numeric tables and completed flight live with the plan through HumanPerformanceFlightRotation, whose factory receives no performance or history. The history holds numeric instants across shooting trials and temporary bones during each reduction; this pass clears its memo in finally on success or refusal.
  */
 export namespace HumanPerformanceFlight {
@@ -141,34 +144,24 @@ export namespace HumanPerformanceFlight {
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
-    const unturned = (seconds: number): IAutoMoviePose =>
+    const unturned: (seconds: number) => IAutoMoviePose = (
+      seconds: number,
+    ): IAutoMoviePose =>
       HumanPerformanceRead.pose(self, subject, seconds);
-    const root = (pose: IAutoMoviePose): IAutoMovieQuaternion =>
+    const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
+      pose: IAutoMoviePose,
+    ): IAutoMovieQuaternion =>
       pose.root?.rotation ?? Quaternion.identity();
 
-    // The composed shape in the root's own frame.
-    const shape = (
+    // Contacts and IK have already resolved the composed joints. FK with no
+    // rigid world root gives their root-frame shape directly, rather than
+    // applying that root to every bone and then undoing it again.
+    const shape: (
       seconds: number,
-    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      const pose: IAutoMoviePose = unturned(seconds);
-      const at: IAutoMovieVector3 = pose.root?.translation ?? {
-        x: 0,
-        y: 0,
-        z: 0,
-      };
-      const back: IAutoMovieQuaternion = Quaternion.inverse(root(pose));
-      const out: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-      for (const [bone, r] of poseBones(body, pose))
-        out.set(bone, {
-          ...r,
-          worldPosition: Quaternion.rotateVector(
-            back,
-            Vector3.subtract(r.worldPosition, at),
-          ),
-          worldRotation: Quaternion.multiply(back, r.worldRotation),
-        });
-      return out;
-    };
+    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+      seconds: number,
+    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      poseBones(body, { ...unturned(seconds), root: null });
     const history: ReturnType<typeof integrateAirborneRotation.history> =
       integrateAirborneRotation.history(model, shape, { from: t0, to: t1 });
     try {
@@ -183,9 +176,11 @@ export namespace HumanPerformanceFlight {
       // 3 g δ / 2` vertically). First pass: the push's share bearing the
       // weight is left out of `|J|`, so the bound is the impulse of the
       // take-off velocity alone.
-      const ceiling = (at: number): number => {
+      const ceiling: (at: number) => number = (at: number): number => {
         const delta: number = integrateAirborneRotation.DELTA;
-        const centre = (t: number): IAutoMovieVector3 =>
+        const centre: (t: number) => IAutoMovieVector3 = (
+          t: number,
+        ): IAutoMovieVector3 =>
           resolveAutoMovieCenterOfMass.place(
             model,
             poseBones(body, unturned(t)),

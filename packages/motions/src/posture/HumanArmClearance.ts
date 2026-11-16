@@ -58,7 +58,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/common.md#meaningful-documentation States which segments are returned and what is read.
    * @evidence contracts/development/implementation.md#principled-implementation Placement is `HumanColliders.placed`, the single owner; this function only keeps the trunk's segments.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Filters actual placed profile segments by the existing trunk set without altering their geometry, clearance or source order.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the profile's segments.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.placed`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -79,20 +79,22 @@ export namespace HumanArmClearance {
    * @param body The body.
    * @param bones Its posed bones, world frame, the legs where the pose puts them.
    * @param arms The arms already placed whose upper arm, forearm and hand count; none when absent.
+   * @param placed An existing placement of this exact body and bone reading in the same unchanged synchronous evaluation; computed here when absent.
    * @returns The placed segments of `trunk`, of the two upper legs and of the named arms.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which segments are returned and what the pose must already hold.
    * @evidence contracts/development/implementation.md#principled-implementation A hand sent to a thigh, or past one, bends its elbow away from the thigh as it does from the ribs; the limb fit places the legs before the arms, so the thighs stand where the posture puts them. Two forearms sent across each other (a self-hug, a hand on the other forearm) lie one over the other, so the arm placed second keeps clear of the first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement when needed, followed by the same selection filter.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shanks and feet are left out: a forearm reaches them only with the hand, which the taper leaves to its goal; an arm not yet placed is left out, since where it will be is not known.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the profile's segments.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.placed`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame builder supplies its existing exact same-evaluation collider placement, so obstacle selection and probe construction share one placement without duplicating the selection policy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh filtered array borrowing its actual placed segments; stores no placement, pose or body beyond the call.
    */
   export function obstacles(
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     arms: readonly ("left" | "right")[] = [],
+    placed?: readonly HumanColliders.IPlaced[],
   ): HumanColliders.IPlaced[] {
     const limbs: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(
@@ -102,7 +104,7 @@ export namespace HumanArmClearance {
           `${arm}Hand`,
         ]),
       );
-    return HumanColliders.placed(body, bones).filter(
+    return (placed ?? HumanColliders.placed(body, bones)).filter(
       (segment: HumanColliders.IPlaced): boolean =>
         TRUNK.has(segment.bone) ||
         segment.bone === "leftUpperLeg" ||
@@ -130,7 +132,7 @@ export namespace HumanArmClearance {
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, each input and the meaning of 0; the rule is the reading's own.
    * @evidence contracts/development/implementation.md#principled-implementation The reading is `HumanArmOvershoot.of`, kept as this owner's entry so every caller of the clearance reads one name.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Passes every geometry, goal and resting allowance unchanged to the existing overshoot owner, so delegation adds no clearance policy or tolerance.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The reading's own.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmOvershoot.of`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -166,6 +168,14 @@ export namespace HumanArmClearance {
    * (`HumanArmOvershoot.broad`).
    *
    * @param on Whether queries are screened.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the existing global diagnostic screen switch and its boolean input.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the diagnostic toggle to the single overshoot owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One unchanged delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This switch changes only whether conservative screens run; the exact distance policy remains with HumanArmOvershoot.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One boolean assignment in the delegated owner.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No numerical value is computed or reused.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no resource and retains no extra state.
    */
   export function broad(on: boolean): void {
     HumanArmOvershoot.broad(on);
@@ -221,17 +231,20 @@ export namespace HumanArmClearance {
     };
     return {
       ...pose,
-      joints: pose.joints.map((joint: IAutoMovieJointPose) => {
-        const angles = written[joint.bone];
-        return angles === undefined
-          ? joint
-          : {
-              ...joint,
-              flexion: angles[0],
-              abduction: angles[1],
-              twist: angles[2],
-            };
-      }),
+      joints: pose.joints.map(
+        (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
+          const angles: readonly [number, number, number] | undefined =
+            written[joint.bone];
+          return angles === undefined
+            ? joint
+            : {
+                ...joint,
+                flexion: angles[0],
+                abduction: angles[1],
+                twist: angles[2],
+              };
+        },
+      ),
     };
   }
 
@@ -397,7 +410,7 @@ export namespace HumanArmClearance {
     others: readonly HumanColliders.IPlaced[] = [],
     baseline: IBaseline = NONE,
   ): IArm {
-    const over = (of: IArm): number =>
+    const over: (of: IArm) => number = (of: IArm): number =>
       room(body, pose, side, of, others, baseline) - allowed;
     return HumanArmClearing.of({
       arm,

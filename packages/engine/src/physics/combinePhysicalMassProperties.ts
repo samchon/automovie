@@ -3,7 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
 import { physicalInertiaTensor } from "./physicalInertiaTensor";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
@@ -14,13 +13,17 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
  * Refuse nonfinite aggregates and nonpositive computed principal moments;
  * finite component admission does not promise arbitrary-precision arithmetic.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Combine rotated inertia tensors using the parallel-axis theorem) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Combine rotated inertia tensors using the parallel-axis theorem) directly over its typed inputs (`parts`) as nested iteration of depth 4 (for-of over parts; every over [part.centerOfMass.x, part.centerOfMass.; every over [part.inertia.x, part.inertia.y, part.in) plus a sort, delegating to `Number.isFinite`, `Math.abs`, `Math.hypot`, `parts.reduce`, `Vector3.add`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (7 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 0.000001, 3, 32, 0.5, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 181 lines and 23 top-level statements that reuses `Number.isFinite`, `Math.abs`, `Math.hypot`, `parts.reduce`, `Vector3.add` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 73 non-null assertion(s); these are the remaining shortcuts and are not justified here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `parts`; the dominant cost is nested iteration of depth 4 (for-of over parts; every over [part.centerOfMass.x, part.centerOfMass.; every over [part.inertia.x, part.inertia.y, part.in) plus a sort, performed once per call with 33 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 33 allocation sites become the returned value or die with the call, so nothing grows.
+ * @param parts Rigid parts in one common frame, with positive finite SI masses and principal moments, finite centres and unit principal rotations within 1e-6 of unit length.
+ * @returns Fresh aggregate mass properties in that same frame; moments are ascending.
+ * @throws {Error} When parts are empty or invalid, or aggregate arithmetic produces nonfinite or nonpositive principal properties.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the common frame, SI units, positive component admission, quaternion norm tolerance, ascending moments, fresh result and finite-arithmetic failure.
+ * @evidence contracts/development/implementation.md#principled-implementation The mass-weighted centre uses each positive normalized weight m_i/M before multiplying its position, preserving finite means whose unnormalized numerators overflow. The shared parallel-axis tensor and dimensionless Jacobi solve then give the aggregate principal frame; finite binary64 inputs still need aggregate overflow and positivity checks.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit every component, sum mass in input order, accumulate the normalized weighted centre, assemble the tensor, diagonalize it and admit the principal result. Private scalar field predicates share the same input/output admission without temporary arrays.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The existing 1e-6 quaternion-length admission remains unchanged. Inputs are never repaired; empty, nonfinite, nonpositive and overflowing aggregate properties throw instead of falling back.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the number of parts for admission, mass, centre and tensor assembly, followed by a fixed-size principal solve. Scalar field checks avoid three temporary admission arrays per part, and scalar weighted sums avoid two vector records per part while preserving product and input-sum association.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The same scalar finite/positive predicates admit both components and computed outputs. Tensor assembly and principal axes stay with their shared physical owners; each call rereads mutable input values and retains no identity cache.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All intermediate numeric state belongs to this call and is released on return or throw. The result contains a fresh centre, principal moments and rotation, with no retained part or input-array reference.
  */
 export function combinePhysicalMassProperties(
   parts: readonly combinePhysicalMassProperties.IPart[],
@@ -31,18 +34,9 @@ export function combinePhysicalMassProperties(
     if (
       !(part.mass > 0) ||
       !Number.isFinite(part.mass) ||
-      ![part.centerOfMass.x, part.centerOfMass.y, part.centerOfMass.z].every(
-        Number.isFinite,
-      ) ||
-      ![part.inertia.x, part.inertia.y, part.inertia.z].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
-      ) ||
-      ![
-        part.inertiaRotation.x,
-        part.inertiaRotation.y,
-        part.inertiaRotation.z,
-        part.inertiaRotation.w,
-      ].every(Number.isFinite) ||
+      !finiteVector(part.centerOfMass) ||
+      !positiveMoments(part.inertia) ||
+      !finiteRotation(part.inertiaRotation) ||
       Math.abs(
         Math.hypot(
           part.inertiaRotation.x,
@@ -54,45 +48,36 @@ export function combinePhysicalMassProperties(
     )
       throw new Error("Invalid component mass properties");
   }
-  const mass: number = parts.reduce(
-    (sum: number, part: combinePhysicalMassProperties.IPart): number =>
-      sum + part.mass,
-    0,
-  );
+  let mass: number = 0;
+  for (const part of parts) mass += part.mass;
   if (!Number.isFinite(mass))
     throw new Error("Aggregate mass exceeds finite arithmetic");
 
   // Normalize positive weights before multiplying positions: a finite mean
   // need not have a representable unnormalized mass-times-position numerator.
-  const centerOfMass: IAutoMovieVector3 = parts.reduce(
-    (
-      sum: IAutoMovieVector3,
-      part: combinePhysicalMassProperties.IPart,
-    ): IAutoMovieVector3 =>
-      Vector3.add(sum, Vector3.scale(part.centerOfMass, part.mass / mass)),
-    { x: 0, y: 0, z: 0 },
-  );
-  if (![centerOfMass.x, centerOfMass.y, centerOfMass.z].every(Number.isFinite))
+  let x: number = 0;
+  let y: number = 0;
+  let z: number = 0;
+  for (const part of parts) {
+    const weight: number = part.mass / mass;
+    x += part.centerOfMass.x * weight;
+    y += part.centerOfMass.y * weight;
+    z += part.centerOfMass.z * weight;
+  }
+  const centerOfMass: IAutoMovieVector3 = { x, y, z };
+  if (!finiteVector(centerOfMass))
     throw new Error("Aggregate centre exceeds finite arithmetic");
   const tensor: number[][] = physicalInertiaTensor(parts, centerOfMass);
-  if (!tensor.flat().every(Number.isFinite))
-    throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
+  for (const row of tensor)
+    for (const entry of row)
+      if (!Number.isFinite(entry))
+        throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
 
   const axes3: ReturnType<typeof physicalPrincipalAxes> =
     physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;
-  if (
-    ![inertia.x, inertia.y, inertia.z].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    ) ||
-    ![
-      inertiaRotation.x,
-      inertiaRotation.y,
-      inertiaRotation.z,
-      inertiaRotation.w,
-    ].every(Number.isFinite)
-  )
+  if (!positiveMoments(inertia) || !finiteRotation(inertiaRotation))
     throw new Error("Invalid computed aggregate principal frame");
   return { mass, centerOfMass, inertia, inertiaRotation };
 }
@@ -100,17 +85,50 @@ export function combinePhysicalMassProperties(
 /**
  * A component's principal frame and centre use the aggregate's local frame.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A component's principal frame and centre use the aggregate's local frame) and documents 1 documented member as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents A component's principal frame and centre use the aggregate's local frame: companion namespace of 1 member (`IPart`); units and frames named in its text: kilograms, metres, frame. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `combinePhysicalMassProperties` in packages/engine/src/physics/combinePhysicalMassProperties.ts; its surface is the 1 member listed and the text shows 4 other files naming it, mostly packages/engine (2), packages/human (1), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/common.md#meaningful-documentation IPart states SI mass, centre, moments and the principal-to-common frame rotation.
+ * @evidence contracts/development/design.md#principled-representation A rigid part is represented by mass, centre and principal inertia in a common frame. Numeric fields remain structural; each consumer admits its supported values, with positive moments for aggregation and zero moments permitted by the general tensor owner.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IPart is the shared record consumed by aggregate profile construction, posed momentum and physical tensor assembly; every field contributes to the mass, centre or rotated and shifted tensor.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions with explicit frame meanings, without collision-derived dimensions, optional alternatives, casts or widened fields.
  */
 export namespace combinePhysicalMassProperties {
   /** SI mass, centre and principal inertia; no collision dimensions inferred. */
   export interface IPart {
     /** Kilograms. */ mass: number;
+
     /** Metres in the common frame. */ centerOfMass: IAutoMovieVector3;
+
     /** Principal moments, kg m². */ inertia: IAutoMovieVector3;
+
     /** Principal axes in the common frame. */ inertiaRotation: IAutoMovieQuaternion;
   }
+}
+
+/** Admit the three current coordinates without allocating a temporary array. */
+function finiteVector(value: IAutoMovieVector3): boolean {
+  const { x, y, z }: IAutoMovieVector3 = value;
+  return Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z);
+}
+
+/** Preserve finite-then-positive admission for each principal moment in order. */
+function positiveMoments(value: IAutoMovieVector3): boolean {
+  const { x, y, z }: IAutoMovieVector3 = value;
+  return (
+    Number.isFinite(x) &&
+    x > 0 &&
+    Number.isFinite(y) &&
+    y > 0 &&
+    Number.isFinite(z) &&
+    z > 0
+  );
+}
+
+/** Admit all four quaternion components before the separate unit-length check. */
+function finiteRotation(value: IAutoMovieQuaternion): boolean {
+  const { x, y, z, w }: IAutoMovieQuaternion = value;
+  return (
+    Number.isFinite(x) &&
+    Number.isFinite(y) &&
+    Number.isFinite(z) &&
+    Number.isFinite(w)
+  );
 }

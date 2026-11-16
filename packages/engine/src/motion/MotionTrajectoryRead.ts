@@ -15,7 +15,7 @@ const { turn, dexpinv }: typeof MotionTrajectoryRotation =
  * Numeric trajectory readers constructed outside the integration callback's scope.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Fixed Hermite and adaptive dense reads retain their original formulas and held endpoints.
- * @evidence contracts/development/design.md#principled-representation A completed trajectory owns numeric states and interpolation coefficients; its reader has no right-hand side, model or shape-history input.
+ * @evidence contracts/development/design.md#principled-representation A completed trajectory owns numeric states and interpolation coefficients; every returned vector and orientation belongs to its read, and the reader has no right-hand side, model or shape-history input.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two existing steppers each hand their completed numeric records to their corresponding reader.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The data records reuse the integrator's state/rate types; no motion is approximated anew or reintegrated at playback.
  */
@@ -85,24 +85,34 @@ export namespace MotionTrajectoryRead {
   /**
    * Read a completed fixed grid by its original cubic Hermite extension.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads between numeric knots in seconds and holds the interval's ends.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads between numeric knots in seconds, holds the interval's ends and returns caller-owned vector and orientation records.
    * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite of states and of the rotation vector, with both endpoint derivatives; the body-frame differential matches the construction stepper.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the interval by division, form the four Hermite weights, then read vector and orientation blocks.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the interval by division, form the four Hermite weights, then read vector and orientation blocks. The last queried interval owns its time-independent rotation-vector endpoint and endpoint differential.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the fixed integrator's arithmetic and never reads its right-hand side.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time interval lookup and linear work in scalar state dimension.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every playback read shares the completed knot arrays.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the supplied numeric knot records for the reader's lifetime; no solver callback or history can enter this factory.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time interval lookup and O(n+1) interpolation for n vector components. An immediately repeated exact requested time skips interpolation; every read still copies O(n+1) output components, and a different time constructs and copies its interpolated vector.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares completed knot arrays and one previous numeric state only when Object.is matches the raw requested time. All components share each Hermite slope weight times the interval span, with its original multiplication association. One previous oriented interval shares its relative rotation vector and endpoint differential, which depend only on immutable knot orientations and owned rate snapshots. Held-time and interpolation arithmetic are unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains supplied numeric knots, at most one previous numeric read and one interval's two three-component vectors and index for the reader's lifetime; no solver callback or history enters this factory. Fresh output vectors and orientations keep caller mutation outside all retained records.
    */
   export function fixed(props: IFixed): integrateMotionTrajectory.ITrajectory {
     const { t0, t1, h, times, xs, qs, ks, oriented }: IFixed = props;
     const steps: number = times.length - 1;
+
+    // Knot orientations and retained rate snapshots are immutable here.
+    // Only the queried interval's Hermite weights depend on the read time.
+    let rotation:
+      | {
+          interval: number;
+          vector: IAutoMovieVector3;
+          endRate: IAutoMovieVector3;
+        }
+      | undefined;
     return {
       t0,
       t1,
       h,
       times,
       knots: times.length,
-      at: (time: number): integrateMotionTrajectory.IState => {
+      at: owned((time: number): integrateMotionTrajectory.IState => {
         const t: number = Math.max(t0, Math.min(t1, time));
         const i: number = Math.min(steps - 1, Math.floor((t - t0) / h));
         const a: number = times[i]!;
@@ -114,6 +124,8 @@ export namespace MotionTrajectoryRead {
         const h10: number = u3 - 2 * u2 + u;
         const h01: number = -2 * u3 + 3 * u2;
         const h11: number = u3 - u2;
+        const slope0: number = h10 * span;
+        const slope1: number = h11 * span;
         const x0: number[] = xs[i]!;
         const x1: number[] = xs[i + 1]!;
         const d0: readonly number[] = ks[i]!.dx;
@@ -121,41 +133,46 @@ export namespace MotionTrajectoryRead {
         let q: IAutoMovieQuaternion | null = null;
         if (oriented && u >= 1) q = qs[i + 1]!;
         else if (oriented) {
-          const r1: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
-            Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
-          );
+          if (rotation === undefined || rotation.interval !== i) {
+            const vector: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+              Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
+            );
+            const endRate: IAutoMovieVector3 = dexpinv(vector, ks[i + 1]!.w)!;
+            rotation = { interval: i, vector, endRate };
+          }
           const w0: IAutoMovieVector3 = ks[i]!.w!;
-          const w1: IAutoMovieVector3 = dexpinv(r1, ks[i + 1]!.w)!;
+          const r1: IAutoMovieVector3 = rotation.vector;
+          const w1: IAutoMovieVector3 = rotation.endRate;
           q = turn(qs[i]!, {
-            x: h10 * span * w0.x + h01 * r1.x + h11 * span * w1.x,
-            y: h10 * span * w0.y + h01 * r1.y + h11 * span * w1.y,
-            z: h10 * span * w0.z + h01 * r1.z + h11 * span * w1.z,
+            x: slope0 * w0.x + h01 * r1.x + slope1 * w1.x,
+            y: slope0 * w0.y + h01 * r1.y + slope1 * w1.y,
+            z: slope0 * w0.z + h01 * r1.z + slope1 * w1.z,
           });
         }
         return {
-          x: x0.map(
-            (v: number, k: number): number =>
-              h00 * v +
-              h10 * span * d0[k]! +
-              h01 * x1[k]! +
-              h11 * span * d1[k]!,
-          ),
+          x:
+            x0.length === 0
+              ? x0
+              : x0.map(
+                  (v: number, k: number): number =>
+                    h00 * v + slope0 * d0[k]! + h01 * x1[k]! + slope1 * d1[k]!,
+                ),
           q,
         };
-      },
+      }),
     };
   }
 
   /**
    * Read accepted DP5(4) steps by their original fourth-order extension.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads numeric dense coefficients in seconds and holds the endpoints.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads numeric dense coefficients in seconds, holds the endpoints and returns caller-owned vector and orientation records.
    * @evidence contracts/development/implementation.md#principled-implementation The stepper supplies Dormand-Prince's four correction terms; their nested polynomial and exponential map are unchanged.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Binary-search the accepted interval and evaluate its vector and rotation polynomials.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shape samples, extra integration or replacement interpolation enter playback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For A steps and n states each read costs O(log A+n), with O(An) retained numeric records.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Dense coefficients are shared by every read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains accepted numeric steps and the endpoint; the builder's props and right-hand side are outside this factory's lexical scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For A steps and n states a new time costs O(log A+n+1), including interpolation and output copying; an immediately repeated exact time skips lookup and interpolation but still copies O(n+1) output components. Retention is O(A(n+1)), plus one numeric read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Dense coefficients are shared by every read; one previous numeric state reuses lookup and polynomial work only for an Object.is-equal raw requested time.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains accepted numeric steps, the endpoint and at most one previous numeric read. Every output vector and orientation is fresh; the builder's props and right-hand side are outside this factory's lexical scope.
    */
   export function dense(
     t0: number,
@@ -171,8 +188,8 @@ export namespace MotionTrajectoryRead {
       h,
       times,
       knots: times.length,
-      at: (time: number): integrateMotionTrajectory.IState => {
-        if (!(time < t1)) return { x: [...end.x], q: end.q };
+      at: owned((time: number): integrateMotionTrajectory.IState => {
+        if (!(time < t1)) return { x: end.x, q: end.q };
         const at: number = Math.max(t0, time);
         let lo: number = 0;
         let hi: number = steps.length - 1;
@@ -191,16 +208,19 @@ export namespace MotionTrajectoryRead {
           d: number,
         ): number => u * (a + w * (b + u * (c + w * d)));
         return {
-          x: s.x.map(
-            (v: number, c: number): number =>
-              v +
-              along(
-                s.terms[c]![0]!,
-                s.terms[c]![1]!,
-                s.terms[c]![2]!,
-                s.terms[c]![3]!,
-              ),
-          ),
+          x:
+            s.x.length === 0
+              ? s.x
+              : s.x.map(
+                  (v: number, c: number): number =>
+                    v +
+                    along(
+                      s.terms[c]![0]!,
+                      s.terms[c]![1]!,
+                      s.terms[c]![2]!,
+                      s.terms[c]![3]!,
+                    ),
+                ),
           q:
             s.q === null
               ? null
@@ -225,7 +245,27 @@ export namespace MotionTrajectoryRead {
                   ),
                 }),
         };
-      },
+      }),
+    };
+  }
+
+  /**
+   * Reuse one exact requested time behind the public read boundary. The
+   * numeric result may borrow immutable records, but none escapes: each return
+   * copies both mutable blocks. Store the key only after a successful read,
+   * and distinguish signed zero without changing either reader's branches.
+   */
+  function owned(
+    read: (seconds: number) => integrateMotionTrajectory.IState,
+  ): (seconds: number) => integrateMotionTrajectory.IState {
+    let previous: number | undefined;
+    let value: integrateMotionTrajectory.IState | undefined;
+    return (seconds: number): integrateMotionTrajectory.IState => {
+      if (value === undefined || !Object.is(seconds, previous)) {
+        value = read(seconds);
+        previous = seconds;
+      }
+      return { x: [...value.x], q: value.q === null ? null : { ...value.q } };
     };
   }
 }

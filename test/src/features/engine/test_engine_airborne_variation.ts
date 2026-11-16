@@ -145,11 +145,17 @@ export function test_engine_airborne_variation(): void {
       { x: 0, y: Math.sin(angle) / 3, z: -(1 - Math.cos(angle)) / 3 },
       { x: 0, y: (1 - Math.cos(angle)) / 3, z: Math.sin(angle) / 3 },
     ];
-    rigid.variations(t).forEach((value: IAutoMovieVector3, i: number): void => {
+    const rigidTangents: readonly IAutoMovieVector3[] = rigid.variations(t);
+    if (rigidTangents.length !== expected.length)
+      findings.push(
+        `rigid flight has ${rigidTangents.length} sensitivity columns at ${t}, expected ${expected.length}`,
+      );
+    rigidTangents.forEach((value: IAutoMovieVector3, i: number): void => {
+      if (expected[i] === undefined) return;
       const error: number = Vector3.length(
         Vector3.subtract(value, expected[i]!),
       );
-      if (error > 1e-6)
+      if (!(error <= 1e-6))
         findings.push(
           `momentum direction ${i} at ${t}: ${error} sensitivity error`,
         );
@@ -225,9 +231,15 @@ export function test_engine_airborne_variation(): void {
             findings.push(
               `adaptive physical orientation at ${t}, mass-unit scale ${scale}`,
             );
-          varied
-            .variations(t)
-            .forEach((value: IAutoMovieVector3, j: number): void => {
+          const adaptiveTangents: readonly IAutoMovieVector3[] =
+            varied.variations(t);
+          if (adaptiveTangents.length !== columns.length)
+            findings.push(
+              `adaptive flight has ${adaptiveTangents.length} sensitivity columns at ${t}, expected ${columns.length}`,
+            );
+          adaptiveTangents.forEach(
+            (value: IAutoMovieVector3, j: number): void => {
+              if (columns[j] === undefined) return;
               const column: IAutoMovieVector3 = columns[j]!;
               const target: IAutoMovieVector3 = Vector3.add(
                 Vector3.add(
@@ -243,7 +255,8 @@ export function test_engine_airborne_variation(): void {
                 findings.push(
                   `adaptive sensitivity column ${j} at ${t}, mass-unit scale ${scale}: ${error}`,
                 );
-            });
+            },
+          );
         }
       }
 

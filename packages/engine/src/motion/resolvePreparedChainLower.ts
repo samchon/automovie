@@ -6,10 +6,12 @@ import type {
 
 import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { IPreparedChainPlant } from "./IPreparedChainPlant";
 import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
+import type { prepareChainFit } from "./prepareChainFit";
 
 /** Two supplied articulations under one unchanged prepared parent frame. */
 interface IProps extends Pick<
@@ -21,33 +23,49 @@ interface IProps extends Pick<
 
   /** Mid clinical articulation in the same axes and rest-frame convention. */
   lower: IAutoMovieJointPose;
+
+  /** Optional lazy basis owner of this exact unchanged rig and mappings. */
+  rig?: prepareChainFit.IRig;
 }
 
 /**
  * Resolve only a prepared chain's mid frame after its two supplied articulations.
  * Parent and intermediate bones must remain as they were during preparation.
+ * An optional matching rig shares the basis admission; both current joint
+ * articulations are still converted in their original order on every read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two clinical inputs, unchanged-frame premise and model-space output through IAutoMovieChainBone.
  * @evidence contracts/development/implementation.md#principled-implementation Composes the captured root world rotation, root articulation, fixed root-to-mid transform and mid articulation in the same order as parent-first FK; rigid intermediate transforms are already captured by preparation.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This two-joint FK prefix is shared by the candidate point reader and the final chain-frame reader, so neither owns another reconstruction rule.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads actual supplied clinical articulations through the same axes and rest frames as preparation; no ideal IK target or canonical limb transform substitutes for FK.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two clinical quaternion conversions and a fixed number of vector/quaternion compositions take constant work, without resolving unrelated bones or the effector's articulation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared offsets and parent frames are borrowed unchanged; callers reading both a point and rotation can pass this completed prefix to resolvePreparedChainEffector.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared offsets/parent frames and optionally matching normalized bases are borrowed unchanged; callers reading point and rotation can pass the completed prefix to resolvePreparedChainEffector. Changed mappings need a new rig context.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh frame and retains no input or handle after the call.
  */
 export function resolvePreparedChainLower(props: IProps): IAutoMovieChainBone {
+  /** Reuse admitted bases without changing the original clinical-record order. */
+  const rotation: (
+    joint: IAutoMovieJointPose,
+    bone: IAutoMovieJointPose["bone"],
+  ) => IAutoMovieQuaternion = (
+    joint: IAutoMovieJointPose,
+    bone: IAutoMovieJointPose["bone"],
+  ): IAutoMovieQuaternion =>
+    props.rig === undefined
+      ? jointToQuaternion(
+          joint,
+          props.jointAxes?.[bone],
+          props.restFrames?.[bone],
+        )
+      : jointToQuaternionOnBasis(
+          joint,
+          props.rig.jointBasis(bone, "jointToQuaternion axes"),
+          props.restFrames?.[bone],
+        );
   return resolvePreparedChainLower.fromRotations(
     props.prepared,
-    jointToQuaternion(
-      props.upper,
-      props.jointAxes?.[props.prepared.chain.upper],
-      props.restFrames?.[props.prepared.chain.upper],
-    ),
-    jointToQuaternion(
-      props.lower,
-      props.jointAxes?.[props.prepared.chain.lower],
-      props.restFrames?.[props.prepared.chain.lower],
-    ),
+    rotation(props.upper, props.prepared.chain.upper),
+    rotation(props.lower, props.prepared.chain.lower),
   );
 }
 

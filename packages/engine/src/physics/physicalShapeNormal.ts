@@ -13,9 +13,9 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * sphere's radius through it, a capsule's from the nearest point of its
  * axis, and, for a box or a hull, the gradient of the smooth maximum of its
  * face planes (`SMOOTH`): the face normals weighed by how near the point
- * lies to each plane. A point inside a face keeps that face's normal; one
- * that crosses an edge turns its normal continuously from one face's to the
- * next, where a face's own normal would step by the angle between them.
+ * lies to each plane. Farther from edges, the closest face dominates; a
+ * point that crosses an edge turns its normal continuously from one face's
+ * to the next, where a face's own normal would step by their angle.
  * The fallback where the radius or the axis offset has no length.
  *
  * @param frame The segment's pose.
@@ -25,12 +25,12 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @returns The outward unit normal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each kind's normal, the edge blend and the fallback.
- * @evidence contracts/development/implementation.md#principled-implementation A sphere's and a capsule's exact gradient; a polytope's normal as the gradient of the log-sum-exp smooth maximum of its face planes' signed heights, which is continuous across edges and equals the face's normal inside it.
+ * @evidence contracts/development/implementation.md#principled-implementation A sphere's and a capsule's exact gradient; a polytope's normal as the gradient of the log-sum-exp smooth maximum of its face planes' signed heights, continuous across edges and dominated by the nearest face farther from edges.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per kind, one plane list for the box and the hull.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weights are taken relative to the highest plane, so none overflows; a degenerate normal falls back instead of normalising a zero vector.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `physicalHullFaces` and the engine's vector and quaternion owners.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in a hull's faces, with no algorithm to choose.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses physicalHullFaces and the engine's vector and quaternion owners. Six private fixed unit normals describe every box; offsets are read anew from the current half extents, and ordered scalar component sums avoid per-plane vector intermediates.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One height and one exponential weight per plane, in the original order; weighted components use three scalar sums and one final vector instead of two vectors per plane. A box builds six offset records without rebuilding its unit normals or per-axis mapping arrays.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private six-normal table contains only fixed axis metadata. Per-query planes, heights and sums are released after return; no body, shape, transform, fallback or numerical reading is cached, and the resulting normal is fresh except the original borrowed fallback.
  */
 export function physicalShapeNormal(
   frame: P.ITransform,
@@ -46,7 +46,9 @@ export function physicalShapeNormal(
     frame.rotation,
     shape.transform.rotation,
   );
-  const radial = (from: IAutoMovieVector3): IAutoMovieVector3 => {
+  const radial: (from: IAutoMovieVector3) => IAutoMovieVector3 = (
+    from: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     const r: IAutoMovieVector3 = Vector3.subtract(point, from);
     return Vector3.length(r) > BOUNDARY ? Vector3.normalize(r) : fallback;
   };
@@ -73,30 +75,54 @@ export function physicalShapeNormal(
   const planes: { normal: IAutoMovieVector3; offset: number }[] =
     shape.kind === "hull"
       ? physicalHullFaces(shape.points).faces
-      : (["x", "y", "z"] as const).flatMap((k: "x" | "y" | "z") =>
-          [-1, 1].map((sign: number) => ({
-            normal: { x: 0, y: 0, z: 0, [k]: sign } as IAutoMovieVector3,
-            offset: shape.halfExtents[k],
-          })),
+      : BOX.map(
+          (
+            plane: IBoxPlane,
+          ): { normal: IAutoMovieVector3; offset: number } => ({
+            normal: plane.normal,
+            offset: shape.halfExtents[plane.axis],
+          }),
         );
   const heights: number[] = planes.map(
     (plane: { normal: IAutoMovieVector3; offset: number }): number =>
       Vector3.dot(plane.normal, o) - plane.offset,
   );
   const top: number = Math.max(...heights);
-  let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  let x: number = 0;
+  let y: number = 0;
+  let z: number = 0;
   planes.forEach(
     (plane: { normal: IAutoMovieVector3; offset: number }, k: number): void => {
-      sum = Vector3.add(
-        sum,
-        Vector3.scale(plane.normal, Math.exp((heights[k]! - top) / SMOOTH)),
-      );
+      const weight: number = Math.exp((heights[k]! - top) / SMOOTH);
+      x += plane.normal.x * weight;
+      y += plane.normal.y * weight;
+      z += plane.normal.z * weight;
     },
   );
+  const sum: IAutoMovieVector3 = { x, y, z };
   return Vector3.length(sum) > BOUNDARY
     ? Vector3.normalize(Quaternion.rotateVector(rotation, sum))
     : fallback;
 }
+
+/** One fixed box face's unit normal and the half-extent axis that gives its offset. */
+interface IBoxPlane {
+  /** The face's outward unit normal in box-local coordinates. */
+  normal: IAutoMovieVector3;
+
+  /** Which current half extent supplies the plane's offset, metres. */
+  axis: "x" | "y" | "z";
+}
+
+/** Canonical face order: negative then positive X, Y and Z, as in the original plane construction. */
+const BOX: readonly IBoxPlane[] = [
+  { axis: "x", normal: { x: -1, y: 0, z: 0 } },
+  { axis: "x", normal: { x: 1, y: 0, z: 0 } },
+  { axis: "y", normal: { x: 0, y: -1, z: 0 } },
+  { axis: "y", normal: { x: 0, y: 1, z: 0 } },
+  { axis: "z", normal: { x: 0, y: 0, z: -1 } },
+  { axis: "z", normal: { x: 0, y: 0, z: 1 } },
+];
 
 /** How wide, metres, a box's or a hull's normal blends across an edge (`physicalShapeNormal`), provisional: half the 10 mm a pressed skin gives, so a face's middle keeps its own normal (a face 30 mm off weighs e^-6 of it) and an edge turns within a fingertip's breadth. */
 const SMOOTH: number = 0.005;

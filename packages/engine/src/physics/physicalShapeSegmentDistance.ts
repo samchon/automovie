@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { physicalShapeNearest } from "./physicalShapeNearest";
+import { physicalShapeQuery } from "./physicalShapeQuery";
 
 /**
  * The signed distance, metres, from a world segment to an admitted sphere, Y
@@ -14,8 +14,8 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * running linearly from `a` to `b` (a tapered capsule) reads its own signed
  * distance: the least over its points of the distance less the radius there.
  *
- * It is the distance of `physicalShapeNearest`, which owns the frame
- * composition and the method for each shape kind.
+ * It uses the same physicalShapeQuery numerical owner as physicalShapeNearest,
+ * retaining the actual distance while omitting unobserved final contact fields.
  *
  * @param pose The shape's parent pose, world metres.
  * @param shape The admitted shape.
@@ -25,11 +25,11 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
  * @returns The signed distance, metres; negative inside.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sign, the point case and which owner computes the reading.
- * @evidence contracts/development/implementation.md#principled-implementation The distance member of the one proximity reading, so a distance and a contact point taken for the same shape and segment cannot disagree.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to `physicalShapeNearest`; `curlChainUntilContact` and the motions colliders call this when the distance is all they need.
+ * @evidence contracts/development/implementation.md#principled-implementation The same physicalShapeQuery numerical owner as the full nearest reading, in scalar mode; it omits only unobserved final fields and preserves the actual signed distance.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar-mode delegation to the shared query; curlChainUntilContact and motion colliders keep their existing distance-only facade.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance, cast or branch; the value is the owner's.
- * @evidence contracts/development/implementation.md#efficient-algorithms The owner's constant work per call and nothing more.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments; callers that query many shapes hold their own placed frames.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The shared query's shape/segment work, without unobserved final contact materialization; hull work still depends on its faces and edges.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Full nearest and distance-only reads share one query implementation and private shape-distance owners without a cross-query cache.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
 export function physicalShapeSegmentDistance(
@@ -39,5 +39,5 @@ export function physicalShapeSegmentDistance(
   b: IAutoMovieVector3,
   taper?: readonly [number, number],
 ): number {
-  return physicalShapeNearest(pose, shape, a, b, taper).distance;
+  return physicalShapeQuery(pose, shape, a, b, taper, false);
 }

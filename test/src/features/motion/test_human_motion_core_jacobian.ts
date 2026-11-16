@@ -143,6 +143,10 @@ export function test_human_motion_core_jacobian(): void {
       poseBones(body, resolveHumanPosture(body, p));
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       posed(posture);
+    all.check(
+      `${name}: actual FK includes every canonical bone`,
+      bones.size === body.skeleton.bones.length,
+    );
     const motions: HumanJacobian.IMotion[] = HumanJacobian.of(
       body,
       posture,
@@ -174,6 +178,13 @@ export function test_human_motion_core_jacobian(): void {
       where: string,
     ): void => {
       const error: number = Vector3.length(Vector3.subtract(an, fd));
+      if (!Number.isFinite(error)) {
+        worst = {
+          error: Infinity,
+          where: `${where}: nonfinite derivative error ${error}`,
+        };
+        return;
+      }
       if (error > worst.error) worst = { error, where };
     };
     variables.forEach((v: HumanJacobian.IVariable, i: number): void => {

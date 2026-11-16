@@ -33,9 +33,9 @@ export namespace HumanArmDifferential {
    * @evidence contracts/development/implementation.md#principled-implementation Damped least squares (Wampler 1986) on a central-difference Jacobian of the arm's own forward placement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One Jacobian, one damped three-by-three solve, one back-projection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero displacement returns a zero step, not a small one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward placements per free coordinate and one Cramer solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmGeometry.placed`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two unchanged three-joint FK queries per free coordinate without unused probes, one bounded packed column buffer instead of per-column vector intermediates, six ordered scalar Gram sums and the same Cramer expansion without Gram, right-hand-side or substituted matrix arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared prepareChain reader owns only this invocation's exact joint-triple snapshots and private completed local rotations; distinct triples retain actual projection, world prefixes stay per-query, two restored buffers serve every central difference, and Gram sums share symmetry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private column buffer holds three doubles per setup coordinate, and the chain reader holds three latest joint-triple entries; both end with this synchronous step and escape through no result or callback. Returned coordinates are fresh, source buffers are not retained, and zero displacement creates no reader.
    */
   export function step(
     setup: G.ISetup,
@@ -46,63 +46,112 @@ export namespace HumanArmDifferential {
   ): number[] {
     const out: number[] = new Array(q.length).fill(0);
     if (Vector3.length(r) === 0) return out;
-    const point = (c: readonly number[]): IAutoMovieVector3 => {
-      const p: G.IPlaced = G.placed(setup, frame, c, false);
+    const chain: ReturnType<typeof G.prepareChain> = G.prepareChain(
+      setup,
+      frame,
+    );
+    const point: (c: readonly number[]) => IAutoMovieVector3 = (
+      c: readonly number[],
+    ): IAutoMovieVector3 => {
+      const p: ReturnType<typeof G.chain> = chain(c);
       return Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, contact));
     };
     const free: number[] = [];
-    const columns: IAutoMovieVector3[] = [];
+    const columns: Float64Array = new Float64Array(3 * setup.free.length);
+    const rate: number = 1 / (2 * H);
+    const up: number[] = [...q];
+    const down: number[] = [...q];
     for (let d: number = 0; d < setup.free.length; ++d) {
       if (!setup.free[d]!) continue;
-      const up: number[] = [...q];
-      const down: number[] = [...q];
-      up[d] = up[d]! + H;
-      down[d] = down[d]! - H;
+      up[d] = q[d]! + H;
+      down[d] = q[d]! - H;
+      const index: number = 3 * free.length;
       free.push(d);
-      columns.push(
-        Vector3.scale(Vector3.subtract(point(up), point(down)), 1 / (2 * H)),
-      );
+      const above: IAutoMovieVector3 = point(up);
+      const below: IAutoMovieVector3 = point(down);
+      columns[index] = (above.x - below.x) * rate;
+      columns[index + 1] = (above.y - below.y) * rate;
+      columns[index + 2] = (above.z - below.z) * rate;
+      up[d] = q[d]!;
+      down[d] = q[d]!;
     }
-    const axis = (v: IAutoMovieVector3, i: number): number =>
-      i === 0 ? v.x : i === 1 ? v.y : v.z;
-    const m: number[][] = [0, 1, 2].map((i: number): number[] =>
-      [0, 1, 2].map((k: number): number =>
-        columns.reduce(
-          (s: number, c: IAutoMovieVector3): number =>
-            s + axis(c, i) * axis(c, k),
-          0,
-        ),
-      ),
-    );
-    const damping: number = (1e-6 * (m[0]![0]! + m[1]![1]! + m[2]![2]!)) / 3;
-    for (let i: number = 0; i < 3; ++i) m[i]![i]! += damping;
-    const y: number[] = solve3(m, [r.x, r.y, r.z]);
+    let m00: number = 0;
+    let m01: number = 0;
+    let m02: number = 0;
+    let m11: number = 0;
+    let m12: number = 0;
+    let m22: number = 0;
+    for (let f: number = 0; f < free.length; f++) {
+      const index: number = 3 * f;
+      const cx: number = columns[index]!;
+      const cy: number = columns[index + 1]!;
+      const cz: number = columns[index + 2]!;
+      m00 += cx * cx;
+      m01 += cx * cy;
+      m02 += cx * cz;
+      m11 += cy * cy;
+      m12 += cy * cz;
+      m22 += cz * cz;
+    }
+    const damping: number = (1e-6 * (m00 + m11 + m22)) / 3;
+    m00 += damping;
+    m11 += damping;
+    m22 += damping;
+    const y: number[] = solve3(m00, m01, m02, m11, m12, m22, r.x, r.y, r.z);
     free.forEach((d: number, f: number): void => {
-      const c: IAutoMovieVector3 = columns[f]!;
-      out[d] = c.x * y[0]! + c.y * y[1]! + c.z * y[2]!;
+      const index: number = 3 * f;
+      out[d] =
+        columns[index]! * y[0]! +
+        columns[index + 1]! * y[1]! +
+        columns[index + 2]! * y[2]!;
     });
     return out;
   }
 }
 
-/** A three-by-three symmetric definite system solved by Cramer's rule. */
+/** The six symmetric entries and right-hand side of the same three-by-three Cramer expansion, without temporary matrix rows. */
 function solve3(
-  m: readonly (readonly number[])[],
-  b: readonly number[],
+  m00: number,
+  m01: number,
+  m02: number,
+  m11: number,
+  m12: number,
+  m22: number,
+  bx: number,
+  by: number,
+  bz: number,
 ): number[] {
-  const det = (a: readonly (readonly number[])[]): number =>
-    a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
-    a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
-    a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!);
-  const whole: number = det(m);
-  return [0, 1, 2].map(
-    (k: number): number =>
-      det(
-        m.map((row: readonly number[], i: number): number[] =>
-          row.map((v: number, c: number): number => (c === k ? b[i]! : v)),
-        ),
-      ) / whole,
+  const whole: number = determinant(
+    m00,
+    m01,
+    m02,
+    m01,
+    m11,
+    m12,
+    m02,
+    m12,
+    m22,
   );
+  return [
+    determinant(bx, m01, m02, by, m11, m12, bz, m12, m22) / whole,
+    determinant(m00, bx, m02, m01, by, m12, m02, bz, m22) / whole,
+    determinant(m00, m01, bx, m01, m11, by, m02, m12, bz) / whole,
+  ];
+}
+
+/** The original left-to-right determinant expansion, with scalar entries instead of temporary matrix copies. */
+function determinant(
+  a: number,
+  b: number,
+  c: number,
+  d: number,
+  e: number,
+  f: number,
+  g: number,
+  h: number,
+  i: number,
+): number {
+  return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
 }
 
 /** The coordinate step of the Jacobian's central differences, coordinate units. */

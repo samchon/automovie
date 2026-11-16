@@ -8,7 +8,7 @@ import {
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Vector3 } from "../math/Vector3";
 import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
@@ -36,8 +36,8 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 for a hinged mid joint (`fitHingedChainCandidate`), and a pole vector's bend plane as game-engine two-bone IK takes it, every candidate judged by its clamped forward kinematics.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The search alone: preparation, the analytic solve, the swivel candidate and the candidate's forward kinematics have their own owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A degenerate preparation or solve keeps the given pose; no ideal measurement replaces the clamped forward kinematics.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 34 initial candidates plus 32 minima times 20 refinement candidates, each a constant-size forward kinematics, and the search stops at the first exact one.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Every target shares prepared frames/domains, lazy authored/reference reads and resolved chain clamps; each candidate's raw quaternions serve FK and continuity, while fixed prior conversions and authored continuity are lazy once. Target-specific scores, callback evaluations, ranking and cold/near mode are unchanged.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most 34 initial candidates plus 32 minima times 20 refinement candidates retain constant-size FK, and the search stops at the first exact one. A pose and joint array are assembled only when a candidate replaces the best or the hinged result is selected; the unchanged non-bend prefix is filtered once per workspace rather than per candidate. Actual selected arrays remain O(J), and runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every target shares prepared frames/domains, lazy authored/reference reads, ordered non-bend source prefix and resolved chain clamps; each candidate's raw quaternions serve FK and continuity, while fixed prior conversions and authored continuity are lazy once. Every actual score, callback evaluation, ranking and cold/near mode is unchanged; unselected temporary pose allocation has no consumer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sweep's arrays hold at most 32 entries and every temporary pose is released with the call.
  */
 export const fitChainBend: (
@@ -55,13 +55,16 @@ export const fitChainBend: (
   ) => ReturnType<typeof solvePreparedChainPlant> = (
     bendNormal?: IAutoMovieVector3,
   ): ReturnType<typeof solvePreparedChainPlant> =>
-    solvePreparedChainPlant({
-      prepared,
-      target: props.target,
-      bendNormal,
-      jointAxes: props.jointAxes,
-      restFrames: props.restFrames,
-    });
+    solvePreparedChainPlant(
+      {
+        prepared,
+        target: props.target,
+        bendNormal,
+        jointAxes: props.jointAxes,
+        restFrames: props.restFrames,
+      },
+      workspace.rig,
+    );
 
   // A bend hint picks the bend plane the way a pole vector does in game-engine
   // two-bone IK (Unreal's Two Bone IK joint target, Unity's
@@ -91,26 +94,14 @@ export const fitChainBend: (
   ): IPlantCandidateScore => {
     const upper: IAutoMovieJointPose = workspace.clamp(solved.upper);
     const lower: IAutoMovieJointPose = workspace.clamp(solved.lower);
-    const candidate: IAutoMoviePose = {
-      ...props.pose,
-      joints: [
-        ...props.pose.joints.filter(
-          (joint: IAutoMovieJointPose): boolean =>
-            joint.bone !== props.chain.upper &&
-            joint.bone !== props.chain.lower,
-        ),
-        upper,
-        lower,
-      ],
-    };
-    const upperRotation: IAutoMovieQuaternion = jointToQuaternion(
+    const upperRotation: IAutoMovieQuaternion = jointToQuaternionOnBasis(
       upper,
-      props.jointAxes?.[upper.bone],
+      workspace.rig.jointBasis(upper.bone, "jointToQuaternion axes"),
       props.restFrames?.[upper.bone],
     );
-    const lowerRotation: IAutoMovieQuaternion = jointToQuaternion(
+    const lowerRotation: IAutoMovieQuaternion = jointToQuaternionOnBasis(
       lower,
-      props.jointAxes?.[lower.bone],
+      workspace.rig.jointBasis(lower.bone, "jointToQuaternion axes"),
       props.restFrames?.[lower.bone],
     );
     const candidateResidual: number = distance(
@@ -138,7 +129,7 @@ export const fitChainBend: (
     };
     if (comparePlantCandidate(score, best) < 0)
       best = {
-        pose: candidate,
+        pose: workspace.pose(upper, lower),
         residual: candidateResidual,
         continuity,
       };
@@ -178,6 +169,7 @@ export const fitChainBend: (
         prepared,
         hingeAxes!,
         props.effectorRotation,
+        workspace.rig,
       );
     if (hinged !== null) {
       const upper: IAutoMovieJointPose = workspace.clamp(hinged.upper);
@@ -189,6 +181,7 @@ export const fitChainBend: (
           lower,
           jointAxes: props.jointAxes,
           restFrames: props.restFrames,
+          rig: workspace.rig,
         }),
       );
       // A limb at its full length, or a knee or an elbow stopped at the end
@@ -201,17 +194,7 @@ export const fitChainBend: (
         plantResidualBucket(Math.abs(residual - (hinged.shortfall ?? 0))) === 0
       )
         return {
-          pose: {
-            ...props.pose,
-            joints: [
-              ...props.pose.joints.filter(
-                (j: IAutoMovieJointPose): boolean =>
-                  j.bone !== props.chain.upper && j.bone !== props.chain.lower,
-              ),
-              upper,
-              lower,
-            ],
-          },
+          pose: workspace.pose(upper, lower),
           seed: hinged.seed ?? null,
           ...(hinged.value === undefined ? {} : { value: hinged.value }),
         };

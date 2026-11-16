@@ -15,7 +15,7 @@ import type { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each member states its formula, its order and its source.
  * @evidence contracts/development/design.md#principled-representation The orientation advanced in the Lie algebra of rotations, a rotation vector relative to a step's start, by Runge-Kutta-Munthe-Kaas; the vector state and that vector share one tableau, one error norm and one continuous extension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the integrator's fixed and adaptive paths share, and the adaptive path itself; only the integrator reads it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The integrator alone calls this adaptive builder; shared rotation algebra and completed numeric playback each have their existing separate owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The adaptive path is opt-in, so the fixed grid's every number stays as it was for every caller that does not ask for it.
  */
 export namespace MotionTrajectoryStepper {
@@ -125,9 +125,9 @@ export namespace MotionTrajectoryStepper {
    * @evidence contracts/development/implementation.md#principled-implementation Uses the cited Dormand-Prince tableau and controller with the RKMK rotation-vector differential. The wrapper checks the finite forward interval, positive finite step, tolerance, partition, nonempty state shape, rate length and required angular-rate presence; x0, dx and w components are not checked for finiteness. Finite data and valid input orientation remain caller premises. The embedded estimate controls local step admission and does not certify a global physical error bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Form trial stages, measure their error, reject or retain the continuous extension, then expose binary-search sampling over accepted steps.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tableau and controller constants retain their cited provenance; no fixture-specific time grid, cached answer or tolerance relaxation is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For n vector components, A accepted and R rejected trials, integration adds O((A+R)(n+1)) vector and optional rotation work and six right-hand-side calls per trial after the initial call; retained dense output is O(A(n+1)), and each read costs O(log A+n+1). The tolerance can require arbitrarily many steps before the time-resolution failure.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the accepted last stage as the next first stage and stores dense coefficients once so repeated reads do not reintegrate.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Trial arrays die after rejection or acceptance; the returned reader retains accepted steps and endpoint state for its lifetime. Retention grows with accepted-step count and has no fixed byte bound; the operation acquires no external handle or task.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For n vector components, A accepted and R rejected trials, integration adds O((A+R)(n+1)) vector and optional rotation work and six right-hand-side calls per trial after the initial call. Reusing the last stage removes one n-component six-term weighted sum and array per trial, and one exponential per oriented acceptance. Only oriented trials allocate rotation-rate scratch; only the last rotation vector is retained. Dense output is O(A(n+1)); a new time costs O(log A+n+1), and a repeated exact time still copies O(n+1) output components. The tolerance can require arbitrarily many steps before time-resolution failure.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the accepted last stage as the next first stage. Its already computed vector state is the identical fifth-order weighted sum, and its orientation is the same exponential used for the normalized endpoint, so neither is recomputed. Stages one through five share one private rotation-vector workspace: turn and dexpinv read its components without retaining it. Stage six, error and dense sums get fresh vectors. An absent vector block shares its private empty state and empty coefficients without component arithmetic. Dense coefficients are stored once and the reader reuses its immediately preceding exact time without reintegration.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One private three-component stage workspace is released on return or throw and never enters accepted records or callback inputs. Nonempty trial arrays die after rejection or acceptance; the last trial state becomes the accepted endpoint without mutation. A zero-dimensional state and its empty coefficients are shared privately, while public output is always fresh. The reader retains accepted steps, endpoint state and at most one previous numeric read for its lifetime. Retention grows with accepted-step count without a fixed byte bound; no external handle or task is acquired.
    */
   export function dormandPrince(
     props: integrateMotionTrajectory.IProps,
@@ -147,10 +147,15 @@ export namespace MotionTrajectoryStepper {
     const steps: MotionTrajectoryRead.IDenseStep[] = [];
     let t: number = t0;
     let x: number[] = [...props.x0];
+    const emptyTerms: number[][] | undefined =
+      controlled === 0 ? [] : undefined;
     let q: IAutoMovieQuaternion | null = oriented
       ? Quaternion.normalize(props.q0!)
       : null;
     let k1: integrateMotionTrajectory.IRate = rate(t, x, q);
+    const stage: IAutoMovieVector3 | undefined = oriented
+      ? { x: 0, y: 0, z: 0 }
+      : undefined;
     let h: number = first;
     let rejected: boolean = false;
     let previous: number = CONTROL.previous;
@@ -164,43 +169,43 @@ export namespace MotionTrajectoryStepper {
         );
       // The stages, the orientation's in the algebra from the step's start.
       const ks: integrateMotionTrajectory.IRate[] = [k1];
-      const us: (IAutoMovieVector3 | undefined)[] = [k1.w];
-      const vs: (IAutoMovieVector3 | undefined)[] = [undefined];
+      const us: (IAutoMovieVector3 | undefined)[] | undefined = oriented
+        ? [k1.w]
+        : undefined;
+
+      // The last stage uses the fifth-order weights A[6], so its input is
+      // the endpoint itself. A pure RHS leaves that input unchanged.
+      let xn: number[] = x;
+      let endpointQ: IAutoMovieQuaternion | null = q;
+      let r: IAutoMovieVector3 | undefined;
       for (let i: number = 1; i < 7; i++) {
         const row: readonly number[] = A[i]!;
-        const xi: number[] = x.map(
-          (v: number, c: number): number =>
-            v +
-            h *
-              row.reduce(
-                (s: number, a: number, j: number): number =>
-                  s + a * ks[j]!.dx[c]!,
-                0,
-              ),
-        );
+        const xi: number[] =
+          controlled === 0
+            ? x
+            : x.map(
+                (v: number, c: number): number =>
+                  v +
+                  h *
+                    row.reduce(
+                      (s: number, a: number, j: number): number =>
+                        s + a * ks[j]!.dx[c]!,
+                      0,
+                    ),
+              );
         const vi: IAutoMovieVector3 | undefined = oriented
-          ? sum(row, us, h)
+          ? sum(row, us!, h, i < 6 ? stage : undefined)
           : undefined;
-        const ki: integrateMotionTrajectory.IRate = rate(
-          t + C[i]! * h,
-          xi,
-          turn(q, vi),
-        );
+        const qi: IAutoMovieQuaternion | null = oriented ? turn(q, vi) : null;
+        const ki: integrateMotionTrajectory.IRate = rate(t + C[i]! * h, xi, qi);
+        if (i === 6) {
+          xn = xi;
+          endpointQ = qi;
+          r = vi;
+        }
         ks.push(ki);
-        vs.push(vi);
-        us.push(dexpinv(vi, ki.w));
+        if (oriented) us!.push(dexpinv(vi, ki.w));
       }
-      const xn: number[] = x.map(
-        (v: number, c: number): number =>
-          v +
-          h *
-            A[6]!.reduce(
-              (s: number, a: number, j: number): number =>
-                s + a * ks[j]!.dx[c]!,
-              0,
-            ),
-      );
-      const r: IAutoMovieVector3 | undefined = vs[6];
 
       // Block norms cannot dilute the orientation's existing three-component
       // RMS. Without blocks, preserve the original componentwise arithmetic.
@@ -245,7 +250,7 @@ export namespace MotionTrajectoryStepper {
       }
       let rotationSquares: number = 0;
       if (oriented) {
-        const e: IAutoMovieVector3 = sum(E, us, h)!;
+        const e: IAutoMovieVector3 = sum(E, us!, h)!;
         const scale: number = absolute + relative * Vector3.length(r!);
         rotationSquares =
           ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
@@ -274,42 +279,44 @@ export namespace MotionTrajectoryStepper {
 
       // Accepted: keep the continuous extension and step on from the last stage.
       const k7: integrateMotionTrajectory.IRate = ks[6]!;
-      const terms: number[][] = x.map((v: number, c: number): number[] => {
-        const diff: number = xn[c]! - v;
-        const spline: number = h * ks[0]!.dx[c]! - diff;
-        return [
-          diff,
-          spline,
-          diff - h * k7.dx[c]! - spline,
-          h *
-            D.reduce(
-              (s: number, d: number, j: number): number =>
-                s + d * ks[j]!.dx[c]!,
-              0,
-            ),
-        ];
-      });
+      const terms: number[][] =
+        emptyTerms ??
+        x.map((v: number, c: number): number[] => {
+          const diff: number = xn[c]! - v;
+          const spline: number = h * ks[0]!.dx[c]! - diff;
+          return [
+            diff,
+            spline,
+            diff - h * k7.dx[c]! - spline,
+            h *
+              D.reduce(
+                (s: number, d: number, j: number): number =>
+                  s + d * ks[j]!.dx[c]!,
+                0,
+              ),
+          ];
+        });
       const turns: IAutoMovieVector3[] = [];
       if (oriented) {
         const diff: IAutoMovieVector3 = r!;
         const spline: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.scale(us[0]!, h),
+          Vector3.scale(us![0]!, h),
           diff,
         );
         turns.push(
           diff,
           spline,
           Vector3.subtract(
-            Vector3.subtract(diff, Vector3.scale(us[6]!, h)),
+            Vector3.subtract(diff, Vector3.scale(us![6]!, h)),
             spline,
           ),
-          sum(D, us, h)!,
+          sum(D, us!, h)!,
         );
       }
       steps.push({ t, h, x, terms, q, turns });
       t = last ? t1 : t + h;
       x = xn;
-      q = oriented ? Quaternion.normalize(turn(q, r)!) : null;
+      q = oriented ? Quaternion.normalize(endpointQ!) : null;
       k1 = k7;
       rejected = false;
       h = next;
@@ -324,12 +331,15 @@ export namespace MotionTrajectoryStepper {
    * @param weights The weights, as many as the rates or fewer.
    * @param us The rates.
    * @param h The step.
-   * @returns The vector, or undefined for a state without orientation.
+   * @param out An exclusively owned workspace, absent from rates, callback
+   *   inputs and dense records; omitted where the result must be retained.
+   * @returns The workspace or a fresh vector, or undefined without orientation.
    */
   function sum(
     weights: readonly number[],
     us: readonly (IAutoMovieVector3 | undefined)[],
     h: number,
+    out?: IAutoMovieVector3,
   ): IAutoMovieVector3 | undefined {
     if (us[0] === undefined) return undefined;
     let x: number = 0;
@@ -341,7 +351,11 @@ export namespace MotionTrajectoryStepper {
       y += w * us[j]!.y;
       z += w * us[j]!.z;
     });
-    return { x: h * x, y: h * y, z: h * z };
+    if (out === undefined) return { x: h * x, y: h * y, z: h * z };
+    out.x = h * x;
+    out.y = h * y;
+    out.z = h * z;
+    return out;
   }
 
   /**

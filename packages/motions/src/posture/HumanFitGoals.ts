@@ -279,14 +279,15 @@ export namespace HumanFitGoals {
    * @param step The whole-body step.
    * @param equal The existing equality-row builder, receiving already scaled slopes.
    * @param mm The row owner's millimetres/milliradians scale.
+   * @param readColumns Optional lazy centre-velocity producer for this same body, bones and ordered motions; called only after angle rows and when a centre goal exists.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States row order and scaling.
    * @evidence contracts/development/implementation.md#principled-implementation The same scalar values the merit reads are linearised by the angle derivative and the segmental centre's mass-weighted point Jacobian.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Angle rows, then selected Cartesian centre rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal uses its own price or the existing default; no action is named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One angle derivative per target and one centre Jacobian shared across its axes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the owning equality builder and HumanFitBalance.velocities.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the owning equality builder and accepts a lazy same-body/bones/motions centre-column producer, invoked only at the original centre-Jacobian phase after angle rows; absent it, HumanFitBalance.velocities computes fresh columns.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The row builder owns the emitted callbacks and scalar coefficients until model release; this function retains no data globally, and a supplied lazy column producer is consumed synchronously.
    */
   export function rows(
     step: HumanBodyFitRows.IStep,
@@ -299,6 +300,7 @@ export namespace HumanFitGoals {
       upper?: number,
     ) => void,
     mm: number,
+    readColumns?: () => readonly IAutoMovieVector3[],
   ): void {
     step.angles.forEach((target: IAngle, k: number): void => {
       const [lo, hi]: readonly [number, number] = bounds(target);
@@ -315,11 +317,10 @@ export namespace HumanFitGoals {
     });
     if (step.centre === undefined) return;
     const target: ICentre = step.centre;
-    const columns: IAutoMovieVector3[] = HumanFitBalance.velocities(
-      step.body,
-      step.at.bones,
-      step.motions,
-    );
+    const columns: readonly IAutoMovieVector3[] =
+      readColumns === undefined
+        ? HumanFitBalance.velocities(step.body, step.at.bones, step.motions)
+        : readColumns();
     directions(target).forEach((axis: IAutoMovieVector3, k: number): void =>
       equal(
         `centre:${k}`,

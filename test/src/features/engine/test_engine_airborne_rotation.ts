@@ -523,8 +523,8 @@ export function test_engine_airborne_rotation(): void {
   const within: number = solveAirborneTakeoff.TOLERANCE / (2 * Math.PI);
   if (
     !tucked.met ||
-    Math.abs(tucked.momentum.x - planar) > within * planar ||
-    Math.hypot(tucked.momentum.y, tucked.momentum.z) > within * planar
+    !(Math.abs(tucked.momentum.x - planar) <= within * planar) ||
+    !(Math.hypot(tucked.momentum.y, tucked.momentum.z) <= within * planar)
   )
     findings.push(
       `a tuck between laid-out ends: ${JSON.stringify(tucked.momentum)}, planar ${planar.toFixed(4)}, met ${tucked.met}`,

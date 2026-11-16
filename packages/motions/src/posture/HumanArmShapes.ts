@@ -75,8 +75,8 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure An axis probe reads the frame's shapes directly; a collider probe filters its segment's screen.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only shapes that surely lie out of reach are left out; the exact distance stays the caller's.
    * @evidence contracts/development/implementation.md#efficient-algorithms One point-to-sphere distance per shape, over the segment's screen when one is given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A screen taken once is read for every probe of the placement.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A screen taken once is read for every probe of the placement, and one private difference vector serves every comparison in this query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh index list; its private difference vector is consumed synchronously by Vector3.length and retained nowhere.
    */
   export function nearby(
     at: G.IFrame,
@@ -88,11 +88,15 @@ export namespace HumanArmShapes {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     if (probe < G.SURFACE) return near(at, p, r + reach);
     const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
+    const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     return (screened ?? screen(at, placed, reach))[owner].filter(
-      (i: number): boolean =>
-        Vector3.length(Vector3.subtract(p, at.shapes[i]!.centre)) -
-          at.shapes[i]!.radius <
-        r + reach,
+      (i: number): boolean => {
+        const shape: G.IShape = at.shapes[i]!;
+        delta.x = p.x - shape.centre.x;
+        delta.y = p.y - shape.centre.y;
+        delta.z = p.z - shape.centre.z;
+        return Vector3.length(delta) - shape.radius < r + reach;
+      },
     );
   }
 
@@ -130,7 +134,11 @@ export namespace HumanArmShapes {
     placed: G.IPlaced,
     reach: number,
   ): IScreen {
-    const of = (
+    const of: (
+      owner: "upper" | "lower" | "hand",
+      o: IAutoMovieVector3,
+      w: IAutoMovieQuaternion,
+    ) => number[] = (
       owner: "upper" | "lower" | "hand",
       o: IAutoMovieVector3,
       w: IAutoMovieQuaternion,
@@ -166,12 +174,18 @@ export namespace HumanArmShapes {
   export function colliders(at: G.IFrame, placed: G.IPlaced): G.IShape[] {
     const out: G.IShape[] = [];
     for (const c of at.colliders) {
-      const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
+      const o: IAutoMovieVector3 =
         c.owner === "upper"
-          ? [placed.shoulder, placed.upper]
+          ? placed.shoulder
           : c.owner === "lower"
-            ? [placed.elbow, placed.lower]
-            : [placed.wrist, placed.hand];
+            ? placed.elbow
+            : placed.wrist;
+      const w: IAutoMovieQuaternion =
+        c.owner === "upper"
+          ? placed.upper
+          : c.owner === "lower"
+            ? placed.lower
+            : placed.hand;
       const pose: HumanColliders.IPlaced["pose"] = {
         ...c.pose,
         position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
@@ -229,8 +243,8 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the frame's shapes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach is the caller's; nothing is added to it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One distance per shape.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure query with nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One private difference vector replaces per-shape vector allocations while the shared robust length calculation and shape order stay unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and releases the private synchronous scratch vector after the query; source placements are never retained.
    */
   export function near(
     at: G.IFrame,
@@ -238,12 +252,12 @@ export namespace HumanArmShapes {
     reach: number,
   ): number[] {
     const out: number[] = [];
+    const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     at.shapes.forEach((shape: G.IShape, i: number): void => {
-      if (
-        Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
-        reach
-      )
-        out.push(i);
+      delta.x = p.x - shape.centre.x;
+      delta.y = p.y - shape.centre.y;
+      delta.z = p.z - shape.centre.z;
+      if (Vector3.length(delta) - shape.radius < reach) out.push(i);
     });
     return out;
   }
@@ -315,6 +329,14 @@ export namespace HumanArmShapes {
    * @param next The placement the point is read against.
    * @param point The point at `next`, world metres.
    * @returns The point at `now`, world metres, and the rotation carrying a direction with it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the same-rigid-collider premise, world frame and returned point/turn.
+   * @evidence contracts/development/implementation.md#principled-implementation The relative world rotation now*inverse(next) carries the offset from next's origin to now's origin.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative quaternion and one rotated offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Borrows the actual placements of the same shape without re-estimating a centre or padding a distance.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-size quaternion and vector arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads its actual placement pair without retaining computed target coordinates.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh point/turn records and retains no source placements.
    */
   export function relative(
     now: G.IShape,

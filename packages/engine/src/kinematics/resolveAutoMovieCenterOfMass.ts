@@ -105,7 +105,7 @@ export function resolveAutoMovieCenterOfMass(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame, unit and source.
  * @evidence contracts/development/design.md#principled-representation Bone-local segment points with masses; world points in, world points and metres out.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The centre of mass, its extrapolation and the margin of stability are what balance consumers read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Balance reads the centre, its extrapolation and margin. Momentum shares the posed mass-point transform and the same ordered weighted mean instead of transforming each point twice or copying that sum.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses resolved bones and the engine's hull routines.
  */
 export namespace resolveAutoMovieCenterOfMass {
@@ -183,17 +183,55 @@ export namespace resolveAutoMovieCenterOfMass {
     model: IModel,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
-    let x: number = 0;
-    let y: number = 0;
-    let z: number = 0;
-    for (const s of model.segments) {
+    return mean(model, (s: ISegment): IAutoMovieVector3 => {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
       if (bone === undefined)
         throw new Error(`The centre of mass needs the posed bone ${s.bone}`);
-      const p: IAutoMovieVector3 = Vector3.add(
-        bone.worldPosition,
-        Quaternion.rotateVector(bone.worldRotation, s.point),
-      );
+      return point(s, bone);
+    });
+  }
+
+  /**
+   * One segment's bone-local centre posed in the bone's common frame, metres.
+   *
+   * The caller supplies this segment's bone with a unit world rotation and
+   * owns missing-bone admission. Quaternion rotation returns a fresh point,
+   * so adding worldPosition before that point in each component preserves
+   * the placement arithmetic without copying another vector. Neither the
+   * segment's local point nor any bone field is changed or retained.
+   */
+  export function point(
+    segment: ISegment,
+    bone: IAutoMovieResolvedBone,
+  ): IAutoMovieVector3 {
+    const posed: IAutoMovieVector3 = Quaternion.rotateVector(
+      bone.worldRotation,
+      segment.point,
+    );
+    posed.x = bone.worldPosition.x + posed.x;
+    posed.y = bone.worldPosition.y + posed.y;
+    posed.z = bone.worldPosition.z + posed.z;
+    return posed;
+  }
+
+  /**
+   * The model's mass-weighted centre from already posed segment points.
+   *
+   * Placement and momentum use the same segment-order sum and total mass.
+   * The reader is called once per segment in model order, with its index,
+   * and returns a centre in the caller's common frame, metres. Neither the
+   * reader nor its points are retained; admission remains with its caller.
+   */
+  export function mean(
+    model: IModel,
+    read: (segment: ISegment, index: number) => IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    let x: number = 0;
+    let y: number = 0;
+    let z: number = 0;
+    for (let i: number = 0; i < model.segments.length; i++) {
+      const s: ISegment = model.segments[i]!;
+      const p: IAutoMovieVector3 = read(s, i);
       x += s.mass * p.x;
       y += s.mass * p.y;
       z += s.mass * p.z;

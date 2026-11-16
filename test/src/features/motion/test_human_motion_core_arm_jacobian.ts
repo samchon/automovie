@@ -76,6 +76,8 @@ export function test_human_motion_core_arm_jacobian(): void {
   const H: number = 1e-5;
   // Each column against a central difference: the worst relative miss.
   const miss = (read: ReturnType<typeof HumanArmJacobian.read>): number => {
+    if (read.columns.length === 0 || read.columns.length !== read.free.length)
+      return Infinity;
     let worst: number = 0;
     read.columns.forEach(
       (column: HumanArmJacobian.IColumn, i: number): void => {

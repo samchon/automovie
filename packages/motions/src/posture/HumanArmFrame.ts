@@ -2,6 +2,7 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  type preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -25,6 +26,11 @@ import { poseBones } from "./poseBones";
  * body and of another body in the arm's way, and the arm's own colliders and
  * their probes (the tangle audit's corners) in the frame of the segment each
  * rides on.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the per-base shoulder context, actual colliders and canonical probe provenance.
+ * @evidence contracts/development/design.md#principled-representation One resolved body and collider placement supply both obstacle selection and segment-local probe frames.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One frame builder serves trajectory contexts and the public arm Jacobian reader.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts External part ordering and the audit's original probes, ownership and reach screens remain unchanged.
  */
 export namespace HumanArmFrame {
   /**
@@ -33,23 +39,43 @@ export namespace HumanArmFrame {
    * @param setup The arm.
    * @param base The pose and another body's colliders, the arms of the problem left out of what they hold.
    * @param alone Whether the arm is solved alone, so the other arm is in its way; two arms solved together read each other through their own colliders.
+   * @param prepared Optional exact FK reader shared only across arms of this same base's synchronous frame construction, then released; never stored in a frame or cache.
    * @returns The frame, the same record for the same base, arm and solve, which a refined trajectory and its finer reading share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States inputs, single/paired-arm selection and the existing per-base frame identity.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves the source pose and places its physical colliders once for a newly requested frame; the existing obstacle owner selects from that same placement while audit probes retain their exact segment transforms.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Existing base/arm lookup delegates a missing frame to one construction pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all FK admission, external part indices, related exclusions, probe order and strict shoulder-reach comparison; base, body and external placements remain unchanged for the frame's existing lifetime.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full ordered pose walk and collider placement per newly built frame plus linear part/probe scans; an optional same-base reader avoids identical completed joint/bone math for the second arm while all outputs remain fresh.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-base arm construction shares only the supplied synchronous FK reader's exact dependencies. Obstacle/probe passes share placements, each owner reuses its inverse frame (the hand's already computed for the fingertip), bounds reuse local points, and the completed shoulder origin feeds unchanged-frame chain queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the existing weakly keyed per-base frames; temporary placement and owner-group arrays are released after construction and no new cross-pose cache is introduced.
    */
-  export function of(setup: G.ISetup, base: G.IBase, alone: boolean): G.IFrame {
+  export function of(
+    setup: G.ISetup,
+    base: G.IBase,
+    alone: boolean,
+    prepared?: ReturnType<typeof preparePoseResolution>,
+  ): G.IFrame {
     let kept: Map<string, G.IFrame> | undefined = FRAMES.get(base);
     if (kept === undefined) FRAMES.set(base, (kept = new Map()));
     const key: string = `${setup.bones.upper}|${alone}`;
     let frame: G.IFrame | undefined = kept.get(key);
-    if (frame === undefined) kept.set(key, (frame = built(setup, base, alone)));
+    if (frame === undefined)
+      kept.set(key, (frame = built(setup, base, alone, prepared)));
     return frame;
   }
 
   /** The frame of a base, built. */
-  function built(setup: G.ISetup, base: G.IBase, alone: boolean): G.IFrame {
+  function built(
+    setup: G.ISetup,
+    base: G.IBase,
+    alone: boolean,
+    prepared?: ReturnType<typeof preparePoseResolution>,
+  ): G.IFrame {
     const body: IHumanBody = setup.body;
     const bones: G.ISetup["bones"] = setup.bones;
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, base.pose);
+      poseBones(body, base.pose, prepared);
     const side: "left" | "right" = bones.upper.startsWith("left")
       ? "left"
       : "right";
@@ -59,8 +85,9 @@ export namespace HumanArmFrame {
     const hand: IAutoMovieResolvedBone = resolved.get(bones.hand)!;
     const distal: IAutoMovieResolvedBone =
       resolved.get(`${side}MiddleDistal`) ?? hand;
+    const unturn: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
     const tip: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
+      unturn,
       Vector3.subtract(distal.worldPosition, hand.worldPosition),
     );
     const model: AutoMovieMotionHumanAuditTangleModel.IModel =
@@ -72,37 +99,49 @@ export namespace HumanArmFrame {
     const others: HumanColliders.IPlaced[] = [...new Set(base.others)];
     const parts: ReadonlyMap<HumanColliders.IPlaced, number> = new Map(
       others.map(
-        (segment: HumanColliders.IPlaced, i: number) =>
+        (
+          segment: HumanColliders.IPlaced,
+          i: number,
+        ): readonly [HumanColliders.IPlaced, number] =>
           [segment, model.parts.length + i] as const,
       ),
     );
+    const own: Map<AutoMovieHumanoidBone, number> = new Map();
+    model.parts.forEach(
+      (
+        part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number],
+        i: number,
+      ): void => {
+        if (!own.has(part.bone)) own.set(part.bone, i);
+      },
+    );
     const shapes: G.IShape[] = [];
+    const placed: HumanColliders.IPlaced[] = HumanColliders.placed(
+      body,
+      resolved,
+    );
     for (const segment of [
       ...HumanArmClearance.obstacles(
         body,
         resolved,
         alone ? [side === "left" ? "right" : "left"] : [],
+        placed,
       ),
       ...others,
-    ])
+    ]) {
+      const part: number = parts.get(segment) ?? own.get(segment.bone) ?? -1;
       for (const shape of segment.shapes)
-        shapes.push(
-          S.bounded(
-            segment.bone,
-            parts.get(segment) ??
-              model.parts.findIndex(
-                (
-                  p: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number],
-                ): boolean => p.bone === segment.bone,
-              ),
-            segment.pose,
-            shape,
-          ),
-        );
+        shapes.push(S.bounded(segment.bone, part, segment.pose, shape));
+    }
 
     // The arm's own colliders and their probes, the audit's corners, each
     // carried into the frame of the arm's segment it rides on.
     const surface: IAutoMovieVector3[] = [];
+    const byOwner: Record<"upper" | "lower" | "hand", IAutoMovieVector3[]> = {
+      upper: [],
+      lower: [],
+      hand: [],
+    };
     const owners: ("upper" | "lower" | "hand")[] = [];
     const segments: number[] = [];
     const indices: number[] = [];
@@ -114,79 +153,82 @@ export namespace HumanArmFrame {
       lower: resolved.get(bones.lower)!,
       hand,
     };
-    HumanColliders.placed(body, resolved).forEach(
-      (segment: HumanColliders.IPlaced, i: number): void => {
-        const owner: "upper" | "lower" | "hand" | null =
-          segment.bone === bones.upper
-            ? "upper"
-            : segment.bone === bones.lower
-              ? "lower"
-              : AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
-                  bones.hand
-                ? "hand"
-                : null;
-        if (owner === null) {
-          // The body's corners, the other arm's left out where it is solved too.
-          const arm: boolean =
-            segment.bone === `${other}UpperArm` ||
-            segment.bone === `${other}LowerArm` ||
-            AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
-              `${other}Hand`;
-          if (!alone && arm) return;
-          model.parts[i]!.probes.slice(0, model.parts[i]!.surface).forEach(
-            (probe: IAutoMovieVector3, corner: number): void => {
-              corners.push({
-                point: Vector3.add(
-                  segment.pose.position,
-                  Quaternion.rotateVector(segment.pose.rotation, probe),
-                ),
-                part: i,
-                corner,
-                bone: segment.bone,
-              });
-            },
-          );
-          return;
-        }
-        const by: IAutoMovieResolvedBone = frames[owner];
-        const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-          by.worldRotation,
-        );
-        colliders.push({
-          owner,
-          bone: segment.bone,
-          part: i,
-          pose: {
-            ...segment.pose,
-            position: Quaternion.rotateVector(
-              inverse,
-              Vector3.subtract(segment.pose.position, by.worldPosition),
+    const inverses: Partial<
+      Record<"upper" | "lower" | "hand", IAutoMovieQuaternion>
+    > = { hand: unturn };
+    placed.forEach((segment: HumanColliders.IPlaced, i: number): void => {
+      const owner: "upper" | "lower" | "hand" | null =
+        segment.bone === bones.upper
+          ? "upper"
+          : segment.bone === bones.lower
+            ? "lower"
+            : AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
+                bones.hand
+              ? "hand"
+              : null;
+      if (owner === null) {
+        // The body's corners, the other arm's left out where it is solved too.
+        const arm: boolean =
+          segment.bone === `${other}UpperArm` ||
+          segment.bone === `${other}LowerArm` ||
+          AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
+            `${other}Hand`;
+        if (!alone && arm) return;
+        const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
+          model.parts[i]!;
+        for (let corner: number = 0; corner < part.surface; corner++) {
+          const probe: IAutoMovieVector3 = part.probes[corner]!;
+          corners.push({
+            point: Vector3.add(
+              segment.pose.position,
+              Quaternion.rotateVector(segment.pose.rotation, probe),
             ),
-            rotation: Quaternion.multiply(inverse, segment.pose.rotation),
-          },
-          shapes: segment.shapes,
-        });
-        model.parts[i]!.probes.slice(0, model.parts[i]!.surface).forEach(
-          (probe: IAutoMovieVector3, corner: number): void => {
-            segments.push(i);
-            indices.push(corner);
-            owners.push(owner);
-            surface.push(
-              Quaternion.rotateVector(
-                inverse,
-                Vector3.subtract(
-                  Vector3.add(
-                    segment.pose.position,
-                    Quaternion.rotateVector(segment.pose.rotation, probe),
-                  ),
-                  by.worldPosition,
-                ),
-              ),
-            );
-          },
+            part: i,
+            corner,
+            bone: segment.bone,
+          });
+        }
+        return;
+      }
+      const by: IAutoMovieResolvedBone = frames[owner];
+      const inverse: IAutoMovieQuaternion =
+        inverses[owner] ?? Quaternion.inverse(by.worldRotation);
+      inverses[owner] = inverse;
+      colliders.push({
+        owner,
+        bone: segment.bone,
+        part: i,
+        pose: {
+          ...segment.pose,
+          position: Quaternion.rotateVector(
+            inverse,
+            Vector3.subtract(segment.pose.position, by.worldPosition),
+          ),
+          rotation: Quaternion.multiply(inverse, segment.pose.rotation),
+        },
+        shapes: segment.shapes,
+      });
+      const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
+        model.parts[i]!;
+      for (let corner: number = 0; corner < part.surface; corner++) {
+        const probe: IAutoMovieVector3 = part.probes[corner]!;
+        segments.push(i);
+        indices.push(corner);
+        owners.push(owner);
+        const point: IAutoMovieVector3 = Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(
+            Vector3.add(
+              segment.pose.position,
+              Quaternion.rotateVector(segment.pose.rotation, probe),
+            ),
+            by.worldPosition,
+          ),
         );
-      },
-    );
+        surface.push(point);
+        byOwner[owner].push(point);
+      }
+    });
     for (const segment of others) {
       let corner: number = 0;
       for (const shape of segment.shapes)
@@ -207,14 +249,12 @@ export namespace HumanArmFrame {
             bone: segment.bone,
           });
     }
-    const of = (
+    const of: (owner: "upper" | "lower" | "hand") => {
+      centre: IAutoMovieVector3;
+      radius: number;
+    } = (
       owner: "upper" | "lower" | "hand",
-    ): { centre: IAutoMovieVector3; radius: number } =>
-      sphere(
-        surface.filter(
-          (_: IAutoMovieVector3, i: number): boolean => owners[i] === owner,
-        ),
-      );
+    ): { centre: IAutoMovieVector3; radius: number } => sphere(byOwner[owner]);
     const bounds: G.IFrame["bounds"] = {
       upper: of("upper"),
       lower: of("lower"),
@@ -236,15 +276,21 @@ export namespace HumanArmFrame {
       length +
       Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
       NEAR;
+    const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const near: G.IFrame["body"] = corners.filter(
-      (c: G.IFrame["body"][number]): boolean =>
-        Vector3.length(Vector3.subtract(c.point, shoulder)) < around,
+      (c: G.IFrame["body"][number]): boolean => {
+        delta.x = c.point.x - shoulder.x;
+        delta.y = c.point.y - shoulder.y;
+        delta.z = c.point.z - shoulder.z;
+        return Vector3.length(delta) < around;
+      },
     );
     return {
       parent: {
         rotation: parent.worldRotation,
         position: parent.worldPosition,
       },
+      shoulder,
       tip,
       surface,
       owners,
@@ -267,15 +313,24 @@ function sphere(points: readonly IAutoMovieVector3[]): {
   centre: IAutoMovieVector3;
   radius: number;
 } {
-  let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (const p of points)
-    centre = Vector3.add(
-      centre,
-      Vector3.scale(p, 1 / Math.max(1, points.length)),
-    );
+  const scale: number = 1 / Math.max(1, points.length);
+  let x: number = 0;
+  let y: number = 0;
+  let z: number = 0;
+  for (const p of points) {
+    x += p.x * scale;
+    y += p.y * scale;
+    z += p.z * scale;
+  }
+  const centre: IAutoMovieVector3 = { x, y, z };
   let radius: number = 0;
-  for (const p of points)
-    radius = Math.max(radius, Vector3.length(Vector3.subtract(p, centre)));
+  const delta: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  for (const p of points) {
+    delta.x = p.x - centre.x;
+    delta.y = p.y - centre.y;
+    delta.z = p.z - centre.z;
+    radius = Math.max(radius, Vector3.length(delta));
+  }
   return { centre, radius };
 }
 

@@ -4,7 +4,6 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 
 /**
  * Rotation-vector operations shared by trajectory construction and playback.
@@ -66,10 +65,10 @@ export namespace MotionTrajectoryRotation {
    *
    * @evidence contracts/development/common.md#meaningful-documentation r is a body-frame rotation in radians, w a body-frame angular rate in radians per second; an absent block stays absent.
    * @evidence contracts/development/implementation.md#principled-implementation The stated truncated inverse differential is the RKMK construction shared by fixed RK4 and adaptive DP5(4).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute the first and second cross products, then their weighted sum.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute the first and second cross products as scalar components, then their weighted sum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing Bernoulli coefficients and body-frame signs.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the engine's vector cross product.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work with one output record and no intermediate vector records; the two cross products' scalar arithmetic retains Vector3.cross's association.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three components of r cross w are reused by the second cross and final sum, without constructing two temporary vector records.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state.
    */
   export function dexpinv(
@@ -77,12 +76,16 @@ export namespace MotionTrajectoryRotation {
     w: IAutoMovieVector3 | undefined,
   ): IAutoMovieVector3 | undefined {
     if (r === undefined || w === undefined) return w;
-    const a: IAutoMovieVector3 = Vector3.cross(r, w);
-    const b: IAutoMovieVector3 = Vector3.cross(r, a);
+    const ax: number = r.y * w.z - r.z * w.y;
+    const ay: number = r.z * w.x - r.x * w.z;
+    const az: number = r.x * w.y - r.y * w.x;
+    const bx: number = r.y * az - r.z * ay;
+    const by: number = r.z * ax - r.x * az;
+    const bz: number = r.x * ay - r.y * ax;
     return {
-      x: w.x + a.x / 2 + b.x / 12,
-      y: w.y + a.y / 2 + b.y / 12,
-      z: w.z + a.z / 2 + b.z / 12,
+      x: w.x + ax / 2 + bx / 12,
+      y: w.y + ay / 2 + by / 12,
+      z: w.z + az / 2 + bz / 12,
     };
   }
 }

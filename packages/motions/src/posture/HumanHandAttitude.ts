@@ -1,6 +1,7 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  type IAutoMovieJointRotationDomain,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
@@ -8,10 +9,12 @@ import {
   decomposeJointRotation,
   getConstraint,
   skeletonJointAxes,
+  swingTwistRange,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -22,6 +25,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "./HumanHand";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -51,6 +55,8 @@ export namespace HumanHandAttitude {
    * The posture with the arm written as joints, the hand turned to a world
    * rotation where the arm stands: the wrist first, the forearm's twist by
    * what the wrist cannot turn about the forearm's length.
+   * The body's rig and canonical mappings remain unchanged during this
+   * synchronous solve; a later call prepares their current values anew.
    *
    * @param body The body.
    * @param posture The posture; the arm is placed by its joints or its goal.
@@ -58,13 +64,13 @@ export namespace HumanHandAttitude {
    * @param rotation The hand's world rotation asked.
    * @returns The posture with that arm's joints set and its goal removed.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the order of the solve and the result.
+   * @evidence contracts/development/common.md#meaningful-documentation States inputs, numerical solve order, returned posture, unchanged-rig operation boundary and current-value preparation on a later call.
    * @evidence contracts/development/implementation.md#principled-implementation The wrist's local rotation decomposed on its chart inside its range and clamped; the residual's twist about the forearm's axis, converted to the forearm's clinical twist by its rate read off the rig, added to the current twist.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A wrist solve, one twist share and a second wrist solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both joints are clamped by the rig's range; what neither can turn stays a residual, never reported as reached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve and its forward kinematics, then at most three resolves of the arm written as joints (no limb fit), each with its forward kinematics: the wrist's result, the forearm's rate and the turned forearm.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolver, `poseBones` and the engine's `decomposeJointRotation`, `getConstraint` and `clampJointToSkeleton`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The initial posture solve and up to three later posture/FK reads remain in order; other authored limb/digit goals retain their actual solves. Every full FK scans its joints/bones while one exact reader shares identical completed math; wrist rest inverse, first-bone domain, axes merge and clamp metadata are prepared once rather than twice. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One held invocation lends the existing exact FK reader to its posture solves and displayed reads. Its lazy wrist reader reuses only unchanged first-bone rest/domain and last-declared axes, with local quaternion construction, decompose-then-clamp and both residual/rate calculations still executed for every distinct requested input.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local lazy FK getter owns O(B) successful scalar snapshots, and one wrist reader borrows fixed rig metadata plus its rest inverse/clamp closure until return or throw. Neither reader enters the returned posture, a plan, body memory or callback; fresh joints/tuples retain their existing output ownership.
    */
   export function held(
     body: IHumanBody,
@@ -75,8 +81,18 @@ export namespace HumanHandAttitude {
     const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
     const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
     const hand: AutoMovieHumanoidBone = `${side}Hand`;
-    const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
-    const read = (bone: AutoMovieHumanoidBone): [number, number, number] => {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      undefined,
+      resolution,
+    ).pose;
+    const read: (bone: AutoMovieHumanoidBone) => [number, number, number] = (
+      bone: AutoMovieHumanoidBone,
+    ): [number, number, number] => {
       const joint: IAutoMovieJointPose | undefined = pose.joints.find(
         (j: IAutoMovieJointPose): boolean => j.bone === bone,
       );
@@ -84,7 +100,10 @@ export namespace HumanHandAttitude {
     };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
-    const written = (
+    const written: (
+      forearm: readonly [number, number, number],
+      wrist: readonly [number, number, number],
+    ) => IHumanPosture = (
       forearm: readonly [number, number, number],
       wrist: readonly [number, number, number],
     ): IHumanPosture => ({
@@ -97,15 +116,24 @@ export namespace HumanHandAttitude {
       },
       limbs,
     });
-    const bones = (
+    const bones: (
       at: IHumanPosture,
-    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      poseBones(body, resolveHumanPosture(body, at));
+    ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+      at: IHumanPosture,
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+        body,
+        at,
+        undefined,
+        undefined,
+        resolution,
+      ).pose;
+      return poseBones(body, pose, resolution());
+    };
+    const readWrist: ReturnType<typeof wrist> = wrist(body, hand);
     const forearm: [number, number, number] = read(lower);
-    const first: [number, number, number] = wrist(
-      body,
-      hand,
-      poseBones(body, pose).get(lower)!.worldRotation,
+    const first: [number, number, number] = readWrist(
+      poseBones(body, pose, resolution()).get(lower)!.worldRotation,
       rotation,
     );
 
@@ -157,9 +185,7 @@ export namespace HumanHandAttitude {
     ];
     return written(
       next,
-      wrist(
-        body,
-        hand,
+      readWrist(
         bones(written(next, first)).get(lower)!.worldRotation,
         rotation,
       ),
@@ -167,49 +193,78 @@ export namespace HumanHandAttitude {
   }
 }
 
-/** The wrist's clinical angles that turn the hand to a world rotation under a forearm's world rotation: the local turn decomposed on the chart inside the wrist's range and clamped to it. */
+/**
+ * One held call's lazy wrist solve. First use keeps rest/local-quaternion,
+ * axes, domain, decomposition and clamp admission in their original order;
+ * the second wrist solve reuses only that unchanged rig metadata. The local
+ * quaternion and decompose-then-clamp still run on every incoming attitude,
+ * with first-bone rest/constraint and last-declared axes precedence.
+ */
 function wrist(
   body: IHumanBody,
   hand: AutoMovieHumanoidBone,
+): (
   forearm: IAutoMovieQuaternion,
   rotation: IAutoMovieQuaternion,
-): [number, number, number] {
-  const rest: IAutoMovieQuaternion =
-    body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === hand)
-      ?.rest.rotation ?? Quaternion.identity();
-  const angles: ReturnType<typeof decomposeJointRotation> =
-    decomposeJointRotation(
-      Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.inverse(rest),
-          Quaternion.multiply(Quaternion.inverse(forearm), rotation),
-        ),
+) => [number, number, number] {
+  let found: IAutoMovieBone | undefined;
+  let inverse: IAutoMovieQuaternion | undefined;
+  let axes:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+    | undefined;
+  let domain: IAutoMovieJointRotationDomain | undefined;
+  let clamp: ((joint: IAutoMovieJointPose) => IAutoMovieJointPose) | undefined;
+  return (
+    forearm: IAutoMovieQuaternion,
+    rotation: IAutoMovieQuaternion,
+  ): [number, number, number] => {
+    if (inverse === undefined) {
+      found = body.skeleton.bones.find(
+        (bone: IAutoMovieBone): boolean => bone.bone === hand,
+      );
+      inverse = Quaternion.inverse(
+        found?.rest.rotation ?? Quaternion.identity(),
+      );
+    }
+    const local: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(
+        inverse,
+        Quaternion.multiply(Quaternion.inverse(forearm), rotation),
       ),
-      skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[hand],
-      HUMANOID_REST_FRAME[hand],
-      {
-        bone: hand,
-        constraint: getConstraint(
-          hand,
-          body.skeleton.bones.find(
-            (b: IAutoMovieBone): boolean => b.bone === hand,
-          )?.constraint ?? null,
-        ),
-      },
     );
-  const joint: IAutoMovieJointPose = clampJointToSkeleton(
-    {
+    axes ??= skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
+    domain ??= {
+      bone: hand,
+      constraint: getConstraint(hand, found?.constraint ?? null),
+    };
+    const angles: ReturnType<typeof decomposeJointRotation> =
+      decomposeJointRotation(
+        local,
+        axes[hand],
+        HUMANOID_REST_FRAME[hand],
+        domain,
+      );
+    clamp ??= clampJointToSkeleton.resolved(
+      hand,
+      found,
+      (): swingTwistRange.IJoint | undefined =>
+        domain!.constraint === null ||
+        domain!.constraint.swingTwist === undefined ||
+        domain!.constraint.swingTwist === null
+          ? undefined
+          : swingTwistRange.fromAxes(hand, axes![hand]),
+    );
+    const joint: IAutoMovieJointPose = clamp({
       bone: hand,
       flexion: angles.flexion,
       abduction: angles.abduction,
       twist: angles.twist,
-    },
-    body.skeleton,
-  );
-  return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
+    });
+    return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
+  };
 }
 
-/** The turn of a rotation about a unit axis, degrees in (-180, 180]: the twist of its swing-twist split. */
+/** The turn of a rotation about a unit axis, degrees in [-180, 180]: the twist of its swing-twist split, retaining atan2's signed endpoints. */
 function twist(q: IAutoMovieQuaternion, axis: IAutoMovieVector3): number {
   const n: IAutoMovieQuaternion = Quaternion.normalize(q);
   const sign: number = n.w < 0 ? -1 : 1;

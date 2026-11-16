@@ -34,10 +34,10 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from, which channels the plan reports and every refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed; the posture so far before a primitive is the same composition stopped at it, at any second, so it is a pure function of time.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Sort and validate once, collect contacts and weapons once, and give each prefix one stable reader over the current synchronous evaluation scope.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Rank each primitive once, sort and validate once, collect contacts and weapons once, and give each primitive's prefix one stable reader over the current synchronous evaluation scope.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Two primitives on one channel at one time throw instead of the later one winning; windows that only touch at an instant are allowed, and the sort is stable by the given order.
- * @evidence contracts/development/implementation.md#efficient-algorithms Validation is quadratic in the primitive count P once per plan; an evaluation computes each requested prefix at a distinct clamped second once, with constant-time reads thereafter and at most (P + 1) times T posture references for T requested seconds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A prefix is the same base and ordered pure writes at the same exact clamped second within one synchronous preparation pass or posture evaluation; only completed prefixes are shared, and another evaluation starts afresh.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ranks scan the channel claims once before O(P log P) sorting; validation is quadratic in the primitive count P once per plan. An evaluation computes each requested prefix at a distinct clamped second once, with constant-time reads thereafter and at most (P + 1) times T posture references for T requested seconds.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Sorting reuses each primitive's fixed channel rank. A prefix is the same base and ordered pure writes at the same exact clamped second within one synchronous preparation pass or posture evaluation; only completed prefixes are shared, and another evaluation starts afresh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the base, clock, sorted primitives and stable readers. Temporary prefix maps live only through their synchronous evaluation; finally restores the previous scope on success or failure, including a nested evaluation, and retained readers capture no map.
  */
 export function composeAutoMovieMotionHumanAction(
@@ -46,7 +46,9 @@ export function composeAutoMovieMotionHumanAction(
   const duration: number = props.clock.duration;
   if (Math.abs(props.base.duration - duration) > 1e-6)
     throw new Error("A composed action's base lasts as long as its clock");
-  const rank = (p: IAutoMovieMotionHumanPrimitive): number =>
+  const rank: (p: IAutoMovieMotionHumanPrimitive) => number = (
+    p: IAutoMovieMotionHumanPrimitive,
+  ): number =>
     Math.min(
       ...p.channels.map((c: AutoMovieMotionHumanChannel): number =>
         AutoMovieMotionHumanChannel.ORDER.indexOf(c),
@@ -57,18 +59,17 @@ export function composeAutoMovieMotionHumanAction(
       (
         p: IAutoMovieMotionHumanPrimitive,
         i: number,
-      ): [IAutoMovieMotionHumanPrimitive, number] => [p, i],
+      ): [IAutoMovieMotionHumanPrimitive, number, number] => [p, i, rank(p)],
     )
     .sort(
       (
-        a: [IAutoMovieMotionHumanPrimitive, number],
-        b: [IAutoMovieMotionHumanPrimitive, number],
-      ): number =>
-        rank(a[0]) - rank(b[0]) || a[0].from - b[0].from || a[1] - b[1],
+        a: [IAutoMovieMotionHumanPrimitive, number, number],
+        b: [IAutoMovieMotionHumanPrimitive, number, number],
+      ): number => a[2] - b[2] || a[0].from - b[0].from || a[1] - b[1],
     )
     .map(
       (
-        pair: [IAutoMovieMotionHumanPrimitive, number],
+        pair: [IAutoMovieMotionHumanPrimitive, number, number],
       ): IAutoMovieMotionHumanPrimitive => pair[0],
     );
   for (const p of primitives) {
@@ -122,7 +123,7 @@ export function composeAutoMovieMotionHumanAction(
   // it after the evaluation in which it first received it has ended.
   let scope: Evaluation | undefined;
   const readers: ((seconds: number) => IHumanPosture)[] = Array.from(
-    { length: primitives.length + 1 },
+    { length: primitives.length },
     (_: unknown, index: number): ((seconds: number) => IHumanPosture) =>
       (seconds: number): IHumanPosture =>
         scope === undefined
@@ -155,7 +156,7 @@ export function composeAutoMovieMotionHumanAction(
       ? {}
       : { contact: props.clock.at(props.contact) }),
     ...(base.holds === undefined ? {} : { holds: base.holds }),
-    ...(base.settle === undefined ? {} : { settle: () => base.settle!() }),
+    ...(base.settle === undefined ? {} : { settle: (): void => base.settle!() }),
     ...(weapons.length === 0 ? {} : { weapons }),
     ...(base.stop === undefined
       ? {}

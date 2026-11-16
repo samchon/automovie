@@ -1,11 +1,13 @@
 import {
+  DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedJointAngles,
   Quaternion,
-  decomposeJointRotation,
+  decomposeJointRotationOnBasis,
   getConstraint,
-  jointToQuaternion,
+  jointToQuaternionOnBasis,
+  normalizeJointAxes,
   skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
@@ -18,6 +20,72 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+
+/** One bone's canonical axes and lazy admitted conversion/chart frames. */
+interface IFrame {
+  /** The actual raw declared-over-canonical entry, including an absent entry. */
+  axes: IAutoMovieJointAxes | undefined;
+
+  /** The basis admitted at the first original forward-conversion site. */
+  basis: IAutoMovieJointAxes;
+
+  /** A lazy explicit swing-twist frame, used only when the raw entry exists. */
+  joint: swingTwistRange.IJoint;
+}
+
+/** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
+interface ILookup {
+  /** First-match override/default resolution, without reading clinical axes. */
+  constraint(
+    body: IHumanBody,
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointConstraint | null;
+
+  /** Canonical frame metadata, requested only after the hinge branch. */
+  frame(body: IHumanBody, bone: AutoMovieHumanoidBone): IFrame;
+}
+
+/** Stateless standalone dispatch preserves targeted lookup without a per-call full index. */
+const COLD: ILookup = {
+  constraint: (
+    body: IHumanBody,
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointConstraint | null =>
+    getConstraint(
+      bone,
+      body.skeleton.bones.find(
+        (candidate: IAutoMovieBone): boolean => candidate.bone === bone,
+      )?.constraint ?? null,
+    ),
+  frame: (body: IHumanBody, bone: AutoMovieHumanoidBone): IFrame =>
+    frameOf(bone, skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]),
+};
+
+/** Keep one unchanged raw entry; admission and chart preparation remain lazy. */
+function frameOf(
+  bone: AutoMovieHumanoidBone,
+  axes: IAutoMovieJointAxes | undefined,
+): IFrame {
+  let basis: IAutoMovieJointAxes | undefined;
+  let joint: swingTwistRange.IJoint | undefined;
+  return {
+    axes,
+    get basis(): IAutoMovieJointAxes {
+      basis ??= normalizeJointAxes(
+        axes === undefined ? DEFAULT_JOINT_AXES : axes,
+        "jointToQuaternion axes",
+      );
+      return basis;
+    },
+    get joint(): swingTwistRange.IJoint {
+      joint ??= swingTwistRange.prepare({
+        axes: axes === undefined ? DEFAULT_JOINT_AXES : axes,
+        frame: HUMANOID_REST_FRAME[bone],
+      });
+      return joint;
+    },
+  };
+}
 
 /**
  * A joint's clinical angles part of the way between two readings of them,
@@ -71,10 +139,10 @@ import type { IHumanBody } from "../body/IHumanBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is blended, why a ball joint is blended as a rotation, how a swing-twist range is kept with the measured case, why a joint with fewer freedoms is not, each argument with its unit, and what an end returns.
  * @evidence contracts/development/implementation.md#principled-implementation Spherical linear interpolation of the two joint rotations is the constant-speed shortest turn between them and depends on neither end's reading; a swing-twist joint is blended on its range's chart, a convex set on which the line between two ends stays, so the blend stays in the range and is continuous in its share and in both ends. A joint with fewer than three freedoms moves only about its own axes, so its angles are its coordinates and are interpolated as such.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the joint's freedoms, then three linear blends, or one chart blend where the range is a swing and a twist or one arc, and one read back.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation owner keeps endpoint and hinge ordering while standalone and prepared callers choose only metadata lookup; forward/inverse OnBasis primitives share one lazily admitted basis and swing frames use explicit operation preparation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone is named: the joint's own range says whether it is a ball joint and whether it is gated by swing and twist. The share is clamped so the joint cannot pass either end, and an end keeps its own triple instead of a re-read one.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per joint: two conversions to rotations, one interpolation and one decomposition.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's `jointToQuaternion`, `Quaternion.slerp`, `swingTwistRange.blend` and `decomposeJointRotation` with the canonical axes and rest frames the limb fit reads.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Standalone constraint lookup and a ball joint's axis merge are O(B) for B bones, followed by existing rotation/chart mathematics; one basis serves both endpoint conversions and decomposition, and one prepared swing frame serves its chart reads. A prepared multi-joint operation shares O(B+D) metadata across D requested names; no runtime speedup is claimed.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the actual interpolation owner and canonical mappings, with only invariant basis/frame metadata reused inside this call; prepare additionally shares first-bone and axes metadata while the body and canonical ROM/axes/rest mappings stay unchanged for one synchronous operation, never its from/to/share results.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function blendHumanJoint(
@@ -84,13 +152,109 @@ export function blendHumanJoint(
   to: readonly [number, number, number],
   share: number,
 ): readonly [number, number, number] {
+  return blend(body, bone, from, to, share, COLD);
+}
+
+/**
+ * Metadata preparation for a body's single synchronous multi-joint blend.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the unchanged-body scope, endpoint/hinge admission order, actual per-input blending and caller-owned preparation lifetime on prepare.
+ * @evidence contracts/development/design.md#principled-representation A local blender shares only first-bone constraints and canonical axis/basis/frame metadata, while the existing interpolation still evaluates every incoming endpoint pair and share.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One prepare entry serves an overlay's actual multi-joint pass, while the standalone function retains its existing signature and targeted lookup path.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No mutable-body identity cache, blended-result table or alternate ROM representation is added; a new blend operation creates new preparation and the body stays unchanged until release.
+ */
+export namespace blendHumanJoint {
+  /**
+   * Prepare one body's metadata for a synchronous joint-blend pass; the body
+   * and canonical ROM, axes and rest-frame mappings stay unchanged until release.
+   * Endpoint shares still return the original from/to tuple before any rig
+   * lookup, and hinge joints still blend linearly without reading axes.
+   *
+   * The first interior query lazily indexes B bones with first-match
+   * constraint semantics. A ball query resolves the canonical axes table once
+   * with its existing last-declared precedence; each requested name owns one
+   * lazy admitted basis and prepared swing frame. Numerical from/to/share
+   * interpolation and output allocation still run on every query.
+   *
+   * Metadata costs O(B+D) time and space for D queried names, plus each
+   * actual blend's existing numerical cost. Release the returned function on
+   * operation completion or failure; it holds only the body and this bounded
+   * metadata, with no retained input tuples, outputs or global collection.
+   *
+   * @param body The unchanged body used by every joint of this operation.
+   * @returns A joint blender whose endpoint tuples retain input identity.
+   */
+  export function prepare(
+    body: IHumanBody,
+  ): (
+    bone: AutoMovieHumanoidBone,
+    from: readonly [number, number, number],
+    to: readonly [number, number, number],
+    share: number,
+  ) => readonly [number, number, number] {
+    let bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> | undefined;
+    let axes:
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+      | undefined;
+    const constraints: Map<
+      AutoMovieHumanoidBone,
+      IAutoMovieJointConstraint | null
+    > = new Map();
+    const frames: Map<AutoMovieHumanoidBone, IFrame> = new Map();
+    const lookup: ILookup = {
+      constraint: (
+        current: IHumanBody,
+        name: AutoMovieHumanoidBone,
+      ): IAutoMovieJointConstraint | null => {
+        let constraint: IAutoMovieJointConstraint | null | undefined =
+          constraints.get(name);
+        if (constraint === undefined) {
+          if (bones === undefined) {
+            bones = new Map();
+            for (const candidate of current.skeleton.bones)
+              if (!bones.has(candidate.bone))
+                bones.set(candidate.bone, candidate);
+          }
+          constraint = getConstraint(name, bones.get(name)?.constraint ?? null);
+          constraints.set(name, constraint);
+        }
+        return constraint;
+      },
+      frame: (current: IHumanBody, name: AutoMovieHumanoidBone): IFrame => {
+        let frame: IFrame | undefined = frames.get(name);
+        if (frame === undefined) {
+          axes ??= skeletonJointAxes(current.skeleton, HUMANOID_JOINT_AXES);
+          frame = frameOf(name, axes[name]);
+          frames.set(name, frame);
+        }
+        return frame;
+      },
+    };
+    return (
+      bone: AutoMovieHumanoidBone,
+      from: readonly [number, number, number],
+      to: readonly [number, number, number],
+      share: number,
+    ): readonly [number, number, number] =>
+      blend(body, bone, from, to, share, lookup);
+  }
+}
+
+/** One interpolation algorithm, with all original endpoint and hinge gates before frame admission. */
+function blend(
+  body: IHumanBody,
+  bone: AutoMovieHumanoidBone,
+  from: readonly [number, number, number],
+  to: readonly [number, number, number],
+  share: number,
+  lookup: ILookup,
+): readonly [number, number, number] {
   const s: number = Math.min(1, Math.max(0, share));
   if (s <= 0) return from;
   if (s >= 1) return to;
-  const constraint: IAutoMovieJointConstraint | null = getConstraint(
+  const constraint: IAutoMovieJointConstraint | null = lookup.constraint(
+    body,
     bone,
-    body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-      ?.constraint ?? null,
   );
   if (
     constraint !== null &&
@@ -103,17 +267,17 @@ export function blendHumanJoint(
       from[1] + (to[1] - from[1]) * s,
       from[2] + (to[2] - from[2]) * s,
     ];
-  const axes: IAutoMovieJointAxes | undefined = skeletonJointAxes(
-    body.skeleton,
-    HUMANOID_JOINT_AXES,
-  )[bone];
-  const rotation = (
+  const rig: IFrame = lookup.frame(body, bone);
+  const axes: IAutoMovieJointAxes | undefined = rig.axes;
+  const rotation: (
+    of: readonly [number, number, number],
+  ) => IAutoMovieQuaternion = (
     of: readonly [number, number, number],
   ): IAutoMovieQuaternion =>
     Quaternion.normalize(
-      jointToQuaternion(
+      jointToQuaternionOnBasis(
         { flexion: of[0], abduction: of[1], twist: of[2] },
-        axes,
+        rig.basis,
         HUMANOID_REST_FRAME[bone],
       ),
     );
@@ -124,14 +288,17 @@ export function blendHumanJoint(
     constraint.swingTwist !== undefined &&
     constraint.swingTwist !== null &&
     axes !== undefined
-      ? swingTwistRange.blend(rotation(from), rotation(to), s, constraint, {
-          axes,
-          frame: HUMANOID_REST_FRAME[bone],
-        })
+      ? swingTwistRange.blend(
+          rotation(from),
+          rotation(to),
+          s,
+          constraint,
+          rig.joint,
+        )
       : Quaternion.normalize(Quaternion.slerp(rotation(from), rotation(to), s));
-  const read: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+  const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
     blended,
-    axes,
+    rig.basis,
     HUMANOID_REST_FRAME[bone],
     {
       bone,

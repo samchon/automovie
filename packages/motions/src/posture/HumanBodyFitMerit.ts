@@ -21,7 +21,7 @@ import type { HumanSequentialConvex } from "./HumanSequentialConvex";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the merit reads, prices and decides, with its sources.
  * @evidence contracts/development/design.md#principled-representation An iterate's reading and its misses row by row, the l1 merit's terms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tolerance, the misses, the evaluation, the merit's inputs and its builder, read by the fit alone.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The fit and support seed selection consume the tolerance, actual misses, evaluation and merit builder; selected support indices also feed the fit's next model.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor, the balance and the pairs are read by their owners; the band and the unit are the rows'.
  */
 export namespace HumanBodyFitMerit {
@@ -61,8 +61,8 @@ export namespace HumanBodyFitMerit {
    * An iterate's reading for the loop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   * @evidence contracts/development/design.md#principled-representation The loop's evaluation with the reading and misses the step's rows and its correction read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members over the loop's.
+   * @evidence contracts/development/design.md#principled-representation The loop's evaluation carries actual reading-specific misses and selected support indices, preserving part order and overlapping-part multiplicity for the step and its correction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the reading, misses and same-reading selected support indices read by the merit and the next convexification.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The loop's own evaluation extended, not restated.
    */
   export interface IEvaluation extends HumanSequentialConvex.IEvaluation {
@@ -71,6 +71,9 @@ export namespace HumanBodyFitMerit {
 
     /** Its misses. */
     misses: IMisses;
+
+    /** The selected lowest candidate for each bearing part with candidates, preserving part order and repeated indices for overlapping parts. */
+    touching: readonly number[];
   }
 
   /**
@@ -112,14 +115,35 @@ export namespace HumanBodyFitMerit {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it reads and returns.
    * @evidence contracts/development/design.md#principled-representation The reading, the merit and the feasibility of one fit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the fit's loop and its result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Evaluation serves the fit and support seed selection; feasibility serves the fit's loop and final result.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts One reading serves the merit and the feasibility.
    */
   export interface IMerit {
-    /** The iterate's reading, misses and merit terms. */
+    /**
+     * The iterate's actual reading, misses, selected supports and merit terms.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the current-coordinate input and actual-reading evaluation result.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the evaluator signature; of owns the physical reading and exact l1 merit body.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here; of assembles the evaluator from the owning floor, goal and balance readers.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature executes no shortcuts; of preserves the actual row measurements and prices.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration performs no work; of documents per-evaluation kinematics and row-reader costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration computes no shared result; of owns same-reading support and centre-displacement reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates nothing; of defines closure inputs and evaluation result ownership.
+     */
     evaluate(x: Float64Array): IEvaluation;
 
-    /** Whether every row holds to the tolerance. */
+    /**
+     * Whether every actual miss holds to its existing physical or numerical
+     * bound, with physical point radii receiving no extra distance allowance.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the actual-miss input, all-row verdict and physical-radius convention.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a feasibility signature; of owns the exact one-sided, two-sided and physical-radius predicates.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here; of provides the ordered row-family checks.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The declaration changes no acceptance rule; of retains each existing tolerance and the zero excess required by a physical radius.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration performs no scan; of owns the short-circuit traversal of current misses.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration retains no verdict; of evaluates the supplied misses anew without copied concatenations.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration allocates nothing; of supplies a boolean operation without retained misses.
+     */
     holds(misses: IMisses): boolean;
   }
 
@@ -133,9 +157,9 @@ export namespace HumanBodyFitMerit {
    * @evidence contracts/development/implementation.md#principled-implementation The l1 merit: the objective's pull plus each row's miss beyond the band at its share of the price; the named bearing parts' points within the bearing margin of their lowest form the balance's base.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one pass of misses, one sum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is priced in the merit as the step's model prices it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluation, linear in the rows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the floor reading, the balance, the pairs' gap and the rows' misses.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the fit's inputs only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per evaluation plus the floor, pair and selected-goal readers' costs; merit summation and feasibility scan the current misses without concatenated copies, and one centre displacement serves all selected axes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the current reading's lowest indices with convexification and its actual positional mass centre with balance; pair gaps and misses stay reading-specific, and a lazy centre displacement is reused only within that same reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures retain the supplied fit inputs and bounded bearing-name set until their owner releases them; each evaluation owns its reading, misses and selected-index array, without a global or previous-reading cache.
    */
   export function of(props: IProps): IMerit {
     const {
@@ -199,10 +223,23 @@ export namespace HumanBodyFitMerit {
       if (props.balance === undefined || props.balance === false)
         return measured;
       if (props.balance === true)
-        return { ...measured, balance: HumanFitBalance.of(body, r.bones) };
+        return {
+          ...measured,
+          balance: HumanFitBalance.of(
+            body,
+            r.bones,
+            undefined,
+            measured.centre,
+          ),
+        };
       return {
         ...measured,
-        balance: HumanFitBalance.of(body, r.bones, supports(r)),
+        balance: HumanFitBalance.of(
+          body,
+          r.bones,
+          supports(r),
+          measured.centre,
+        ),
       };
     };
     const beyond: (miss: number) => number = (miss: number): number =>
@@ -210,12 +247,17 @@ export namespace HumanBodyFitMerit {
 
     // What a reading misses by, row by row: the merit's and the feasibility's
     // one reading of the rows the model linearises.
-    const misses: (r: HumanBodyFitRows.IReading) => IMisses = (
+    const misses: (
       r: HumanBodyFitRows.IReading,
+      touching: readonly number[],
+    ) => IMisses = (
+      r: HumanBodyFitRows.IReading,
+      touching: readonly number[],
     ): IMisses => {
-      const lowest: number[] = HumanBodyFitRows.lowest(r);
+      const lowest: ReadonlySet<number> = new Set(touching);
+      let centreDelta: IAutoMovieVector3 | undefined;
       const floor: number[] = r.heights.map((h: number, c: number): number =>
-        lowest.includes(c) ? Math.abs(h) : -h,
+        lowest.has(c) ? Math.abs(h) : -h,
       );
       const goals: number[][] = targets.map(
         (t: HumanBodyFit.ITarget, k: number): number[] =>
@@ -238,7 +280,10 @@ export namespace HumanBodyFitMerit {
             : HumanFitGoals.directions(props.centre).map(
                 (axis: IAutoMovieVector3): number =>
                   Vector3.dot(
-                    Vector3.subtract(r.centre!, props.centre!.point),
+                    (centreDelta ??= Vector3.subtract(
+                      r.centre!,
+                      props.centre!.point,
+                    )),
                     axis,
                   ),
               ),
@@ -248,10 +293,31 @@ export namespace HumanBodyFitMerit {
         ),
       };
     };
+
+    /** The original one-sided feasibility predicate, shared across its separate row families. */
+    const inside: (d: number) => boolean = (d: number): boolean =>
+      d <= TOLERANCE;
+
+    /** The original two-sided feasibility predicate, with the same absolute tolerance. */
+    const close: (d: number) => boolean = (d: number): boolean =>
+      Math.abs(d) <= TOLERANCE;
+
+    /** Visit array iterators in order, preserving the original spread's treatment of sparse holes. */
+    const all: (
+      values: readonly number[],
+      test: (d: number) => boolean,
+    ) => boolean = (
+      values: readonly number[],
+      test: (d: number) => boolean,
+    ): boolean => {
+      for (const value of values) if (!test(value)) return false;
+      return true;
+    };
     return {
       evaluate: (x: Float64Array): IEvaluation => {
         const r: HumanBodyFitRows.IReading = read(x);
-        const m: IMisses = misses(r);
+        const touching: number[] = HumanBodyFitRows.lowest(r);
+        const m: IMisses = misses(r, touching);
         let pull: number = 0;
         for (let i: number = 0; i < n; i++)
           pull +=
@@ -259,8 +325,9 @@ export namespace HumanBodyFitMerit {
             HumanFitVariables.weight(variables[i]!) *
             (x[i]! - key[i]!) ** 2;
         let violation: number = 0;
-        for (const d of [...m.floor, ...m.balance, ...m.pairs])
-          violation += beyond(d);
+        for (const d of m.floor) violation += beyond(d);
+        for (const d of m.balance) violation += beyond(d);
+        for (const d of m.pairs) violation += beyond(d);
         m.goals.forEach((g: number[], k: number): void => {
           const share: number = (targets[k]!.price ?? price) / price;
           g.forEach((d: number, j: number): void => {
@@ -279,15 +346,20 @@ export namespace HumanBodyFitMerit {
         for (const d of m.centre)
           violation +=
             ((props.centre?.price ?? price) / price) * beyond(Math.abs(d));
-        return { objective: pull, violation: violation * MM, r, misses: m };
+        return {
+          objective: pull,
+          violation: violation * MM,
+          r,
+          misses: m,
+          touching,
+        };
       },
       holds: (m: IMisses): boolean =>
-        [...m.floor, ...m.balance, ...m.pairs].every(
-          (d: number): boolean => d <= TOLERANCE,
-        ) &&
-        [...m.angles, ...m.centre].every(
-          (d: number): boolean => Math.abs(d) <= TOLERANCE,
-        ) &&
+        all(m.floor, inside) &&
+        all(m.balance, inside) &&
+        all(m.pairs, inside) &&
+        all(m.angles, close) &&
+        all(m.centre, close) &&
         m.goals.every((g: number[], k: number): boolean =>
           g.every((d: number, j: number): boolean =>
             targets[k]!.bound !== undefined && j === 0

@@ -4,6 +4,7 @@ import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
+import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 
 /** Selected clinical joints read through the same prepared chain and frames. */
@@ -16,6 +17,9 @@ interface IResolvedPreparedEffectorProps extends Pick<
 
   /** Candidate mid clinical articulation after the same clamping. */
   lower: IAutoMovieJointPose;
+
+  /** Optional matching call-local basis preparation, shared with the inverse solve. */
+  rig?: prepareChainFit.IRig;
 }
 
 /**

@@ -28,9 +28,9 @@ import { nearestAngleAlias } from "./nearestAngleAlias";
  * @evidence contracts/development/implementation.md#principled-implementation On a positive-width box an interior maximum is a top singular pair; a boundary fixes one variable and leaves one sinusoid. Rotation/reflection limiting families include the equal-SVD continuum, whose reference-nearest point is a line projection clipped to the box. Whole-turn lifting uses nearestAngleAlias.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One finite candidate construction separates alias admission, boundaries, the top singular pair and the two reference families; physical joint conversion remains with the caller.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No grid, iterative search, rank cutoff, physical tolerance or fitted answer chooses a candidate. Both singular-vector and all boundary candidates remain present, including beside the reference-family candidates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen pairs and constant-size arithmetic are produced regardless of interval width; only the two phase indices bracketing the admitted reference are needed for each limiting family.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One positive matrix rescaling serves every candidate and each boundary reuses its fixed sine/cosine. The existing angle-alias owner decides interval admission.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pair list and deduplication set are call-local and bounded by eighteen entries; only the new pair list escapes and no input, cache or handle is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen pairs and constant-size arithmetic are produced regardless of interval width. At most twenty full lift computations remain: per axis, three fixed coordinates, one SVD coordinate, two opposite-edge stationary coordinates and four limiting-family coordinates; repeated fixed inputs reuse their original result. Only two phase indices bracketing the reference are needed per family. Exact-duplicate endpoints reduce append attempts before membership without losing a returned pair; runtime speedup remains unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One positive matrix rescaling serves every candidate and each boundary reuses its fixed sine/cosine. Exact-equal endpoints are enumerated once and the endpoint arrays serve corners and edges. Each axis lazily reuses its unchanged minimum/maximum/reference alias, including refused results after the original safe-index check. Numeric pair membership preserves the old string key's zero equivalence without decimal conversion; no candidate or its order changes. Four normalized scalars preserve each division, direct integer guards avoid temporary arrays, and each family's floor/ceil is read once. The existing alias owner still decides admission.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pair list and numeric row/column membership contain at most eighteen pairs. Two endpoint arrays and two three-slot fixed-alias records are call-local; only the new pair list escapes and no input, cache or handle is retained.
  */
 export function bilinearAngleBoxCandidates(
   matrix: readonly [number, number, number, number],
@@ -52,8 +52,21 @@ export function bilinearAngleBoxCandidates(
     Math.max(ranges[0].min, Math.min(ranges[0].max, reference[0])),
     Math.max(ranges[1].min, Math.min(ranges[1].max, reference[1])),
   ];
+  /** Share identical boundaries while keeping distinct signed zeros. */
+  const endpoints: (range: IAutoMovieAngleRange) => number[] = (
+    range: IAutoMovieAngleRange,
+  ): number[] =>
+    Object.is(range.min, range.max) ? [range.min] : [range.min, range.max];
+  const ends: [number[], number[]] = [
+    endpoints(ranges[0]),
+    endpoints(ranges[1]),
+  ];
   const points: [number, number][] = [];
-  const seen: Set<string> = new Set();
+  const seen: Map<number, Set<number>> = new Map();
+  const aliases: [
+    Partial<Record<0 | 1 | 2, number | null>>,
+    Partial<Record<0 | 1 | 2, number | null>>,
+  ] = [{}, {}];
   let representable: boolean = true;
 
   /** Select the admitted full-turn alias nearest this coordinate's reference. */
@@ -62,15 +75,35 @@ export function bilinearAngleBoxCandidates(
     axis: 0 | 1,
   ): number | null => {
     const range: IAutoMovieAngleRange = ranges[axis];
+    // Fixed coordinates are keyed by Object.is, unlike pair membership below.
+    // A refused cached lift has already applied any unsafe-index refusal.
+    const slot: 0 | 1 | 2 | null = Object.is(angle, range.min)
+      ? 0
+      : Object.is(angle, range.max)
+        ? 1
+        : Object.is(angle, anchor[axis])
+          ? 2
+          : null;
+    const known: number | null | undefined =
+      slot === null ? undefined : aliases[axis][slot];
+    if (known !== undefined) return known;
     const first: number = Math.ceil((range.min - angle) / 360);
     const last: number = Math.floor((range.max - angle) / 360);
     const turn: number = Math.round((anchor[axis] - angle) / 360);
-    if (![first, last, turn].every(Number.isSafeInteger)) {
+    let result: number | null;
+    if (
+      !Number.isSafeInteger(first) ||
+      !Number.isSafeInteger(last) ||
+      !Number.isSafeInteger(turn)
+    ) {
       representable = false;
-      return null;
+      result = null;
+    } else {
+      const value: number = nearestAngleAlias(angle + 360 * turn, range);
+      result = value >= range.min && value <= range.max ? value : null;
     }
-    const value: number = nearestAngleAlias(angle + 360 * turn, range);
-    return value >= range.min && value <= range.max ? value : null;
+    if (slot !== null) aliases[axis][slot] = result;
+    return result;
   };
 
   /** Admit an actual pair once; no coordinate is clamped into the interval. */
@@ -81,17 +114,30 @@ export function bilinearAngleBoxCandidates(
     const a: number | null = lift(x, 0);
     const b: number | null = lift(y, 1);
     if (a === null || b === null) return;
-    const key: string = `${a}|${b}`;
-    if (seen.has(key)) return;
-    seen.add(key);
+    // Finite Number::toString keys and numeric membership identify the same
+    // values, merging +/-0. Keep the first actual a,b signs in the output.
+    // ECMA-262 6.1.6.1.20 and 24.5.1 define those two zero conventions.
+    let columns: Set<number> | undefined = seen.get(a);
+    if (columns?.has(b) === true) return;
+    if (columns === undefined) {
+      columns = new Set();
+      seen.set(a, columns);
+    }
+    columns.add(b);
     points.push([a, b]);
   };
   append(anchor[0], anchor[1]);
-  const scale: number = Math.max(...matrix.map(Math.abs));
-  if (scale === 0) return representable ? points : null;
-  const [a, b, c, d]: number[] = matrix.map(
-    (value: number): number => value / scale,
+  const scale: number = Math.max(
+    Math.abs(matrix[0]),
+    Math.abs(matrix[1]),
+    Math.abs(matrix[2]),
+    Math.abs(matrix[3]),
   );
+  if (scale === 0) return representable ? points : null;
+  const a: number = matrix[0] / scale;
+  const b: number = matrix[1] / scale;
+  const c: number = matrix[2] / scale;
+  const d: number = matrix[3] / scale;
   const toDegrees: number = 180 / Math.PI;
   const halfRadians: number = Math.PI / 360;
 
@@ -99,30 +145,29 @@ export function bilinearAngleBoxCandidates(
   // (a+d,c-b)=(s+t)(cos(alpha-beta),sin(alpha-beta)) and
   // (a-d,c+b)=(s-t)(cos(alpha+beta),sin(alpha+beta)).
   // Thus the two phases give the top pair without squaring M's condition.
-  const rotationPhase: number = Math.atan2(c! - b!, a! + d!);
-  const reflectionPhase: number = Math.atan2(c! + b!, a! - d!);
+  const rotationPhase: number = Math.atan2(c - b, a + d);
+  const reflectionPhase: number = Math.atan2(c + b, a - d);
   append(
     (rotationPhase + reflectionPhase) * toDegrees,
     (reflectionPhase - rotationPhase) * toDegrees,
   );
-  for (const x of [ranges[0].min, ranges[0].max])
-    for (const y of [ranges[1].min, ranges[1].max]) append(x, y);
+  for (const x of ends[0]) for (const y of ends[1]) append(x, y);
 
   // A fixed boundary leaves A*cos(variable/2)+B*sin(variable/2).
   // All absolute maxima have atan2(B,A)+k*pi as their half angle.
-  for (const x of [ranges[0].min, ranges[0].max]) {
+  for (const x of ends[0]) {
     const cosine: number = Math.cos(x * halfRadians);
     const sine: number = Math.sin(x * halfRadians);
-    const A: number = a! * cosine + c! * sine;
-    const B: number = b! * cosine + d! * sine;
+    const A: number = a * cosine + c * sine;
+    const B: number = b * cosine + d * sine;
     if (A !== 0 || B !== 0) append(x, 2 * Math.atan2(B, A) * toDegrees);
     append(x, anchor[1]);
   }
-  for (const y of [ranges[1].min, ranges[1].max]) {
+  for (const y of ends[1]) {
     const cosine: number = Math.cos(y * halfRadians);
     const sine: number = Math.sin(y * halfRadians);
-    const A: number = a! * cosine + b! * sine;
-    const B: number = c! * cosine + d! * sine;
+    const A: number = a * cosine + b * sine;
+    const B: number = c * cosine + d * sine;
     if (A !== 0 || B !== 0) append(2 * Math.atan2(B, A) * toDegrees, y);
     append(anchor[0], y);
   }
@@ -140,19 +185,21 @@ export function bilinearAngleBoxCandidates(
     const first: number = Math.ceil((minimum - phaseDegrees) / 360);
     const last: number = Math.floor((maximum - phaseDegrees) / 360);
     const near: number = (anchor[0] - sign * anchor[1] - phaseDegrees) / 360;
+    const below: number = Math.floor(near);
+    const above: number = Math.ceil(near);
     if (
-      ![first, last, Math.floor(near), Math.ceil(near)].every(
-        Number.isSafeInteger,
-      )
+      !Number.isSafeInteger(first) ||
+      !Number.isSafeInteger(last) ||
+      !Number.isSafeInteger(below) ||
+      !Number.isSafeInteger(above)
     ) {
       representable = false;
       return;
     }
     if (first > last) return;
-    const indices: Set<number> = new Set([
-      Math.max(first, Math.min(last, Math.floor(near))),
-      Math.max(first, Math.min(last, Math.ceil(near))),
-    ]);
+    const indices: Set<number> = new Set();
+    indices.add(Math.max(first, Math.min(last, below)));
+    indices.add(Math.max(first, Math.min(last, above)));
     for (const index of indices) {
       const intercept: number = phaseDegrees + 360 * index;
       const low: number = Math.max(

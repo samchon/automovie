@@ -1,13 +1,14 @@
 import {
+  DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
   ROM_TOLERANCE,
-  Vector3,
   clampJointToSkeleton,
-  decomposeJointRotation,
+  decomposeJointRotationOnBasis,
   getConstraint,
-  jointToQuaternion,
+  jointToQuaternionOnBasis,
+  normalizeJointAxes,
   skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
@@ -16,14 +17,16 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
-  IAutoMoviePose,
+  IAutoMovieJointPose,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanArmClearance } from "./HumanArmClearance";
-import type { HumanColliders } from "./HumanColliders";
+import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
+import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
+import { prepareHumanArmChain } from "./prepareHumanArmChain";
+import { resolveHumanArmChain } from "./resolveHumanArmChain";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
@@ -32,6 +35,11 @@ import type { HumanColliders } from "./HumanColliders";
  * the wrist's clinical angles; the arm's forward kinematics from its
  * shoulder in a posed frame (`HumanArmFrame`) and its probes; the shapes
  * in its way and the probes' distances to them are `HumanArmShapes`'.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the nine-coordinate clinical/chart convention, actual FK/probe purpose and separate obstruction owner; the members document rig lifetime and units.
+ * @evidence contracts/development/design.md#principled-representation Fixed setup metadata and per-instant frames feed actual FK in world metres and clinical degrees; one shoulder swing-twist chart avoids a three-angle shoulder discontinuity, with chart dimensions and array sizes remaining caller premises.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The existing setup, conversions and placement serve arm planning, differential feedback and collision checks; shared record shapes live once in HumanArmGeometryTypes and established type names remain aliases here.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No body, pose or target is named as a special case; the existing probe fractions are coarse geometry conventions, while the parent helper still requires a nonroot rig bone and coordinate arrays require nine entries.
  */
 export namespace HumanArmGeometry {
   /** Coordinates of an arm: the shoulder's chart (two) and twist, the elbow's and the wrist's clinical triples. */
@@ -52,136 +60,55 @@ export namespace HumanArmGeometry {
   /** The first of the arm's collider probes among a placed arm's probes, after its eight axis spheres. */
   export const SURFACE: number = 8;
 
-  /** A shape in an arm's way, placed, with its bounding sphere. */
-  export interface IShape {
-    /** The bone the shape's segment rides on. */
-    bone: AutoMovieHumanoidBone;
-    /** The frame's collider part: the body's audit indices first, then the external placed segments in their order in the base. */
-    part: number;
-    /** The segment's world pose. */
-    pose: HumanColliders.IPlaced["pose"];
-    /** The shape in the segment's frame. */
-    shape: HumanColliders.IPlaced["shapes"][number];
-    /** Its bounding sphere's world centre. */
-    centre: IAutoMovieVector3;
-    /** Its bounding sphere's radius, metres. */
-    radius: number;
-  }
+  /**
+   * The shared placed obstruction and bounding sphere record.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Delegates world units, collider ownership and audit ordering to the shared IShape declaration.
+   * @evidence contracts/development/design.md#principled-representation This alias retains the existing public shape name with the same shared world-geometry representation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanArmGeometryTypes owns the fields; shape and trajectory consumers keep their established imports through this alias.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No parallel fields, widened types or fixture-dependent shape are introduced.
+   */
+  export type IShape = T.IShape;
 
-  /** What an arm's coordinates are read with, built once per body and side. */
-  export interface ISetup {
-    /** The body. */
-    body: IHumanBody;
-    /** The arm's three bones. */
-    bones: {
-      /** The upper arm. */
-      upper: AutoMovieHumanoidBone;
-      /** The forearm. */
-      lower: AutoMovieHumanoidBone;
-      /** The hand. */
-      hand: AutoMovieHumanoidBone;
-    };
-    /** Each joint's range; the elbow's and the wrist's may be absent. */
-    constraint: {
-      /** The shoulder's, with its swing-twist record. */
-      upper: IAutoMovieJointConstraint;
-      /** The elbow's. */
-      lower: IAutoMovieJointConstraint | null;
-      /** The wrist's. */
-      hand: IAutoMovieJointConstraint | null;
-    };
-    /** The shoulder's swing-twist frame. */
-    joint: swingTwistRange.IJoint;
-    /** The skeleton's joint axes. */
-    axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-    /** Each bone's rest transform from its parent. */
-    rest: {
-      /** The upper arm's. */
-      upper: IAutoMovieBone["rest"];
-      /** The forearm's. */
-      lower: IAutoMovieBone["rest"];
-      /** The hand's. */
-      hand: IAutoMovieBone["rest"];
-    };
-    /** Whether each coordinate is a freedom of its joint. */
-    free: boolean[];
-  }
+  /**
+   * Fixed rig metadata and lazy actual clamp/basis readers for one arm operation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Delegates members, units and unchanged-operation ownership to the shared ISetup declaration.
+   * @evidence contracts/development/design.md#principled-representation This alias preserves the existing setup name while its shared owner defines the one-operation rig metadata and readers.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface prepare and existing frame, FK, Jacobian and trajectory callers use the same shared setup shape through their current imports.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no alternate representation; required readers are produced by the same prepare entry that all current setup producers call.
+   */
+  export type ISetup = T.ISetup;
 
-  /** What the arm is read against at one instant (`HumanArmFrame.of`). */
-  export interface IFrame {
-    /** The shoulder's parent's world rotation and position. */
-    parent: {
-      /** Its world rotation. */
-      rotation: IAutoMovieQuaternion;
-      /** Its world position. */
-      position: IAutoMovieVector3;
-    };
-    /** The middle fingertip in the hand's frame from the wrist. */
-    tip: IAutoMovieVector3;
-    /** The arm's collider probes (the tangle audit's corners), each in the frame of the arm's segment it rides on (`owners`). */
-    surface: IAutoMovieVector3[];
-    /** The segment of the arm each surface probe rides on. */
-    owners: ("upper" | "lower" | "hand")[];
-    /** A sphere about each segment's surface probes, in that segment's frame: the broad phase that spares the probes of a segment far from a shape. */
-    bounds: Record<
-      "upper" | "lower" | "hand",
-      { centre: IAutoMovieVector3; radius: number }
-    >;
-    /** The tangle audit's part each surface probe belongs to, by the order the colliders are placed. */
-    segments: number[];
-    /** Each surface probe's index among its part's own probes, for the audit's reference depth of it. */
-    corners: number[];
-    /** Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. */
-    related: boolean[][];
-    /** The arm's own collider segments, each in the frame of the arm's segment it rides on: what another moving arm keeps clear of. */
-    colliders: {
-      /** The arm's segment it rides on. */
-      owner: "upper" | "lower" | "hand";
-      /** Its bone. */
-      bone: AutoMovieHumanoidBone;
-      /** The tangle audit's part it is. */
-      part: number;
-      /** Its pose in the riding segment's frame. */
-      pose: HumanColliders.IPlaced["pose"];
-      /** Its shapes. */
-      shapes: HumanColliders.IPlaced["shapes"];
-    }[];
-    /** The shapes in the arm's way. */
-    shapes: IShape[];
-    /** The collider probes in the arm's way (the tangle audit's corners), in the world, the solved arms left out: each one's point, frame part, index among that part's probes, and bone. Includes external bodies, whose frame parts follow the body's audit parts and have no own-body reference depth. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
-    body: {
-      point: IAutoMovieVector3;
-      part: number;
-      corner: number;
-      bone: AutoMovieHumanoidBone;
-    }[];
-  }
+  /**
+   * The shared frame of one instant's parent, probes and surrounding geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Delegates local/world frames, probe ordering and units to the shared IFrame declaration.
+   * @evidence contracts/development/design.md#principled-representation The alias retains the existing per-instant frame identity and all parallel-array invariants of its shared owner.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanArmFrame, FK and collision consumers keep the current name while the fields have one owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No duplicate geometry, additional optional state or widened collider type is created.
+   */
+  export type IFrame = T.IFrame;
 
-  /** The arm placed: its probes and its segments' world frames. */
-  export interface IPlaced {
-    /** Each probe's world point and radius: eight axis spheres (two on the upper arm, four on the forearm to the wrist, two on the hand), then the collider probes with radius 0. */
-    probes: readonly (readonly [IAutoMovieVector3, number])[];
-    /** The shoulder's world point. */
-    shoulder: IAutoMovieVector3;
-    /** The elbow's world point. */
-    elbow: IAutoMovieVector3;
-    /** The upper arm's world rotation. */
-    upper: IAutoMovieQuaternion;
-    /** The forearm's world rotation. */
-    lower: IAutoMovieQuaternion;
-    /** The wrist's world point. */
-    wrist: IAutoMovieVector3;
-    /** The hand's world rotation. */
-    hand: IAutoMovieQuaternion;
-  }
+  /**
+   * The shared FK/probe result of one arm candidate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Delegates world positions, rotations and fixed probe-prefix meaning to the shared IPlaced declaration.
+   * @evidence contracts/development/design.md#principled-representation The alias preserves the same placed world geometry and ordered point/radius observations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Placement, differentiation and trajectory costs retain the established name and share one field owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No new approximation, alternate collider or fixture-dependent output is introduced by this alias.
+   */
+  export type IPlaced = T.IPlaced;
 
-  /** The pose an arm is read in and another body's colliders in its way. */
-  export interface IBase {
-    /** The pose, the arms of the problem in it ignored. */
-    pose: IAutoMoviePose;
-    /** Another body's placed colliders. */
-    others: readonly HumanColliders.IPlaced[];
-  }
+  /**
+   * The shared source pose and external colliders from which an arm frame is built.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Delegates ignored moving-arm joints and borrowed external world placements to the shared IBase declaration.
+   * @evidence contracts/development/design.md#principled-representation The alias preserves the existing two-input frame-construction contract and borrowed geometry.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Current mirror, frame and trajectory callers keep their existing name with one definition of its members.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not add cached pose results, fixture-specific partners or deep-immutability claims.
+   */
+  export type IBase = T.IBase;
 
   /**
    * An arm's setup.
@@ -189,6 +116,14 @@ export namespace HumanArmGeometry {
    * @param body The body.
    * @param side The arm.
    * @returns The setup.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the body, arm and returned setup; the namespace and setup members define coordinate units, clinical frames and carried rig data.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves this skeleton's current declared axes over the canonical family once, then uses that same table for the shoulder's swing-twist frame and every setup FK/chart reading; constraints retain first-matching-bone/default precedence.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axes table and one setup record pair the three actual arm bones, effective constraints, rest transforms and mobile-axis flags; the engine fromAxes constructor owns the shoulder's canonical rest-frame pairing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No authored angle, ROM limit or rest transform is approximated, and the required upper-arm domain and actual rig bones remain caller premises rather than fabricated defaults.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Initial preparation is O(B) for B bones; the first requested clamps lazily index B bones and D requested names, and bases are admitted once per name. Later requests still perform actual projection/composition, with no repeated skeleton merge or lookup scan; separate setups each read current rig data and no measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One resolved axes table serves the shoulder frame and every FK/chart reading, and lazy per-name clamps/bases are shared only within this unchanged setup; a later preparation reads current skeleton contents instead of using a skeleton-identity snapshot.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the setup, its optional B-bone clamp index, at most D clamp/basis entries, one lazy shoulder-frame basis and one derived axes table, borrowing body/rest/constraint/axis records; all setup state is released with the operation without a global skeleton map.
    */
   export function prepare(body: IHumanBody, side: "left" | "right"): ISetup {
     const bones: ISetup["bones"] = {
@@ -196,28 +131,31 @@ export namespace HumanArmGeometry {
       lower: `${side}LowerArm`,
       hand: `${side}Hand`,
     };
-    const constraint = (
+    const constraint: (
+      bone: AutoMovieHumanoidBone,
+    ) => IAutoMovieJointConstraint | null = (
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieJointConstraint | null =>
       getConstraint(bone, find(body, bone).constraint ?? null);
-    let axes:
-      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-      | undefined = AXES.get(body.skeleton);
-    if (axes === undefined) {
-      axes = skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
-      AXES.set(body.skeleton, axes);
-    }
+    const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+      skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
     const lower: IAutoMovieJointConstraint | null = constraint(bones.lower);
     const hand: IAutoMovieJointConstraint | null = constraint(bones.hand);
-    const has = (
+    const has: (
+      c: IAutoMovieJointConstraint | null,
+      key: "flexion" | "abduction" | "twist",
+    ) => boolean = (
       c: IAutoMovieJointConstraint | null,
       key: "flexion" | "abduction" | "twist",
     ): boolean => c === null || c[key] !== null;
+    const bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes> = new Map();
     return {
       body,
       bones,
       constraint: { upper: constraint(bones.upper)!, lower, hand },
-      joint: swingTwistRange.of(bones.upper, body.skeleton)!,
+      joint: swingTwistRange.prepare(
+        swingTwistRange.fromAxes(bones.upper, axes[bones.upper])!,
+      ),
       axes,
       rest: {
         upper: find(body, bones.upper).rest,
@@ -235,6 +173,22 @@ export namespace HumanArmGeometry {
         has(hand, "abduction"),
         has(hand, "twist"),
       ],
+      clamp: clampJointToSkeleton.prepare(body.skeleton, axes),
+      basis: (
+        bone: AutoMovieHumanoidBone,
+        path: string,
+      ): IAutoMovieJointAxes => {
+        let basis: IAutoMovieJointAxes | undefined = bases.get(bone);
+        if (basis === undefined) {
+          const source: IAutoMovieJointAxes | undefined = axes[bone];
+          basis = normalizeJointAxes(
+            source === undefined ? DEFAULT_JOINT_AXES : source,
+            path,
+          );
+          bases.set(bone, basis);
+        }
+        return basis;
+      },
     };
   }
 
@@ -244,6 +198,14 @@ export namespace HumanArmGeometry {
    * @param body The body.
    * @param bone The bone.
    * @returns Its parent bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the requested bone and returned parent; the namespace documents the nonroot-bone premise.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the first matching actual skeleton bone's declared parent, the same parent link used by FK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared bone lookup and one parent read keep the hierarchy with its rig owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The existing cast assumes an actual nonroot arm bone; missing or null-parent input is outside that caller premise and is not repaired or newly admitted here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) first-match scan over B skeleton bones, with constant output space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the local first-bone lookup owner and returns the actual parent name; no hierarchy snapshot is retained across calls.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns one borrowed semantic bone name.
    */
   export function parent(
     body: IHumanBody,
@@ -254,13 +216,21 @@ export namespace HumanArmGeometry {
 
   /**
    * A joint's articulation from its clinical triple, clamped to the
-   * skeleton's range as the engine's forward kinematics clamps it
-   * (`clampJointToSkeleton`), so the arm planned is the arm shown.
+   * skeleton's range (`clampJointToSkeleton`), using the same clinical
+   * articulation as the displayed posture, so the arm planned is the arm shown.
    *
    * @param setup The arm.
    * @param bone The joint's bone.
    * @param of Its flexion, abduction and twist, degrees.
    * @returns The rotation from the bone's rest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States clinical degree inputs, rig-ROM projection and the returned rest-relative articulation used by displayed FK.
+   * @evidence contracts/development/implementation.md#principled-implementation First runs the setup's actual skeleton clamp, then admits its clinical basis at the original jointToQuaternion path and composes through jointToQuaternionOnBasis with the canonical rest frame, retaining final quaternion normalization.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared clamped triple, lazy basis reader and engine composition separate rig metadata from each requested numerical rotation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No articulation is replayed or approximated; basis admission remains after the clamp and before angle/frame composition, and failed admission is not stored.
+   * @evidence contracts/development/implementation.md#efficient-algorithms After operation metadata is prepared, one actual clamp and fixed-size quaternion composition per call; each requested basis is admitted once rather than rechecking its unchanged components per candidate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares only setup-scoped constraint/frame/basis preparation under the unchanged-body premise; every incoming clinical triple still produces its own computed quaternion.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned quaternion; preparation belongs to the supplied setup, and this call retains no angle or rotation result.
    */
   export function rotation(
     setup: ISetup,
@@ -273,9 +243,9 @@ export namespace HumanArmGeometry {
       of,
     );
     return Quaternion.normalize(
-      jointToQuaternion(
+      jointToQuaternionOnBasis(
         { flexion, abduction, twist },
-        setup.axes[bone],
+        setup.basis(bone, "jointToQuaternion axes"),
         HUMANOID_REST_FRAME[bone],
       ),
     );
@@ -289,16 +259,26 @@ export namespace HumanArmGeometry {
    * @param bone The joint's bone.
    * @param of Its flexion, abduction and twist, degrees.
    * @returns The clamped triple.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the clinical degree triple, actual skeleton-ROM projection and its relationship to rotation.
+   * @evidence contracts/development/implementation.md#principled-implementation Converts the triple to the existing joint record, applies the setup's actual clamp and reads the same three projected axes, preserving the existing null-to-zero lowering.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint adapter delegates projection to the shared engine clamp factory instead of rebuilding rig metadata in each FK candidate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the first matching rig override and canonical fallback through the existing clamp owner; no cached joint result or relaxed ROM substitutes for projection.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Initial setup metadata is O(B+D) across B bones and D requested names; each later call performs the existing numerical projection and constant-size record/triple conversion without a bone scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the setup's operation-scoped clamp metadata for its unchanged skeleton while projecting every actual triple separately.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only temporary input/result records and one caller-owned triple are allocated; metadata lifetime belongs to the supplied setup and no projected answer is retained.
    */
   export function clamped(
     setup: ISetup,
     bone: AutoMovieHumanoidBone,
     of: readonly [number, number, number],
   ): [number, number, number] {
-    const joint: ReturnType<typeof clampJointToSkeleton> = clampJointToSkeleton(
-      { bone, flexion: of[0], abduction: of[1], twist: of[2] },
-      setup.body.skeleton,
-    );
+    const joint: IAutoMovieJointPose = setup.clamp({
+      bone,
+      flexion: of[0],
+      abduction: of[1],
+      twist: of[2],
+    });
     return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
   }
 
@@ -308,6 +288,14 @@ export namespace HumanArmGeometry {
    * @param setup The arm.
    * @param arm Its clinical triples.
    * @returns The coordinates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the arm's clinical triples and returned coordinates; the namespace defines shoulder chart scaling and elbow/wrist degree coordinates.
+   * @evidence contracts/development/implementation.md#principled-implementation Projects the incoming shoulder as its actual displayed rotation, maps it through the swing-twist chart, scales its two disc coordinates by SCALE and appends separately projected elbow/wrist clinical triples.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder chart plus two clamped triples assemble the existing nine-coordinate order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range source angles enter as the actually clamped arm; the existing SCALE changes coordinate units rather than fitting a desired answer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three actual joint projections and one chart lookup with fixed-size output, after one-time setup metadata and the existing region-table preparation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the setup's fixed chart frame, operation-scoped clamps/basis and existing region table; each supplied arm is encoded anew.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one caller-owned nine-entry array and retains no source arm or coordinate result; shared rig metadata remains setup-owned.
    */
   export function encode(setup: ISetup, arm: HumanArmClearance.IArm): number[] {
     const place: { x: number; y: number; twist: number } =
@@ -337,6 +325,14 @@ export namespace HumanArmGeometry {
    * @param setup The arm.
    * @param c The coordinates.
    * @returns The shoulder's rotation from its rest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the chart's antipodal singularity, the ROM_TOLERANCE angular margin and returned shoulder articulation.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the region radius at the coordinate's azimuth, scales only a swing reaching the antipode back to 180 minus ROM_TOLERANCE degrees and applies the existing inverse swing-twist chart.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coordinate norm, one admissible radial scale and one engine chart inversion expose the singularity handling.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The existing angular resolution keeps the undefined antipode outside the chart and does not widen a ROM bound; coordinates require the existing finite nine-entry caller contract and valid shoulder domain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and two existing region-radius/chart queries after the shared region table is prepared; no skeleton traversal or limb solve occurs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the unchanged setup shoulder constraint/frame and existing cached region table, recomputing the requested coordinate's actual rotation each call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no coordinates or result; the caller owns the returned quaternion and the region cache remains with its existing owner.
    */
   export function shoulder(
     setup: ISetup,
@@ -364,15 +360,23 @@ export namespace HumanArmGeometry {
    * @param setup The arm.
    * @param c The coordinates.
    * @returns The triples.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate input and returned clinical triples; the namespace documents their units and coordinate order.
+   * @evidence contracts/development/implementation.md#principled-implementation Decodes the shoulder's actual chart rotation through its lazily admitted basis at the original decomposeJointRotation path, canonical rest frame and box-only ROM copy to choose an equivalent clinical reading; elbow/wrist coordinates remain their supplied degree triples.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder chart inversion/decomposition and two direct triple slices preserve the established representation boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Clearing swingTwist only for the decomposition's chart preference avoids a second radial projection; lower/hand coordinates are not silently clamped here, and consumers requiring display projection call rotation or clamped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size chart inversion, existing Euler decomposition and three output triples, with no bone scan or limb search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the setup's actual axes, canonical rest frame and shoulder constraint while decoding each coordinate vector independently.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns caller-owned triples and a wrapper, with only a temporary constraint copy and no retained coordinate population.
    */
   export function arm(
     setup: ISetup,
     c: readonly number[],
   ): HumanArmClearance.IArm {
     const read: { flexion: number; abduction: number; twist: number } =
-      decomposeJointRotation(
+      decomposeJointRotationOnBasis(
         shoulder(setup, c),
-        setup.axes[setup.bones.upper],
+        setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
         HUMANOID_REST_FRAME[setup.bones.upper],
         {
           bone: setup.bones.upper,
@@ -387,6 +391,53 @@ export namespace HumanArmGeometry {
   }
 
   /**
+   * The actual arm chain at coordinates, without fingertip or probe observations.
+   *
+   * @param setup The unchanged arm rig metadata.
+   * @param at The instant's shoulder-parent frame.
+   * @param c The nine arm coordinates.
+   * @returns Fresh world joint positions in metres and segment rotations.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States actual FK, omitted observations, coordinate/frame inputs and fresh world-metre/rotation outputs.
+   * @evidence contracts/development/implementation.md#principled-implementation Performs the original parent-first upper/forearm/hand compositions in the same order; an actual full-FK shoulder point for the same unchanged parent/rest frame is copied when present, otherwise the original offset calculation runs. Joint projection/chart owners and ignored rest scale are unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the one FK body to resolveHumanArmChain with the existing pure shoulder/rotation functions; full placement attaches observations afterwards and an explicit derivative reader may share exact local work through that same body.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recomputes every joint's actual transform for this candidate and parent frame; omits only unused fingertip/probe construction and caches no chain result or projection.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed three-joint FK, one chart inversion and two actual joint projections after setup/region preparation, without the eight axis probes or P collider transforms; full placement pays one additional fixed-size intermediate chain record.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses unchanged setup metadata and, when supplied, the exact completed full-FK shoulder point for the same parent/rest dependencies with a fresh output copy; each candidate's world rotations and remaining joint positions are recomputed.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one fresh chain record and its six world vectors/quaternions; no input frame, candidate or computed chain is retained after return.
+   */
+  export function chain(
+    setup: ISetup,
+    at: IFrame,
+    c: readonly number[],
+  ): Omit<IPlaced, "probes"> {
+    return resolveHumanArmChain(setup, at, c, shoulder, rotation);
+  }
+
+  /**
+   * Read chains during one synchronous derivative invocation, sharing only
+   * completed identical local articulations under its unchanged setup/frame.
+   *
+   * @param setup The actual prepare-produced setup, unchanged for this derivative.
+   * @param at This derivative's unchanged frame.
+   * @returns A local chain reader, released when the derivative finishes or throws.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the one-derivative scope, unchanged dependencies, exact local-work reuse and caller release boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation A local shoulder or joint rotation depends only on its exact three coordinates, bone and fixed rig/domain; prepareHumanArmChain compares with Object.is and shares successful identical local work while recomputing the complete world prefix for every query.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One explicit prepared reader wraps the same pure shoulder/rotation owners used by cold chain; resolveHumanArmChain remains the single hierarchy implementation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every distinct local input still executes actual projection/composition, failures are not remembered and no target/user callback or final world-chain result is cached; private frozen quaternion copies cannot escape through mutable outputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant three-scalar equality work per local reader query, with the original numerical primitive on a miss and fixed world FK every time; at most one shoulder and two joint entries are held, without a runtime speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader's single unchanged setup/frame/domain scope and bone plus Object.is-equal local triples prove equivalence; keys snapshot scalars, input coordinate buffers are not retained and output world records are fresh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One derivative invocation owns the reader, three latest local entries and borrowed setup/frame until completion or failure; no global collection or cross-fit, seed, instant or trajectory memo is introduced.
+   */
+  export function prepareChain(
+    setup: ISetup,
+    at: IFrame,
+  ): (c: readonly number[]) => Omit<IPlaced, "probes"> {
+    return prepareHumanArmChain(setup, at, shoulder, rotation);
+  }
+
+  /**
    * The arm placed in a frame.
    *
    * @param setup The arm.
@@ -394,6 +445,14 @@ export namespace HumanArmGeometry {
    * @param c The coordinates.
    * @param surface Whether to place the collider probes too.
    * @returns The arm placed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the setup/frame/coordinate inputs, optional collider-probe placement and returned actual arm geometry.
+   * @evidence contracts/development/implementation.md#principled-implementation Parent-first quaternion/rest-offset FK places the upper arm, forearm, hand and fingertip; the shoulder uses chart inversion, lower/hand joints use actual ROM projection and clinical composition, and local surface probes follow their declared carrying segment.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain call feeds the probe attachment owner, so derivative readers share the same actual FK while full placement retains the fixed eight axis probes and optional surface map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing coarse axis-probe fractions and radius taper conventions unchanged, without claiming measured anatomy or an exact collider surface; surface probes retain zero radius and aligned owner indices remain a frame-producer premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms After setup metadata and region preparation, fixed three-joint FK, eight axis probes and O(P) requested surface transforms; one additional fixed-size chain record separates these phases, and disabling surface skips only its existing map.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses one unchanged setup's rig axes/clamps/bases, rest transforms and shoulder chart, but all world frames, joint projections and selected probe positions are actually computed for this candidate and instant.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh placed record and eight-plus-P probe array; the temporary chain wrapper is released after attachment and its world vectors stay shared with the output, with no retained candidate or frame.
    */
   export function placed(
     setup: ISetup,
@@ -401,84 +460,9 @@ export namespace HumanArmGeometry {
     c: readonly number[],
     surface: boolean = true,
   ): IPlaced {
-    const rest: ISetup["rest"] = setup.rest;
-    const parent: IFrame["parent"] = at.parent;
-    const wu: IAutoMovieQuaternion = Quaternion.multiply(
-      parent.rotation,
-      Quaternion.multiply(rest.upper.rotation, shoulder(setup, c)),
-    );
-    const pu: IAutoMovieVector3 = Vector3.add(
-      parent.position,
-      Quaternion.rotateVector(parent.rotation, rest.upper.translation),
-    );
-    const wl: IAutoMovieQuaternion = Quaternion.multiply(
-      wu,
-      Quaternion.multiply(
-        rest.lower.rotation,
-        rotation(setup, setup.bones.lower, [c[3]!, c[4]!, c[5]!]),
-      ),
-    );
-    const pl: IAutoMovieVector3 = Vector3.add(
-      pu,
-      Quaternion.rotateVector(wu, rest.lower.translation),
-    );
-    const wh: IAutoMovieQuaternion = Quaternion.multiply(
-      wl,
-      Quaternion.multiply(
-        rest.hand.rotation,
-        rotation(setup, setup.bones.hand, [c[6]!, c[7]!, c[8]!]),
-      ),
-    );
-    const ph: IAutoMovieVector3 = Vector3.add(
-      pl,
-      Quaternion.rotateVector(wl, rest.hand.translation),
-    );
-    const tip: IAutoMovieVector3 = Vector3.add(
-      ph,
-      Quaternion.rotateVector(wh, at.tip),
-    );
-    const m: IHumanBody["measure"] = setup.body.measure;
-    return {
-      probes: [
-        [Vector3.lerp(pu, pl, 0.5), m.upperArmRadius],
-        [Vector3.lerp(pu, pl, 0.8), (m.upperArmRadius + m.forearmRadius) / 2],
-        [pl, m.forearmRadius],
-        [Vector3.lerp(pl, ph, 1 / 3), m.forearmRadius * 0.9],
-        [Vector3.lerp(pl, ph, 2 / 3), m.forearmRadius * 0.8],
-        [ph, m.forearmRadius * 0.7],
-        [Vector3.lerp(ph, tip, 0.5), m.forearmRadius * 0.6],
-        [tip, m.forearmRadius * 0.4],
-        ...(surface ? at.surface : []).map(
-          (
-            s: IAutoMovieVector3,
-            i: number,
-          ): readonly [IAutoMovieVector3, number] => {
-            const owner: "upper" | "lower" | "hand" = at.owners[i]!;
-            const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
-              owner === "upper"
-                ? [pu, wu]
-                : owner === "lower"
-                  ? [pl, wl]
-                  : [ph, wh];
-            return [Vector3.add(o, Quaternion.rotateVector(w, s)), 0];
-          },
-        ),
-      ],
-      shoulder: pu,
-      elbow: pl,
-      upper: wu,
-      lower: wl,
-      wrist: ph,
-      hand: wh,
-    };
+    return placeHumanArmGeometry(setup, at, chain(setup, at, c), surface);
   }
 }
-
-/** The skeleton's joint axes, read once per skeleton. */
-const AXES: WeakMap<
-  object,
-  Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-> = new WeakMap();
 
 /** A bone of the body's skeleton. */
 function find(body: IHumanBody, bone: AutoMovieHumanoidBone): IAutoMovieBone {

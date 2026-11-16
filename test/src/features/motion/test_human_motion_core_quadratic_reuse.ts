@@ -1,6 +1,8 @@
 import { HumanQuadraticProgram } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/nclose";
+
 /**
  * Reusing a quadratic problem's preparation preserves the KKT solution when
  * numeric inputs change, and each solve owns its returned iterates.
@@ -10,20 +12,26 @@ import { TestValidator } from "@nestia/e2e";
  *    a soft weight and hard/soft classification. The scalar minimiser of
  *    p x²/2 + q x is -q/p projected onto a hard interval; a soft lower row
  *    balances its l1 slope with p x + q until its kink.
- * 2. Unsorted duplicate entries and positive/negative zero keep the equality
- *    x+2y=5, whose minimum-norm solution is (1,2). Empty hard rows retain
+ * 2. Sorted and unsorted duplicate entries and positive/negative zero keep
+ *    the equality x+2y=5, whose minimum-norm solution is (1,2). The sorted
+ *    row repeats index 0 with two half coefficients, so skipping the first
+ *    equal-index curvature term changes the result. Empty hard rows retain
  *    feasibility, and an empty soft row adds exactly its constant penalty.
  * 3. Original invalid entries, including zero-coefficient entries and sparse
- *    rows, are refused before compression can hide them.
+ *    rows and nonfinite supplied curvature padding, are refused before
+ *    compression can hide them; finite ignored padding remains admitted.
+ * 4. Manual warm arrays remain unchanged and separate from every returned
+ *    channel. The same free scalar minimum is x=z=2 with multiplier y=0;
+ *    changing the caller's returned x cannot change z, y or the warm input.
  *
  * Every minimiser retains the existing QP test's 1e-6 bound. A fresh numeric
  * copy checks preparation isolation in addition to the hand-derived answer;
  * equal solutions alone do not prove scaling or factor reuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States all mutations, analytic solutions, admission cases and the precision inherited from the existing QP test.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public solver repeatedly with the same preparation identity, reads actual iterates and objective, and checks that later solves leave every earlier x/z/y array unchanged.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public solver repeatedly with the same preparation identity, reads actual iterates and objective, checks that later solves leave every earlier x/z/y array unchanged, and observes manual-warm input and returned-channel isolation.
  * @evidence contracts/development/testing.md#independent-expectations Scalar derivatives, the minimum-norm equality solution (1,2), and an empty row's constant l1 penalty give the expected values without invoking another solver.
- * @evidence contracts/development/testing.md#distinguishing-cases Changes each numeric dependency separately without warm iterates; covers hard/soft and bound-class transitions, unordered duplicate and zero entries, empty rows, invalid original spans, nonfinite coefficients and sparse input.
+ * @evidence contracts/development/testing.md#distinguishing-cases Changes each numeric dependency separately without warm iterates; covers hard/soft and bound-class transitions, sorted/unsorted duplicate and zero entries, empty rows, invalid original spans, finite/nonfinite ignored curvature padding, nonfinite coefficients, sparse input and independently supplied warm arrays whose returned channels can be mutated separately.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable CPU unit owns its small numerical inputs and prior results; no process, host, renderer or external solver is started.
  */
 export function test_human_motion_core_quadratic_reuse(): void {
@@ -111,6 +119,55 @@ export function test_human_motion_core_quadratic_reuse(): void {
     rows: [{ index: [0], coef: [1], l: -Infinity, u: Infinity }],
   };
   check("initial free row", scalar, [2]);
+
+  // A free row has z=x and zero multiplier; warm iterates are caller-owned.
+  const warm: HumanQuadraticProgram.IState = {
+    x: Float64Array.of(7),
+    z: Float64Array.of(-3),
+    y: Float64Array.of(0.25),
+  };
+  const warmed: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
+    scalar,
+    warm,
+  );
+  if (
+    !(
+      (warmed.status === "solved" || warmed.status === "polished") &&
+      nclose(warmed.x[0]!, 2, 1e-6) &&
+      nclose(warmed.z[0]!, 2, 1e-6) &&
+      nclose(warmed.y[0]!, 0, 1e-6)
+    )
+  )
+    complaints.push("manual warm start changed the scalar KKT solution");
+  for (const [channel, expected] of [
+    ["x", 7],
+    ["z", -3],
+    ["y", 0.25],
+  ] as const)
+    if (
+      !(
+        warm[channel].length === 1 &&
+        warmed[channel].length === 1 &&
+        nclose(warm[channel][0]!, expected, 0) &&
+        warmed[channel] !== warm[channel]
+      )
+    )
+      complaints.push(`manual warm ${channel} was modified or borrowed`);
+  warmed.x[0] = 17;
+  if (
+    !(
+      nclose(warmed.z[0]!, 2, 1e-6) &&
+      nclose(warmed.y[0]!, 0, 1e-6) &&
+      nclose(warm.x[0]!, 7, 0)
+    )
+  )
+    complaints.push("returned primal x aliases another channel or warm input");
+  saved.push({
+    state: warmed,
+    x: Array.from(warmed.x),
+    z: Array.from(warmed.z),
+    y: Array.from(warmed.y),
+  });
   scalar.q[0] = -6;
   check("same P, changed q", scalar, [3]);
   scalar.p[0]![0] = 3;
@@ -140,6 +197,14 @@ export function test_human_motion_core_quadratic_reuse(): void {
     rows: [{ index: [1, 0, 1, 0, 1], coef: [1, 1, 1, 0, -0], l: 5, u: 5 }],
   };
   check("unsorted duplicates and both zeros", unordered, [1, 2]);
+  check(
+    "sorted duplicates retain the first equal index",
+    {
+      ...unordered,
+      rows: [{ index: [0, 0, 1], coef: [0.5, 0.5, 2], l: 5, u: 5 }],
+    },
+    [1, 2],
+  );
   unordered.rows = [
     ...unordered.rows,
     { index: [], coef: [], l: 0, u: 0 },
@@ -157,6 +222,14 @@ export function test_human_motion_core_quadratic_reuse(): void {
   unordered.rows = [{ index: [], coef: [], l: 1, u: 1 }];
   if (HumanQuadraticProgram.solve(unordered).status !== "infeasible")
     complaints.push("empty hard 0=1 row lost its infeasibility");
+  check(
+    "finite unused curvature padding remains admitted",
+    {
+      ...scalar,
+      p: [Float64Array.of(1, 7)],
+    },
+    [3],
+  );
 
   const invalid: readonly (readonly [
     string,
@@ -188,6 +261,10 @@ export function test_human_motion_core_quadratic_reuse(): void {
       },
     ],
     ["curvature NaN", { ...scalar, p: [Float64Array.of(NaN)] }],
+    [
+      "unused curvature padding NaN",
+      { ...scalar, p: [Float64Array.of(1, NaN)] },
+    ],
     ["linear term infinity", { ...scalar, q: Float64Array.of(Infinity) }],
     [
       "reversed bounds",

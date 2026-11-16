@@ -1,10 +1,11 @@
 import {
-  type IAutoMovieResolvedBone,
+  type IAutoMovieChainBone,
   Quaternion,
   Vector3,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -33,20 +34,25 @@ import type { IHumanPosture } from "./IHumanPosture";
  * and the hand carried with it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a column holds, the two kinds of coordinate and where each motion comes from.
- * @evidence contracts/development/implementation.md#principled-implementation The geometric Jacobian of a serial chain (Siciliano et al. 2009, section 3.1.3) from the shared joint-axis owner, composed with the chart's derivative for the coordinates the chart maps; TrajOpt linearises each pair's distance on these columns (Schulman et al. 2014).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the joint axes for the elbow and the wrist, one central difference of the chart per shoulder coordinate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The joint axes are `HumanJacobian`'s, not derived again; the chart's step is a thousandth of a coordinate unit, where a central difference of the smooth chart is exact to the square of it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Per waypoint one joint-axis read and two chart rotations per shoulder coordinate, no placement of the arm or its probes.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per waypoint and iterate by the convex model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+ * @evidence contracts/development/design.md#principled-representation Segment-origin twists are the geometric serial-chain Jacobian (Siciliano et al. 2009, section 3.1.3), composed with the existing swing-twist coordinate chart's derivative.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Ordered segment columns and one placed-chain reader serve trajectory linearisation and the public derivative checks.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Joint-axis math and actual clinical projections remain with HumanJacobian; this adapter preserves chart steps, clamped zero columns and free-coordinate order.
  */
 export namespace HumanArmJacobian {
-  /** One coordinate's motion of the arm's three segments, per coordinate unit: radians and metres at each segment's origin (the shoulder, the elbow, the wrist). */
+  /** One coordinate's motion of the arm's three segments, per coordinate unit: radians and metres at each segment's origin (the shoulder, the elbow, the wrist).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines angular and linear units at the three physical segment origins.
+   * @evidence contracts/development/design.md#principled-representation Three existing HumanJacobian twists describe one coordinate's rigid segment motion.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Probe, contact and orientation derivatives consume these three segments.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No alternate joint axis or finite probe approximation is stored.
+   */
   export interface IColumn {
     /** The upper arm's twist. */
     upper: HumanJacobian.ITwist;
+
     /** The forearm's twist. */
     lower: HumanJacobian.ITwist;
+
     /** The hand's twist. */
     hand: HumanJacobian.ITwist;
   }
@@ -57,40 +63,39 @@ export namespace HumanArmJacobian {
    * @param setup The arm.
    * @param at The frame.
    * @param c The coordinates.
-   * @param placed The arm placed at them (`HumanArmGeometry.placed`).
+   * @param placed The arm's actual chain placed at them (`HumanArmGeometry.chain`, also included in placed).
    * @param free The free coordinates, in order.
    * @returns One column per free coordinate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies actual placed FK, original coordinate order and the free-column result.
+   * @evidence contracts/development/implementation.md#principled-implementation Reuses the geometric joint-axis reading for elbow/wrist coordinates and the existing two-sided shoulder-chart angular difference; clamped coordinates still produce zero columns.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Supply three actual world segment frames, read joint motions and their exact projections together, then map each requested free coordinate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all six joint-axis queries, numerical clamp values, STEP, quaternion multiplication order and near-zero angular threshold; no analytical chart approximation replaces the existing central difference.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One joint-axis reading per candidate and two chart evaluations per shoulder coordinate, with one perturbation array, fixed canonical variable-label tables and no unused local-rotation inverses/products.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the already placed world fields required by the shared chain-bone contract and uses the shared reader's actual lower/hand projections instead of projecting those joints twice again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh column records and releases its coordinate scratch after the call. Two fixed six-entry variable-label tables retain only canonical bone names/axes, never a body, pose or numerical result; noncanonical pairs allocate call-local labels instead.
    */
   export function columns(
     setup: G.ISetup,
     at: G.IFrame,
     c: readonly number[],
-    placed: G.IPlaced,
+    placed: IChain,
     free: readonly number[],
   ): IColumn[] {
-    const { upper, lower, hand } = setup.bones;
-    const resolved = (
-      bone: AutoMovieHumanoidBone,
-      worldPosition: IAutoMovieVector3,
-      worldRotation: IAutoMovieQuaternion,
-      parent: IAutoMovieQuaternion,
-    ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-      bone,
-      {
-        bone,
-        localRotation: Quaternion.multiply(
-          Quaternion.inverse(parent),
-          worldRotation,
-        ),
-        worldPosition,
-        worldRotation,
-      },
-    ];
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
-      resolved(upper, placed.shoulder, placed.upper, at.parent.rotation),
-      resolved(lower, placed.elbow, placed.lower, placed.upper),
-      resolved(hand, placed.wrist, placed.hand, placed.lower),
-    ]);
+    const { upper, lower, hand }: G.ISetup["bones"] = setup.bones;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieChainBone> = new Map();
+    bones.set(upper, {
+      worldPosition: placed.shoulder,
+      worldRotation: placed.upper,
+    });
+    bones.set(lower, {
+      worldPosition: placed.elbow,
+      worldRotation: placed.lower,
+    });
+    bones.set(hand, {
+      worldPosition: placed.wrist,
+      worldRotation: placed.hand,
+    });
     const posture: IHumanPosture = {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
@@ -102,22 +107,37 @@ export namespace HumanArmJacobian {
       },
       limbs: {},
     };
-    const joints: (HumanJacobian.IMotion | undefined)[] = HumanJacobian.of(
+    const reading: ReturnType<typeof HumanJacobian.read> = HumanJacobian.read(
       setup.body,
       posture,
       bones,
-      [3, 4, 5, 6, 7, 8].map(
-        (d: number): HumanJacobian.IVariable => ({
-          kind: "angle",
-          bone: d < 6 ? lower : hand,
-          axis: AXES[d % 3]!,
-        }),
-      ),
+      lower === "leftLowerArm" && hand === "leftHand"
+        ? JOINTS.left
+        : lower === "rightLowerArm" && hand === "rightHand"
+          ? JOINTS.right
+          : jointVariables(lower, hand),
     );
-    const kept: [number, number, number][] = [
-      G.clamped(setup, lower, [c[3]!, c[4]!, c[5]!]),
-      G.clamped(setup, hand, [c[6]!, c[7]!, c[8]!]),
-    ];
+    const joints: readonly HumanJacobian.IMotion[] = reading.motions;
+    const kept: [number, number, number][] = [lower, hand].map(
+      (bone: AutoMovieHumanoidBone): [number, number, number] => {
+        const joint: IAutoMovieJointPose = reading.clamped.get(bone)!;
+        return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
+      },
+    );
+    const moved: number[] = [...c];
+    const world: (d: number, sign: number) => IAutoMovieQuaternion = (
+      d: number,
+      sign: number,
+    ): IAutoMovieQuaternion => {
+      moved[d] = c[d]! + sign * STEP;
+      return Quaternion.multiply(
+        at.parent.rotation,
+        Quaternion.multiply(
+          setup.rest.upper.rotation,
+          G.shoulder(setup, moved),
+        ),
+      );
+    };
     return free.map((d: number): IColumn => {
       if (d >= 3) {
         // Past its limit an angle is clamped by forward kinematics, so it
@@ -132,33 +152,40 @@ export namespace HumanArmJacobian {
         };
       }
       // The chart's own derivative: the upper arm's world turn per unit.
-      const world = (sign: number): IAutoMovieQuaternion => {
-        const moved: number[] = [...c];
-        moved[d] = moved[d]! + sign * STEP;
-        return Quaternion.multiply(
-          at.parent.rotation,
-          Quaternion.multiply(
-            setup.rest.upper.rotation,
-            G.shoulder(setup, moved),
-          ),
-        );
-      };
-      const omega: IAutoMovieVector3 = turn(world(-1), world(1), 2 * STEP);
-      const about = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.cross(omega, Vector3.subtract(p, placed.shoulder));
+      const omega: IAutoMovieVector3 = turn(
+        world(d, -1),
+        world(d, 1),
+        2 * STEP,
+      );
+      moved[d] = c[d]!;
       return {
         upper: { angular: omega, linear: { x: 0, y: 0, z: 0 } },
-        lower: { angular: omega, linear: about(placed.elbow) },
-        hand: { angular: omega, linear: about(placed.wrist) },
+        lower: {
+          angular: omega,
+          linear: Vector3.cross(
+            omega,
+            Vector3.subtract(placed.elbow, placed.shoulder),
+          ),
+        },
+        hand: {
+          angular: omega,
+          linear: Vector3.cross(
+            omega,
+            Vector3.subtract(placed.wrist, placed.shoulder),
+          ),
+        },
       };
     });
   }
 
-  /** An arm's chain placed at coordinates: each joint's point and each segment's world rotation. */
-  export type IChain = Pick<
-    G.IPlaced,
-    "shoulder" | "elbow" | "wrist" | "upper" | "lower" | "hand"
-  >;
+  /** An arm's chain placed at coordinates: each joint's point and each segment's world rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the physical world positions and segment rotations retained from the placement.
+   * @evidence contracts/development/design.md#principled-representation The actual geometry owner's chain result keeps the same world FK representation as a full placement.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only joint origins and rotations are needed by the public chain derivative reader.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not invent a second pose or kinematic chain definition.
+   */
+  export type IChain = ReturnType<typeof G.chain>;
 
   /**
    * One arm of a body on a pose, read at an arm moved by an offset in the
@@ -171,6 +198,14 @@ export namespace HumanArmJacobian {
    * @param arm The arm's clinical triples, encoded clamped (`HumanArmGeometry.encode`).
    * @param offset Added to each of the nine coordinates, so a coordinate may lie past its range; none when absent.
    * @returns The coordinates read at, the free ones (a hinge's fixed angle is not), their columns in that order and the chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines arm encoding, optional coordinate offsets and the returned chain function's world-frame result.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the original arm setup/frame, encodes actual clamped clinical triples, applies each supplied offset and reads the same FK differentiated by columns.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One setup, frame, coordinate list and free list create the columns and a chain closure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not remove out-of-range offsets or locked-coordinate behavior; the frame's actual body/external probe and admission rules remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One frame preparation, one current arm-chain FK and columns reading, then one actual FK per requested chain query, without allocating unused tip or collision probes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned chain closure shares the same unchanged setup and frame as its columns; every supplied coordinate is evaluated independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned coordinates, columns and closure; the closure retains only its operation's setup/frame and no history of queried candidates.
    */
   export function read(
     body: IHumanBody,
@@ -195,8 +230,8 @@ export namespace HumanArmJacobian {
     return {
       c,
       free,
-      columns: columns(setup, at, c, G.placed(setup, at, c, false), free),
-      chain: (q: readonly number[]): IChain => G.placed(setup, at, q, false),
+      columns: columns(setup, at, c, G.chain(setup, at, c), free),
+      chain: (q: readonly number[]): IChain => G.chain(setup, at, q),
     };
   }
 
@@ -209,11 +244,37 @@ export namespace HumanArmJacobian {
   /** A joint's angles by index: flexion, abduction, twist. */
   const AXES: readonly (0 | 1 | 2)[] = [0, 1, 2];
 
+  /** Fixed variable labels of the canonical arms, borrowed only by the read-only Jacobian consumer. */
+  const JOINTS: Readonly<
+    Record<"left" | "right", readonly HumanJacobian.IVariable[]>
+  > = {
+    left: jointVariables("leftLowerArm", "leftHand"),
+    right: jointVariables("rightLowerArm", "rightHand"),
+  };
+
+  /** The original six-variable order, also used for a setup with noncanonical bone identities. */
+  function jointVariables(
+    lower: AutoMovieHumanoidBone,
+    hand: AutoMovieHumanoidBone,
+  ): HumanJacobian.IVariable[] {
+    return [3, 4, 5, 6, 7, 8].map(
+      (d: number): HumanJacobian.IVariable => ({
+        kind: "angle",
+        bone: d < 6 ? lower : hand,
+        axis: AXES[d % 3]!,
+      }),
+    );
+  }
+
   /** The chart's step, coordinate units. */
   const STEP: number = 1e-3;
 
   /** The world angular velocity that carries one rotation to another over a span, radians per unit. */
-  const turn = (
+  const turn: (
+    from: IAutoMovieQuaternion,
+    to: IAutoMovieQuaternion,
+    span: number,
+  ) => IAutoMovieVector3 = (
     from: IAutoMovieQuaternion,
     to: IAutoMovieQuaternion,
     span: number,

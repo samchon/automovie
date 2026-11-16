@@ -3,7 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBasis";
 
 /**
@@ -22,12 +21,12 @@ import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBas
  * @throws {Error} When every entry is zero.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, the scaling, the order of the moments, the handedness of the axes and that the input is consumed.
- * @evidence contracts/development/implementation.md#principled-implementation Cyclic Jacobi rotations (Golub and Van Loan, Matrix Computations, section 8.5) zero each off-diagonal pair in a fixed order; an entry counts as zero against the machine epsilon of its two diagonal neighbours, and 32 sweeps bound the work far above the handful a 3x3 tensor needs.
+ * @evidence contracts/development/implementation.md#principled-implementation Cyclic Jacobi rotations (Golub and Van Loan, Matrix Computations, section 8.5) zero each off-diagonal pair in a fixed order; an entry counts as zero against the machine epsilon of its two diagonal neighbours, and 32 sweeps bound the work. A sweep with no rotation leaves every entry unchanged, so all later sweeps would skip the same pairs and may be omitted without changing the result.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of the engine's inertia diagonalization: aggregate mass properties and hull solids both read it instead of carrying their own solve.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed absolute tolerance enters; the non-null assertions index fixed 3x3 arrays the function itself builds or requires.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: at most 32 sweeps of three plane rotations over nine entries.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its tensor; it shares nothing between calls.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: at most 32 sweeps of three plane rotations over nine entries, stopping after the first sweep that changes nothing instead of rescanning its unchanged entries. Each rotation shares its squared trigonometric factors and coupled off-diagonal term between the two diagonal updates. The initial maximum scans the rows directly without flattened or mapped arrays, and the three sorted axes are constructed without an intermediate axis array. Scalar handedness and an exclusively owned axis remove temporary cross/scale records. The three immutable pair records are shared without per-call allocation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Three immutable pairs define the same cyclic order for every call. Each rotation's repeated factors and mirrored entries are reused without reassociating products. Only a complete sweep that performs no rotation proves later pair tests equivalent; no tensor, diagonalization result or mutable-input cache is retained.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no caller state between calls; numeric temporaries die with the call. Only the fixed three-pair order lives for the module lifetime.
  */
 export function physicalPrincipalAxes(tensor: number[][]): {
   moments: IAutoMovieVector3;
@@ -35,9 +34,9 @@ export function physicalPrincipalAxes(tensor: number[][]): {
 } {
   // Jacobi's stopping criterion must compare dimensionless entries rather
   // than mixing a fixed unit-one floor with moments measured in kg m².
-  const scale: number = Math.max(
-    ...tensor.flat().map((value: number): number => Math.abs(value)),
-  );
+  let scale: number = Number.NEGATIVE_INFINITY;
+  for (const row of tensor)
+    for (const value of row) scale = Math.max(scale, Math.abs(value));
   if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
   for (const row of tensor)
     for (let column: number = 0; column < 3; column++) row[column]! /= scale;
@@ -46,13 +45,11 @@ export function physicalPrincipalAxes(tensor: number[][]): {
     [0, 1, 0],
     [0, 0, 1],
   ];
+
   // Symmetric Jacobi diagonalization, fixed pair order and bounded work.
-  for (let sweep: number = 0; sweep < 32; sweep++)
-    for (const [p, q] of [
-      [0, 1],
-      [0, 2],
-      [1, 2],
-    ] as const) {
+  for (let sweep: number = 0; sweep < 32; sweep++) {
+    let changed: boolean = false;
+    for (const [p, q] of PAIRS) {
       const off: number = tensor[p]![q]!;
       if (
         Math.abs(off) <=
@@ -60,24 +57,30 @@ export function physicalPrincipalAxes(tensor: number[][]): {
           Math.max(Math.abs(tensor[p]![p]!), Math.abs(tensor[q]![q]!))
       )
         continue;
+      changed = true;
       const angle: number =
         0.5 * Math.atan2(2 * off, tensor[q]![q]! - tensor[p]![p]!);
       const c: number = Math.cos(angle);
       const s: number = Math.sin(angle);
       const pp: number = tensor[p]![p]!;
       const qq: number = tensor[q]![q]!;
-      tensor[p]![p] = c * c * pp - 2 * s * c * off + s * s * qq;
-      tensor[q]![q] = s * s * pp + 2 * s * c * off + c * c * qq;
+      const cc: number = c * c;
+      const ss: number = s * s;
+      const coupled: number = 2 * s * c * off;
+      tensor[p]![p] = cc * pp - coupled + ss * qq;
+      tensor[q]![q] = ss * pp + coupled + cc * qq;
       tensor[p]![q] = 0;
       tensor[q]![p] = 0;
       for (let k: number = 0; k < 3; k++) {
         if (k !== p && k !== q) {
           const kp: number = tensor[k]![p]!;
           const kq: number = tensor[k]![q]!;
-          tensor[k]![p] = c * kp - s * kq;
-          tensor[p]![k] = tensor[k]![p]!;
-          tensor[k]![q] = s * kp + c * kq;
-          tensor[q]![k] = tensor[k]![q]!;
+          const rotatedP: number = c * kp - s * kq;
+          const rotatedQ: number = s * kp + c * kq;
+          tensor[k]![p] = rotatedP;
+          tensor[p]![k] = rotatedP;
+          tensor[k]![q] = rotatedQ;
+          tensor[q]![k] = rotatedQ;
         }
         const vp: number = vectors[k]![p]!;
         const vq: number = vectors[k]![q]!;
@@ -85,30 +88,51 @@ export function physicalPrincipalAxes(tensor: number[][]): {
         vectors[k]![q] = s * vp + c * vq;
       }
     }
+    if (!changed) break;
+  }
   const order: number[] = [0, 1, 2].sort(
     (a: number, b: number): number => tensor[a]![a]! - tensor[b]![b]!,
   );
-  const principal: IAutoMovieVector3[] = order.map(
-    (index: number): IAutoMovieVector3 => ({
-      x: vectors[0]![index]!,
-      y: vectors[1]![index]!,
-      z: vectors[2]![index]!,
-    }),
-  );
-  if (
-    Vector3.dot(Vector3.cross(principal[0]!, principal[1]!), principal[2]!) < 0
-  )
-    principal[2] = Vector3.scale(principal[2]!, -1);
+  const firstIndex: number = order[0]!;
+  const secondIndex: number = order[1]!;
+  const thirdIndex: number = order[2]!;
+  const first: IAutoMovieVector3 = {
+    x: vectors[0]![firstIndex]!,
+    y: vectors[1]![firstIndex]!,
+    z: vectors[2]![firstIndex]!,
+  };
+  const second: IAutoMovieVector3 = {
+    x: vectors[0]![secondIndex]!,
+    y: vectors[1]![secondIndex]!,
+    z: vectors[2]![secondIndex]!,
+  };
+  const third: IAutoMovieVector3 = {
+    x: vectors[0]![thirdIndex]!,
+    y: vectors[1]![thirdIndex]!,
+    z: vectors[2]![thirdIndex]!,
+  };
+  const handedness: number =
+    (first.y * second.z - first.z * second.y) * third.x +
+    (first.z * second.x - first.x * second.z) * third.y +
+    (first.x * second.y - first.y * second.x) * third.z;
+  if (handedness < 0) {
+    third.x *= -1;
+    third.y *= -1;
+    third.z *= -1;
+  }
   return {
     moments: {
-      x: tensor[order[0]!]![order[0]!]! * scale,
-      y: tensor[order[1]!]![order[1]!]! * scale,
-      z: tensor[order[2]!]![order[2]!]! * scale,
+      x: tensor[firstIndex]![firstIndex]! * scale,
+      y: tensor[secondIndex]![secondIndex]! * scale,
+      z: tensor[thirdIndex]![thirdIndex]! * scale,
     },
-    rotation: quaternionFromAutoMovieBasis(
-      principal[0]!,
-      principal[1]!,
-      principal[2]!,
-    ),
+    rotation: quaternionFromAutoMovieBasis(first, second, third),
   };
 }
+
+/** The immutable cyclic plane order, independent of every input tensor. */
+const PAIRS: readonly (readonly [number, number])[] = [
+  [0, 1],
+  [0, 2],
+  [1, 2],
+];

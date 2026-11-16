@@ -9,6 +9,8 @@ import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovi
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
 import { AirborneRotationFlight } from "./AirborneRotationFlight";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 
@@ -57,15 +59,54 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * @evidence contracts/development/implementation.md#principled-implementation Conservation of angular momentum about the centre of mass of a torque-free multibody, with the root's angular velocity solved from the composite inertia; the inverse is applied through its principal frame, exact for a symmetric positive-definite tensor. Forward sensitivity differentiates this same ODE, with eta' = -w cross eta + I^-1((R^T L) cross eta + R^T dL), in the instantaneous body's frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One right-hand side over the history, with the requested variations, handed to the existing trajectory integrator.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate is clamped and no angle scripted: the orientation is whatever the momentum and the shape give.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per fixed step or six new stages per adaptive attempt, each one history read and linear work in the requested variation directions; no separate flight is integrated for a derivative.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's inertia and relative momentum, which depend on the shape alone. Repeated times reuse them across stages and shooting trials; different adaptive meshes generally require new instants.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the right-hand side's scope from numeric trajectory records and a tangent count only. Accepted-step count remains unbounded under adaptation. The caller owns the history; its exact-query cache retains inertia and relative momentum, while each reduction releases its temporary bones.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand sides per fixed step or six new stages per adaptive attempt, each one history read and linear work in the requested variation directions; no separate flight is integrated for a derivative. One flat rate array receives tangent components directly; an indexed loop reads each tangent's scalar coordinates without a callback or tangent record, and cross terms keep their original association without intermediate cross/difference records. Inverse applications divide their exclusively owned local rotated vector in place before rotating it back.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The history keeps each exact instant's inertia and relative momentum, which depend on the shape alone. Repeated times reuse them across stages and shooting trials; different adaptive meshes generally require new instants. All tangent columns share the physical rate's inverse principal rotation. One solve-local previous-value record additionally shares that inverse when all four quaternion components are Object.is-equal; copying the key components detects mutation of a caller-owned rotation object and distinguishes signed zero.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources AirborneRotationFlight constructs playback outside the right-hand side's scope from numeric trajectory records and a tangent count only. Accepted-step count remains unbounded under adaptation. One solve-local record holds a copied quaternion and its inverse; that fixed-size state is released on return or throw. The caller owns the history; its exact-query cache retains inertia and relative momentum, while each reduction releases its temporary posed parts and each shape's bones are released after posing.
  */
 export function integrateAirborneRotation(
   props: integrateAirborneRotation.IProps,
 ): integrateAirborneRotation.IFlight {
   const { history, momentum } = props;
   const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
+
+  /** The previous principal rotation's copied numeric key and inverse. */
+  let previous: {
+    rotation: IAutoMovieQuaternion;
+    back: IAutoMovieQuaternion;
+  } | undefined;
+
+  /** Reuse only exact component values, even when a history mutates a record. */
+  const principalInverse: (
+    rotation: IAutoMovieQuaternion,
+  ) => IAutoMovieQuaternion = (
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion => {
+    if (
+      previous !== undefined &&
+      Object.is(previous.rotation.x, rotation.x) &&
+      Object.is(previous.rotation.y, rotation.y) &&
+      Object.is(previous.rotation.z, rotation.z) &&
+      Object.is(previous.rotation.w, rotation.w)
+    )
+      return previous.back;
+    if (previous !== undefined) {
+      previous.rotation.x = rotation.x;
+      previous.rotation.y = rotation.y;
+      previous.rotation.z = rotation.z;
+      previous.rotation.w = rotation.w;
+      previous.back = Quaternion.inverse(previous.rotation);
+      return previous.back;
+    }
+    const current: IAutoMovieQuaternion = {
+      x: rotation.x,
+      y: rotation.y,
+      z: rotation.z,
+      w: rotation.w,
+    };
+    const back: IAutoMovieQuaternion = Quaternion.inverse(current);
+    previous = { rotation: current, back };
+    return back;
+  };
 
   // Sensitivities guide Newton but do not feed the physical orientation.
   // A same-unit matrix block controls their Frobenius error independently;
@@ -90,34 +131,45 @@ export function integrateAirborneRotation(
           back,
           momentum,
         );
-        const w: IAutoMovieVector3 = integrateAirborneRotation.rate(
-          instant,
-          carried,
+
+        // The physical rate and every tangent use this same principal frame.
+        const principalBack: IAutoMovieQuaternion = principalInverse(
+          instant.inertia.rotation,
+        );
+        const w: IAutoMovieVector3 = inverse(
+          instant.inertia,
+          Vector3.subtract(carried, instant.relative),
+          principalBack,
         );
 
         // Forward sensitivity, q(L + dL) = q(L) exp(eta / 2): differentiating
         // q' = q w / 2 gives eta' = -w x eta + I^-1((R^T L) x eta + R^T dL).
-        const dx: number[] = variations.flatMap(
-          (direction: IAutoMovieVector3, i: number): number[] => {
-            const eta: IAutoMovieVector3 = {
-              x: x[3 * i]!,
-              y: x[3 * i + 1]!,
-              z: x[3 * i + 2]!,
-            };
-            const changed: IAutoMovieVector3 = inverse(
-              instant.inertia,
-              Vector3.add(
-                Vector3.cross(carried, eta),
-                Quaternion.rotateVector(back, direction),
-              ),
-            );
-            const rate: IAutoMovieVector3 = Vector3.subtract(
-              changed,
-              Vector3.cross(w, eta),
-            );
-            return [rate.x, rate.y, rate.z];
-          },
-        );
+        const dx: number[] = [];
+        for (let i: number = 0; i < variations.length; i++) {
+          if (!(i in variations)) continue;
+          const offset: number = 3 * i;
+          const etaX: number = x[offset]!;
+          const etaY: number = x[offset + 1]!;
+          const etaZ: number = x[offset + 2]!;
+          const forcing: IAutoMovieVector3 = Quaternion.rotateVector(
+            back,
+            variations[i]!,
+          );
+          const changed: IAutoMovieVector3 = inverse(
+            instant.inertia,
+            {
+              x: (carried.y * etaZ - carried.z * etaY) + forcing.x,
+              y: (carried.z * etaX - carried.x * etaZ) + forcing.y,
+              z: (carried.x * etaY - carried.y * etaX) + forcing.z,
+            },
+            principalBack,
+          );
+          dx.push(
+            changed.x - (w.y * etaZ - w.z * etaY),
+            changed.y - (w.z * etaX - w.x * etaZ),
+            changed.z - (w.x * etaY - w.y * etaX),
+          );
+        }
         return { dx, w };
       },
       x0: Array.from({ length: 3 * variations.length }, (): number => 0),
@@ -243,9 +295,11 @@ export namespace integrateAirborneRotation {
    * bones and the relative momentum from the bones `DELTA` either side,
    * second order in `DELTA`. Each query instant's inertia and relative
    * momentum are computed once and kept by its exact second for the
-   * history's lifetime. Posed bones belong only to that reduction: at most
-   * the query and three stencil nodes are held, then released. The two
-   * fixed boundary stencils share their numeric moments across queries.
+   * history's lifetime. Each reduction poses the parts once at each distinct
+   * instant, sharing their transformed centres with the mass-weighted centre.
+   * At most the query and three stencil nodes' posed parts are held, then
+   * released. Their raw bone maps are released after posing. The two fixed
+   * boundary stencils share their numeric moments across queries.
    *
    * Given the flight's span, the three-point stencil slides up to its
    * boundary and then stays inside it. At a requested instant `t` away
@@ -261,13 +315,13 @@ export namespace integrateAirborneRotation {
    * @param span The flight's take-off and touchdown, seconds; the shape is read across them when absent.
    * @returns The history.
    *
-   * States the root-frame shape, finite-difference stencil, exact query identity, sufficient statistics and temporary bone lifetime.
+   * States the root-frame shape, finite-difference stencil, exact query identity, sufficient statistics and temporary posed-parts lifetime.
    * The same inertia tensor and three-point momentum formula are reduced to I and h, the only shape quantities the flight ODE reads; no shape interpolation, grid or precision change is introduced.
    * An exact-time numeric memo surrounds one scoped shape-to-momentum reduction; the two fixed boundary stencils have their own numeric memo.
    * Every new query reads its actual shape and preserves the existing stencil weights; no raw-bone cache cap replaces an evaluation.
-   * A new query resolves at most four distinct posed instants and performs linear work in mass segments after shape evaluation. The shape owner may independently reuse its displayed poses; repeated query times read the numeric instant directly.
-   * Equivalence is the same exact query time in this history's unchanged model, pure shape function and span. Boundary moments additionally share the identical fixed stencil nodes. A changed evaluation epoch requires a new history.
-   * The callable owns O(N) numeric instants for N distinct queries and at most two numeric boundary records, with no fixed N bound. Each evaluate call owns at most four bone maps; none escapes in its numeric result. clear explicitly releases both numeric memos, and the caller drops the shape callback's history when its solve scope ends.
+   * A new query resolves at most four distinct posed instants and performs linear work in mass segments after shape evaluation. Each segment's centre is transformed only once per distinct instant, including when a boundary stencil reads it in several momentum intervals. Its newly assembled tensor is consumed directly by the principal-axis solve, without copying rows that no caller can observe. The shape owner may independently reuse its displayed poses; repeated query times read the numeric instant directly.
+   * Equivalence is the same exact query time in this history's unchanged model, pure shape function and span. A scoped map shares the same posed instant across tensor and interval reductions; boundary moments additionally share the identical fixed stencil nodes. A changed evaluation epoch requires a new history.
+   * The callable owns O(N) numeric instants for N distinct queries and at most two numeric boundary records, with no fixed N bound. Each evaluate call owns at most four posed-parts reductions and one temporary shape result at a time; none escapes in its numeric result. clear explicitly releases both numeric memos, and the caller drops the shape callback's history when its solve scope ends.
    */
   export function history(
     model: resolveAutoMovieCenterOfMass.IModel,
@@ -276,7 +330,6 @@ export namespace integrateAirborneRotation {
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     span?: { from: number; to: number },
   ): ICachedHistory {
-    type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     const instants: Map<number, IInstant> = new Map();
 
     // Only the two boundary stencils recur at different query times.
@@ -288,24 +341,29 @@ export namespace integrateAirborneRotation {
     const evaluate: (seconds: number) => IInstant = (
       seconds: number,
     ): IInstant => {
-      // At most the query and three stencil nodes live for this reduction.
-      // No returned value or closure refers to these bone maps.
-      const bones: Map<number, Bones> = new Map();
-      const read: (at: number) => Bones = (at: number): Bones => {
-        const known: Bones | undefined = bones.get(at);
+      // Parts and their centre are the sufficient posed data for every
+      // tensor and interval here; each raw bone map is released after posing.
+      const poses: Map<number, resolveAutoMovieMomentum.IPosed> = new Map();
+      const read: (at: number) => resolveAutoMovieMomentum.IPosed = (
+        at: number,
+      ): resolveAutoMovieMomentum.IPosed => {
+        const known: resolveAutoMovieMomentum.IPosed | undefined =
+          poses.get(at);
         if (known !== undefined) return known;
-        const posed: Bones = shape(at);
-        bones.set(at, posed);
+        const posed: resolveAutoMovieMomentum.IPosed =
+          resolveAutoMovieMomentum.pose(model, shape(at));
+        poses.set(at, posed);
         return posed;
       };
       const momentum: (from: number, to: number) => IAutoMovieVector3 = (
         from: number,
         to: number,
       ): IAutoMovieVector3 =>
-        resolveAutoMovieMomentum(model, read(from), read(to), to - from)
+        resolveAutoMovieMomentum.between(model, read(from), read(to), to - from)
           .angular;
-      const inertia: IInstant["inertia"] = resolveAutoMovieMomentum.principal(
-        resolveAutoMovieMomentum.inertia(model, read(seconds)),
+      const posed: resolveAutoMovieMomentum.IPosed = read(seconds);
+      const inertia: IInstant["inertia"] = physicalPrincipalAxes(
+        physicalInertiaTensor(posed.parts, posed.centre),
       );
       if (span === undefined)
         return {
@@ -374,18 +432,19 @@ export namespace integrateAirborneRotation {
   }
 }
 
-/** Apply the inverse composite tensor through its principal frame. */
+/**
+ * Apply the inverse composite tensor through its principal frame.
+ * The first rotation returns an exclusively owned local vector, so dividing
+ * it in place preserves each component's arithmetic without another record.
+ */
 function inverse(
   frame: resolveAutoMovieMomentum.IPrincipal,
   vector: IAutoMovieVector3,
+  back: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation),
 ): IAutoMovieVector3 {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(frame.rotation),
-    vector,
-  );
-  return Quaternion.rotateVector(frame.rotation, {
-    x: local.x / frame.moments.x,
-    y: local.y / frame.moments.y,
-    z: local.z / frame.moments.z,
-  });
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(back, vector);
+  local.x /= frame.moments.x;
+  local.y /= frame.moments.y;
+  local.z /= frame.moments.z;
+  return Quaternion.rotateVector(frame.rotation, local);
 }

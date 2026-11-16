@@ -50,6 +50,7 @@ export function test_human_motion_core_ahead_lifetime(): void {
   const target: AutoMovieMotionTarget = { kind: "self", region: "mouth" };
   const shift: IAutoMovieVector3 = { x: 0.7, y: 0, z: -0.4 };
   const complaints: string[] = [];
+  const branches: Set<string> = new Set();
   const sentinel: Error = new Error("owned demands failure");
   let throwing: boolean = false;
   let aims: number = 2;
@@ -187,6 +188,7 @@ export function test_human_motion_core_ahead_lifetime(): void {
         if (repeated === undefined)
           complaints.push("a second candidate question was not observed");
         else same("a translated candidate question", origin, repeated, shift);
+        branches.add(fails ? "throw" : "return");
       }
       return stand.plan({ ...context, params: { seconds: 0.1 } });
     },
@@ -218,6 +220,9 @@ export function test_human_motion_core_ahead_lifetime(): void {
       .registered("askGrips", { prop: "glass" })
       .registered("inspectDemands", { prop: "glass" }).node,
   });
+  for (const branch of ["return", "throw"])
+    if (!branches.has(branch))
+      complaints.push(`the actual ${branch} demand branch was never exercised`);
   TestValidator.equals(
     "future-use aims release each question's bones",
     complaints,

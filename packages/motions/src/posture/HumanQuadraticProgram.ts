@@ -1,5 +1,6 @@
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
+import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
 /**
  * A convex quadratic program with banded curvature and sparse rows, solved
@@ -177,8 +178,8 @@ export namespace HumanQuadraticProgram {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation owns admitted numeric equivalence, Band owns linear algebra, and this function owns fresh iterates, prox steps, termination and unscaling.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves existing rho, sigma, relaxation, iteration and residual parameters; no motion-specific branch or relaxed physical requirement is introduced, and the existing Cholesky diagonal guard remains documented by Band.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each ADMM iteration takes O(n*w+Z+m), with at most 4000 iterations; preparation additionally scans original storage, while reused initial factors, adaptive refactors and polishing have their separately documented S-aware costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares preparation only after exact P/q/ordered-A comparisons and the initial factor only for identical rho/sigma; each solve resets adaptive rho and owns its bounds, iterates and active-set polish.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Work arrays live for the call and returned x/z/y are fresh caller-owned arrays; the preparation owner separately retains one numeric core and initial factor per live curvature array.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares exactly matched preparation and the initial factor for identical rho/sigma; each ADMM row product feeds its prox directly, disposable rhs/xt/before storage is reused after consumption, and soft thresholds are recomputed whenever rho changes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-owned x/z/y are unscaled in place only after their final solver use and transferred to the caller, independently of scratch, warm inputs and cached data; one row-sized threshold array avoids repeated divisions and preparation separately retains one numeric core and initial factor per live curvature array.
    * @evidence contracts/development/common.md#meaningful-documentation Describes all OSQP stages, warm and keyed-dual inputs, convergence limits, rejection conditions, mutable output ownership and the preparation lifetime.
    */
   export function solve(
@@ -193,14 +194,17 @@ export namespace HumanQuadraticProgram {
     // row bounded on neither side the least (section 5.2).
     let base: number = RHO0;
     const rho: Float64Array = new Float64Array(m);
+    const thresholds: Float64Array = new Float64Array(m);
     const steps: () => void = (): void => {
-      for (let r: number = 0; r < m; ++r)
+      for (let r: number = 0; r < m; ++r) {
         rho[r] =
           lo[r] === -Infinity && hi[r] === Infinity
             ? RHO_MIN
             : lo[r] === hi[r]
               ? EQUALITY * base
               : base;
+        thresholds[r] = weight[r]! < 0 ? 0 : weight[r]! / rho[r]!;
+      }
     };
     steps();
     let factor: Float64Array[] = Preparation.factor(problem, s, rho, SIGMA);
@@ -244,10 +248,10 @@ export namespace HumanQuadraticProgram {
 
     const rhs: Float64Array = new Float64Array(n);
     const xt: Float64Array = new Float64Array(n);
-    const tilde: Float64Array = new Float64Array(m);
     const before: Float64Array = new Float64Array(m);
+    const work: Workspace.IWork = Workspace.of(rhs, xt, before);
     let status: IState["status"] = "unfinished";
-    let residual: { primal: number; dual: number } = {
+    const residual: { primal: number; dual: number } = {
       primal: Infinity,
       dual: Infinity,
     };
@@ -260,24 +264,24 @@ export namespace HumanQuadraticProgram {
           rhs[cols[a]!]! += vals[a]! * w;
       }
       B.substitute(factor, n, s.band, rhs, xt);
-      for (let r: number = 0; r < m; ++r) {
-        let v: number = 0;
-        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
-          v += vals[a]! * xt[cols[a]!]!;
-        tilde[r] = v;
-      }
       for (let i: number = 0; i < n; ++i)
         x[i] = ALPHA * xt[i]! + (1 - ALPHA) * x[i]!;
+
+      // x does not enter these row products or prox steps; consume each
+      // unchanged xt product directly instead of storing a separate vector.
       for (let r: number = 0; r < m; ++r) {
+        let product: number = 0;
+        for (let a: number = start[r]!; a < start[r + 1]!; ++a)
+          product += vals[a]! * xt[cols[a]!]!;
         before[r] = y[r]!;
-        const relaxed: number = ALPHA * tilde[r]! + (1 - ALPHA) * z[r]!;
+        const relaxed: number = ALPHA * product + (1 - ALPHA) * z[r]!;
         const v: number = relaxed + y[r]! / rho[r]!;
         const l: number = lo[r]!;
         const u: number = hi[r]!;
         let next: number;
         if (weight[r]! < 0) next = Math.min(u, Math.max(l, v));
         else {
-          const t: number = weight[r]! / rho[r]!;
+          const t: number = thresholds[r]!;
           next =
             v > u + t ? v - t : v > u ? u : v < l - t ? v + t : v < l ? l : v;
         }
@@ -287,12 +291,22 @@ export namespace HumanQuadraticProgram {
       if ((it + 1) % CHECK !== 0 && it + 1 < ITERATIONS) continue;
 
       // Termination on the unscaled residuals (section 3.4).
-      const at: B.IResiduals = B.residuals(s, x, z, y);
-      if (Object.values(at).some((v: number): boolean => !Number.isFinite(v)))
+      const at: B.IResiduals = B.residuals(s, x, z, y, work);
+      if (
+        !Number.isFinite(at.primal) ||
+        !Number.isFinite(at.primalScale) ||
+        !Number.isFinite(at.dual) ||
+        !Number.isFinite(at.dualScale) ||
+        !Number.isFinite(at.scaledPrimal) ||
+        !Number.isFinite(at.scaledPrimalScale) ||
+        !Number.isFinite(at.scaledDual) ||
+        !Number.isFinite(at.scaledDualScale)
+      )
         throw new RangeError(
           "Quadratic iteration produced a nonfinite residual",
         );
-      residual = { primal: at.primal, dual: at.dual };
+      residual.primal = at.primal;
+      residual.dual = at.dual;
       if (
         at.primal <= ABSOLUTE + RELATIVE * at.primalScale &&
         at.dual <= ABSOLUTE + RELATIVE * at.dualScale
@@ -301,7 +315,7 @@ export namespace HumanQuadraticProgram {
         break;
       }
       // A certificate of primal infeasibility of the hard rows (section 3.4).
-      if (B.infeasible(s, y, before, INFEASIBLE)) {
+      if (B.infeasible(s, y, before, INFEASIBLE, work)) {
         status = "infeasible";
         break;
       }
@@ -315,21 +329,22 @@ export namespace HumanQuadraticProgram {
       if (next > ADAPT * base || next < base / ADAPT) {
         base = next;
         steps();
-        factor = B.factor(s, rho, SIGMA);
+        factor = B.factor(s, rho, SIGMA, work);
       }
     }
 
     // Polishing on the active set (section 4).
     if (status === "solved") {
-      const polished:
-        | { x: Float64Array; z: Float64Array; y: Float64Array }
-        | undefined = B.polish(s, z, y, DELTA, REFINE);
+      const polished: ReturnType<typeof B.polish> | undefined =
+        B.polish(s, z, y, DELTA, REFINE, work);
       if (polished !== undefined) {
         const at: B.IResiduals = B.residuals(
           s,
           polished.x,
           polished.z,
           polished.y,
+          work,
+          polished.products,
         );
         const primalOk: boolean =
           Number.isFinite(at.primal) &&
@@ -345,17 +360,19 @@ export namespace HumanQuadraticProgram {
           x.set(polished.x);
           z.set(polished.z);
           y.set(polished.y);
-          residual = { primal: at.primal, dual: at.dual };
+          residual.primal = at.primal;
+          residual.dual = at.dual;
           status = "polished";
         }
       }
     }
 
-    // The unscaled iterates: x = D x̄, z = E⁻¹ z̄, y = E ȳ / c.
+    // Transfer the call-owned iterates after their final scaled use:
+    // x = D x̄, z = E⁻¹ z̄, y = E ȳ / c.
     const out: IState = {
-      x: new Float64Array(n),
-      z: new Float64Array(m),
-      y: new Float64Array(m),
+      x,
+      z,
+      y,
       status,
       residual,
     };

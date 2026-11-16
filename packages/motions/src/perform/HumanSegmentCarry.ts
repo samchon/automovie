@@ -12,6 +12,7 @@ import type {
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -23,7 +24,7 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and what it reads from its siblings.
  * @evidence contracts/development/design.md#principled-representation One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Split from `HumanSegment` unchanged, so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One carry-goal reader with private frame capture, using HumanSegment's existing held/carry records and an optional operation-owned FK source.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the sibling owners; nothing is duplicated between them.
  */
 export namespace HumanSegmentCarry {
@@ -35,20 +36,36 @@ export namespace HumanSegmentCarry {
    * @param person The person.
    * @param pose The pose whose chest carries the hands.
    * @param holds The holds to carry.
+   * @param resolution Optional exact FK reader or lazy supplier from this same synchronous person's evaluation; never stored in the hold or result.
    * @returns Each holding arm with its goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States chest-relative capture, displayed arm goals, held records and the optional borrowed FK source and lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Captures the actual displayed source hand/elbow relative to its chest, then composes that rigid relation with the current chest. Every capture still evaluates the source pose; borrowed FK shares only exactly equal scalar prerequisites under the same unchanged skeleton topology.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure An empty-hold return, one current chest read and one ordered map of holding hands keep capture and ordinary FK in private helpers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hold, source pose, capture, hand transform or fit is skipped; standalone calls retain their ordinary fresh-FK path, and the optional source never enters h.carry or a returned goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For H holds, one current FK plus O(H) rigid transforms; each of M uncaptured holds adds its full source-pose evaluation and FK. FK still scans J joints and B bones with fresh maps/frames; only a supplied parent shares identical math, and standalone single-use reads allocate no FK cache. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing h.carry stores each hand's numerical source relation once until forget. An explicit parent may lend the same lazy exact reader to current and captured FK; changed pose/rest/parent scalars miss normally and all source evaluations remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The optional local getter borrows its parent's reader until this synchronous call ends; the parent owns O(K) last successful joint/world snapshots for K visited bone names. Holds retain only existing numerical carry frames/reference until HumanSegment.forget. Returned arrays/tuples/goals and transform vectors are fresh, reference remains borrowed, and none retains the getter or reader.
    */
   export function carries(
     person: HumanSegment.IPerson,
     pose: IAutoMoviePose,
     holds: readonly HumanSegment.IHeld[],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): ["leftArm" | "rightArm", IHumanPosture.IGoal][] {
     if (holds.length === 0) return [];
-    const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
+    const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+      resolution === undefined
+        ? undefined
+        : prepareHumanPoseResolution(resolution);
+    const chest: IAutoMovieResolvedBone = bones(person, pose, read).get(
+      "chest",
+    )!;
     return holds.map(
       (
         h: HumanSegment.IHeld,
       ): ["leftArm" | "rightArm", IHumanPosture.IGoal] => {
-        h.carry ??= capture(person, h);
+        h.carry ??= capture(person, h, read);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
           {
@@ -71,31 +88,36 @@ export namespace HumanSegmentCarry {
     );
   }
 
-  /** A pose's world bones. */
+  /** Fresh world bones, optionally borrowing the current operation's exact FK. */
   function bones(
     person: HumanSegment.IPerson,
     pose: IAutoMoviePose,
+    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return poseBones(person.performer.body, pose);
+    return poseBones(person.performer.body, pose, resolution?.());
   }
 
   /** A holding arm relative to the chest at the end of the action that took hold. */
   function capture(
     person: HumanSegment.IPerson,
     held: HumanSegment.IHeld,
+    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
   ): HumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
     const pose: IAutoMoviePose = HumanSegmentPose.of(person, held.source, at);
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
       person,
       pose,
+      resolution,
     );
     const chest: IAutoMovieResolvedBone = map.get("chest")!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       chest.worldRotation,
     );
-    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, chest.worldPosition),

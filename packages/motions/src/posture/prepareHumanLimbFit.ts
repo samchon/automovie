@@ -26,7 +26,7 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer owns Human-to-engine fixed input assembly; HumanLimbFit owns world attachment, obstruction creation, target iteration and the selected pass.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Near mode, reference weight, goal rotation, obstruction and strain retain their existing meanings; no target, callback result, previous fit or approximate cache key replaces the actual solve.
  * @evidence contracts/development/implementation.md#efficient-algorithms Creates the reference's two records and optional strain closure once, then delegates rig preparation and lazy FK to one engine workspace shared by at most REAIM_PASSES targets; no speedup is claimed without measurement.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All passes keep body/source pose, goal bend/rotation/reference, obstruction and near seed fixed; the optional canonical full-FK reader is the same one attachment and clearance consume in this operation, and is read at the engine's original authored-admission site.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All passes keep body/source pose, goal bend/rotation/reference, obstruction and near seed fixed. The optional canonical full-FK reader stays at the authored-admission site; an optional same-operation resolution reader also shares exact joint/ancestor work with source, zeroed and reference FK without merging their distinct poses.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned workspace borrows body inputs and the operation's callbacks and owns bounded reference/strain data; HumanLimbFit retains it only until synchronous completion or failure, with no added global cache or resource handle.
  */
 export function prepareHumanLimbFit(
@@ -37,6 +37,7 @@ export function prepareHumanLimbFit(
   obstruction?: IFitChainToTargetProps["obstruction"],
   near?: IAutoMovieSwivelNear,
   readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
+  resolution?: Parameters<typeof fitSeededChainToTarget.prepare>[2],
 ): fitSeededChainToTarget.IWorkspace {
   /** Read a law's clinical reference triple without changing its bone or units. */
   const angles: (
@@ -98,5 +99,6 @@ export function prepareHumanLimbFit(
       restFrames: HUMANOID_REST_FRAME,
     },
     readAuthored,
+    resolution,
   );
 }

@@ -30,8 +30,8 @@ export namespace HumanQuadraticPreparation {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns admission, compression and numeric preparation once for the public quadratic solver; banded algebra remains in HumanQuadraticBand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses exact comparisons and exact zero omission, preserving small coefficients, duplicate entries, row order, penalties and solver tolerances.
    * @evidence contracts/development/implementation.md#efficient-algorithms Admission and exact comparison take O(S+R+n+m), including supplied trailing curvature storage; misses add preparation's documented scaling cost, while hits allocate three row-sized bound and weight arrays.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Compares dimensions, copied P and q values, and each row's ordered nonzero indices and coefficients; the p array identity only retrieves a candidate and bounds and weights are always refreshed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each live weak curvature-array owner retains one numeric preparation and initial factor, O(S+n*w+Z+n+m), including all copied supplied curvature entries; replacement drops the former preparation and collection releases an unreachable owner.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Compares dimensions, copied P and q values, and each row's ordered nonzero indices and coefficients; identical d/c also share their computed residual inverse scales, while bounds and weights are always refreshed and p identity only locates a candidate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each live weak owner retains one preparation and initial factor, O(S+n*w+Z+n+m), including n inverse-scale entries; replacement releases the former preparation and unreachable owners permit collection. A miss uses fresh lo as temporary row-scale scratch, then overwrites it without retaining scratch in the core.
    * @evidence contracts/development/common.md#meaningful-documentation States the scaling source, zero and duplicate semantics, validation failures, exact reuse dependencies and retained-data lifetime.
    */
   export function scaled(problem: Q.IProblem): B.IScaled {
@@ -40,10 +40,10 @@ export namespace HumanQuadraticPreparation {
       problem,
       prepared,
     );
+    const lo: Float64Array = new Float64Array(problem.rows.length);
     if (prepared === undefined || !admitted.same)
-      prepared = create(problem, admitted.entries);
+      prepared = create(problem, admitted.entries, lo);
     const core: ICore = prepared.core;
-    const lo: Float64Array = new Float64Array(core.m);
     const hi: Float64Array = new Float64Array(core.m);
     const weight: Float64Array = new Float64Array(core.m);
     problem.rows.forEach((row: Q.IRow, r: number): void => {
@@ -77,7 +77,7 @@ export namespace HumanQuadraticPreparation {
    * @evidence contracts/development/implementation.md#principled-implementation Reuses the Cholesky factor only for the same reduced system Pbar plus sigma I plus Abar transpose diag(rho) Abar, the OSQP indirect system.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Supplies only the initial factor to HumanQuadraticProgram; adaptive rho updates and active-set polishing keep their existing banded-algebra calls.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Compares the complete rho vector and sigma exactly and preserves every current solver parameter and convergence check.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hit validates and compares m step sizes; a miss adds Band.factor's O(S+n+sum(k_r*k_r)+n*w*w) assembly and factorization, including diagonal systems and supplied padding; speed is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hit validates and compares m step sizes; a miss adds Band.factor's O(n*w+sum(k_r*k_r)+n*w*w) canonical-band assembly and factorization; original supplied padding is already admitted and speed is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Requires the retained scaled curvature identity supplied by scaled, then identical rho and sigma; bounds, weights and iterates do not enter this matrix.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Stores one initial factor and copied rho vector per live prepared owner, replacing the former factor when parameters change and sharing no mutable iterates.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the matrix, factor invalidation, read-only consumption and failure cases.
@@ -284,25 +284,34 @@ function admit(
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
  *
  * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
- * Builds ordered CSR and copied snapshots, computes variable/row/cost scales, then admits finite invertible prepared data.
+ * Builds ordered CSR and full raw snapshots, then scales the canonical band; post-column-scaling P and q norms are accumulated as their updated entries are written, retaining each max reduction's original order.
  * Omits only coefficients equal to zero, retaining all nonzeros, duplicate indices and empty-row offsets; no cutoff, sorting, merged cancellation or changed scaling constants is used.
- * Compression and copies plus ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+Z+n+m) retained space before the initial factor; supplied padding is copied and validated.
- * Runs only when admission finds a changed dependency and copies raw numeric inputs so later mutation cannot make a stale preparation appear equal.
- * Returns one numeric prepared value for weak-owner replacement; temporary norm vectors become unreachable after creation.
+ * Compression, raw snapshots and ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+n*w+Z+n+m) space; producing the cost norms during scaling removes separate P/q norm scans without dropping norm terms or ignored-padding admission.
+ * Runs only when admission finds a changed dependency, copies raw numeric inputs and computes each original 1/(c*d[i]) once after equilibration; no reciprocal substitution, clamp or additional finite rejection changes residual behavior.
+ * Returns one numeric prepared value without retaining row-scale scratch; its caller reuses that fresh m-entry buffer as lo only after all scaling reads finish.
  * States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
  */
-function create(problem: Q.IProblem, entries: number): IPrepared {
+function create(
+  problem: Q.IProblem,
+  entries: number,
+  dr: Float64Array,
+): IPrepared {
   const { n, band, rows }: Q.IProblem = problem;
   const m: number = rows.length;
   const start: Int32Array = new Int32Array(m + 1);
   const cols: Int32Array = new Int32Array(entries);
+  const ordered: Uint8Array = new Uint8Array(m).fill(1);
   const original: Float64Array = new Float64Array(entries);
   let at: number = 0;
   rows.forEach((row: Q.IRow, r: number): void => {
     start[r] = at;
+    let previous: number = -1;
     for (let a: number = 0; a < row.index.length; ++a) {
       if (row.coef[a] === 0) continue;
-      cols[at] = row.index[a]!;
+      const index: number = row.index[a]!;
+      if (index < previous) ordered[r] = 0;
+      previous = index;
+      cols[at] = index;
       original[at] = row.coef[a]!;
       ++at;
     }
@@ -313,7 +322,8 @@ function create(problem: Q.IProblem, entries: number): IPrepared {
   );
   const originalQ: Float64Array = Float64Array.from(problem.q);
   const p: Float64Array[] = originalP.map(
-    (row: Float64Array): Float64Array => Float64Array.from(row),
+    (row: Float64Array, i: number): Float64Array =>
+      row.slice(0, Math.min(band + 1, n - i)),
   );
   const q: Float64Array = Float64Array.from(originalQ);
   const vals: Float64Array = Float64Array.from(original);
@@ -323,17 +333,18 @@ function create(problem: Q.IProblem, entries: number): IPrepared {
   const limit: (v: number) => number = (v: number): number =>
     v < MIN_SCALE ? 1 : Math.min(v, MAX_SCALE);
   const dx: Float64Array = new Float64Array(n);
-  const dr: Float64Array = new Float64Array(m);
   const curvature: Float64Array = new Float64Array(n);
   for (let pass: number = 0; pass < SCALING; ++pass) {
     // Infinity norms of the KKT columns determine the variable and row scales.
     curvature.fill(0);
-    for (let i: number = 0; i < n; ++i)
-      for (let j: number = 0; j <= band && i + j < n; ++j) {
-        const v: number = Math.abs(p[i]![j]!);
+    for (let i: number = 0; i < n; ++i) {
+      const row: Float64Array = p[i]!;
+      for (let j: number = 0; j < row.length; ++j) {
+        const v: number = Math.abs(row[j]!);
         curvature[i] = Math.max(curvature[i]!, v);
         curvature[i + j] = Math.max(curvature[i + j]!, v);
       }
+    }
     dx.set(curvature);
     for (let r: number = 0; r < m; ++r) {
       let row: number = 0;
@@ -345,11 +356,23 @@ function create(problem: Q.IProblem, entries: number): IPrepared {
       dr[r] = 1 / Math.sqrt(limit(row));
     }
     for (let i: number = 0; i < n; ++i) dx[i] = 1 / Math.sqrt(limit(dx[i]!));
+
+    // The cost reads these transformed entries; reduce them at their producer.
+    curvature.fill(0);
+    let linear: number = 0;
     for (let i: number = 0; i < n; ++i) {
-      for (let j: number = 0; j <= band && i + j < n; ++j)
-        p[i]![j] = p[i]![j]! * dx[i]! * dx[i + j]!;
-      q[i] = q[i]! * dx[i]!;
-      d[i] = d[i]! * dx[i]!;
+      const row: Float64Array = p[i]!;
+      const scale: number = dx[i]!;
+      for (let j: number = 0; j < row.length; ++j) {
+        const coefficient: number = row[j]! * scale * dx[i + j]!;
+        row[j] = coefficient;
+        const magnitude: number = Math.abs(coefficient);
+        curvature[i] = Math.max(curvature[i]!, magnitude);
+        curvature[i + j] = Math.max(curvature[i + j]!, magnitude);
+      }
+      q[i] = q[i]! * scale;
+      d[i] = d[i]! * scale;
+      linear = Math.max(linear, Math.abs(q[i]!));
     }
     for (let r: number = 0; r < m; ++r) {
       for (let a: number = start[r]!; a < start[r + 1]!; ++a)
@@ -358,23 +381,13 @@ function create(problem: Q.IProblem, entries: number): IPrepared {
     }
 
     // Cost equilibration depends on q as well as the scaled curvature.
-    curvature.fill(0);
-    for (let i: number = 0; i < n; ++i)
-      for (let j: number = 0; j <= band && i + j < n; ++j) {
-        const v: number = Math.abs(p[i]![j]!);
-        curvature[i] = Math.max(curvature[i]!, v);
-        curvature[i + j] = Math.max(curvature[i + j]!, v);
-      }
     let mean: number = 0;
     for (let i: number = 0; i < n; ++i) mean += curvature[i]!;
     mean /= Math.max(1, n);
-    let linear: number = 0;
-    for (let i: number = 0; i < n; ++i)
-      linear = Math.max(linear, Math.abs(q[i]!));
     const gamma: number = 1 / limit(Math.max(mean, linear));
     for (let i: number = 0; i < n; ++i) {
-      for (let j: number = 0; j <= band && i + j < n; ++j)
-        p[i]![j] = p[i]![j]! * gamma;
+      const row: Float64Array = p[i]!;
+      for (let j: number = 0; j < row.length; ++j) row[j] = row[j]! * gamma;
       q[i] = q[i]! * gamma;
     }
     c *= gamma;
@@ -391,11 +404,14 @@ function create(problem: Q.IProblem, entries: number): IPrepared {
     e.some((value: number): boolean => !(value > 0) || !Number.isFinite(value))
   )
     throw new RangeError("Quadratic scaling must be finite and invertible");
+  const unscale: Float64Array = d.map(
+    (scale: number): number => 1 / (c * scale),
+  );
   return {
     p: originalP,
     q: originalQ,
     vals: original,
-    core: { n, m, band, p, q, start, cols, vals, d, e, c },
+    core: { n, m, band, p, q, start, cols, vals, ordered, d, e, c, unscale },
   };
 }
 

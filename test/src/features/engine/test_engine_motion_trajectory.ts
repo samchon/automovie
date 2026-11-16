@@ -2,6 +2,8 @@ import { Quaternion, integrateMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/nclose";
+
 /**
  * The engine's integrator solves an ODE to fourth order at its fixed step and reads the solution by time, the same whatever times are read and in whatever order.
  *
@@ -49,12 +51,12 @@ export function test_engine_motion_trajectory(): void {
     });
   for (let k: number = 0; k <= 100; k++) {
     const t: number = (2 * k) / 100;
-    if (Math.abs(decay.at(t).x[0]! - Math.exp(-t)) > 1e-8)
+    if (!(Math.abs(decay.at(t).x[0]! - Math.exp(-t)) <= 1e-8))
       findings.push(`decay at ${t}`);
     const s: number[] = spring.at(t).x;
     if (
-      Math.abs(s[0]! - Math.cos(t)) > 1e-8 ||
-      Math.abs(s[1]! + Math.sin(t)) > 1e-8
+      !(Math.abs(s[0]! - Math.cos(t)) <= 1e-8) ||
+      !(Math.abs(s[1]! + Math.sin(t)) <= 1e-8)
     )
       findings.push(`oscillator at ${t}`);
   }
@@ -64,22 +66,34 @@ export function test_engine_motion_trajectory(): void {
     { length: 200 },
     (_: unknown, k: number): number => (2 * k) / 199,
   );
-  const sorted: string = JSON.stringify(
-    times.map((t: number): number[] => spring.at(t).x),
-  );
+  const sorted: number[][] = times.map((t: number): number[] => [
+    ...spring.at(t).x,
+  ]);
   const order: number[] = times.map(
     (_: number, k: number): number => (k * 73) % 200,
   );
   const shuffled: number[][] = new Array<number[]>(200);
-  for (const k of order) shuffled[k] = spring.at(times[k]!).x;
-  if (JSON.stringify(shuffled) !== sorted)
+  for (const k of order) shuffled[k] = [...spring.at(times[k]!).x];
+  if (
+    shuffled.some(
+      (row: number[], i: number): boolean =>
+        row.length !== sorted[i]!.length ||
+        row.some(
+          (value: number, j: number): boolean =>
+            !nclose(value, sorted[i]![j]!, 0),
+        ),
+    )
+  )
     findings.push("reading order changes the values");
 
   // 3. Rate invariance: frames at 24 and at 60 a second meet every twelfth of a second.
   for (let k: number = 0; k <= 24; k++) {
-    const a: number[] = spring.at((k * 2) / 24).x;
-    const b: number[] = spring.at((k * 5) / 60).x;
-    if (JSON.stringify(a) !== JSON.stringify(b))
+    const a: number[] = [...spring.at((k * 2) / 24).x];
+    const b: number[] = [...spring.at((k * 5) / 60).x];
+    if (
+      a.length !== b.length ||
+      a.some((value: number, i: number): boolean => !nclose(value, b[i]!, 0))
+    )
       findings.push(`frame grids disagree at ${k / 12} s`);
   }
 
@@ -110,12 +124,12 @@ export function test_engine_motion_trajectory(): void {
       0.5 * Math.sin(precession * t),
     ];
     if (
-      Math.abs(state.x[0]! - expected[0]) > 1e-6 ||
-      Math.abs(state.x[1]! - expected[1]) > 1e-6
+      !(Math.abs(state.x[0]! - expected[0]) <= 1e-6) ||
+      !(Math.abs(state.x[1]! - expected[1]) <= 1e-6)
     )
       findings.push(`the top's rate at ${t}`);
     const q: IAutoMovieQuaternion = state.q!;
-    if (k % 2 === 0 && Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) > 1e-12)
+    if (k % 2 === 0 && !(Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-12))
       findings.push(`the orientation leaves the unit sphere at ${t}`);
   }
   if (Quaternion.angle(top.at(0).q!, top.at(2).q!) === 0)
@@ -259,16 +273,16 @@ export function test_engine_motion_trajectory(): void {
       0.5 * Math.sin(precession * t),
     ];
     if (
-      Math.abs(state.x[0]! - expected[0]) > 1e-6 ||
-      Math.abs(state.x[1]! - expected[1]) > 1e-6
+      !(Math.abs(state.x[0]! - expected[0]) <= 1e-6) ||
+      !(Math.abs(state.x[1]! - expected[1]) <= 1e-6)
     )
       findings.push(`the controlled top's rate at ${t}`);
     const q: IAutoMovieQuaternion = state.q!;
-    if (Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) > 1e-12)
+    if (!(Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-12))
       findings.push(
         `the controlled orientation leaves the unit sphere at ${t}`,
       );
-    if (Quaternion.angle(q, top.at(t).q!) > 1e-6)
+    if (!(Quaternion.angle(q, top.at(t).q!) <= 1e-6))
       findings.push(
         `the controlled top turns ${Quaternion.angle(q, top.at(t).q!)} rad off the fixed one at ${t}`,
       );

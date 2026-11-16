@@ -23,10 +23,10 @@ import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the angle factorization, differential, frames, column order and radians per momentum-unit result.
  * @evidence contracts/development/implementation.md#principled-implementation Analytically inverts the Euler-angle rate map of Rx(phi) Rz(theta) Ry(psi), after carrying tangents through the inverse frame; a near-singular tilt retains its original division and is not regularized.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Transform each tangent, form its three angle derivatives, then transpose columns to rows for the solver.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Share the unchanged frame and angle factors, then write each tangent's derivatives directly into the solver's three rows.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing arithmetic and singular behavior without a tolerance, finite difference, clamp or fitted derivative.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(k) work and numeric storage for k tangent directions; the current shooting solver supplies three.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the integrator's tangents and the solver's actual endpoint angles; neither the flight nor its derivative is reintegrated here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(k) work with three output rows, no intermediate column arrays or transpose; one inverse and four trigonometric evaluations serve all k present tangents. The current shooting solver supplies three.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All columns use the same axes and endpoint angles, so their inverse and sine/cosine factors are computed once. Lazy initialization preserves empty and sparse inputs; neither the flight nor its derivative is reintegrated here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned numeric rows escape; input angles, axes and tangent arrays are read without mutation and no cache is held.
  */
 export function AirborneTakeoffJacobian(
@@ -34,23 +34,32 @@ export function AirborneTakeoffJacobian(
   axes: IAutoMovieQuaternion,
   variations: readonly IAutoMovieVector3[],
 ): number[][] {
-  const columns: number[][] = variations.map(
-    (eta: IAutoMovieVector3): number[] => {
-      const v: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(axes),
-        eta,
-      );
-      const phi: number =
-        (Math.cos(end.twist) * v.x + Math.sin(end.twist) * v.z) /
-        Math.cos(end.tilt);
-      return [
-        phi,
-        -Math.sin(end.twist) * v.x + Math.cos(end.twist) * v.z,
-        v.y + Math.sin(end.tilt) * phi,
-      ];
-    },
-  );
-  return [0, 1, 2].map((i: number): number[] =>
-    columns.map((column: number[]): number => column[i]!),
-  );
+  const width: number = variations.length;
+  const rows: number[][] = [[], [], []];
+  let back: IAutoMovieQuaternion | undefined;
+  let cosTwist: number = 0;
+  let sinTwist: number = 0;
+  let cosTilt: number = 0;
+  let sinTilt: number = 0;
+  variations.forEach((eta: IAutoMovieVector3, i: number): void => {
+    if (back === undefined) {
+      back = Quaternion.inverse(axes);
+      cosTwist = Math.cos(end.twist);
+      sinTwist = Math.sin(end.twist);
+      cosTilt = Math.cos(end.tilt);
+      sinTilt = Math.sin(end.tilt);
+    }
+    const v: IAutoMovieVector3 = Quaternion.rotateVector(back, eta);
+    const phi: number = (cosTwist * v.x + sinTwist * v.z) / cosTilt;
+    rows[0]![i] = phi;
+    rows[1]![i] = -sinTwist * v.x + cosTwist * v.z;
+    rows[2]![i] = v.y + sinTilt * phi;
+  });
+
+  // Indexed writes keep dense inputs packed. Extending afterward also
+  // preserves any trailing holes that the original column maps skipped.
+  rows[0]!.length = width;
+  rows[1]!.length = width;
+  rows[2]!.length = width;
+  return rows;
 }

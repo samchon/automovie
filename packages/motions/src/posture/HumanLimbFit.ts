@@ -24,6 +24,7 @@ import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
+import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for
@@ -206,15 +207,16 @@ export namespace HumanLimbFit {
    * @param placed The arms already placed, whose room the arm keeps.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this synchronous person evaluation; otherwise the first FK demand creates one.
    * @returns The pose with the limb fitted, and the seed that continues it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fit, the re-aim with its sources and bounds, the attachment and the clearance.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's two-bone fit, a fixed-point re-aim with Anderson mixing, and the clearance as the fit's obstruction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One world goal, one obstruction, one fit, then the re-aim loop and the toes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The re-aim keeps the fit whose contact lay nearest, not its last pass, and stops at `REAIM_PASSES`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source FK serves world attachment, arm clearance and the engine's authored read; the distinct zeroed preparation and reference FK remain separate. At most REAIM_PASSES targets share rig/clamp/reference work, and reached rotations use chain FK after one joint scan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy canonical source FK serves world attachment, arm clearance and the engine's authored read. Distinct zeroed/reference FK retain full scans but share exact unchanged articulation and parent/rest computation through one operation reader with fresh outputs. At most REAIM_PASSES targets share rig/clamp/reference work, and reached rotations use chain FK after one joint scan; runtime speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One authored reader and one prepareHumanLimbFit workspace serve the fixed body/source pose, mappings, goal bend/rotation/reference, obstruction and cold/near mode; only targets vary. Callback evaluations and distinct fitted/zeroed/reference poses are not merged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one local source-FK map and workspace through synchronous completion or failure; only selected pose/seed/value escape, with no persistent cache, retained reader or handle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one local source-FK map and fit workspace through synchronous return or failure. Its lazy reader is limb-owned or borrowed from the same synchronous parent; only pose/seed/value escape, and no returned plan, callback or body-memory entry captures either getter or reader.
    */
   export function fit(
     body: IHumanBody,
@@ -224,6 +226,7 @@ export namespace HumanLimbFit {
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
     // A left limb is fitted as the right limb in the mirror image of its
     // world, so the two sides are mirror images to the bit.
@@ -236,9 +239,12 @@ export namespace HumanLimbFit {
         placed.map(HumanLimbMirror.side),
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
         near,
+        resolution,
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
+    const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     let authoredBones:
       | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
       | undefined;
@@ -250,7 +256,8 @@ export namespace HumanLimbFit {
       AutoMovieHumanoidBone,
       IAutoMovieResolvedBone
     > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      if (authoredBones === undefined) authoredBones = poseBones(body, pose);
+      if (authoredBones === undefined)
+        authoredBones = poseBones(body, pose, readResolution());
       return authoredBones;
     };
     const goal: IHumanPosture.IGoal = world(
@@ -295,6 +302,7 @@ export namespace HumanLimbFit {
       clear,
       near,
       readAuthored,
+      readResolution(),
     );
     let fitted: IAutoMovieSeededChainFit = fitter.fit(goal.point);
     if (goal.contact === undefined || goal.rotation === undefined)
@@ -336,10 +344,9 @@ export namespace HumanLimbFit {
       // The toes belong to the fit they were read from, which is the one kept.
       toes = off.toes;
       const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
-      if (Vector3.length(miss) < nearest.miss)
-        nearest = { fitted, miss: Vector3.length(miss), toes };
-      if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1)
-        break;
+      const missSize: number = Vector3.length(miss);
+      if (missSize < nearest.miss) nearest = { fitted, miss: missSize, toes };
+      if (missSize < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
       let next: IAutoMovieVector3 = off.ankle;
       if (last !== undefined) {
         const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);
@@ -387,6 +394,7 @@ export namespace HumanLimbFit {
    * @param placed The arms already placed.
    * @param rival Where the other arm's wrist will be, while it is still to be fitted.
    * @param near A nearby fit of the same limb to continue; omitted, the fit is solved cold.
+   * @param resolution Optional parent FK reader or lazy supplier, forwarded to a miss without entering its key or stored result.
    * @returns The pose with the limb fitted, and the seed that continues it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the source pose, complete goal, placed arms, rival and optional continuation forwarded to the memory owner.
@@ -405,6 +413,7 @@ export namespace HumanLimbFit {
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
     return HumanLimbFitMemory.remembered(
       body,
@@ -414,6 +423,7 @@ export namespace HumanLimbFit {
       placed,
       rival,
       near,
+      resolution,
     );
   }
 

@@ -32,9 +32,16 @@ import { HumanJacobian } from "./HumanJacobian";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The base is the feet's own bearing outline and the mass model the engine's.
  */
 export namespace HumanFitBalance {
-  /** A posed body's balance. */
+  /**
+   * A posed body's balance.
+   *
+   * @evidence contracts/development/design.md#principled-representation Stores the actual segmental centre and convex support outline in world metres, with one signed half-plane distance per ordered edge.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The merit reads inside and com, while analytic rows read outline and com; these are the quantities the existing balance model computes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the physical mass model and supplied/default bearing points without substituting a bone or changing a contact tolerance.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines world units, edge ordering, signed distances and borrowed centre ownership.
+   */
   export interface IReading {
-    /** The centre of mass, world metres. */
+    /** The centre of mass, world metres; may share the same reading's positional goal value and is not mutated by balance consumers. */
     com: IAutoMovieVector3;
 
     /** The base of support's corners on the floor, in order round its convex hull. */
@@ -50,14 +57,23 @@ export namespace HumanFitBalance {
    * @param body The body.
    * @param bones Its resolved bones.
    * @param points The points that bear, world metres, whose convex hull on the floor is the base; the feet's bearing outline (`HumanFoot.base`) when absent.
+   * @param com Optional already computed centre for this unchanged body and bones, borrowed without mutation; computed here when absent.
    * @returns The reading.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the segmental mass centre and constructs Andrew's monotone-chain convex hull of the actual bearing points, then measures each inward support half-plane.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional current centre and one hull feed the ordered edge distances; their mass and geometry owners remain separate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing hull, inward-normal convention and degenerate-edge behavior; a supplied centre must be the actual value for the same unchanged body and bones.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For P bearing points and H hull edges, hull construction takes O(P log P), current edge distances O(H squared), plus delegated mass-model construction and placement when no centre is supplied.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Accepts a centre already measured by positional goals on the same body and resolved bones; absent that equivalent value it computes the original actual centre.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh outline and distance arrays and borrows the supplied/computed centre without mutation; no reading, points or derivative columns are cached globally.
+   * @evidence contracts/development/common.md#meaningful-documentation States bearing defaults, same-reading centre premise, hull method, units, costs and ownership.
    */
   export function of(
     body: IHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
+    com: IAutoMovieVector3 = centre(body, bones),
   ): IReading {
-    const com: IAutoMovieVector3 = centre(body, bones);
     const outline: { x: number; z: number }[] = hull(
       points.map((p: IAutoMovieVector3): { x: number; z: number } => ({
         x: p.x,
@@ -80,6 +96,14 @@ export namespace HumanFitBalance {
    * @param k The edge, from corner `k` to the next.
    * @param point The point, world metres; its height is not read.
    * @returns Metres, positive inside.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Projects point-minus-edge-start onto the unit inward normal oriented toward the polygon centroid, preserving the existing signed support distance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The private inward owner constructs the edge direction, then one planar dot product returns the distance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original zero-length denominator fallback and centroid orientation rather than inventing a different support outline.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(H) time for H outline corners because the current inward owner reads their centroid, with O(1) auxiliary storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The merit and row callbacks use this same half-plane convention; each call reads its current supplied outline and point.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no outline or point.
+   * @evidence contracts/development/common.md#meaningful-documentation States the edge convention, world units, signed result, height exclusion and inherited degeneracy behavior.
    */
   export function distance(
     outline: readonly { x: number; z: number }[],
@@ -99,15 +123,24 @@ export namespace HumanFitBalance {
    * @param bones The resolved bones the motions were read on.
    * @param motions The variables' motions.
    * @param reading The balance read on those bones.
+   * @param columns Optional current centre velocities for these same body, bones and ordered motions; computed here when absent.
    * @returns One slope row per edge, one entry per variable.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Projects the actual segmental-centre velocity columns onto each current outline edge's inward normal, preserving the fixed-outline linearisation used by this model.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional equivalent centre Jacobian feeds all ordered edge rows; the same velocity owner serves positional centre goals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every variable, edge and original dot-product expression; supplied columns must match this unchanged body, bones and ordered motion list.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For n variables and H edges, projection costs O(H squared+H*n) with current centroid reads and O(H*n) result storage, plus velocities' cost only when columns are absent.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the completed current centre columns supplied by the same model's goal rows; other callers compute the original velocity columns here.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows columns without mutation and returns fresh scalar rows; no current pose or Jacobian survives in module state.
+   * @evidence contracts/development/common.md#meaningful-documentation States frame, units, variable/edge ordering, current-input premise, optional computation and output ownership.
    */
   export function slopes(
     body: IHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     motions: readonly HumanJacobian.IMotion[],
     reading: IReading,
+    columns: readonly IAutoMovieVector3[] = velocities(body, bones, motions),
   ): number[][] {
-    const columns: IAutoMovieVector3[] = velocities(body, bones, motions);
     return reading.outline.map(
       (_: { x: number; z: number }, k: number): number[] => {
         const n: { x: number; z: number } = inward(reading.outline, k);
@@ -130,8 +163,8 @@ export namespace HumanFitBalance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call on the existing mass model.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone stands in for the mass centre.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in mass segments, with no forward kinematics.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the per-body mass model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no new state.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing weak per-body mass model, which assumes the body's skeleton and physical profile stay unchanged; actual placement always reads the supplied current bones.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing WeakMap holds one numeric mass model per live body identity and permits collection with that body; placement returns a current centre and retains no posed bones.
    */
   export function centre(
     body: IHumanBody,
@@ -152,9 +185,9 @@ export namespace HumanFitBalance {
    * @evidence contracts/development/implementation.md#principled-implementation Differentiating the segmental centre gives the mass-weighted sum of each segment centre's rigid-point velocity, divided by total mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment sum per variable.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same segment masses and local centres as the actual centre reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in variables times mass segments; no perturbed fits or forward kinematics.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The support-edge slopes and positional centre goals share this one mass Jacobian.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Performs n*S velocity queries for n variables and S segments, but each available segment's world point and bone lookup is produced once, with O(S+n) call-local storage and no perturbed poses or new FK.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares current segment world points and missing-bone decisions across variables, initialized lazily in the first variable's unchanged segment order; goal and balance rows may share these completed columns only for identical body/bones/motions.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources World-point scratch lives only for this call and returns independent derivative vectors; the existing separate weak mass-model cache retains no current points, motions or pose.
    */
   export function velocities(
     body: IHumanBody,
@@ -162,15 +195,32 @@ export namespace HumanFitBalance {
     motions: readonly HumanJacobian.IMotion[],
   ): IAutoMovieVector3[] {
     const m: resolveAutoMovieCenterOfMass.IModel = model(body);
+    if (motions.length === 0) return [];
+
+    // Laziness preserves the first variable's original prepare/velocity
+    // order; later variables reuse only this unchanged reading's points.
+    const points: (IAutoMovieVector3 | null | undefined)[] = new Array(
+      m.segments.length,
+    );
     return motions.map((motion: HumanJacobian.IMotion): IAutoMovieVector3 => {
       let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const s of m.segments) {
-        const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
-        if (b === undefined) continue;
-        const at: IAutoMovieVector3 = Vector3.add(
-          b.worldPosition,
-          Quaternion.rotateVector(b.worldRotation, s.point),
-        );
+      for (let i: number = 0; i < m.segments.length; ++i) {
+        const s: resolveAutoMovieCenterOfMass.IModel["segments"][number] =
+          m.segments[i]!;
+        let at: IAutoMovieVector3 | null | undefined = points[i];
+        if (at === undefined) {
+          const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
+          if (b === undefined) {
+            points[i] = null;
+            continue;
+          }
+          at = Vector3.add(
+            b.worldPosition,
+            Quaternion.rotateVector(b.worldRotation, s.point),
+          );
+          points[i] = at;
+        }
+        if (at === null) continue;
         sum = Vector3.add(
           sum,
           Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
@@ -191,6 +241,7 @@ export namespace HumanFitBalance {
     const dz: number = b.z - a.z;
     const length: number = Math.hypot(dx, dz) || 1;
     const n: { x: number; z: number } = { x: -dz / length, z: dx / length };
+
     // The normal that points toward the outline's centroid, which a convex
     // outline holds inside, whichever way the corners run.
     let cx: number = 0;

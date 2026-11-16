@@ -2,7 +2,8 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
-  resolvePose,
+  type preparePoseResolution,
+  resolveBoneMap,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -17,32 +18,35 @@ import type { IHumanBody } from "../body/IHumanBody";
  * performance and the capture use, so a law that reads a pose it resolved
  * itself (where a hand hangs, where a thigh lies) sees what is displayed.
  *
- * @param body The body.
+ * The body's topology must index its same, unchanged skeleton, as prepared
+ * by `createHumanBody`. Every pose still receives full ordered admission and
+ * the complete hierarchy walk. A supplied operation reader shares only
+ * exactly unchanged computation and returns fresh maps and transforms.
+ *
+ * @param body The body and its topology for the same, unchanged skeleton.
  * @param pose The pose.
+ * @param prepared Optional exact FK reader owned and released by this synchronous motion evaluation.
  * @returns Resolved bones by rig bone.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the reading used and why it matches the display.
- * @evidence contracts/development/implementation.md#principled-implementation The engine's forward kinematics with the canonical humanoid axes and rest frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of pose-to-bone forward kinematics in motions: one engine call keyed into a map, used by the performance, the posture code and every law instead of a local copy.
+ * @evidence contracts/development/common.md#meaningful-documentation States the displayed reading, canonical mappings and the body's unchanged-skeleton topology premise.
+ * @evidence contracts/development/implementation.md#principled-implementation The engine's complete forward kinematics with the canonical humanoid axes and rest frames, using the same parent-first topology createHumanBody prepared from the body's unchanged skeleton.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolveBoneMap call supplies canonical mappings and the body's topology; hierarchy, composition and map adaptation remain with their existing engine owners.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cast, assertion or tolerance; the axes and rest frames are the engine's canonical tables.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the rig's bone count, once per call.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordered joint/bone scans and direct map insertion remain O(J+B), without this adapter's former tuple array. An optional operation reader avoids only identical completed math; canonical topology is not rebuilt and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body topology belongs to its unchanged skeleton; an optional reader shares exact clinical/basis/frame/rest/parent computations within one synchronous fit or stop evaluation, without merging distinct poses or admitting stale topology.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a fresh map and nested bone transforms; a borrowed resolution reader keeps its private snapshots only until the synchronous motion evaluation releases it. This adapter stores no global state or handle.
  */
 export function poseBones(
   body: IHumanBody,
   pose: IAutoMoviePose,
+  prepared?: ReturnType<typeof preparePoseResolution>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  return new Map(
-    resolvePose(
-      pose,
-      body.skeleton,
-      HUMANOID_JOINT_AXES,
-      HUMANOID_REST_FRAME,
-    ).map(
-      (
-        r: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-    ),
+  return resolveBoneMap(
+    body.skeleton,
+    pose,
+    body.topology,
+    HUMANOID_JOINT_AXES,
+    HUMANOID_REST_FRAME,
+    prepared,
   );
 }

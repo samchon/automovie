@@ -25,10 +25,16 @@ import type { HumanJacobian } from "./HumanJacobian";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Millimetres and degrees per coordinate unit, the units the subproblem's rows read.
  */
 export namespace HumanArmTrajectoryJacobians {
-  /** The hair the hand is turned by, coordinate units. */
+  /** The hair the hand is turned by, coordinate units, in the rotation-vector central difference. */
   export const HAIR: number = 1e-4;
 
-  /** A segment's motion per coordinate unit: its origin's, millimetres, and its turn, radians. */
+  /** A segment's motion per coordinate unit: its origin's, millimetres, and its turn, radians.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines both quantities at the segment's physical origin in world coordinates.
+   * @evidence contracts/development/design.md#principled-representation A rigid segment's instantaneous twist, with linear motion scaled to the convex subproblem's millimetres and angular motion left in radians.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two vectors feed point motion and the existing distance/contact rows through IJacobian.segments and carried.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No alternate joint axis, contact proxy or cached candidate pose is represented.
+   */
   export interface IMotion {
     /** The origin's motion, millimetres per coordinate unit. */
     origin: IAutoMovieVector3;
@@ -37,7 +43,13 @@ export namespace HumanArmTrajectoryJacobians {
     omega: IAutoMovieVector3;
   }
 
-  /** Every Jacobian of one arm at one waypoint, a column per free coordinate. */
+  /** Every Jacobian of one arm at one waypoint, a column per free coordinate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents probe/contact/hand columns, their units, segment twists and the trust-region movement reading; outer waypoints have empty arrays and zero move.
+   * @evidence contracts/development/design.md#principled-representation The actual current candidate's derivatives in the context's free-coordinate order; point motions are world millimetres and orientation-residual derivatives are degrees.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanArmTrajectoryConvex and the hard point-limit owner consume these rows; segment twists also give arbitrary carried-point derivatives without a second arm Jacobian.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps all probes and the sum-of-column-length movement bound, with absent contact/orientation represented by the original empty lists rather than fabricated rows.
+   */
   export interface IJacobian {
     /** Each probe's motion, millimetres per coordinate unit. */
     probes: IAutoMovieVector3[][];
@@ -63,6 +75,14 @@ export namespace HumanArmTrajectoryJacobians {
    * @param x Each arm's coordinates at each waypoint.
    * @param at The iterate's evaluation.
    * @returns Per arm and waypoint, its Jacobians.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies current iterate inputs, free-column ordering and which waypoints return empty derivatives.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared arm-column owner gives segment-origin twists; each attached point moves by v_origin plus omega cross its current displacement from that origin, scaled to millimetres. Orientation residuals retain turned's original two-sided logarithm reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate's columns feed probe, contact and orientation rows and then the original movement bound; private offsets are initialized at their first original use.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all columns, probe/site order, exact pad placement, 1000 scaling and cross/add grouping, HAIR and movement-bound reductions; no tolerance, target or chart derivative is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For F free coordinates and P probes the required derivative output remains O(FP); each probe-origin displacement and contact placement is computed once per candidate rather than F times, with O(P) temporary offsets.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous candidate's probe points, origins, hand frame and site contact stay fixed while its columns vary. Lazy offsets reuse those exact completed differences only within this candidate; all angular differences remain separate actual readings.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most one private vector per probe and one contact offset survive the column loop, then are released. Only fresh derivative outputs and the original borrowed angular vectors escape; no candidate input or offset history is cached.
    */
   export function of(
     c: M.IContext,
@@ -87,7 +107,10 @@ export namespace HumanArmTrajectoryJacobians {
           const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
             { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
           const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
-            (_, i: number): "upper" | "lower" | "hand" => {
+            (
+              _probe: readonly [IAutoMovieVector3, number],
+              i: number,
+            ): "upper" | "lower" | "hand" => {
               const segment: M.Segment = S.segment(frame, i);
               return segment === "upperArm"
                 ? "upper"
@@ -96,6 +119,8 @@ export namespace HumanArmTrajectoryJacobians {
                   : "hand";
             },
           );
+          const offsets: IAutoMovieVector3[] = [];
+          let contact: IAutoMovieVector3 | undefined;
           for (const column of HumanArmJacobian.columns(
             c.setups[a]!,
             frame,
@@ -103,10 +128,6 @@ export namespace HumanArmTrajectoryJacobians {
             here,
             c.free[a]!,
           )) {
-            const motion = (twist: HumanJacobian.ITwist): IMotion => ({
-              origin: Vector3.scale(twist.linear, 1000),
-              omega: twist.angular,
-            });
             const frames: Record<"upper" | "lower" | "hand", IMotion> = {
               upper: motion(column.upper),
               lower: motion(column.lower),
@@ -116,14 +137,14 @@ export namespace HumanArmTrajectoryJacobians {
             here.probes.forEach(
               ([p]: readonly [IAutoMovieVector3, number], i: number): void => {
                 const owner: "upper" | "lower" | "hand" = owners[i]!;
+                const offset: IAutoMovieVector3 =
+                  offsets[i] ??
+                  (offsets[i] = Vector3.subtract(p, origins[owner]));
                 entry.probes[i]!.push(
                   Vector3.add(
                     frames[owner].origin,
                     Vector3.scale(
-                      Vector3.cross(
-                        frames[owner].omega,
-                        Vector3.subtract(p, origins[owner]),
-                      ),
+                      Vector3.cross(frames[owner].omega, offset),
                       1000,
                     ),
                   ),
@@ -131,15 +152,15 @@ export namespace HumanArmTrajectoryJacobians {
               },
             );
             if (site !== undefined) {
-              const pad: IAutoMovieVector3 = P.pad(here, site.contact);
+              contact ??= Vector3.subtract(
+                P.pad(here, site.contact),
+                here.wrist,
+              );
               entry.pad.push(
                 Vector3.add(
                   frames.hand.origin,
                   Vector3.scale(
-                    Vector3.cross(
-                      frames.hand.omega,
-                      Vector3.subtract(pad, here.wrist),
-                    ),
+                    Vector3.cross(frames.hand.omega, contact),
                     1000,
                   ),
                 ),
@@ -154,7 +175,8 @@ export namespace HumanArmTrajectoryJacobians {
             entry.move = Math.max(
               entry.move,
               column.reduce(
-                (s: number, g: IAutoMovieVector3) => s + Vector3.length(g),
+                (s: number, g: IAutoMovieVector3): number =>
+                  s + Vector3.length(g),
                 0,
               ),
             );
@@ -174,6 +196,14 @@ export namespace HumanArmTrajectoryJacobians {
    * @param owner The segment the point rides.
    * @param p The point, world metres.
    * @returns Its motion, millimetres per coordinate unit, a column per free coordinate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the point's owning arm/waypoint/segment, its world-metre coordinates and each returned column's millimetre units.
+   * @evidence contracts/development/implementation.md#principled-implementation Shifts each current segment-origin twist to the attached point by omega cross p minus origin, then applies the original metre-to-millimetre scale and linear sum.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the actual segment origin once and maps the current derivative columns to fresh point-motion vectors.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves source-column order and the original cross, scale and add grouping; an empty list still performs no point subtraction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(F) output work for F columns with one lazy point-origin subtraction instead of F identical subtractions, and constant temporary storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed point and chosen candidate origin share one private difference within this synchronous map; no motion or pose result is reused across candidates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The private difference dies after the map and never escapes through its fresh returned vectors; no state or resource is retained.
    */
   export function carried(
     at: M.IEvaluation,
@@ -190,17 +220,17 @@ export namespace HumanArmTrajectoryJacobians {
         : owner === "lower"
           ? placed.elbow
           : placed.wrist;
+    let offset: IAutoMovieVector3 | undefined;
     return jac[b]![k]!.segments.map(
       (
         column: Record<"upper" | "lower" | "hand", IMotion>,
-      ): IAutoMovieVector3 =>
-        Vector3.add(
+      ): IAutoMovieVector3 => {
+        offset ??= Vector3.subtract(p, origin);
+        return Vector3.add(
           column[owner].origin,
-          Vector3.scale(
-            Vector3.cross(column[owner].omega, Vector3.subtract(p, origin)),
-            1000,
-          ),
-        ),
+          Vector3.scale(Vector3.cross(column[owner].omega, offset), 1000),
+        );
+      },
     );
   }
 
@@ -214,6 +244,14 @@ export namespace HumanArmTrajectoryJacobians {
    * @param hand The hand's rotation.
    * @param omega The hand's turn per coordinate unit, radians.
    * @returns Degrees per coordinate unit.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rotation-vector residual being differentiated, its two-sided span and the output units.
+   * @evidence contracts/development/implementation.md#principled-implementation Central differences of the existing quaternion-log residual along the supplied world angular velocity preserve that residual's curvature; zero velocity returns the original zero derivative.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Measures the velocity, takes the original positive and negative turned-hand readings, and divides their difference by twice HAIR.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps HAIR, degree conversion, positive-before-negative query order and the rotation-vector owner's sign and zero policies; no linearized-log substitute is used.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two actual quaternion residual readings and constant vector work per nonzero column, with no full-pose perturbation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The normalized angular axis is shared by the two readings; each different angular velocity still evaluates both original residuals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a fresh derivative vector is returned; the local reader, temporary rotations and vectors are released when this call returns or throws.
    */
   export function turned(
     site: IAutoMovieQuaternion,
@@ -223,7 +261,9 @@ export namespace HumanArmTrajectoryJacobians {
     const size: number = Vector3.length(omega);
     if (size === 0) return { x: 0, y: 0, z: 0 };
     const axis: IAutoMovieVector3 = Vector3.scale(omega, 1 / size);
-    const read = (sign: number): IAutoMovieVector3 =>
+    const read: (sign: number) => IAutoMovieVector3 = (
+      sign: number,
+    ): IAutoMovieVector3 =>
       P.rotationVector(
         site,
         Quaternion.multiply(
@@ -232,5 +272,10 @@ export namespace HumanArmTrajectoryJacobians {
         ),
       );
     return Vector3.scale(Vector3.subtract(read(1), read(-1)), 1 / (2 * HAIR));
+  }
+
+  /** A current segment twist in the convex subproblem's millimetres, borrowing only its angular vector. */
+  function motion(twist: HumanJacobian.ITwist): IMotion {
+    return { origin: Vector3.scale(twist.linear, 1000), omega: twist.angular };
   }
 }

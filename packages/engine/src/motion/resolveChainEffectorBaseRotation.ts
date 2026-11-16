@@ -2,13 +2,16 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
+  IAutoMovieJointAxes,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import type { IAutoMovieChainBone } from "../kinematics/IAutoMovieChainBone";
 import type { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import type { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import { Quaternion } from "../math/Quaternion";
+import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 
 /** Source end articulation and clinical mappings corresponding to completed FK frames. */
@@ -76,13 +79,16 @@ export namespace resolveChainEffectorBaseRotation {
    * when available. Completed FK must have admitted the same end articulation
    * and unchanged non-chain records. The caller owns remaining upper/mid
    * admission and must have admitted strict upper-to-mid-to-end ancestry.
+   * An optional same-operation resolution reader reuses the exact end
+   * articulation the preceding FK completed; missing end records still use
+   * identity without admitting any clinical basis.
    *
    * States completed end/non-chain admission, the caller's remaining chain admission, strict ancestry and exact optional-inverse identity.
    * Full FK gives endWorld = lowerWorld * fixedFrame * endArticulation, so left multiplication by lowerWorld inverse and right multiplication by the last end articulation inverse recover the fixed frame.
    * The same recovery serves preparation and the checked standalone entry, with no repeated FK or ancestry scan after preparation's admission.
    * Skeleton-declared axes override the host table and the last actual end articulation is removed; unchanged intermediate transforms remain in the recovered frame.
-   * One O(J) last-record scan, at most one O(B) bone lookup and one clinical conversion plus constant quaternion work; preparation reuses its already computed lower inverse.
-   * Borrows the caller's completed full-FK frames and exact lower inverse, rather than resolving the same pose again.
+   * One O(J) last-record scan, at most one O(B) bone lookup and one clinical conversion or same-valued reader lookup plus constant quaternion work; preparation reuses its lower inverse and completed end articulation without another FK. Runtime speedup is unmeasured.
+   * Borrows the caller's completed frames and lower inverse; a matching synchronous resolution reader reuses the exact end quaternion its ordered FK already admitted, while an absent end still admits no basis.
    * Returns one derived quaternion and retains no inputs, map, rig, handle or task after return.
    */
   export function fromPrepared(
@@ -90,21 +96,26 @@ export namespace resolveChainEffectorBaseRotation {
     lower: IAutoMovieChainBone,
     end: IAutoMovieChainBone,
     inverseLower?: IAutoMovieQuaternion,
+    resolution?: ReturnType<typeof preparePoseResolution>,
   ): IAutoMovieQuaternion {
     let joint: IAutoMovieJointPose | undefined;
     for (const candidate of props.pose.joints)
       if (candidate.bone === props.chain.effector) joint = candidate;
-    const articulation: IAutoMovieQuaternion =
-      joint === undefined
-        ? Quaternion.identity()
-        : jointToQuaternion(
-            joint,
-            props.skeleton.bones.find(
-              (bone: IAutoMovieBone): boolean =>
-                bone.bone === props.chain.effector,
-            )?.axes ?? props.jointAxes?.[props.chain.effector],
-            props.restFrames?.[props.chain.effector],
-          );
+    let articulation: IAutoMovieQuaternion;
+    if (joint === undefined) articulation = Quaternion.identity();
+    else {
+      const axes: IAutoMovieJointAxes | undefined =
+        props.skeleton.bones.find(
+          (bone: IAutoMovieBone): boolean =>
+            bone.bone === props.chain.effector,
+        )?.axes ?? props.jointAxes?.[props.chain.effector];
+      const frame: IAutoMovieRestFrame | undefined =
+        props.restFrames?.[props.chain.effector];
+      articulation =
+        resolution === undefined
+          ? jointToQuaternion(joint, axes, frame)
+          : resolution.joint(joint, axes, frame);
+    }
     return Quaternion.multiply(
       Quaternion.multiply(
         inverseLower ?? Quaternion.inverse(lower.worldRotation),

@@ -10,10 +10,12 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
+  IAutoMovieBodyMeasure,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingAim } from "./StrikingAim";
@@ -154,18 +156,18 @@ export namespace punchContact {
   /**
    * Solve a punch at its contact.
    *
-   * @param context The action's context.
+   * @param context The action's context, whose body keeps its topology and skeleton unchanged.
    * @param timing The punch's timing.
    * @param tangent The varied point within a person's region, when the punch varies.
    * @returns The contact's solution.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States its inputs and result; the namespace states the method.
+   * @evidence contracts/development/common.md#meaningful-documentation States its inputs, result and the body's unchanged-skeleton topology premise; the namespace states the contact method.
    * @evidence contracts/development/implementation.md#principled-implementation The wrist goal is the tracked fist point less the hand-rotated socket, the step-in closes the line to the band's mid reach, and the two-segment reach solves the arm within the technique's flexion band.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the turned and lowered shoulder, the fist, the tracking, then the step-in and the arm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no place on the line brings within the band is not stepped toward; a feint does not step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose resolution and constant work beside the tracker's samples.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per built geometry, which the plan keeps.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the entry pose's bones and the tracker, released with the geometry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and J pose joints, trunk and entry FK plus clamp metadata cost O(B+J), plus existing per-joint numerical projection and optional HumanDigitFit search; each tracker correction adds a bounded reach calculation, while room scans retain StrikingRoom's existing cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's topology for its same unchanged skeleton while resolving trunk and entry transforms afresh; each arrival's reach is also kept in reaches for this geometry, indexed by the tracker's ordered corrections.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned correction closure holds its context, tracker, entry bone map, room result, one launch reach and at most one reach per tracker correction; this operation-local state is released with the geometry, without a global cache or resource handle.
    */
   export function solve(
     context: IHumanActionContext<punch.IParams>,
@@ -173,16 +175,18 @@ export namespace punchContact {
     tangent: resolveAutoMovieHumanoidSurfaces.ITangent | undefined,
   ): IContact {
     const p: punch.IParams = context.params;
-    const { side, lead, which, delivery } = timing;
-    const body = context.body;
-    const m = body.measure;
+    const { side, lead, which, delivery }: punchGeometry.ITiming = timing;
+    const body: IHumanBody = context.body;
+    const m: IAutoMovieBodyMeasure = body.measure;
     const t0: number = context.start;
     const entry: IHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const fist: "fistLeft" | "fistRight" =
       side === "left" ? "fistLeft" : "fistRight";
     const at: AutoMovieMotionTarget = p.at;
-    const aim = (seconds: number): IAutoMovieVector3 => {
+    const aim: (seconds: number) => IAutoMovieVector3 = (
+      seconds: number,
+    ): IAutoMovieVector3 => {
       if (tangent !== undefined && at.kind === "person") {
         const other: IHumanActionContext.IPerformer = context.performer(
           at.subject,
@@ -313,6 +317,7 @@ export namespace punchContact {
         body.skeleton,
         HUMANOID_JOINT_AXES,
         HUMANOID_REST_FRAME,
+        body.topology,
       ).map(
         (
           r: IAutoMovieResolvedBone,
@@ -337,7 +342,10 @@ export namespace punchContact {
     // A correction keeps the launch's decision to step and its direction
     // (`punchFootwork`): it changes how far the foot goes, never whether or
     // which way, so its arm is solved on the shoulder the body carries.
-    const reach = (
+    const reach: (
+      goal: IAutoMovieVector3,
+      decided?: number,
+    ) => punchReach.IReach = (
       goal: IAutoMovieVector3,
       decided?: number,
     ): punchReach.IReach => {
@@ -405,7 +413,9 @@ export namespace punchContact {
     // Each correction's reach, solved on the tracker's goal once that
     // correction has arrived and kept: the i-th after the launch plan.
     const reaches: punchReach.IReach[] = [launched];
-    const corrected = (seconds: number): punchReach.ICorrection[] => {
+    const corrected: (seconds: number) => punchReach.ICorrection[] = (
+      seconds: number,
+    ): punchReach.ICorrection[] => {
       const out: punchReach.ICorrection[] = [];
       let goal: IAutoMovieVector3 = tracker.planned;
       tracker
