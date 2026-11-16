@@ -1,6 +1,6 @@
 # Passes
 
-A pass is what a cell draws of its subject. This document owns choosing passes, keeping them matched and marking what a measurement found.
+A pass is what a cell draws of its subject. This page owns choosing passes, keeping them matched and marking what a measurement found.
 
 ## Choosing a pass
 
@@ -12,7 +12,7 @@ A pass is what a cell draws of its subject. This document owns choosing passes, 
 | Where joints, contacts, targets and paths are | An overlay of them on the picture |
 | What a receiver is given | The guide channel itself, read through the receiver's input path |
 
-Use a structural pass only for the quantity it documents, and read its range and convention before reading its colors. A plausible image does not establish that a pass holds what its name says. Fields such as skin weights or curvature are judged only where a production's models need them, as [inspecting a form](../3d-modeling/inspection.md#fields-judged-only-where-needed) decides.
+Use a structural pass only for the quantity it documents, and read its range and convention before reading its colors, because a plausible image does not establish that a pass holds what its name says. Fields such as skin weights or curvature are judged only where a production's models need them, as [inspecting a form](../3d-modeling/inspection.md#fields-judged-only-where-needed) decides.
 
 ## Matched passes
 

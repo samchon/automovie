@@ -1,14 +1,12 @@
 # Refusals
 
-What to do when an installed package refuses what the production composed.
-
-A refusal from the motion vocabulary says that a real person could not perform the action as composed, from where they are, with what they hold. The archetypes refuse the same way for an object, such as a dimension outside its range or an affordance it lacks. Either is a finding about the scene, raised when the performance or the object is built, before any frame is drawn. The package's README and types list the kinds of refusal and what each reports.
+A refusal from the motion vocabulary says that a real person could not perform the action as composed, from where they are, with what they hold and under the forces on them. The archetypes refuse the same way for an object, such as a dimension outside its range or an affordance it lacks. Either is a finding about the scene, raised when the performance or the object is built, before any frame is drawn. The package's README and types list the kinds of refusal and what each reports.
 
 ## Repairing the named axis
 
-Change the one [axis](SKILL.md#action-axes) the refusal names, as it says, then build again. The change is often to what precedes the action rather than to the action: the performer steps nearer before a reach, frees a hand before a grip, or sits or stands before an action the base does not allow.
+Change the one [axis](composition.md#action-axes) the refusal names, as it says, then build again. The change is often to what precedes the action: the performer steps nearer before a reach, frees a hand before a grip, or sits or stands before an action the base does not allow. An outcome the force cannot produce needs a force its study supports, or another outcome from the screenplay.
 
-Take the repair from the screenplay. When two repairs would plan, choose the one the beat describes, because a repair that only silences the refusal stages a different scene. A refusal that is caught and passed over leaves the person standing still in the film. A value widened until the refusal stops moves the fault into the picture, where it is harder to find.
+Take the repair from the screenplay: when two repairs would plan, choose the one the beat describes, because a repair that only silences the refusal stages a different scene. A refusal caught and passed over leaves the person standing still in the film, and a value widened until the refusal stops moves the fault into the picture, where it is harder to find.
 
 ## When no repair holds
 

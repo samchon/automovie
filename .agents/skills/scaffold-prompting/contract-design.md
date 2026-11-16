@@ -1,29 +1,21 @@
 # Contract design
 
-A shipped contract is a checklist of items that each selected respondent answers about itself, as the production's [contracts](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md) defines them. The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
-
-## Scope and failure
-
-Give each item what the [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) asks of a new question. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A finding under a broad item still cites the passage or output, its context and the concrete loss to its recipient.
-
-Judge sufficient and excessive detail in the same achievement. More explanation, geometry, emphasis or variation can displace the required action or experience.
+A shipped contract is a checklist of items that each selected respondent answers about itself, as the production's [contracts](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md) define them. The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns how a production adds a requirement, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection.
 
 ## Items and statements
 
-Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`. Its question opens the text under it and stays short enough to hold in mind while answering. An item that is already one short question needs no statements.
+An item is an H2 naming its theme, such as `Beat decisions`, opened by one question short enough to hold in mind while answering. Its checkable detail goes into statements under the item, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) define; an item that is already one short question needs none.
 
-Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
+Write each statement so one reading of the work finds it met or failed, and attach each exception, such as useful notation, deliberate stillness or an adopted stylization, to the statement it limits. Say whether listed failures are examples of a broader achievement or the whole boundary of the judgment, so review cannot turn taste into a requirement. Judge sufficient and excessive detail in the same item, because more explanation, geometry or emphasis can displace the required action.
 
-A contract family is a folder of contracts that one owner keeps, and a new sentence pattern needs no new family. When adding a family, confirm against the selector documentation of `@automovie/evidence` that no selector selects the family's statements documents.
+A contract family is a folder one owner keeps; a new sentence pattern needs no new family. When adding one, confirm against the selector documentation of `@automovie/evidence` that no selector selects its statements.
 
 ## Changing items
 
-Compare proposed items with existing ones for overlap, contradiction and whether all can be met at once. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
+Compare a proposed item with the existing ones for overlap, contradiction and whether all can be met at once. Preserving meaning must not freeze defective wording, removing a failure must not delete a setup or promised tone, and correcting expression must not invent facts or events.
 
-Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
+An H2 title is an address, so keep it stable, and move callers, selected respondents and dependencies together with a moved item. Existing answers and approvals do not certify a changed obligation, and closed work follows the production's [closed passes](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes).
 
 ## New criteria
 
-Record verified source support and its limits in [research routes](research-routes.md), never in the item or its statements, because the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) lets neither cite a source.
-
-Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported. Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).
+Neither an item nor its statements cites a source, so record a new criterion's support and limits in [research routes](research-routes.md). A shared criterion must work across subjects; a local observation stays local until its generalization is supported. Tell a clarified ownership, a corrected contradiction or a user's requirement apart from a new claim that a prescription improves quality, and record an unverified prescription as a candidate rather than make it mandatory.

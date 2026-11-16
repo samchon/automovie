@@ -1,6 +1,6 @@
 # Review unit principles
 
-Each review H2 answers for the authored H2 or precise relationship it inspected, identifying its creative reading. These questions assess the review record, not the creative quality of the work being reviewed.
+Each review H2 answers for the authored H2 or precise relationship it inspected, identifying its creative reading. These questions assess the review record, not the creative quality of the work reviewed.
 
 Statements: [statements/principles/review.md](../statements/principles/review.md).
 

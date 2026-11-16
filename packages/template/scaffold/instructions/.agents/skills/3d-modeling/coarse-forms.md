@@ -1,6 +1,6 @@
 # Coarse forms
 
-A coarse form is the few primitives that tell a reader of the hint what a subject is, how big it is and where its parts are. A person takes the polygon man under [entity work](../development/entities.md#people), and an object people use takes an [installed archetype](../development/entities.md#objects) where one offers it; this page covers every other subject.
+A coarse form is the few primitives that tell a reader of the hint what a subject is, how big it is and where its parts are. It serves every subject that is neither a person nor an object an [installed archetype](../development/entities.md#objects) offers.
 
 ## Parts
 
@@ -10,13 +10,13 @@ Add a further part only when a scene uses it: one a body grips, sits on, strikes
 
 ## Size
 
-Take every dimension from the subject's record. The hint's outline and depth are rendered from the form, so a wrong size or bulk comes back wrong in the film.
+Take every dimension from the subject's record, because the hint's outline and depth are rendered from the form and a wrong size or bulk comes back wrong in the film.
 
 ## Primitives
 
 Use boxes, cylinders, cones, spheres, wedges and flat outlines extruded straight, each with the fewest sides that keep its outline at the scene's camera distance. A low-polygon kit piece from [Sources](sources.md) serves instead when it already has these parts at the record's size.
 
-Leave out bevels, surface relief, ornament, texture and any interior no camera sees. [Entity work](../development/entities.md#what-stays-out) says how the facts a coarse form cannot show reach the film.
+Leave out bevels, surface relief, ornament, texture and any interior no camera sees; [what stays out](../development/entities.md#what-stays-out) says how the facts a coarse form cannot show reach the film.
 
 ## Outline check
 

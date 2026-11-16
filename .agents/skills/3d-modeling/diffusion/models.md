@@ -1,6 +1,6 @@
 # 3D models
 
-The generators table compares the inputs a current text- or image-to-3D model takes and what it delivers beyond the mesh, and the shape table names examples of each [shape hint](shape-hints.md). Take every value from the chosen model's documentation, and read its terms for whether its output may be used.
+These tables name current examples: the generators by the inputs they take and what they deliver beyond the mesh, and the models behind each [shape hint](shape-hints.md). Take every value from the chosen model's documentation, and read its terms for whether its output may be used.
 
 ## Generators
 

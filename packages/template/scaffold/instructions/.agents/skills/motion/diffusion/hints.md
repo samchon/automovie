@@ -21,13 +21,13 @@ Bring the performance into the model's frame rate, skeleton and body in this ord
 | Style transfer | The clip and a reference of the style | The timing and path, while the manner changes |
 | Text or music | A description of the manner, or the score | Nothing of the performance, so use it only beside one of the above |
 
-Keep the keys few and far enough apart for the model to fill, within its documented gap and length, and give it the beat's [manner](../compose/SKILL.md#action-axes) as text where it takes text.
+Keep the keys few and far enough apart for the model to fill, within its documented gap and length, and give it the beat's [manner](../compose/composition.md#action-axes) as text where it takes text.
 
 Plain imputation of keys at every step leaves jumps around each key, and loose guidance drifts off them. Prefer a model trained for in-betweening, or one that enforces its constraints by a final optimization, and check the result either way.
 
 ## Checks
 
-A contact exact on the polygon man arrives at the model only approximately, so after retargeting back, measure on the polygon man:
+A contact exact on the polygon man reaches the model only approximately, so after retargeting back, measure on the polygon man:
 
 - the distance from each authored key and target;
 - every authored contact and grip, checked under [retargeting](../retargeting.md#contacts-and-time).

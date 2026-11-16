@@ -1,12 +1,14 @@
 # Control channels
 
-A motion hint reaches its receiver through control channels rendered from the performance. [Video](../video/SKILL.md) decides which channels the chosen model takes; this document owns rendering them from the performance.
+A motion hint reaches its receiver through control channels rendered from the performance. [Video](../video/SKILL.md) decides which channels the chosen model takes; this page owns rendering them.
 
 ## Channels to render
 
-Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, outline, a semantic mask or the tracks of chosen points; the outline, a line drawing, is the channel nearest a model's edge input, and point tracks projected from the scene are exact where a model drawing trajectories would guess them. Material channels, such as base color, roughness and metallic, carry only what the forms' materials hold, so they serve a receiver only on a film that switched on its [detail options](../development/entities.md#detail). Read the installed packages' documentation for what each really outputs, because a mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
+Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, outline, a semantic mask or the tracks of chosen points. The outline, a line drawing, is the channel nearest a model's edge input, and point tracks projected from the scene are exact where a model drawing trajectories would guess them. Material channels, such as base color, roughness and metallic, carry only what the forms' materials hold, so they serve a receiver only on a film that switched on its [detail options](../development/entities.md#detail).
 
-Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form than from a shaded one, and render it without inspection overlays such as axes, paths or marks, which a model draws as objects. Keep its forms plain, without textures or lettering, because surface detail competes with the references.
+Read the installed packages' documentation for what each channel really outputs, because a mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
+
+Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form. Render it without inspection overlays such as axes, paths or marks, which a model draws as objects, and keep its forms plain, without textures or lettering, because surface detail competes with the references.
 
 Render from the scene any control mask a [request](../video/requests.md) asks for, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess.
 
@@ -18,9 +20,9 @@ A control adapter conditions a model on a structural channel, such as pose, dept
 
 Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and keep them [matched as passes](../visual-debugging/passes.md#matched-passes) of one evaluated performance and view. A matching frame count does not prove matching poses or events.
 
-Read each channel's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural channel keeps its values free of exposure, tone mapping or overlays.
+Read each channel's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. Keep a structural channel's values free of exposure, tone mapping and overlays.
 
-An adapter was trained on its own annotator's convention, such as depth stretched per frame or a pose skeleton with face and hand points. Compare one frame of each rendered channel with that annotator's output on the same hint frame, and report a mismatch under [installed packages](../development/reuse.md#installed-packages). Until it is fixed, pass the annotator's own depth computed from the hint video, but keep the rendered pose, because an annotator misreads a faceless figure.
+An adapter was trained on its own annotator's convention, such as depth stretched per frame or a pose skeleton with face and hand points. Compare one frame of each rendered channel with that annotator's output on the same hint frame, and report a mismatch under [installed packages](../development/reuse.md#installed-packages). Until it is fixed, pass the annotator's own depth computed from the hint video but keep the rendered pose, because an annotator misreads a faceless figure.
 
 ## Handoff
 

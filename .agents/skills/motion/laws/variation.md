@@ -20,4 +20,4 @@ Scale each draw's spread by two regularities that hold across tasks. The varianc
 
 Take each random draw from a stream keyed by the seed and by stable identities: the performer, the action, its instance and the quantity drawn. Adding, removing or reordering one action then leaves every other draw unchanged. A single stream consumed in order changes the whole film when one action is inserted.
 
-A seed varies the motion inside the bounds its study gives. It never chooses an outcome.
+A seed varies the motion inside the bounds its study gives. It never chooses an outcome, nor how many members of a group an outcome takes: the caller gives that count, or a studied rate the code turns into a count, and the seed chooses only which members.

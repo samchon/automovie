@@ -5,7 +5,7 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 | Use | What is taken from the trace |
 | --- | --- |
 | A clip the user chose to trace, from footage or a generated video | The whole motion, cleaned, then [retargeted](../retargeting.md) onto the cast member |
-| Keys for the composed performance | Poses at chosen instants, which the vocabulary [composes](../compose/SKILL.md) between or a model in-betweens under [hints](hints.md) |
+| Keys for the composed performance | Poses at chosen instants, which the vocabulary [composes](../compose/composition.md) between or a model in-betweens under [hints](hints.md) |
 | A [performance study](../../story/planning/research.md#performance-study), from real footage only | Timing, ranges and paths, recorded as estimates with their method |
 
 ## Rights

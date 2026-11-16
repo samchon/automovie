@@ -1,29 +1,25 @@
 # Mesh recovery
 
-Use the recovery package to observe a fixed external mesh, save its curve or surface coefficients, and regenerate an internal model through the engine, interface and viewer packages.
+Mesh recovery observes a fixed external mesh with the recovery package, saves curve or surface coefficients, and regenerates an internal model from them through the engine, interface and viewer packages.
 
-Recover only for what a mesh cannot give: a parameter that [Conditioning](../conditioning.md#variation) cannot vary on the mesh, regeneration at another resolution, or a smooth join to a lofted body. Nearness to the camera or motion alone is no reason to recover, because recovery is the costliest route and discards a usable rig.
+Recover only for what a mesh cannot give: a parameter that [Conditioning](../conditioning.md#variation) cannot vary on the mesh, regeneration at another resolution, or a smooth join to a lofted body. Recovery is the costliest route and discards a usable rig, so nearness to the camera or motion alone is no reason for it.
 
 ## Observation and fitting
 
-Read the recovery package's README, public types and JSDoc for inputs, supported operations, saved formats and diagnostic meanings. Run through its public API; file publication and command dispatch belong to the project's recovery tool.
+The recovery package's README, public types and JSDoc own its inputs, operations, saved formats and diagnostics. Call its public API, and leave file publication and command dispatch to the project's recovery tool.
 
-Start from a mesh frozen and normalized under [Conditioning](../conditioning.md) and segmented into the asset's parts.
+Start from a mesh frozen and normalized under [Conditioning](../conditioning.md) and segmented into the asset's parts. Prepare evaluated triangles under the package's coordinate, unit, pose and face-orientation contracts. Bind the observation to the exact source bytes, selected components, evaluated pose and applied transform, convert coordinate conventions at one named boundary, and keep that registration fixed for comparison.
 
-Prepare evaluated triangles under the package's coordinate, unit, pose and face-orientation contracts. Bind the observation to the exact source bytes, selected components, evaluated pose and applied transform, converting coordinate conventions at one named boundary, and keep that registration fixed for comparison.
-
-Extract observations algorithmically and fit compact coefficients, preserving their parameterization, continuation and shared boundary relationships. Follow [Lofting](lofting.md) for section families.
+Extract observations algorithmically and fit compact coefficients that keep their parameterization, continuation and shared boundaries, under [Lofting](lofting.md) for section families. A source's own errors, such as a generated mesh's invented hidden sides or melted thin parts, are not targets to fit.
 
 ## Independent generation
 
-Reconstruct from the saved representation alone through the recovery API and the engine and interface model path. Never use original positions, topology or normal fields as a reconstruction fallback. Derive the surface and displayed construction from the same coefficients.
+Reconstruct from the saved representation alone, through the recovery API and the engine and interface model path, never falling back on the original positions, topology or normals. Derive the surface and its displayed construction from the same coefficients.
 
-Recovered coefficients reproduce one shape. When the asset must vary, derive its shared dimensions and formulas under [Crafting](SKILL.md).
+Recovered coefficients reproduce one shape. An asset that must vary derives shared dimensions and formulas under [Crafting](SKILL.md).
 
 ## Comparison and correction
 
-Load the newly reconstructed model and its generating construction in the actual viewer. Show the fixed source and result side by side under matching view and render conditions, deriving each mesh's normals from its own geometry. Lines drawn over the source do not show an independently reconstructed surface.
+Load the reconstructed model and its construction in the actual viewer, beside the fixed source under matching view and render conditions, with each mesh's normals derived from its own geometry. Lines drawn over the source do not show an independent reconstruction.
 
-Follow [form inspection](../inspection.md) and its [correction rounds](../../visual-debugging/correction-rounds.md). Trace deviations through preparation, observation, fitting, correspondence, generation and display, then correct their causes. Judge the actual reconstructed result, including missing and uncovered regions and visible defects, alongside package diagnostics; a completed command or numerical fit alone does not establish fidelity. Limited observations justify only the shape and views they support.
-
-A source's own errors, such as a generated mesh's invented hidden sides or melted thin parts, are not targets to fit.
+Correct under [form inspection](../inspection.md) and its [correction rounds](../../visual-debugging/correction-rounds.md), tracing deviations through preparation, observation, fitting, correspondence, generation and display. Judge the reconstructed result itself, including missing and uncovered regions and visible defects, alongside the package's diagnostics, because a completed command or a numerical fit does not establish fidelity. Limited observations justify only the shape and views they support.

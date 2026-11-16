@@ -1,12 +1,12 @@
 # Treatment population obligations
 
-The complete ordered population answers once per question about event design, not the later script partition.
+The complete ordered population answers each question once, about event design, not the later script partition.
 
 Statements: [statements/obligations/treatments.md](../statements/obligations/treatments.md).
 
 ## Whole event design
 
-Read the whole sequence in order: does what the audience knows, expects and receives build from the first event to an ending that follows from it? Clear events can still leave a payoff unsupported, a setup abandoned or a middle that resets.
+Read in order, does what the audience knows, expects and receives build from the first event to an ending that follows from it? Clear events can still leave a payoff unsupported, a setup abandoned or a middle that resets.
 
 ## Material and handoff
 

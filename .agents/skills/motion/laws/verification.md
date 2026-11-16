@@ -1,17 +1,13 @@
 # Motion verification
 
-Give each action isolated cases. Each case's checks test the action's own goal as bounded assertions, in the unit tests or capture checks the project has:
+Give each action isolated cases, because a case that only shows the action establishes nothing. Each case tests the action's own goal as bounded assertions, in the unit tests or capture checks the project has, and unit tests of the laws answer the [testing contract](../../contracts/development/testing.md). The assertions cover:
 
 - the distance from effector to target;
 - penetration;
 - slip of every planted or held contact;
 - range-of-motion overshoot;
 - balance, as the extrapolated center of mass against the support (Hof 2005);
-- continuity of every displayed channel and of its velocity at every cut.
-
-A case that only shows the action establishes nothing.
-
-Unit tests of the laws answer the [testing contract](../../contracts/development/testing.md).
+- continuity of every displayed channel and of its velocity at every cut and at each end of a simulated window.
 
 ## Checks that can fail
 

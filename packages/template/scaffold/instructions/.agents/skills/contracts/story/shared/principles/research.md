@@ -6,8 +6,8 @@ Statements: [statements/principles/research.md](../statements/principles/researc
 
 ## Depicted practice
 
-Can each author who cites the study use it to write or program the practice at the depicted level without inventing it, including, for a performed practice, how densely its actions come and how they are distributed? A rank or an adjective, a list of technique names without laws, an outcome no table covers or a value with no source leaves the next author to invent the practice. A deliberately stylized departure is recorded as a choice and is not a gap.
+Can each author who cites the study write or program the practice at the depicted level without inventing it, including, for a performed practice, how densely its actions come and how they are distributed? A rank or an adjective, technique names without laws, an outcome no table covers or a value with no source leaves the next author to invent the practice. A deliberately stylized departure is recorded as a choice and is not a gap.
 
 ## Traceable sources
 
-Does every observation name its retained source with a locator such as a page, figure or timestamp, and say what kind of observation it is? A search summary, a portal page or a remembered fact is a route to evidence, not a source.
+Does every observation name its retained source with a locator, such as a page, figure or timestamp, and say what kind of observation it is? A search summary, a portal page or a remembered fact is a route to evidence, not a source.
