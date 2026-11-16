@@ -1,10 +1,14 @@
 # Turnaround views
 
-Turnaround views give an image-to-3D model or a modeler a subject's sides. They serve only a commissioned [detail option](../development/entities.md#detail) or standalone asset under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none. They are a set apart from the [canon references](canon-references.md), which a standalone asset also takes first, from its own record. [Image hints](../3d-modeling/diffusion/image-hints.md) owns what each view must look like and which views a model takes.
+Turnaround views show a subject's sides for a commissioned [detail option](../development/entities.md#detail) or standalone asset under [3D modeling](../3d-modeling/SKILL.md). A coarse entity needs none.
+
+Keep this set separate from the subject's frozen [canon references](canon-references.md). [Image hints](../3d-modeling/diffusion/image-hints.md) owns the required views and their form.
 
 ## Making the views
 
-Pose the subject's coarse form as [image hints](../3d-modeling/diffusion/image-hints.md#pose) set, render it from fixed cameras at one framing and even light, and restyle each render from the frozen canon references through a [conditioning route](conditioning.md#routes). Give every view the same references and prompt, and give the accepted front view beside the canon references for each further angle. A multi-view model, where one is chosen, generates the set together from the front view and the coarse form's mesh, which keeps the views in agreement.
+Pose the coarse form under [image hints](../3d-modeling/diffusion/image-hints.md#pose). Render the required views with matched framing and even light, then restyle them from the same canon references through [conditioning](diffusion/conditioning.md#routes).
+
+Generate views together where supported, using the accepted front view and mesh in their documented roles. Otherwise give the accepted front view beside the canon references for each further angle.
 
 Lay the views side by side and check that they agree on proportions, parts and colors before handing them on.
 

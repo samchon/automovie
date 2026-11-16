@@ -35,7 +35,7 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 
 - the hint video or its channels, for motion and camera;
 - the canon references, for identity and appearance;
-- a [shot frame](../image/conditioning.md#shot-frames), for appearance at the hint's pose;
+- a [shot frame](../image/diffusion/conditioning.md#shot-frames), for appearance at the hint's pose;
 - the accepted previous take, for continuing its motion under [continuity](diffusion/continuity.md#chaining-requests);
 - accepted dialogue audio or a voice reference, for speech, where the model takes one.
 
