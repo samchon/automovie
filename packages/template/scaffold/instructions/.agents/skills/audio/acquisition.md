@@ -6,13 +6,19 @@ Audio is generated and recorded outside deterministic replay. Before wiring audi
 
 ## Source choice
 
-Use the user's recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and [local speech](#local-speech) or other local generation, against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code.
+Use the user's recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted service, and [local generation](diffusion/models.md), against the required language, performance, privacy, cost and turnaround, using existing connectors and command-line tools before writing acquisition code.
 
 Check each asset's terms, on every layer [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery. Permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither; a recorded song needs both a synchronization license for the composition and a master-use license for the recording. Clone or design a voice after a real person only with that person's recorded consent, and through the provider's own voice verification where it has one.
 
 ## Generating speech
 
-Generate one take of a few full lines in the production's language and voice, measure it and have the user listen to it before any batch. Generate a scene's exchange in one request where the speech model takes several speakers, so the turns keep their timing together. Pin each voice with its accepted reference audio and record the model, seed and settings with every take, expecting variation between runs all the same.
+Write speech and voice descriptions under [prompts](diffusion/prompts.md), or use [cloning](diffusion/cloning.md) for a reference voice or an existing performance.
+
+## Voice preview
+
+Make a preview only when the user wants to hear voices before video generation, with [speech prompts](diffusion/prompts.md) or [cloning](diffusion/cloning.md). Add [effects](sound-effects.md) only when requested too.
+
+Ask the user to play it alongside the motion hint and listen. A preview is never delivered or required, and the [video prompt](../video/diffusion/prompts.md#sound) still carries the film's sound.
 
 ## Take adoption
 
@@ -24,14 +30,12 @@ For a commissioned soundtrack, keep an accepted music take's tempo map beside it
 
 ## Listening
 
-Measure what the decoded bytes show, such as duration, silence, clipping and loudness, and ask the user to listen to each adopted take for words, pronunciation, performance and noise. A waveform, timing report or successful render does not show that the intended recording is audible. The [commissioned soundtrack](soundtrack.md) sets the other listenings; in the delivered audio the user listens for intelligibility, missing cues, transitions and the ending.
+Measure what the decoded bytes show, such as duration, silence, clipping and loudness, and ask the user to listen to each adopted take for words, pronunciation, performance and noise. A waveform, timing report or successful render does not show that the intended recording is audible.
 
-## Local speech
+Check the current model's input modalities and available audio tools before claiming to hear a file. Reading or decoding bytes, displaying a player, invoking playback and transcribing voice input do not give a coding model auditory access.
 
-Speech, such as a voice preview, can be generated on the local machine. [VoxCPM](https://github.com/OpenBMB/VoxCPM) is one option; its README, [installation guide](https://voxcpm.readthedocs.io/en/latest/installation.html) and [quick start](https://voxcpm.readthedocs.io/en/latest/quickstart.html) own model versions, platform requirements and interfaces. Choose a model against the requested language, performance and the actual machine.
+Automatic speech recognition can compare recognized words with the script; report the recognizer and its uncertainty. A matching transcript does not establish pronunciation, acting, timbre, speaker similarity or a clean mix.
 
-Before installing one, get the user's approval for the environment location, dependencies, model downloads and storage, including downloads the first inference triggers; an existing approval covering that setup is enough. Install it in an isolated environment outside the JavaScript dependencies, record the setup in [project context](../production/project-context.md) and document its commands in the README.
+Keep measured properties, tool-derived judgments and user listening reports distinct. Never describe an unlistened take as having passed a listening check.
 
-## Voice preview
-
-Make a preview only when the user wants to hear the voices before video generation, with [local speech](#local-speech) or another speech service, adding [sound effects](sound-effects.md) only when the user asks for them too. Ask the user to play it alongside the motion hint and listen. A preview is never delivered or required, and the video prompt still carries the film's sound.
+The [commissioned soundtrack](soundtrack.md) sets the other listenings; in the delivered audio the user listens for intelligibility, missing cues, transitions and the ending. Report any outstanding listening when handing over generated audio.
