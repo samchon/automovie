@@ -1,15 +1,12 @@
----
-name: direct-film
-description: Finishes a programmed film as a direct 3D film, rendered without video diffusion, namely the detail each subject shows, its materials, light and grade, faces and speech, the renderer's effects, and what to check in its picture. Use when a direct 3D film is commissioned, before switching on its detail options, and when judging its rendered picture.
----
-
 # Direct 3D film
 
-A direct 3D film is the programmed film itself, rendered at the detail its commission sets. No video model repaints it, so everything the audience sees comes from the entities, their light and the renderer. Motion, staging and camera are accepted on the coarse forms first, as [entity work](../development/entities.md#detail) sets, and this skill switches the detail on last.
+A direct 3D film is the programmed film itself, rendered at the detail its commission sets. Everything the audience sees comes from the entities, their light and the renderer.
+
+Accept motion, staging and camera on the coarse forms first. Then select the same entity's commissioned [detail option](../development/entities.md#detail), preserving the accepted performance.
 
 ## Detail
 
-Ask the user which subjects need detail and from which source, because 3D modeling leaves a detailed form's source to the user. Give each subject the [detail option](../development/entities.md#detail) its closest shot needs, built under [3D modeling](../3d-modeling/SKILL.md#requested-detail) from its record and canon references.
+Select each subject's commissioned [detail option](../development/entities.md#detail). Build a missing option under [3D modeling](../3d-modeling/SKILL.md#requested-detail) from its record and canon references.
 
 A person keeps the skeleton and proportions the motion was accepted on. The detailed body comes from the installed human package where it offers one, and otherwise from a generated or found body bound to that skeleton under [rigging](../3d-modeling/rigging.md). Wardrobe and hair belong to the same cast entity's detail option, rigged to the same skeleton, as one clothed mesh or as separate garments that change by story day without a new body.
 
@@ -35,7 +32,7 @@ Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md
 
 The installed renderer draws the film through the README's render command. Read in its README and types which effects it draws, such as depth of field, motion blur and antialiasing, and at what cost; treat an effect they do not name as absent. An effect the commission needs and the renderer lacks follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap), and [delivery review](../review/delivery-review.md) discloses it.
 
-A renderer outside the installed packages, such as an offline path tracer or a 3D suite, can draw the film only through a scene export the packages document. Where they document none, tell the user it is a limit of the film rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
+A renderer outside the installed packages, such as an offline path tracer or a 3D suite, can draw the film only through a scene export the packages document. Where they document none, tell the user it is a limit of the film rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a [generated film](generated-film.md).
 
 ## What to look for
 

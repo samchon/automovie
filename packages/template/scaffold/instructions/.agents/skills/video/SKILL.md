@@ -1,20 +1,19 @@
 ---
 name: video
-description: Turns a production's motion hint into generated video, choosing the model with the user, planning each scene's requests and how closely each follows the hint, writing their prompts, submitting, inspecting and adopting takes, and finishing them for assembly. Use before generating video from a motion hint, when choosing or changing a video model, when planning or writing a video generation request, when adopting or rejecting a take, and when finishing accepted takes.
+description: Finishes a motion hint as a direct 3D or generated film. Use when choosing the final picture's production path, rendering a direct film, or planning, generating and finishing video takes.
 ---
 
 # Video
 
-A video model turns the motion hint into finished picture and, when it can, sound. Generate video only when the commission calls for it; a motion hint or a direct 3D film never silently requires a generator. Generate takes only from a hint that passed [segment review](../motion/segment-review.md) and a screenplay whose review has closed, or that no narrative pass reviews, because a repair to either discards the takes made from it.
+Turn the accepted coarse performance into the commissioned final picture, preserving its action, contacts, camera and timing. The [production workflow](../production/workflow.md) places this after motion; a motion-hint-only commission stops before this work.
 
-The model's inputs decide how the hint is prepared, and its limits on length, frame rate, references and prompt size decide how scenes become requests, so video work runs in this order:
+| Task | Read |
+| --- | --- |
+| Render the programmed film with its commissioned detail options | [Direct 3D film](direct-film.md) |
+| Run the generated-film workflow | [Generated film](generated-film.md) |
+| Choose a video model, how it takes the hint, continuity or prompting | [Video diffusion](diffusion/SKILL.md) |
+| Plan generation intervals and their inputs | [Requests](requests.md) |
+| Submit, inspect and adopt takes | [Generation](generation.md) |
+| Repair, upscale, conform and match accepted takes | [Finishing](finishing.md) |
 
-1. Choose the model with the user and read its documentation under [video diffusion](diffusion/SKILL.md).
-2. Write the [shared description](diffusion/prompts.md#shared-description).
-3. Prepare the canon references under [image](../image/SKILL.md).
-4. Plan each scene's [requests](requests.md).
-5. Prepare any shot frame a request takes under [image](../image/conditioning.md#shot-frames).
-6. Decide each request's sound under [audio](../audio/generated-sound.md).
-7. Write each request's [prompt](diffusion/prompts.md).
-8. Submit, inspect and adopt takes under [generation](generation.md).
-9. Repair, upscale, conform and match the accepted takes under [finishing](finishing.md).
+Both paths hand their picture to [assembly](../production/assembly.md), with [audio](../audio/SKILL.md) for commissioned sound. [Delivery review](../review/delivery-review.md) judges the actual finished film.

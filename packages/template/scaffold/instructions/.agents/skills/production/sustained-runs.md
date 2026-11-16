@@ -8,7 +8,7 @@ Before assigning work, read the current instructions, bodies, source, outputs an
 
 ## Execution
 
-Dispatch each task through the skill that owns it in the production's [routing table](SKILL.md#routing). One writer owns a changing body. One owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition; entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports.
+Dispatch each task through the skill that owns it in the production's [routing](SKILL.md#routing). One writer owns a changing body. One owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition; entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports.
 
 Use additional agents only when authorized, with disjoint write scopes. [Review](../review/SKILL.md) owns who may review and what counts as independent.
 

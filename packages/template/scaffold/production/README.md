@@ -13,7 +13,11 @@ pnpm run evidence
 pnpm test
 ```
 
-The project starts with instructions, contracts and a working inspector page over an empty starter film; passing checks do not complete a production. Start with [production]({{skills}}/production/SKILL.md) for the requested output and [story]({{skills}}/story/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests, and [evidence configuration]({{skills}}/evidence/configuration.md) adds the narrative scope and stages to the same configuration.
+The project starts with instructions, contracts and a working inspector page over an empty starter film. Passing checks do not complete a production.
+
+Read the [production workflow]({{skills}}/production/workflow.md) for the stages, their handoffs and the skills that own them.
+
+Default lint and evidence check ordinary TypeScript source and tests. [Evidence configuration]({{skills}}/evidence/configuration.md) adds the narrative scope and stages to the same configuration.
 
 ## Films and the inspector
 
@@ -50,16 +54,7 @@ Supply `IFilmProduction.performance` from the displayed state: `src/markFilmProd
 
 ## Make a motion hint
 
-A motion hint is made in these steps:
-
-1. Adopt the request in [PROJECT.md](PROJECT.md), recording its output boundary and the intended execution and capture path under [project context]({{skills}}/production/project-context.md).
-2. Write the screenplay along its [writing route]({{skills}}/story/workflow/SKILL.md), by the [writer the user chooses]({{skills}}/story/workflow/routes.md#who-writes-the-screenplay); when the agent writes the story, [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it first. The route sets the layers before the [screenplay]({{skills}}/story/SKILL.md) and when evidence, independent review and a short's film draft run.
-3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md). Take the objects people use from the installed archetypes and what people do from the installed motion vocabulary, and write laws, interactions and consequences, with their tests, only for what the packages lack.
-4. Compose every required main scene from the accepted modules under [motion]({{skills}}/motion/SKILL.md) and [staging]({{skills}}/motion/staging.md), in the folders [source layout]({{skills}}/development/source-layout.md) gives, with each shot's sound described for the video prompt under [audio]({{skills}}/audio/SKILL.md).
-5. Prepare the [control channels]({{skills}}/motion/control-channels.md) from the same performance, with the frame and camera mapping of time-matched channels aligned. Use the supplied inspector, capture and render, or document the production's adopted replacement here.
-6. Assemble and encode the complete work through [assembly]({{skills}}/production/assembly.md), inspect the actual output through [delivery review]({{skills}}/review/delivery-review.md), and hand off what [assembly and handoff]({{skills}}/production/assembly.md#repair-and-delivery) lists.
-
-Other outputs complete as [commissioned outputs]({{skills}}/production/SKILL.md#commissioned-outputs) set, with their boundaries in `PROJECT.md`.
+Follow the [production workflow]({{skills}}/production/workflow.md) for the requested output and its delivery checks.
 
 ## Commands
 

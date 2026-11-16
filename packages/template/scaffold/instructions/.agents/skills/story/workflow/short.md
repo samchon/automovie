@@ -1,6 +1,6 @@
 # Short route
 
-A short is drafted all the way to its film and checked once at the end. The brief and the screenplay are written together, the film is drafted from them, and only then are the contracts answered and one independent review run, because answers and reviews written earlier would describe text the draft still changes.
+A short drafts its brief and screenplay together, and its programmed film when commissioned, before one narrative evidence and independent review pass. Answers and narrative reviews written earlier would describe text the draft still changes.
 
 A short has no settings, treatments, scripts or outline. Wherever a skill or contract cites settings or brief facts, a short cites its brief, or its screenplay for what the [brief leaves to it](../layers/brief.md#what-it-holds).
 
@@ -20,7 +20,7 @@ A short runs these steps in order:
 
     Write the whole [screenplay](../layers/screenplay.md) in detail, studying a fact when a decision needs it, under [when to study](../planning/research.md#when-to-study). When writing exposes a missing or wrong brief decision, repair the brief at once; both are still drafts.
 
-4. Film draft.
+4. Programmed film draft.
 
     For a commission with a film, build the entities, the scene composition and the film from the screenplay. Judge the film within [what you can observe](../../../../AGENTS.md#what-you-can-observe). Repair each cause where it lies, in the screenplay, the brief, the code or an [extension](../../motion/laws/extension.md) of the motion vocabulary, until the film reads as intended. A screenplay-only commission skips this step.
 

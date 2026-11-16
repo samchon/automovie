@@ -5,7 +5,7 @@ description: Programs a scene's deterministic performance, staging, camera and t
 
 # Programmed motion
 
-Realize the screenplay's performance through code: what each person does, the staging, the camera and the timing. Read [project context](../production/project-context.md), the final screenplay and its [research](../story/planning/research.md) first. A single moving instance needs only its promised behavior; a whole-video commission needs its complete progression.
+Realize the screenplay's performance through code: what each person does, the staging, the camera and the timing. Read [project context](../production/project-context.md), the final screenplay and its [research](../story/planning/research.md) first. A single moving instance needs only its promised behavior; a whole-video commission needs its complete progression. The [production workflow](../production/workflow.md) connects this performance to images and delivery.
 
 | Task | Read |
 | --- | --- |
@@ -36,4 +36,4 @@ Work in this order, because each step uses what the one before settled:
 4. Extend the vocabulary only for what composing cannot express.
 5. Accept every entity and motion module alone in its catalog case.
 6. Stage segment by segment, extending from one only after it passes segment review.
-7. Deliver a commissioned [detail option](../development/entities.md#detail) last.
+7. Hand the performance to [assembly](../production/assembly.md) for a hint, or [video](../video/SKILL.md) for a finished film.

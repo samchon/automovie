@@ -4,7 +4,7 @@ Identify the promised output from [project context](../production/project-contex
 
 ## Narrative
 
-Check the required [passes and handoff](../story/workflow/routes.md#completion), and lock your first response as a recipient before reading plans or evidence.
+Review narrative only when the [screenplay choice](../story/workflow/routes.md#who-writes-the-screenplay) calls for narrative passes. Check the required [passes and handoff](../story/workflow/routes.md#completion), and lock your first response as a recipient before reading plans or evidence.
 
 Then read every current body and contract and the answers of every enabled stage, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its boundary under [closed passes](../story/correction/repair.md#closed-passes).
 
@@ -25,7 +25,7 @@ Judge each output by what it promises:
 
 - a whole motion hint carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do, with its control channels checked at matched frames under [control channels](../motion/control-channels.md);
 - a selected generator is judged on its actual accepted inputs and takes under [generation](../video/generation.md);
-- a finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning, and a direct 3D film also for what [direct film](../direct-film/SKILL.md#what-to-look-for) lists.
+- a finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning, and a direct 3D film also for what [direct film](../video/direct-film.md#what-to-look-for) lists.
 
 Ask the user for what only playback shows, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets, with the film time of each note, and record each report against that time so its repair can find the frames.
 

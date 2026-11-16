@@ -1,6 +1,6 @@
 # Generation
 
-Generation submits each planned [request](requests.md), inspects its takes and chooses one. Use the provider and setup that [project context](../production/project-context.md) records, through the service's existing connector, CLI or API.
+Submit each planned [request](requests.md) after the [generation prerequisites](generated-film.md#prerequisites) hold, then inspect and choose its takes. Use the provider and setup that [project context](../production/project-context.md) records, through the service's existing connector, CLI or API.
 
 ## First path
 

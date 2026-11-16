@@ -8,7 +8,7 @@ Most hosted image models take no control input, so a render reaches them as one 
 
 An open model, or one of the few hosted endpoints that do, takes control images through control adapters for pose, depth, edges or normals, so it holds the render closely and repeats from a fixed seed; choose this route when a shot frame must keep the hint's pose and camera exactly. Give each adapter its own conditioning scale, start below full strength and raise it until the silhouette holds, mask each adapter to its region where they overlap, and resize every control image to the output size. To restyle the render itself as the starting image, keep its silhouette with a low to middle strength, the share of the steps generated afresh, together with a structural adapter.
 
-Render each control image from the scene, such as depth, normals or the pose skeleton, rather than estimating it from the gray render, because the scene's values are exact; [control channels](../motion/control-channels.md#channel-alignment) owns rendering them to the adapter's convention, and [dense channels](../motion/control-channels.md#dense-channels) sets how strongly a shape is held.
+Render each control image from the scene, such as depth, normals or the pose skeleton, rather than estimating it from the hint render, because the scene's values are exact; [control channels](../motion/control-channels.md#channel-alignment) owns rendering them to the adapter's convention, and [dense channels](../motion/control-channels.md#dense-channels) sets how strongly a shape is held.
 
 ## Shot frames
 

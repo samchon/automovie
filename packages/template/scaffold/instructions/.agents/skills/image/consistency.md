@@ -18,6 +18,6 @@ An open model takes a reference through an image-prompt adapter, whose scale tra
 
 ## Character LoRA
 
-A character that recurs across many images on an open model can take a small LoRA, trained on its frozen canon references and accepted images, never the gray hint. Give it images of 1024 pixels or more in varied poses, angles and light, close-ups as well as full shots, each with a descriptive caption that carries one trigger word. Check samples during training and stop before they copy the training images, because a face overfits fast; a trainer's prior preservation keeps the base model's other people intact.
+A character that recurs across many images on an open model can take a small LoRA, trained on its frozen canon references and accepted images, never the coarse hint. Give it images of 1024 pixels or more in varied poses, angles and light, close-ups as well as full shots, each with a descriptive caption that carries one trigger word. Check samples during training and stop before they copy the training images, because a face overfits fast; a trainer's prior preservation keeps the base model's other people intact.
 
 Freeze the trained weights with a record of their training images, as [every image](SKILL.md#every-image) freezes an accepted image.

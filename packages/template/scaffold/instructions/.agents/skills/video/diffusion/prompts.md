@@ -8,7 +8,9 @@ A prompt assembles what the story already decided, so no request invents an appe
 
 ## Input roles
 
-The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](../requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Only that sentence names the input video itself; everywhere else, name each polygon man and coarse form as what it becomes, never by its look in the hint, such as clay or 3D.
+Assign each input its [role](../requests.md#inputs): the hint supplies the performance, while references and prompts supply the final appearance. State each role in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps.
+
+Name the hint video only in its role statement. Elsewhere, describe the people and objects as they will appear in the finished film.
 
 ## Shared description
 
