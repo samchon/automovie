@@ -10,6 +10,7 @@ import { walkStanceSolve } from "../actions/walkStanceSolve";
 import { walkStanceTerms } from "../actions/walkStanceTerms";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanLegChain } from "../posture/HumanLegChain";
+import { HumanFrame } from "../posture/HumanFrame";
 import type {
   HumanQuadraticProgram as QP,
 } from "../posture/HumanQuadraticProgram";
@@ -126,6 +127,12 @@ export namespace staggerSequential {
         right: shape.variables(k, "right"),
       }),
     );
+    const knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>>[] = knots.map(
+      (knot: staggerKnots.IKnot): Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> => ({
+        left: HumanFrame.preparePoint(knot.frame.yaw, body.rest.get("leftLowerLeg")!),
+        right: HumanFrame.preparePoint(knot.frame.yaw, body.rest.get("rightLowerLeg")!),
+      }),
+    );
 
     // The posture's fit of a planted leg at a course, continuing a nearby fit
     // of the same leg when one is given (`HumanLegChain.seeded`).
@@ -151,6 +158,7 @@ export namespace staggerSequential {
           knots[k]!.frame.yaw,
           p.side,
           p.heading,
+          knees[k]![p.side],
         ),
         p.rotation,
         near,

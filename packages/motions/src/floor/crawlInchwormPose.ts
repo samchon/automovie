@@ -1,11 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { crawlChain } from "./crawlChain";
@@ -59,10 +56,10 @@ export namespace crawlInchwormPose {
     frame: HumanFrame.IFrame,
     feet: Record<"left" | "right", number>,
     wrists: Record<"left" | "right", number>,
+    laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(body, HumanFrame.forward(frame.yaw)),
   ): lieDown.IPose {
     const DEG: number = 180 / Math.PI;
     const sides = ["left", "right"] as const;
-    const forward: IAutoMovieVector3 = HumanFrame.forward(frame.yaw);
     const shape: crawlChain.IShape = chain.shape(
       (feet.left + feet.right) / 2,
       (wrists.left + wrists.right) / 2,
@@ -122,31 +119,9 @@ export namespace crawlInchwormPose {
       };
       posture.joints[`${side}Toes`] = [shape.heel, 0, 0];
     }
-    for (const side of sides) {
-      const hand: AutoMovieMotionHumanArm.ITarget =
-        AutoMovieMotionHumanTarget.hand(
-          body,
-          posture,
-          side,
-          {
-            point: HumanFrame.point(frame, {
-              x: chain.palms[side],
-              y: 0,
-              z: wrists[side] - chain.wrists[side].z,
-            }),
-            normal: { x: 0, y: 1, z: 0 },
-          },
-          { surface: "palm", shape: "flat", forward },
-        );
-      posture.joints = { ...posture.joints, ...HumanHand.shape(side, "flat") };
-      posture.limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(
-        body,
-        side,
-        hand,
-      );
-    }
+    const placed: IHumanPosture = laid(posture, (side: "left" | "right"): IAutoMovieVector3 => HumanFrame.point(frame, { x: chain.palms[side], y: 0, z: wrists[side] - chain.wrists[side].z }));
     const joints: lieDown.IPose["joints"] = {};
-    for (const j of resolveHumanPosture(body, posture).joints)
+    for (const j of resolveHumanPosture(body, placed).joints)
       joints[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
     return { pitch: posture.pitch, roll: 0, joints };
   }

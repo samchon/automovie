@@ -4,6 +4,7 @@ import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
 import { IAutoMovieSwivelNear } from "./IAutoMovieSwivelNear";
 import { hingedArmSwivel } from "./hingedArmSwivel";
+import { refineHingedSwivel } from "./refineHingedSwivel";
 
 /** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
 const SWIVEL_STEP: number = hingedArmSwivel.STEP;
@@ -268,7 +269,9 @@ export const hingedArmArticulation: (props: {
   // with a lower bound of it first tries the bound: a bound already no less
   // than the other's exact deviation decides that it is not ahead, since the
   // exact one is no smaller, and only otherwise is the exact one computed.
-  // A smaller bound lets exact(a) beat b's bound without reading exact(b).
+  // When a's bound is smaller, the old comparison needs exact(a) either way:
+  // exact(b) cannot undercut its own greater bound. Read exact(a) first; if it
+  // already beats b's bound beyond the same tie, exact(b) is unnecessary.
   const better = (a: IScored, b: IScored): boolean => {
     const tied: boolean =
       a.overshoot === b.overshoot ||
@@ -344,7 +347,7 @@ export const hingedArmArticulation: (props: {
           continue;
         if (better(before, at) || better(after, at)) continue;
         if (!better(at, before) && !better(at, after)) continue;
-        const refined: IScored = refine(
+        const refined: IScored = refineHingedSwivel(
           probe,
           better,
           step * SWIVEL_STEP,
@@ -362,7 +365,7 @@ export const hingedArmArticulation: (props: {
       throw new Error("A continued fit needs a positive finite tolerance");
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IBranch = { ...found[branch]!, branch };
-    const seeded: IScored = refine(
+    const seeded: IScored = refineHingedSwivel(
       prober(stop, pose(stop.theta)),
       better,
       near.swivel,
@@ -446,54 +449,3 @@ const tiebreakOf = (scored: IScored): number => {
   return scored.second;
 };
 
-/**
- * Refine the swivel between a sweep step's neighbours by golden-section
- * search (Kiefer 1953) under the sweep's own ordering, so the swivel varies
- * continuously with the target instead of in `SWIVEL_STEP` jumps.
- *
- * @param probe Scores the candidate at a swivel angle, degrees.
- * @param better Whether the first candidate is strictly ahead of the second.
- * @param angle The swivel the bracket, one step either way, is centred on, degrees.
- * @param passes The passes, each shrinking the bracket by `GOLDEN`.
- * @returns The better of the search's last two probes.
- */
-const refine = (
-  probe: (angle: number) => IScored,
-  better: (a: IScored, b: IScored) => boolean,
-  angle: number,
-  passes: number,
-): IScored => {
-  let low: number = angle - SWIVEL_STEP;
-  let high: number = angle + SWIVEL_STEP;
-  let inner: number = high - GOLDEN * (high - low);
-  let outer: number = low + GOLDEN * (high - low);
-  let atInner: IScored = probe(inner);
-  let atOuter: IScored = probe(outer);
-  for (let pass: number = 0; pass < passes; ++pass) {
-    if (better(atInner, atOuter)) {
-      high = outer;
-      outer = inner;
-      atOuter = atInner;
-      inner = high - GOLDEN * (high - low);
-      atInner = probe(inner);
-    } else if (better(atOuter, atInner)) {
-      low = inner;
-      inner = outer;
-      atInner = atOuter;
-      outer = low + GOLDEN * (high - low);
-      atOuter = probe(outer);
-    } else {
-      // A tie: the minimum of a unimodal score lies between the two probes,
-      // so both ends close in. Keeping either side instead would send a
-      // mirrored request, whose probes are these two exchanged, to the
-      // opposite end of a level stretch.
-      low = inner;
-      high = outer;
-      inner = high - GOLDEN * (high - low);
-      outer = low + GOLDEN * (high - low);
-      atInner = probe(inner);
-      atOuter = probe(outer);
-    }
-  }
-  return better(atOuter, atInner) ? atOuter : atInner;
-};

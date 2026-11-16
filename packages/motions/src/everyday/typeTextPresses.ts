@@ -23,8 +23,8 @@ import type { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One text-order preparation records each hand's previous key and lift end; the returned reader owns only binary selection and the existing transport/press/lift formulas.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no timing, key layout, path, hover height, travel or minimum-jerk denominator guard. Strictly increasing times and a positive interval are supplied by typeText's existing skill-timing plan.
  * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys costs O(N) time and space; each hand read searches its H ordered presses in O(log H) time and performs one fixed-size path evaluation instead of scanning the full text.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed text, hand assignment, press times and previous-key states are prepared once per typing plan; time-dependent transport, lift and world position are evaluated afresh without a sampled-frame cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns two arrays containing N press records and borrows the plan's key vectors, frame and home keys until the typing plan is released; no population grows during playback or seeking.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed text, hand assignment, press times, previous-key states and keyboard frame coefficients are prepared once per typing plan; time-dependent transport, lift and world position are evaluated afresh without a sampled-frame cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns two arrays containing N press records and a copied prepared keyboard frame, borrowing the plan's key/home vectors until that plan is released; no population grows during playback or seeking.
  */
 export function typeTextPresses(
   keys: readonly { at: IAutoMovieVector3; side: HumanHand.Side }[],

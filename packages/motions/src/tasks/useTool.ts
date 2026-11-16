@@ -169,6 +169,14 @@ export namespace useTool {
    * @param context The action's context.
    * @returns The plan with its tool.
    * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or the two coincide, or a stir's work point is no vessel the spoon reaches into.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace states tool frames, working goals, cycle timing and sources; parameters and refusals identify each admitted input.
+   * @evidence contracts/development/implementation.md#principled-implementation The held face follows the original per-kind cyclic goal and tool-line attitude, with the measured rigid grip offset preserved and each changing posture receiving the same least-strain elbow solve.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Tool/work preparation precedes pose selection, clock construction and composition through the existing arm primitive.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original cycle count, periods, amplitudes, saw slopes, work targets, grip contacts and refusals remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed held geometry, clock period and edge-cycle frame are prepared once; each active cyclic goal still computes its actual pose and elbow solution, with only entry hand ancestry read for the origin.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same fixed tool/work and half-cycle edge frame serve reach and recovery; no changing body fit or cycle result is reused across distinct inputs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The composed plan retains its fixed tool geometry, clock, grip and finger records, without sampled poses, numerical readers or a time-result history.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -186,7 +194,7 @@ export namespace useTool {
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const yaw: number = context.entry.posture.yaw;
-    const axes = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+    const axes: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, v);
     const forward: IAutoMovieVector3 = axes({ x: 0, y: 0, z: 1 });
     const left: IAutoMovieVector3 = axes({ x: 1, y: 0, z: 0 });
@@ -232,7 +240,7 @@ export namespace useTool {
     const keyed: boolean =
       (kind === "hammer" || kind === "saw") &&
       Math.abs(Vector3.dot(face.direction, line)) < 0.95;
-    const posed = (axis: IAutoMovieVector3): IWork => {
+    const posed: (axis: IAutoMovieVector3) => IWork = (axis: IAutoMovieVector3): IWork => {
       const rotation: IAutoMovieQuaternion = HumanHand.align(
         { normal: line, forward: keyed ? face.direction : PALM },
         { normal: axis, forward: keyed ? down : inward },
@@ -246,7 +254,7 @@ export namespace useTool {
         rotation,
       };
     };
-    const strain = (pose: IWork): number => {
+    const strain: (pose: IWork) => number = (pose: IWork): number => {
       const props: AutoMovieMotionHumanBend.ISolve = {
         body,
         posture: context.entry.posture,
@@ -329,14 +337,14 @@ export namespace useTool {
     const strokePeriod: number = (recover - ready) / cycles;
 
     // The hand at a phase of the work, 0 at a contact and periodic in 1.
-    const cycle = (
+    const cycle: (phase: number) => Pick<IWork, "grip" | "rotation"> = (
       phase: number,
     ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
-      const turn = (
+      const turn: (axis: IAutoMovieVector3, degrees: number, about: IAutoMovieVector3) => Pick<IWork, "grip" | "rotation"> = (
         axis: IAutoMovieVector3,
         degrees: number,
         about: IAutoMovieVector3,
-      ) => {
+      ): Pick<IWork, "grip" | "rotation"> => {
         const q: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis, degrees);
         return {
           grip: Vector3.add(
@@ -381,7 +389,7 @@ export namespace useTool {
       }
     };
     const edge: ReturnType<typeof cycle> = cycle(0.5);
-    const hand = (
+    const hand: (posture: IHumanPosture, seconds: number) => AutoMovieMotionHumanArm.ITarget = (
       posture: IHumanPosture,
       seconds: number,
     ): AutoMovieMotionHumanArm.ITarget => {

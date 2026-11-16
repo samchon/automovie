@@ -1,147 +1,24 @@
 import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieJointAxes,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
+  AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes,
+  IAutoMoviePose, IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import type { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
-import { toRigAngle } from "../rom/toRigAngle";
 import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
-import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { preparePoseResolution } from "./preparePoseResolution";
-import { resolvePreparedPoseFrame } from "./resolvePreparedPoseFrame";
+import { preparePoseResolutionState } from "./preparePoseResolutionState";
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
-/** Immutable rest data and the parent-first index of one reachable bone. */
-interface INode {
-  /** Original name, preserved in outputs and joint lookup. */
-  name: AutoMovieHumanoidBone;
+/** The immutable node representation shared with the dynamic FK owner. */
+type INode = preparePoseResolutionState.INode;
 
-  /** Parent index, or -1 for a null-parent root. */
-  parent: number;
-
-  /** Snapshot of the parent-frame rest translation in metres. */
-  translation: IAutoMovieVector3;
-
-  /** Snapshot of the parent-frame rest rotation; scale remains unused. */
-  rotation: IAutoMovieQuaternion;
-}
-
-/** Immutable clinical inputs and their lazy successful basis admission. */
-interface IConvention {
-  /** Own-data raw axes, admitted lazily only when an authored joint uses them. */
-  axes: IAutoMovieJointAxes;
-
-  /** Unit basis produced once at its first authored use. */
-  basis?: IAutoMovieJointAxes;
-
-  /** Own-data affine clinical frames, absent when angles are rest-relative. */
-  frame?: IAutoMovieRestFrame;
-}
-
-/** The most recent successful conversion of one authored name. */
-interface IJointReading {
-  /** Static convention already selected for this exact authored name. */
-  convention: IConvention;
-
-  /** Clinical degrees, with null retaining its rest meaning. */
-  flexion: number | null;
-
-  /** Clinical abduction in degrees. */
-  abduction: number | null;
-
-  /** Clinical twist in degrees. */
-  twist: number | null;
-
-  /** Private articulation, never exposed in a returned transform. */
-  rotation: IAutoMovieQuaternion;
-
-  /** Query-owned changing-angle factors on this rig's immutable convention. */
-  compose: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
-
-  /** Invocation in which the last authored record selected this row. */
-  epoch: number;
-}
-
-/** A bone's exact local, root-relative and optionally placed dependency rows. */
-interface IFrameReading {
-  /** Last invocation that checked the selected articulation. */
-  epoch: number;
-
-  /** Last selected articulation scalars, isolated from authored records. */
-  articulation: IAutoMovieQuaternion;
-
-  /** Rest times articulation; independent of ancestor and root placement. */
-  localRotation: IAutoMovieQuaternion;
-
-  /** Revision advanced only when the local rotation's exact inputs change. */
-  localRevision: number;
-
-  /** Root-relative FK is computed only when a root-null call demands it. */
-  relative?: IWorldReading;
-
-  /** Optional placed result, with its exact root and ancestor dependency row. */
-  placed?: IWorldReading & { rootRevision: number };
-}
-
-/** One completed placement and its exact local/ancestor dependency revisions. */
-interface IWorldReading extends resolvePreparedPoseFrame.IReading {
-  /** Local quaternion revision used by this placement. */
-  localRevision: number;
-
-  /** Parent frame revision used by this placement. */
-  parentRevision: number;
-
-  /** Revision advanced after a changed placement dependency. */
-  revision: number;
-
-  /** Last invocation that checked this placement. */
-  epoch: number;
-}
-
-/** Dynamic FK rows belong to one live operation reader, never to pose identity. */
-interface IState {
-  /** Invocation counter used for sparse joint removal and per-call traversal. */
-  epoch: number;
-
-  /** Last successful authored conversion per bone name. */
-  joints: Map<AutoMovieHumanoidBone, IJointReading>;
-
-  /** Direct bone-index references to those same rows, avoiding hierarchy name lookups. */
-  jointsByNode: (IJointReading | undefined)[];
-
-  /** Sparse lazily demanded bone rows, indexed by the immutable rig. */
-  frames: (IFrameReading | undefined)[];
-
-  /** Private immutable root quaternion, reused only while actual scalars match. */
-  rootRotation: IAutoMovieQuaternion;
-
-  /** Private immutable root translation, separate from root rotation changes. */
-  rootTranslation: IAutoMovieVector3;
-
-  /** Revision of that exact root tuple. */
-  rootRevision: number;
-}
-
-/** Private identity inputs; outputs always copy their scalar components. */
-const IDENTITY: IAutoMovieQuaternion = Object.freeze(Quaternion.identity());
-
-/** Private root-relative origin. */
-const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create());
+/** Raw immutable clinical inputs with one shared successful basis admission. */
+type IConvention = preparePoseResolutionState.IConvention;
 
 /**
  * Snapshot a rig's static FK prerequisites once, then resolve changing poses
@@ -212,7 +89,7 @@ export function prepareSkeletonPoseResolution(
   const roots: readonly IAutoMovieBone[] | undefined =
     topology.childrenByParent.get(SKELETON_ROOT_PARENT);
   if (roots !== undefined) for (const root of roots) append(root, -1);
-  const operations: WeakMap<ReturnType<typeof preparePoseResolution>, IState> =
+  const operations: WeakMap<ReturnType<typeof preparePoseResolution>, preparePoseResolutionState.IReader> =
     new WeakMap();
   const preparedAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>> =
     Object.freeze(Object.fromEntries(Array.from(conventions,
@@ -221,58 +98,33 @@ export function prepareSkeletonPoseResolution(
     )));
   return {
     jointAxes: preparedAxes,
+    preparePose: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader =>
+      preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, pose, requested),
+    prepareBones: (requested: ReadonlySet<AutoMovieHumanoidBone>): prepareSkeletonPoseResolution.IBoneDemand => {
+      const read: ReturnType<typeof preparePoseResolutionState.prepareDemand> =
+        preparePoseResolutionState.prepareDemand(indices, nodes.length, requested);
+      return { resolve: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[] =>
+        read(readerOf(operation), pose) };
+    },
     resolve: (
       pose: IAutoMoviePose,
       operation?: ReturnType<typeof preparePoseResolution>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): IAutoMovieResolvedBone[] => {
-      let state: IState | undefined = operation === undefined
-        ? undefined : operations.get(operation);
-      if (state === undefined) {
-        state = { epoch: 0, joints: new Map(), jointsByNode: [], frames: [],
-          rootRotation: IDENTITY, rootTranslation: ORIGIN, rootRevision: 0 };
-        if (operation !== undefined) operations.set(operation, state);
-      }
-      ++state.epoch;
-      for (const joint of pose.joints)
-        admit(state, joint, conventions, fallback, indices);
-      const demanded: number[] = [];
-      if (requested === undefined)
-        for (let index: number = 0; index < nodes.length; ++index) demanded.push(index);
-      else {
-        for (const name of requested) {
-          const index: number | undefined = indices.get(name);
-          if (index !== undefined) demanded.push(index);
-        }
-        demanded.sort((left: number, right: number): number => left - right);
-      }
-      const result: IAutoMovieResolvedBone[] = [];
-      if (demanded.length === 0) return result;
-      const rotation: IAutoMovieQuaternion = pose.root?.rotation ?? IDENTITY;
-      const translation: IAutoMovieVector3 = pose.root?.translation ?? ORIGIN;
-      const sameRotationInput: boolean = sameRotation(state.rootRotation, rotation);
-      const sameTranslationInput: boolean = samePosition(state.rootTranslation, translation);
-      if (!sameRotationInput || !sameTranslationInput) {
-        const nextRotation: IAutoMovieQuaternion = sameRotationInput
-          ? state.rootRotation : sameRotation(IDENTITY, rotation)
-            ? IDENTITY : PoseResolutionSnapshot.quaternion(rotation);
-        const nextTranslation: IAutoMovieVector3 = sameTranslationInput
-          ? state.rootTranslation : samePosition(ORIGIN, translation)
-            ? ORIGIN : PoseResolutionSnapshot.vector(translation);
-        state.rootRotation = nextRotation;
-        state.rootTranslation = nextTranslation;
-        ++state.rootRevision;
-      }
-      for (const index of demanded) {
-        const frame: IAutoMovieResolvedBone = state.rootRotation === IDENTITY &&
-          state.rootTranslation === ORIGIN
-          ? relative(nodes, state, index).frame
-          : placed(nodes, state, index, state.rootRotation, state.rootTranslation).frame;
-        result.push(copy(frame));
-      }
-      return result;
+      return readerOf(operation).resolve(pose, requested);
     },
   };
+
+  /** All output demands of the same operation borrow one actual dependency state. */
+  function readerOf(operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IReader {
+    let reader: preparePoseResolutionState.IReader | undefined = operation === undefined
+      ? undefined : operations.get(operation);
+    if (reader === undefined) {
+      reader = preparePoseResolutionState(nodes, indices, conventions, fallback);
+      if (operation !== undefined) operations.set(operation, reader);
+    }
+    return reader;
+  }
 }
 
 /**
@@ -293,6 +145,12 @@ export namespace prepareSkeletonPoseResolution {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No admission boolean, cast or fixture-specific bone set is exposed. Only the producer supplies the immutable data and every result owns fresh transform records.
    */
   export interface IRig {
+    /** Admit/snapshot a fixed source once; each query supplies its complete appended edits, with fresh requested output. Release the workspace when that source operation ends. */
+    preparePose(source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader;
+
+    /** Snapshot requested membership/order once, then resolve changing complete poses through operation-owned rows without repeating demand preparation. */
+    prepareBones(requested: ReadonlySet<AutoMovieHumanoidBone>): IBoneDemand;
+
     /** Immutable merged raw-axis snapshot for the same rig's IK; normalization remains lazy at each original use site. */
     readonly jointAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 
@@ -303,153 +161,18 @@ export namespace prepareSkeletonPoseResolution {
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): IAutoMovieResolvedBone[];
   }
-}
 
-/** Admit every authored angle before a completed exact conversion can be reused. */
-function admit(
-  state: IState, joint: IAutoMovieJointPose,
-  conventions: ReadonlyMap<string, IConvention>, fallback: IConvention,
-  indices: ReadonlyMap<AutoMovieHumanoidBone, number>,
-): void {
-  const known: IJointReading | undefined = state.joints.get(joint.bone);
-  const convention: IConvention = known?.convention ?? conventions.get(joint.bone) ?? fallback;
-  const basis: IAutoMovieJointAxes = convention.basis ??=
-    normalizeJointAxes(convention.axes, "jointToQuaternion axes");
-  const flexion: number | null = clinical(joint, "flexion", convention.frame?.flexion);
-  const abduction: number | null = clinical(joint, "abduction", convention.frame?.abduction);
-  const twist: number | null = clinical(joint, "twist", convention.frame?.twist);
-  if (known !== undefined && Object.is(known.flexion, flexion) &&
-    Object.is(known.abduction, abduction) && Object.is(known.twist, twist)) {
-    known.epoch = state.epoch;
-    return;
+  /**
+   * A genuine immutable rig's fixed requested-bone snapshot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States captured rig/name membership and fresh complete-pose query outputs with optional operation ownership.
+   * @evidence contracts/development/design.md#principled-representation Immutable rooted indices fix output membership/order while each complete pose supplies current clinical/root values in model metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface poseBones.prepare needs only resolve; names, numeric indices and internal state stay private.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The actual rig producer derives the demand from a supplied name set; no external numeric indices, pose-admission flag or cached target answer is exposed.
+   */
+  export interface IBoneDemand {
+    /** Admit the current complete pose and return fresh captured requested transforms; optional reader identity scopes exact dynamic reuse. */
+    resolve(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[];
   }
-  const compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> =
-    known?.compose ?? jointToQuaternionOnBasis.prepare(basis, convention.frame);
-  const rotation: IAutoMovieQuaternion = compose({ flexion, abduction, twist });
-  if (known === undefined) {
-    const reading: IJointReading =
-      { convention, flexion, abduction, twist, rotation, compose, epoch: state.epoch };
-    state.joints.set(joint.bone, reading);
-    const index: number | undefined = indices.get(joint.bone);
-    if (index !== undefined) state.jointsByNode[index] = reading;
-  } else {
-    known.flexion = flexion;
-    known.abduction = abduction;
-    known.twist = twist;
-    known.rotation = rotation;
-    known.epoch = state.epoch;
-  }
-}
-
-/** Articulation changes invalidate only this local rotation; parents are independent. */
-function articulated(nodes: readonly INode[], state: IState, index: number): IFrameReading {
-  const known: IFrameReading | undefined = state.frames[index];
-  if (known?.epoch === state.epoch) return known;
-  const node: INode = nodes[index]!;
-  const joint: IJointReading | undefined = state.jointsByNode[index];
-  const articulation: IAutoMovieQuaternion = joint?.epoch === state.epoch
-    ? joint.rotation : IDENTITY;
-  const same: boolean = known !== undefined && sameRotation(known.articulation, articulation);
-  if (same) {
-    known!.epoch = state.epoch;
-    return known!;
-  }
-  const localRotation: IAutoMovieQuaternion = Quaternion.multiply(node.rotation, articulation);
-  const reading: IFrameReading = known ?? {
-    epoch: state.epoch, articulation, localRotation, localRevision: 0,
-  };
-  reading.epoch = state.epoch;
-  reading.articulation = articulation;
-  reading.localRotation = localRotation;
-  ++reading.localRevision;
-  if (known === undefined) state.frames[index] = reading;
-  return reading;
-}
-
-/** Root-null demand retains independent relative frames without computing world placement. */
-function relative(nodes: readonly INode[], state: IState, index: number): IWorldReading {
-  const reading: IFrameReading = articulated(nodes, state, index);
-  const known: IWorldReading | undefined = reading.relative;
-  if (known?.epoch === state.epoch) return known;
-  const node: INode = nodes[index]!;
-  const parent: IWorldReading | undefined = node.parent < 0
-    ? undefined : relative(nodes, state, node.parent);
-  const parentRevision: number = parent?.revision ?? 0;
-  if (known !== undefined && known.parentRevision === parentRevision &&
-    known.localRevision === reading.localRevision) {
-    known.epoch = state.epoch;
-    return known;
-  }
-  const frame: resolvePreparedPoseFrame.IReading = resolvePreparedPoseFrame(
-    node.name, node.translation, reading.localRotation,
-    parent?.frame.worldRotation ?? IDENTITY, parent?.frame.worldPosition ?? ORIGIN, known,
-  );
-  const output: IWorldReading = Object.assign(frame, {
-    localRevision: reading.localRevision, parentRevision,
-    revision: (known?.revision ?? 0) + 1, epoch: state.epoch,
-  });
-  reading.relative = output;
-  return output;
-}
-
-/** Keep ordinary parent-first placement grouping while sharing root-relative articulation. */
-function placed(
-  nodes: readonly INode[], state: IState, index: number,
-  rotation: IAutoMovieQuaternion, translation: IAutoMovieVector3,
-): NonNullable<IFrameReading["placed"]> {
-  const reading: IFrameReading = articulated(nodes, state, index);
-  const known: IFrameReading["placed"] = reading.placed;
-  if (known?.epoch === state.epoch) return known;
-  const node: INode = nodes[index]!;
-  const parent: IFrameReading["placed"] = node.parent < 0
-    ? undefined : placed(nodes, state, node.parent, rotation, translation);
-  const parentRevision: number = parent?.revision ?? 0;
-  if (known !== undefined && known.rootRevision === state.rootRevision &&
-    known.parentRevision === parentRevision && known.localRevision === reading.localRevision) {
-    known.epoch = state.epoch;
-    return known;
-  }
-  const frame: resolvePreparedPoseFrame.IReading = resolvePreparedPoseFrame(
-    node.name, node.translation, reading.localRotation,
-    parent?.frame.worldRotation ?? rotation, parent?.frame.worldPosition ?? translation, known,
-  );
-  const output: NonNullable<IFrameReading["placed"]> = Object.assign(frame, {
-    rootRevision: state.rootRevision, parentRevision,
-    localRevision: reading.localRevision, revision: (known?.revision ?? 0) + 1,
-    epoch: state.epoch,
-  });
-  reading.placed = output;
-  return output;
-}
-
-/** Compare exact private quaternion values, including signed zero. */
-function sameRotation(left: IAutoMovieQuaternion, right: IAutoMovieQuaternion): boolean {
-  return Object.is(left.x, right.x) && Object.is(left.y, right.y) &&
-    Object.is(left.z, right.z) && Object.is(left.w, right.w);
-}
-
-/** Read each finite clinical coordinate in the original F/A/T admission order. */
-function clinical(
-  joint: IAutoMovieJointPose,
-  axis: "flexion" | "abduction" | "twist",
-  frame: IAutoMovieAxisFrame | undefined,
-): number | null {
-  const value: number | null = joint[axis];
-  if (value !== null && !Number.isFinite(value))
-    throw new Error(`jointToQuaternion ${axis} must be finite or null, but was ${value}`);
-  toRigAngle(value, frame);
-  return value;
-}
-
-/** Preserve signed zero while detecting actual root translation edits. */
-function samePosition(left: IAutoMovieVector3, right: IAutoMovieVector3): boolean {
-  return Object.is(left.x, right.x) && Object.is(left.y, right.y) &&
-    Object.is(left.z, right.z);
-}
-
-/** Isolate all public mutable records from operation-owned dependency rows. */
-function copy(frame: IAutoMovieResolvedBone): IAutoMovieResolvedBone {
-  return { bone: frame.bone, localRotation: { ...frame.localRotation },
-    worldRotation: { ...frame.worldRotation }, worldPosition: { ...frame.worldPosition } };
 }
 

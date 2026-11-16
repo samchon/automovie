@@ -37,10 +37,18 @@ export namespace walkStanceTerms {
    * @param knot The knot's index.
    * @param side The leg.
    * @returns The indices.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines LEG order and conversion from one knot/side to flat course indices.
+   * @evidence contracts/development/implementation.md#principled-implementation Adds the knot's WIDTH offset to the same seven shared drop/trunk and side-specific foot slots used by legOf.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One immutable side table owns slot selection for both consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing coordinate order and ordinary index arithmetic without a body-specific mapping.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant seven-slot work and one caller-owned result array; slot arrays are prepared once for the two supported sides.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses immutable LEG_SLOTS while every returned index list is fresh and safe for caller mutation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no query state; the module owns only fourteen fixed slot values.
    */
   export function variables(knot: number, side: "left" | "right"): number[] {
-    return LEG.map((_: string, v: number): number =>
-      legOf(WIDTH * knot, side, v),
+    return LEG_SLOTS[side].map((slot: number): number =>
+      WIDTH * knot + slot,
     );
   }
 
@@ -122,6 +130,14 @@ export namespace walkStanceTerms {
    *
    * @param body The body.
    * @returns The schedule.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents trust units, cited ratio/expansion policy, degree/metre least width and quadratic merit precision.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the cited trust-region schedule and converts MET angle to a leg-length displacement for the smallest meaningful drop/slide step.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One physical-resolution calculation feeds the fixed schedule fields and merit-precision reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every original shrink, growth, ratio, least-width and attempt formula with no numerical relaxation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work independent of course knot count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shared stance constants and reach formula; the returned schedule owns no computed pose or solver state.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fixed-size record and retains no body or handle.
    */
   export function schedule(body: IHumanBody): SCO.ISchedule {
     const length: number = (walkStanceCourse.MET * Math.PI * reachOf(body)) / 180;
@@ -146,7 +162,17 @@ export namespace walkStanceTerms {
     };
   }
 
-  /** A leg's reach at its least knee flexion (`KNEE`), metres: from its hip to its ankle, by the law of cosines over the thigh and the shank. */
+  /**
+   * A leg's reach at its least knee flexion, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names knee flexion, hip-to-ankle metres and the measured thigh/shank inputs.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the law of cosines at the unchanged KNEE angle over this body's thigh and shank lengths.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One explicit cosine expression owns the stance reach limit and schedule's length conversion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original measured body lengths and minimum knee flexion without a fitted reach or tolerance adjustment.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic and one cosine.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometry and trust scheduling call this same physical formula; no mutable body result is cached here.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no inputs.
+   */
   export function reachOf(body: IHumanBody): number {
     return Math.sqrt(
       body.measure.thigh ** 2 +
@@ -166,17 +192,39 @@ export namespace walkStanceTerms {
   /** Metres a landing lies off its goal that cost as much as a spread of dorsiflexion past heel-off (provisional): a landing goes where it is aimed unless the legs cannot hold it there. */
   export const PLACE: number = 0.01;
 
-  /** A leg's `v`th variable (`LEG`) at a knot whose variables begin at `o`. */
+  /**
+   * A leg's vth LEG variable at a knot whose flat variables begin at o.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the knot offset and shared LEG coordinate order; v is supplied in [0,7).
+   * @evidence contracts/development/implementation.md#principled-implementation Selects the same fixed shared/side slot as variables and adds the caller's knot offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A shared two-side slot table removes per-coordinate construction of the existing seven-slot layout.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains ordinary JavaScript indexing behavior and every original slot value without a narrowed body model.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant indexed arithmetic with no per-call array allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses fourteen immutable module-owned slot numbers for both index operations.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no query state or handle.
+   */
   export function legOf(o: number, side: "left" | "right", v: number): number {
-    const slide: number = side === "left" ? 7 : 9;
-    return (
-      o +
-      [0, 3, 4, side === "left" ? 1 : 2, side === "left" ? 5 : 6, slide, slide + 1][v]!
-    );
+    return o + LEG_SLOTS[side][v]!;
   }
 
-  /** The smooth hinge, `ln(1 + e^v)`. */
+  /**
+   * The smooth hinge ln(1+exp(v)) in the stance residual's dimensionless units.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the soft hinge expression and dimensionless input/output.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates log1p(exp(v)), retaining the original large-positive v asymptote to avoid exponential overflow.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One original cutoff branch selects direct log1p or the asymptote.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing v>30 cutoff and returned formula with no tuned coefficient.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar work and no allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every stance heel-off residual uses this same function; distinct residual values are computed directly.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or output.
+   */
   export function softplus(v: number): number {
     return v > 30 ? v : Math.log1p(Math.exp(v));
   }
+
+  /** Shared drop/trunk slots and the two feet's original pitch/turn/slide slots. */
+  const LEG_SLOTS: Readonly<Record<"left" | "right", readonly number[]>> = {
+    left: [0, 3, 4, 1, 5, 7, 8],
+    right: [0, 3, 4, 2, 6, 9, 10],
+  };
 }

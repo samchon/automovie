@@ -187,8 +187,8 @@ export namespace kick {
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,
-          (at: number): IHumanPosture =>
-            geometry().posture(Math.min(timing.duration, Math.max(0, at - t0))),
+          (at: number, channels?: Parameters<StrikingWeapon.Course>[1]): IHumanPosture =>
+            geometry().posture(Math.min(timing.duration, Math.max(0, at - t0)), channels),
           timing.side,
           seconds,
         ),

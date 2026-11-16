@@ -1,5 +1,6 @@
 import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -263,6 +264,9 @@ export namespace pickUpAdjust {
         const hips: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
           context.body,
           { ...posture, root: shifted },
+          undefined,
+          undefined,
+          new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]),
         );
         const drop: number = Math.max(
           0,
@@ -439,6 +443,6 @@ export namespace pickUpAdjust {
     side: HumanHand.Side,
     posture: IHumanPosture,
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!
+    HumanTrunk.resolve(context.body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!
       .worldPosition;
 }

@@ -286,16 +286,16 @@ export namespace HumanTrunk {
    *
    * @param body The unchanged body.
    * @param posture The unchanged authored posture; limb goals remain ignored.
-   * @param requested Bones used by the operation; all when absent. Include every region bone the reading will use.
+   * @param requested Bones used by the operation; all when absent. Include every region bone and, for rays, all midline collider bones the reading will use.
    * @returns The resolved bones and region/ray readers borrowing them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States immutable operation scope, demanded-bone premise, ignored limbs and ownership of the returned readers.
    * @evidence contracts/development/implementation.md#principled-implementation Runs the canonical authored-joint FK once, then places each actual requested region and casts each actual ray against that same unchanged frame; ray queries retain the original midline collider subset and numerical policy.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolved map and its midline subset feed existing engine surface placement and the same local cast adapter used by surface.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolved map feeds existing region placement; only the first ray demands its midline subset and a bound collider reader, shared by the same cast adapter used by surface.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All authored joints still receive engine admission; no limb goal, region result, ray result, contact threshold or time sample is replaced or cached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Pays one O(J+K) FK for J authored joints and K demanded bones plus ancestors and one O(K) subset scan; each region performs fixed placement work and each ray retains its full collider query cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes that this operation reads one unchanged body and posture, so only their completed FK frames are shared; each distinct region and ray is evaluated through the original numerical owners.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading retains one resolved map and a subset map until its synchronous caller returns or throws; no global cache, sampled-time map, returned motion plan or frame history owns it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Pays one ordered joint admission and demanded FK; ray-free readers allocate no subset or collider preparation. Repeated rays pay one subset scan and one lazy collider placement/frame preparation while retaining every actual ray-distance and normal query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes one unchanged body/posture/profile, so completed FK and collider frames are shared; each different region, ray, march point and normal probe is still evaluated by the original numerical owners without result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading holds one FK map and, only after first ray demand, a subset plus one bound collider reader until synchronous return or throw. Its population is bounded by that rig/profile; no global or sampled-frame history retains it.
    */
   export function prepare(
     body: IHumanBody,
@@ -338,10 +338,30 @@ export namespace HumanTrunk {
     /** Demanded bone frames, with limb goals ignored; caller must not mutate them. */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** A demanded region's world-metre point and unit outward normal. */
+    /**
+     * A demanded region's world-metre point and unit outward normal.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States actual region placement and world point/unit normal output on the prepared frame.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare supplies the engine surface placement implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares one region query whose body is owned by prepare.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature cannot replace the requested anatomical region or its surface frame.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepare documents this actual query's fixed placement cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration coordinates no computation; prepare owns fixed FK sharing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature retains no query or frame; prepare owns the reader lifetime.
+     */
     region(region: AutoMovieHumanoidRegion): ISurface;
 
-    /** A world ray's hit on midline colliders, throwing when it misses within two statures. */
+    /**
+     * A world ray's hit on midline colliders, throwing when it misses within two statures.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines world ray inputs, midline subset, reach and inherited miss failure.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare and its cast adapter supply the original ray policy.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares one ray query; the numerical loop lives in HumanColliders.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration cannot alter ray thresholds or invent a hit.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepare and HumanColliders.reading document ray and geometry costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature shares no ray result; prepare owns only immutable frame preparation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature holds no collider or hit; prepare owns its synchronous readers.
+     */
     surface(from: IAutoMovieVector3, toward: IAutoMovieVector3): ISurface;
   }
 

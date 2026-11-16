@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -414,8 +415,16 @@ export namespace handspring {
       y: 0,
       z: Math.cos((yaw * Math.PI) / 180),
     };
+    const footRotations: Record<"left" | "right", IAutoMovieQuaternion> = {
+      left: HumanFoot.rotation(yaw + stand.TOE_OUT, 0),
+      right: HumanFoot.rotation(yaw - stand.TOE_OUT, 0),
+    };
+    const bends: Record<"left" | "right", IAutoMovieVector3> = {
+      left: Vector3.add(landed.left, { x: forward.x, y: body.measure.hipHeight / 2, z: forward.z }),
+      right: Vector3.add(landed.right, { x: forward.x, y: body.measure.hipHeight / 2, z: forward.z }),
+    };
+    const span: number = jump.ABSORB + jump.RISE;
     const after: (t: number) => IHumanPosture = (t: number): IHumanPosture => {
-      const span: number = jump.ABSORB + jump.RISE;
       const u: number = ease(t / span);
       const root: IAutoMovieVector3 = Vector3.add(
         Vector3.lerp(rootDown, rootUp, u),
@@ -425,15 +434,8 @@ export namespace handspring {
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = {
           point: landed[side],
-          rotation: HumanFoot.rotation(
-            yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-            0,
-          ),
-          bend: Vector3.add(landed[side], {
-            x: forward.x,
-            y: body.measure.hipHeight / 2,
-            z: forward.z,
-          }),
+          rotation: { ...footRotations[side] },
+          bend: { ...bends[side] },
           planted: true,
         };
       return resolveHumanPosture.lower(body, {

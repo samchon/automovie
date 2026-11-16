@@ -3,6 +3,7 @@ import {
   type resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieInteractionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -140,7 +141,7 @@ export namespace HumanHitTrack {
   ): IAutoMovieInteractionEvent[] {
     const struck = self.people.get(on);
     if (struck === undefined) return [];
-    const requested: ReadonlySet<import("@automovie/interface").AutoMovieHumanoidBone> =
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
       HumanColliders.bones(struck.performer.body);
     const out: IAutoMovieInteractionEvent[] = [];
     for (const person of self.people.values()) {

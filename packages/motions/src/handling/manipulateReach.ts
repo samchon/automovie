@@ -49,39 +49,77 @@ export function manipulateReach(
   depth: number,
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  const surface: HumanHand.Surface = `${digit}Tip` as HumanHand.Surface;
-  const name: string = `${digit[0]!.toUpperCase()}${digit.slice(1)}`;
-  const first: AutoMovieHumanoidBone = `${side}${name}${
-    digit === "thumb" ? "Metacarpal" : "Proximal"
-  }` as AutoMovieHumanoidBone;
+  return manipulateReach.prepare(body, side, rotation)(digit, site, normal, depth);
+}
 
-  // The digit from its first joint to its tip, in the hand's rest axes.
-  const tip: IAutoMovieVector3 = HumanHand.offset(
-    body,
-    side,
-    surface,
-    "flat",
-  ).point;
-  const knuckle: IAutoMovieVector3 = Vector3.subtract(
-    body.rest.get(first)!,
-    body.rest.get(`${side}Hand`)!,
-  );
-  const span: IAutoMovieVector3 = Vector3.subtract(tip, knuckle);
-  const r: number = Vector3.length(span);
-  const d: number = typeText.HOVER + depth;
-  const back: number = r - Math.sqrt(Math.max(0, r * r - d * d));
-  const along: IAutoMovieVector3 = Vector3.normalize(
-    Quaternion.rotateVector(rotation, span),
-  );
-  return HumanHand.place(
-    body,
-    side,
-    surface,
-    Vector3.subtract(
-      Vector3.add(site, Vector3.scale(normal, typeText.HOVER)),
-      Vector3.scale(along, back),
-    ),
-    rotation,
-    "flat",
-  ).point;
+/**
+ * Fixed-body preparation for the plan and fingering's repeated press placements.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the fixed body/hand/rotation scope and both current consumers.
+ * @evidence contracts/development/design.md#principled-representation The closure preserves world-metre sites and normals, metre key travel and the original straight-digit chord geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One preparation function serves the existing cold reach facade, manipulation plan and fingering; no second hand geometry representation is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The body owns every digit length and tip offset, and the original supported digit names remain unchanged.
+ */
+export namespace manipulateReach {
+  /**
+   * Prepare the hand's fixed rotation and lazily read each used digit once.
+   *
+   * @param body The unchanged canonical body and rest skeleton.
+   * @param side The hand.
+   * @param rotation The fixed hand rotation from its rest for this sequence.
+   * @returns The wrist point for a digit, world site and normal, and key depth in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the immutable inputs, per-contact inputs and returned wrist's frame and unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the original chord drawback r-sqrt(max(0,r*r-d*d)) and rigid fingertip offset; digit span, rotated unit direction and rotated tip are independent of the site's place and key depth.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lazy digit record owns fixed skeletal geometry; each contact computes only its depth-dependent drawback and world translation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No authored site, travel, hover height, digit or hand rotation is approximated or clamped differently.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of at most five supported digits reads its skeleton/hand offset once; N contact placements then perform constant translation/chord work without repeating those geometric queries.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only an unchanged body, side and fixed sequence rotation share digit geometry; the plan and each fingering search create their own builders, while every changed site and depth is evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous preparation owns at most five digit records for its plan-construction or fingering call and is released before the resulting motion plan is returned; no global or time-result cache exists.
+   */
+  export function prepare(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    rotation: IAutoMovieQuaternion,
+  ): (digit: string, site: IAutoMovieVector3, normal: IAutoMovieVector3, depth: number) => IAutoMovieVector3 {
+    const digits: Map<string, IDigit> = new Map();
+    return (digit: string, site: IAutoMovieVector3, normal: IAutoMovieVector3, depth: number): IAutoMovieVector3 => {
+      let prepared: IDigit | undefined = digits.get(digit);
+      if (prepared === undefined) {
+        const surface: HumanHand.Surface = `${digit}Tip` as HumanHand.Surface;
+        const name: string = `${digit[0]!.toUpperCase()}${digit.slice(1)}`;
+        const first: AutoMovieHumanoidBone = `${side}${name}${digit === "thumb" ? "Metacarpal" : "Proximal"}` as AutoMovieHumanoidBone;
+        const tip: IAutoMovieVector3 = HumanHand.offset(body, side, surface, "flat").point;
+        const knuckle: IAutoMovieVector3 = Vector3.subtract(
+          body.rest.get(first)!, body.rest.get(`${side}Hand`)!,
+        );
+        const span: IAutoMovieVector3 = Vector3.subtract(tip, knuckle);
+        prepared = {
+          radius: Vector3.length(span),
+          along: Vector3.normalize(Quaternion.rotateVector(rotation, span)),
+          tip: Quaternion.rotateVector(rotation, tip),
+        };
+        digits.set(digit, prepared);
+      }
+      const radius: number = prepared.radius;
+      const drop: number = typeText.HOVER + depth;
+      const back: number = radius - Math.sqrt(Math.max(0, radius * radius - drop * drop));
+      return Vector3.subtract(Vector3.subtract(
+        Vector3.add(site, Vector3.scale(normal, typeText.HOVER)),
+        Vector3.scale(prepared.along, back),
+      ), prepared.tip);
+    };
+  }
+}
+
+/** The actual straight-digit geometry in one fixed hand rotation. */
+interface IDigit {
+  /** The straight digit's first-joint-to-tip length, metres. */
+  radius: number;
+
+  /** Its unit direction in the fixed world hand rotation. */
+  along: IAutoMovieVector3;
+
+  /** Wrist-to-tip offset turned into that same world rotation, metres. */
+  tip: IAutoMovieVector3;
 }

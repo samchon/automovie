@@ -79,6 +79,7 @@ export function walkStation(
     led += length;
     before = now;
   }
+  if (led < 1e-6) return plan;
 
   // The plan's way: the length its root has travelled at each sampled second.
   const seconds: number[] = [0];
@@ -92,7 +93,7 @@ export function walkStation(
     root = now;
   }
   const whole: number = lengths[walkStation.SAMPLES]!;
-  if (led < 1e-6 || whole < 1e-9) return plan;
+  if (whole < 1e-9) return plan;
   const rate = (i: number): number =>
     (lengths[i]! - lengths[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
   const rates: number[] = seconds
@@ -109,9 +110,14 @@ export function walkStation(
       brake = lengths[i]!;
       break;
     }
-  const secondAt = (length: number): number => {
+  const secondAt: (length: number) => number = (length: number): number => {
     let i: number = 1;
-    while (i < walkStation.SAMPLES && lengths[i]! < length) ++i;
+    let high: number = walkStation.SAMPLES;
+    while (i < high) {
+      const middle: number = (i + high) >>> 1;
+      if (lengths[middle]! < length) i = middle + 1;
+      else high = middle;
+    }
     const span: number = lengths[i]! - lengths[i - 1]!;
     return (
       seconds[i - 1]! +

@@ -79,9 +79,10 @@ export namespace KickRedirect {
         clock: number,
         base: IHumanPosture,
         shift: IAutoMovieVector3,
+        hip?: IAutoMovieVector3,
       ): IKickGeometry.ILeg => {
-        const from: IKickGeometry.ILeg = old.leg(clock, base, shift);
-        const to: IKickGeometry.ILeg = fresh.leg(clock, base, shift);
+        const from: IKickGeometry.ILeg = old.leg(clock, base, shift, hip);
+        const to: IKickGeometry.ILeg = fresh.leg(clock, base, shift, hip);
         const w: number = blend(clock);
         return {
           ankle: Vector3.lerp(from.ankle, to.ankle, w),

@@ -3,7 +3,7 @@ import {
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -256,6 +256,8 @@ export namespace pickUp {
     const entry: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
 
     // Timing: reach, load, lift.
@@ -292,7 +294,7 @@ export namespace pickUp {
     const hand: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
-      HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;
+      HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
     // Where the straightening after the lift starts from.
     const bottom: IAutoMovieVector3 | null =
       up === 0

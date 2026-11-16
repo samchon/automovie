@@ -66,8 +66,8 @@ export namespace pickUpSearch {
    * @evidence contracts/development/implementation.md#principled-implementation The grip's turns and tilts judged by the arm's fit over the grasp, the lift and any use's pose (`HumanGrasp.reachable`), the use's pose first when one is asked.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The elbow hint, the goals, one search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grasp beyond the straight arm is tried only when every one is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One grasp search; a use's roll is fitted once per roll and candidate (`HumanGraspUse.presented`).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each use roll's fit is kept for its candidate's search (`HumanGraspUse.presented`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms One grasp search; fixed use geometry and demanded prop frames are prepared once for all candidates, while each candidate retains its original independently fitted use rolls and lazy stroke keys.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanGraspUse.prepare shares fixed prop/body/region geometry and canonical base preparation; HumanGraspDemand.prepare shares the prop's start frame, while every shown candidate wrist still determines its own rigid held offset.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function of(

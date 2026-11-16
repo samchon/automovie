@@ -49,9 +49,9 @@ export namespace HumanGraspWorn {
    * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the least hand error, then the least strain, read from the fit's own sweep; never placed by a share of the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's offset, the key of a turn, its fitted miss, one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The judge is the quantity `dress` judges, never a mix of degrees and millimetres.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each turn is fitted once, kept in a map, however often the search returns to it; a thing not round is fitted at its one turn.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per candidate grasp.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map lives for the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed worn-frame alignment and canonical root/direct-joint clamp are prepared once; each original turn still performs its complete coupled fit, retained only for duplicate turn queries, and readback demands only the actual hand.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller's explicit preparation fixes the same body, entry posture and prop at start across candidate wrists; each wrist retains its own rigid offsets and fitted turns, with one exact FK reader per candidate search.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Turn scores, the exact reader, base-workspace reference and clearance callback are cleared before the returned key escapes; its judge retains only the actual hand socket/site geometry needed for later judgement.
    */
   export function key(props: {
     context: Pick<IHumanActionContext, "body" | "entry" | "start">;
@@ -99,7 +99,7 @@ export namespace HumanGraspWorn {
         props.wrist.point,
       ),
     );
-    const keyed = (degrees: number): HumanHand.IWrist => {
+    const keyed: (degrees: number) => HumanHand.IWrist = (degrees: number): HumanHand.IWrist => {
       const worn: IHumanProp.IFrame = wornAt(degrees);
       const rotation: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(worn.rotation, turn),
@@ -129,7 +129,7 @@ export namespace HumanGraspWorn {
     let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       prepareHumanPoseResolution();
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-    const missed = (degrees: number): number => {
+    const missed: (degrees: number) => number = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
       if (known !== undefined) return known;
       const wrist: HumanHand.IWrist = keyed(degrees);

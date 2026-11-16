@@ -24,14 +24,12 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlDown } from "./crawlDown";
 import { crawlCourse } from "./crawlCourse";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
 import { crawlInchworm } from "./crawlInchworm";
+import { crawlPitch } from "./crawlPitch";
 import { floorEntry } from "./floorEntry";
 
 /**
@@ -206,37 +204,9 @@ export namespace crawl {
     const hipY: number = knee + m.thigh;
     const shoulderY: number =
       (wrists.left.y + wrists.right.y) / 2 + ARM * (m.upperArm + m.forearm);
-    const solved: { pitch: number; bones: ReturnType<typeof poseBones> } = (() => {
-      const measuredBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "leftUpperLeg", "rightUpperLeg"]);
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const crawlingAt = (degrees: number): ReturnType<typeof poseBones> => {
-      const tilted: IHumanPosture = posed(1, degrees);
-      return poseBones(
-        body,
-        resolveHumanPosture.seeded(body, {
-          ...tilted,
-          root: rootFor(
-            tilted,
-            HumanFrame.point(measured, { x: 0, y: hipY, z: 0 }),
-          ),
-        }, undefined, undefined, resolution).pose,
-        resolution(),
-        measuredBones,
-      );
-      };
-      const pitch: number = crawlFrame.pitched((degrees: number): boolean => {
-        const bones: ReturnType<typeof poseBones> = crawlingAt(degrees);
-        return (
-        (bones.get("leftUpperArm")!.worldPosition.y +
-          bones.get("rightUpperArm")!.worldPosition.y) /
-          2 >
-        shoulderY
-        );
-      });
-      return { pitch, bones: crawlingAt(pitch) };
-    })();
+    const solved: ReturnType<typeof crawlPitch> = crawlPitch(body, HumanFrame.point(measured, { x: 0, y: hipY, z: 0 }), shoulderY, (degrees: number): IHumanPosture => posed(1, degrees));
     const pitch: number = solved.pitch;
-    const bones: ReturnType<typeof poseBones> = solved.bones;
+    const bones: ReturnType<typeof crawlPitch>["bones"] = solved.bones;
     const local = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       HumanFrame.local(measured, bones.get(bone)!.worldPosition);
 

@@ -37,8 +37,11 @@ import { vclose } from "../internal/vclose";
  *    visits duplicate and stray records in authored order and refuses NaN.
  * 4. Earlier records and nested transforms remain caller-owned across replay,
  *    output mutation, changed input joints and a second operation reader.
+ * 5. A fixed-source pose reader snapshots baseline joints/root once. Ordered
+ *    current edits can change a parent, while an omitted edit restores the
+ *    baseline; an overwritten invalid edit still refuses even at empty demand.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States static-rig snapshot ownership, metre coordinates, ordered current-joint admission, the requested ancestor closure and fresh result ownership in four scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States static-rig and fixed-pose snapshot ownership, metre coordinates, ordered current-joint/edit admission, requested ancestor closure and fresh result ownership in five scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared and raw requested FK with changing pose/root/static inputs and demand sets. Actual returned coordinates detect stale transforms; an owned rest getter observes snapshot isolation, and an owned raw-operation reader observes ordered admission and demanded compositions without replacing a library function.
  * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps plus X to minus Z; literal rest offsets sum to left-hand (0.75,1.4,0) and right-lower-arm (-0.5,1.4,0). Requested hand ancestry follows the explicitly authored parent graph. These are geometric and dependency expectations, not cold/prepared parity or output snapshots.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers rest, nonidentity ancestor, changed root and one arm, static input mutation versus fresh preparation, empty/single/two-branch demand, duplicate and stray authored joints, nonfinite admission, output mutation and separate operation lifetimes. Unreachable topology and general inverse kinematics remain separately owned.
@@ -204,6 +207,31 @@ export function test_kinematics_prepared_pose_contracts(): void {
   check("new operation shares no mutable result", prepared.resolve(
     makePose([]), preparePoseResolution(), new Set(["leftHand"]),
   ), "leftHand", { x: 0.75, y: 1.4, z: 0 });
+
+  const baseline: IAutoMoviePose = makePose([joint("chest", { twist: 90 })], {
+    translation: { x: 1, y: 2, z: 3 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 },
+  });
+  const fixed: ReturnType<typeof prepared.preparePose> = prepared.preparePose(baseline);
+  baseline.root!.translation.x = 99;
+  baseline.joints[0]!.twist = 0;
+  check("fixed pose snapshots its original joint and root", fixed.resolve(
+    [], new Set(["leftHand"]),
+  ), "leftHand", { x: 1, y: 3.4, z: 2.25 });
+  check("current edit changes every demanded descendant", fixed.resolve(
+    [joint("chest", { twist: 0 })], new Set(["leftHand"]),
+  ), "leftHand", { x: 1.75, y: 3.4, z: 3 });
+  check("absent edit restores the fixed baseline", fixed.resolve(
+    [], new Set(["leftHand"]),
+  ), "leftHand", { x: 1, y: 3.4, z: 2.25 });
+  TestValidator.predicate("fixed pose still admits every ordered edit before demand",
+    throwsError((): IAutoMovieResolvedBone[] => fixed.resolve([
+      joint("chest", { twist: NaN }), joint("chest", { twist: 0 }),
+    ], new Set())),
+  );
+  check("failed edit cannot poison fixed baseline recovery", fixed.resolve(
+    [], new Set(["leftHand"]),
+  ), "leftHand", { x: 1, y: 3.4, z: 2.25 });
 }
 
 /** Check hand-derived world positions and finite unit world rotations. */

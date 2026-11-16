@@ -36,3 +36,42 @@ export function readNormalizedQuaternion<Result, Context>(
   const inv: number = 1 / len;
   return read(value.x * inv, value.y * inv, value.z * inv, value.w * inv, q, context);
 }
+
+/**
+ * Normalization of four already completed scalar components.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the scalar entry's same normalization policy, synchronous visitor and caller-context ownership without manufacturing a source quaternion.
+ * @evidence contracts/development/design.md#principled-representation Inversion, relative-angle reading and interpolation already compute four scalar components before normalizing them. Passing those exact completed numbers preserves their calculation order while omitting an intermediate representation that no caller consumes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One internal scalar entry serves the actual inverse, angle and slerp owners. The record entry remains available where source component-read order or the original raw quaternion matters; no new root export, mutable output, result cache or alternate normalization policy is introduced.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The same shared magnitude gate and original square-root/reciprocal/component products apply to all magnitudes. The visitor receives only completed normalized numbers and its caller context; no unit shortcut, endpoint substitution or tolerance is represented.
+ */
+export namespace readNormalizedQuaternion {
+  /**
+   * Read the same normalized X/Y/Z/W from completed scalar inputs. Zero length
+   * visits identity; nonfinite propagation stays arithmetic. Every callback
+   * runs once synchronously and owns its result. No source record is created.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States scalar order, zero identity, nonfinite arithmetic, one synchronous visitor, caller context and absence of a temporary source quaternion.
+   * @evidence contracts/development/implementation.md#principled-implementation The scalar adapter applies the record entry's exact magnitude gate, per-component divisions, left-associated square sum, square root, reciprocal and four products to the same already computed numbers. It introduces no reassociation of a caller's component expressions or normalization arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both record and scalar adapters live with their one normalization owner and share quaternionNormalizationDivisor. This adapter owns only primitive rescaling/norm work, while inverse, angle and slerp supply their actual component expressions and result visitor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Zero identity, binary64 range thresholds, signed zeros and nonfinite propagation remain the original ones. No direction repair, normalization skip, t clamp or target-dependent answer is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size scalar magnitude/norm work omits both the intermediate input quaternion and any extreme scaled-quaternion record. Actual inverse/angle/slerp callers reuse static visitors rather than allocating one callback per read. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing record and completed-scalar consumers use one internal normalization module and one magnitude policy. Every incoming four-number reading is normalized normally, with no retained input, context or result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The adapter allocates no quaternion or collection, retains no visitor/context/input and returns only the callback's owned result. There is no global state, handle or task.
+   */
+  export function fromScalars<Result, Context>(
+    x: number, y: number, z: number, w: number,
+    read: (x: number, y: number, z: number, w: number, context: Context) => Result,
+    context: Context,
+  ): Result {
+    const divisor: number = quaternionNormalizationDivisor(x, y, z, w);
+    const a: number = divisor === 1 ? x : x / divisor;
+    const b: number = divisor === 1 ? y : y / divisor;
+    const c: number = divisor === 1 ? z : z / divisor;
+    const d: number = divisor === 1 ? w : w / divisor;
+    const len: number = Math.sqrt(a * a + b * b + c * c + d * d);
+    if (len === 0) return read(0, 0, 0, 1, context);
+    const inv: number = 1 / len;
+    return read(a * inv, b * inv, c * inv, d * inv, context);
+  }
+}

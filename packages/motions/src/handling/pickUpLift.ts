@@ -1,5 +1,5 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -208,8 +208,9 @@ export namespace pickUpLift {
   ): void {
     if (lift <= 0) return;
     const body: IHumanBody = context.body;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const wrist = (seconds: number): number =>
-      poseBones(body, resolveHumanPosture(body, plan.posture(seconds))).get(
+      poseBones(body, resolveHumanPosture(body, plan.posture(seconds)), undefined, requested).get(
         `${side}Hand`,
       )!.worldPosition.y;
     const short: number = 1000 * (lift - (wrist(lifted) - wrist(closed)));
@@ -235,5 +236,5 @@ export namespace pickUpLift {
     side: HumanHand.Side,
     posture: IHumanPosture,
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;
+    HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
 }

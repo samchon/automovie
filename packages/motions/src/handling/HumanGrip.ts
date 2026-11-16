@@ -182,8 +182,8 @@ export namespace HumanGrip {
    * @evidence contracts/development/implementation.md#principled-implementation The same rigid transform carries world colliders into the zero-hand frame before the engine's ordered first-contact curl; its actual FK, clamps and collision queries remain unchanged.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Canonical poseBones owns the rest-hand FK, chain owns capsule metadata, and curlChainUntilContact alone owns numerical closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves CLOSING order, starting angles and missing-capsule refusals; uniform digit radii keep their stated approximation and no physical success is invented.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) rest FK uses direct Map insertion without B entry tuples, plus C collider transforms and D chain preparations before the unchanged curl's actual FK/search/collider work. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the body's exact existing topology/canonical mappings through poseBones and one shared rest-hand transform for these colliders; every actual curl/contact query still runs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The rest query demands only the actual hand ancestry; C collider transforms and D chain preparations precede the unchanged curl probes. The body-owned immutable rig lets those probes demand actual digit chains and share unchanged FK math, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing body snapshot supplies exactly this skeleton/canonical axes/rest topology to curl; one rest-hand transform places its fixed colliders, while every angle, ROM cap and actual contact query remains independently evaluated.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary FK/collider/search records end with return or throw; the caller owns fresh joint tuples/gaps and no plan, body cache, workspace or handle is retained here.
    */
   export function close(
@@ -308,8 +308,8 @@ export namespace HumanGrip {
    * @evidence contracts/development/implementation.md#principled-implementation Canonical FK places the requested joints; each distal capsule core tip is rigidly placed and their Euclidean separation is the existing aperture measure.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One poseBones map serves both digit-tip placements, using the same chain geometry owner as closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual distal core tips and their existing capsule geometry, without a fitted opening, radius compensation or target substitution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+J) canonical FK plus two chain metadata queries and fixed tip/distance work; direct Map insertion removes B entry tuples and scalar distance omits one displacement record, without skipping FK or claiming measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both tips share this actual query's resolved map; each chain and scalar distance still reads the current supplied shape independently of other calls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The cold facade prepares one aperture reader and performs actual FK for the two distal ancestor closures after all J authored records are admitted; capsule metadata and scalar distance remain exact.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both actual tips share the same supplied clinical shape's requested FK; repeated shape searches use prepareAperture explicitly, with no global or cross-body result cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and releases its temporary pose/map/chains, retaining no input, workspace or handle.
    */
   export function aperture(
@@ -328,7 +328,7 @@ export namespace HumanGrip {
    * @returns A reader of the actual thumb-index tip distance, metres, for each supplied clinical shape.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed geometry, per-reading clinical shape, metre distance and synchronous ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Each reading uses canonical FK on every supplied joint, then the original rigid distal-tip placement and Euclidean distance; invariant capsule chains are prepared before the shape varies.
+   * @evidence contracts/development/implementation.md#principled-implementation Each reading admits every supplied joint through canonical FK, then uses the original rigid distal-tip placement and Euclidean distance; invariant capsule chains are acquired lazily at their original first tip use and reused for later shapes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two capsule chains and demanded distal bones precede the shape-to-pose conversion and shared tip reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied angle is admitted in source order and every actual shape is evaluated; no interpolated aperture, reduced search or guessed tip is used.
    * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches occur once for T shape readings; each reading admits J joints and computes only the two distal ancestor closures, with unchanged dependency math shared by one operation reader.
@@ -358,7 +358,7 @@ export namespace HumanGrip {
       };
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, pose, resolution(), requested);
-      const tip = (digit: "Thumb" | "Index"): IAutoMovieVector3 => {
+      const tip: (digit: "Thumb" | "Index") => IAutoMovieVector3 = (digit: "Thumb" | "Index"): IAutoMovieVector3 => {
         const prepared: curlChainUntilContact.IChain = digit === "Thumb"
           ? (thumb ??= chain(body, side, digit)) : (index ??= chain(body, side, digit));
         const distal: IAutoMovieResolvedBone = resolved.get(prepared.bones[2]!)!;

@@ -85,11 +85,11 @@ export namespace HumanTravelLeafWalk {
       y: 0,
       z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2,
     };
-    const heading = (v: IAutoMovieVector3): number =>
+    const heading: (v: IAutoMovieVector3) => number = (v: IAutoMovieVector3): number =>
       (Math.atan2(v.x, v.z) * 180) / Math.PI;
-    const turned = (from: number, to: number): number =>
+    const turned: (from: number, to: number) => number = (from: number, to: number): number =>
       ((((to - from) % 360) + 540) % 360) - 180;
-    const yawY = (v: IAutoMovieVector3, degrees: number): IAutoMovieVector3 =>
+    const yawY: (v: IAutoMovieVector3, degrees: number) => IAutoMovieVector3 = (v: IAutoMovieVector3, degrees: number): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
         v,
@@ -97,18 +97,19 @@ export namespace HumanTravelLeafWalk {
     const taken: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
       props.handle(take);
     const local: IAutoMovieVector3 = Vector3.subtract(taken.point, mid0);
+    const takenHeading: number = heading(taken.normal);
 
     // The feet's midpoint and the turn the take relation asks at a second.
-    const asked = (t: number): { mid: IAutoMovieVector3; turn: number } => {
+    function asked(t: number): { mid: IAutoMovieVector3; turn: number } {
       const h: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
         props.handle(t);
-      const turn: number = turned(heading(taken.normal), heading(h.normal));
+      const turn: number = turned(takenHeading, heading(h.normal));
       const at: IAutoMovieVector3 = Vector3.subtract(
         h.point,
         yawY(local, turn),
       );
       return { mid: { x: at.x, y: 0, z: at.z }, turn };
-    };
+    }
 
     // Where the swing ends: the last reading at which the stance moves.
     let rests: number = take;
@@ -186,7 +187,7 @@ export namespace HumanTravelLeafWalk {
       walked.duration,
     );
     const total: number = went.at(-1)!;
-    const reached = (length: number): number => {
+    const reached: (length: number) => number = (length: number): number => {
       let i: number = 0;
       let end: number = went.length - 1;
       while (i < end) {

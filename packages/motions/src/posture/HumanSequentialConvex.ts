@@ -25,7 +25,7 @@ export namespace HumanSequentialConvex {
 
   /** The convex model's step within a region. */
   export interface IStep<X> {
-    /** The iterate the step reaches, projected onto any hard set the caller keeps. */
+    /** The iterate reached, projected onto the caller's hard set; may be a lazy getter because steering reads only merit/violation diagnostics and the outer loop requests a trial only when judging that step. */
     trial: X;
 
     /** The model's decrease of the merit from the iterate to the step, `m(0) - m(p)`. */
@@ -311,6 +311,12 @@ export namespace HumanSequentialConvex {
         }
         penalty = mu;
         const merit: number = current.objective + mu * current.violation;
+        const gain: (reading: E, predicted: number) => number = (
+          reading: E,
+          predicted: number,
+        ): number => predicted > 0
+          ? (merit - (reading.objective + mu * reading.violation)) / predicted
+          : -Infinity;
         let taken: boolean = false;
         let settled: boolean = false;
         let told: boolean = false;
@@ -330,14 +336,9 @@ export namespace HumanSequentialConvex {
             ended = "model";
             break;
           }
-          const gain: (reading: E) => number = (reading: E): number =>
-            step.predicted > 0
-              ? (merit - (reading.objective + mu * reading.violation)) /
-                step.predicted
-              : -Infinity;
           let trial: X = step.trial;
           let next: E = problem.evaluate(trial);
-          let ratio: number = gain(next);
+          let ratio: number = gain(next, step.predicted);
 
           // A rejected step is corrected once, judged on its own predicted
           // decrease, before the region shrinks (`IProblem.correct`).
@@ -349,7 +350,7 @@ export namespace HumanSequentialConvex {
             const corrected: X | null = problem.correct(x, step, next);
             if (corrected !== null) {
               const fixed: E = problem.evaluate(corrected);
-              const again: number = gain(fixed);
+              const again: number = gain(fixed, step.predicted);
               if (again > s.eta) {
                 trial = corrected;
                 next = fixed;

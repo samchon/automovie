@@ -137,6 +137,70 @@ export namespace HumanLimbFitMemory {
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
+    return query(inputs(body, pose, limb, goal, placed, rival, near), resolution);
+  }
+
+  /**
+   * Prepare only fixed mirror/floor/key work for one unchanged limb request.
+   * Each invocation still reads the actual bounded body memory and its LRU,
+   * and disabled memory still executes the ordinary solver on the raw source.
+   * A per-invocation FK supplier is borrowed synchronously and never retained.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed source inputs, reused normalization/key only, live memory switch/LRU and nonretained FK source.
+   * @evidence contracts/development/implementation.md#principled-implementation Mirror/floor transformations and serialization are pure functions of this explicit operation's fixed pose/goal/placed/rival/near inputs, so their completed key may serve repeated ordinary memory reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure inputs owns the unchanged key construction and query the existing memory policy; this producer adds only fixed-request preparation and delegates actual fits to HumanLimbFit.fit.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stores no fitted result or target history, retains the existing grid and complete key, preserves hit counts/LRU/eviction and always bypasses reads/inserts while memory is disabled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Mirror/floor/serialization O(J+G) work runs once at the first enabled read for J joints and G goal data; each later call retains its actual map read/recency update or full miss solve, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged source/body/goal metadata prove key equivalence; each invocation receives its current synchronous FK supplier independently and actual memory contents remain live.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns at most one mirrored/normalized source, goal and key until release; its closure retains no solve result or FK reader, while the existing weak-body pool remains capped at4096 entries.
+   */
+  export function prepare(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal,
+    placed: readonly ("left" | "right")[],
+    rival?: IAutoMovieVector3,
+    near?: IAutoMovieSwivelNear,
+  ): (resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieSeededChainFit {
+    let fixed: IRequest | undefined;
+    let mirrored: ReturnType<typeof prepare> | undefined;
+    return (resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit => {
+      if (!REMEMBERING.on) return HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near, resolution);
+      if (limb.startsWith("left")) {
+        mirrored ??= prepare(body, HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb),
+          HumanLimbMirror.goal(goal), placed.map(HumanLimbMirror.side),
+          rival === undefined ? undefined : HumanArmMirror.flip(rival), near);
+        const image: IAutoMovieSeededChainFit = mirrored(resolution);
+        return { ...image, pose: HumanLimbMirror.pose(image.pose) };
+      }
+      return query((fixed ??= inputs(body, pose, limb, goal, placed, rival, near)), resolution);
+    };
+  }
+
+  /** Fixed normalized request data; no numerical answer or reader is retained here. */
+  interface IRequest {
+    body: IHumanBody;
+    pose: IAutoMoviePose;
+    limb: IHumanPosture.Limb;
+    goal: IHumanPosture.IGoal;
+    placed: readonly ("left" | "right")[];
+    rival: IAutoMovieVector3 | undefined;
+    near: IAutoMovieSwivelNear | undefined;
+    key: string;
+    root: IAutoMoviePose["root"] | undefined;
+  }
+
+  /** Original right-side floor/key construction, shared by cold and fixed-request readers. */
+  function inputs(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal,
+    placed: readonly ("left" | "right")[],
+    rival: IAutoMovieVector3 | undefined,
+    near: IAutoMovieSwivelNear | undefined,
+  ): IRequest {
     // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
     // fit; handed back with the caller's root and the seed as it is.
@@ -156,6 +220,16 @@ export namespace HumanLimbFitMemory {
       [limb, placed, away ?? null, aim, own.root, own.joints, near ?? null],
       HumanLimbFitFrame.grid,
     );
+    return { body, pose: own, limb, goal: aim, placed, rival: away, near, key,
+      root: frame === null ? undefined : pose.root };
+  }
+
+  /** The unchanged live body-memory lookup, count, solve and LRU policy. */
+  function query(
+    input: IRequest,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): IAutoMovieSeededChainFit {
+    const { body, key }: Pick<IRequest, "body" | "key"> = input;
     let fits: Map<string, IAutoMovieSeededChainFit> | undefined =
       FITS.get(body);
     if (fits === undefined) {
@@ -167,20 +241,20 @@ export namespace HumanLimbFitMemory {
     if (out === undefined)
       out = HumanLimbFit.fit(
         body,
-        own,
-        limb,
-        aim,
-        placed,
-        away,
-        near,
+        input.pose,
+        input.limb,
+        input.goal,
+        input.placed,
+        input.rival,
+        input.near,
         resolution,
       );
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
-    return frame === null
+    return input.root === undefined
       ? out
-      : { ...out, pose: { ...out.pose, root: pose.root } };
+      : { ...out, pose: { ...out.pose, root: input.root } };
   }
 
   /** The limb fits remembered, by body. */

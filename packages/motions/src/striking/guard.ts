@@ -129,6 +129,7 @@ export namespace guard {
   ): IGeometry {
     const body = context.body;
     const entry: IHumanPosture = context.entry.posture;
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
     const lead: "left" | "right" =
       context.params.stance === undefined
         ? StrikingTarget.lead(context.entry)
@@ -181,8 +182,10 @@ export namespace guard {
     });
 
     // Each foot's swing window, the rear first; a foot already in place stays.
-    const moves = (side: "left" | "right"): boolean =>
-      Vector3.length(Vector3.subtract(from[side].ankle, to[side].ankle)) > 0.01;
+    const moving: Record<"left" | "right", boolean> = {
+      left: Vector3.length(Vector3.subtract(from.left.ankle, to.left.ankle)) > 0.01,
+      right: Vector3.length(Vector3.subtract(from.right.ankle, to.right.ankle)) > 0.01,
+    };
     const first: readonly [number, number] = [0, 0.3];
     const second: readonly [number, number] = [0.25, 0.55];
     const window: Record<"left" | "right", readonly [number, number]> =
@@ -191,7 +194,7 @@ export namespace guard {
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
     const foot = (side: "left" | "right", t: number): HumanFoot.IPlacement => {
-      if (!moves(side)) return from[side];
+      if (!moving[side]) return from[side];
       const [a, b] = window[side];
       const s: number = minimumJerk((t - a) / (b - a)).s;
       const ankle: IAutoMovieVector3 = Vector3.lerp(
@@ -207,7 +210,7 @@ export namespace guard {
     const contacts: IHumanContactWindow[] = (
       ["left", "right"] as const
     ).flatMap((side): IHumanContactWindow[] => {
-      if (!moves(side))
+      if (!moving[side])
         return [
           {
             part: `${side}Foot`,
@@ -256,7 +259,7 @@ export namespace guard {
           yaw: entry.yaw + angle(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
-          joints: { ...entry.joints, ...StrikingStance.joints() },
+          joints: { ...joints },
           limbs: {},
         };
         const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
@@ -264,7 +267,7 @@ export namespace guard {
           right: foot("right", t),
         };
         const down = (side: "left" | "right"): boolean =>
-          !moves(side) || t <= window[side][0] || t >= window[side][1];
+          !moving[side] || t <= window[side][0] || t >= window[side][1];
         const legs = StrikingStance.legs(body, feet, {
           left: down("left"),
           right: down("right"),

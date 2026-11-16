@@ -224,6 +224,7 @@ export namespace crawlChain {
 
     // The leg at an elevation over the foot pivoted on its ball, the heel
     // lifted as far as the shank leans forward.
+    const pivot: ReturnType<typeof HumanFoot.preparePivot> = HumanFoot.preparePivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw);
     const scan: Map<number, { heel: number; ankle: IAutoMovieVector3; along: number; up: number }> = new Map();
     const legAt = (mu: number, lam: number): ILeg => {
       let geometry: { heel: number; ankle: IAutoMovieVector3; along: number; up: number } | undefined = scan.get(lam);
@@ -231,7 +232,7 @@ export namespace crawlChain {
         const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
         const ankle: IAutoMovieVector3 = HumanFrame.local(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
-          HumanFoot.pivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw, -heel).ankle,
+          pivot(-heel).ankle,
         );
         geometry = { heel, ankle, along: l * Math.cos(lam / DEG), up: l * Math.sin(lam / DEG) };
         if (Number.isInteger(lam) && lam >= LOWEST && lam <= 120) scan.set(lam, geometry);

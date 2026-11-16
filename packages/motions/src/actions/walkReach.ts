@@ -1,7 +1,5 @@
 import {
   DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Vector3,
   bracketedRoot,
   minimumJerk,
   smoothMinimum,
@@ -14,11 +12,11 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { walkFoot } from "./walkFoot";
 import { walkHipTwist } from "./walkHipTwist";
+import { prepareWalkReachSwing } from "./prepareWalkReachSwing";
 import { walkLeg } from "./walkLeg";
 import { walkReachFeet } from "./walkReachFeet";
 import { walkReachStance } from "./walkReachStance";
@@ -354,116 +352,32 @@ export namespace walkReach {
     foot: walkFoot.IFoot,
     share?: number,
   ): walkFoot.IEnd {
-    const m: IHumanBody["measure"] = body.measure;
-    const h: IAutoMovieVector3 = settled.hips[side];
-    // The hip's extension is read in the pelvis's frame, so a pelvis tilted
-    // with the trunk counts.
-    const frame: IAutoMovieQuaternion =
-      settled.pelvis ??
-      resolveHumanPosture.heading({ yaw: settled.yaw, pitch: 0, roll: 0 });
-    const limit: number = Math.sqrt(
-      m.thigh ** 2 +
-        m.shank ** 2 +
-        2 * m.thigh * m.shank * Math.cos((KNEE * Math.PI) / 180),
-    );
-    let v: IAutoMovieVector3 = Vector3.subtract(foot.placement.ankle, h);
-    const d: number = Vector3.length(v);
-    if (d > limit) v = Vector3.scale(v, limit / d);
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(frame),
-      v,
-    );
-    // The leg is read in its own plane, the hip's abduction carrying it
-    // aside by `beta`: its reach below the hip there is `down`, so the
-    // extension's test and its correction see the same leg as `behind`.
-    const down: number = Math.hypot(local.x, local.y);
-    const beta: number = Math.atan2(local.x, -local.y);
-    const extension: number =
-      (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
-    if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
-      // Project the direction onto the extension cone on the same sphere:
-      // the knee's angle stays, and the ankle changes continuously as it
-      // reaches the cone. Keeping the rear coordinate instead changed the
-      // radius, then jumped where the shank could no longer keep it.
-      const reach: number = Math.hypot(local.z, down);
-      const y: number = -reach * Math.cos(extension);
-      v = Quaternion.rotateVector(frame, {
-        x: -y * Math.sin(beta),
-        y: y * Math.cos(beta),
-        z: -reach * Math.sin(extension),
-      });
-    }
-    let ankle: IAutoMovieVector3 = Vector3.add(h, v);
-    let rotation: IAutoMovieQuaternion = foot.placement.rotation;
-    const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
-    if (Math.abs(off) > TWIST)
-      rotation = HumanFoot.rotation(
-        settled.yaw + Math.sign(off) * TWIST,
-        HumanFoot.pitch(rotation),
-      );
-
-    // The ankle comes in under the hip until the leg's line leans no further
-    // to the side of the foot than the ankle inverts or everts.
-    const across: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: HumanFoot.heading(rotation) },
-      { x: 1, y: 0, z: 0 },
-    );
-    const aside: number =
-      (ankle.x - h.x) * across.x + (ankle.z - h.z) * across.z;
-    const most: number =
-      Math.tan((SIDE * Math.PI) / 180) * Math.max(0, h.y - ankle.y);
-    if (Math.abs(aside) > most) {
-      const shift: number = aside - Math.sign(aside) * most;
-      ankle = {
-        x: ankle.x - shift * across.x,
-        y: ankle.y,
-        z: ankle.z - shift * across.z,
-      };
-    }
-
-    // The foot keeps the clearance its swing gave it: where the ankle's range
-    // turns it, the ankle rises so its lowest point stays as high over the
-    // floor as the swing put it, never on the floor while it travels. Lifting
-    // the foot leans its shank further, so the pitch is held inside the
-    // ankle's range again after each lift.
-    const toe: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, "toe", foot.toes);
-    const heel: ReturnType<typeof HumanFoot.preparePoint> = HumanFoot.preparePoint(body, side, "heel");
-    const lowest: (placement: HumanFoot.IPlacement) => number = (placement: HumanFoot.IPlacement): number =>
-      Math.min(
-        toe(placement).y,
-        heel(placement).y,
-      );
-    const clear: number = Math.max(0, lowest(foot.placement));
-    for (let k: number = 0; k < 8; k++) {
-      rotation = walkLeg.ankleRange(body, h, ankle, rotation);
-      const low: number = lowest({ ankle, rotation });
-      if (low >= clear - 1e-6) break;
-      ankle = { ...ankle, y: ankle.y + clear - low };
-    }
-    if (share === undefined) return { ankle, rotation, toes: foot.toes };
-
-    // The ranges come in after lift-off and go before landing, so a swing
-    // leaves and joins its stances where they stand; the clearance holds
-    // throughout.
-    const held: number = Math.min(
-      minimumJerk(Math.min(1, Math.max(0, share) / FADE)).s,
-      minimumJerk(Math.min(1, Math.max(0, 1 - share) / FADE)).s,
-    );
-    let joined: IAutoMovieVector3 = Vector3.lerp(
-      foot.placement.ankle,
-      ankle,
-      held,
-    );
-    const turned: IAutoMovieQuaternion = Quaternion.slerp(
-      foot.placement.rotation,
-      rotation,
-      held,
-    );
-    const low: number = lowest({ ankle: joined, rotation: turned });
-    if (low < clear) joined = { ...joined, y: joined.y + clear - low };
-    return { ankle: joined, rotation: turned, toes: foot.toes };
+    return prepareSwing(body, side)(settled, foot, share);
   }
 
+  /**
+   * Prepare fixed body and foot geometry for repeated swing-range reads.
+   *
+   * @param body The action's unchanged body.
+   * @param side The swinging foot.
+   * @returns This law's same swing constraints with its fixed bounds prepared.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/side and the returned settled-pelvis, foot and optional-share reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the unchanged sphere/cone, hip/ankle and clearance rules to one prepared owner with this law's exact named bounds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound record and one prepared swing owner; raw swing delegates here too.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same knee, extension, side, twist and fade values govern raw and prepared paths, with every varying input evaluated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per side; repeated reads retain the bounded solver work while sharing body-only reach and socket terms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A reader is valid for the unchanged body and side only; no pelvis, foot or share result is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action releases one reader per used side with its plan, without growing query history.
+   */
+  export function prepareSwing(
+    body: IHumanBody,
+    side: "left" | "right",
+  ): ReturnType<typeof prepareWalkReachSwing> {
+    return prepareWalkReachSwing(body, side, {
+      knee: KNEE, extension: EXTENSION, side: SIDE, twist: TWIST, fade: FADE,
+    });
+  }
   /** Both feet. */
   export const SIDES: readonly ["left", "right"] = ["left", "right"];
 

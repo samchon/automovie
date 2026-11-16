@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { StrikingRecord } from "./StrikingRecord";
@@ -20,9 +21,10 @@ export interface IKickGeometry {
    * The whole posture.
    *
    * @param seconds Seconds since the kick's start.
+   * @param channels Optional observational demand; limb-only contact reads may omit unused guard goals while preserving the complete kicking leg/base.
    * @returns The posture, the guard and the kicking leg's goal included.
    */
-  posture(seconds: number): IHumanPosture;
+  posture(seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture;
 
   /** The horizontal unit line from the kicker toward the target the body's carriage was committed on. */
   line: IAutoMovieVector3;
@@ -61,12 +63,14 @@ export interface IKickGeometry {
    * @param clock Seconds since the start on the leg's own clock, which a withdrawal runs backwards.
    * @param base The body's posture the leg hangs from.
    * @param shift How far the launch plant has moved, world metres: zero on the approach, the replant's share on a withdrawal.
+   * @param hip Optional kicking hip already read from this exact body/base within the current synchronous evaluation.
    * @returns The leg's goal.
    */
   leg(
     clock: number,
     base: IHumanPosture,
     shift: IAutoMovieVector3,
+    hip?: IAutoMovieVector3,
   ): IKickGeometry.ILeg;
 
   /** The kicking ankle at the launch, world metres. */

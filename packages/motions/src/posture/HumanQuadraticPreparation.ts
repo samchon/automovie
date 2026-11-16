@@ -283,7 +283,7 @@ function admit(
  * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
  * Builds ordered CSR and full raw snapshots, then scales the canonical band; exact diagonal inputs omit only unchanged off-diagonal signed zeros, and post-column-scaling P/q norms are accumulated as entries are written in the original reduction order.
  * Omits only coefficients equal to zero, retaining all nonzeros, duplicate indices and empty-row offsets; no cutoff, sorting, merged cancellation or changed scaling constants is used.
- * Compression, raw snapshots and ten scaling passes take O(S+R+10*(n*w+Z+m)) time and O(S+n*w+Z+n+m) space; diagonal P reduces its pass term to n after an initial n*w classification, while full input/final finite admission remains.
+ * Compression and snapshots take O(S+R+n*w) before ten O(K+Z+m) scaling passes, with K=n for diagonal P, stored positions for sparse P and the full band for dense P; space remains O(S+n*w+Z+n+m), including exact position metadata and full input/final finite admission.
  * Runs only when admission finds a changed dependency, copies numeric inputs and classifies exact diagonal curvature once. The original 1/(c*d[i]) and both q infinity norms are computed after equilibration without a clamp or added finite rejection; max of nonnegative magnitudes preserves the original NaN/infinity normalization behavior.
  * Returns one numeric prepared value without retaining row-scale scratch; its caller reuses that fresh m-entry buffer as lo only after all scaling reads finish.
  * States exact-zero compression, the unchanged Ruiz policy, copied dependencies and finite invertibility check.
@@ -325,13 +325,26 @@ function create(
       row.slice(0, Math.min(band + 1, n - i)),
   );
   let diagonal: boolean = true;
+  let sparse: boolean = false;
   for (const row of p) {
     for (let j: number = 1; j < row.length; ++j)
-      if (row[j] !== 0) {
-        diagonal = false;
-        break;
-      }
-    if (!diagonal) break;
+      if (row[j] === 0) sparse = true;
+      else diagonal = false;
+  }
+  let pOffsets: (readonly number[])[] | undefined;
+
+  // Finite positive Ruiz multipliers preserve every original signed zero;
+  // retain all originally nonzero positions even when scaling underflows.
+  if (!diagonal && sparse) {
+    pOffsets = new Array(n);
+    const diagonalPositions: readonly number[] = [0];
+    for (let i: number = 0; i < n; ++i) {
+      const row: Float64Array = p[i]!;
+      let offsets: number[] | undefined;
+      for (let j: number = 1; j < row.length; ++j)
+        if (row[j] !== 0) (offsets ??= [0]).push(j);
+      pOffsets[i] = offsets ?? diagonalPositions;
+    }
   }
   const q: Float64Array = Float64Array.from(originalQ);
   const vals: Float64Array = Float64Array.from(original);
@@ -347,8 +360,10 @@ function create(
     curvature.fill(0);
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      const end: number = diagonal ? 1 : row.length;
-      for (let j: number = 0; j < end; ++j) {
+      const positions: readonly number[] | undefined = pOffsets?.[i];
+      const end: number = diagonal ? 1 : (positions?.length ?? row.length);
+      for (let a: number = 0; a < end; ++a) {
+        const j: number = positions?.[a] ?? a;
         const v: number = Math.abs(row[j]!);
         curvature[i] = Math.max(curvature[i]!, v);
         curvature[i + j] = Math.max(curvature[i + j]!, v);
@@ -372,8 +387,10 @@ function create(
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
       const scale: number = dx[i]!;
-      const end: number = diagonal ? 1 : row.length;
-      for (let j: number = 0; j < end; ++j) {
+      const positions: readonly number[] | undefined = pOffsets?.[i];
+      const end: number = diagonal ? 1 : (positions?.length ?? row.length);
+      for (let a: number = 0; a < end; ++a) {
+        const j: number = positions?.[a] ?? a;
         const coefficient: number = row[j]! * scale * dx[i + j]!;
         row[j] = coefficient;
         const magnitude: number = Math.abs(coefficient);
@@ -397,8 +414,12 @@ function create(
     const gamma: number = 1 / limit(Math.max(mean, linear));
     for (let i: number = 0; i < n; ++i) {
       const row: Float64Array = p[i]!;
-      const end: number = diagonal ? 1 : row.length;
-      for (let j: number = 0; j < end; ++j) row[j] = row[j]! * gamma;
+      const positions: readonly number[] | undefined = pOffsets?.[i];
+      const end: number = diagonal ? 1 : (positions?.length ?? row.length);
+      for (let a: number = 0; a < end; ++a) {
+        const j: number = positions?.[a] ?? a;
+        row[j] = row[j]! * gamma;
+      }
       q[i] = q[i]! * gamma;
     }
     c *= gamma;
@@ -427,7 +448,7 @@ function create(
     p: originalP,
     q: originalQ,
     vals: original,
-    core: { n, m, band, p, diagonal, q, qNorm, unscaledQNorm, start, cols, vals, ordered, singleton, d, e, c, unscale },
+    core: { n, m, band, p, diagonal, pOffsets, q, qNorm, unscaledQNorm, start, cols, vals, ordered, singleton, d, e, c, unscale },
   };
 }
 

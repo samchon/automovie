@@ -49,9 +49,16 @@ export namespace HumanGraspUsePreparation {
 
   /** Shared prop placement and the target region, in world metres. */
   interface IBase {
+    /** The actual prop reader fixed by the search. */
     held: IHumanActionContext.IProp;
+
+    /** The prop frame at the fixed action start, in world metres. */
     world: IHumanProp.IFrame;
+
+    /** The admitted working-point affordance in the prop's local frame. */
     tip: IAutoMovieAffordance;
+
+    /** The unchanged direct-joint/root assembly; every candidate still fits its full goals. */
     base: ReturnType<typeof resolveHumanPosture.prepareBase>;
   }
 
@@ -92,15 +99,15 @@ export namespace HumanGraspUsePreparation {
    * @evidence contracts/development/implementation.md#principled-implementation Reads the prop at the action's start and the named region on the entry pose; the shortest turn aligns the tool line or working face with the requested direction, retaining the body's left as the existing opposite-direction axis.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Contact admission precedes the target-region reading; worn uses return their frame inputs while other uses prepare their line and hand geometry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original use lines, placement shares and refusal bounds are unchanged; no fitted candidate is reused across wrists.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One affordance search and one entry FK/region reading serve all C candidate wrists instead of C repeated readings; retained geometry is constant in C.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One affordance search, demanded entry FK/region reading and O(B+J) canonical base assembly serve all C candidate wrists; one O(B) base snapshot and fixed geometry are retained independently of C, while actual candidate fits remain unchanged.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the fixed context, start time, prop, handle, side and use determine this result; HumanGraspUse.prepare owns it for exactly that candidate search.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared record holds fixed-size geometry and its prop reader; its consuming closure releases the record with the plan's search, with no global cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one O(B) canonical base, fixed prop/target geometry and its prop reader; the consuming builder releases them with that search, without a global cache, FK reader or sampled-time history.
    */
   export function of(props: IInput): IPrepared {
     const context: IInput["context"] = props.context;
     const held: IHumanActionContext.IProp = context.prop(props.prop);
     const affordances: readonly IAutoMovieAffordance[] = held.prop.affordances ?? [];
-    const contact = (id: string): IAutoMovieAffordance | undefined =>
+    const contact: (id: string) => IAutoMovieAffordance | undefined = (id: string): IAutoMovieAffordance | undefined =>
       affordances.find((value: IAutoMovieAffordance): boolean => value.id === id);
     const handle: IAutoMovieAffordance | undefined = contact(props.handle);
     const tip: IAutoMovieAffordance | undefined = contact(props.use.tip);

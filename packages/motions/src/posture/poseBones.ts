@@ -40,9 +40,44 @@ export function poseBones(
   prepared?: ReturnType<typeof preparePoseResolution>,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  const resolved: IAutoMovieResolvedBone[] = body.poseResolution.resolve(
-    pose, prepared, requested,
-  );
+  return byName(body.poseResolution.resolve(pose, prepared, requested));
+}
+
+/**
+ * Bound canonical pose readers with fixed bone-name demand.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States canonical-body binding and explicit fixed-demand preparation.
+ * @evidence contracts/development/design.md#principled-representation The body owns one immutable rig; a prepared reader captures a name-set snapshot while querying complete changing poses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The prepare companion serves mass-model repeated reads without exposing engine indices or a mutable demand token.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Body binding calls its genuine producer directly; no caller-provided resolved flag or foreign numerical demand is admitted.
+ */
+export namespace poseBones {
+  /**
+   * Prepare one body's requested bone set once for repeated complete poses.
+   * Later edits to that set do not change the captured demand. Every query
+   * still admits all current authored records and returns a fresh map/frames.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines captured membership, fixed body, complete pose admission and fresh map/transform ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The body's actual immutable rig snapshots reachable names/order, then resolves each current pose through its ordinary exact parent-first FK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates fixed-demand preparation to the engine producer and indexes fresh outputs through the same local adapter as ordinary poseBones.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No external index list, pose, target, admission flag or body override enters the returned reader; all authored query joints remain admitted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms K-name lookup/sorting is paid once. Each query admits J current joints, checks D demanded ancestors and creates K fresh map entries without rebuilding demand; runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The captured body rig and copied name membership establish static equivalence; optional operation-reader identity scopes exact dynamic reuse, while current pose scalars still invalidate changed dependencies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one bounded demand snapshot and borrows the body rig until caller release. Dynamic rows use weak operation keys; no pose, result history, handle or task is retained.
+   */
+  export function prepare(
+    body: IHumanBody,
+    requested: ReadonlySet<AutoMovieHumanoidBone>,
+  ): (pose: IAutoMoviePose, prepared?: ReturnType<typeof preparePoseResolution>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const demand: ReturnType<IHumanBody["poseResolution"]["prepareBones"]> =
+      body.poseResolution.prepareBones(requested);
+    return (pose: IAutoMoviePose, prepared?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      byName(demand.resolve(pose, prepared));
+  }
+}
+
+/** Index only actual fresh FK outputs; neither this map nor its frames are retained. */
+function byName(resolved: readonly IAutoMovieResolvedBone[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
   for (const bone of resolved) map.set(bone.bone, bone);
   return map;

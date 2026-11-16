@@ -165,15 +165,15 @@ export namespace HumanColliders {
   }
 
   /**
-   * Query varying world segments against one unchanged posed body during a
+   * Query varying world segments and rays against one unchanged posed body during a
    * synchronous contact operation. Release the reader with that operation;
    * changed bones/profile geometry require a new reading.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/bones, varying segments/tapers, world units and synchronous lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Places actual profile geometry once and delegates each segment to the same signed union-distance owner; fixed geometry alone is shared.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lazy facade owns placement lifetime and HumanColliderDistance.prepare owns sphere/query-frame scratch, retaining one numerical reduction owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment, point and taper is actually queried with original shape order, strict ties, screens and empty-profile refusal; no distance or contact verdict is cached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Pays O(S) placement once for K queries on S segments, and prepares at most F world spheres/engine frames on first use across F shapes; exact query costs remain per segment.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/bones, varying segments/tapers/rays, world units and synchronous lifetime; segment and cast share only the bound geometry.
+   * @evidence contracts/development/implementation.md#principled-implementation Places actual profile geometry once, delegates each segment to the same signed union-distance owner and every ray to cast's unchanged sphere-tracing/normal-probe owner over that segment reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lazy bound segment reader owns placement lifetime and HumanColliderDistance.prepare owns sphere/query-frame scratch; castOn owns the original ray loop used by this reader and standalone cast.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment, point, taper and ray probe is actually queried with original shape order, strict ties, screens, ray constants and empty-profile refusal; no distance, hit or contact verdict is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Pays O(S) placement once across segment queries and ray marches on S segments, preparing at most F world spheres/engine frames on first use; each actual segment and at most 64 ray steps plus six normal probes retain their exact query costs.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit caller keeps body/profile and posed bones unchanged until its synchronous contact completes; any geometry change requires another reading.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one lazy closure, one placement and at most F spheres/readers through the contact operation; it retains no queried point, result, previous pose or global history and acquires no external handle.
    */
@@ -234,7 +234,7 @@ export namespace HumanColliders {
    * @throws {Error} When no tested segment has a shape.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses the original sphere-tracing distance steps and six central-difference probes to estimate the accepted point's outward normal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy placement, ordered sphere scratch and opaque fixed-shape readers feed atPoint; the original march, hit test and gradient order remain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs a bound geometry reader and delegates to its cast method; castOn keeps one original ray march, hit test and gradient owner shared with repeated rays on a prepared reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves CAST_STEPS=64, CAST_TOLERANCE=1e-5, CAST_PROBE=1e-4, inside-start behavior and every queried point; no pose-identity cache, query-result reuse or new success condition is added.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 64 march queries and six hit probes retain all point-to-sphere and physical shape-query costs. O(S) placement is paid once; each of F shapes prepares its sphere and engine frame at most once at their original first screen/query phases, with O(S+F) local metadata.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Bones/profile stay unchanged and queries do not mutate them, so probes share current placements, world spheres and engine-owned fixed-shape frames in original order. Opaque readers are acquired only at the first unscreened query; every changed point still runs the same actual distance owner and sphere predicate.

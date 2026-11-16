@@ -195,7 +195,7 @@ export namespace perturb {
             ? "backward"
             : "side"
       ];
-    const decide = (first: number): resolveAutoMovieBalanceOutcome.IOutcome =>
+    const decide: (first: number) => resolveAutoMovieBalanceOutcome.IOutcome = (first: number): resolveAutoMovieBalanceOutcome.IOutcome =>
       resolveAutoMovieBalanceOutcome({
         centre,
         velocity: entry.velocity.linear,
@@ -375,7 +375,7 @@ export namespace perturb {
     });
 
     // Both feet stay planted through the absorb.
-    const plant = (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
+    const plant: (part: "leftFoot" | "rightFoot") => IHumanContactWindow = (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,

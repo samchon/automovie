@@ -204,29 +204,81 @@ export namespace AutoMovieMotionHumanChannel {
     written: IHumanPosture,
     channels: readonly Claim[],
   ): IHumanPosture {
-    const owns = (channel: AutoMovieMotionHumanChannel): boolean =>
-      channels.includes(channel);
+    return merged(
+      base,
+      written,
+      (channel: AutoMovieMotionHumanChannel): boolean => channels.includes(channel),
+      (bone: AutoMovieHumanoidBone): boolean => covers(channels, bone),
+      (digit: IHumanPosture.Digit): boolean => claims(channels, digit),
+    );
+  }
+
+  /**
+   * Prepare the immutable claim decisions of repeated posture merges.
+   * Actual joint triples, goals, roots and optional fields remain inputs of
+   * every call, and the returned records keep merge's original ownership.
+   *
+   * @param channels The fixed channel/digit/trunk-turn claims, copied at preparation.
+   * @returns The same merge with claim membership and encountered bone ownership shared.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed copied claims, actual per-call posture data and fresh result/borrowed payload ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Channel partition and digit coverage depend only on fixed claims and a bone's closed name, so their exact boolean decisions may be shared while all numeric and optional source values remain freshly read.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared merge body serves cold and prepared callers; preparation owns only the fixed channel/digit sets and lazy bone-classification map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Absent owned joints, goals and rotations are still cleared; bone insertion order, aliases and borrowed payloads remain unchanged. No posture result, input identity or fit is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scans C claims and ten digit names once. Each merge retains its O(Jb+Jw) joint traversal and fixed limb/digit reads; each encountered bone's channel/digit parsing runs once per prepared reader instead of on both sides of every merge. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same fixed claims share only name-membership decisions, across distinct postures and exact seconds. The copied claim list isolates caller edits, and changed claims require a new preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan or synchronous overlay query retains C copied claims, channel/digit sets and at most one boolean per encountered closed bone name until released. No pose, numeric record, time history or external handle is retained.
+   */
+  export function prepareMerge(
+    channels: readonly Claim[],
+  ): (base: IHumanPosture, written: IHumanPosture) => IHumanPosture {
+    const fixed: readonly Claim[] = [...channels];
+    const owned: ReadonlySet<Claim> = new Set(fixed);
+    const digits: ReadonlySet<IHumanPosture.Digit> = new Set(
+      IHumanPosture.DIGITS.filter((digit: IHumanPosture.Digit): boolean => claims(fixed, digit)),
+    );
+    const bones: Map<AutoMovieHumanoidBone, boolean> = new Map();
+    const coversBone = (bone: AutoMovieHumanoidBone): boolean => {
+      let known: boolean | undefined = bones.get(bone);
+      if (known === undefined) bones.set(bone, (known = covers(fixed, bone)));
+      return known;
+    };
+    const owns = (channel: AutoMovieMotionHumanChannel): boolean => owned.has(channel);
+    const ownsDigit = (digit: IHumanPosture.Digit): boolean => digits.has(digit);
+    return (base: IHumanPosture, written: IHumanPosture): IHumanPosture =>
+      merged(base, written, owns, coversBone, ownsDigit);
+  }
+
+  /** Keep cold and prepared selection identical, including property insertion order. */
+  function merged(
+    base: IHumanPosture,
+    written: IHumanPosture,
+    owns: (channel: AutoMovieMotionHumanChannel) => boolean,
+    coversBone: (bone: AutoMovieHumanoidBone) => boolean,
+    ownsDigit: (digit: IHumanPosture.Digit) => boolean,
+  ): IHumanPosture {
     const joints: IHumanPosture["joints"] = {};
     for (const [bone, angles] of Object.entries(base.joints) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],
     ][])
-      if (!covers(channels, bone)) joints[bone] = angles;
+      if (!coversBone(bone)) joints[bone] = angles;
     for (const [bone, angles] of Object.entries(written.joints) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],
     ][])
-      if (covers(channels, bone)) joints[bone] = angles;
+      if (coversBone(bone)) joints[bone] = angles;
 
     // Each digit's goal goes with its digit; a posture that has none keeps
     // none, so a merge without digit goals is the merge it always was.
-    const digits: NonNullable<IHumanPosture["digits"]> = {};
-    for (const d of IHumanPosture.DIGITS) {
-      const goal: IHumanPosture.IDigitGoal | undefined = (
-        AutoMovieMotionHumanChannel.claims(channels, d) ? written : base
-      ).digits?.[d];
-      if (goal !== undefined) digits[d] = goal;
-    }
+    let digits: NonNullable<IHumanPosture["digits"]> | undefined;
+    if (base.digits !== undefined || written.digits !== undefined)
+      for (const d of IHumanPosture.DIGITS) {
+        const goal: IHumanPosture.IDigitGoal | undefined = (
+          ownsDigit(d) ? written : base
+        ).digits?.[d];
+        if (goal !== undefined) (digits ??= {})[d] = goal;
+      }
     const limbs: IHumanPosture["limbs"] = {};
     for (const limb of [
       "leftArm",
@@ -242,17 +294,17 @@ export namespace AutoMovieMotionHumanChannel {
 
     // A whole-body rotation turns the root, so it goes with the root's
     // channel (#3423); a posture that has none keeps none.
-    const rotation: IHumanPosture.IRotation | undefined = (
-      owns("root") ? written : base
-    ).rotation;
+    const root: IHumanPosture = owns("root") ? written : base;
+    const trunk: IHumanPosture = owns("trunk") ? written : base;
+    const rotation: IHumanPosture.IRotation | undefined = root.rotation;
     return {
-      root: owns("root") ? written.root : base.root,
-      yaw: owns("root") ? written.yaw : base.yaw,
-      pitch: owns("trunk") ? written.pitch : base.pitch,
-      roll: owns("trunk") ? written.roll : base.roll,
+      root: root.root,
+      yaw: root.yaw,
+      pitch: trunk.pitch,
+      roll: trunk.roll,
       joints,
       limbs,
-      ...(Object.keys(digits).length === 0 ? {} : { digits }),
+      ...(digits === undefined ? {} : { digits }),
       ...(rotation === undefined ? {} : { rotation }),
     };
   }

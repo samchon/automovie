@@ -5,6 +5,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
@@ -12,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -56,12 +58,9 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * leading it into the opponent's legs. The trunk leans back slightly to keep
  * the centre of mass over the pivoting support foot.
  *
- * The thigh, the shank and the foot are offered to the performance's joint
- * contact resolution as capsules on the shown leg ({@link StrikingWeapon}),
- * so the knee stops where any part of the leg first meets the other body; it
- * holds for the contact dwell, gives way before the body it rests on
- * ({@link StrikingRide}), and withdraws along the way it came, as the kick
- * does.
+ * The thigh, shank and foot are contact capsules on the shown leg
+ * ({@link StrikingWeapon}); first contact stops the knee for its dwell, then
+ * it gives way before the met body ({@link StrikingRide}) and retraces its approach.
  *
  * Timing (kickboxing research of #3201): the knee rises through the round
  * kick's chamber only, so it lands at the chamber key (preparation 0.074 s
@@ -150,6 +149,7 @@ export namespace knee {
     const span: number = impact - prep;
     const recoil: number = duration - impact;
     const entry: IHumanPosture = context.entry.posture;
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -181,10 +181,7 @@ export namespace knee {
           yaw: entry.yaw + turn * whole,
           pitch: entry.pitch - KneeForm.LEAN * whole,
           roll: entry.roll,
-          joints: StrikingStance.facing(
-            { ...entry.joints, ...StrikingStance.joints() },
-            turn * whole,
-          ),
+          joints: StrikingStance.facing(joints, turn * whole),
           limbs: StrikingStance.legs(
             body,
             side === "left"
@@ -312,7 +309,7 @@ export namespace knee {
 
     // The knee on its free course at a clock second (as if it met nothing),
     // the clinching hands reading the other's nape at the film second.
-    const free = (clock: number, seconds: number): IHumanPosture => {
+    const free = (clock: number, seconds: number, arms: boolean = true): IHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, clock));
       const g: IGeometry = geometry();
 
@@ -346,13 +343,13 @@ export namespace knee {
         ),
         Vector3.scale(g.slack, 1 - rise),
       );
-      const hands = StrikingStance.guard(body, posture, { lead });
-      if (p.at.kind === "person") {
+      const hands: ReturnType<typeof StrikingStance.guard> = arms ? StrikingStance.guard(body, posture, { lead }) : {};
+      if (arms && p.at.kind === "person") {
         const other: IHumanActionContext.IPerformer = context.performer(
           p.at.subject,
         );
         const nape: IAutoMovieVector3 = other
-          .bones(seconds - StrikingTarget.LOOK)
+          .bones(seconds - StrikingTarget.LOOK, NECK)
           .get("neck")!.worldPosition;
         const lateral: IAutoMovieVector3 = Vector3.cross(up, g.heading);
         const aside: number =
@@ -404,7 +401,7 @@ export namespace knee {
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.leg(
           context.body,
-          (at: number): IHumanPosture => free(at - t0, at),
+          (at: number, channels?: Parameters<StrikingWeapon.Course>[1]): IHumanPosture => free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"))),
           side,
           seconds,
         ),
@@ -494,3 +491,6 @@ export namespace knee {
     return out;
   }
 }
+
+/** Clinch contact reads only the partner's neck and its required FK ancestry. */
+const NECK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["neck"]);

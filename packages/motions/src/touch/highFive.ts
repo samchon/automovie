@@ -288,13 +288,14 @@ export namespace highFive {
           };
     // A meeting a window holds later than this hand needs is waited for at
     // rest: the hand leaves only its own reach's time before it.
-    const own: number = AutoMovieMotionHumanTiming.transport(
+    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose);
+    const own: number = p.window === undefined ? 0 : AutoMovieMotionHumanTiming.transport(
       Vector3.length(
         Vector3.subtract(
-          AutoMovieMotionMeeting.place(met, "meet", entry).point,
+          paired.point,
           HumanHand.frame(
             body,
-            poseBones(body, context.entry.pose),
+            bones,
             side,
             kind === "fist" ? "fist" : "palm",
             "relaxed",
@@ -373,10 +374,6 @@ export namespace highFive {
     // Seated, the trunk leans forward over the seat as far as this arm
     // needs to reach the meeting, the arm's target first
     // (`HumanSeatedReach.need`); standing, it leans none.
-    const bones: ReturnType<typeof poseBones> = poseBones(
-      body,
-      context.entry.pose,
-    );
     const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
       HumanSeatedReach.need(
       {

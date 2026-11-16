@@ -136,6 +136,8 @@ export namespace putDown {
     const hand: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
     const prop: IHumanProp.IFrame = context
       .prop(context.params.prop)
@@ -449,7 +451,7 @@ export namespace putDown {
    * @evidence contracts/development/implementation.md#principled-implementation The destination prop frame P and prop-in-grip offset O require the grip frame P O^-1; the same source-socket contact and held-tool bound as the placing plan judge it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Filter the grip, read the destination, undo its rigid offset and declare one demand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No object kind is named, and a free world placement keeps its existing freedom.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One destination lookup and constant rigid-frame work per candidate grasp.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One destination lookup and constant rigid-frame work per candidate grasp; the body pose is supplied lazily and this prop-socket branch never acquires its formerly unused full posture solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and demand share putDownTarget and the held-tool goal and measure owners.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one immutable demand and retains nothing.
    */
@@ -465,7 +467,8 @@ export namespace putDown {
       return [];
     const destination: IHumanProp.IFrame = putDownTarget.of(
       ahead,
-      resolveHumanPosture(ahead.body, ahead.grip.posture),
+      (): ReturnType<typeof resolveHumanPosture> =>
+        resolveHumanPosture(ahead.body, ahead.grip.posture),
     )!;
     const tool: StrikingHeld.ITool = ahead.grip.tool({ tip: via });
     const frame: IHumanProp.IFrame = HumanPropFrame.parent(

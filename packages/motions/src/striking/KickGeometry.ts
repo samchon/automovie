@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -166,6 +167,7 @@ export namespace KickGeometry {
     const props: KickCarriage.IProps = {
       body,
       entry,
+      joints: { ...entry.joints, ...StrikingStance.joints() },
       feet,
       side,
       line,
@@ -312,7 +314,8 @@ export namespace KickGeometry {
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
         const base: IHumanPosture = parts.base(t, parts.shown(t));
-        return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }) };
+        const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side);
+        return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip) };
       }
 
       // The approach clock runs back from the stop to the start over the
@@ -328,6 +331,7 @@ export namespace KickGeometry {
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       ).s;
       const base: IHumanPosture = parts.base(s, parts.shown(back), back);
+      const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side);
       return {
         body: base,
         leg: parts.leg(
@@ -337,19 +341,21 @@ export namespace KickGeometry {
             Vector3.subtract(parts.back, parts.origin),
             stepped * w,
           ),
+          hip,
         ),
       };
     };
     return {
       ...parts,
-      posture: (t: number): IHumanPosture => {
+      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
         const held: IHeld = chain(t);
+        const arms: boolean = channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"));
         const down: boolean = t <= timing.prep || t >= timing.duration - 1e-9;
         return {
           ...held.body,
           limbs: {
             ...held.body.limbs,
-            ...StrikingStance.guard(body, held.body, { lead: timing.lead }),
+            ...(arms ? StrikingStance.guard(body, held.body, { lead: timing.lead }) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
               point: held.leg.ankle,
               bend: held.leg.hint,

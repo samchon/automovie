@@ -196,6 +196,7 @@ export namespace crawlFrame {
   ): IHumanPosture {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const blend: ReturnType<typeof blendHumanJoint.prepare> = blendHumanJoint.prepare(body);
     for (const side of ["left", "right"] as const) {
       const from: AutoMovieMotionHumanArm.IAngles = held[side];
       const to: AutoMovieMotionHumanArm.IAngles = toward[side];
@@ -204,7 +205,7 @@ export namespace crawlFrame {
         [`${side}LowerArm`, "lower"],
         [`${side}Hand`, "hand"],
       ] as const)
-        joints[bone] = blendHumanJoint(body, bone, from[key], to[key], share);
+        joints[bone] = blend(bone, from[key], to[key], share);
       const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
       const was: IHumanPosture["joints"] = {};
       for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {

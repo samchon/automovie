@@ -122,9 +122,9 @@ export namespace HumanInteractionMesh {
    * @evidence contracts/development/implementation.md#principled-implementation The interaction mesh's least inverse-distance Laplacian deformation with bone edges omitted (Ho et al. 2010, equation 3 and section 5.1), under the bones and contacts by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty, inside the positive-determinant domain of every recorded side (Schueller et al. 2013, section 3); inverted trials have infinite merit, so the region shrinks before another trial, starting from the reference if the optional guess inverts a side. Bones and contact coordinates must meet the whole-body fit's 0.5 mm tolerance and every side remain strictly positive, or the adaptation throws; a feasible reference has zero deformation energy and is returned exactly, preserving identity.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, mesh, coordinates, then one minimisation over a reading and a convex model.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Malformed input throws; no point is clamped after the solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The insertion is quadratic in the points at worst; each model is one quadratic program over three coordinates per point; run once per key pose, never per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The loop is `HumanSequentialConvex`, the models `HumanQuadraticProgram`, the mesh the engine's; the mesh is returned so a caller adapting one key pose to many pairs passes it back (`mesh`).
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the arrays it returns are the caller's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Mesh insertion is quadratic in points at worst; each convexification solves a QP over three coordinates per point. One fixed P/q/A preparation serves its bound-only radius retries, replacing repeated coefficient/scaling scans with O(m) interval updates; actual OSQP and nonlinear trial costs remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The loop and QP retain their owners; each convexification snapshots its actual fixed matrices/unit trust rows, while new iterates or penalties build another model and every radius supplies current bounds. Returned mesh reuse remains explicit through props.mesh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or completion; returned points/mesh remain caller-owned, with no cached deformation or query history.
    */
   export function adapt(props: IProps): IResult {
     const n: number = props.reference.length;
@@ -311,7 +311,8 @@ export namespace HumanInteractionMesh {
           ),
         ];
         const model: QP.IProblem = { n: 3 * n, band, p, q, rows: held };
-        const zero: number = QP.value(model, new Float64Array(3 * n));
+        let zero: number | undefined;
+        let prepared: ReturnType<typeof QP.prepare> | undefined;
         let trusted: QP.IProblem | undefined;
         let warm: QP.IState | undefined;
         return {
@@ -332,7 +333,9 @@ export namespace HumanInteractionMesh {
                 ),
               ],
             };
-            warm = QP.solve(trusted, warm, duals);
+            prepared ??= QP.prepare(trusted);
+            warm = prepared.solve(trusted.rows, warm, duals);
+            const solved: Float64Array = warm.x;
             let longest: number = 0;
             for (let i: number = 0; i < warm.x.length; ++i)
               longest = Math.max(longest, Math.abs(warm.x[i]!));
@@ -344,17 +347,20 @@ export namespace HumanInteractionMesh {
                 s += row.coef[a]! * warm!.x[row.index[a]!]!;
               return Math.max(0, row.l - s, s - row.u);
             });
+            let trial: Float64Array | undefined;
             return {
               violation: left.reduce(
                 (s: number, v: number): number => s + v,
                 0,
               ),
               met: Math.max(0, ...left) <= accuracy,
-              trial: Float64Array.from(
-                x,
-                (v: number, i: number): number => v + warm!.x[i]!,
-              ),
-              predicted: zero - QP.value(model, warm.x),
+              get trial(): Float64Array {
+                return (trial ??= Float64Array.from(
+                  x,
+                  (v: number, i: number): number => v + solved[i]!,
+                ));
+              },
+              predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
               length: longest,
               // The step at the region's edge, to the solver's own accuracy.
               full: longest >= r * (1 - QP.TOLERANCE),

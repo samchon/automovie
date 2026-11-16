@@ -116,16 +116,18 @@ export namespace Quaternion {
    * @returns A new unit quaternion.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The conjugate `(−x, −y, −z, w)` is the inverse of a unit quaternion, and dividing by the length makes it the inverse of the rotation a near-unit quaternion represents.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Composes `normalize` with the conjugate instead of dividing by the squared length, so the result is unit length and the zero quaternion takes `normalize`'s identity.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sends the conjugate's four original scalar expressions to the shared normalization owner instead of constructing a temporary quaternion or dividing by squared length. Its static record visitor returns the same unit result, including the zero quaternion's identity.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Normalizes every input the same way, so no caller depends on whether its quaternion was exactly unit.
    * @evidence contracts/development/common.md#meaningful-documentation States the exact-inverse property for unit input, the normalization for near-unit input, and the callers that use it.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sign flip and one normalization in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one quaternion that coordinates no work across calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates the conjugate and the returned record and retains nothing.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the fresh normalized output record is allocated; conjugate and extreme scaled components remain scalars, and no input is retained.
    */
   export const inverse: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     q: IAutoMovieQuaternion,
-  ): IAutoMovieQuaternion => normalize({ x: -q.x, y: -q.y, z: -q.z, w: q.w });
+  ): IAutoMovieQuaternion => readNormalizedQuaternion.fromScalars(
+    -q.x, -q.y, -q.z, q.w, normalizedRecord, undefined,
+  );
 
   /**
    * The rotation of `angleDeg` degrees about `axis`, positive by the
@@ -309,7 +311,7 @@ export namespace Quaternion {
    * @evidence contracts/development/common.md#meaningful-documentation States the endpoints, the shorter-arc choice, the near-parallel threshold with its angle and why it exists, extrapolation outside `[0, 1]`, and when the result is unit length.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One dot product, one arccosine and three sines in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two rotations and a parameter that coordinates no work across calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each branch creates one temporary weighted quaternion and returns its normalized copy, without retaining either endpoint.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each branch passes completed weighted scalars to the shared normalizer and creates only its fresh output quaternion; no temporary weighted/scaled record or endpoint is retained.
    */
   export const slerp: (
     a: IAutoMovieQuaternion,
@@ -332,7 +334,7 @@ export namespace Quaternion {
    * @evidence contracts/development/implementation.md#principled-implementation Shoemake's endpoint dot, shorter-arc sign, angle and angle sine depend only on the unchanged pair. Sharing those exact completed values leaves each t-dependent weight, weighted component and normalization expression unchanged in the common owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One small lazy state delegates every query to slerp's private arithmetic owner rather than maintaining a second interpolation algorithm.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The existing QUATERNION_NLERP_DOT_THRESHOLD, comparison order, sign flips, half-circle choice and all output normalization remain. No t clipping, endpoint shortcut, fitted arc, target-result cache or external replacement is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The dot and shorter-arc endpoint read occur once per pair; the spherical branch also shares one acos and one fixed sine. Each t still needs two weight sines and normalization, or the original linear arithmetic and normalization. Work/storage are constant and runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The dot and shorter-arc endpoint read occur once per pair; the spherical branch also shares one acos and one fixed sine. Each t still needs two weight sines and normalization, or the original linear arithmetic and normalization. Completed component scalars enter the common normalizer without a temporary weighted quaternion. Work/storage are constant and runtime improvement is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual flight-table playback shares one reader per unchanged interval endpoint pair. The closure shares only that pair's exact arc invariants; t-dependent weights, quaternions and normalization results remain fresh on every query.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one closure, its two borrowed endpoints, one lazy arc record and at most seven scalar invariants until the interval table is released. Each read returns a fresh quaternion; no progress history, output, global cache, handle or task is retained.
    */
@@ -397,12 +399,13 @@ export namespace Quaternion {
       state.arc = { cosine: cos, bx, by, bz, bw };
     if (cos > QUATERNION_NLERP_DOT_THRESHOLD) {
       // Nearly parallel: normalized linear interpolation.
-      return normalize({
-        x: a.x + (bx - a.x) * t,
-        y: a.y + (by - a.y) * t,
-        z: a.z + (bz - a.z) * t,
-        w: a.w + (bw - a.w) * t,
-      });
+      return readNormalizedQuaternion.fromScalars(
+        a.x + (bx - a.x) * t,
+        a.y + (by - a.y) * t,
+        a.z + (bz - a.z) * t,
+        a.w + (bw - a.w) * t,
+        normalizedRecord, undefined,
+      );
     }
     const theta: number = known?.theta ?? Math.acos(cos);
     const sin: number = known?.sine ?? Math.sin(theta);
@@ -414,12 +417,13 @@ export namespace Quaternion {
     const wb: number = Math.sin(t * theta) / sin;
     // acos loses relative accuracy as cos approaches the switch threshold, so
     // the weights alone leave a norm error near 1e-13; normalize like nlerp.
-    return normalize({
-      x: a.x * wa + bx * wb,
-      y: a.y * wa + by * wb,
-      z: a.z * wa + bz * wb,
-      w: a.w * wa + bw * wb,
-    });
+    return readNormalizedQuaternion.fromScalars(
+      a.x * wa + bx * wb,
+      a.y * wa + by * wb,
+      a.z * wa + bz * wb,
+      a.w * wa + bw * wb,
+      normalizedRecord, undefined,
+    );
   }
 
   /**
@@ -437,21 +441,21 @@ export namespace Quaternion {
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the range, the sign insensitivity, the formula and why the shorter arccosine form is not used, and the unit-length premise of both arguments.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One Hamilton product, one hypotenuse and one arctangent in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two rotations that coordinates no work across calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources One conjugate is temporary; an extreme normalization adds its existing scaled temporary. Normalized inverse and relative components remain scalars, the returned angle is a number and no visitor input or result is retained.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Conjugate, normalized inverse and relative components remain scalars, including extreme rescaling. The returned angle is a number; no quaternion, callback closure, input or result is allocated or retained.
    */
   export const angle: (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
   ) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number => {
-    return readNormalizedQuaternion(
-      { x: -a.x, y: -a.y, z: -a.z, w: a.w }, normalizedAngle, b,
+    return readNormalizedQuaternion.fromScalars(
+      -a.x, -a.y, -a.z, a.w, normalizedAngle, b,
     );
   };
 
   /** Relative Hamilton components and atan2 after the inverse normalization. */
   function normalizedAngle(
     ax: number, ay: number, az: number, aw: number,
-    _raw: IAutoMovieQuaternion, b: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
   ): number {
     const x: number = aw * b.x + ax * b.w + ay * b.z - az * b.y;
     const y: number = aw * b.y - ax * b.z + ay * b.w + az * b.x;

@@ -338,6 +338,9 @@ export namespace walk {
       return out;
     };
     const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end);
+    const ranged: Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>> = {
+      left: walkReach.prepareSwing(body, "left"), right: walkReach.prepareSwing(body, "right"),
+    };
     function solve(
       t: number,
       legs: readonly ("left" | "right")[],
@@ -363,9 +366,7 @@ export namespace walk {
           reached[side] = settled.feet[side];
           continue;
         }
-        reached[side] = walkReach.swing(
-          body,
-          side,
+        reached[side] = ranged[side](
           settled,
           reachedSwing(side, swing, swing.u),
         );

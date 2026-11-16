@@ -88,16 +88,21 @@ export namespace touchRegion {
         aimed: AutoMovieMotionTarget,
         legs: boolean,
       ): ((posture: IHumanPosture, seconds: number) => touchSite.IFrame) =>
-      (posture: IHumanPosture, seconds: number): touchSite.IFrame => {
+      {
+        const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+          legs && aimed.kind === "self" && onLeg(body, aimed)
+            ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
+            : undefined;
+        return (posture: IHumanPosture, seconds: number): touchSite.IFrame => {
         const frame: touchSite.IFrame = AutoMovieMotionHumanTouch.region(
           context,
           aimed,
           context.start + seconds,
           posture,
-          legs && onLeg(body, aimed)
+          requested !== undefined
             ? poseBones(
                 body,
-                resolveHumanPosture(body, {
+                resolveHumanPosture.seeded(body, {
                   ...posture,
                   limbs: {
                     ...(posture.limbs.leftLeg === undefined
@@ -107,7 +112,9 @@ export namespace touchRegion {
                       ? {}
                       : { rightLeg: posture.limbs.rightLeg }),
                   },
-                }),
+                }, undefined, {}, undefined, requested).pose,
+                undefined,
+                requested,
               )
             : bones,
         );
@@ -119,6 +126,7 @@ export namespace touchRegion {
               normal: frame.normal,
             };
       };
+    };
   }
 
   /**

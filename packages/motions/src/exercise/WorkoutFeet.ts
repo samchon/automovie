@@ -34,7 +34,7 @@ export namespace WorkoutFeet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lists of sides, read once, and one goal per side per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A striding kind's feet are left to its keys, which solve its stance on the body.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry placements, active sides, fixed pivot points and headings are prepared once; each changing posture still gets independent leg goals.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The keeper closes over the entry's feet.
    */
   export function keep(
@@ -57,25 +57,27 @@ export namespace WorkoutFeet {
     const planted: readonly ("left" | "right")[] =
       kind.strides === true ? [] : bearing("plant");
     const pivots: readonly ("left" | "right")[] = bearing("pivot");
+    const plans: IPlan[] = [...planted, ...pivots].map((side: "left" | "right"): IPlan => {
+      const stance: HumanFoot.IPlacement = { ankle: context.entry.feet[side].ankle, rotation: context.entry.feet[side].rotation };
+      return planted.includes(side) ? { side, kind: "plant", stance } : { side, kind: "pivot", at: HumanFoot.point(context.body, side, "mtp", stance), heading: HumanFoot.heading(stance.rotation) };
+    });
     return (placed: IHumanPosture): IHumanPosture => {
+      if (plans.length === 0) return placed;
       const limbs: IHumanPosture["limbs"] = { ...placed.limbs };
-      for (const side of [...planted, ...pivots]) {
-        const stance: HumanFoot.IPlacement = {
-          ankle: context.entry.feet[side].ankle,
-          rotation: context.entry.feet[side].rotation,
-        };
+      for (const plan of plans) {
+        const side: "left" | "right" = plan.side;
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           context.body,
           placed,
           side,
-          planted.includes(side)
-            ? stance
+          plan.kind === "plant"
+            ? plan.stance
             : HumanFoot.pivot(
                 context.body,
                 side,
                 "mtp",
-                HumanFoot.point(context.body, side, "mtp", stance),
-                HumanFoot.heading(stance.rotation) + (placed.yaw - yaw),
+                plan.at,
+                plan.heading + (placed.yaw - yaw),
                 0,
               ),
           true,
@@ -84,4 +86,22 @@ export namespace WorkoutFeet {
       return { ...placed, limbs };
     };
   }
+
+  /** Fixed entry geometry needed by each support's actual contact rule. */
+  type IPlan = {
+    /** The bearing leg. */
+    side: "left" | "right";
+  } & ({
+    /** An unturned plant. */
+    kind: "plant";
+    /** The entry ankle and foot rotation. */
+    stance: HumanFoot.IPlacement;
+  } | {
+    /** A turn about the metatarsophalangeal contact. */
+    kind: "pivot";
+    /** The fixed contact in world metres. */
+    at: ReturnType<typeof HumanFoot.point>;
+    /** The entry heading in degrees. */
+    heading: number;
+  });
 }

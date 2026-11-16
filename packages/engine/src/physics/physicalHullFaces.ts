@@ -35,6 +35,19 @@ export function physicalHullFaces(
 ): physicalHullFaces.IHull {
   const cached: physicalHullFaces.IHull | undefined = HULLS.get(points);
   if (cached !== undefined) return cached;
+  const original: readonly IAutoMovieVector3[] | undefined = REFLECTIONS.get(points);
+  if (original !== undefined) {
+    if (isMirrorX(points, original)) {
+      const hull: physicalHullFaces.IHull = reflectedHull(points, physicalHullFaces(original));
+      HULLS.set(points, hull);
+      REFLECTIONS.delete(points);
+      return hull;
+    }
+
+    // A caller may edit its fresh points before their first topology read.
+    // Such geometry needs its own actual supporting-plane search.
+    REFLECTIONS.delete(points);
+  }
   const count: number = points.length;
   let extent: number = 0;
   for (const p of points)
@@ -90,38 +103,7 @@ export function physicalHullFaces(
           loop: loop.map((index: number): IAutoMovieVector3 => points[index]!),
         });
       }
-  const vertices: IAutoMovieVector3[] = points.filter(
-    (_: IAutoMovieVector3, index: number): boolean => used[index]!,
-  );
-  let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (const vertex of vertices)
-    centre = Vector3.add(centre, Vector3.scale(vertex, 1 / vertices.length));
-  let radius: number = 0;
-  for (const vertex of vertices)
-    radius = Math.max(radius, Vector3.length(Vector3.subtract(vertex, centre)));
-  let depth: number = faces.length ? Infinity : 0;
-  for (const face of faces)
-    depth = Math.min(depth, face.offset - Vector3.dot(face.normal, centre));
-  let buried: number = 0;
-  if (faces.length)
-    for (const p of points) {
-      let outermost: number = -Infinity;
-      for (const face of faces)
-        outermost = Math.max(
-          outermost,
-          Vector3.dot(face.normal, p) - face.offset,
-        );
-      buried = Math.max(buried, -outermost);
-    }
-  const hull: physicalHullFaces.IHull = {
-    faces,
-    vertices,
-    centre,
-    radius,
-    depth,
-    buried,
-    tolerance,
-  };
+  const hull: physicalHullFaces.IHull = summarize(points, faces, used, tolerance);
   HULLS.set(points, hull);
   return hull;
 }
@@ -131,6 +113,9 @@ const HULLS: WeakMap<
   readonly IAutoMovieVector3[],
   physicalHullFaces.IHull
 > = new WeakMap();
+
+/** Fresh reflected definitions defer topology work until their first actual hull query. */
+const REFLECTIONS: WeakMap<readonly IAutoMovieVector3[], readonly IAutoMovieVector3[]> = new WeakMap();
 
 /**
  * The indices of the member points on a face's boundary, counter clockwise
@@ -195,6 +180,33 @@ const planarLoop = (
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast; it repeats no type another owner declares.
  */
 export namespace physicalHullFaces {
+  /**
+   * Produce fresh points reflected in X and prepare lazy topology transfer.
+   *
+   * Reflection is the isometry M=diag(-1,1,1): a supporting plane n dot p=d
+   * becomes (M n) dot (M p)=d. Face order and tolerance stay the source's;
+   * the same planar loop owner orders actual reflected points against each
+   * reflected outward normal, retaining winding and canonical loop starts.
+   * The first hull read validates those coordinates before transfer; edits
+   * to the fresh points instead receive their own ordinary face search.
+   * Input points keep the hull owner's existing no-mutation-after-use premise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States X reflection, fresh ownership, lazy first-read validation, edited-output fallback, supporting-plane identity, winding and source stability.
+   * @evidence contracts/development/implementation.md#principled-implementation An orthogonal reflection preserves support-plane membership, point distances and convex hull incidence. Reflecting each normal with the same M keeps it outward; rerunning the existing planarLoop on those actual coordinates handles orientation reversal without a caller-authored face list.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer only constructs points and registers their source. The first physicalHullFaces read validates the reflection, then shares source planes, planarLoop and the common hull summary; edited geometry keeps the ordinary supporting-plane path.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unchecked reflected array or cached-hull flag is accepted. Every actual output coordinate must still equal its exact source reflection before reuse; each reflected face membership and loop uses the unchanged extent-relative tolerance, without omitted geometry or admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Construction costs O(V) and performs no topology work. The first actual hull read validates O(V) coordinates, then costs O(F V log V) planar ordering and O(F V) summary work instead of another cubic-to-quartic supporting-triple search. The original source search still runs once if needed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer constructs all reflected coordinates, and first-use Object.is checks reconfirm the exact isometry against source geometry before deriving its planes. HumanColliderPlacement consumes the fresh points; ordinary hull readers then share the existing registered result. Changed fresh geometry runs a genuine independent search.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak fresh-points registration borrows its source until the first topology read completes or detects an edit, then releases that provenance. The existing weak cache owns the resulting numeric hull. Source/reflected vectors do not alias, and local membership/index arrays release on return or throw.
+   */
+  export function mirrorX(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
+    const reflected: IAutoMovieVector3[] = points.map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -point.x, y: point.y, z: point.z }),
+    );
+    REFLECTIONS.set(reflected, points);
+    return reflected;
+  }
+
   /** One supporting plane of the hull with its boundary. */
   export interface IFace {
     /** Outward unit normal, shape-local. */ normal: IAutoMovieVector3;
@@ -213,3 +225,69 @@ export namespace physicalHullFaces {
     /** The coplanarity tolerance used, metres: 1e-9 of the extent. */ tolerance: number;
   }
 }
+
+/** Reconfirm actual fresh geometry before deriving any cached supporting plane. */
+function isMirrorX(points: readonly IAutoMovieVector3[], source: readonly IAutoMovieVector3[]): boolean {
+  return points.length === source.length && points.every(
+    (point: IAutoMovieVector3, i: number): boolean =>
+      Object.is(point.x, -source[i]!.x) && Object.is(point.y, source[i]!.y) && Object.is(point.z, source[i]!.z),
+  );
+}
+
+/** Use actual reflected coordinates in the same face membership, loop and summary owners. */
+function reflectedHull(points: readonly IAutoMovieVector3[], source: physicalHullFaces.IHull): physicalHullFaces.IHull {
+  const used: boolean[] = points.map((): boolean => false);
+  const faces: physicalHullFaces.IFace[] = source.faces.map((face: physicalHullFaces.IFace): physicalHullFaces.IFace => {
+    const normal: IAutoMovieVector3 = { x: -face.normal.x, y: face.normal.y, z: face.normal.z };
+    const member: boolean[] = points.map(
+      (point: IAutoMovieVector3): boolean => Vector3.dot(normal, point) - face.offset >= -source.tolerance,
+    );
+    const loop: number[] = planarLoop(points, member, normal);
+    for (const index of loop) used[index] = true;
+    return { normal, offset: face.offset, loop: loop.map((index: number): IAutoMovieVector3 => points[index]!) };
+  });
+  return summarize(points, faces, used, source.tolerance);
+}
+
+/** Preserve the same ordered vertex, sphere and face-distance reductions for both producers. */
+function summarize(
+  points: readonly IAutoMovieVector3[],
+  faces: physicalHullFaces.IFace[],
+  used: readonly boolean[],
+  tolerance: number,
+): physicalHullFaces.IHull {
+  const vertices: IAutoMovieVector3[] = points.filter(
+    (_: IAutoMovieVector3, index: number): boolean => used[index]!,
+  );
+  let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  for (const vertex of vertices)
+    centre = Vector3.add(centre, Vector3.scale(vertex, 1 / vertices.length));
+  let radius: number = 0;
+  for (const vertex of vertices)
+    radius = Math.max(radius, Vector3.length(Vector3.subtract(vertex, centre)));
+  let depth: number = faces.length ? Infinity : 0;
+  for (const face of faces)
+    depth = Math.min(depth, face.offset - Vector3.dot(face.normal, centre));
+  let buried: number = 0;
+  if (faces.length)
+    for (const p of points) {
+      let outermost: number = -Infinity;
+      for (const face of faces)
+        outermost = Math.max(
+          outermost,
+          Vector3.dot(face.normal, p) - face.offset,
+        );
+      buried = Math.max(buried, -outermost);
+    }
+  const hull: physicalHullFaces.IHull = {
+    faces,
+    vertices,
+    centre,
+    radius,
+    depth,
+    buried,
+    tolerance,
+  };
+  return hull;
+}
+

@@ -26,6 +26,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsPelvis } from "./climbStairsPelvis";
+import { climbStairsProfile } from "./climbStairsProfile";
 
 /**
  * Climbing a flight of stairs up or down from standing before its first
@@ -236,20 +237,8 @@ export namespace climbStairs {
     // The height asked of a swinging ankle along the flight: every sole
     // point on or above the surface under it, and `CLEARANCE` above an edge
     // it is passing.
-    const edges: { z: number; height: number }[] = Array.from(
-      { length: stairs.count },
-      (_: unknown, i: number): { z: number; height: number } => {
-        const z: number = stairs.first + i * stairs.tread;
-        return { z, height: Math.max(surface(stairs, z - 0.001), surface(stairs, z + 0.001)) + CLEARANCE };
-      },
-    );
-    const profile: (z: number) => number = (z: number): number => {
-      let height: number = surface(stairs, z);
-      for (const edge of edges)
-        if (Math.abs(z - edge.z) <= EDGE - 0.003)
-          height = Math.max(height, edge.height);
-      return height;
-    };
+    const profile: (z: number) => number =
+      climbStairsProfile(stairs, EDGE - 0.003, CLEARANCE);
     const required: (side: "left" | "right") => (z: number) => number =
       (side: "left" | "right") =>
       (z: number): number =>

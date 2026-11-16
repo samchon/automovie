@@ -1,0 +1,226 @@
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  preparePoseResolution,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
+import type { IHumanBody } from "../body/IHumanBody";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
+import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
+import type { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
+
+/**
+ * Physical observations used by arm planning and target feedback: travel
+ * duration, perceived goals and rigid contact sites on the actual body.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents reach arcs, target displacement and goal-to-site frame conversion at action-local seconds.
+ * @evidence contracts/development/design.md#principled-representation Each reading uses canonical body poses and world-metre goal frames; speed and contact geometry keep their existing physical owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The planner and feedback reader share the same site/perception conversion; duration reads the same solved arm probes without owning trajectory optimization.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The original arc sampling count, speed bound, goal ownership and contact offsets are preserved; no action or body receives a special path.
+ */
+export namespace AutoMovieMotionHumanArmObservation {
+  /**
+   * The shortest reach that keeps an arm within the audit's travel bound
+   * (`HumanArmTrajectoryModel.SPEED_LIMIT`) on the joint-space blend from one
+   * arm to another: a minimum-jerk reach peaks at 1.875 times its mean speed
+   * (Flash and Hogan 1985, J Neurosci 5:1688), so a path of length L takes
+   * at least 1.875 L over the bound, L the longest of the elbow's, the
+   * wrist's and the middle fingertip's arcs.
+   *
+   * @param body The body.
+   * @param posture The posture the arm moves in.
+   * @param side The arm.
+   * @param from The arm at the start.
+   * @param to The arm at the end.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bound, its source and the arcs it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk profile's peak-to-mean speed ratio over the longest arc of the blend.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, the arcs sampled along the blend, one division.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is measured on the blend the arm takes, not on the straight line between the ends.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original base solve and ARC+1 actual blended poses retain their original arc integration. Each FK read admits every authored joint but resolves only the three probes and their ancestors; one operation reader shares unchanged scalar FK prerequisites. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses blendHumanJoint, HumanArmClearance.posed and poseBones. Issued source provenance survives removal of the measured arm's raw goal only for the resolver's exact free-leg revalidation; one local FK reader shares fixed joint/rest/ancestor scalar work across actual blend samples.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The base pose, three probe names and local exact FK reader live only through this synchronous measurement. Only the prior probe points and three accumulated arc lengths survive between samples; no blend-pose history, reader or callback enters the returned scalar.
+   */
+  export function reaching(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    from: HumanArmClearance.IArm,
+    to: HumanArmClearance.IArm,
+  ): number {
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[`${side}Arm`];
+    const base: IAutoMoviePose = resolveHumanPosture(body, resolveHumanPosture.rebased(posture, {
+      ...posture,
+      limbs,
+    }));
+    const probes: readonly AutoMovieHumanoidBone[] = [
+      `${side}LowerArm`, `${side}Hand`, `${side}MiddleDistal`,
+    ];
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(probes);
+    const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+    const points = (w: number): IAutoMovieVector3[] => {
+      const arm: HumanArmClearance.IArm = {
+        upper: blendHumanJoint(
+          body,
+          `${side}UpperArm`,
+          from.upper,
+          to.upper,
+          w,
+        ),
+        lower: blendHumanJoint(
+          body,
+          `${side}LowerArm`,
+          from.lower,
+          to.lower,
+          w,
+        ),
+        hand: blendHumanJoint(body, `${side}Hand`, from.hand, to.hand, w),
+      };
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, HumanArmClearance.posed(base, side, arm), resolution, requested);
+      return probes.map(
+        (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+          bones.get(bone)!.worldPosition,
+      );
+    };
+    const length: number[] = [0, 0, 0];
+    let last: IAutoMovieVector3[] = points(0);
+    for (let i: number = 1; i <= ARC; ++i) {
+      const next: IAutoMovieVector3[] = points(i / ARC);
+      next.forEach((p: IAutoMovieVector3, j: number): void => {
+        length[j]! += Vector3.length(Vector3.subtract(p, last[j]!));
+      });
+      last = next;
+    }
+    return (1.875 * Math.max(...length)) / HumanArmTrajectoryModel.SPEED_LIMIT;
+  }
+
+  /**
+   * How far a planned arm's goal has moved at a second of its hold since the
+   * plan perceived it: the site the goal puts the hand on now (a person one
+   * frame behind), less the site the plan used for that second, both on the
+   * pose at the second. Zero wherever the goal has not moved since the plan.
+   *
+   * @param body The body.
+   * @param carry The arm.
+   * @param posture The posture so far at the second.
+   * @param seconds The second, on the hold.
+   * @returns The sites' difference, metres, the contact in the hand's frame, and the base the arm is read against.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two sites, the pose they are read on and when the result is zero.
+   * @evidence contracts/development/implementation.md#principled-implementation A feedback term is driven by error: the target's motion since the feed-forward plan perceived it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, two goal reads, one difference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both sites are read on the same pose, so the posture so far cancels and only the target's motion is left.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve and two goal reads per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `site`, the planner's own reading of a goal.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function moved(
+    body: IHumanBody,
+    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
+    posture: IHumanPosture,
+    seconds: number,
+  ): {
+    error: IAutoMovieVector3;
+    contact: IAutoMovieVector3;
+    base: HumanArmTrajectory.IProblem["bases"][number];
+  } {
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[`${carry.side}Arm`];
+    const pose: IAutoMoviePose = resolveHumanPosture(body, resolveHumanPosture.rebased(posture, {
+      ...posture,
+      limbs,
+    }));
+    const goal: IHumanPosture.IGoal = carry.goal(posture, seconds);
+    const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal);
+    const then: HumanArmTrajectory.ISite = site(
+      body,
+      pose,
+      carry,
+      aim(carry, posture, seconds),
+    );
+    return {
+      error: Vector3.subtract(now.point, then.point),
+      contact: now.contact,
+      base: { pose, others: [...(goal.clear ?? []), ...(goal.rests ?? [])] },
+    };
+  }
+  /**
+   * Read the goal as the action plan perceives it at this local second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the perceived callback's precedence and the actual posture/local seconds passed through.
+   * @evidence contracts/development/implementation.md#principled-implementation The carry explicitly supplies a perceived goal for planning; when absent its ordinary actual goal defines the same target.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional callback selection and one invocation share this rule between planner and feedback observation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No returned goal, reaction time or posture is altered and no callback result is cached here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant dispatch plus the actual supplied target's work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The reader coordinates no retained completed work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns the callback's original goal ownership.
+   */
+  export function aim(
+    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
+    posture: IHumanPosture,
+    seconds: number,
+  ): IHumanPosture.IGoal {
+    return (carry.perceived ?? carry.goal)(posture, seconds);
+  }
+
+  /**
+   * Convert an arm goal to its physical contact site on the actual pose.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States world-metre goal seating, end-frame contact offset, optional orientation/task limits and the carry's disc clearance.
+   * @evidence contracts/development/implementation.md#principled-implementation resolveHumanPosture.world seats attached goals first; the goal's end rotation then carries its end-local contact offset from wrist to world contact point, with identity when rotation is absent, as in the original site rule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared attached-goal conversion and one site record serve trajectory planning and feedback comparisons.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original contact, limit, disc and orientation fields remain; no wrist-origin approximation substitutes for a declared contact pivot.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant rigid-frame arithmetic plus any actual attached-goal FK required by the shared resolver.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Planning and feedback use the same conversion; different poses and goals are evaluated independently without a site cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The fresh site borrows unchanged goal payloads and retains no operation reader, body cache or handle.
+   */
+  export function site(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    carry: AutoMovieMotionHumanArmPlanned.IPlanned,
+    goal: IHumanPosture.IGoal,
+  ): HumanArmTrajectory.ISite {
+    const world: IHumanPosture.IGoal = resolveHumanPosture.world(
+      body,
+      pose,
+      `${carry.side}Arm`,
+      goal,
+    );
+    return {
+      point:
+        world.contact === undefined
+          ? world.point
+          : Vector3.add(
+              world.point,
+              Quaternion.rotateVector(
+                world.rotation ?? Quaternion.identity(),
+                world.contact,
+              ),
+            ),
+      contact: world.contact ?? { x: 0, y: 0, z: 0 },
+      ...(world.limits === undefined ? {} : { limits: world.limits }),
+      disc: carry.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
+      ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
+    };
+  }
+}
+
+/** Samples along the same original joint-space blend for arc measurement. */
+const ARC: number = 32;
+

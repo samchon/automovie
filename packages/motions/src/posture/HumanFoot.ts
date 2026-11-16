@@ -12,6 +12,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFootOutline } from "./HumanFootOutline";
+import { prepareHumanFootAt } from "./prepareHumanFootAt";
 
 /**
  * A foot on the floor as a rigid rocker: where its ankle and its sole points
@@ -38,6 +39,9 @@ import { HumanFootOutline } from "./HumanFootOutline";
  * lifting them; `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
+  /** A fixed-articulation reader over a varying world contact (`prepareHumanFootAt`), preserving fresh placement outputs. */
+  export const prepareAt: typeof prepareHumanFootAt = prepareHumanFootAt;
+
   /** A foot's world placement. */
   export interface IPlacement {
     /** The ankle joint, world metres. */

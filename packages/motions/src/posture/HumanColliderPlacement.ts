@@ -215,7 +215,7 @@ function mirrored(segment: ISided): ISided {
         rotation: turn(shape.transform.rotation),
       };
       return shape.kind === "hull"
-        ? { ...shape, transform, points: shape.points.map(point) }
+        ? { ...shape, transform, points: physicalHullFaces.mirrorX(shape.points) }
         : { ...shape, transform };
     }),
   };

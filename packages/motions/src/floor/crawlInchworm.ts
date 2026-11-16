@@ -12,6 +12,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { crawl } from "./crawl";
 import { crawlChain } from "./crawlChain";
+import { crawlFrame } from "./crawlFrame";
 import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
@@ -121,6 +122,7 @@ export namespace crawlInchworm {
       frame,
       HumanFrame.forward(standing.yaw),
     );
+    const laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(body, HumanFrame.forward(standing.yaw));
     const travel: number = Math.max(0, chain.plank - chain.folding);
     const hands: number = Math.max(
       1,
@@ -157,11 +159,12 @@ export namespace crawlInchworm {
         }),
       };
     };
+    const targets: Record<Limb, AutoMovieMotionTarget> = { leftHand: point("leftHand"), rightHand: point("rightHand"), leftFoot: point("leftFoot"), rightFoot: point("rightFoot") };
     const contacts = (only?: readonly Limb[]): HumanSupport.IContact[] =>
       (only ?? LIMBS).map(
         (limb: Limb): HumanSupport.IContact => ({
           part: limb,
-          target: point(limb),
+          target: targets[limb],
           kind: "bear",
         }),
       );
@@ -175,6 +178,7 @@ export namespace crawlInchworm {
         frame,
         { left: now.leftFoot, right: now.rightFoot },
         { left: now.leftHand, right: now.rightHand },
+        laid,
       );
 
     // The stances: the fold, one per step, and standing on the feet.
@@ -190,6 +194,7 @@ export namespace crawlInchworm {
     };
     const go = (limb: Limb, length: number, event?: string): void => {
       now[limb] += length;
+      targets[limb] = point(limb);
       counts[limb] += 1;
       steps.push({ limb, n: counts[limb], at: stances.length });
       stances.push({
@@ -228,9 +233,13 @@ export namespace crawlInchworm {
       ...context,
       params: { stances },
     });
-    const share = (name: string): number =>
-      planned.events.find((e: { name: string }): boolean => e.name === name)!
-        .share;
+    const shares: Map<string, number> = new Map();
+    for (const event of planned.events) if (!shares.has(event.name)) shares.set(event.name, event.share);
+    const share = (name: string): number => {
+      const found: number | undefined = shares.get(name);
+      if (found === undefined) throw new Error(`The inchworm support plan has no event ${name}`);
+      return found;
+    };
     const held = (i: number): string => stances[i]!.event ?? `stance${i}`;
     return {
       ...planned,

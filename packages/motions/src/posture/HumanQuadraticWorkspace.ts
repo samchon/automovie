@@ -256,11 +256,11 @@ export namespace HumanQuadraticWorkspace {
    * @param out Disposable n-entry product buffer, reset to positive zero first.
    * @param finiteX Optional current-vector finiteness proved by its unchanged producer or same-call reader; absent preserves the local check.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Multiplies the symmetric matrix by adding both contributions of each upper-band entry in the unchanged scalar order; an exact diagonal matrix with finite x needs only its same positive-zero-plus-diagonal products.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One overwrite operation serves residual checks and polishing curvature products, with an exact diagonal path and the unchanged general band traversal.
+   * @evidence contracts/development/implementation.md#principled-implementation Multiplies symmetric P with its original ordered contributions; for finite x, omitted exact-zero terms contribute only signed zeros to positive-zero accumulators, leaving the same sums. Nonfinite x retains the original full traversal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One overwrite operation serves residual and polishing products, selecting exact diagonal, ordered sparse-position or unchanged full-band traversal from prepared structure and current x finiteness.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only exact off-diagonal zeros for finite x, preserving positive-zero initialization and each diagonal addition; a nonfinite x resets scratch and uses the original full traversal so zero-times-infinity/NaN still reaches the existing residual rejection.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(n) time for finite x and exact diagonal curvature, otherwise O(n*w) with w=band+1, and O(1) auxiliary storage beyond the supplied buffer; supplied padding outside the in-range band is not read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation records exact diagonal P with its immutable numeric core; current x products always rebuild. A producer-maintained or same-call finite-x proof avoids repeating its admission, while absent proof runs the original scan and known nonfinite x takes the original full-band traversal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Finite x costs O(n) for diagonal P or O(n+K) for K recorded sparse off-diagonal positions; other cases cost O(n*w). Uses O(1) auxiliary storage beyond out and ignores supplied padding outside the canonical band.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation records exact diagonal/sparse structure with its immutable core; every current x product rebuilds. Current finite-x proof avoids another scan; absent proof is checked locally for compressed paths, and nonfinite x retains every original zero term.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates no arrays, changes only out and retains no input after the call.
    * @evidence contracts/development/common.md#meaningful-documentation Defines the scaled symmetric product, nonaliasing premise, reset and preserved accumulation order.
    */
@@ -292,6 +292,22 @@ export namespace HumanQuadraticWorkspace {
         // Preserve the original nonfinite propagation through zero terms.
         out.fill(0);
       }
+    }
+    const offsets: B.IScaled["pOffsets"] = s.pOffsets;
+    if (offsets !== undefined && (finiteX ?? x.every(Number.isFinite))) {
+      for (let i: number = 0; i < s.n; ++i) {
+        const row: Float64Array = s.p[i]!;
+        const xi: number = x[i]!;
+        out[i] = out[i]! + row[0]! * xi;
+        const columns: readonly number[] = offsets[i]!;
+        for (let a: number = 1; a < columns.length; ++a) {
+          const j: number = columns[a]!;
+          const coefficient: number = row[j]!;
+          out[i] = out[i]! + coefficient * x[i + j]!;
+          out[i + j] = out[i + j]! + coefficient * xi;
+        }
+      }
+      return;
     }
     for (let i: number = 0; i < s.n; ++i) {
       const row: Float64Array = s.p[i]!;

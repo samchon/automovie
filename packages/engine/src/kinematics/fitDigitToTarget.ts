@@ -91,9 +91,9 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) through `fitDigitDescent` on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution; continuation from the caller's seed. Optional exponential soft IK eases only the target's radial distance in a band derived from the full-extension curvature.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two residual functions over the digit's variables, one continued descent and a restart only when it cannot reach.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the fit ends at the joint-angle resolution and reports distance from the original target, including any reach soft IK trades away. The width is derived from the chain lengths and `rate`; it does not penalise departure from an arbitrary seed.
- * @evidence contracts/development/implementation.md#efficient-algorithms An explicit prepared rig admits every ordered authored joint but computes only the effector's ancestor FK and returns one bone, sharing immutable rest/axis/frame prerequisites. Its soft IK requests only digit joint frames. Raw callers retain full live FK and unrelated-rest admission. A Jacobian costs two probes per variable (at most 9), active-set probes clamp one vector, and fitDigitDescent owns shared primary factorization; an unreached continuation alone adds a restart. Runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms An explicit rig prepares the unchanged non-digit pose/root once at the first candidate FK, then each probe admits only its ordered digit edits and computes the effector ancestry, returning one bone. Soft IK reads only digit joint frames. Raw callers retain full live FK/unrelated-rest admission. A Jacobian costs two probes per variable (at most 9), active-set probes clamp one vector, and fitDigitDescent shares linearization/factors; an unreached continuation alone adds a restart. Runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Adjacent tasks share one actual candidate reading under Object.is-exact raw coordinates. Different raw trials still run the actual clamps; only when every ordered projected joint/bone/null/signed-zero coordinate matches the last completed pose does its exact effector FK serve again. The original target remains each residual's demand. Continued reach is one fixed scalar and the final result borrows only its selected private reading. Optional immutable rig and operation FK share source prerequisites; raw callers keep live full admission whenever actual FK runs, and no fit answer crosses calls.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One candidate snapshot and the local FK reader end with the fit; a borrowed reader remains its caller's synchronous operation's. No reader enters the fresh caller-owned result.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One candidate snapshot, an optional fixed-pose workspace with O(J+D) source/ancestor state and any local ordinary reader end with the fit. A borrowed static rig/ordinary reader remain their caller's. No workspace or input history enters the fresh caller-owned result.
  */
 export function fitDigitToTarget(
   input: fitDigitToTarget.IInput,
@@ -159,6 +159,7 @@ export function fitDigitToTarget(
   const others: IAutoMovieJointPose[] = input.pose.joints.filter(
     (j: IAutoMovieJointPose): boolean => !input.bones.includes(j.bone),
   );
+  let fixedPose: ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]> | undefined;
 
   // The digit's joints for a vector of variables, projected into the range.
   const joints: (x: readonly number[]) => IAutoMovieJointPose[] = (x: readonly number[]): IAutoMovieJointPose[] =>
@@ -186,13 +187,11 @@ export function fitDigitToTarget(
   const place: (list: readonly IAutoMovieJointPose[]) => IFrame = (
     list: readonly IAutoMovieJointPose[],
   ): IFrame => {
-    const pose: IAutoMoviePose = {
-      ...input.pose,
-      joints: [...others, ...list],
-    };
-    const resolved: IAutoMovieResolvedBone | undefined = readBones(
-      pose,
-      requested,
+    const resolved: IAutoMovieResolvedBone | undefined = (
+      input.rig === undefined
+        ? readBones({ ...input.pose, joints: [...others, ...list] }, requested)
+        : (fixedPose ??= input.rig.preparePose({ ...input.pose, joints: others }, requested))
+            .resolve(list)
     ).find(
       (r: IAutoMovieResolvedBone): boolean => r.bone === input.effector.bone,
     );
@@ -236,6 +235,7 @@ export function fitDigitToTarget(
       at.point.z - target.z,
     ];
   };
+  let targetNormal: IAutoMovieVector3 | undefined;
   const secondary: (x: readonly number[]) => number[] = (x: readonly number[]): number[] => {
     const candidate: IReading = reading(x);
     const list: IAutoMovieJointPose[] = candidate.joints;
@@ -243,7 +243,7 @@ export function fitDigitToTarget(
     if (input.normal !== undefined) {
       const miss: IAutoMovieVector3 = Vector3.cross(
         candidate.frame.normal,
-        Vector3.normalize(input.normal),
+        targetNormal ??= Vector3.normalize(input.normal),
       );
       r.push(miss.x * length, miss.y * length, miss.z * length);
     }

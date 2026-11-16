@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanProp } from "../perform/IHumanProp";
@@ -146,10 +147,13 @@ export namespace HumanSupportCarry {
           ? { ...c, support: { kind: "prop" as const, subject: prop } }
           : c,
       ),
-      posture: (seconds: number): IHumanPosture =>
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+      ): IHumanPosture =>
         posture(
           of(frame, context.start, context.start + seconds),
-          plan.posture(seconds),
+          plan.posture(seconds, channels),
         ),
     };
   }
@@ -191,11 +195,14 @@ export namespace HumanSupportCarry {
       );
       return { position: at.position, rotation: at.rotation };
     };
-    const carried = (seconds: number): IHumanPosture => {
+    const carried = (
+      seconds: number,
+      requested?: readonly AutoMovieMotionHumanChannel[],
+    ): IHumanPosture => {
       const carry: ICarry = of(frame, context.start, context.start + seconds);
       // The root and the heading are the carrier's, which its own plan has
       // already carried; only the goals this plan made at its start ride on.
-      const own: IHumanPosture = plan.posture(seconds);
+      const own: IHumanPosture = plan.posture(seconds, aim === undefined ? requested : undefined);
       const made: IHumanPosture = {
         ...posture(carry, own),
         root: own.root,

@@ -392,10 +392,10 @@ export namespace AutoMovieMotionHumanArmCarry {
         else
           out = carry(
             props.body,
-            {
+            resolveHumanPosture.rebased(posture, {
               ...posture,
               limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
-            },
+            }),
             { [props.side]: props.rest },
             weight,
           );
@@ -417,10 +417,10 @@ export namespace AutoMovieMotionHumanArmCarry {
           )!.worldRotation;
         const ended: IHumanPosture = onPlan
           ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
-          : {
+          : resolveHumanPosture.rebased(posture, {
               ...posture,
               limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
-            };
+            });
         return HumanHandAttitude.held(
           props.body,
           out,

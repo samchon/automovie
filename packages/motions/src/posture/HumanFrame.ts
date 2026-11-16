@@ -118,6 +118,41 @@ export namespace HumanFrame {
   }
 
   /**
+   * Prepare a fixed local point under a fixed floor heading, translated by
+   * each supplied world origin. Arithmetic grouping matches point exactly.
+   *
+   * @param yaw The unchanged heading, degrees about world +Y.
+   * @param local The unchanged local point in metres, copied as scalar products.
+   * @returns A fresh world point for each varying origin in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed yaw/local inputs, varying world origin, metre/degree units and fresh output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Precomputes the original sine/cosine products for the fixed local point while preserving origin.x+local.x*c+local.z*s and origin.z-local.x*s+local.z*c grouping at each read.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed scalar products precede one translation reader, leaving ordinary one-shot point calls unchanged.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses exact original rotation arithmetic with no quantization, normalization, coordinate substitution or changed frame convention.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; heading trigonometry and four local products run once for a fixed knot/side rather than at every nearby leg-fit probe.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned reader captures copied scalar prerequisites, so later mutation of the input local object does not invalidate its fixed-source meaning; a changed heading/local source needs a new reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned reader retains five scalar terms until its owning operation releases it, with no result/time history or handle.
+   */
+  export function preparePoint(
+    yaw: number,
+    local: IAutoMovieVector3,
+  ): (origin: IAutoMovieVector3) => IAutoMovieVector3 {
+    const r: number = (yaw * Math.PI) / 180;
+    const c: number = Math.cos(r);
+    const s: number = Math.sin(r);
+    const xc: number = local.x * c;
+    const zs: number = local.z * s;
+    const xs: number = local.x * s;
+    const zc: number = local.z * c;
+    const y: number = local.y;
+    return (origin: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: origin.x + xc + zs,
+      y: origin.y + y,
+      z: origin.z - xs + zc,
+    });
+  }
+
+  /**
    * Coordinate readers bound to one copied horizontal frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines forward/inverse metre points, optional explicit point origin under the fixed heading and origin-free world directions, with fresh results.
@@ -126,13 +161,43 @@ export namespace HumanFrame {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Exposes no source frame, cached result or mutable coefficient; each operation preserves the existing vector representation.
    */
   export interface IPrepared {
-    /** Local left/up/forward metres to a fresh world point; an explicit world-metre origin replaces only the copied default translation. */
+    /**
+     * Local left/up/forward metres to a fresh world point; an explicit world-metre origin replaces only the copied default translation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines local/world metre input/output and explicit translation override under the prepared heading.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare owns the unchanged forward scalar implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares one forward conversion; prepare owns its closure and scalar helper.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No body here can change arithmetic or introduce an input exception.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The concrete conversion cost is documented by prepare.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature shares no result; prepare owns its copied coefficients.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature owns no state; the concrete reader lifetime is prepare's.
+     */
     point(local: IAutoMovieVector3, origin?: IAutoMovieVector3): IAutoMovieVector3;
 
-    /** World point to fresh local left/up/forward metres. */
+    /**
+     * World point to fresh local left/up/forward metres in the copied default frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines inverse metre conversion relative to the preparation's copied origin and heading.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare owns the original inverse scalar expression.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares one inverse operation with no implementation layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No body here can substitute a transform or repair an input.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The implementation's fixed scalar cost belongs to prepare.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no computation; prepare owns coefficient reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration owns no result or retained frame.
+     */
     local(world: IAutoMovieVector3): IAutoMovieVector3;
 
-    /** Local vector to its fresh world direction, without applying the origin. */
+    /**
+     * Local vector to its fresh world direction, without applying the origin.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a vector conversion from a point's translated coordinates.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare implements the zero-origin yaw conversion.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares one direction operation; its shared scalar owner is prepare's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declaration contains no alternate vector convention or numerical exception.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepare documents the implementation's fixed operations.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature performs no work; prepare owns the fixed-heading reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature holds no vector or resource; prepare documents its bound reader.
+     */
     direction(local: IAutoMovieVector3): IAutoMovieVector3;
   }
 

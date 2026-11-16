@@ -22,8 +22,8 @@ import { HumanPrehension } from "./HumanPrehension";
  * @evidence contracts/development/implementation.md#principled-implementation Bisection of a monotone opening parameter on the aperture measured between the body's own digit colliders, toward the peak aperture of the reach-to-grasp law.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one bisection and the thumb abduction branch.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable span is capped at the joint's limit and the reached aperture reported, not faked.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 30 aperture readings per bisection, two bisections per pre-shape.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per planned grasp.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The original thirty aperture readings per bisection remain, with digit geometry, bone membership and one exact FK reader prepared once; identical returned endpoint shape/readings are reused within their own branch.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanGrip.prepareAperture shares only the unchanged body's thumb/index capsule geometry and exact unchanged FK dependencies across the actual varied shapes of this synchronous pre-shape search.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanPreshape {
@@ -36,6 +36,14 @@ export namespace HumanPreshape {
    * @param closed The closed grasp's digit angles.
    * @param width The grasped width, metres.
    * @returns The pre-shape's angles and the aperture it reaches, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States width/aperture in metres and clinical joint angles; the namespace explains the unreachable span and thumb-abduction limit.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the same actual tip-distance bisection over closed-to-flat blending and, when needed, signed thumb abduction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed bone membership and an aperture reader precede the original blend/bisection/abduction branches.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All thirty iterations, the sixty-degree abduction limit and actual reached aperture remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry and exact FK dependencies are prepared once; only the identical endpoint shape/measurement within a branch is reused, while every original bisection shape is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/side determine shared capsule geometry; every changed clinical shape still reaches the actual canonical FK owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns joint/scalar data and releases its local aperture reader and bone set on return or throw.
    */
   export function open(
     body: IHumanBody,

@@ -273,12 +273,12 @@ export namespace AutoMovieSolidVector {
    *   entry of the matrix (the rows nearly dependent).
    *
    * @evidence contracts/development/implementation.md#principled-implementation Partial-pivot Gaussian elimination solves a finite square system with matching right-hand-side length; the fixed relative pivot threshold is an admission test, not a condition-number bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareLinearSystem owns the shared partial-pivot elimination and right-hand-side replay, also used by digit task-priority columns, while this convenience entry preserves the ordinary one-solve contract.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareLinearSystem owns the shared partial-pivot elimination/back substitution used by both this ordinary augmented solve and repeated digit task-priority columns.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pivot not greater than 1e-14 times the largest original entry returns null; there is no retry, regularization or hidden fallback system.
    * @evidence contracts/development/common.md#meaningful-documentation Gives square row layout, nonmutation, current four-variable workload and the pivot rejection rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) elimination and O(N^2) copied coefficients/factors use the standard dense method for the operators' small systems; this entry performs one O(N^2) right-hand-side replay and claims no sparse or large-system optimality.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ordinary solves and repeated matrix consumers share one elimination owner. The privately copied factors determine the same row swaps/subtractions before descending back substitution; no solution is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The prepared coefficients/factors and right-hand-side column are call-local on success or early null; only the O(N) solution array escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N^3) elimination and one O(N^2) augmented matrix retain the ordinary small-system path without prepared-factor rows, pivot arrays or a solver closure. No sparse or large-system optimality is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ordinary and repeated matrix consumers share one pivot/elimination owner, but this one-shot entry updates its actual augmented column directly rather than retaining factors or caching a solution.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The augmented matrix and scalar pivot temporaries are call-local on success or early null; only the O(N) solution array escapes.
    */
   export function solve(
     rows: readonly (readonly number[])[],

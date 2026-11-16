@@ -105,16 +105,16 @@ export namespace racket {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, feet and hands on its envelope, the hop or the waggle on the stroke.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, shared rows, then one branch per position.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance solve per crouch and one posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, the leg arc and the placed arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each hand supplies the actual phrase span to the existing arm trajectory planner, preparing reach/hold/return work once; the original crouch, footwork and active-time goals remain with their shared primitives.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, leg arc and placed arm's existing span-driven planner rather than re-entering deprecated share-only arm clearance on every displayed second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const p: IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IHumanActionContext["body"] = context.body;
+    const m: IHumanActionContext["body"]["measure"] = body.measure;
     const hold: number = p.seconds ?? 0.6;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
@@ -137,6 +137,12 @@ export namespace racket {
     const entry: IHumanPosture = context.entry.posture;
     const into = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
+    const span: AutoMovieMotionHumanArm.ISpan = {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.at("end"),
+    };
     const local = (
       posture: IHumanPosture,
       v: IAutoMovieVector3,
@@ -158,6 +164,7 @@ export namespace racket {
         to: clock.duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
         weight: into,
+        span,
         surface: "grip",
         shape: "fist",
         place: (posture: IHumanPosture, s: number) => ({

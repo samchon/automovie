@@ -25,6 +25,7 @@ import { HumanColliders } from "./HumanColliders";
 import { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
 
 /**
  * A posture's digit goals fitted on a pose whose arms are already placed:
@@ -59,13 +60,14 @@ export namespace HumanDigitFit {
    * @param pose The pose with its limbs fitted.
    * @param digits The posture's digit goals.
    * @param source Optional FK workspace or lazy supplier borrowed only for this synchronous fit.
+   * @param requested Optional observational bone demand; independent unobserved world digits may be omitted after ordered authored admission, while unsupported/attached goals keep the full request.
    * @returns The pose with the goals fitted; the same pose when there are none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the order and the unchanged case.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's digit fit on the canonical forward kinematics (the same axes and rest frames as the display), after the limbs, as procedural animation runs finger IK on the placed hand.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the digits with goals, one fit each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No residual is hidden: an unreached goal is left for the audits.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One engine fit per digit with a goal requests only its effector's ancestor FK per candidate; carried goals request their one carrying bone. Every authored record retains admission, the body's immutable rig snapshot avoids rebuilding static prerequisites, and a posture without digit goals does no fit work. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Full resolution retains every goal and residual. Explicit observational demand omits only independent world goals that cannot change a requested ancestor frame; malformed/attached/unsupported context keeps full fitting and all authored records still enter ordered FK admission before omission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each retained digit requests only effector ancestry per candidate. Explicit demand can omit independent unobserved digits after one ordered authored admission with empty output demand; selector parent metadata is O(B) and no requested digit solver is weakened. Full default remains unchanged, with unmeasured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One lazy operation reader is borrowed by carried targets and every digit fit together with the body's canonical immutable rig snapshot; actual poses and exact scalar dependencies are reread, with no cached goal or result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader is created only at the first actual goal and releases with this synchronous call; a parent's supplier and reader never enter the returned pose.
    */
@@ -74,9 +76,17 @@ export namespace HumanDigitFit {
     pose: IAutoMoviePose,
     digits: IHumanPosture["digits"],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMoviePose {
     if (digits === undefined) return pose;
     const prepared: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+    if (requested !== undefined) {
+      const selected: NonNullable<IHumanPosture["digits"]> = selectHumanDigitGoals(body, digits, requested);
+      if (selected !== digits) {
+        poseBones(body, pose, prepared(), NO_BONES);
+        digits = selected;
+      }
+    }
     let out: IAutoMoviePose = pose;
     for (const digit of IHumanPosture.DIGITS) {
       const goal: IHumanPosture.IDigitGoal | undefined = digits[digit];
@@ -217,6 +227,9 @@ const DIGIT_NAMES: readonly HumanGrip.Digit[] = [
 
 /** The bones of a side's own hand, after the side: the hand and its digits. */
 const OWN: RegExp = /^(Hand|Thumb|Index|Middle|Ring|Little)/;
+
+/** Ordered clinical admission with no unobserved output frames or numerical digit solve. */
+const NO_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set();
 
 /** One hand's unchanged phalanx-depth reduction over a caller-owned body placement. */
 function depthAt(body: IHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, placed: readonly HumanColliders.IPlaced[], side: "left" | "right"): number {

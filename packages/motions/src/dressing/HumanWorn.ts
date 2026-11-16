@@ -42,8 +42,8 @@ export namespace HumanWorn {
    * @evidence contracts/development/implementation.md#principled-implementation The socket's `+Y` turned onto the region's inward normal exactly and the wearable's front (its `+Z`, or its `+Y` where the socket runs along `Z`) onto the body's forward (or up) as nearly as that allows (`HumanHand.align`); the origin follows so the socket lies on the region's point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one alignment, one translation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wearable without its socket is refused with its contacts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed socket/region preparation and one actual requested turn; repeated-turn callers explicitly use prepare so they pay its region FK only once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the same prepared geometry/turn owner as grasp search; this cold facade retains no preparation across calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(

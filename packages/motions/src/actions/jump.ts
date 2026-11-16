@@ -232,6 +232,14 @@ export namespace jump {
       upright.lean,
     );
     const landing: Record<"left" | "right", HumanFoot.IPlacement> = landed.feet;
+    const landingYaw: Record<"left" | "right", number> = {
+      left: HumanFoot.heading(landing.left.rotation),
+      right: HumanFoot.heading(landing.right.rotation),
+    };
+    const landingContact: Record<"left" | "right", IAutoMovieVector3> = {
+      left: HumanFoot.offset(body, "left", "mtp"),
+      right: HumanFoot.offset(body, "right", "mtp"),
+    };
     const rootL: IAutoMovieVector3 = landed.touched;
     const rootS: IAutoMovieVector3 = landed.stood;
     const rootA: IAutoMovieVector3 = landed.absorbed;
@@ -244,11 +252,7 @@ export namespace jump {
       y: 0.3 * l,
       z: 0.1 * l,
     };
-    const knee: jumpPush.IProps["knee"] = (
-      root: IAutoMovieVector3,
-      side: "left" | "right",
-      yaw: number,
-    ): IAutoMovieVector3 => jumpAirborne.knee(body, heading, root, side, yaw);
+    const knee: jumpPush.IProps["knee"] = jumpAirborne.knee(body, heading);
 
     const endProps: Parameters<typeof jumpPushEnd>[0] = {
       body,
@@ -388,9 +392,9 @@ export namespace jump {
             limbs[`${side}Leg`] = {
               point: landing[side].ankle,
               rotation: landing[side].rotation,
-              bend: knee(root, side, HumanFoot.heading(landing[side].rotation)),
+              bend: knee(root, side, landingYaw[side]),
               planted: true,
-              contact: HumanFoot.offset(body, side, "mtp"),
+              contact: { ...landingContact[side] },
             };
         return resolveHumanPosture.lower(body, {
           root,

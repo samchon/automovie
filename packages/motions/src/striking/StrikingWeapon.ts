@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -39,6 +40,7 @@ export namespace StrikingWeapon {
    * any committed stop moves it.
    *
    * @param seconds Film seconds.
+   * @param channels Optional observational channels whose values must equal the complete course; unsupported producers may return the complete posture.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the absolute film-time input and free-course posture output.
@@ -46,7 +48,7 @@ export namespace StrikingWeapon {
    * @evidence contracts/development/design.md#minimal-and-owned-surface One pure time reader is sufficient for fitting the actual limb.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A callback leaves the actual action law responsible for its free course.
    */
-  export type Course = (seconds: number) => IHumanPosture;
+  export type Course = (seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]) => IHumanPosture;
 
   /**
    * A striking arm at a film second, fitted on its action's free course:
@@ -150,6 +152,7 @@ export namespace StrikingWeapon {
       course,
       seconds,
       ENDS[`${side}Leg`],
+      LEG_CHANNELS[side],
     );
     const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return [
@@ -169,9 +172,10 @@ export namespace StrikingWeapon {
     course: Course,
     seconds: number,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
+    channels?: readonly AutoMovieMotionHumanChannel[],
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(
-      body, course(seconds), undefined, {}, undefined, requested,
+      body, course(seconds, channels), undefined, {}, undefined, requested,
     ).pose;
     return poseBones(body, pose, undefined, requested);
   }
@@ -477,4 +481,10 @@ const ENDS: Readonly<Record<IHumanPosture.Limb, ReadonlySet<AutoMovieHumanoidBon
   rightArm: new Set<AutoMovieHumanoidBone>(["rightUpperArm", "rightLowerArm", "rightHand"]),
   leftLeg: new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "leftLowerLeg", "leftFoot"]),
   rightLeg: new Set<AutoMovieHumanoidBone>(["rightUpperLeg", "rightLowerLeg", "rightFoot"]),
+};
+
+/** A striking leg depends on its base and trunk, while arms are fitted later and cannot move it. */
+const LEG_CHANNELS: Readonly<Record<"left" | "right", readonly AutoMovieMotionHumanChannel[]>> = {
+  left: ["root", "trunk", "leftLeg"],
+  right: ["root", "trunk", "rightLeg"],
 };

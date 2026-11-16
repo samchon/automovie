@@ -181,7 +181,7 @@ export namespace brace {
       ),
     );
     const swing: [number, number] = [0.1, 0.5];
-    const footAt = (
+    const footAt: (side: "left" | "right", t: number) => { ankle: IAutoMovieVector3; planted: boolean } = (
       side: "left" | "right",
       t: number,
     ): { ankle: IAutoMovieVector3; planted: boolean } => {
@@ -230,7 +230,7 @@ export namespace brace {
       ...HumanHand.shape("left", "flat"),
       ...HumanHand.shape("right", "flat"),
     };
-    const setAt = (root: IAutoMovieVector3): IHumanPosture => {
+    const setAt: (root: IAutoMovieVector3) => IHumanPosture = (root: IAutoMovieVector3): IHumanPosture => {
       const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
         relaxed,
         lean * bearing,
@@ -256,7 +256,7 @@ export namespace brace {
       z: settled.z - centre.z,
     };
     for (let round: number = 0; round < 2; round++) {
-      const held = HumanBalance.support(body, setAt(goal));
+      const held: ReturnType<typeof HumanBalance.support> = HumanBalance.support(body, setAt(goal));
       const hull: IAutoMovieVector3[] = convexHull2D(held.points);
       const mid: IAutoMovieVector3 = Vector3.scale(
         hull.reduce(
@@ -275,7 +275,7 @@ export namespace brace {
 
     // The posture without its arms at a second: the root, lean and legs on
     // the set curve, and the hands opened flat once the brace begins.
-    const bodyAt = (seconds: number): IHumanPosture => {
+    const bodyAt: (seconds: number) => IHumanPosture = (seconds: number): IHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       const s: number = minimumJerk(t / SET).s;
       const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
@@ -336,7 +336,7 @@ export namespace brace {
     };
     const region: IHumanBody["surfaces"]["regions"]["sternum"] = body.surfaces.regions.sternum;
     const sternumBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([region.bone]);
-    const requests = (
+    const requests: (posture: IHumanPosture) => AutoMovieMotionHumanArm.ISided[] = (
       posture: IHumanPosture,
     ): AutoMovieMotionHumanArm.ISided[] => {
       // Canonical demand selection keeps admission intact and omits limb

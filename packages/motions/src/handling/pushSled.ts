@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -142,9 +141,9 @@ export namespace pushSled {
    * @evidence contracts/development/implementation.md#principled-implementation The handles are read on the prop's frame at the start; each hand's place on its handle is taken into the leaning chest's frame where the hands arrive and carried with it after, so the load follows the trunk through the grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The handles, the lean, the chest-held places, the contacts, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds refuse; a missing handle refuses with the prop's handles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per frame a trunk resolve for each hand's carry and the arm carry's posture solve; once per plan, per hand, the tried turns (eight round a round post, `TURN` apart) and at most `HumanFreedomChoice.FITS` refined grasps, each with one elbow solve, fitted at the grip and at the `SAMPLES` only until it cannot win.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk law, the trunk resolver, the shared grasp chooser (`HumanFreedomChoice`), the elbow's swivel solver (`AutoMovieMotionHumanBend.solve`), the arm carry and the grip relation; one carry places the hands and the elbows both in the chooser's judgement and in the posture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the held places.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One current chest read carries both hands; settled frames skip the unused carrier baseline solve. Each fixed search sample prepares its chest and canonical base once, while original tried/refined grasps retain every actual elbow and coupled arm fit until the original cost pruning stops them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact turn/position pairs share their completed grasp only within one unchanged taking posture; the winning grasp is reused. Fixed sample bases share only clamp/root preparation, each candidate still fitting its own full goals, and one operation FK reader serves a hand's actual candidate evaluations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and chosen holds/arrival transform; candidate maps, fixed-sample bases and operation FK readers belong only to the synchronous grasp search and no returned posture captures them.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -257,7 +256,9 @@ export namespace pushSled {
       (share: number): IHumanPosture =>
         leaned(base.posture(SETTLE + share * (duration - SETTLE)), 1),
     );
-    const frames: IAutoMovieResolvedBone[] = pushing.map(chest);
+    const frames: pushSledCarry.IFrame[] = pushing.map(
+      (posture: IHumanPosture): pushSledCarry.IFrame => carry(chest(posture)),
+    );
     type Grasp = { point: IAutoMovieVector3; hold: Hold; off: number };
     type Held = { hold: Hold; off: number };
     const take = (side: HumanHand.Side): Held => {
@@ -353,23 +354,21 @@ export namespace pushSled {
           // Through the push the hands and the load are carried as one.
           for (let index: number = 0; index < pushing.length; ++index) {
             const posture: IHumanPosture = pushing[index]!;
-            const carried: { hold: Hold; turn: IAutoMovieQuaternion } = carry(
-              frames[index]!,
-              taken.hold,
-            );
+            const frame: pushSledCarry.IFrame = frames[index]!;
+            const carried: Hold = frame.hold(taken.hold);
             yield Vector3.length(
               Vector3.subtract(
                 HumanHand.frame(
                   body,
-                  fit(posture, side, carried.hold, resolution),
+                  fit(posture, side, carried, resolution),
                   side,
                   "grip",
                   "fist",
                 ).point,
                 Vector3.add(
-                  carried.hold.wrist.point,
+                  carried.wrist.point,
                   Quaternion.rotateVector(
-                    carried.turn,
+                    frame.turn,
                     Vector3.subtract(taken.point, taken.hold.wrist.point),
                   ),
                 ),
@@ -384,6 +383,9 @@ export namespace pushSled {
       left: take("left"),
       right: take("right"),
     };
+    bases.clear();
+    pushing.length = 0;
+    frames.length = 0;
 
     // A handle the fist does not keep, as the grip closes or through the
     // push, would be held in the air: the push is refused, the body to stand
@@ -442,11 +444,11 @@ export namespace pushSled {
         const share: number = minimumJerk(Math.min(1, t / SETTLE)).s;
         const posture: IHumanPosture = leaned(base.posture(t), share);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-        const current: IAutoMovieResolvedBone | undefined = t < SETTLE ? undefined : chest(posture);
+        const current: pushSledCarry.IFrame | undefined = t < SETTLE ? undefined : carry(chest(posture));
         for (const side of sides)
           limbs[`${side}Arm`] = goal(
             side,
-            current === undefined ? kept[side] : carry(current, kept[side]).hold,
+            current === undefined ? kept[side] : current.hold(kept[side]),
           );
         const carrying: IHumanPosture = {
           ...posture, joints: { ...posture.joints, ...(t >= SETTLE ? fist : {}) }, limbs,

@@ -143,7 +143,7 @@ export namespace resolveHumanPosture {
         seeds: { ...reused.fitted.seeds, ...fitted.seeds },
         values: { ...reused.fitted.values, ...fitted.values },
       }),
-      pose: HumanDigitFit.fitted(body, fitted.pose, posture.digits, readResolution),
+      pose: HumanDigitFit.fitted(body, fitted.pose, posture.digits, readResolution, requested),
     };
   }
 

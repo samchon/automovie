@@ -79,8 +79,8 @@ export namespace HumanGraspReach {
    * @evidence contracts/development/implementation.md#principled-implementation Keeps the existing exact lower-bound candidate ordering and all coupled posture fits; unjudged keys demand only the three arm frames their error and bend departure read, while arbitrary judges still receive every bone.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidate admission and grasp fitting precede the original ordered stroke search; one local fit owns the common goal construction and displayed-pose judgement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No key, legal fit, error, bound, candidate or preference changes; the original required-first and least-miss fallback choices remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each of C turn/tilt pairs constructs its wrist once; the original bounded full coupled fits remain, with demanded FK readback for unjudged keys and lower-bound pruning of stroke work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous search shares an exact FK dependency reader across actual fits and readbacks; changed goals still solve independently and no candidate's fitted answer substitutes for another.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of C turn/tilt pairs constructs its wrist once; the fixed input posture prepares its canonical root/direct-joint clamp once, while every candidate still runs its original full coupled fit. Unjudged keys demand only observed arm FK and original lower-bound stroke pruning remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only keys on the exact fixed input posture borrow its explicitly prepared unchanged base; other key postures take ordinary seeded resolution. One synchronous search shares exact FK dependencies across actual fits/readbacks, never a fitted answer across goals.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate records and one FK reader are local to this search; only the chosen original pose, wrist, reference and scalar reports escape, with no reader or search map retained.
    */
   export function reachable(
@@ -120,16 +120,10 @@ export namespace HumanGraspReach {
     // quantity read at the chosen swivel jumps wherever two swivels trade
     // places. The elbow's departure from `bend` is measured for the report and
     // costs nothing.
-    const fit = (
+    const fit: (key: HumanGrasp.IKey, reference: IHumanPosture.IReference | undefined) => IFitted = (
       key: HumanGrasp.IKey,
       reference: IHumanPosture.IReference | undefined,
-    ): {
-      pose: IAutoMoviePose;
-      shown: HumanHand.IWrist;
-      miss: number;
-      departure: number;
-      judged: number;
-    } => {
+    ): IFitted => {
       // A key another action asks is fitted as that action fits its pose:
       // its own goal, on its own arm solution, not the grasp's.
       const anchored: IHumanPosture.IReference | undefined =
@@ -163,7 +157,7 @@ export namespace HumanGraspReach {
         shoulder,
       );
       const span: number = Vector3.dot(line, line);
-      const radial = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+      const radial: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
         const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
         return span > 0
           ? Vector3.subtract(
@@ -247,7 +241,7 @@ export namespace HumanGraspReach {
             admits(candidate.wrist),
           );
     for (const { turn, tilt, wrist } of taken.length === 0 ? pairs : taken) {
-      const grasp = fit({ posture, wrist, bend }, undefined);
+      const grasp: IFitted = fit({ posture, wrist, bend }, undefined);
       const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
       candidates.push({
         turn,
@@ -276,7 +270,7 @@ export namespace HumanGraspReach {
       // The keys are built as they are reached, so a key a candidate never
       // reaches, beaten by an earlier one, is never built.
       for (const key of stroke?.(wrist, grasp.shown) ?? []) {
-        const fitted = fit(key, reference);
+        const fitted: IFitted = fit(key, reference);
         keys.push(fitted.miss);
         judged.push(fitted.judged);
         bounds.push(key.bound ?? Number.NaN);
@@ -373,4 +367,22 @@ export namespace HumanGraspReach {
       ),
     };
   }
+}
+
+/** The original displayed result and scalar reports of one actual key fit. */
+interface IFitted {
+  /** The fresh canonical pose after all coupled limb and digit fits. */
+  pose: IAutoMoviePose;
+
+  /** The displayed wrist frame, world metres and rest-relative rotation. */
+  shown: HumanHand.IWrist;
+
+  /** The original hand-degree plus wrist-millimetre error cost. */
+  miss: number;
+
+  /** Elbow departure from the key's hint about the reach line, degrees. */
+  departure: number;
+
+  /** The key's own judgement, or NaN when it declares none. */
+  judged: number;
 }

@@ -121,6 +121,7 @@ export namespace HumanPerformanceFlight {
     for (const person of people) {
       let prepared: prepareAutoMovieMassModel.IPrepared | undefined;
       let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
+      let readBones: ReturnType<typeof poseBones.prepare> | undefined;
       try {
         for (const segment of person.segments) {
           const plan: IHumanActionPlan = segment.plan;
@@ -130,8 +131,9 @@ export namespace HumanPerformanceFlight {
           // need neither a physical workspace nor a demanded-bone set.
           prepared ??= prepareAutoMovieMassModel(person.performer.body.massModel);
           requested ??= prepareAutoMovieMassModel.bones(prepared);
+          readBones ??= poseBones.prepare(person.performer.body, requested);
           try {
-            flight(self, person, segment, prepared, requested);
+            flight(self, person, segment, prepared, requested, readBones);
           } catch (error) {
             if (!(error instanceof HumanRefusal)) throw error;
             throw error.locate({
@@ -165,6 +167,7 @@ export namespace HumanPerformanceFlight {
     segment: HumanSegment.ISegment,
     prepared: prepareAutoMovieMassModel.IPrepared,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
+    readBones: ReturnType<typeof poseBones.prepare>,
   ): void {
     const plan: IHumanActionPlan = segment.plan;
     const declared: IHumanActionPlan.IFlight = plan.flight!;
@@ -193,7 +196,7 @@ export namespace HumanPerformanceFlight {
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      poseBones(body, { ...unturned(seconds), root: null }, readResolution(), requested);
+      readBones({ ...unturned(seconds), root: null }, readResolution());
     const history: ReturnType<typeof integrateAirborneRotation.history> =
       integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 });
     const errorScope: symbol = Symbol("human flight");
@@ -216,7 +219,7 @@ export namespace HumanPerformanceFlight {
         ): IAutoMovieVector3 =>
           prepareAutoMovieMassModel.place(
             prepared,
-            poseBones(body, unturned(t), readResolution(), requested),
+            readBones(unturned(t), readResolution()),
           );
         const one: IAutoMovieVector3 = centre(at + delta);
         const two: IAutoMovieVector3 = centre(at + 2 * delta);
@@ -301,7 +304,7 @@ export namespace HumanPerformanceFlight {
         return {
           about: prepareAutoMovieMassModel.place(
             prepared,
-            poseBones(body, pose, readResolution(), requested),
+            readBones(pose, readResolution()),
           ),
           root: root(pose),
         };

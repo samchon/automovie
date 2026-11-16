@@ -106,8 +106,14 @@ export function HumanQuadraticPolish(
     multiplier: number,
   ): void => {
     if (Number.isFinite(multiplier)) {
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-        out[s.cols[a]!] = out[s.cols[a]!]! - s.vals[a]! * multiplier;
+      const single: number = s.singleton[r]!;
+      if (single >= 0)
+        out[s.cols[single]!] = out[s.cols[single]!]! - s.vals[single]! * multiplier;
+      else {
+        const end: number = s.start[r + 1]!;
+        for (let a: number = s.start[r]!; a < end; ++a)
+          out[s.cols[a]!] = out[s.cols[a]!]! - s.vals[a]! * multiplier;
+      }
     } else {
       const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
       for (let a: number = 0; a < row.index.length; ++a)
@@ -132,6 +138,8 @@ export function HumanQuadraticPolish(
         out += row.coef[a]! * v[row.index[a]!]!;
       return out;
     }
+    const single: number = s.singleton[r]!;
+    if (single >= 0) return 0 + s.vals[single]! * v[s.cols[single]!]!;
     const end: number = s.start[r + 1]!;
     for (let a: number = s.start[r]!; a < end; ++a)
       out += s.vals[a]! * v[s.cols[a]!]!;
@@ -151,8 +159,14 @@ export function HumanQuadraticPolish(
     active.forEach((r: number, j: number): void => {
       const residual: number = r2[j]!;
       if (Number.isFinite(residual)) {
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a)
-          b[s.cols[a]!] = b[s.cols[a]!]! + (s.vals[a]! * residual) / delta;
+        const single: number = s.singleton[r]!;
+        if (single >= 0)
+          b[s.cols[single]!] = b[s.cols[single]!]! + (s.vals[single]! * residual) / delta;
+        else {
+          const end: number = s.start[r + 1]!;
+          for (let a: number = s.start[r]!; a < end; ++a)
+            b[s.cols[a]!] = b[s.cols[a]!]! + (s.vals[a]! * residual) / delta;
+        }
       } else {
         const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
         for (let a: number = 0; a < row.index.length; ++a)
@@ -189,11 +203,20 @@ export function HumanQuadraticPolish(
     let v: number = 0;
     const multiplier: number = fixed[r]!;
     if (finiteXS && Number.isFinite(multiplier)) {
-      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
-        const index: number = s.cols[a]!;
-        const coefficient: number = s.vals[a]!;
+      const single: number = s.singleton[r]!;
+      if (single >= 0) {
+        const index: number = s.cols[single]!;
+        const coefficient: number = s.vals[single]!;
         v += coefficient * xs[index]!;
         aty[index] = aty[index]! + coefficient * multiplier;
+      } else {
+        const end: number = s.start[r + 1]!;
+        for (let a: number = s.start[r]!; a < end; ++a) {
+          const index: number = s.cols[a]!;
+          const coefficient: number = s.vals[a]!;
+          v += coefficient * xs[index]!;
+          aty[index] = aty[index]! + coefficient * multiplier;
+        }
       }
     } else {
       const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);

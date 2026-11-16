@@ -387,7 +387,7 @@ export namespace armPhrase {
           origin: a.origin,
           manner: mods,
         };
-        return p.phrase === "visit"
+        const primitive: IAutoMovieMotionHumanPrimitive = p.phrase === "visit"
           ? AutoMovieMotionHumanArmPhrase.visit({
               ...phrase,
               target: () => a.target(a.place),
@@ -422,6 +422,10 @@ export namespace armPhrase {
                     ),
                   ),
               });
+        return {
+          ...primitive,
+          reads: ["root", `${a.side}Arm`, `${a.side}Hand`],
+        };
       },
     );
     const side: HumanHand.Side = sides[0]!;

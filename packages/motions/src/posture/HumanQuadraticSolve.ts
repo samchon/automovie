@@ -129,9 +129,11 @@ export function HumanQuadraticSolve(
         const single: number = singleton[r]!;
         if (single >= 0)
           rhs[cols[single]!]! += vals[single]! * w;
-        else
-          for (let a: number = start[r]!; a < start[r + 1]!; ++a)
+        else {
+          const end: number = start[r + 1]!;
+          for (let a: number = start[r]!; a < end; ++a)
             rhs[cols[a]!]! += vals[a]! * w;
+        }
       } else {
         const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
         for (let a: number = 0; a < row.index.length; ++a)
@@ -152,9 +154,11 @@ export function HumanQuadraticSolve(
         const single: number = singleton[r]!;
         if (single >= 0)
           product = 0 + vals[single]! * xt[cols[single]!]!;
-        else
-          for (let a: number = start[r]!; a < start[r + 1]!; ++a)
+        else {
+          const end: number = start[r + 1]!;
+          for (let a: number = start[r]!; a < end; ++a)
             product += vals[a]! * xt[cols[a]!]!;
+        }
       } else {
         const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
         for (let a: number = 0; a < row.index.length; ++a)

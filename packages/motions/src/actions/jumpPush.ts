@@ -209,9 +209,9 @@ export namespace jumpPush {
    * @evidence contracts/development/implementation.md#principled-implementation Each moved part follows a path at rest plus the entry rate times the engine's carried-rate term, carried no longer than its room affords; the heel rises by the walking stance's rule.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The carries, the pelvis and heading, the foot's rocker, then one writer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot rolling on its heel is laid flat before its heel rises, so the pivot never passes at a rate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three heel-rule reads at build time remain. Each requested phase sample evaluates its original root/progress/carry/yaw/pelvis once, and its writer reads the heel rule once using that same geometry; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses heelRise, hipJoints, HumanFoot and engine carried terms. Explicit same-query phase values supply the arm, heel and raw posture consumers without retaining or quantizing time queries.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The paths hold only the jump's own values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three build-time heel-rule reads and every pitch trial remain. Fixed contact pivots, heel-rule geometry, reaching-frame coefficients, quaternion endpoints and spin axis prepare once; each phase computes original root/progress/carry/yaw/pelvis once and shares them with actual heel/arm/posture reads. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing heelRise, hipJoints, HumanFoot and quaternion owners prepare only body/side/contact/heading or arc/axis prerequisites fixed by this push. Every varying hip, pitch, rotation weight, spin angle and local-time phase is still evaluated normally, with no time/result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns a fixed number of pivot, frame, arc and axis readers plus its original jump inputs. The unused heel pivot is absent without a heel rocker; no query history, FK reader or external handle enters these closures.
    */
   export function of(props: IProps): IPush {
     const {
@@ -241,6 +241,11 @@ export namespace jumpPush {
       x: spin.x / spinRate, y: spin.y / spinRate, z: spin.z / spinRate,
     };
     const reachingTurn: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
+    const reachingRotation: ReturnType<typeof Quaternion.prepareSlerp> =
+      Quaternion.prepareSlerp(entry.feet[reaching].rotation, reachingTurn);
+    const spinTurn: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined =
+      spinAxis === undefined ? undefined : Quaternion.prepareAxisAngle(spinAxis);
+    const reachingPoint: ReturnType<typeof HumanFrame.preparePoint> = HumanFrame.preparePoint(heading, tuck);
     // The reaching foot's velocity and spin are one rigid motion, carried for
     // no longer than brings a sole point to the floor: a point `h` above it
     // coming down at `v` affords `h / (PEAK v)` seconds. A point descending
@@ -259,8 +264,6 @@ export namespace jumpPush {
             (carriedRate.PEAK * falling),
         );
     }
-    const reach: (t: number) => number = (t: number): number =>
-      reachingCarry > 1e-6 ? carriedRate(reachingCarry, t) : 0;
     // The reaching ankle's entry acceleration fades over the same carry, so
     // the leg continues what the root's carried acceleration asks of it.
     const surge: IAutoMovieVector3 = entry.feet[reaching].acceleration;
@@ -394,19 +397,13 @@ export namespace jumpPush {
         // The reaching foot leaves at once on a minimum-jerk path, carrying
         // the velocity and the spin it was entered with.
         const s: number = phase.progress;
-        const k: number = reach(t);
+        const k: number = reachingCarry > 1e-6
+          ? reachingCarry === P ? phase.carry : carriedRate(reachingCarry, t) : 0;
         const b: number = reachBend(t);
         const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
-        const into: IAutoMovieVector3 = HumanFrame.point(
-          { origin: root, yaw: heading },
-          tuck,
-        );
+        const into: IAutoMovieVector3 = reachingPoint(root);
         const path: IAutoMovieVector3 = jumpPath.lerp(from, into, s);
-        const turned: IAutoMovieQuaternion = Quaternion.slerp(
-          entry.feet[reaching].rotation,
-          reachingTurn,
-          s,
-        );
+        const turned: IAutoMovieQuaternion = reachingRotation(s);
         limbs[`${reaching}Leg`] = {
           point: {
             x: path.x + stride.x * k + surge.x * b,
@@ -414,14 +411,11 @@ export namespace jumpPush {
             z: path.z + stride.z * k + surge.z * b,
           },
           rotation:
-            spinAxis === undefined
+            spinTurn === undefined
               ? turned
               : Quaternion.normalize(
                   Quaternion.multiply(
-                    Quaternion.fromAxisAngle(
-                      spinAxis,
-                      (spinRate * k * 180) / Math.PI,
-                    ),
+                    spinTurn((spinRate * k * 180) / Math.PI),
                     turned,
                   ),
                 ),

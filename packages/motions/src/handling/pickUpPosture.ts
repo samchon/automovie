@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bend } from "../everyday/bend";
@@ -348,6 +348,6 @@ export namespace pickUpPosture {
     side: HumanHand.Side,
     posture: IHumanPosture,
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!
+    HumanTrunk.resolve(context.body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!
       .worldPosition;
 }

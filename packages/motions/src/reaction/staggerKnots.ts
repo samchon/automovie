@@ -90,7 +90,7 @@ export namespace staggerKnots {
       standing,
     ).centre;
     const sine: number = Math.sin((staggerBounds.REFERENCE * Math.PI) / 180);
-    const shift = (more: {
+    const shift: (more: walkStanceCourse.ITrunk) => IAutoMovieVector3 = (more: {
       pitch: number;
       roll: number;
     }): IAutoMovieVector3 => {
@@ -155,7 +155,7 @@ export namespace staggerKnots {
       root: rootAt,
       pelvis: (trunk: walkStanceCourse.ITrunk): walkStanceCourse.IPelvis => {
         const at: IAutoMovieVector3 = rootAt(trunk);
-        const moved = (hip: IAutoMovieVector3): IAutoMovieVector3 => ({
+        const moved: (hip: IAutoMovieVector3) => IAutoMovieVector3 = (hip: IAutoMovieVector3): IAutoMovieVector3 => ({
           x: hip.x + at.x - base.x,
           y: hip.y,
           z: hip.z + at.z - base.z,
@@ -179,6 +179,7 @@ export namespace staggerKnots {
    * @param yaw The pelvis's heading, degrees.
    * @param side The leg.
    * @param heading The foot's heading, degrees.
+   * @param prepared Optional fixed point reader prepared from this body's same-side rest knee at this exact yaw.
    * @returns World metres.
    */
   export function kneePole(
@@ -187,10 +188,11 @@ export namespace staggerKnots {
     yaw: number,
     side: "left" | "right",
     heading: number,
+    prepared?: ReturnType<typeof HumanFrame.preparePoint>,
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       {
-        origin: HumanFrame.point(
+        origin: prepared?.(root) ?? HumanFrame.point(
           { origin: root, yaw },
           body.rest.get(`${side}LowerLeg`)!,
         ),
@@ -294,7 +296,7 @@ export namespace staggerKnots {
       );
       const capture: boolean = t >= walk.caught && stances.length === 2;
       const reading: staggerRecover.IReading | undefined = walk.sample?.(t, capture);
-      const framed = frame(body, entry.posture, bend, reading?.course ?? walk.course(t), feet);
+      const framed: ReturnType<typeof frame> = frame(body, entry.posture, bend, reading?.course ?? walk.course(t), feet);
       knots.push({
         seconds: k / staggerBounds.KNOTS,
         frame: framed,

@@ -211,7 +211,7 @@ export namespace operate {
       AutoMovieMotionManner.of(context, context.params.manner);
     const at: AutoMovieMotionTarget =
       mechanism.kind === "insert" ? mechanism.into : mechanism.at;
-    const place = context.aim(at, context.start);
+    const place: ReturnType<typeof context.aim> = context.aim(at, context.start);
 
     // On a prop that articulates, the hand follows the part the prop poses
     // and the operation drives that articulation; a held prop inserted into
@@ -297,11 +297,11 @@ export namespace operate {
         ? operateState.prepare(mechanism, place, hinge) : undefined;
     const strokeStart: number = clock.at("strokeStart");
     const strokeEnd: number = clock.at("strokeEnd");
-    // The second the stroke reaches a progress, read off the clock's own
-    // progress by bisection until the interval is a float apart, so the part
-    // is taken on its prop where the prop is then (a bow raised while it is
-    // drawn); the stroke's start for the reach before it.
-    const reached = (progress: number): number => {
+    // Arbitrary-progress plan probes invert the original clock to adjacent
+    // floats. Runtime targets already know their actual clock second and
+    // pass it through inside the stroke. Endpoints retain their own phase
+    // instants, including a synthetic progress-zero read used for extent.
+    const reached: (progress: number) => number = (progress: number): number => {
       let lo: number = strokeStart;
       let hi: number = strokeEnd;
       if (!(progress > 0)) return lo;
@@ -313,7 +313,7 @@ export namespace operate {
         else hi = mid;
       }
     };
-    const target = (
+    const target: (posture: IHumanPosture, progress: number, seconds?: number) => AutoMovieMotionHumanArm.ITarget = (
       posture: IHumanPosture,
       progress: number,
       seconds?: number,
@@ -337,7 +337,9 @@ export namespace operate {
           : {
               ...part.place(progress, context.start + (seconds === undefined
                 ? reached(progress)
-                : Math.max(strokeStart, Math.min(strokeEnd, seconds)))),
+                : !(progress > 0) ? strokeStart
+                  : !(progress < 1) ? strokeEnd
+                    : Math.max(strokeStart, Math.min(strokeEnd, seconds)))),
               roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
             };
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -355,7 +357,7 @@ export namespace operate {
       // solved for the hand as it is turned.
       const upright: boolean =
         mechanism.kind !== "button" && Math.abs(now.normal.y) < UPRIGHT;
-      const spin = Quaternion.fromAxisAngle(
+      const spin: ReturnType<typeof Quaternion.fromAxisAngle> = Quaternion.fromAxisAngle(
         now.normal,
         mechanism.kind !== "knob"
           ? 0

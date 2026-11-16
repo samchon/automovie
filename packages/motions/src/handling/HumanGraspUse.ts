@@ -137,7 +137,7 @@ export namespace HumanGraspUse {
     side: HumanHand.Side,
     yaw: number,
   ): IAutoMovieVector3 {
-    const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+    const joint: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       bones.get(bone)?.worldPosition ?? { x: 0, y: 0, z: 0 };
     const shoulder: IAutoMovieVector3 = joint(`${side}UpperArm`);
     const elbow: IAutoMovieVector3 = joint(`${side}LowerArm`);
@@ -192,9 +192,9 @@ export namespace HumanGraspUse {
    * @evidence contracts/development/implementation.md#principled-implementation Prop contacts and entry geometry are invariant across a grasp search; only the candidate's rigid hand offset and fitted roll change.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The preparation owner reads fixed geometry once; the key builder owns wrist-specific placement and the original roll search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted result is shared across candidate wrists and every roll keeps the original fit and judgement.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry and entry FK are read once for C candidates; the original per-candidate roll search remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closure shares only its fixed body, entry pose, prop at start, handle, side and use; changed input requires a new builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder holds constant-size geometry until its search releases it; candidate fit maps remain local to each call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry, entry FK and canonical root/direct-joint clamp are prepared once for C candidates; each candidate retains the original full coupled roll fits and only the observed hand is read back.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closure shares only its fixed body, entry pose/posture, prop at start, handle, side and use; each roll still turns/fits all actual limb goals and changed input requires a new builder.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns fixed geometry and one O(B) canonical base until its synchronous search releases them; each candidate clears its roll scores, exact FK reader, base reference and clearance callback before returning its key.
    */
   export function prepare(
     props: HumanGraspUsePreparation.IInput,
@@ -265,7 +265,7 @@ export namespace HumanGraspUse {
     // closed hand's depth inside the body added as a cost. A law that
     // presents the tool chooses its roll the same way (`StrikingRoll`), so
     // the grasp is judged at the roll the law will take.
-    const keyed = (roll: number): HumanHand.IWrist => {
+    const keyed: (roll: number) => HumanHand.IWrist = (roll: number): HumanHand.IWrist => {
       const rolled: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(Quaternion.fromAxisAngle(asked, roll), laid),
       );
@@ -283,7 +283,7 @@ export namespace HumanGraspUse {
 
     // A use's key is the same contact-pivot goal and two-point measure the
     // presenting action uses; fitting only the wrist judges another task.
-    const key = (roll: number): HumanGrasp.IKey => {
+    const key: (roll: number) => HumanGrasp.IKey = (roll: number): HumanGrasp.IKey => {
       const wrist: HumanHand.IWrist = keyed(roll);
       if (tool !== undefined)
         return HumanGraspDemand.key(context.body, {
@@ -326,7 +326,7 @@ export namespace HumanGraspUse {
       prepareHumanPoseResolution();
     let base: typeof prepared.base | undefined = prepared.base;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-    const missed = (roll: number): number => {
+    const missed: (roll: number) => number = (roll: number): number => {
       const known: number | undefined = fitted.get(roll);
       if (known !== undefined) return known;
       const candidate: HumanGrasp.IKey = key(roll);

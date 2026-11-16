@@ -54,13 +54,15 @@ export function HumanQuadraticResiduals(
           const coefficient: number = s.vals[single]!;
           ax += coefficient * x[index]!;
           aty[index] = aty[index]! + coefficient * multiplier;
-        } else
-          for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
+        } else {
+          const end: number = s.start[r + 1]!;
+          for (let a: number = s.start[r]!; a < end; ++a) {
             const index: number = s.cols[a]!;
             const coefficient: number = s.vals[a]!;
             ax += coefficient * x[index]!;
             aty[index] = aty[index]! + coefficient * multiplier;
           }
+        }
       } else {
         const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
         for (let a: number = 0; a < row.index.length; ++a) {

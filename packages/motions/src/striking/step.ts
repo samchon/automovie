@@ -110,6 +110,7 @@ export namespace step {
     );
     const duration: number = count * PERIOD;
     const entry: IHumanPosture = context.entry.posture;
+    const joints: IHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints() };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
 
@@ -216,7 +217,7 @@ export namespace step {
             yaw: entry.yaw,
             pitch: entry.pitch,
             roll: entry.roll,
-            joints: { ...entry.joints, ...StrikingStance.joints() },
+            joints: { ...joints },
             limbs: StrikingStance.legs(body, placed, down),
           },
           5,

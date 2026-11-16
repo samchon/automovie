@@ -322,7 +322,7 @@ export namespace HumanHandover {
     pitch: number = 0,
   ): IAutoMovieVector3 {
     const raised: number = (pitch * Math.PI) / 180;
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(
       `${side}UpperArm`,
     )!.worldPosition;
     return HumanFrame.point(
@@ -449,6 +449,8 @@ export namespace HumanHandover {
     const reached: IAutoMovieQuaternion | undefined = poseBones(
       body,
       resolveHumanPosture(body, posture),
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)?.worldRotation;
     if (asked === undefined || reached === undefined) return Infinity;
     const off: IAutoMovieQuaternion = Quaternion.multiply(

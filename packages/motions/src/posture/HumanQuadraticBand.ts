@@ -47,6 +47,9 @@ export namespace HumanQuadraticBand {
     /** Admitted canonical P is exactly diagonal; finite positive Ruiz factors preserve its off-diagonal signed zeros, and factors still use the full band. */
     diagonal: boolean;
 
+    /** Ordered sparse P positions with offset 0 first in every row; absent metadata uses the full band. Originally nonzero off-diagonal entries remain listed even if scaling underflows them. */
+    pOffsets?: readonly (readonly number[])[];
+
     /** The scaled linear term. */
     q: Float64Array;
 

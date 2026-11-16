@@ -172,6 +172,15 @@ export namespace HumanSeatedReach {
     point: IAutoMovieVector3,
     share: number,
   ): IAutoMovieVector3 {
+    return prepareLean(role, joints, point)(share);
+  }
+
+  /** Fixed role/chain geometry for one synchronous search; every share still performs its actual ordered turns. */
+  function prepareLean(
+    role: Pick<AutoMovieMotionMeeting.IRole, "bones" | "posture">,
+    joints: readonly IJoint[],
+    point: IAutoMovieVector3,
+  ): (share: number) => IAutoMovieVector3 {
     // The body's left on the floor, from its heading: +X when it faces +Z.
     const yaw: number = (role.posture.yaw * Math.PI) / 180;
     const left: IAutoMovieVector3 = {
@@ -179,11 +188,13 @@ export namespace HumanSeatedReach {
       y: 0,
       z: -Math.sin(yaw),
     };
-    let moved: IAutoMovieVector3 = point;
-    const pivots: IAutoMovieVector3[] = joints.map(
+    const original: IAutoMovieVector3[] = joints.map(
       (j: IJoint): IAutoMovieVector3 => role.bones.get(j.bone)!.worldPosition,
     );
-    joints.forEach((j: IJoint, k: number): void => {
+    return (share: number): IAutoMovieVector3 => {
+      let moved: IAutoMovieVector3 = point;
+      const pivots: IAutoMovieVector3[] = [...original];
+      joints.forEach((j: IJoint, k: number): void => {
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         left,
         share * j.room,
@@ -197,8 +208,9 @@ export namespace HumanSeatedReach {
       moved = carry(moved);
       for (let above: number = k + 1; above < pivots.length; above++)
         pivots[above] = carry(pivots[above]!);
-    });
-    return moved;
+      });
+      return moved;
+    };
   }
 
   /**
@@ -264,8 +276,8 @@ export namespace HumanSeatedReach {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Try, test the full lean, bisect, resolve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pair the full lean cannot bring together rethrows the resolution's error; standing pairs never lean.
    * @evidence contracts/development/implementation.md#efficient-algorithms One resolution per bisection step, to a share whose lean moves a shoulder by less than the square root of machine epsilon of its distance to the hips.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolution is the caller's (`resolveAutoMovieMutualGoal` for a high five and a handover, `handshakeOffer.point` for a handshake), the bisection the engine's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolution and bisection remain their owners'; each role's fixed left axis and original joint pivots are prepared once for this synchronous search, while every share performs all actual ordered rotations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared axes/pivots and rooms live only until goal returns or throws; only the caller's actual resolution result escapes, without a reader or pose history.
    */
   export function goal<
     Side extends { shoulder: IAutoMovieVector3 },
@@ -276,11 +288,15 @@ export namespace HumanSeatedReach {
     resolve: (a: Side, b: Side) => Result,
   ): Result {
     const chains: [IJoint[], IJoint[]] = [rooms(roles[0]), rooms(roles[1])];
+    const readers: readonly ((share: number) => IAutoMovieVector3)[] = [
+      prepareLean(roles[0], chains[0], sides[0].shoulder),
+      prepareLean(roles[1], chains[1], sides[1].shoulder),
+    ];
     const leaned = (share: number): [Side, Side] =>
       [0, 1].map(
         (i: number): Side => ({
           ...sides[i]!,
-          shoulder: lean(roles[i]!, chains[i]!, sides[i]!.shoulder, share),
+          shoulder: readers[i]!(share),
         }),
       ) as [Side, Side];
     const at = (share: number): Result => {
@@ -328,8 +344,8 @@ export namespace HumanSeatedReach {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two end tests and one bisection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point beyond the full lean returns the whole room, and the arm's own fit reports the miss.
    * @evidence contracts/development/implementation.md#efficient-algorithms One distance per bisection step.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `lean` and the engine's bisection.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed role/chain axes and pivots are shared only within this synchronous bisection; every changed share retains the original actual turn sequence and distance measurement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed geometry reader ends with return or failure; returned room records and scalar share retain no frame reader or candidate history.
    */
   export function need(
     role: AutoMovieMotionMeeting.IRole,
@@ -338,9 +354,10 @@ export namespace HumanSeatedReach {
     limit: number,
   ): { share: number; joints: IJoint[] } {
     const joints: IJoint[] = rooms(role);
+    const read: (share: number) => IAutoMovieVector3 = prepareLean(role, joints, shoulder);
     const within = (share: number): boolean =>
       Vector3.length(
-        Vector3.subtract(lean(role, joints, shoulder, share), point),
+        Vector3.subtract(read(share), point),
       ) <= limit;
     if (joints.length === 0 || within(0)) return { share: 0, joints };
     if (!within(1)) return { share: 1, joints };

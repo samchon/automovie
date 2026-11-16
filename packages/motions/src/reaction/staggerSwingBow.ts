@@ -6,6 +6,7 @@ import type { walkFoot } from "../actions/walkFoot";
 import { walkReach } from "../actions/walkReach";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanLegChain } from "../posture/HumanLegChain";
+import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { staggerRecover } from "./staggerRecover";
@@ -37,11 +38,13 @@ export function staggerSwingBow(
   swing: (seconds: number, bow: number) => walkFoot.IScheduled,
 ): number {
   const stance: "left" | "right" = step.side === "left" ? "right" : "left";
+  const reach: ReturnType<typeof walkReach.prepareSwing> = walkReach.prepareSwing(body, step.side);
 
   /** One fixed observed pelvis and its reusable swinging-leg source frame. */
   type IObserved = (typeof instants)[number] & {
     pelvis: IAutoMovieQuaternion;
     pose: ReturnType<typeof HumanLegChain.prepare>;
+    knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>>;
   };
   const observed: IObserved[] = instants.map(
     (instant: (typeof instants)[number]): IObserved => {
@@ -51,6 +54,10 @@ export function staggerSwingBow(
         ...instant,
         pelvis,
         pose: HumanLegChain.prepare(body, step.side, pelvis, instant.settled.hips[step.side]),
+        knees: {
+          left: HumanFrame.preparePoint(instant.settled.yaw, body.rest.get("leftLowerLeg")!),
+          right: HumanFrame.preparePoint(instant.settled.yaw, body.rest.get("rightLowerLeg")!),
+        },
       };
     },
   );
@@ -76,6 +83,7 @@ export function staggerSwingBow(
         settled.yaw,
         side,
         HumanFoot.heading(foot.rotation),
+        instant.knees[side],
       ),
       foot.rotation,
     );
@@ -103,9 +111,7 @@ export function staggerSwingBow(
     let out: number = 0;
     for (const [i, instant] of observed.entries()) {
       const { seconds, settled }: IObserved = instant;
-      const reached: walkFoot.IEnd = walkReach.swing(
-        body,
-        step.side,
+      const reached: walkFoot.IEnd = reach(
         settled,
         swing(seconds, bow),
         (seconds - step.start) / (step.land - step.start),

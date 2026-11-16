@@ -16,7 +16,6 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -32,6 +31,7 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshakeMeeting } from "./handshakeMeeting";
+import { handshakeStance } from "./handshakeStance";
 import { handshakeOffer } from "./handshakeOffer";
 
 /**
@@ -394,16 +394,7 @@ export namespace handshake {
     body: IHumanBody,
     side: HumanHand.Side = "right",
   ): IStance {
-    const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
-      `${side}UpperArm`,
-    )!.worldPosition;
-    return {
-      height: shoulder.y,
-      sternum: HumanTrunk.region(body, posture, "sternum").point.z,
-      shoulder: shoulder.z,
-      across: Math.abs(shoulder.x),
-    };
+    return handshakeStance(body, side);
   }
 
   /**

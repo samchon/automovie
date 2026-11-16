@@ -36,7 +36,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * the margin of stability (Hof et al. 2005) on every frame they draw.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
- * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over a body and postures returning world metres (shifts, margins, offsets) and points; the mass model is the engine's, memoized per body.
+ * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over a body and postures returning world metres (shifts, margins, offsets) and points; the engine mass model is prepared once by the unchanged body owner.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the motions balance queries over solved postures; read by the bow, bend, brace and rise laws, the everyday captures and the balance test; the centre-of-mass model, hull and margin belong to the engine and are imported.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; one gap remains: `margin` is read only by the balance test, a member only a test reads.
  */
@@ -91,7 +91,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each search reads its bracket's two ends, then the bracketed root converges superlinearly where the centre's place is smooth, and bisection takes log2(range / tolerance), near 10, posture solves; each solve is one forward-kinematics pass with limb fits, read once for both measures and once per shift in the call.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call balances its own builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local trial map ends with this balance solve; its mass model is borrowed from the body and no duplicate model/cache is retained here.
    */
   export function shift(
     body: IHumanBody,
@@ -187,7 +187,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every posture uses the same bearing outlines and the engine's model.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve plus the hull of the two outlines' points.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse across calls.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during this synchronous query and retains no model or result.
    */
   export function margin(body: IHumanBody, posture: IHumanPosture): number {
     return read(body, posture).margin;
@@ -211,7 +211,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1/240 s step is a numerical choice finer than the 24 Hz film and the length is Hof's (`resolveAutoMovieCenterOfMass.pendulum`); the difference amplifies any discontinuity in the caller's posture function, which callers must keep smooth.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three posture solves per call.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call evaluates its own instant.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model for these actual three solves, retaining no model, sampled frame or result after return.
    */
   export function extrapolated(
     body: IHumanBody,
@@ -221,7 +221,7 @@ export namespace HumanBalance {
     const h: number = 1 / 240;
     const com = (t: number): IAutoMovieVector3 =>
       resolveAutoMovieCenterOfMass.place(
-        model(body),
+        body.massModel,
         poseBones(body, resolveHumanPosture(body, at(t))),
       );
     const a: IAutoMovieVector3 = com(seconds - h);
@@ -232,7 +232,7 @@ export namespace HumanBalance {
     );
     const bones = poseBones(body, resolveHumanPosture(body, at(seconds)));
     const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
-      resolveAutoMovieCenterOfMass.place(model(body), bones),
+      resolveAutoMovieCenterOfMass.place(body.massModel, bones),
       velocity,
       resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );
@@ -256,7 +256,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case present.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Callers reuse its result for several directions (the brace verdicts read the push and lateral margins from one call).
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model and returns fresh support data without retaining either result or model.
    */
   export function support(
     body: IHumanBody,
@@ -264,7 +264,7 @@ export namespace HumanBalance {
   ): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
     return {
-      centre: resolveAutoMovieCenterOfMass.place(model(body), bones),
+      centre: resolveAutoMovieCenterOfMass.place(body.massModel, bones),
       points: HumanFoot.base(body, bones),
     };
   }
@@ -334,7 +334,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case present.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during one synchronous solve and retains no duplicate model or output.
    */
   export function offset(body: IHumanBody, posture: IHumanPosture): number {
     return read(body, posture).offset;
@@ -355,7 +355,7 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
     resolveHumanPosture(body, posture),
   );
   const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-    model(body),
+    body.massModel,
     bones,
   );
   const base: IAutoMovieVector3[] = HumanFoot.base(body, bones);
@@ -391,16 +391,3 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
   };
 }
 
-/** Mass models by body. */
-const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> =
-  new WeakMap();
-
-/** The engine's mass model of a body, made once. */
-function model(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {
-  let out: resolveAutoMovieCenterOfMass.IModel | undefined = MODELS.get(body);
-  if (out === undefined) {
-    out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    MODELS.set(body, out);
-  }
-  return out;
-}

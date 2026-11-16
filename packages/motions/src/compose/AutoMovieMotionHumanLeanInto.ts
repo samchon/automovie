@@ -54,7 +54,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     /**
      * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres. Runtime calls also provide the action-relative clock second; plan-time progress probes omit it.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress in [0, 1], and the wrist goal returned in world metres.
+     * @evidence contracts/development/common.md#meaningful-documentation States posture, stroke progress in [0,1], optional actual action-relative runtime second and returned world-metre wrist goal; arbitrary plan-progress probes omit the second.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
@@ -105,7 +105,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     /**
      * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not. An optional action-relative clock second is forwarded unchanged to the wrist reader.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress, the returned pitch in degrees and that a limit that does not reach throws the refusal.
+     * @evidence contracts/development/common.md#meaningful-documentation States posture/progress and optional action-relative clock second forwarded to the wrist reader, returned pitch in degrees and the original out-of-reach refusal.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.

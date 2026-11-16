@@ -87,7 +87,7 @@ export namespace GymnasticsWheel {
    * @evidence contracts/development/implementation.md#principled-implementation Rolling without slipping: within a spoke's run the root is the spoke's place less its offset from the root, and at a change the place is handed over while both are down.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collect demanded spoke bones once, then resolve the original trunk, read every spoke's mean once and choose the bearing/root for each row.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A spoke takes the weight only when lower by `LEVEL`, so a pair level with its single feet keeps bearing as the pair and the choice does not flicker on rounding.
-   * @evidence contracts/development/implementation.md#efficient-algorithms R rows retain ordinary canonical joint admission; demanded FK visits the ancestor closure of the spokes instead of unrelated descendants. Each row reduces each spoke once, O(P) in total named spoke bones, instead of repeating means during bearing comparisons. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms R rows retain ordinary canonical joint admission; demanded FK visits spoke ancestry instead of unrelated descendants. Each row reduces each spoke once in O(P) named incidences using three scalars and one result vector per spoke, avoiding repeated means and per-bone sum vectors. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each row's spoke means supply every comparison and support handover. One explicitly scoped exact FK reader shares unchanged joint/ancestor arithmetic across real rows, while changed shapes and root headings still compute normally; no shape or time is rounded into a key.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains one record per row. The spoke set, operation-scoped lazy FK reader and row maps/means release at construction return or throw; no reader or temporal cache enters the table.
    */
@@ -112,13 +112,17 @@ export namespace GymnasticsWheel {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(props.body, resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution).pose, resolution(), requested);
       const middles: IAutoMovieVector3[] = props.spokes.map((spoke: ISpoke): IAutoMovieVector3 => {
-        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+        let x: number = 0;
+        let y: number = 0;
+        let z: number = 0;
         for (const bone of spoke.bones) {
           const p: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
-          sum = { x: sum.x + p.x, y: sum.y + p.y, z: sum.z + p.z };
+          x += p.x;
+          y += p.y;
+          z += p.z;
         }
         const n: number = spoke.bones.length;
-        return { x: sum.x / n, y: sum.y / n, z: sum.z / n };
+        return { x: x / n, y: y / n, z: z / n };
       });
       const reach: (index: number) => number = (index: number): number =>
         middles[index]!.y - props.spokes[index]!.height;

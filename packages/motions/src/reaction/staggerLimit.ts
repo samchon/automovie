@@ -4,6 +4,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerRecover } from "./staggerRecover";
+import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 
 /**
  * The fastest push a body catches in a stagger's recovery steps
@@ -46,6 +47,11 @@ export namespace staggerLimit {
     push: IAutoMovieVector3,
     above: number,
   ): number {
+    const geometry: ReturnType<typeof prepareStaggerPendulumEntry> = prepareStaggerPendulumEntry(body, entry);
+    let bending: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
+    const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
+      (): Record<"pitch" | "roll", IAutoMovieVector3> =>
+        (bending ??= staggerKnots.bending(body, entry));
     const bisect: (lo: number, hi: number, catches: (speed: number) => boolean) => number = (
       lo: number,
       hi: number,
@@ -62,19 +68,15 @@ export namespace staggerLimit {
       0,
       above,
       (speed: number): boolean =>
-        staggerRecover.recover(body, entry, push, speed, 1, false) !== null,
+        staggerRecover.recover(body, entry, push, speed, 1, false, readBend, geometry) !== null,
     );
     // Bisection and the verified band may ask for the same speed. This
     // invocation fixes every recovery input, so keep only its exact answers.
     const checked: Map<number, boolean> = new Map();
-    let bending: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
-    const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
-      (): Record<"pitch" | "roll", IAutoMovieVector3> =>
-        (bending ??= staggerKnots.bending(body, entry));
     const whole: (speed: number) => boolean = (speed: number): boolean => {
       const known: boolean | undefined = checked.get(speed);
       if (known !== undefined) return known;
-      const result: boolean = staggerRecover.recover(body, entry, push, speed, 1, true, readBend) !== null;
+      const result: boolean = staggerRecover.recover(body, entry, push, speed, 1, true, readBend, geometry) !== null;
       checked.set(speed, result);
       return result;
     };

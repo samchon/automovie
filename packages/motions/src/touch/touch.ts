@@ -34,6 +34,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { touchEffectors } from "./touchEffectors";
 import { touchHold } from "./touchHold";
+import { touchLayouts } from "./touchLayouts";
 import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
@@ -41,32 +42,20 @@ import { touchSide } from "./touchSide";
 import type { touchSite } from "./touchSite";
 
 /**
- * A touch while standing: one hand, or both, laid on a region of a partner
- * or of the performer's own body and moved on it by a kind of social touch
- * (Jung et al. 2017): a tap, a pat, a stroke, a rub, a press, a squeeze, a
- * hold or a scratch. It is the one law of the affectionate and social touch
- * family (#3284: a pat on the head, a tap on the shoulder, a hand on the
- * arm) and of the self-directed family (#3285: a belly pat, a nape rub, a
- * forearm scratch, a self hug, hands over the ears), each item a row of
- * `(effector, region, kind, timing)`.
+ * One or both hands touch a partner's or the performer's own region with a
+ * tap, pat, stroke, rub, press, squeeze, hold or scratch (Jung et al. 2017).
+ * Social touches (#3284) and self-directed touches (#3285) are rows of this
+ * one law, each stating effector, region, kind and timing.
  *
- * The hand reaches the region in the free-space transport time of the
- * distance (`AutoMovieMotionHumanTiming.transport`), repeats the kind's
- * stroke `count` times (`AutoMovieMotionHumanTouchForm.FORMS`), dwells for the
- * hold and goes back in the reach's time; the manner's tempo scales every
- * span and its extent the lift and the travel. The feet stay planted and the
- * body keeps the entry posture. A region of the performer's limbs is read on
- * the entry pose, so it must ride a limb the touch does not move, except a
- * region on the other arm: a person scratching or patting their own forearm
- * first brings it up, so that arm is carried on the same envelope to its
- * forearm held across the front of the waist, palm down, and the region is
- * read on the arm held there (`present`). A region above the shoulder that
- * the standing arm does not reach (a taller person's cheek) is risen to on
- * the toes, and a region beyond the standing arm (a thigh slapped while
- * standing) is leaned into, each as far as the hand needs
- * (`AutoMovieMotionHumanTouchStance`), a leg's region then read on the legs
- * as the lean leaves them; one still out of reach at the lean's limit is
- * refused. A seated or carried body does not rise.
+ * Free-space transport brings the hand to the region; the kind's stroke
+ * repeats `count` times, holds, then returns in the reach's time. Manner
+ * scales tempo, lift and travel. Feet stay planted and the entry body holds,
+ * except for the rise and lean the arm needs (`AutoMovieMotionHumanTouchStance`).
+ * Seated or carried bodies do not rise; a region beyond the lean limit is refused.
+ * Self regions use the entry limb, except that the other arm is presented
+ * across the waist, palm down, on the same envelope (`touchPresented`). A leg's
+ * region follows the legs as a lean leaves them. Thus a touched limb stays
+ * independent of the touching hand or has an explicit presentation.
  *
  * Events: the phrase instants (`ready` on the region, `strokeStart` to
  * `strokeEnd` the repetitions, `relax` leaving). A touch may be cut before
@@ -189,7 +178,7 @@ export namespace touch {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Defaults, the stance, the clock, one stroke per hand, the composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Defaults are named per kind; a negative hold throws; no region or body is special-cased.
    * @evidence contracts/development/implementation.md#efficient-algorithms One entry resolve, one stance solve and one elbow solve per hand at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the touch stroke, the laid arm, the stance, the timing owner and the manner.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical planning to its existing owners; exact declared hand/target entry-layout decisions and each hand's fixed reached-region frame share completed work only within this synchronous plan construction, without retaining sampled poses.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the entry bones and the clock.
    */
   export function plan(
@@ -270,7 +259,7 @@ export namespace touch {
       p.site,
     );
 
-    const laid: touchHold.Lay = touchHold.lay(context, bones, effector, placed);
+    const laid: touchHold.Lay = touchLayouts(hands, touchHold.lay(context, bones, effector, placed));
     const leading: touchHold.ILaid = laid(first, p.target);
 
     // The rise and the lean for a region beyond the standing arm, measured to
@@ -374,26 +363,7 @@ export namespace touch {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     primitives.push(...stance.primitives(clock));
     if (shown !== null)
-      primitives.push(
-        AutoMovieMotionHumanArm.carried({
-          body,
-          side: shown.side,
-          from: 0,
-          to: clock.duration,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, shown.side),
-          goal: (): IHumanPosture.IGoal => shown.goal,
-          weight: (seconds: number): number =>
-            clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-          // The shown hand's reach, hold and return, planned over the
-          // clock's instants.
-          span: {
-            start: clock.at("start"),
-            ready: clock.at("ready"),
-            relax: clock.at("relax"),
-            end: clock.at("end"),
-          },
-        }),
-      );
+      primitives.push(touchPresented.carry(body, context.entry.pose, shown, clock));
     // Two hands are planned as one trajectory.
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
       hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
@@ -414,6 +384,9 @@ export namespace touch {
               }
             : undefined;
       const { lay, tangent } = laid(side, target);
+      let destination: touchSite.IFrame | undefined;
+      const arrival: () => touchSite.IFrame = (): touchSite.IFrame =>
+        (destination ??= region(target)(reached, 0));
 
       // A hand that meets its place end on runs from its elbow, so the
       // elbow's place is settled with the hand and serves as the hint too.
@@ -424,7 +397,7 @@ export namespace touch {
               reached,
               side,
               effector,
-              region(target)(reached, 0),
+              arrival(),
               tangent,
               p.elbow,
             )
@@ -438,7 +411,7 @@ export namespace touch {
           reached,
           side,
           effector,
-          region(target)(reached, 0),
+          arrival(),
           tangent,
           lay,
           undefined,
@@ -468,7 +441,7 @@ export namespace touch {
                   reached,
                   side,
                   effector,
-                  region(target)(reached, 0),
+                  arrival(),
                   tangent,
                   bend,
                   lay,

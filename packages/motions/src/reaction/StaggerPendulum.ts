@@ -6,14 +6,12 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanBalance } from "../everyday/HumanBalance";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
-import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
+import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 
 /**
  * A pushed body's centre of mass over the floor as Hof's inverted pendulum
@@ -89,7 +87,6 @@ export class StaggerPendulum {
   /** One exact placement snapshot per foot; the body's sole geometry is fixed. */
   private readonly footprints: Partial<Record<"left" | "right", {
     placement: HumanFoot.IPlacement;
-    world: IAutoMovieVector3[];
     relative: IAutoMovieVector3[];
   }>> = {};
 
@@ -100,13 +97,14 @@ export class StaggerPendulum {
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param speed The centre of mass's speed after the blow, m/s.
+   * @param geometry Optional same-operation geometry prepared from this exact unchanged body and entry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States entry, horizontal direction, speed and the resulting pendulum state.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the body's original pendulum frequency, entry centre of mass, heading axes and measured foot extents with initial velocity push*speed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed entry geometry is initialized before the original dynamic state and sole extent readings.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the actual entry posture and both placed feet without replacing a body measure or force.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry support evaluation and two fixed sole outlines initialize constant-size state for a body's bounded rig.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The two exact per-foot outline records serve both axis extents and later identical placement reads.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fresh entry preparation performs one support evaluation and two sole constructions; an explicit same-operation preparation shares them across speeds while this constructor initializes constant-size dynamic state.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied entry preparation belongs to this exact unchanged body/entry; its actual extents and two footprint records are borrowed, while each instance owns later replacements of its two cache slots.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This search-owned instance retains entry geometry, two bounded outline records and the original phase/step arrays until the search releases it.
    */
   public constructor(
@@ -114,24 +112,25 @@ export class StaggerPendulum {
     entry: IHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
+    geometry?: ReturnType<typeof prepareStaggerPendulumEntry>,
   ) {
+    const prepared: ReturnType<typeof prepareStaggerPendulumEntry> = geometry ?? prepareStaggerPendulumEntry(body, entry);
     this.body = body;
     this.entry = entry;
     this.push = push;
     this.speed = speed;
     this.w = staggerBounds.omega(body);
-    this.centre = HumanBalance.support(body, entry.posture).centre;
+    this.centre = prepared.centre;
     this.root = entry.posture.root;
-    this.forward = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    this.across = { x: this.forward.z, y: 0, z: -this.forward.x };
-    this.entered = StrikingTarget.feet(entry);
+    this.forward = prepared.forward;
+    this.across = prepared.across;
+    this.entered = prepared.entered;
     this.feet = { ...this.entered };
     this.v = Vector3.scale(StaggerPendulum.flat(push), speed);
-    this.width = this.extent(this.across);
-    this.length = this.extent(this.forward);
+    this.width = prepared.width;
+    this.length = prepared.length;
+    this.footprints.left = prepared.footprints.left;
+    this.footprints.right = prepared.footprints.right;
   }
 
   /** A point on the floor.
@@ -437,40 +436,18 @@ export class StaggerPendulum {
     return 1 / Math.sqrt((ahead / along) ** 2 + (aside / of.side) ** 2);
   }
 
-  /** The feet's greatest extent along an axis, a sole's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Measures the largest placed sole span along a supplied world axis, metres.
-   * @evidence contracts/development/implementation.md#principled-implementation Projects every original sole point relative to its own ankle and subtracts minimum from maximum, then keeps the greater foot span.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One two-foot projection map retains the original span formula.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all sole sockets/outlines and the original projections rather than using profile dimensions as a proxy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(v) projections for the two fixed sole point sets; exact footprint data avoid repeat rigid transformations for the second axis.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the same placed sole geometry used by bearing, with exact placement checks under the fixed body.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Projection arrays release after this scalar result; only the existing two footprint records remain with the instance.
-   */
-  private extent(axis: IAutoMovieVector3): number {
-    return Math.max(
-      ...(["left", "right"] as const).map((side: "left" | "right"): number => {
-        const along: number[] = this.footprint(side, this.entered[side]).world.map((q: IAutoMovieVector3): number =>
-          Vector3.dot(Vector3.subtract(q, this.entered[side].ankle), axis),
-        );
-        return Math.max(...along) - Math.min(...along);
-      }),
-    );
-  }
-
   /** Reuse a fixed foot outline only after checking every placement scalar.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns absolute and centre-relative sole points for one side under this instance's fixed body and entry centre.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns centre-relative sole points for one side under this instance's fixed body and entry centre.
    * @evidence contracts/development/implementation.md#principled-implementation Reuses the actual HumanFoot.sole result only for exact ankle/quaternion scalars; otherwise the same sole producer and horizontal centre translation run again.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A private copied placement snapshot proves equivalence before one original geometry construction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses Object.is on all seven placement numbers, retaining signed zero distinctions and never quantizing geometry.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant snapshot comparison; a miss costs O(v) original sole construction/translation for v fixed sole points.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Body sole geometry and entry centre stay fixed during the owning search; returned prepared points are borrowed only by this instance's unchanged projection/hull consumers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One record per side retains a placement copy and two O(v) arrays, replaced on a miss and released with the instance, independently of query count.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One record per side retains a placement copy and one O(v) relative array, replaced on a miss and released with the instance, independently of query count.
    */
   private footprint(side: "left" | "right", placement: HumanFoot.IPlacement): {
     placement: HumanFoot.IPlacement;
-    world: IAutoMovieVector3[];
     relative: IAutoMovieVector3[];
   } {
     const known: (typeof this.footprints)["left"] = this.footprints[side];
@@ -487,7 +464,6 @@ export class StaggerPendulum {
     const world: IAutoMovieVector3[] = HumanFoot.sole(this.body, side, placement);
     const made: NonNullable<(typeof this.footprints)["left"]> = {
       placement: { ankle: { ...placement.ankle }, rotation: { ...placement.rotation } },
-      world,
       relative: world.map(
         (q: IAutoMovieVector3): IAutoMovieVector3 => StaggerPendulum.flat(Vector3.subtract(q, this.centre)),
       ),

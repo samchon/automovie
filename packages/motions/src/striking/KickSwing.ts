@@ -78,6 +78,14 @@ export namespace KickSwing {
    *
    * @param props The fitted contact, its chamber, the plant and the timing.
    * @returns The leg's goal as a pure function of its clock, the body it hangs from and the launch plant's shift.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fitted chamber/contact, knee hinge, world plant, timing and optional exact same-base hip of the returned path.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the original pelvis-local knee/shank and hinge rotation, minimum-jerk opening with its speed/flexion bounds and world-plant lift/return blending.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed contact-frame geometry is prepared once and the returned time reader carries it by the current body's heading and one shared hip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every clock, band, hinge angle, weight and quaternion/vector expression remains; a supplied hip must belong to the same body/base currently being evaluated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant path arithmetic plus one hip FK when the caller has not already read it; ankle and knee share that hip and superposed paths may borrow the same exact value.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Contact-local vectors and the hinge are fixed by the actual fitted contact; same-call knee/ankle and superposed candidate paths share only the exact current base's hip, never a pose from another time or context.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned path keeps fixed contact geometry and plant/timing data for its plan lifetime; each evaluation retains no current posture, hip or query history after returning its fresh leg goal.
    */
   export function create(
     props: IProps,
@@ -85,6 +93,7 @@ export namespace KickSwing {
     clock: number,
     base: IHumanPosture,
     shift: IAutoMovieVector3,
+    hip?: IAutoMovieVector3,
   ) => IKickGeometry.ILeg {
     const { body, side, timing, key, contact, plant } = props;
     const { prep, chamber, impact, duration } = timing;
@@ -140,9 +149,10 @@ export namespace KickSwing {
       clock: number,
       base: IHumanPosture,
       shift: IAutoMovieVector3,
+      atHip?: IAutoMovieVector3,
     ): IKickGeometry.ILeg => {
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
-      const currentHip: IAutoMovieVector3 = KickCarriage.hip(body, base, side);
+      const currentHip: IAutoMovieVector3 = atHip ?? KickCarriage.hip(body, base, side);
       const carried = (v: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(
           currentHip,

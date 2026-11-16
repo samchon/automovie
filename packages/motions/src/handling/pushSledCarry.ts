@@ -31,6 +31,22 @@ export namespace pushSledCarry {
   }
 
   /**
+   * One current chest's yaw-only transform of the fixed arrival frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The turn is a world yaw quaternion and hold places an arrival wrist/elbow on this actual current chest while preserving heights.
+   * @evidence contracts/development/design.md#principled-representation One rigid floor-motion transform serves both hands and retains the original world-metre hold type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Candidate judgement reads turn for its handle point and runtime/choice use hold for each actual hand.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The current chest and fixed arrival establish the transform; the record contains no fitted result or contact verdict.
+   */
+  export interface IFrame {
+    /** The shared floor turn from the arrival, around world +Y. */
+    turn: IAutoMovieQuaternion;
+
+    /** Carry a hold by this actual frame, returning fresh wrist and hint records. */
+    hold: (hold: IHold) => IHold;
+  }
+
+  /**
    * Prepare the arrival frame for all grasp samples and runtime hands.
    *
    * @param arrived The fixed chest frame at grip closure.
@@ -46,9 +62,9 @@ export namespace pushSledCarry {
    */
   export function prepare(
     arrived: IAutoMovieResolvedBone,
-  ): (chest: IAutoMovieResolvedBone, hold: IHold) => { hold: IHold; turn: IAutoMovieQuaternion } {
+  ): (chest: IAutoMovieResolvedBone) => IFrame {
     const facing: number = heading(arrived.worldRotation);
-    return (chest: IAutoMovieResolvedBone, hold: IHold): { hold: IHold; turn: IAutoMovieQuaternion } => {
+    return (chest: IAutoMovieResolvedBone): IFrame => {
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 }, heading(chest.worldRotation) - facing,
       );
@@ -58,11 +74,11 @@ export namespace pushSledCarry {
         return { x: carried.x, y: point.y, z: carried.z };
       };
       return {
-        hold: {
+        hold: (hold: IHold): IHold => ({
           wrist: { point: moved(hold.wrist.point), rotation: Quaternion.normalize(
             Quaternion.multiply(turn, hold.wrist.rotation)) },
           bend: moved(hold.bend),
-        },
+        }),
         turn,
       };
     };

@@ -87,7 +87,7 @@ export function manipulatePlan(
   );
   return {
     duration,
-    events: presses.map((press: manipulate.IPress, index: number) => ({
+    events: presses.map((press: manipulate.IPress, index: number): IHumanActionPlan["events"][number] => ({
       name: `press${index + 1}`, share: press.time / duration,
     })),
     contacts,

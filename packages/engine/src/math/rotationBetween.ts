@@ -31,15 +31,20 @@ import { Vector3 } from "./Vector3";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both angle coordinates reuse the normalized directions during the call; changing the target invalidates any prior turn.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direction, cross/perpendicular and result records are bounded call-local values; no mesh, rig or driver state is retained.
  */
-export const rotationBetween: (
+export function rotationBetween(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
-) => IAutoMovieQuaternion = (
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-): IAutoMovieQuaternion => {
+): IAutoMovieQuaternion {
   const from: IAutoMovieVector3 = Vector3.normalize(a);
   const to: IAutoMovieVector3 = Vector3.normalize(b);
+  return turn(from, to);
+}
+
+/** Exact normalized-direction core, shared by ordinary and fixed-source turns. */
+function turn(
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+): IAutoMovieQuaternion {
   const cross: IAutoMovieVector3 = Vector3.cross(from, to);
   const sin: number = Vector3.length(cross);
   const cos: number = Vector3.dot(from, to);
@@ -55,4 +60,38 @@ export const rotationBetween: (
     cross,
     (Math.atan2(sin, cos) * 180) / Math.PI,
   );
-};
+}
+
+/**
+ * Fixed-source shortest-arc preparation for repeated target directions.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates one owned normalized source snapshot from changing target directions and fresh quaternion outputs.
+ * @evidence contracts/development/design.md#principled-representation A shortest arc depends only on normalized directions; normalizing one unchanged source once preserves the direct turn's actual arithmetic and collinear convention.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface aimRotation.prepare consumes the source reader for upper and lower two-bone candidate aims; no axis, angle or target-result cache is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The direct path keeps live source normalization and the same shared turn core; prepared construction snapshots only one normalized vector and adds no deadzone or alternate fallback.
+ */
+export namespace rotationBetween {
+  /**
+   * Normalize and own one source direction, then compute every requested
+   * target's shortest arc through the direct function's same core. The
+   * caller supplies finite vectors as in the direct entry; named finite
+   * refusal belongs to aimRotation. Changing the original source afterward
+   * does not alter this explicit snapshot. Zero/parallel/antiparallel inputs
+   * retain the direct identity/perpendicular convention.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States finite-input premises, explicit normalized source ownership, unchanged collinear behavior and fresh result meaning.
+   * @evidence contracts/development/implementation.md#principled-implementation The direct source normalization is independent of target, so its completed result serves the same cross/dot/atan2 and axis-angle core for every separately normalized target.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared turn core prevents prepared and direct shortest-arc formulas or degeneracy policy from drifting.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new angular or magnitude threshold is introduced; each target still runs the actual normalized-direction solve and quaternion construction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup normalizes one source; each query omits that repeated normalization/allocation and retains target normalization and constant cross/dot/axis-angle work. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the owned normalized source snapshot is shared, not a prior target, angle, quaternion or caller object identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One returned closure owns one normalized vector until caller release; every target/output is call-local and no history, global state or handles exist.
+   */
+  export function prepare(
+    source: IAutoMovieVector3,
+  ): (target: IAutoMovieVector3) => IAutoMovieQuaternion {
+    const from: IAutoMovieVector3 = Vector3.normalize(source);
+    return (target: IAutoMovieVector3): IAutoMovieQuaternion =>
+      turn(from, Vector3.normalize(target));
+  }
+}

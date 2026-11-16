@@ -77,13 +77,13 @@ export namespace KickContact {
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
     const back: number = KickForm.STEP_BACK_SHARE * m.stature;
-    const under: (carriage: IKickGeometry.ICarriage) => ITrial = (carriage: IKickGeometry.ICarriage): ITrial => {
-      const base: IHumanPosture = KickCarriage.posture(
+    const under: (carriage: IKickGeometry.ICarriage, source?: ISource) => ITrial = (carriage: IKickGeometry.ICarriage, source?: ISource): ITrial => {
+      const base: IHumanPosture = source?.base ?? KickCarriage.posture(
         props,
         carriage,
         props.timing.impact,
       );
-      const hip: IAutoMovieVector3 = KickCarriage.hip(
+      const hip: IAutoMovieVector3 = source?.hip ?? KickCarriage.hip(
         props.body,
         base,
         props.side,
@@ -93,7 +93,7 @@ export namespace KickContact {
         contact: {
           carriage,
           base,
-          fit: KickChain.fit(chain, base, KickChain.solve(chain, base, hip), hip),
+          fit: KickChain.fit(chain, base, source?.solved ?? KickChain.solve(chain, base, hip), hip),
         },
       };
     };
@@ -102,6 +102,7 @@ export namespace KickContact {
     for (const lean of leans) {
       let carriage: IKickGeometry.ICarriage = { ...set, lean, step: step ?? 0 };
       let forward: number = limit;
+      let source: ISource | undefined;
       if (step === undefined) {
         const base: IHumanPosture = KickCarriage.posture(
           props,
@@ -114,6 +115,7 @@ export namespace KickContact {
           props.side,
         );
         const solved: StrikingReach.ISolution = KickChain.solve(chain, base, hip);
+        source = { base, hip, solved };
         const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
         const span: number = Vector3.length(reach);
         const ahead: number = Vector3.dot(reach, props.line) / span;
@@ -150,7 +152,10 @@ export namespace KickContact {
           };
       }
       for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
-        const { contact: candidate, hip }: ITrial = under(carriage);
+        const { contact: candidate, hip }: ITrial = under(
+          carriage,
+          round === 0 && Object.is(carriage.step, 0) ? source : undefined,
+        );
         const fit: KickChain.IFit = candidate.fit;
         if (
           fit.status !== "short" &&
@@ -200,5 +205,17 @@ export namespace KickContact {
 
     /** Its kicking hip on the candidate's exact body/base, world metres. */
     hip: IAutoMovieVector3;
+  }
+
+  /** The already-computed zero-step source, used only if that first trial keeps exactly positive zero step. */
+  interface ISource {
+    /** The exact same carriage's posture before the leg is fitted. */
+    base: IHumanPosture;
+
+    /** Its kicking hip, world metres. */
+    hip: IAutoMovieVector3;
+
+    /** The actual reach solve already made on that base. */
+    solved: StrikingReach.ISolution;
   }
 }

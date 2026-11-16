@@ -104,6 +104,14 @@ export namespace regrasp {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hand does not hold the object, or a kind's input is missing or names no affordance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the held-hand premise, missing-input refusals and returned plan; the namespace gives twist/regrip/roll goals and timing.
+   * @evidence contracts/development/implementation.md#principled-implementation A twist retains the original world-axis rigid orbit and wrist-local pivot contact; regrip/roll retain their original in-hand displacement law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed prop/hand/axis preparation precedes the original time-profiled posture and grip-window outputs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No twist angle, quarter-turn time, held relation, input refusal or grip contact changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Only the entry hand ancestry is read; fixed pivot contact and orbital offset are prepared once, leaving one actual time-dependent turn per posture.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The prop/start frame, entry hand and axis fix those offsets for the entire action; each requested time still computes its own rotation and placement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains constant-size frames, offsets and the in-hand displacement closure, without sampled-time poses or solver readers.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

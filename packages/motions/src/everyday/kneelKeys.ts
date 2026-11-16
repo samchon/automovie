@@ -117,8 +117,8 @@ export namespace kneelKeys {
    * @evidence contracts/development/implementation.md#principled-implementation The toes' joint is found on the floor behind the knee where the ankle is a shank from the knee, and the foot's pitch is the one that leaves the ankle at its dorsiflexion range against the shank's slope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A foot from a distance and a pitch, a bisection for the distance and a fixed-point loop for the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges are read from the range table; past the toes' range the toes' joint rises instead of the toes overextending.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Six 40-step bisections of a closed-form ankle place.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFoot.pivot` for the ankle; callers solve a foot once and translate it with its knee.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Six fixed-point pitch updates and the final placement retain all seven 40-step distance bisections; each bisection prepares its fixed rotation, socket offset and toe height once instead of at every distance trial.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanFoot.prepareAt for each fixed-pitch ankle transform; callers solve a foot once and translate it with its knee.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tucked(
@@ -140,27 +140,33 @@ export namespace kneelKeys {
         HumanFoot.offset(body, side, "mtp"),
       ),
     );
-    const foot = (d: number, pitch: number): IFoot => ({
+    const atPitch = (pitch: number): (d: number) => IFoot => {
+      const height: number = floor + toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180);
+      const toes: number = Math.min(extension, pitch);
+      return (d: number): IFoot => ({
       at: {
         ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
         y:
-          floor +
-          toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180),
+          height,
       },
       heading: yaw,
       pitch: -pitch,
-      toes: Math.min(extension, pitch),
+      toes,
       planted: true,
-    });
+      });
+    };
+    const foot = (d: number, pitch: number): IFoot => atPitch(pitch)(d);
     const ankle = (at: IFoot): IAutoMovieVector3 =>
       HumanFoot.pivot(body, side, "mtp", at.at, at.heading, at.pitch).ankle;
     const back = (pitch: number): number => {
+      const at: (d: number) => IFoot = atPitch(pitch);
+      const pivot: ReturnType<typeof HumanFoot.prepareAt> = HumanFoot.prepareAt(body, side, "mtp", yaw, -pitch);
       let lo: number = 0;
       let hi: number = m.shank + m.footLength;
       for (let i: number = 0; i < 40; i++) {
         const mid: number = (lo + hi) / 2;
         if (
-          Vector3.length(Vector3.subtract(ankle(foot(mid, pitch)), kneeAt)) <
+          Vector3.length(Vector3.subtract(pivot(at(mid).at).ankle, kneeAt)) <
           m.shank
         )
           lo = mid;
@@ -296,8 +302,8 @@ export namespace kneelKeys {
    * @evidence contracts/development/implementation.md#principled-implementation Each place is solved from the thigh, the shank, the knee's radius and the ankle's and toes' ranges.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Standing feet, the kneeling height, the tucked feet, the sitting root, then the key list.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The knee's radius is the shank collider's, marked provisional in the namespace of the law.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two tucked feet, each six 40-step bisections of a closed-form ankle place.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The first knee's tucked foot serves every key after the step.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Solves one tucked foot for a one-knee route, two for both-knee routes, each retaining seven 40-step bisections; sitting-pivot geometry is demanded only by sitBack.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Standing placements are read once per side and the first knee's tucked foot serves every key after the step.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function solve(
@@ -320,9 +326,10 @@ export namespace kneelKeys {
         rotation: goal.rotation ?? HumanFrame.turn(yaw),
       };
     };
+    const standingFeet: Record<"left" | "right", HumanFoot.IPlacement> = { left: flat("left"), right: flat("right") };
     const stood = (side: "left" | "right"): IFoot => ({
-      at: HumanFoot.point(body, side, "mtp", flat(side)),
-      heading: HumanFoot.heading(flat(side).rotation),
+      at: HumanFoot.point(body, side, "mtp", standingFeet[side]),
+      heading: HumanFoot.heading(standingFeet[side].rotation),
       pitch: 0,
       toes: 0,
       planted: true,
@@ -339,7 +346,7 @@ export namespace kneelKeys {
     // hip joint a thigh above it.
     const knee: number = m.shankRadius;
     const hipY: number = knee + m.thigh;
-    const frontAnkle: IAutoMovieVector3 = flat(f).ankle;
+    const frontAnkle: IAutoMovieVector3 = standingFeet[f].ankle;
     const above: number = hipY - (frontAnkle.y + m.shank);
     const behind: number = Math.sqrt(
       Math.max(0, m.thigh * m.thigh - above * above),
@@ -364,36 +371,6 @@ export namespace kneelKeys {
       Vector3.scale(up, m.thigh),
     );
     const backFoot: IFoot = tucked(body, k, kneeK, yaw, foot0[k].at.y);
-    const secondFoot: IFoot = tucked(
-      body,
-      f,
-      { ...Vector3.add(rootKneel, rest[f]), y: knee },
-      yaw,
-      foot0[f].at.y,
-    );
-
-    // Sitting back: the thigh turns back about the knee until it flexes SIT
-    // degrees.
-    const shankDir: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(ankleOf(k, backFoot), kneeK),
-    );
-    const across: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(shankDir, up),
-    );
-    const normal: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(across, shankDir),
-    );
-    const open: number = ((180 - SIT) * Math.PI) / 180;
-    const hipSit: IAutoMovieVector3 = Vector3.add(
-      kneeK,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(shankDir, Math.cos(open)),
-          Vector3.scale(normal, Math.sin(open)),
-        ),
-        m.thigh,
-      ),
-    );
 
     const feet = (front: IFoot): IKey["feet"] =>
       ({ [f]: front, [k]: backFoot }) as IKey["feet"];
@@ -402,12 +379,20 @@ export namespace kneelKeys {
       { root: rootKneel, feet: feet(foot0[f]) },
       { root: rootKneel, feet: feet(foot0[f]) },
     ];
-    if (kind !== "one") keys.push({ root: rootKneel, feet: feet(secondFoot) });
-    if (kind === "sitBack")
-      keys.push({
-        root: Vector3.subtract(hipSit, rest[k]),
-        feet: feet(secondFoot),
-      });
+    if (kind !== "one") {
+      const secondFoot: IFoot = tucked(body, f, { ...Vector3.add(rootKneel, rest[f]), y: knee }, yaw, foot0[f].at.y);
+      keys.push({ root: rootKneel, feet: feet(secondFoot) });
+      if (kind === "sitBack") {
+
+        // Only sitting back turns the thigh about the knee to SIT degrees.
+        const shankDir: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(ankleOf(k, backFoot), kneeK));
+        const across: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(shankDir, up));
+        const normal: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(across, shankDir));
+        const open: number = ((180 - SIT) * Math.PI) / 180;
+        const hipSit: IAutoMovieVector3 = Vector3.add(kneeK, Vector3.scale(Vector3.add(Vector3.scale(shankDir, Math.cos(open)), Vector3.scale(normal, Math.sin(open))), m.thigh));
+        keys.push({ root: Vector3.subtract(hipSit, rest[k]), feet: feet(secondFoot) });
+      }
+    }
     return {
       keys,
       forward,

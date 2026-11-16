@@ -76,32 +76,27 @@ export namespace jumpAirborne {
    *
    * @param body The body.
    * @param heading The jump's heading, degrees.
-   * @param root The root, world metres.
-   * @param side The leg.
-   * @param yaw The direction the knee points, degrees.
-   * @returns World metres.
+   * @returns A world-metre pole reader of root metres, leg side and pole heading degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the point.
    * @evidence contracts/development/implementation.md#principled-implementation A pole one metre ahead of the knee's rest place, the hint a two-bone fit bends toward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two frame points.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the unchanged jump heading once, then each call applies the original two frame points with its actual root and pole heading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two fixed knee-local point readers prepare the heading trigonometry and scalar products once; each changing root/pole heading still evaluates the original scalar expressions. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's unchanged body/heading fix the prepared frame, while every changed root/side/pole heading is actually read, without a time cache or changed addition order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed point readers holding copied scalar terms; each call returns a fresh vector and retains no body, input root or previous pole.
    */
   export function knee(
     body: IHumanBody,
     heading: number,
-    root: IAutoMovieVector3,
-    side: "left" | "right",
-    yaw: number,
-  ): IAutoMovieVector3 {
-    return HumanFrame.point(
+  ): (root: IAutoMovieVector3, side: "left" | "right", yaw: number) => IAutoMovieVector3 {
+    const lower: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> = {
+      left: HumanFrame.preparePoint(heading, body.rest.get("leftLowerLeg")!),
+      right: HumanFrame.preparePoint(heading, body.rest.get("rightLowerLeg")!),
+    };
+    return (root: IAutoMovieVector3, side: "left" | "right", yaw: number): IAutoMovieVector3 => HumanFrame.point(
       {
-        origin: HumanFrame.point(
-          { origin: root, yaw: heading },
-          body.rest.get(`${side}LowerLeg`)!,
-        ),
+        origin: lower[side](root),
         yaw,
       },
       { x: 0, y: 0, z: 1 },
@@ -123,9 +118,9 @@ export namespace jumpAirborne {
    * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk endpoint interpolation (Flash and Hogan 1985) uses achieved foot/knee/toe values and quaternion interpolation of achieved foot rotations. The existing provisional arch remains 0.1 hip heights times sin(pi*u); no extra path projection or rate law is added.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed joint start/difference tracks and the heading turn once; each read copies the achieved seed, interpolates arms/toes and builds two free goals from the same endpoints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed -40-degree seed, reconstructed ankle, ground plant, epsilon or boundary-only pose replaces the achieved shape. Coupled ROM remains the ordinary resolver's responsibility.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks and the heading quaternion prepare once per plan. Each read shares one minimum-jerk share, one sine arch and one frame between both legs, then performs the original fixed-size interpolation and fresh joint-record copy; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged endpoint tuples and heading are prepared; every requested root/share evaluates its original goals and returns fresh changed tuples, vectors and goal records without a time-keyed cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its endpoint records, fixed-size joint tracks and one heading quaternion; no query history or external handle accumulates. Each returned posture owns its new records while unchanged clinical tuples retain the existing readonly endpoint ownership.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks, heading/frame coefficients and two quaternion endpoint arcs prepare once per plan. Each query shares one minimum-jerk share and sine arch, mutates only its owned local interpolation vector, and evaluates actual quaternion weights/normalization and original goals. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged endpoint tuples, arc constants and heading are prepared; every root/share evaluates its original goals with unchanged scalar transform grouping and fresh changed tuples/vectors, without a time-keyed cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns endpoint records, fixed-size tracks, heading/frame coefficients and two fixed arc readers. Queries retain no history or external handle; each posture owns its new records while unchanged clinical tuples keep existing readonly endpoint ownership.
    */
   export function prepare(
     shape: IShape,
@@ -144,6 +139,11 @@ export namespace jumpAirborne {
     const fromToe: number = shape.start.joints[toe]?.[0] ?? 0;
     const intoToe: number = shape.end.joints[toe]?.[0] ?? 0;
     const turn: ReturnType<typeof HumanFrame.turn> = HumanFrame.turn(heading);
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: shape.start.root, yaw: heading });
+    const rotations: Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>> = {
+      left: Quaternion.prepareSlerp(shape.start.legs.left.rotation, shape.end.legs.left.rotation),
+      right: Quaternion.prepareSlerp(shape.start.legs.right.rotation, shape.end.legs.right.rotation),
+    };
     return (root: IAutoMovieVector3, u: number): IHumanPosture => {
       const s: number = minimumJerk(u).s;
       const joints: IHumanPosture["joints"] = { ...shape.start.joints };
@@ -155,7 +155,6 @@ export namespace jumpAirborne {
         ];
       joints[toe] = [fromToe + (intoToe - fromToe) * s, 0, 0];
       const limbs: IHumanPosture["limbs"] = {};
-      const frame: HumanFrame.IFrame = { origin: root, yaw: heading };
       const arch: number = 0.1 * body.measure.hipHeight * Math.sin(Math.PI * u);
       for (const side of ["left", "right"] as const) {
         const p: IAutoMovieVector3 = jumpPath.lerp(
@@ -163,15 +162,15 @@ export namespace jumpAirborne {
           shape.end.legs[side].point,
           s,
         );
-        const point: IAutoMovieVector3 = HumanFrame.point(frame, { ...p, y: p.y + arch });
-        const rotation: ReturnType<typeof Quaternion.slerp> = Quaternion.slerp(
-          shape.start.legs[side].rotation, shape.end.legs[side].rotation, s,
-        );
+        p.y += arch;
+        const point: IAutoMovieVector3 = frame.point(p, root);
+        const rotation: ReturnType<typeof Quaternion.slerp> = rotations[side](s);
         limbs[`${side}Leg`] = {
           point,
           rotation: Quaternion.multiply(turn, rotation),
-          bend: HumanFrame.point(frame,
+          bend: frame.point(
             jumpPath.lerp(shape.start.legs[side].bend, shape.end.legs[side].bend, s),
+            root,
           ),
         };
       }

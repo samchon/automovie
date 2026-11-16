@@ -101,7 +101,9 @@ export namespace touchHold {
         );
         return StrikingBody.region(
           other.body,
-          other.bones(seconds - StrikingTarget.LOOK),
+          other.bones(seconds - StrikingTarget.LOOK, new Set<AutoMovieHumanoidBone>([
+            other.body.surfaces.regions[target.region].bone,
+          ])),
           target.region,
         );
       },
@@ -129,8 +131,10 @@ export namespace touchHold {
     perceived: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
     held: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
   ): (posture: IHumanPosture, seconds: number) => touchSite.IFrame {
+    const ready: number = clock.at("ready");
+    const relax: number = clock.at("relax");
     return (posture: IHumanPosture, seconds: number): touchSite.IFrame =>
-      holding(clock, seconds)
+      seconds > ready && seconds < relax
         ? held(posture, seconds)
         : perceived(posture, seconds);
   }
@@ -165,33 +169,31 @@ export namespace touchHold {
     clear: HumanColliders.IPlaced[];
     rests: HumanColliders.IPlaced[];
   } {
+    const partner: IHumanActionContext.IPerformer = context.performer(target.subject);
+    const bone: AutoMovieHumanoidBone | undefined = partner.body.surfaces.regions[target.region]?.bone;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(partner.body);
+    const ready: number = clock.at("ready");
+    const relax: number = clock.at("relax");
     return (
       _: IHumanPosture,
       seconds: number,
     ): { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] } => {
-      const partner: IHumanActionContext.IPerformer = context.performer(
-        target.subject,
-      );
-      const bone: AutoMovieHumanoidBone | undefined =
-        partner.body.surfaces.regions[target.region]?.bone;
       const placed: HumanColliders.IPlaced[] = HumanColliders.placed(
         partner.body,
         partner.bones(
           context.start +
             seconds -
-            (holding(clock, seconds)
+            (seconds > ready && seconds < relax
               ? StrikingTarget.LOOK
               : HumanPerception.REACTION),
+          requested,
         ),
       );
-      return {
-        clear: placed.filter(
-          (segment: HumanColliders.IPlaced): boolean => segment.bone !== bone,
-        ),
-        rests: placed.filter(
-          (segment: HumanColliders.IPlaced): boolean => segment.bone === bone,
-        ),
-      };
+      const clear: HumanColliders.IPlaced[] = [];
+      const rests: HumanColliders.IPlaced[] = [];
+      for (const segment of placed)
+        (segment.bone === bone ? rests : clear).push(segment);
+      return { clear, rests };
     };
   }
 

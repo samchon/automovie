@@ -220,12 +220,16 @@ export namespace HumanTravelLeaf {
           ),
         );
       // Where the hold puts the wrist on the handle at a second.
-      const wristAt = (t: number, posture: IHumanPosture): IAutoMovieVector3 =>
+      const wristAt: (t: number, posture: IHumanPosture, target?: Parameters<typeof HumanMountRider.hold>[3]) => IAutoMovieVector3 = (
+        t: number,
+        posture: IHumanPosture,
+        target: Parameters<typeof HumanMountRider.hold>[3] = grip(context.start + t),
+      ): IAutoMovieVector3 =>
         HumanMountRider.hold(
           body,
           side,
           posture,
-          grip(context.start + t),
+          target,
           1,
           {},
         ).arm.point;
@@ -247,7 +251,7 @@ export namespace HumanTravelLeaf {
               taking,
               bendLower.REACH * arm,
             );
-      const base = (t: number): IHumanPosture =>
+      const base: (t: number) => IHumanPosture = (t: number): IHumanPosture =>
         lowered === null
           ? standing.posture(t)
           : lowered.at(minimumJerk(Math.min(1, t / TAKE)).s);
@@ -255,7 +259,7 @@ export namespace HumanTravelLeaf {
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
       const handBone: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-      const holds = (posture: IHumanPosture, t: number): boolean => {
+      const holds: (posture: IHumanPosture, t: number) => boolean = (posture: IHumanPosture, t: number): boolean => {
         const goal: IHumanPosture.IGoal = HumanMountRider.hold(
           body,
           side,
@@ -297,15 +301,16 @@ export namespace HumanTravelLeaf {
             take: TAKE,
             handle: (
               t: number,
-            ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => ({
-              point: wristAt(t, base(t)),
-              normal: grip(context.start + t).normal,
-            }),
+            ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
+              const target: Parameters<typeof HumanMountRider.hold>[3] = grip(context.start + t);
+              return { point: wristAt(t, base(t), target), normal: target.normal };
+            },
           });
-      const shown = (t: number): IHumanPosture => {
+      const shown: (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]) => IHumanPosture = (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture => {
         if (walked === null) return base(t);
         const walking: IHumanPosture = walked.posture(
           Math.min(walked.duration, t),
+          lowered === null ? channels : undefined,
         );
         return lowered === null
           ? walking
@@ -313,12 +318,13 @@ export namespace HumanTravelLeaf {
       };
 
       // A swing the walk cannot follow is refused with the largest followed.
-      const heading = (v: IAutoMovieVector3): number =>
+      const heading: (v: IAutoMovieVector3) => number = (v: IAutoMovieVector3): number =>
         (Math.atan2(v.x, v.z) * 180) / Math.PI;
-      const swing = (t: number): number =>
+      const takenHeading: number = heading(taken.normal);
+      const swing: (t: number) => number = (t: number): number =>
         Math.abs(
           ((((heading(grip(context.start + t).normal) -
-            heading(grip(context.start + TAKE).normal)) %
+            takenHeading) %
             360) +
             540) %
             360) -
@@ -386,9 +392,11 @@ export namespace HumanTravelLeaf {
         ...standing,
         events: [{ name: "taken", share: TAKE / seconds }],
         contacts,
-        posture: (t: number): IHumanPosture => {
+        posture: (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1]): IHumanPosture => {
           const at: number = Math.min(seconds, Math.max(0, t));
-          const posture: IHumanPosture = shown(at);
+          const heldDemand: boolean = channels === undefined || channels.includes(`${side}Arm`) || channels.includes(`${side}Hand`);
+          const posture: IHumanPosture = shown(at, heldDemand ? undefined : channels);
+          if (!heldDemand) return posture;
           const held: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
               body,

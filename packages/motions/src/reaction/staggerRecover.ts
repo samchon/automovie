@@ -12,6 +12,7 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerClose } from "./staggerClose";
 import { staggerKnots } from "./staggerKnots";
 import { staggerStep } from "./staggerStep";
+import type { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 
 /**
  * A stagger's recovery from a push (`stagger`): the steps the capture-point
@@ -170,6 +171,7 @@ export namespace staggerRecover {
    * @param righting How long the centre of pressure takes to carry the extrapolated centre of mass to rest, seconds.
    * @param kinematic Whether each landing is placed by the stance course under the legs' ranges; the pendulum alone, its landings where the region puts them, when false.
    * @param bending Optional operation-owned reader of this exact body's unchanged entry bending; evaluated once only when a stance course needs it.
+   * @param geometry Optional fixed entry geometry from this exact body and complete entry, owned by the current speed search.
    * @returns The recovery with its judged course, or null when no order of `STEPS` steps catches it with a course that meets the legs' ranges through its closing step and settling.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the null.
@@ -189,6 +191,7 @@ export namespace staggerRecover {
     kinematic: boolean = true,
     bending: () => Record<"pitch" | "roll", IAutoMovieVector3> =
       (): Record<"pitch" | "roll", IAutoMovieVector3> => staggerKnots.bending(body, entry),
+    geometry?: ReturnType<typeof prepareStaggerPendulumEntry>,
   ): IRecovery | null {
     const { REACTION, STEPS } = staggerBounds;
     const pendulum: StaggerPendulum = new StaggerPendulum(
@@ -196,6 +199,7 @@ export namespace staggerRecover {
       entry,
       push,
       speed,
+      geometry,
     );
     let bend: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
     const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
@@ -214,7 +218,7 @@ export namespace staggerRecover {
     // the unloaded leg, which lifts much sooner but swings a longer and more
     // complex path (Maki, McIlroy and Perry 1996, J Biomech 29:343); the
     // loaded leg's side-step is the other order of as many steps.
-    const ankle = (side: "left" | "right"): number =>
+    const ankle: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       (entered[side].ankle.x - root.x) * push.x +
       (entered[side].ankle.z - root.z) * push.z;
     const along: "left" | "right" =
@@ -226,7 +230,7 @@ export namespace staggerRecover {
         ? "right"
         : "left"
       : along;
-    const other = (side: "left" | "right"): "left" | "right" =>
+    const other: (side: "left" | "right") => "left" | "right" = (side: "left" | "right"): "left" | "right" =>
       side === "left" ? "right" : "left";
     const orders: ("left" | "right")[][] = [];
     for (let n: number = 1; n <= STEPS; n++)
@@ -243,14 +247,13 @@ export namespace staggerRecover {
       }
     let caught: boolean = false;
     let judging: walkStanceCourse.ICourse | undefined;
-    const taken: Map<
-      string,
-      {
-        course: walkStanceCourse.ICourse | undefined;
-        done: boolean | null;
-        state: IState;
-      }
-    > = new Map();
+    /** One exactly shared foot-order prefix and its original dynamic state. */
+    type IPrefix = {
+      course: walkStanceCourse.ICourse | undefined;
+      done: boolean | null;
+      state: IState;
+    };
+    const taken: Map<string, IPrefix> = new Map();
     for (const order of orders) {
       pendulum.reset();
       for (let k: number = 0; k < order.length; k++) {
@@ -258,7 +261,7 @@ export namespace staggerRecover {
         // feet is stepped once, and an order that repeats it takes up its
         // state.
         const key: string = order.slice(0, k + 1).join(",");
-        let known = taken.get(key);
+        let known: IPrefix | undefined = taken.get(key);
         if (known === undefined) {
           // A step's course starts from the course of the steps before it in
           // this order, so a step's landing depends on its own steps alone.

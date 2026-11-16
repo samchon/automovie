@@ -40,6 +40,9 @@ import { vclose } from "../internal/vclose";
  * 5. A fixed-posture workspace solves two different free-leg candidates and
  *    then the first again. Current target contact, cold-pose agreement and
  *    earlier-result mutation distinguish fixed source work from cached fits.
+ * 6. Rebasing an issued translation may change an unrelated head joint, a
+ *    leg ancestor or the actual goal. Every result retains the new head
+ *    angle and current foot target beside an ordinary cold solve.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States original clinical/world demand ownership, live rig/raw invalidation, Human provenance, contact precision and four snapshot/fallback/ownership scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Uses public prepare/translated and fixed-base candidate workspaces beside ordinary seeded resolution on a real canonical Human; changes source/results/current head constraints and world-leg candidates, then observes actual clinical angles, cold parity and displayed foot contact.
@@ -158,6 +161,27 @@ export function test_motion_prepared_posture_translation(): void {
     current.root!.translation.x = 777;
     current.joints.find((value: IAutoMovieJointPose): boolean => value.bone === "leftUpperLeg")!.flexion = 888;
     previous = current;
+  }
+
+  const variants: readonly ((posture: IHumanPosture) => void)[] = [
+    (posture: IHumanPosture): void => { posture.joints.head = [2, 0, 0]; },
+    (posture: IHumanPosture): void => { posture.joints.hips = [10, 0, 0]; },
+    (posture: IHumanPosture): void => { posture.limbs.leftLeg!.point.z += 0.02; },
+  ];
+  for (let i: number = 0; i < variants.length; i++) {
+    const raw: IHumanPosture = structuredClone(carried);
+    variants[i]!(raw);
+    const rebased: IHumanPosture = resolveHumanPosture.rebased(carried, raw);
+    const actual: IAutoMoviePose = resolveHumanPosture(body, rebased);
+    samePose(actual, resolveHumanPosture(body, structuredClone(raw)));
+    const endpoint: IAutoMovieVector3 = resolvePose(actual, skeleton).find(
+      (value: IAutoMovieResolvedBone): boolean => value.bone === "leftFoot",
+    )!.worldPosition;
+    const target: IAutoMovieVector3 = raw.limbs.leftLeg!.point;
+    TestValidator.predicate("rebased evidence never substitutes an old raw goal or whole pose",
+      nclose(head(actual), i === 0 ? 2 : 5, 1e-12) &&
+      Math.hypot(endpoint.x - target.x, endpoint.y - target.y, endpoint.z - target.z) <= 0.001,
+    );
   }
 }
 

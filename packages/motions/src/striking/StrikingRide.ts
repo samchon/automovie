@@ -40,6 +40,11 @@ import { StrikingStroke } from "./StrikingStroke";
  * stop, memoised in ascending order, and a pose reads the grid two steps
  * behind its own second: every read reaches strictly earlier nodes, whatever
  * the other person's pose reads back.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States one-sided normal displacement, dwell/withdrawal semantics and the ascending lagged grid that breaks mutual-read cycles.
+ * @evidence contracts/development/design.md#principled-representation A ride owns an existing fixed stop contact and ascending world frames for its met bone; body/geometry queries stay with their canonical owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The stop, actual partner reader, own goal and weapon axis produce one carry operation without another contact or pose representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the original 1/240-second grid, two-step lag, six finite-difference probes, nine axis samples and outward-only push; requested FK removes only frames the met-bone/contact query never reads.
  */
 export namespace StrikingRide {
   /**
@@ -49,7 +54,14 @@ export namespace StrikingRide {
    */
   export const STEP: number = 1 / 240;
 
-  /** What a ride is built from. */
+  /**
+   * What a ride is built from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its exact film-time reading and world-frame purpose.
+   * @evidence contracts/development/design.md#principled-representation Actual stop/partner/course readers supply the fixed contact's physical inputs rather than baked body frames.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only partner, stop, own goal and axis are needed to form the ride.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses canonical performer, posture and interface vector types.
+   */
   export interface IProps {
     /**
      * The person the weapon met, read at call time.
@@ -78,7 +90,14 @@ export namespace StrikingRide {
     axis(seconds: number): readonly [IAutoMovieVector3, IAutoMovieVector3];
   }
 
-  /** A built ride. */
+  /**
+   * A built ride.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the carried limb goal and the initial two-grid-step identity period.
+   * @evidence contracts/development/design.md#principled-representation A posture transform keeps contact correction separate from the law's own free course.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One carry operation serves the stopped punch, kick and knee.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing posture and limb unions without a second actor or solver.
+   */
   export interface IRide {
     /**
      * A posture with one limb's goal carried by the met segment.
@@ -129,6 +148,14 @@ export namespace StrikingRide {
    * @param props The stop, the met person and the weapon's axis.
    * @returns The ride, memoising the met segment's frames for its life.
    * @throws {Error} From `carry`, when a grid node is read before the nodes under it are known, which the two-step lag excludes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States contact construction, lagged frame ownership and cycle refusal; namespace documents actual normal/push geometry.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the signed-distance normal, nearest axis sample and frictionless outward-only relative surface displacement, interpolating the same ascending lagged rigid frames.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy stop-contact query selects the met bone and one original frame grid serves all carry calls.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original probes, samples, grid seconds, lag, normal threshold and one-sided withdrawal law; contact construction and first met-bone selection share the same fixed stop geometry instead of evaluating that axis twice.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Stop contact pays the original actual shape queries but prepares its fixed collider frames once. Later grid nodes demand only the actual met bone and required ancestry; their underlying supported pose dependencies still execute, with full fallback for unsupported coupling. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-call signed-distance probes share the immutable stop-bones placement/shape frames, never query results. The existing ascending grid retains the actual met-bone frames only under its original fixed-stop/two-step-lag contract, and settle/stop replacement creates a new ride.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most floor((last requested film second minus stop)/STEP)+2 frames, one contact, one own goal and one bone set live with the ride; finite action clocks bound callers. Fixed collider readers end when contact returns, and the enclosing law releases the ride on settle/changed stop or plan release.
    */
   export function create(props: IProps): IRide {
     const frames: IFrame[] = [];

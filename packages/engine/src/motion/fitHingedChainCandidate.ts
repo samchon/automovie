@@ -69,7 +69,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms hingedArmArticulation supplies at most 720 coarse swivel samples plus its bounded per-minimum refinements, or only the continued seed's refinement. Each score reads the root angles and overshoot; a rotation's exact error is evaluated lazily when the comparison bound needs it. That read uses fitHingedRotationError's at most five distal projector queries plus one final query: at most six queries of nineteen actual joint scores each for an eligible box, or its retained four-sweep, forty-step-per-axis fallback of at most 528 recompositions per query. The shared lower quaternion reuses its angles, overshoot, effort and reference turn per branch. Certified refused swivels remain pruned; caller obstruction/strain work remains additional, and no runtime speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The unchanged cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. Continuous cost retains its original cheap bound before exact rotation. Task-priority mode omits unused effort and reads the upper-reference geodesic only when its second key is needed; absent obstruction, lower-world composition waits for actual strain use. Exact rotation owns at most five distal queries plus a guarded final fallback. Certified refusal pruning and every actual obstruction/strain evaluation remain, with no measured speedup claim.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -217,10 +217,10 @@ export function fitHingedChainCandidate(
       upper,
     );
     const above: IAutoMovieQuaternion | undefined =
-      props.obstruction === undefined && props.strain === undefined && turn === null
+      props.obstruction === undefined && strain === undefined && turn === null
         ? undefined : Quaternion.multiply(turnedUpper, prepared.lowerRotation);
     const lowerWorld: IAutoMovieQuaternion | undefined =
-      props.obstruction === undefined && props.strain === undefined
+      props.obstruction === undefined
         ? undefined : Quaternion.multiply(above!, lower);
     const mid: IAutoMovieVector3 = Vector3.add(
       root,
@@ -241,17 +241,18 @@ export function fitHingedChainCandidate(
       above,
       lowerWorld,
       effort:
-        clinicalDeviation({
+        strain === undefined ? clinicalDeviation({
           flexion: u.flexion ?? 0,
           abduction: u.abduction ?? 0,
           twist: u.twist ?? 0,
-        }) + known.effort,
+        }) + known.effort : 0,
       overshoot:
         upperOvershoot(u) +
         known.overshoot +
         blocked,
       turned:
-        anchor * (apart(upper, before[0]) + known.turned),
+        strain === undefined ? anchor * (apart(upper, before[0]) + known.turned) : 0,
+      midTurn: known.turned,
     };
   };
   // With a strain the swivels are ranked by task priority (Siciliano and
@@ -304,7 +305,7 @@ export function fitHingedChainCandidate(
         exact?: () => number;
         tiebreak?: () => number;
       } => {
-        const { mid, above, lowerWorld, effort, overshoot, turned }: IReading =
+        const { mid, above, lowerWorld, effort, overshoot, turned, midTurn }: IReading =
           reading(upper, lower);
         if (strain !== undefined)
           return {
@@ -317,8 +318,8 @@ export function fitHingedChainCandidate(
             // decides before the strain; without one the strain decides.
             tiebreak: (): number =>
               props.referencePose === undefined
-                ? strain(upper, lower, lowerWorld!)
-                : turned,
+                ? strain(upper, lower, lowerWorld ?? Quaternion.multiply(above!, lower))
+                : anchor * (apart(upper, before[0]) + midTurn),
           };
         // The hint's side weighs as the mid joint leaves the line to the
         // target: a straight limb has no side, and a rounding-sized offset's
@@ -445,12 +446,15 @@ interface IReading {
   /** The mid bone's world rotation. */
   lowerWorld: IAutoMovieQuaternion | undefined;
 
-  /** The root's and the mid joint's clinical effort. */
+  /** Actual clinical effort for continuous-cost policy; unused zero in task-priority mode. */
   effort: number;
 
   /** The ROM overshoot of both joints plus the obstruction, degrees. */
   overshoot: number;
 
-  /** Degrees both joints turn from the reference pose's, weighed. */
+  /** Actual weighted reference turn for continuous-cost policy; task-priority reads it lazily. */
   turned: number;
+
+  /** Fixed branch's lower-reference turn, for lazy task-priority comparison. */
+  midTurn: number;
 }

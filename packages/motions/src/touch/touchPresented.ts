@@ -1,10 +1,14 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -24,6 +28,41 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the effector's goal and the posture resolver; no region is named.
  */
 export namespace touchPresented {
+  /**
+   * Carry the presented arm through the touch's entry, hold and return.
+   *
+   * @param body The touching body.
+   * @param entry Its actual entry pose.
+   * @param shown The presented arm already planned on that entry.
+   * @param clock The touch's phrase clock.
+   * @returns The arm primitive with the original explicit carry span.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States entry ownership, presented goal, clock and explicit transport/hold/return span.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm's existing carried primitive blends its entry angles toward the presented goal on the same start/ready/relax/end envelope as the touch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps presentation's primitive construction beside its presentation goal and delegates actual transport/fitting to the arm owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the exact original side, goal, angles, span and envelope without another solve or altered contact.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup plus the existing arm-angle scan; runtime work remains the carried primitive's actual planning/evaluation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the already-planned presentation instead of rebuilding its goal or entry pose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resulting primitive keeps only its existing body, goal, clock and arm data for the plan lifetime; this wrapper adds no cache or resource.
+   */
+  export function carry(
+    body: IHumanActionContext["body"],
+    entry: IAutoMoviePose,
+    shown: IPresented,
+    clock: AutoMovieMotionClock.IClock,
+  ): IAutoMovieMotionHumanPrimitive {
+    return AutoMovieMotionHumanArm.carried({
+      body,
+      side: shown.side,
+      from: 0,
+      to: clock.duration,
+      rest: AutoMovieMotionHumanArm.angles(entry, shown.side),
+      goal: (): IHumanPosture.IGoal => shown.goal,
+      weight: (seconds: number): number => clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+      span: { start: clock.at("start"), ready: clock.at("ready"), relax: clock.at("relax"), end: clock.at("end") },
+    });
+  }
+
   /**
    * An arm brought up to be touched.
    *

@@ -54,10 +54,10 @@ export namespace staggerClose {
   ): staggerRecover.IRecovery | null {
     const { STEP, STEP_TIME, TRANSFER, SETTLED, TRACKING, KNOTS } =
       staggerBounds;
-    const flat = StaggerPendulum.flat;
+    const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
     const { body, entry, centre, across, forward, entered, w } = pendulum;
-    const feet = pendulum.feet;
-    const steps = pendulum.steps;
+    const feet: StaggerPendulum["feet"] = pendulum.feet;
+    const steps: StaggerPendulum["steps"] = pendulum.steps;
 
     // Caught. The other foot closes to stand the body over where it is
     // caught: at the entry's stance width from the stepping foot, and as far
@@ -65,7 +65,7 @@ export namespace staggerClose {
     // stood over them at the entry, under the caught point.
     const anchor: "left" | "right" = stepped;
     const closer: "left" | "right" = anchor === "left" ? "right" : "left";
-    const middle = (of: Record<"left" | "right", HumanFoot.IPlacement>) =>
+    const middle: (of: Record<"left" | "right", HumanFoot.IPlacement>) => IAutoMovieVector3 = (of: Record<"left" | "right", HumanFoot.IPlacement>): IAutoMovieVector3 =>
       flat(Vector3.scale(Vector3.add(of.left.ankle, of.right.ankle), 0.5));
     const stance: number = Vector3.dot(
       Vector3.subtract(entered[closer].ankle, entered[anchor].ankle),
