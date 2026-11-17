@@ -389,6 +389,13 @@ export namespace AutoMovieMotionHumanTouchDrink {
       side,
       effector,
     ).forward;
+
+    // The vessel's axis read on the hand's anatomical axes, for the refusal.
+    const anatomy: (name: "fingers" | "palm" | "thumb") => string = (
+      name: "fingers" | "palm" | "thumb",
+    ): string =>
+      Vector3.dot(axis, AutoMovieMotionHumanTouchEffector.axis(side, name)).toFixed(2);
+
     // Each facing's arm is hinted inside the drinking range: the hint moved
     // to the nearest swivel whose shoulder lies in it, kept where it does
     // (`AutoMovieMotionHumanDrinkingSwivel`); the drinking phase keeps it.
@@ -444,7 +451,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
         );
       seen(
         arm,
-        `at a lean of ${lean} degrees facing (${facing.x.toFixed(2)}, ${facing.z.toFixed(2)})`,
+        `at a lean of ${lean} degrees facing (${facing.x.toFixed(2)}, ${facing.z.toFixed(2)}) with the vessel's axis (fingers ${anatomy("fingers")}, palm ${anatomy("palm")}, thumb ${anatomy("thumb")}) in the hand`,
       );
       if (holds(arm) && arm.tilt < tilt - 1e-9) {
         tilt = arm.tilt;

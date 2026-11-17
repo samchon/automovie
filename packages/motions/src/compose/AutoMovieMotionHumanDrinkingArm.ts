@@ -40,7 +40,7 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
  * by it, and the touch stroke carries a held vessel by its attitude.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the admission and its source, and who reads them.
- * @evidence contracts/development/design.md#principled-representation A drinking arm is four readings of one fit: the vessel's tilt, the shoulder's flexion and abduction as the source measures them, and the forearm's twist room.
+ * @evidence contracts/development/design.md#principled-representation A drinking arm is five readings of one fit: the vessel's tilt, the shoulder's flexion and abduction as the source measures them, the forearm's twist and its room.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two bounds, the reading, the fit, the admission, the nearest arm and its refusal, and the attitude on the way; split from the search so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every reading is of the resolver's own fit on its displayed bones; no arm is assumed.
  */
@@ -56,7 +56,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation The readings the admission and the facing's choice compare.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members: the admission reads three, the choice the tilt.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members: the admission reads three, the choice the tilt, the refusal the twist it states with the room.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Each is read off the fitted pose, never off the goal.
    */
   export interface IArm {
@@ -71,6 +71,9 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 
     /** How far the forearm's twist lies inside its range, degrees; negative outside. */
     room: number;
+
+    /** The forearm's clinical twist, degrees, pronation positive (`HUMANOID_REST_FRAME`); what `room` is measured from, read by the refusal. */
+    twist: number;
   }
 
   /**
@@ -250,6 +253,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
         range === null
           ? Infinity
           : Math.min(twist - range.min, range.max - twist),
+      twist,
     };
   }
 
@@ -467,7 +471,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       kind: "reach",
       axis: "facing",
       value: side,
-      reason: `no lean of the held vessel toward the face ${sought} lets the ${side} arm bring it to the region as a person drinks, the shoulder flexed at most ${FLEXION.toFixed(1)} and abducted at most ${ABDUCTION.toFixed(1)} degrees and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (the arm nearest, ${closest.at}, has the shoulder flexed ${closest.arm.flexion.toFixed(1)} and abducted ${closest.arm.abduction.toFixed(1)} degrees and the forearm's twist ${closest.arm.room.toFixed(0)} degrees inside its range)`,
+      reason: `no lean of the held vessel toward the face ${sought} lets the ${side} arm bring it to the region as a person drinks, the shoulder flexed at most ${FLEXION.toFixed(1)} and abducted at most ${ABDUCTION.toFixed(1)} degrees and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (the arm nearest, ${closest.at}, has the shoulder flexed ${closest.arm.flexion.toFixed(2)} and abducted ${closest.arm.abduction.toFixed(2)} degrees, the forearm's twist at ${closest.arm.twist.toFixed(1)} degrees (pronation positive), ${closest.arm.room.toFixed(1)} inside its range, and the vessel's axis ${closest.arm.tilt.toFixed(1)} degrees off the asked one)`,
       fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
     });
   }
