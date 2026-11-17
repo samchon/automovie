@@ -51,6 +51,9 @@ import { qunit } from "../internal/qunit";
  * 3. All eight native physical-work counters stay exactly zero through
  *    construction and playback. This asserts absence of physical flight
  *    work, without asserting angular-momentum or impulse conservation.
+ *    Its owned mode getter first returns undefined (the staged default),
+ *    and would return physical on a second read. One read plus the actual
+ *    authored attitude and zero work verify construction uses that capture.
  * 4. One small stand-only input checks public memo identity: omitted and
  *    explicit undefined/staged modes share one resolution; physical has another.
  *    Tiny stand-only contexts add no second turned film or physical solve.
@@ -86,6 +89,9 @@ export function test_human_motion_staged_flight(): void {
       .jump({ to: { x: 3 + Math.sin(heading), y: 0, z: -2 + Math.cos(heading) },
         apex: 0.5, rotation: { somersault: 2, twist: 1 } }, "leap").node,
   };
+  let flightReads: number = 0;
+  Object.defineProperty(input, "flight", { enumerable: true,
+    get: (): HumanPerformance.IInput["flight"] => ++flightReads === 1 ? undefined : "physical" });
   const planningStarted: number = performance.now();
   let film: HumanPerformance;
   try {
@@ -97,6 +103,7 @@ export function test_human_motion_staged_flight(): void {
     throw error;
   }
   const planningMs: number = performance.now() - planningStarted;
+  if (flightReads !== 1) findings.push(`the observed staged constructor read its effective mode ${flightReads} times, expected once`);
   const segment: HumanSegment.ISegment = film.segments("a")[1]!;
   const event: (name: string) => number = (name: string): number => {
     const declared: IAutoMovieMotionEvent | undefined = segment.plan.events.find(
@@ -188,13 +195,18 @@ export function test_human_motion_staged_flight(): void {
   const modeStarted: number = performance.now();
   findings.push(...modeIdentity(body));
   const modeChecksMs: number = performance.now() - modeStarted;
-  console.log(JSON.stringify({ sample: "staged-human-flight", phase: "complete", bodyMs, planningMs,
-    playback: { pose: timing(poseMs), bonesAfterPose: timing(bonesMs) },
-    independentChecksMs, contactAuditsMs, modeChecksMs, physicalWork: observation.read(), findings: findings.length }));
-  TestValidator.equals("staged authoring performs no physical history or solve work", observation.read(), {
+  const physicalWork: ReturnType<typeof observation.read> = observation.read();
+  const zeroWork: typeof physicalWork = {
     queries: 0, memoHits: 0, uniqueNumericNodes: 0, factorizations: 0, publicJacobi: 0,
     analyticAttempts: 0, analyticAccepted: 0, analyticFallbacks: 0,
-  });
+  };
+  if (Object.keys(physicalWork).length !== Object.keys(zeroWork).length)
+    findings.push("staged physical-work observation does not expose the eight declared counters");
+  for (const key of Object.keys(zeroWork) as (keyof typeof zeroWork)[])
+    if (physicalWork[key] !== 0) findings.push(`staged authoring performed ${key}: ${physicalWork[key]}, expected zero`);
+  console.log(JSON.stringify({ sample: "staged-human-flight", phase: "complete", bodyMs, planningMs,
+    playback: { pose: timing(poseMs), bonesAfterPose: timing(bonesMs) },
+    independentChecksMs, contactAuditsMs, modeChecksMs, physicalWork, findings: findings.length }));
   TestValidator.equals("default staged flight keeps authored geometry and winding", findings, []);
 }
 

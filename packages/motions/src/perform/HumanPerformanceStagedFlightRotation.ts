@@ -25,8 +25,8 @@ import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation
  *
  * @evidence contracts/development/common.md#meaningful-documentation States film/action seconds, signed unwrapped revolutions, linear phase, current heading, centre/articulation preservation and absence of a physical-conservation claim. Invalid numeric spans, angles and frames refuse. Complete axis revolutions close the finite phase onto its authoritative landing orientation; nonclosing fractional requests require a compatible landing outcome, which explicit physics also does not currently supply.
  * @evidence contracts/development/implementation.md#principled-implementation The root-local curve is F Rx(360*s*u) Ry(360*t*u) F^-1 for the declared axis frame F and flight share u. Left multiplication by the current unturned root expresses the requested local attitude in world coordinates; the shared playback owner returns its relative rigid turn about the same COM. Rx(a)Ry(b) is identity in SO(3) exactly when both requested revolution counts are integers, so exact complete-cycle admission preserves the current landing pose/contact without rounding intent or adding a new landing outcome.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot and admit the finite scalar request/frame, construct its current analytic orientation reader, then delegate numeric centre/root interpolation to the existing playback owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This is an explicit staged authoring policy, not a physical flight or a fabricated momentum result. It creates no history, inertia solve, take-off search, controller or conservation verdict, and preserves every requested winding without clipping or nearest-angle substitution.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Capture each requested count and frame coordinate once, admit those exact finite scalars and phase closure, construct the analytic orientation reader from the same captures, then delegate numeric centre/root interpolation to the existing playback owner.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This is an explicit staged authoring policy, not a physical flight or a fabricated momentum result. Count/coordinate getters cannot supply one value for admission and another for the actual curve: all validation and construction consume the same owned scalar snapshot. It creates no history, inertia solve, take-off search, controller or conservation verdict, and preserves every requested winding without clipping or nearest-angle substitution.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant setup plus constant quaternion work per playback query. The existing numeric table owns centre/root lookup; authored angle evaluation has no integration grid, iterations or state-dependent search.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the actual numeric centre/root playback implementation with physical flights. Copied frame/turn/time scalars fix only this authored curve, with no pose, time-result cache, callback probing or cross-performance reuse.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned playback owns numeric table data and a constant-size closure of copied frame, span and angle scalars. No performance, body, plan, shape callback, mass model or physical history survives in it.
@@ -37,23 +37,28 @@ export function HumanPerformanceStagedFlightRotation(props:
   }): ReturnType<typeof HumanPerformanceFlightRotation> {
   const from: number = props.t0;
   const to: number = props.t1;
-  const somersault: number = props.turns.somersault * 360;
-  const twist: number = props.turns.twist * 360;
-  const frame: IAutoMovieQuaternion = props.turns.frame ?? Quaternion.identity();
-  if (![props.start, from, to, to - from, somersault, twist, frame.x, frame.y, frame.z, frame.w].every(Number.isFinite) ||
+  const request: IHumanActionPlan.IFlightTurns = props.turns;
+  const somersaultTurns: number = request.somersault;
+  const somersault: number = somersaultTurns * 360;
+  const twistTurns: number = request.twist;
+  const twist: number = twistTurns * 360;
+  const supplied: IAutoMovieQuaternion = request.frame ?? Quaternion.identity();
+  const start: number = props.start;
+  const frame: IAutoMovieQuaternion = { x: supplied.x, y: supplied.y, z: supplied.z, w: supplied.w };
+  if (![start, from, to, to - from, somersault, twist, frame.x, frame.y, frame.z, frame.w].every(Number.isFinite) ||
     !(to > from) || !(Math.hypot(frame.x, frame.y, frame.z, frame.w) > 0))
     throw new HumanRefusal({
-      kind: "parameter", axis: "turns", value: { somersault: props.turns.somersault, twist: props.turns.twist },
+      kind: "parameter", axis: "turns", value: { somersault: somersaultTurns, twist: twistTurns },
       reason: "staged flight needs finite turns, a positive finite span and a nonzero finite axis frame",
       fix: "give finite turn counts and a valid flight interval and frame",
     });
-  if (!Number.isInteger(props.turns.somersault) || !Number.isInteger(props.turns.twist))
+  if (!Number.isInteger(somersaultTurns) || !Number.isInteger(twistTurns))
     throw new HumanRefusal({
-      kind: "parameter", axis: "turns", value: { somersault: props.turns.somersault, twist: props.turns.twist },
+      kind: "parameter", axis: "turns", value: { somersault: somersaultTurns, twist: twistTurns },
       reason: "the staged flight must close onto the law's existing landing orientation; nonclosing fractional turns need a compatible landing outcome",
       fix: "author complete revolutions until a compatible fractional landing outcome is available; physical mode does not repair that landing limitation",
     });
-  const axes: IAutoMovieQuaternion = Quaternion.normalize({ x: frame.x, y: frame.y, z: frame.z, w: frame.w });
+  const axes: IAutoMovieQuaternion = Quaternion.normalize(frame);
   const back: IAutoMovieQuaternion = Quaternion.inverse(axes);
   const orientation: Parameters<typeof HumanPerformanceFlightRotation>[0]["orientation"] = (
     seconds: number,
@@ -68,7 +73,7 @@ export function HumanPerformanceStagedFlightRotation(props:
       Quaternion.multiply(Quaternion.multiply(axes, turn), back)));
   };
   return HumanPerformanceFlightRotation({
-    start: props.start, t0: from, t1: to, step: props.step,
+    start, t0: from, t1: to, step: props.step,
     times: props.times, table: props.table, orientation,
   });
 }

@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieBone,
   IAutoMovieModel,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -25,11 +24,11 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines primitive density, collider and inertia approximations, local segment frames and complete overrides; options document SI units and the provenance the caller must supply.
  * @evidence contracts/development/implementation.md#principled-implementation Uses analytic primitive volume and centroid, solid-sphere inertia or the declared bounding-box approximation, then the parallel-axis theorem. Rest FK fixes segment frames; unattached parts are changed from model to the root's neutral frame. Positive finite density and part mass precede aggregate admission, followed by body consistency at the existing 1e-8 threshold and full profile validation. Imported geometry and empty segments require full overrides; no hull or more accurate capsule inertia is claimed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Rest frames and ordered part buckets precede per-segment derivation. Each segment completes primitive admission before mass aggregation; final mass, neutral centre, joint derivation and profile validation remain separate phases owned by their existing helpers.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Geometry, density, material, actuator and override choices come from the current call. The existing 0.4 solid-sphere and one-third box half-extent factors are physical formulas, and consistency tolerances are unchanged. The actuator non-null assertion follows the explicit missing-actuator rejection; no mutable model is cached or repaired.
- * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and P parts, ordered bucketing and primitive derivation take O(B+P), replacing a full part filter per bone; rest-frame and joint helpers retain their own rig-validation cost. Each bone aggregates its own parts, with the eigensolver's fixed sweep bound. Storage is O(B+P) besides cloned declared joints and materials; fresh centres are reused within their owning reduction instead of allocating addition and weighting vectors. One sphere moment serves all three axes, and each box half-extent is squared once. No measured speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Parts are grouped once by their current attached bone, retaining source order. A neutral inverse is computed only when that bone first consumes an unattached part and reused for the same fixed neutral transform. The owned intermediate part shares its identical sphere moment or squared half-extents without changing the original products and sums. All reuse lives only in this call; the next call reads all mutable model and option values again.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Buckets and intermediate primitive mass records are bounded by this call's bones and parts and become unreachable on return or throw. Returned profile records and cloned overrides, joints and materials transfer to the caller; no body, task or external handle is retained between calls.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Original rest/parent preparation precedes per-segment override validation. Only a segment with no complete override filters current parts, then completes primitive admission before aggregation; final mass, neutral centre, joint derivation and profile validation keep their existing owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Geometry, density, material, actuator and override choices come from the current call. An override is validated and cloned before any parts read for that bone; all-overridden models never read parts. Raw parent, model.parts and attachedBone observations retain their original order and frequency. Physical formulas, consistency tolerances and missing-actuator rejection remain unchanged; no mutable model is cached or repaired.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For B bones and P parts, the general raw path retains O(B*P) filtering because model/getter stability is not asserted; complete overrides skip those scans entirely. Rest/joint helpers retain their validation cost and each bone aggregates its selected parts. Private owned intermediate reductions reuse centres, one sphere moment, squared half-extents and one neutral inverse without changing the original products/sums; runtime gains are unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every unoverridden bone reads the current parts and attachment fields at its original observation point. Only its actually owned fixed neutral transform and fresh intermediate numerical records share repeated inverse, sphere-moment and squared-extent work. There is no cross-bone public-input snapshot or cross-call numerical cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A temporary parent map, selected-part arrays and primitive mass records are bounded by this call's bones and parts and release on return or throw. Returned profile records and cloned overrides, joints and materials transfer to the caller; no body, task or external handle is retained between calls.
  */
 export function derivePhysicalProfile(
   model: IAutoMovieModel,
@@ -40,22 +39,17 @@ export function derivePhysicalProfile(
   const unit: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
   const transforms: Map<string, P.ITransform> =
     physicalModelRestTransforms(model);
-  if (!model.skeleton)
+  const parents: Map<string, string | null> = new Map();
+  if (model.skeleton) {
+    for (const bone of model.skeleton.bones)
+      parents.set(bone.bone, bone.parent);
+  } else {
     transforms.set("root", { position: zero, rotation: identity });
-  const root: string =
-    model.skeleton?.bones.find(
-      (bone: IAutoMovieBone): boolean => bone.parent === null,
-    )?.bone ?? "root";
-  const grouped: Map<string, IAutoMovieModel["parts"]> = new Map();
-  for (const part of model.parts) {
-    const bone: string = part.attachedBone ?? root;
-    let parts: IAutoMovieModel["parts"] | undefined = grouped.get(bone);
-    if (parts === undefined) {
-      parts = [];
-      grouped.set(bone, parts);
-    }
-    parts.push(part);
+    parents.set("root", null);
   }
+  const root: string = [...parents].find(
+    ([, parent]: [string, string | null]): boolean => parent === null,
+  )![0];
 
   const segments: P.ISegment[] = [];
   for (const [bone, neutral] of transforms) {
@@ -66,7 +60,10 @@ export function derivePhysicalProfile(
       segments.push(structuredClone(override));
       continue;
     }
-    const parts: IAutoMovieModel["parts"] = grouped.get(bone) ?? [];
+    const parts: IAutoMovieModel["parts"] = model.parts.filter(
+      (part: IAutoMovieModel["parts"][number]): boolean =>
+        (part.attachedBone ?? root) === bone,
+    );
     const shapes: P.IShape[] = [];
     let unboundInverse: IAutoMovieQuaternion | undefined;
     const values: {
